@@ -156,6 +156,24 @@ class SourceIndex {
  */
 export const LIFECYCLE_COLUMN_NAMES = new Set(["status", "state", "stage"]);
 
+/**
+ * Column names every generated table already carries.
+ *
+ * The key, the optimistic-lock counter, the audit pair and the soft-delete
+ * pair are the generator's, in both stacks, whether or not a model mentions
+ * them. A model that declares one gets EML103 — see the check for what used to
+ * happen when it did.
+ */
+export const MANAGED_COLUMN_NAMES = new Set([
+  "version",
+  "created_at",
+  "updated_at",
+  "created_by",
+  "updated_by",
+  "deleted_at",
+  "deleted_by",
+]);
+
 const PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -544,6 +562,22 @@ class CheckEngine {
             }
           );
         }
+      }
+
+      // EML103: A column the generator manages, declared in the model.
+      //
+      // Every generated table carries `id`, `version`, the audit pair and the
+      // soft-delete pair whether or not the model asks for them. Declaring one
+      // is redundant, and until the generator learned to drop the duplicate it
+      // was fatal: PostgreSQL refuses a CREATE TABLE that names a column twice,
+      // so the application failed to open with `column "created_at" specified
+      // more than once` — a message that says nothing about which model line
+      // caused it.
+      if (MANAGED_COLUMN_NAMES.has(attr.name.toLowerCase()) && !attr.isPrimaryKey) {
+        this.warn("EML103", `Column "${entity.name}.${attr.name}" is added by the generator.`, {
+          line: attrLine,
+          hint: `Every table carries ${[...MANAGED_COLUMN_NAMES].join(", ")} already. Delete the line: the generator's own definition is used, and yours is ignored.`,
+        });
       }
 
       // EML115: Unknown raw type (falls back to string)

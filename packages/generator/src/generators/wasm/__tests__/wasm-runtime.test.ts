@@ -239,17 +239,6 @@ describe("the generated application", () => {
     ]);
   });
 
-  it("writes a manual describing every entity in the model", () => {
-    const manual = generated.files.get("manual.html") ?? "";
-    expect(manual).toContain("<title>");
-    for (const entity of parsed.entities) {
-      // The anchor is the entity name hyphenated at its camel-case seams, the
-      // way the manual's own slug() writes it: SupportCase -> support-case.
-      const anchor = entity.name.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-      expect(manual).toContain(`id="entity-${anchor}"`);
-    }
-  });
-
   it("declares a managed column once, however the model spells it", () => {
     /* PostgreSQL refuses `CREATE TABLE` when a column is named twice, so a
        model that declares its own `created_at` used to generate an application

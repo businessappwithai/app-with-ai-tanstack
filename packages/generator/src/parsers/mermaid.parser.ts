@@ -47,6 +47,58 @@ const TYPE_MAP: Record<string, EntityAttribute["type"]> = getTypeMap();
  */
 const SEMANTIC_TYPES = new Set(["email", "url", "phone", "password", "color"]);
 
+/**
+ * Collapse a column declared more than once into a single attribute.
+ *
+ * A duplicate is a mistake, and `EML112` says so — but it reached the generated
+ * schema as a `CREATE TABLE` naming the column twice, which PostgreSQL refuses
+ * outright, so the application never opened and the message named no model
+ * line. It reached the Application Dictionary as two `sys_column` rows for one
+ * column as well, which is a form with the field on it twice.
+ *
+ * The first declaration keeps its place and its type: it is where the author
+ * was describing this column, and the later line is the accident. The
+ * *constraints* merge the other way — the strongest of them wins:
+ *
+ * - **required**, if any declaration is required. `string title` followed by
+ *   `string title OPTIONAL` must not quietly relax a mandatory column into a
+ *   nullable one; the loosening is invisible in the diagram and shows up as
+ *   missing data much later.
+ * - **unique** and **FK** likewise, because each of them is a promise something
+ *   downstream relies on — a lookup, an index, a key. (`PK` arrives as
+ *   `unique`, and the entity's primary key is picked from the merged list.)
+ *
+ * The result is the column the author most plausibly meant, and never fewer
+ * guarantees than they wrote down.
+ */
+function mergeDuplicateAttributes(attributes: EntityAttribute[]): EntityAttribute[] {
+  const byName = new Map<string, EntityAttribute>();
+
+  for (const attribute of attributes) {
+    const existing = byName.get(attribute.name);
+    if (!existing) {
+      byName.set(attribute.name, { ...attribute });
+      continue;
+    }
+
+    existing.required = existing.required || attribute.required;
+    if (attribute.unique) existing.unique = true;
+    if (attribute.isForeignKey) existing.isForeignKey = true;
+    // Anything the first line did not say, a later one may still supply.
+    if (existing.maxLength === undefined && attribute.maxLength !== undefined) {
+      existing.maxLength = attribute.maxLength;
+    }
+    if (existing.semanticType === undefined && attribute.semanticType !== undefined) {
+      existing.semanticType = attribute.semanticType;
+    }
+    if (existing.description === undefined && attribute.description !== undefined) {
+      existing.description = attribute.description;
+    }
+  }
+
+  return [...byName.values()];
+}
+
 export class MermaidParser {
   /**
    * Parse Mermaid ERD syntax
