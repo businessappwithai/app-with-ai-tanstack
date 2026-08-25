@@ -15582,7 +15582,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `] as const;`,
       ``,
       `export async function seed(db: Kysely<any>): Promise<void> {`,
-      `  if (TRANSITIONS.length === 0) return;`,
       `  // Replace all model-declared transitions on each table, keeping any`,
       `  // hand-crafted rows (source = 'designer') untouched.`,
       `  const tables = [...new Set(TRANSITIONS.map((t) => t.tableName))];`,
