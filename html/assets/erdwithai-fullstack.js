@@ -801,11 +801,19 @@ var init_erdwithai_language = __esm(() => {
           "1. A column named name, full_name, display_name, title, label or subject - whichever appears first in that order.",
           "2. Otherwise first_name and last_name together, if the entity declares both. This is why the value is a concatenation and not one column.",
           "3. Otherwise code, reference or number - not a name, but what people quote at each other, and better than a uuid.",
-          "4. Otherwise the first declared string/text column that is neither the key nor a reference.",
-          "5. Otherwise the key, so a lookup still lists something."
+          "4. Otherwise, if the entity declares two or more FK columns ending _id/_by, it is a join entity: its first two references are the identifiers, each resolved through the parent's own label. CampaignMember reads as `Spring Promo - Omar Kowalski`.",
+          "5. Otherwise the first declared string/text column that is neither the key nor a reference.",
+          "6. Otherwise the key, so a lookup still lists something."
         ],
+        joinEntities: {
+          description: "An entity whose identity is the pair of records it joins - CampaignMember, OrderLine, QuoteLineItem - has no name to give it, and step 5 would pick whatever text column came first: member_status, so every campaign member read `invited`. Two or more references and no name of its own is the shape.",
+          depth: "One level only. A parent that is itself a join entity labels itself by its key rather than recursing, because a label assembled from four grandparents is not a name anybody reads.",
+          pairOnly: "The first two references in declared order, never more. An entity with three parents labels itself from the first two, which is the only say the modeller has in it - so declare the two that name the record first.",
+          separator: "Two names of one record join with a space (`Omar Kowalski`); two records join with an em dash (`Spring Promo - Omar Kowalski`). Sharing one separator turns a person into `Omar - Kowalski`.",
+          sqlNote: "A generated key is UUID and a reference to it is VARCHAR(255), because the model declares `string campaign_id FK`. Postgres coerces a text parameter to uuid but refuses to compare the two columns, so the resolving subquery casts both sides."
+        },
         primaryKeyIsNotAnIdentifier: "The key is deliberately excluded. It used to be marked, which meant a display value built from the identifier columns began with a uuid, and every consumer had grown its own filter to drop it.",
-        modellingAdvice: "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first."
+        modellingAdvice: "Give an entity a name, title or code column if it will be referenced. Without one the fallbacks apply, and a reference to it reads as whatever text column happened to be declared first. A join entity is the exception and needs nothing: it names itself from its parents."
       },
       managedColumns: {
         description: "Columns every generated table carries in both stacks, whether or not the model mentions them. They are the generator's: the key, the optimistic-lock counter, the audit pair and the soft-delete pair.",
@@ -6099,6 +6107,9 @@ function identifierColumnNames(attributes, primaryKey) {
     if (has(candidate))
       return [candidate];
   }
+  const references = attributes.filter((attribute) => attribute.name !== primaryKey && attribute.isForeignKey && isForeignKeyColumnName(attribute.name));
+  if (references.length >= 2)
+    return references.slice(0, 2).map((attribute) => attribute.name);
   const readable = attributes.find((attribute) => attribute.name !== primaryKey && !attribute.isForeignKey && !attribute.name.endsWith("_id") && (attribute.type === "string" || attribute.type === "text"));
   return readable ? [readable.name] : [];
 }
@@ -15290,7 +15301,7 @@ var init_review_model = __esm(() => {
 });
 
 // packages/generator/src/generators/wasm/runtime-assets.generated.ts
-var RUNTIME_ASSETS, RUNTIME_BYTES = 259253;
+var RUNTIME_ASSETS, RUNTIME_BYTES = 262904;
 var init_runtime_assets_generated = __esm(() => {
   RUNTIME_ASSETS = Object.freeze({
     "app/schema.sys.sql": `-- ---------------------------------------------------------------------------
@@ -17501,27 +17512,90 @@ import { ident } from "./db.js";
  * Returns the key column, a readable name for the label, and the SQL expression
  * that produces it.
  */
-export function labelFor(columns) {
+export function labelFor(columns, options = {}) {
   const key = columns.find((column) => column.is_key)?.column_name ?? "id";
   if (columns.length === 0) return { key, label: key, expression: ident(key) };
 
   const identifiers = columns
     .filter((column) => column.is_identifier && !column.is_key)
-    .sort((a, b) => Number(a.seq_no ?? 0) - Number(b.seq_no ?? 0))
-    .map((column) => column.column_name);
+    .sort((a, b) => Number(a.seq_no ?? 0) - Number(b.seq_no ?? 0));
 
   if (identifiers.length === 0) return { key, label: key, expression: ident(key) };
 
+  /* An identifier that is itself a reference — a join entity, whose identity is
+     the records it joins — holds a uuid, so printing it would defeat the whole
+     point. It resolves through the parent's own label instead, as a correlated
+     subquery: one level only, because a parent that is itself a join would make
+     this recursive, and a label assembled from four grandparents is not a name
+     anybody reads. \`parents\` carries the parent tables' columns; without it
+     (the sync callers) a reference identifier falls back to the key. */
+  const parents = options.parents ?? {};
+  const table = options.table;
+
+  const part = (column) => {
+    const parentColumns = column.ref_table_name ? parents[column.ref_table_name] : null;
+    if (!column.ref_table_name) return ident(column.column_name);
+    if (!parentColumns || !table) return null;
+
+    const parent = labelFor(parentColumns);
+    /* \`labelFor\` on the parent, with no \`parents\` of its own, is what stops the
+       recursion: a parent that is also a join entity labels itself by its key. */
+    /* Cast both sides: a generated table's key is \`UUID\` and a reference to it
+       is \`VARCHAR(255)\`, because the model declares \`string campaign_id FK\`.
+       Postgres coerces a text *parameter* to uuid happily, which is why the
+       grid's \`WHERE id IN ($1, …)\` never noticed, but it refuses to compare the
+       two *columns* — \`operator does not exist: uuid = character varying\`. */
+    return \`(SELECT \${parent.expression} FROM \${ident(column.ref_table_name)}
+              WHERE \${ident(column.ref_table_name)}.\${ident(parent.key)}::text
+                  = \${ident(table)}.\${ident(column.column_name)}::text)\`;
+  };
+
+  const parts = identifiers.map(part).filter(Boolean);
+  if (parts.length === 0) return { key, label: key, expression: ident(key) };
+
+  /* Two names of one record join with a space — \`Hiroshi Kowalski\`. Two
+     *records* join with a dash — \`Spring Promo — Hiroshi Kowalski\` — because
+     they are separate things and running them together reads as one name that
+     belongs to nobody. */
+  const separator = identifiers.some((column) => column.ref_table_name) ? " — " : " ";
+
+  const joined =
+    parts.length === 1
+      ? parts[0]
+      : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
+        // their first name rather than as a name with a gap in it, and a join
+        // whose other side was deleted still names the side that remains.
+        \`TRIM(CONCAT_WS('\${separator}', \${parts.join(", ")}))\`;
+
   return {
     key,
-    label: identifiers.join(" "),
-    expression:
-      identifiers.length === 1
-        ? ident(identifiers[0])
-        : // CONCAT_WS skips nulls, so a person with no surname recorded reads as
-          // their first name rather than as a name with a gap in it.
-          \`TRIM(CONCAT_WS(' ', \${identifiers.map(ident).join(", ")}))\`,
+    label: identifiers.map((column) => column.column_name).join(" "),
+    /* Never hand back a blank. A join entity whose parents have both gone —
+       deleted, or never seeded — concatenates two nulls into an empty string,
+       and an option with no text is one a reader cannot pick or tell apart.
+       The uuid is the thing this module exists to avoid, which makes it exactly
+       the right last resort: it is unreadable, but it is unambiguous. */
+    expression: \`COALESCE(NULLIF(\${joined}, ''), \${ident(key)}::text)\`,
   };
+}
+
+/**
+ * \`labelFor\`, with the parent tables a join entity needs already read.
+ *
+ * The sync form cannot fetch anything, and a join entity's label is built from
+ * its parents' labels, so this is the form every caller that has a database
+ * should use. One extra query per reference identifier, on tables that are
+ * small by construction — a join has two parents, not two hundred.
+ */
+export async function labelForTable(db, table, columns) {
+  const identifiers = columns.filter((column) => column.is_identifier && !column.is_key);
+  const parents = {};
+  for (const column of identifiers) {
+    if (!column.ref_table_name || parents[column.ref_table_name]) continue;
+    const parentColumns = await columnsOf(db, column.ref_table_name);
+    if (parentColumns) parents[column.ref_table_name] = parentColumns;
+  }
+  return labelFor(columns, { table, parents });
 }
 
 /**
@@ -17569,7 +17643,7 @@ export async function labelsForRows(db, entity, rows) {
 
     const parentColumns = await columnsOf(db, column.ref_table_name);
     if (!parentColumns) continue;
-    const { key, expression } = labelFor(parentColumns);
+    const { key, expression } = await labelForTable(db, column.ref_table_name, parentColumns);
 
     const placeholders = ids.map((_, index) => \`$\${index + 1}\`).join(", ");
     const found = await db.query(
@@ -19385,7 +19459,7 @@ function withReading(model) {
 
 import { Router } from "../lib/router.js";
 import { ident } from "../lib/db.js";
-import { columnsOf, labelFor } from "../lib/labels.js";
+import { columnsOf, labelForTable } from "../lib/labels.js";
 import { json, notFound, readJson } from "../lib/http.js";
 import { requireAdmin, requireUser } from "../lib/guards.js";
 
@@ -19460,7 +19534,7 @@ export function sysRoutes(model) {
     const columns = await columnsOf(db, table);
     if (!columns || columns.length === 0) return json({ options: [], label: null });
 
-    const { key, label, expression } = labelFor(columns);
+    const { key, label, expression } = await labelForTable(db, table, columns);
     const limit = Math.min(Number(query.get("limit") ?? 500) || 500, 1000);
     const rows = await db.query(
       \`SELECT \${ident(key)} AS id, \${expression} AS label
@@ -23110,23 +23184,43 @@ function inDependencyOrder(entities, personEntity) {
   }
   const ordered = [];
   const done = new Set;
-  let progress = true;
-  while (progress && ordered.length < entities.length) {
-    progress = false;
+  const emit = (entity2) => {
+    ordered.push(entity2);
+    done.add(entity2.name);
+  };
+  while (ordered.length < entities.length) {
+    let progress = false;
     for (const entity2 of entities) {
       if (done.has(entity2.name))
         continue;
       const parents = pending.get(entity2.name);
       if ([...parents].every((parent) => done.has(parent))) {
-        ordered.push(entity2);
-        done.add(entity2.name);
+        emit(entity2);
         progress = true;
       }
     }
+    if (progress)
+      continue;
+    const remaining = entities.filter((entity2) => !done.has(entity2.name));
+    const outstanding = (name) => [...pending.get(name)].filter((parent) => !done.has(parent));
+    const inCycle = (start) => {
+      const seen = new Set;
+      const stack = [...outstanding(start)];
+      while (stack.length > 0) {
+        const name = stack.pop();
+        if (name === start)
+          return true;
+        if (seen.has(name))
+          continue;
+        seen.add(name);
+        stack.push(...outstanding(name));
+      }
+      return false;
+    };
+    const candidates = remaining.filter((entity2) => inCycle(entity2.name));
+    const pool = candidates.length > 0 ? candidates : remaining;
+    emit(pool[0]);
   }
-  for (const entity2 of entities)
-    if (!done.has(entity2.name))
-      ordered.push(entity2);
   return ordered;
 }
 function buildSampleData(parsed, options) {

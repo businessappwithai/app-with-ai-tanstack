@@ -144,6 +144,51 @@ describe("sample data", () => {
     expect(buildSampleData(parsed, { records: 10, seed: "other" })).not.toEqual(data);
   });
 
+  it("keeps parents first for an entity downstream of a cycle", () => {
+    /* `User` and `Team` point at each other, and `Compound` merely wants a
+       user to have registered it. The sort used to stall on the cycle and dump
+       everything left in declaration order, so `Compound` came before `User`,
+       its mandatory `registered_by_id` was null, and PostgreSQL refused every
+       row — leaving the entity silently empty. */
+    const cyclic = parseModel([
+      `%%meta name: Cycle Probe
+%%meta kind: erd
+erDiagram
+    Compound {
+        string id PK
+        string name
+        string registered_by_id FK
+    }
+    User {
+        string id PK
+        string full_name
+        string team_id FK OPTIONAL
+    }
+    Team {
+        string id PK
+        string name
+        string manager_id FK OPTIONAL
+    }
+    User ||--o{ Compound : "registers"
+    Team ||--o{ User : "employs"
+    User ||--o{ Team : "manages"
+`,
+    ]);
+    const generated = buildSampleData(cyclic, { records: 4, seed: "test" });
+    const order = Object.keys(generated);
+    expect(order.indexOf("bus_user")).toBeLessThan(order.indexOf("bus_compound"));
+
+    const users = new Set(
+      (generated["bus_user"] as Array<Record<string, unknown>>).map((row) => row.id)
+    );
+    for (const compound of generated["bus_compound"] as Array<Record<string, unknown>>) {
+      /* The point of the ordering: a mandatory reference that a NOT NULL column
+         would have rejected. */
+      expect(compound.registered_by_id).not.toBeNull();
+      expect(users.has(compound.registered_by_id)).toBe(true);
+    }
+  });
+
   it("survives a model whose only reference is to itself", () => {
     const selfReferential = parseModel([
       `%%meta name: Self Reference
