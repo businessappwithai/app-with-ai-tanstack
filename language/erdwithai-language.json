@@ -1092,11 +1092,6 @@
       {
         "keyword": "%%loop",
         "form": "%%loop <loopId> while: <field> <operator> <value> max: <n>",
-        "status": "compiled",
-        "consumedBy": [
-          "packages/generator/src/workflows/steps.ts",
-          "packages/web/src/lib/automation/model.ts"
-        ],
         "purpose": "Declare a repeat-while-a-rule-holds loop inside an automation (SHIPPED, parsed by automation/model.ts and the generator's saga compiler). Steps join it with `%%step <nodeId> in: <loopId>` and repeat in order for as long as the check passes, ending the first time it fails. The check is re-read before every pass, so a step inside the loop is what ends it. Bounded by the `max:` the author must declare; loops do not nest. See automations.loops.",
         "examples": ["%%loop L1 while: status eq \"pending\" max: 20", "%%step s2 in: L1"]
       },

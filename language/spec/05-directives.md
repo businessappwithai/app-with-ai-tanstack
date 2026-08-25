@@ -3,23 +3,9 @@
 Directives are `%%`-prefixed comment lines that carry generator meaning while
 staying invisible to Mermaid renderers.
 
-Each directive has a **status**, declared canonically in its own entry in
-`erdwithai-language.json` and repeated in the heading below:
-
-| Status | Meaning |
-|--------|---------|
-| **compiled** | A shipped reader consumes it and the generated application changes as a result. The `consumedBy` field in the JSON names the file. |
-| **validated** | Nothing compiles it yet, but `language/checker.ts` enforces its syntax and cross-references, so a malformed one fails validation instead of being silently dropped. |
-| **reserved** | Documented and renderer-safe, with no reader. Writing one is legal and inert; the keyword is held so a later meaning cannot collide with a plain comment. |
-
-All fifteen keywords are reserved words in the language regardless of status —
-a `%%` line beginning with one of them is a directive, never a plain comment:
-
-| | | | | |
-|---|---|---|---|---|
-| `%%meta` *(compiled)* | `%%hook` *(compiled)* | `%%step` *(compiled)* | `%%action` *(compiled)* | `%%entity` *(validated)* |
-| `%%field` *(compiled)* | `%%enum` *(compiled)* | `%%category` *(compiled)* | `%%index` *(compiled)* | `%%rule` *(validated)* |
-| `%%guard` *(compiled)* | `%%loop` *(compiled)* | `%%rbac` *(compiled)* | `%%trigger` *(validated)* | `%%workflow` *(compiled)* |
+All directive keywords are reserved: `%%meta`, `%%hook`, `%%step`, `%%entity`,
+`%%field`, `%%enum`, `%%category`, `%%index`, `%%rule`, `%%guard`, `%%rbac`, `%%loop`, `%%trigger`,
+`%%workflow`.
 
 ---
 
@@ -255,7 +241,7 @@ multiple rules.
 %%rule pricing on Order event: beforeCreate priority: 10
 ```
 
-## `%%loop` — repeat while a rule holds *(compiled)*
+## `%%loop` — repeat while a rule holds *(shipped)*
 
 ```
 %%loop <loopId> while: <field> <operator> <value> max: <n>
@@ -282,7 +268,7 @@ Members are drawn as a Mermaid `subgraph L1[Repeat while …]`, and a step insid
 can read `{{L1.iteration}}` — the 1-based pass number. Full semantics in
 [`03-workflows.md`](03-workflows.md#loops--repeating-steps-while-a-rule-holds).
 
-## `%%guard` — automation condition *(compiled)*
+## `%%guard` — automation condition
 
 ```
 %%guard <field> <operator> <jsonValue>

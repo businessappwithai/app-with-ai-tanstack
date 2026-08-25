@@ -20,9 +20,9 @@ blank           = { WS } ;
    Comments and directives
    -------------------------------------------------------------------------- *)
 comment         = "%%" , { CHAR - reservedStart } , { CHAR } ;
-directive       = metaDir | hookDir | stepDir | loopDir | actionDir
-                | entityDir | fieldDir | enumDir | categoryDir | indexDir
-                | ruleDir | guardDir | rbacDir | triggerDir | workflowDir ;
+directive       = metaDir | hookDir | stepDir | loopDir | entityDir | fieldDir
+                | enumDir | indexDir | ruleDir | guardDir | rbacDir | triggerDir
+                | workflowDir ;
 
 metaDir         = "%%meta" , WS , key , ":" , WS , value ;
 (* Two forms. With a handler name it binds a named handler to a lifecycle

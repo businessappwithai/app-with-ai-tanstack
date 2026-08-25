@@ -37,9 +37,8 @@ A single file may hold several sections separated by blank lines.
   the generator while staying invisible to renderers:
 
   ```
-  %%meta     %%hook     %%step      %%action   %%entity   %%field
-  %%enum     %%category %%index     %%rule     %%guard    %%loop
-  %%rbac     %%trigger  %%workflow
+  %%meta     %%hook     %%entity    %%field    %%enum
+  %%index    %%rule     %%guard     %%rbac     %%loop     %%trigger  %%workflow
   ```
 
   Most of these are **compiled** — a shipped reader consumes them and the
