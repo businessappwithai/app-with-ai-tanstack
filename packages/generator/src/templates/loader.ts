@@ -901,6 +901,13 @@ export class TemplateLoader {
       if (n === "description" || n === "notes" || n === "bio") return `Description ${i + 1}`;
       if (n === "title") return `Title ${i + 1}`;
       if (n === "code" || n === "reference_code") return `CODE-${String(i + 1).padStart(3, "0")}`;
+      // Identifier/number fields: generate a structured code rather than a humanized label
+      if (n.endsWith("_number") || n.endsWith("_no") || n.endsWith("_id") || n === "reference" || n === "sku" || n === "barcode") {
+        const prefix = entityName
+          ? entityName.substring(0, 3).toUpperCase()
+          : (fieldName ?? "").replace(/_number$|_no$|_id$/, "").substring(0, 3).toUpperCase() || "REF";
+        return `${prefix}-${String(i + 1).padStart(4, "0")}`;
+      }
       if (n === "score" || n === "grade_value") return String(70 + i * 5);
       if (n === "capacity" || n === "max_students") return String(20 + i * 5);
       if (n === "room_number") return `10${i + 1}`;

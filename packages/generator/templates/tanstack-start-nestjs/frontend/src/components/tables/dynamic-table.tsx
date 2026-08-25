@@ -535,8 +535,17 @@ export function DynamicTable({
         {/* Record Count - Moved above table */}
         {totalCount > 0 && (
           <div className="text-sm text-muted-foreground">
-            Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of{" "}
-            {totalCount} entries
+            {globalFilter ? (
+              <>
+                {table.getFilteredRowModel().rows.length} match
+                {table.getFilteredRowModel().rows.length !== 1 ? "es" : ""} on this page
+              </>
+            ) : (
+              <>
+                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalCount)} of{" "}
+                {totalCount} entries
+              </>
+            )}
           </div>
         )}
       </div>

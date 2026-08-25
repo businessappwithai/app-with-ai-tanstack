@@ -1481,6 +1481,13 @@ export async function executeCustomValidateHooks(
       path.join(outputDir, "seeds/05_workflow_definitions.ts"),
       this.renderWorkflowDefinitionsSeed(context)
     );
+
+    // Seed valid state-machine transitions into sys_workflow_transitions so
+    // the entity-access guard can enforce topology (not just role access).
+    await fs.writeFile(
+      path.join(outputDir, "seeds/05b_workflow_transitions.ts"),
+      this.renderWorkflowTransitionsSeed(context)
+    );
   }
 
   /**
@@ -1653,6 +1660,96 @@ export async function seed(db: Kysely<any>): Promise<void> {
   /**
    * Update/enhance configuration files created by NestJS CLI
    */
+  /**
+   * Seed all valid state-machine transitions from `%%workflow … kind: state`
+   * into `sys_workflow_transitions`. The entity-access guard reads this table
+   * to refuse a status-field write that has no matching edge from the record's
+   * current state — enforcing the topology, not just who may cross an edge.
+   */
+  private renderWorkflowTransitionsSeed(context: any): string {
+    const byEntity = new Map<string, CompiledWorkflow>();
+    for (const workflow of this.options.compiledWorkflows ?? []) {
+      if (!byEntity.has(workflow.entity)) byEntity.set(workflow.entity, workflow);
+    }
+
+    const rows: string[] = [];
+    for (const entity of context.entities ?? []) {
+      const workflow = byEntity.get(entity.name) ?? byEntity.get(entity.className);
+      if (!workflow || workflow.transitions.length === 0) continue;
+
+      const columns: string[] = (entity.attributes ?? []).map((a: any) => a.columnName ?? a.name);
+      const statusField = columns.includes("status") ? "status" : "workflow_status";
+
+      for (const t of workflow.transitions) {
+        if (t.from === "[*]" || t.to === "[*]") continue; // initial/terminal not stored
+        rows.push(
+          `  {
+` +
+            `    tableName: '${entity.tableName}',
+` +
+            `    statusField: '${statusField}',
+` +
+            `    fromState: '${t.from}',
+` +
+            `    toState: '${t.to}',
+` +
+            `    transitionName: '${t.trigger ?? ""}',
+` +
+          `  },`
+        );
+      }
+    }
+
+    if (rows.length === 0) {
+      return (
+        `// No state-machine workflows in this model — sys_workflow_transitions will be empty.\n` +
+        `import type { Kysely } from 'kysely';\n` +
+        `export async function seed(_db: Kysely<any>): Promise<void> {}\n`
+      );
+    }
+
+    return [
+      `import { sql, type Kysely } from 'kysely';`,
+      ``,
+      `const TRANSITIONS = [`,
+      ...rows,
+      `] as const;`,
+      ``,
+      `export async function seed(db: Kysely<any>): Promise<void> {`,
+      `  if (TRANSITIONS.length === 0) return;`,
+      `  // Replace all model-declared transitions on each table, keeping any`,
+      `  // hand-crafted rows (source = 'designer') untouched.`,
+      `  const tables = [...new Set(TRANSITIONS.map((t) => t.tableName))];`,
+      `  for (const tbl of tables) {`,
+      `    await sql\``,
+      `      DELETE FROM sys_workflow_transitions`,
+      `      WHERE table_name = \${tbl}`,
+      `    \`.execute(db);`,
+      `  }`,
+      `  for (const t of TRANSITIONS) {`,
+      `    await db`,
+      `      .insertInto('sys_workflow_transitions' as any)`,
+      `      .values({`,
+      `        table_name: t.tableName,`,
+      `        status_field: t.statusField,`,
+      `        from_state: t.fromState,`,
+      `        to_state: t.toState,`,
+      `        transition_name: t.transitionName || null,`,
+      `        is_active: true,`,
+      `      } as any)`,
+      `      .onConflict((oc) =>`,
+      `        oc.constraint('sys_workflow_transitions_unique').doUpdateSet({`,
+      `          transition_name: t.transitionName || null,`,
+      `          is_active: true,`,
+      `        } as any)`,
+      `      )`,
+      `      .execute();`,
+      `  }`,
+      `}`,
+    ].join("\n");
+  }
+
+
   private async updateConfigFiles(outputDir: string, context: any): Promise<void> {
     // Update package.json with additional dependencies
     const packageJsonContent = await this.renderTemplate("package.json.hbs", context);

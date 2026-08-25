@@ -212,6 +212,39 @@ export class EntityAccessGuard implements CanActivate {
     }
     if (!current) return;
 
+    // ── Topology enforcement ─────────────────────────────────────────────────
+    // Refuse any status transition that has no matching edge in
+    // sys_workflow_transitions, regardless of role. A row there means the
+    // model declared the edge; its absence means it never did.
+    for (const rule of targeted) {
+      const currentState = String(current[rule.status_field] ?? '');
+      const targetState = String(body[rule.status_field] ?? '');
+      if (!currentState || !targetState || currentState === targetState) continue;
+      try {
+        const validEdges = await this.db!.kysely
+          .selectFrom('sys_workflow_transitions' as any)
+          .select(['from_state', 'to_state'])
+          .where('table_name' as any, '=', tableName)
+          .where('is_active' as any, '=', true)
+          .execute();
+        if (validEdges.length > 0) {
+          const hasEdge = validEdges.some(
+            (e: any) => String(e.from_state) === currentState && String(e.to_state) === targetState,
+          );
+          if (!hasEdge) {
+            throw new ForbiddenException(
+              `Invalid transition: '${tableName}' has no edge from '${currentState}' to '${targetState}'. ` +
+              `Valid transitions from '${currentState}': ` +
+              validEdges.filter((e: any) => String(e.from_state) === currentState).map((e: any) => e.to_state).join(', ') || 'none',
+            );
+          }
+        }
+      } catch (err: any) {
+        if (err instanceof ForbiddenException) throw err;
+        this.logger.warn(`Topology check failed for ${tableName}: ${err?.message ?? err}`);
+      }
+    }
+
     for (const rule of targeted) {
       if (String(current[rule.status_field] ?? '') !== String(rule.from_state)) continue;
 
