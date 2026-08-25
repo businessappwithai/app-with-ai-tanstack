@@ -430,9 +430,20 @@ function FieldRenderer({
             if (currentValue === null || currentValue === undefined || currentValue === "")
               return "—";
             if (typeof currentValue === "boolean") return currentValue ? "Yes" : "No";
-            if (field.sys_reference_id === 15 || field.sys_reference_id === 16) {
+            if (field.sys_reference_id === 15) {
+              // DATE — show date only, no time component
+              const d = new Date(String(currentValue));
+              return isNaN(d.getTime()) ? String(currentValue) : d.toLocaleDateString();
+            }
+            if (field.sys_reference_id === 16) {
+              // DATETIME — show date and time
               const d = new Date(String(currentValue));
               return isNaN(d.getTime()) ? String(currentValue) : d.toLocaleString();
+            }
+            if (field.options && field.options.length > 0) {
+              // Enum — look up the label so "female" shows as "Female"
+              const matched = field.options.find((o) => o.value === String(currentValue));
+              return matched ? matched.label : String(currentValue);
             }
             return String(currentValue);
           })();
