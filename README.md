@@ -28,7 +28,7 @@ One model produces **two** applications, from the same pipeline:
 
 | | `erdwithai` / `erdwithai-wasm generate` | `erdwithai-wasm generate --standalone` |
 |---|---|---|
-| What it is | the real stack — NestJS + TanStack Start, ~409 files | a self-contained app that boots in a browser tab |
+| What it is | the real stack — NestJS + TanStack Start, ~413 files | a self-contained app that boots in a browser tab |
 | Database | PostgreSQL (or PostgreSQL compiled to WebAssembly) | PGlite, in the visitor's IndexedDB |
 | Cost | `npm install` and a build | none — no install, no bundler |
 | Trade | the editable source | no per-entity source to open |
@@ -108,9 +108,12 @@ specification, written for language models, is `llmtext/llms-full.txt`.
 ### Validating a model
 
 ```bash
-bun language/checker.ts language/examples/crm.eml.mmd   # 128 diagnostics
+bun language/checker.ts language/examples/crm.eml.mmd   # 0 errors · 0 warnings
 bun language/fixer.ts   language/examples/crm.eml.mmd.error
 ```
+
+The checker writes its verdict to a `.error` file beside the model whether or not
+it found anything, so a clean run leaves a file saying the run was clean.
 
 The same two engines are published as ES modules at
 `appwithai.org/guide/checker.js` and `…/fixer.js`, so a language model can check
@@ -151,12 +154,20 @@ bun run type-check           # the root tsconfig
 bun run type-check:language  # language/** has its own config
 bun run lint                 # Biome
 bun run test                 # Vitest
+bun run test:playwright      # the modelling tool, in Chromium
 bun run test:wasm            # the browser stack, end to end, in Chromium
 ```
 
-`AGENTS.md` / `CLAUDE.md` in the repository root is the long-form guide: what
-each package decided and why, which files are build output, and what CI asserts.
-Read it before changing the templates or the generated bundles.
+CI runs four jobs on every commit: the checks above plus the four stale-bundle
+`--check`s; generating the CRM twice and asserting the WASM overlay's exact
+nine-file footprint; driving the browser stack in Chromium; and generating the
+drug-discovery model, building both halves, migrating a pgvector Postgres and
+running the generated application's own E2E suite against it.
+
+`CLAUDE.md` in the repository root is the long-form guide: what each package
+decided and why, which files are build output, what CI asserts, and the known
+gaps between what the templates intend and what a generated application actually
+does. Read it before changing the templates or the generated bundles.
 
 **Four artifacts are checked in and CI verifies they are not stale.** After
 editing `packages/generator/templates/wasm/**` or `templates/wasm-overlay/**`,
