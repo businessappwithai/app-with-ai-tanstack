@@ -1705,7 +1705,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
 ` +
             `    transitionName: '${t.trigger ?? ""}',
 ` +
-          `  },`
+            `  },`
         );
       }
     }
@@ -1726,7 +1726,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `] as const;`,
       ``,
       `export async function seed(db: Kysely<any>): Promise<void> {`,
-      `  if (TRANSITIONS.length === 0) return;`,
+      // No empty-list guard here: this branch is only reached with rows, and
+      // `as const` gives `TRANSITIONS.length` a literal type, so comparing it
+      // to 0 is `TS2367` in the generated backend's own build. The empty case
+      // returns the no-op module above.
       `  // Replace all model-declared transitions on each table, keeping any`,
       `  // hand-crafted rows (source = 'designer') untouched.`,
       `  const tables = [...new Set(TRANSITIONS.map((t) => t.tableName))];`,
@@ -1758,7 +1761,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `}`,
     ].join("\n");
   }
-
 
   private async updateConfigFiles(outputDir: string, context: any): Promise<void> {
     // Update package.json with additional dependencies

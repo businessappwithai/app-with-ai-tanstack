@@ -28,7 +28,7 @@ Use the `/browse` skill from gstack for all web browsing. Never use `mcp__claude
 # APPWITHAI
 
 **Project**: AI-powered ERD design + full-stack code generation
-**Version**: 5.1.1 | **Runtime**: Bun.js >= 1.3.14
+**Version**: 5.1.1 (`VERSION`; the root `package.json` still says 5.1.0) | **Runtime**: Bun.js >= 1.3.14
 
 ## Quick Reference
 
@@ -74,6 +74,19 @@ bunx playwright test tests/e2e/specific.e2e.spec.ts
 - Root `vitest.config.ts` — references missing `./test/setup.ts`. Use `bun run test` (runs `packages/web/vitest.config.ts`)
 - `packages/web` lint script uses eslint (not a dep) — lint with Biome from root
 - `test:app`, `test:e2e`, `test:generator`, `test:complete` — reference non-existent files
+
+### Known gaps in what gets generated
+
+Verified against a freshly generated CRM, and green CI does not cover them:
+
+- **`sys_workflow_transitions` is never created.** Its migration template is not
+  in the `scaffold` array, so the `05b` seed fails and state-machine topology
+  enforcement passes everything through. See **The generated backend's migrations
+  and seeds**.
+- **`bun run migrate` in a generated app does not fail on a broken seed** — its
+  seed loop logs and continues. Use `bun run db:setup` when you need the truth.
+- **`src/seed.ts` filters on `.ts`**, so the compiled (`dist/src/seed.js`) path
+  the WASM stack runs finds no seed files and silently does nothing.
 
 ---
 
@@ -129,8 +142,10 @@ app-with-ai-tanstack/
 └── examples/       # Sample .eml.mmd files
 ```
 
-Root docs: `README.md` (the repository front page), `DESIGN.md`, `HOOKS_GUIDE.md`,
-`TODOS.md`, `CHANGELOG.md`, plus QA write-ups (`GENERATOR_QA_SUMMARY.md`,
+Root docs: `README.md` (the repository front page), `ROADMAP.md` (⭐ the road to
+1.0.0 — five items before the release is production grade and one after, each
+with a checkable *Done when*; `appwithai.org/todo.html` is the same list in one
+screen), `DESIGN.md`, `HOOKS_GUIDE.md`, `TODOS.md`, `CHANGELOG.md`, plus QA write-ups (`GENERATOR_QA_SUMMARY.md`,
 `QA_AND_IMPROVEMENT_COMPLETE.md`, `REGENERATION_TEST_RESULTS.md`,
 `TEMPLATE_IMPROVEMENTS.md`).
 
@@ -218,8 +233,142 @@ Generated apps listen on `DEFAULT_FRONTEND_PORT = 4000` and
 `DEFAULT_BACKEND_PORT = 4001` (`src/generators/ports.ts`) — deliberately off
 3000, where the modelling tool runs. `packages/web/src/lib/generated-ports.ts`
 mirrors these for client components, with a unit test asserting they stay equal.
+The generated `frontend/package.json` prefixes its **`start`** script with
+`PORT={{config.frontendPort}}` as well as its `dev` script: production `vinxi
+start` otherwise binds 3000 and a built application landed on a different port
+from the one it was developed on.
 
 Also see `packages/generator/TWO_PHASE_GENERATION.md` and `MIGRATION_GUIDE.md`.
+
+### The generated backend's migrations and seeds
+
+**One array decides what a generated backend runs.** `generateMigrations` in
+`src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts` holds a
+`scaffold` list of `{ slug, template }` in execution order, and writes each one
+as `NNNN_<slug>.ts`. The numbering is a fixed zero-padded sequence rather than a
+timestamp, so regenerating overwrites each migration in place — timestamped names
+made every `--force` run emit a second copy of a `CREATE TABLE` the runner had
+already recorded as executed.
+
+Generating the CRM today gives 13 migrations and 9 seeds:
+
+```
+src/migrations/                         seeds/
+0000_create_auth_tables                 00_users_and_roles
+0001_create_sys_tables                  01_sys_references
+0002_create_bus_tables                  02_sys_dictionary
+0003_add_workflow_support               02b_entity_categories
+0004_create_workflow_definitions        03_business_data
+0005_fix_numeric_columns                04_business_rules
+0006_create_sys_category                04b_operation_access
+0007_create_audit_log                   05_workflow_definitions
+0008_add_automation_definitions         05b_workflow_transitions
+0009_add_workflow_ownership
+0010_sync_better_auth_schema
+0011_add_dictionary_role_scope
+0012_add_operation_access
+```
+
+**Nothing scans the migrations template directory.** A `.hbs` file dropped into
+`templates/tanstack-start-nestjs/backend/src/migrations/` is inert until its slug
+is added to that array — which is the whole of what "add a migration" means here.
+
+**There are two seed runners and they disagree, deliberately and by accident:**
+
+| | reads | on a failing seed |
+|---|---|---|
+| `src/migrate.ts` (`bun run migrate`) | `seeds/*.ts` | logs `✗ Seed "…" failed` and **continues** — "Don't throw - continue with other seeds" |
+| `src/seed.ts` (`bun run seed`) | `seeds/*.ts` | rethrows, `process.exit(1)` |
+
+`db:setup` is `migrate` then `seed`, so the tolerant pass runs first and the
+strict pass runs over the same directory again. Which half you actually feel
+depends on the stack: under Bun the strict pass reads `seeds/*.ts` and exits 1 on
+the first failure; under the WASM overlay it reads a compiled `dist/` tree and
+finds nothing to run at all. Two consequences worth knowing before trusting a
+green run:
+
+- **A broken seed does not fail `bun run migrate`.** It prints one red line in a
+  wall of green ones and the command still exits 0.
+- **`src/seed.ts` filters on `.ts`, so the compiled path seeds nothing.** Under
+  the WASM overlay the backend runs `dist/src/seed.js` over `dist/seeds/*.js`;
+  the filter matches no file, and it reports `✓ Seed initialization completed`
+  having done nothing at all. Everything a WASM application has in it was seeded
+  by `migrate.js`'s tolerant pass.
+
+> ⚠️ **`sys_workflow_transitions` is never created.** The migration template
+> `src/migrations/012_add_workflow_transitions.ts.hbs` exists but is **not in the
+> `scaffold` array**, so nothing renders it. `05b_workflow_transitions.ts` is
+> still generated with real rows and still inserts into that table, and
+> `entity-access.guard.ts` still queries it. The result in a generated app: the
+> seed fails, the guard's topology check reads zero rows, and — because it only
+> refuses a transition `if (validEdges.length > 0)` — **every state transition is
+> allowed.** CI stays green over it: the `generated-app` job runs only the
+> tolerant `migrate`, and the `generated-wasm-app` job's own log reads
+> `✗ Seed "05b_workflow_transitions.js" failed: relation "sys_workflow_transitions"
+> does not exist` immediately followed by `✅ Database setup completed successfully`.
+> The fix is one entry in the `scaffold` array; a test that a declared edge is
+> accepted and an undeclared one is refused is what would keep it fixed.
+
+### State-machine topology — what `%%workflow … kind: state` enforces
+
+`%%rbac` says *who* may cross an edge. The topology table says *which edges
+exist*, and it is checked first, for everyone, the administrator included.
+
+| | |
+|---|---|
+| the table | `sys_workflow_transitions` — `(table_name, status_field, from_state, to_state)` unique, plus `transition_name` and `is_active` |
+| what fills it | `renderWorkflowTransitionsSeed` in `nestjs-backend.generator.ts`, from `compiledWorkflows` — `[*]` initial and terminal pseudo-states are skipped, and the status column is `status` if the entity has one, else `workflow_status` |
+| what reads it | the **Topology enforcement** block in `entity-access.guard.ts.hbs`, on every write that changes a status field |
+| what a refusal says | `Invalid transition: 'bus_lead' has no edge from 'new' to 'closed'. Valid transitions from 'new': working` |
+
+Three things about the guard are deliberate and easy to break:
+
+- **An empty table means "unenforced", not "nothing is allowed".** The check is
+  skipped entirely when the query returns no rows, so a model with no state
+  machine is not locked out of its own status column. It is also why the missing
+  migration above fails open rather than loudly.
+- **Topology runs before role access.** An edge nobody declared is refused
+  without ever asking which roles the caller holds — a 403 about the model, not
+  about the person.
+- **The seed replaces by table, not by row.** Each run deletes every row for the
+  tables it is about to write, so a transition removed from the model disappears
+  on regeneration instead of lingering as a still-valid edge.
+
+The empty-model case renders a no-op module rather than an empty `TRANSITIONS`
+array: `as const` gives `TRANSITIONS.length` a literal type, so comparing it to
+`0` is `TS2367` in the generated backend's own build.
+
+### Field metadata — how a column becomes a control
+
+`getEntityMetadata` in `templates/…/backend/src/modules/bus/bus.service.ts.hbs`
+is what both generated screens read. It resolves three things per column, and
+each of the three was once missing in a way that showed:
+
+- **Enumerated values.** After resolving FK label fields it batch-queries
+  `sys_ref_list` for every `sys_reference_id` that is not a built-in scalar, and
+  returns `options: [{ value, label }]`. `SCALAR_REF_IDS` guards the query — FK
+  (18/19), date (15/16), boolean (20), JSON (28) and the other built-ins never
+  have ref-list rows. Before this, `field.options` was always `undefined` and the
+  front end's existing `field.options.find()` had nothing to find, so every enum
+  rendered as its stored string: *female*, *applicant*.
+- **Date against datetime.** `dynamic-form.tsx` splits `DATE` (ref_id 15) from
+  `DATETIME` (16); sharing one branch put a time component on every plain date.
+- **The label lookup is in both places.** `dynamic-form.tsx` and
+  `dynamic-table.tsx` each map a stored value back through `options`, for the
+  same reason `labelFor` has two callers in the browser stack — a value cannot
+  read *Female* in the form and *female* in the grid it was chosen from.
+
+**Sample data reads the field name.** The `seedValue` Handlebars helper in
+`packages/generator/src/templates/loader.ts` takes the column name, the row index
+and the entity's display name:
+
+| The column is | It seeds |
+|---|---|
+| `first_name` / `last_name` | a name from the fixed ten |
+| `full_name`, `contact_name`, `student_name`, … | a person's whole name |
+| a bare `name` / `*_name` | `Grade 1`, `Grade 2` — the **entity's** display name, because `Instrument.name` is not a person and once seeded as *James Smith* |
+| `*_number`, `*_no`, `*_id`, `reference`, `sku`, `barcode` | a structured code — `ADM-0001` — not the humanized label *Admission Number 1* |
+| `gender`, `status`, `department`, `city`, `phone`, `address`, … | a value from that field's own vocabulary |
 
 ### The WASM stack (`cli-wasm`) — the default mode
 
@@ -228,7 +377,7 @@ mistake to make here:
 
 | | what you get | cost |
 |---|---|---|
-| `generate` (default) | the real stack — NestJS + TanStack Start — on WebAssembly Postgres | `npm install` and a build; ~407 files |
+| `generate` (default) | the real stack — NestJS + TanStack Start — on WebAssembly Postgres | `npm install` and a build; ~413 files |
 | `generate --standalone` | a self-contained app that boots in a browser tab | no per-entity source to edit |
 
 This section is the default mode; **The self-contained browser runtime** below is
@@ -300,8 +449,10 @@ server:
 | the database | `pg` is replaced by a package **of the same name** backed by PostgreSQL compiled to WebAssembly. Not one line of the backend's own source changes, because none of it ever knew what was on the far side of a `Pool`. |
 | the runtime | every script that said `bun` says `node`, and scripts that ran TypeScript directly build first. |
 
-Generating the CRM model produces **407 files, of which the overlay adds 3 and
-changes 9** — and only one of the nine is application source:
+Generating the CRM model produces **413 files plain and 419 with the overlay —
+the overlay adds 6 and changes 9** — and only one of the nine is application
+source. The six it adds are three `.npmrc` files and the three-file `pg-wasm`
+package; the nine it changes are:
 
 ```
 .appwithai.json   backend/.env        backend/.env.example
@@ -317,7 +468,8 @@ set of differing files is anything other than the nine above. Widening the
 overlay means widening that list in `.github/workflows/ci.yml` and being able to
 say why. A second job then asserts no generated `package.json` still calls `bun`.
 
-Verified: 13 migrations and 8 seeds run, the backend starts, better-auth signs
+Verified: 13 migrations and 9 seeds run (one of the nine fails silently — see
+**The generated backend's migrations and seeds** above), the backend starts, better-auth signs
 in, `/bus` CRUD works and the audit trail records it, all with no database
 server anywhere.
 
@@ -599,6 +751,20 @@ Four decisions worth keeping:
   feedback a modeller gets that the help contract was never honoured, and
   `language/examples/crm.eml.mmd` now honours it on all 17 entities and every
   column.
+
+**Two of the manual's sections are authored; the rest are derived.** This is the
+distinction `language/spec/05-directives.md` and `llmtext/llms-full.txt` now
+spell out for a language model writing a model:
+
+| Manual section | Comes from | Author writes it? |
+|---|---|---|
+| Entity description | `%%entity … help:` | **Yes** — the only entity prose there is |
+| Field help column | `%%field ….help:` | **Yes** |
+| Field table (control type, constraints, values) | the `erDiagram` block, `%%enum`, `%%field ui:` | No — derived |
+| Relationships | `erDiagram` FK declarations | No — derived |
+| Lifecycle (From / To / Event) | `%%workflow … kind: state` | No — derived |
+| Rules and automation | `%%rule`, `%%workflow kind: saga`, `%%hook` | No — derived |
+| Access | `%%rbac` | No — derived |
 
 **The example models are checked in twice.** `language/examples/*.eml.mmd` (and
 `examples/*.eml.mmd`) is where a model is authored; `html/models/*.eml.mmd` is
@@ -966,9 +1132,23 @@ EML is a Mermaid-based language for ERD + business rules + workflows in one `.em
 `language/appwithai-language.json` is the **single source of truth** (v1.2.0).
 
 ```bash
-bun language/checker.ts examples/crm.eml.mmd   # validates, writes .error file
-bun language/fixer.ts   examples/crm.eml.mmd.error  # auto-fixes EML001/114/117/421/422
+bun language/checker.ts language/examples/crm.eml.mmd   # validates, writes .error file
+bun language/fixer.ts   language/examples/crm.eml.mmd.error  # auto-fixes EML001/114/117/421/422
 ```
+
+The checker always writes the `.error` file, clean run or not — the CRM example
+currently reports **0 errors and 0 warnings**, and its `.error` file says so.
+That file is checked in and carries a timestamp, so running the checker over an
+example dirties the working tree; revert it unless the verdict actually changed.
+
+**The fifteen directives** (`%%` comments a Mermaid renderer ignores, which is
+what keeps an EML document a valid diagram):
+
+| | |
+|---|---|
+| structure | `%%meta`, `%%entity`, `%%field`, `%%enum`, `%%index`, `%%category` |
+| behaviour | `%%rule`, `%%workflow`, `%%step`, `%%loop`, `%%trigger`, `%%action`, `%%hook` |
+| access | `%%rbac`, `%%guard` |
 
 Diagnostic code bands: `001-099` doc level, `100-199` entities/relations/ERD directives, `200-299` hooks/rules/workflows, `300-399` rule flowcharts, `400-449` workflow sections, `500-599` cross-section.
 
@@ -1006,6 +1186,13 @@ bunx playwright test tests/e2e/foo.e2e.spec.ts
 
 Note the port mismatch: `bun run dev` serves on **3000**, Playwright targets
 **5000**. Use `bun run test:e2e:server`, which sets this up for you.
+
+Two suites sit at the root of `tests/e2e/` and drive the modelling tool itself:
+
+| Spec | What it covers |
+|---|---|
+| `project-permissions.e2e.spec.ts` | who may read and edit a project — the browser-side half of `requireProjectAccess` |
+| `simple-crm-business-rules.e2e.spec.ts` | authoring rules against a small CRM and seeing them fire |
 
 Some suites under `tests/e2e/complete-tests/` target an OData/UI5 stack the
 generator no longer emits — treat those as historical.
@@ -1111,6 +1298,11 @@ Secrets: `NEON_DATABASE_URL`, `EML_PUBLISH_TOKEN` (needs `repo` **and**
 | `packages/generator/src/manual/index.ts` | ⭐ The parsed model → `manual.html`, one self-contained page — written by both stacks |
 | `packages/generator/src/cli/generate.ts` | Generator CLI |
 | `packages/generator/src/generators/ports.ts` | Generated-app default ports |
+| `packages/generator/src/templates/loader.ts` | Handlebars helpers — `seedValue` decides what sample data says |
+| `.../backend/src/migrations/012_add_workflow_transitions.ts.hbs` | ⚠️ `sys_workflow_transitions` — a template no scaffold entry renders |
+| `.../backend/src/modules/auth/guards/entity-access.guard.ts.hbs` | ⭐ Topology first, then role access |
+| `.../backend/src/modules/bus/bus.service.ts.hbs` | ⭐ `getEntityMetadata` — what makes a column a control |
+| `.../backend/src/migrate.ts.hbs` / `seed.ts.hbs` | The tolerant and the strict seed runners |
 | `packages/generator/templates/tanstack-start-nestjs/` | Stack templates |
 | `packages/generator/src/cli-wasm/generate.ts` | ⭐ The browser-stack CLI |
 | `packages/generator/src/generators/wasm/model-bundle.ts` | ⭐ Model → `model.json` + schema |
@@ -1199,6 +1391,32 @@ Add once in `packages/generator/src/pipeline/generate-application.ts` (`Generati
 4. `templates/.../auth/guards/entity-access.guard.ts.hbs` — enforcement
 5. Generate an app, migrate, and exercise the routes — a guard that compiles
    proves nothing about whether it refuses the right callers
+
+### Add a migration to the generated backend
+
+1. Write the template under
+   `templates/tanstack-start-nestjs/backend/src/migrations/`
+2. **Add its slug to the `scaffold` array** in `generateMigrations`
+   (`src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts`), in the
+   position the execution order needs — nothing scans that directory, so a
+   template not in the array is never rendered
+3. Generate an app and run `bun run db:setup`, not `bun run migrate`: the
+   migrate path swallows seed failures, so it is green whether or not your table
+   exists
+
+### Change what a state machine enforces
+
+1. `packages/generator/src/workflows/index.ts` — `%%workflow … kind: state` →
+   `CompiledWorkflow.transitions`
+2. `renderWorkflowTransitionsSeed` in `nestjs-backend.generator.ts` — what lands
+   in `sys_workflow_transitions`
+3. `templates/.../backend/src/migrations/012_add_workflow_transitions.ts.hbs` —
+   the table (**and the `scaffold` array, which does not yet name it**)
+4. `templates/.../auth/guards/entity-access.guard.ts.hbs` — the **Topology
+   enforcement** block, which runs before the role check
+5. Exercise both directions against a running app: a declared edge accepted, an
+   undeclared one refused with a 403. An empty table fails open, so "nothing was
+   refused" is the symptom of a missing table as well as of a passing test
 
 ### Extend the EML language
 

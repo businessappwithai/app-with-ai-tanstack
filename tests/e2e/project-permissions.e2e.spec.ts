@@ -1,4 +1,4 @@
-import { test, expect, Page } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 const baseUrl = "http://localhost:5000";
 const userA = {
@@ -46,9 +46,7 @@ async function loginUser(page: Page, email: string, password: string) {
 
   // Ensure we're on the Sign In tab
   const signInTab = page.locator('button:has-text("Sign In")').first();
-  const isActive = await signInTab.evaluate((el) =>
-    el.classList.contains("text-orange-500")
-  );
+  const isActive = await signInTab.evaluate((el) => el.classList.contains("text-orange-500"));
 
   if (!isActive) {
     await signInTab.click();
@@ -94,7 +92,12 @@ async function createProject(page: Page, projectName: string) {
   await page.waitForSelector(`text=${projectName}`);
 }
 
-async function shareProject(page: Page, projectName: string, email: string, permission: "read_only" | "read_write") {
+async function shareProject(
+  page: Page,
+  projectName: string,
+  email: string,
+  permission: "read_only" | "read_write"
+) {
   await page.goto(`${baseUrl}/projects`);
 
   // Find the project card and click Share button
@@ -114,7 +117,7 @@ async function shareProject(page: Page, projectName: string, email: string, perm
 
   // Select permission
   if (permission === "read_write") {
-    await page.selectOption('select', "read_write");
+    await page.selectOption("select", "read_write");
   }
 
   // Click "Add Member"
@@ -151,7 +154,9 @@ test.describe("Project Permissions", () => {
     await page.goto(`${baseUrl}/projects`);
 
     // Get all project names on the page
-    const projectNames = await page.locator('[class*="grid"] [class*="rounded-xl"] h3').allTextContents();
+    const projectNames = await page
+      .locator('[class*="grid"] [class*="rounded-xl"] h3')
+      .allTextContents();
 
     // Create a unique project name that won't exist
     const uniqueProjectName = `User A Project ${Date.now()}`;
@@ -162,7 +167,10 @@ test.describe("Project Permissions", () => {
     await page.close();
   });
 
-  test("Shared project (read-only) visible to member but editing blocked", async ({ browser, context }) => {
+  test("Shared project (read-only) visible to member but editing blocked", async ({
+    browser,
+    context,
+  }) => {
     const page = await context.newPage();
 
     // Login as User A
@@ -260,7 +268,11 @@ test.describe("Project Permissions", () => {
 
     // Wait for modal and find User B's remove button
     await page.waitForSelector("text=Share Project");
-    const deleteButton = page.locator(`text=${userB.email}`).locator("..").locator('button[title="Remove member"]').first();
+    const deleteButton = page
+      .locator(`text=${userB.email}`)
+      .locator("..")
+      .locator('button[title="Remove member"]')
+      .first();
     await deleteButton.click();
 
     // Close modal
@@ -274,7 +286,9 @@ test.describe("Project Permissions", () => {
     await pageB.goto(`${baseUrl}/projects`);
 
     // Project should no longer be visible
-    const projectNames = await pageB.locator('[class*="grid"] [class*="rounded-xl"] h3').allTextContents();
+    const projectNames = await pageB
+      .locator('[class*="grid"] [class*="rounded-xl"] h3')
+      .allTextContents();
     expect(projectNames).not.toContain(projectName);
 
     await pageB.close();

@@ -833,100 +833,115 @@ export class TemplateLoader {
     );
 
     // Realistic seed value helper for business data seeds
-    Handlebars.registerHelper("seedValue", (fieldName: string, index: number, entityDisplayName?: string | Handlebars.HelperOptions) => {
-      const n = (fieldName ?? "").toLowerCase();
-      const i = typeof index === "number" ? index : 0;
-      const FIRST_NAMES = [
-        "James",
-        "Mary",
-        "Robert",
-        "Patricia",
-        "John",
-        "Jennifer",
-        "Michael",
-        "Linda",
-        "David",
-        "Barbara",
-      ];
-      const LAST_NAMES = [
-        "Smith",
-        "Johnson",
-        "Williams",
-        "Brown",
-        "Jones",
-        "Garcia",
-        "Miller",
-        "Davis",
-        "Wilson",
-        "Taylor",
-      ];
-      // Every call site passes a non-empty literal, and the modulo keeps the
-      // index in range, so the lookup cannot miss.
-      const pick = <T>(arr: T[]): T => arr[i % arr.length] as T;
+    Handlebars.registerHelper(
+      "seedValue",
+      (fieldName: string, index: number, entityDisplayName?: string | Handlebars.HelperOptions) => {
+        const n = (fieldName ?? "").toLowerCase();
+        const i = typeof index === "number" ? index : 0;
+        const FIRST_NAMES = [
+          "James",
+          "Mary",
+          "Robert",
+          "Patricia",
+          "John",
+          "Jennifer",
+          "Michael",
+          "Linda",
+          "David",
+          "Barbara",
+        ];
+        const LAST_NAMES = [
+          "Smith",
+          "Johnson",
+          "Williams",
+          "Brown",
+          "Jones",
+          "Garcia",
+          "Miller",
+          "Davis",
+          "Wilson",
+          "Taylor",
+        ];
+        // Every call site passes a non-empty literal, and the modulo keeps the
+        // index in range, so the lookup cannot miss.
+        const pick = <T>(arr: T[]): T => arr[i % arr.length] as T;
 
-      if (n === "first_name") return pick(FIRST_NAMES);
-      if (n === "last_name") return pick(LAST_NAMES);
-      // A bare "name" (or "*_name") field is usually an entity's own name —
-      // Instrument.name, Team.name, Vendor.name, CompoundAlias.alias_name —
-      // not a person. Assuming person here seeded a lab instrument literally
-      // named "James Smith". Fields that really do hold a person's full name
-      // are named specifically enough to say so.
-      if (
-        n === "full_name" ||
-        n === "contact_name" ||
-        n === "customer_name" ||
-        n === "manager_name" ||
-        n === "employee_name" ||
-        n === "student_name" ||
-        n === "teacher_name" ||
-        n === "guardian_name" ||
-        n === "parent_name"
-      )
-        return `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
-      if (n === "gender") return i % 2 === 0 ? "Male" : "Female";
-      if (n === "relationship" || n === "relationship_type")
-        return pick(["Mother", "Father", "Guardian", "Grandmother", "Grandfather"]);
-      if (n === "grade" || n === "letter_grade") return pick(["A", "B+", "A-", "B", "A"]);
-      if (n === "status")
-        return pick(["Active", "Pending", "Completed", "In Progress", "Scheduled"]);
-      if (n === "subject" || n === "subject_name")
-        return pick(["Mathematics", "Science", "English", "History", "Geography"]);
-      if (n === "department")
-        return pick(["Engineering", "Marketing", "Finance", "Operations", "HR"]);
-      if (n === "address" || n === "street_address")
-        return `${(i + 1) * 100} ${pick(["Main St", "Oak Ave", "Elm Dr", "Park Blvd", "Cedar Ln"])}, ${pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"])}`;
-      if (n === "city") return pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]);
-      if (n === "phone" || n === "phone_number" || n === "mobile")
-        return `555-${String(1000 + i * 101).padStart(4, "0")}`;
-      if (n === "description" || n === "notes" || n === "bio") return `Description ${i + 1}`;
-      if (n === "title") return `Title ${i + 1}`;
-      if (n === "code" || n === "reference_code") return `CODE-${String(i + 1).padStart(3, "0")}`;
-      // Identifier/number fields: generate a structured code rather than a humanized label
-      if (n.endsWith("_number") || n.endsWith("_no") || n.endsWith("_id") || n === "reference" || n === "sku" || n === "barcode") {
-        const prefix = entityName
-          ? entityName.substring(0, 3).toUpperCase()
-          : (fieldName ?? "").replace(/_number$|_no$|_id$/, "").substring(0, 3).toUpperCase() || "REF";
-        return `${prefix}-${String(i + 1).padStart(4, "0")}`;
+        // The entity's display name, hoisted above its first use: a bare "name"
+        // field reads as "Grade 1", and an identifier column prefixes with it.
+        const entityName = typeof entityDisplayName === "string" ? entityDisplayName.trim() : "";
+
+        if (n === "first_name") return pick(FIRST_NAMES);
+        if (n === "last_name") return pick(LAST_NAMES);
+        // A bare "name" (or "*_name") field is usually an entity's own name —
+        // Instrument.name, Team.name, Vendor.name, CompoundAlias.alias_name —
+        // not a person. Assuming person here seeded a lab instrument literally
+        // named "James Smith". Fields that really do hold a person's full name
+        // are named specifically enough to say so.
+        if (
+          n === "full_name" ||
+          n === "contact_name" ||
+          n === "customer_name" ||
+          n === "manager_name" ||
+          n === "employee_name" ||
+          n === "student_name" ||
+          n === "teacher_name" ||
+          n === "guardian_name" ||
+          n === "parent_name"
+        )
+          return `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`;
+        if (n === "gender") return i % 2 === 0 ? "Male" : "Female";
+        if (n === "relationship" || n === "relationship_type")
+          return pick(["Mother", "Father", "Guardian", "Grandmother", "Grandfather"]);
+        if (n === "grade" || n === "letter_grade") return pick(["A", "B+", "A-", "B", "A"]);
+        if (n === "status")
+          return pick(["Active", "Pending", "Completed", "In Progress", "Scheduled"]);
+        if (n === "subject" || n === "subject_name")
+          return pick(["Mathematics", "Science", "English", "History", "Geography"]);
+        if (n === "department")
+          return pick(["Engineering", "Marketing", "Finance", "Operations", "HR"]);
+        if (n === "address" || n === "street_address")
+          return `${(i + 1) * 100} ${pick(["Main St", "Oak Ave", "Elm Dr", "Park Blvd", "Cedar Ln"])}, ${pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"])}`;
+        if (n === "city") return pick(["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"]);
+        if (n === "phone" || n === "phone_number" || n === "mobile")
+          return `555-${String(1000 + i * 101).padStart(4, "0")}`;
+        if (n === "description" || n === "notes" || n === "bio") return `Description ${i + 1}`;
+        if (n === "title") return `Title ${i + 1}`;
+        if (n === "code" || n === "reference_code") return `CODE-${String(i + 1).padStart(3, "0")}`;
+        // Identifier/number fields: generate a structured code rather than a humanized label
+        if (
+          n.endsWith("_number") ||
+          n.endsWith("_no") ||
+          n.endsWith("_id") ||
+          n === "reference" ||
+          n === "sku" ||
+          n === "barcode"
+        ) {
+          const prefix = entityName
+            ? entityName.substring(0, 3).toUpperCase()
+            : (fieldName ?? "")
+                .replace(/_number$|_no$|_id$/, "")
+                .substring(0, 3)
+                .toUpperCase() || "REF";
+          return `${prefix}-${String(i + 1).padStart(4, "0")}`;
+        }
+        if (n === "score" || n === "grade_value") return String(70 + i * 5);
+        if (n === "capacity" || n === "max_students") return String(20 + i * 5);
+        if (n === "room_number") return `10${i + 1}`;
+        if (n === "year" || n === "academic_year") return String(2024 + i);
+        if (n === "section") return String.fromCharCode(65 + i); // A, B, C, D
+        // Fields outside the vocabulary above all fell back to the identical
+        // literal "Sample N" regardless of field name, so every unmatched
+        // string column on a row showed the exact same text (e.g. a chemistry
+        // model's smiles/inchi_key/formula/compound_class/registration_status
+        // all read "Sample 1"). Fold the field name in so columns stay
+        // distinguishable for any domain vocabulary doesn't cover.
+        if ((n === "name" || n === "title") && entityName) return `${entityName} ${i + 1}`;
+        const humanized = (fieldName ?? "")
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase())
+          .trim();
+        return humanized ? `${humanized} ${i + 1}` : `Sample ${i + 1}`;
       }
-      if (n === "score" || n === "grade_value") return String(70 + i * 5);
-      if (n === "capacity" || n === "max_students") return String(20 + i * 5);
-      if (n === "room_number") return `10${i + 1}`;
-      if (n === "year" || n === "academic_year") return String(2024 + i);
-      if (n === "section") return String.fromCharCode(65 + i); // A, B, C, D
-      // Fields outside the vocabulary above all fell back to the identical
-      // literal "Sample N" regardless of field name, so every unmatched
-      // string column on a row showed the exact same text (e.g. a chemistry
-      // model's smiles/inchi_key/formula/compound_class/registration_status
-      // all read "Sample 1"). Fold the field name in so columns stay
-      // distinguishable for any domain vocabulary doesn't cover.
-      // For a bare "name" field, use the entity display name if provided (e.g. "Grade 1").
-      const entityName = typeof entityDisplayName === "string" ? entityDisplayName.trim() : "";
-      if ((n === "name" || n === "title") && entityName) return `${entityName} ${i + 1}`;
-      const humanized = (fieldName ?? "")
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase())
-        .trim();
-      return humanized ? `${humanized} ${i + 1}` : `Sample ${i + 1}`;
-    });
+    );
   }
 }
