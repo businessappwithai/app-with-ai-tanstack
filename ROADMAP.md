@@ -1,6 +1,6 @@
 # Roadmap to 1.0.0
 
-Four items remain before the release is production grade. One follows it.
+Five items remain before the release is production grade. One follows it.
 [appwithai.org/todo.html](https://appwithai.org/todo.html) carries the same list
 in summary; this document holds the scope and acceptance criteria.
 
@@ -127,11 +127,37 @@ produces a model the checker passes with zero errors and zero warnings, and an
 application that runs, on the DeepSeek harness, with no manual correction at any
 stage — with identical results from the hosted page and the CLI.
 
+## 5. Reporting application
+
+**Current state.** Enterprise reporting is built as a separate application,
+[`businessappwithai/enterprise_reporting_tanstack`](https://github.com/businessappwithai/enterprise_reporting_tanstack).
+It is not covered by this repository's CI and is not reachable from a generated
+application.
+
+**Scope.**
+
+- Complete test coverage of the reporting application in its own right.
+- Integration with AppWithAI: reports defined against the Application Dictionary
+  rather than against hand-written SQL, so a report follows the model it was
+  built from.
+- The access rules a report inherits. A report is a read path over business
+  data, so `%%rbac … .read` has to constrain it exactly as it constrains the
+  screens — a report that returns rows a role cannot see in the application is a
+  hole in the same access control item 2 exists to close.
+- How reporting reaches a generated application: shipped with it, or run
+  alongside it, and what that implies for deployment and for the licence audit.
+
+**Done when.** The reporting application has end-to-end coverage in CI; a report
+built against a generated application's dictionary runs against that application
+without hand-written SQL; report output honours the same role visibility as the
+application's own screens; and the integration is documented in the manual item 3
+delivers.
+
 ---
 
 # After 1.0.0
 
-## 5. Autonomous application delivery
+## 6. Autonomous application delivery
 
 An application that builds, tests, documents and deploys itself continuously,
 with an agent driving the loop currently driven by an operator.
