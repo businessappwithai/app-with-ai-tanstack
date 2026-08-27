@@ -142,8 +142,10 @@ app-with-ai-tanstack/
 └── examples/       # Sample .eml.mmd files
 ```
 
-Root docs: `README.md` (the repository front page), `DESIGN.md`, `HOOKS_GUIDE.md`,
-`TODOS.md`, `CHANGELOG.md`, plus QA write-ups (`GENERATOR_QA_SUMMARY.md`,
+Root docs: `README.md` (the repository front page), `ROADMAP.md` (⭐ the road to
+1.0.0 — four items before the release is production grade and one after, each
+with a checkable *Done when*; `appwithai.org/todo.html` is the same list in one
+screen), `DESIGN.md`, `HOOKS_GUIDE.md`, `TODOS.md`, `CHANGELOG.md`, plus QA write-ups (`GENERATOR_QA_SUMMARY.md`,
 `QA_AND_IMPROVEMENT_COMPLETE.md`, `REGENERATION_TEST_RESULTS.md`,
 `TEMPLATE_IMPROVEMENTS.md`).
 
