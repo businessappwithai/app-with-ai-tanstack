@@ -44,13 +44,13 @@ describe("chunkModel", () => {
     }, {});
 
     expect(kinds.overview).toBe(1);
-    expect(kinds.entity).toBe(17);
+    expect(kinds.entity).toBe(19);
     expect(kinds.rule).toBe(3);
     expect(kinds.workflow).toBe(3);
     // One per declaration, not one for all of them: pooled, two dozen
     // enumerations averaged into a vector that matched no question about
     // any of them.
-    expect(kinds.enums).toBe(22);
+    expect(kinds.enums).toBe(30);
   });
 
   it("gives every chunk a stable id, so re-ingesting replaces rather than duplicates", () => {
@@ -82,10 +82,10 @@ describe("chunkModel", () => {
   });
 
   it("records the steps of a process in order, and what each one touches", () => {
-    const retirement = chunks.find((chunk) => chunk.name === "StabilityTestRetirement");
-    expect(retirement?.text).toContain("Runs automatically on StabilityTest DELETE");
-    expect(retirement?.text).toContain("deletes StabilityPull rows");
-    expect(retirement?.metadata.touches).toContain("StabilityPull");
+    const retirement = chunks.find((chunk) => chunk.name === "AssayRetirement");
+    expect(retirement?.text).toContain("Runs automatically on Assay DELETE");
+    expect(retirement?.text).toContain("deletes AssayRun rows");
+    expect(retirement?.metadata.touches).toContain("AssayRun");
     expect(retirement?.metadata.operation).toBe("DELETE");
   });
 
@@ -115,8 +115,8 @@ describe("chunkModel", () => {
 
   it("lists the entities in an overview no single entity chunk could answer", () => {
     const overview = byId.get("overview");
-    expect(overview?.text).toContain("Entities (17)");
-    expect(overview?.text).toContain("StabilityPull");
+    expect(overview?.text).toContain("Entities (19)");
+    expect(overview?.text).toContain("AssayResult");
   });
 });
 

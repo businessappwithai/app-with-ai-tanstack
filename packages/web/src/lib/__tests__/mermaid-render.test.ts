@@ -77,10 +77,12 @@ stateDiagram-v2
     const out = toRenderableMermaid(raw);
 
     expect(out.startsWith("erDiagram")).toBe(true);
-    // All 17 entities survive the reduction.
-    expect(out).toContain("Compound {");
-    expect(out).toContain("StabilityPull {");
-    expect((out.match(/^\s{4}\w+ \{$/gm) ?? []).length).toBe(17);
+    // All 19 entities survive the reduction — the first declared and the last,
+    // so the assertion catches a truncation at either end rather than only a
+    // miscount.
+    expect(out).toContain("Program {");
+    expect(out).toContain("Team {");
+    expect((out.match(/^\s{4}\w+ \{$/gm) ?? []).length).toBe(19);
     // Everything Mermaid chokes on is gone.
     expect(out).not.toContain("%%");
     expect(out).not.toMatch(/\bOPTIONAL\b/);
