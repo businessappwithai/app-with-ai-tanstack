@@ -1,6 +1,6 @@
 # Auth Module
 
-Authentication and authorization module for ERDwithAI. Provides Better Auth integration, RBAC, and guards for both NestJS and OData V4 stacks.
+Authentication and authorization module for APPWITHAI. Provides Better Auth integration, RBAC, and guards for both NestJS and OData V4 stacks.
 
 ## Features
 
@@ -15,7 +15,7 @@ Authentication and authorization module for ERDwithAI. Provides Better Auth inte
 
 ## Installation
 
-The auth module is part of `@erdwithai/core`. Dependencies are already installed.
+The auth module is part of `@appwithai/core`. Dependencies are already installed.
 
 ```bash
 bun add better-auth
@@ -26,7 +26,7 @@ bun add better-auth
 ### 1. Initialize Auth Service
 
 ```typescript
-import { createAuthService } from "@erdwithai/core/auth";
+import { createAuthService } from "@appwithai/core/auth";
 import knex from "knex";
 
 const db = knex({
@@ -51,7 +51,7 @@ const session = await authService.login({
 });
 
 // Get user from request
-import { getUserFromRequest, extractSessionToken } from "@erdwithai/core/auth";
+import { getUserFromRequest, extractSessionToken } from "@appwithai/core/auth";
 
 const token = extractSessionToken(request.headers);
 const { user, session, error } = await getUserFromRequest(request.headers, authService);
@@ -60,7 +60,7 @@ const { user, session, error } = await getUserFromRequest(request.headers, authS
 ### 3. Use Guards
 
 ```typescript
-import { GuardFactory } from "@erdwithai/core/auth";
+import { GuardFactory } from "@appwithai/core/auth";
 
 const guardFactory = new GuardFactory(authService);
 
@@ -101,7 +101,7 @@ if (result.granted) {
 
 ```typescript
 import { Controller, Get, UseGuards } from "@nestjs/common";
-import { Roles, RequirePermission, CurrentUser } from "@erdwithai/core/auth";
+import { Roles, RequirePermission, CurrentUser } from "@appwithai/core/auth";
 import { AuthGuard, RoleGuard, PermissionGuard } from "./guards";
 
 @Controller("patients")
@@ -235,7 +235,7 @@ const authAndPermission = guardFactory.authAndPermission({
 ### Extract Session Token
 
 ```typescript
-import { extractSessionToken } from "@erdwithai/core/auth";
+import { extractSessionToken } from "@appwithai/core/auth";
 
 // From request headers
 const token = extractSessionToken({
@@ -248,7 +248,7 @@ const token = extractSessionToken({
 ### Get User from Request
 
 ```typescript
-import { getUserFromRequest } from "@erdwithai/core/auth";
+import { getUserFromRequest } from "@appwithai/core/auth";
 
 const { user, session, error } = await getUserFromRequest(
   request.headers,
@@ -378,7 +378,7 @@ export class PatientController {
 ### Unit Tests
 
 ```typescript
-import { AuthService } from "@erdwithai/core/auth";
+import { AuthService } from "@appwithai/core/auth";
 
 describe("AuthService", () => {
   it("should authenticate valid credentials", async () => {

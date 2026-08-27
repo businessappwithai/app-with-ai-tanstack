@@ -7,7 +7,7 @@
  *   PGPORT         default: 5432
  *   PGUSER         default: current OS user
  *   PGPASSWORD     default: (empty)
- *   PGDATABASE     default: erdwithai
+ *   PGDATABASE     default: appwithai
  *   PGSSLMODE      disable | require | verify-full — overrides what the URL says
  *
  * Hosted Postgres (Neon, Supabase, RDS) requires TLS and will refuse the
@@ -94,7 +94,7 @@ function buildPoolConfig(): pg.PoolConfig {
     port: Number(process.env.PGPORT ?? 5432),
     user: process.env.PGUSER,
     password: process.env.PGPASSWORD ?? "",
-    database: process.env.PGDATABASE ?? "erdwithai",
+    database: process.env.PGDATABASE ?? "appwithai",
     max: 10,
     ...(ssl ? { ssl } : {}),
   };

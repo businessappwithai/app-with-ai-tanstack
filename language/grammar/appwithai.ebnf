@@ -1,8 +1,8 @@
 (* ==========================================================================
-   ERDwithAI Modeling Language (EML) — Formal Grammar
+   APPWITHAI Modeling Language (EML) — Formal Grammar
    Version: 1.0.0
    Notation: ISO/IEC 14977-style EBNF
-   Companion to: language/erdwithai-language.json
+   Companion to: language/appwithai-language.json
 
    EML is a semantic superset of Mermaid. A document is a sequence of sections
    (erDiagram / flowchart / stateDiagram-v2) interleaved with %% comments and

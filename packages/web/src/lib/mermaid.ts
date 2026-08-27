@@ -2,8 +2,8 @@
 // Converts Mermaid ERD (erDiagram) or flowchart (flowchart TD) to structured data
 // Pure TypeScript, no AI required.
 
-import type { Entity, Relationship } from "@erdwithai/core/types";
-import { MermaidParser } from "@erdwithai/generator";
+import type { Entity, Relationship } from "@appwithai/core/types";
+import { MermaidParser } from "@appwithai/generator";
 import type { JdmGraph } from "./jdm-converter";
 import { convertToJdm } from "./jdm-converter";
 import { parseMermaidFlowchart } from "./mermaid-flowchart-parser";

@@ -31,7 +31,7 @@
  *   the random number generator did.
  */
 
-import { ReferenceType } from "@erdwithai/core/types";
+import { ReferenceType } from "@appwithai/core/types";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { referenceIdFor, tableNameFor } from "./model-bundle";
 
@@ -532,7 +532,7 @@ export function buildSampleData(parsed: ParsedModel, options: SampleDataOptions)
   if (count === 0 || parsed.entities.length === 0) return {};
 
   const nullRate = options.nullRate ?? 0.15;
-  const salt = options.seed ?? "erdwithai";
+  const salt = options.seed ?? "appwithai";
 
   const entities = parsed.entities.map((entity) => ({
     name: entity.name,

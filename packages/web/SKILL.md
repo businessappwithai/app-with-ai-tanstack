@@ -1,11 +1,11 @@
 ---
-name: erdwithai-web
+name: appwithai-web
 description: TanStack Start web application with CopilotKit integration for human-in-the-loop ERD design
 ---
 
-# @erdwithai/web Skill
+# @appwithai/web Skill
 
-This skill provides guidance for working with the web package of ERDwithAI, which is a TanStack Start application providing the user interface for AI-powered ERD design with CopilotKit integration.
+This skill provides guidance for working with the web package of APPWITHAI, which is a TanStack Start application providing the user interface for AI-powered ERD design with CopilotKit integration.
 
 ## Package Overview
 
@@ -223,8 +223,8 @@ bun run build:core && bun run build:ai && bun run build:web
 ## Dependencies
 
 ### Production
-- **@erdwithai/core**: workspace:* - Core types
-- **@erdwithai/ai**: workspace:* - AI integration
+- **@appwithai/core**: workspace:* - Core types
+- **@appwithai/ai**: workspace:* - AI integration
 - **@tanstack/react-router**: ^1.x - File-based routing
 - **@tanstack/start**: ^1.x - TanStack Start framework
 - **vite**: ^5.x - Build tool

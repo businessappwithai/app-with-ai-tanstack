@@ -2,8 +2,8 @@
 /**
  * EML Language Checker
  * ====================
- * Comprehensive validator for ERDwithAI Modeling Language (.mmd) files.
- * Checks every document against erdwithai-language.json and the EML spec.
+ * Comprehensive validator for APPWITHAI Modeling Language (.mmd) files.
+ * Checks every document against appwithai-language.json and the EML spec.
  *
  * Usage:
  *   bun language/checker.ts <file.mmd> [options]
@@ -146,7 +146,7 @@ class SourceIndex {
 
 /**
  * FK column names that carry no suffix but still name a person by role.
- * Mirrors `foreignKeys.personRoleColumns.names` in erdwithai-language.json.
+ * Mirrors `foreignKeys.personRoleColumns.names` in appwithai-language.json.
  */
 /**
  * Column names the generator and the state machines both treat as the record's
@@ -341,7 +341,7 @@ class CheckEngine {
   private fkToEntityName(fkAttr: string): string {
     // A person-role column names the role, not a table: reported_by_id points at
     // a user, not at a "ReportedBy" entity. See foreignKeys.personRoleColumns in
-    // erdwithai-language.json.
+    // appwithai-language.json.
     if (isPersonRoleColumn(fkAttr)) return "User";
     const base = fkAttr.slice(0, -3); // strip _id
     // Convert snake_case to PascalCase
@@ -589,7 +589,7 @@ class CheckEngine {
           `Unknown type "${attr.rawType}" on "${entity.name}.${attr.name}"; mapped to "string".`,
           {
             line: attrLine,
-            hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in erdwithai-language.json).`,
+            hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in appwithai-language.json).`,
           }
         );
       }
@@ -1469,7 +1469,7 @@ class CheckEngine {
    * These checks move that discovery to the model.
    *
    * The vocabulary comes from `workflowConstructs.stepNodes` in
-   * erdwithai-language.json, so a new step type is declared in one place.
+   * appwithai-language.json, so a new step type is declared in one place.
    */
   private checkStepDirectives(): void {
     const stepTypes = new Map(stepNodeTypes().map((step) => [step.name, step]));
@@ -2371,7 +2371,7 @@ class CheckEngine {
  *
  * Everything below this line reads a file, writes an `.error` file beside it and
  * prints in colour, none of which a browser tab can do — but the checking itself
- * only ever needed the text. Exposing it is what lets `erdwithai-wasm` and the
+ * only ever needed the text. Exposing it is what lets `appwithai-wasm` and the
  * upload page refuse a broken model with the same diagnostics the CLI prints,
  * rather than each growing a weaker check of its own.
  */

@@ -529,4 +529,46 @@ export class SysController {
   async findAllSysRoles() {
     return this.sysService.findAllSysRoles();
   }
+
+  // ============================================================================
+  // SYS_REPORT_DESIGN Endpoints
+  // ============================================================================
+
+  @Get('report-designs')
+  @ApiOperation({ summary: 'List all report designs' })
+  async findAllReportDesigns() {
+    return this.sysService.findAllReportDesigns();
+  }
+
+  @Get('report-designs/:tableName')
+  @ApiOperation({ summary: 'Get report design for a table' })
+  async findReportDesignByTable(@Param('tableName') tableName: string) {
+    return this.sysService.findReportDesignByTable(tableName);
+  }
+
+  @Post('report-designs')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Create a report design (administrators only)' })
+  async createReportDesign(
+    @Body() body: { table_name: string; name?: string; layout?: object }
+  ) {
+    return this.sysService.upsertReportDesign(body);
+  }
+
+  @Put('report-designs/:tableName')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Save report design for a table (administrators only)' })
+  async saveReportDesign(
+    @Param('tableName') tableName: string,
+    @Body() body: { name?: string; layout?: object }
+  ) {
+    return this.sysService.upsertReportDesign({ table_name: tableName, ...body });
+  }
+
+  @Delete('report-designs/:tableName')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Delete report design for a table (administrators only)' })
+  async deleteReportDesign(@Param('tableName') tableName: string) {
+    return this.sysService.deleteReportDesign(tableName);
+  }
 }

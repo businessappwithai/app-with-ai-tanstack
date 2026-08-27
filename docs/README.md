@@ -1,4 +1,4 @@
-# ERDwithAI
+# APPWITHAI
 
 **AI-Powered Entity Relationship Design & Code Generation Platform**
 
@@ -128,20 +128,20 @@ erDiagram
 
 ```bash
 # Convert natural language to Mermaid
-erdwithai-convert "E-commerce with products, categories, orders" -o shop.mermaid
+appwithai-convert "E-commerce with products, categories, orders" -o shop.mermaid
 
 # Fast mode (programmatic)
-erdwithai-convert -i description.txt --fast
+appwithai-convert -i description.txt --fast
 
 # Analysis only
-erdwithai-convert "CRM system" --analyze-only --json > analysis.json
+appwithai-convert "CRM system" --analyze-only --json > analysis.json
 ```
 
 ### Example 3: Generate Full-Stack Application
 
 ```bash
 # 1. Create ERD (using designer or CLI)
-erdwithai-convert "Blog platform" -o blog.mermaid
+appwithai-convert "Blog platform" -o blog.mermaid
 
 # 2. Generate Modern Web Stack (nextjs-nestjs)
 bun run generate:nextjs -- -i blog.mermaid -o ./generated/blog-app
@@ -155,7 +155,7 @@ bun run generate:odata -- -i blog.mermaid -o ./generated/blog-api
 ## 📦 Package Structure
 
 ```
-erdwithai/
+appwithai/
 ├── packages/
 │   ├── core/       # Core business logic, types, hooks, RBAC
 │   ├── generator/  # Code generation engine & Handlebars templates
@@ -230,8 +230,8 @@ bun run dev:mastra   # AI server (if using standalone AI)
 
 # Building
 bun run build        # Build all packages
-bun run build:core    # Build @erdwithai/core
-bun run build:web     # Build @erdwithai/web
+bun run build:core    # Build @appwithai/core
+bun run build:web     # Build @appwithai/web
 
 # Code Quality
 bun run lint         # ESLint
@@ -252,10 +252,10 @@ bun run generate:ui5      # Generate OpenUI5 app
 ### Build Status
 
 ✅ **All packages build successfully**
-- @erdwithai/core: 124.75 KB (27 modules)
-- @erdwithai/generator: 220.68 KB (51 modules)
-- @erdwithai/ai: 44.7 KB (including Mastra)
-- @erdwithai/web: Next.js optimized build
+- @appwithai/core: 124.75 KB (27 modules)
+- @appwithai/generator: 220.68 KB (51 modules)
+- @appwithai/ai: 44.7 KB (including Mastra)
+- @appwithai/web: Next.js optimized build
 
 ---
 

@@ -1,7 +1,7 @@
 /**
  * The NestJS + TanStack Start stack, assembled in a browser tab.
  *
- * This is the other half of what `erdwithai-wasm generate` does — the half that
+ * This is the other half of what `appwithai-wasm generate` does — the half that
  * needed a disk. `run-in-browser.html` compiles a model into the self-contained
  * runtime, which needs no install and no build; this compiles the same model
  * into the *real* application, four hundred files of NestJS and React, for
@@ -23,7 +23,7 @@
  */
 
 import { setLanguageDefinition as setCheckerDefinition } from "../../../../language";
-import languageDefinition from "../../../../language/erdwithai-language.json";
+import languageDefinition from "../../../../language/appwithai-language.json";
 import { DEFAULT_BACKEND_PORT, DEFAULT_FRONTEND_PORT } from "../generators/ports";
 import { applyWasmOverlay } from "../generators/wasm/overlay";
 import { setLanguageDefinition } from "../parsers/language-maps";

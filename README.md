@@ -1,8 +1,8 @@
-# ERDwithAI
+# APPWITHAI
 
 Describe a business in one Mermaid file; get a running application.
 
-ERDwithAI compiles **EML** — a Mermaid-based modelling language for entities,
+APPWITHAI compiles **EML** — a Mermaid-based modelling language for entities,
 business rules, workflows and access control — into a complete full-stack
 application: PostgreSQL schema, NestJS API, TanStack Start front end, role
 accounts, seeded data, an audit trail and a generated manual describing all of
@@ -26,7 +26,7 @@ an application in your own browser tab without installing anything.
 
 One model produces **two** applications, from the same pipeline:
 
-| | `erdwithai` / `erdwithai-wasm generate` | `erdwithai-wasm generate --standalone` |
+| | `appwithai` / `appwithai-wasm generate` | `appwithai-wasm generate --standalone` |
 |---|---|---|
 | What it is | the real stack — NestJS + TanStack Start, ~409 files | a self-contained app that boots in a browser tab |
 | Database | PostgreSQL (or PostgreSQL compiled to WebAssembly) | PGlite, in the visitor's IndexedDB |
@@ -102,7 +102,7 @@ erDiagram
 Every EML document is valid, renderable Mermaid — the generator's semantics ride
 on `%%` comments that renderers ignore, so a model opens in any Mermaid viewer.
 
-`language/erdwithai-language.json` is the canonical definition. The full
+`language/appwithai-language.json` is the canonical definition. The full
 specification, written for language models, is `llmtext/llms-full.txt`.
 
 ### Validating a model

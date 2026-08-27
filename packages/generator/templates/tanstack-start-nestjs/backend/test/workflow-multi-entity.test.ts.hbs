@@ -25,29 +25,29 @@ import { RulesEngine } from '../src/modules/rules/rules-engine.service';
 
 /** Tasks are declared in REVERSE order; the sequence flows say 1 -> 2 -> 3. */
 const OUT_OF_ORDER_BPMN = `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:erdwithai="http://erdwithai/schema">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:appwithai="http://appwithai/schema">
   <bpmn:process id="p" isExecutable="true">
     <bpmn:startEvent id="start"/>
     <bpmn:serviceTask id="third">
-      <bpmn:extensionElements><erdwithai:properties>
-        <erdwithai:property name="nodeType" value="UpdateEntity"/>
-        <erdwithai:property name="field" value="step_three"/>
-        <erdwithai:property name="value" value="3"/>
-      </erdwithai:properties></bpmn:extensionElements>
+      <bpmn:extensionElements><appwithai:properties>
+        <appwithai:property name="nodeType" value="UpdateEntity"/>
+        <appwithai:property name="field" value="step_three"/>
+        <appwithai:property name="value" value="3"/>
+      </appwithai:properties></bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="second">
-      <bpmn:extensionElements><erdwithai:properties>
-        <erdwithai:property name="nodeType" value="UpdateEntity"/>
-        <erdwithai:property name="field" value="step_two"/>
-        <erdwithai:property name="value" value="2"/>
-      </erdwithai:properties></bpmn:extensionElements>
+      <bpmn:extensionElements><appwithai:properties>
+        <appwithai:property name="nodeType" value="UpdateEntity"/>
+        <appwithai:property name="field" value="step_two"/>
+        <appwithai:property name="value" value="2"/>
+      </appwithai:properties></bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="first">
-      <bpmn:extensionElements><erdwithai:properties>
-        <erdwithai:property name="nodeType" value="UpdateEntity"/>
-        <erdwithai:property name="field" value="step_one"/>
-        <erdwithai:property name="value" value="1"/>
-      </erdwithai:properties></bpmn:extensionElements>
+      <bpmn:extensionElements><appwithai:properties>
+        <appwithai:property name="nodeType" value="UpdateEntity"/>
+        <appwithai:property name="field" value="step_one"/>
+        <appwithai:property name="value" value="1"/>
+      </appwithai:properties></bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="f0" sourceRef="start"  targetRef="first"/>
     <bpmn:sequenceFlow id="f1" sourceRef="first"  targetRef="second"/>
@@ -57,16 +57,16 @@ const OUT_OF_ORDER_BPMN = `<?xml version="1.0" encoding="UTF-8"?>
 
 function updateTaskBpmn(props: Record<string, string>): string {
   const lines = Object.entries(props)
-    .map(([k, v]) => `<erdwithai:property name="${k}" value="${v}"/>`)
+    .map(([k, v]) => `<appwithai:property name="${k}" value="${v}"/>`)
     .join('\n        ');
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:erdwithai="http://erdwithai/schema">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:appwithai="http://appwithai/schema">
   <bpmn:process id="p" isExecutable="true">
     <bpmn:startEvent id="start"/>
     <bpmn:serviceTask id="task">
-      <bpmn:extensionElements><erdwithai:properties>
+      <bpmn:extensionElements><appwithai:properties>
         ${lines}
-      </erdwithai:properties></bpmn:extensionElements>
+      </appwithai:properties></bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="f0" sourceRef="start" targetRef="task"/>
   </bpmn:process>
@@ -378,24 +378,24 @@ describe('WorkflowService — Formula', () => {
     const vars: Record<string, unknown> = {};
 
     const bpmn = `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:erdwithai="http://erdwithai/schema">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:appwithai="http://appwithai/schema">
   <bpmn:process id="p" isExecutable="true">
     <bpmn:startEvent id="start"/>
     <bpmn:serviceTask id="calc">
-      <bpmn:extensionElements><erdwithai:properties>
-        <erdwithai:property name="nodeType" value="Formula"/>
-        <erdwithai:property name="target" value="score"/>
-        <erdwithai:property name="source" value="version"/>
-        <erdwithai:property name="operation" value="multiply"/>
-        <erdwithai:property name="operand" value="10"/>
-      </erdwithai:properties></bpmn:extensionElements>
+      <bpmn:extensionElements><appwithai:properties>
+        <appwithai:property name="nodeType" value="Formula"/>
+        <appwithai:property name="target" value="score"/>
+        <appwithai:property name="source" value="version"/>
+        <appwithai:property name="operation" value="multiply"/>
+        <appwithai:property name="operand" value="10"/>
+      </appwithai:properties></bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="apply">
-      <bpmn:extensionElements><erdwithai:properties>
-        <erdwithai:property name="nodeType" value="UpdateEntity"/>
-        <erdwithai:property name="field" value="score"/>
-        <erdwithai:property name="source" value="score"/>
-      </erdwithai:properties></bpmn:extensionElements>
+      <bpmn:extensionElements><appwithai:properties>
+        <appwithai:property name="nodeType" value="UpdateEntity"/>
+        <appwithai:property name="field" value="score"/>
+        <appwithai:property name="source" value="score"/>
+      </appwithai:properties></bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="f0" sourceRef="start" targetRef="calc"/>
     <bpmn:sequenceFlow id="f1" sourceRef="calc"  targetRef="apply"/>
@@ -572,21 +572,21 @@ function decisionThenUpdateBpmn(
 ): string {
   const render = (props: Record<string, string>) =>
     Object.entries(props)
-      .map(([k, v]) => `<erdwithai:property name="${k}" value="${attr(v)}"/>`)
+      .map(([k, v]) => `<appwithai:property name="${k}" value="${attr(v)}"/>`)
       .join('\n        ');
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:erdwithai="http://erdwithai/schema">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:appwithai="http://appwithai/schema">
   <bpmn:process id="p" isExecutable="true">
     <bpmn:startEvent id="start"/>
     <bpmn:serviceTask id="decide">
-      <bpmn:extensionElements><erdwithai:properties>
+      <bpmn:extensionElements><appwithai:properties>
         ${render(decisionProps)}
-      </erdwithai:properties></bpmn:extensionElements>
+      </appwithai:properties></bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="apply">
-      <bpmn:extensionElements><erdwithai:properties>
+      <bpmn:extensionElements><appwithai:properties>
         ${render(updateProps)}
-      </erdwithai:properties></bpmn:extensionElements>
+      </appwithai:properties></bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="f0" sourceRef="start"  targetRef="decide"/>
     <bpmn:sequenceFlow id="f1" sourceRef="decide" targetRef="apply"/>

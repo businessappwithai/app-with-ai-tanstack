@@ -1,5 +1,5 @@
 /**
- * Utility functions for the ERDwithAI application
+ * Utility functions for the APPWITHAI application
  */
 
 import { type ClassValue, clsx } from "clsx";

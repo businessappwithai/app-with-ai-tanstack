@@ -1,8 +1,8 @@
-# ERDwithAI Modeling Language (EML)
+# APPWITHAI Modeling Language (EML)
 
 **EML** is a single, standalone, Mermaid-based language for describing an
 application's **Entity Relationship Diagram (ERD)**, its **business rules**, and
-its **business workflows** — all in one artifact that the ERDwithAI generator
+its **business workflows** — all in one artifact that the APPWITHAI generator
 reads to produce full-stack applications.
 
 Every EML document is **valid, renderable Mermaid**. EML is a *semantic superset*:
@@ -21,7 +21,7 @@ The **full language** is defined in one machine-readable file that the
 generator application reads:
 
 ```
-language/erdwithai-language.json
+language/appwithai-language.json
 ```
 
 This JSON is the **single source of truth** for the language: type vocabulary,
@@ -52,14 +52,14 @@ isHookType("beforeCreate");   // true
 ```
 language/
 ├── README.md                     # This entry point
-├── erdwithai-language.json       # ⭐ Canonical, machine-readable definition (the language)
+├── appwithai-language.json       # ⭐ Canonical, machine-readable definition (the language)
 ├── index.ts                      # Typed loader/accessor for the generator app
 ├── composer.ts                   # Writes a complete EML document (composeEml, mergeSections)
 ├── rag.ts                        # EML → retrieval chunks; copied into generated apps verbatim
 ├── checker.ts                    # Validator — `bun language/checker.ts <file.mmd>`
 ├── fixer.ts                      # Applies the checker's auto-fixable codes
 ├── grammar/
-│   └── erdwithai.ebnf            # Formal EBNF grammar
+│   └── appwithai.ebnf            # Formal EBNF grammar
 ├── spec/
 │   ├── 00-overview.md            # Concepts, document structure, sections
 │   ├── 01-erd.md                 # ERD reference
@@ -98,7 +98,7 @@ It supports `--input`, `--output`, `--name`, `--docker`, `--github <owner/repo>`
 
 The shipped ERD parser
 (`packages/generator/src/parsers/mermaid.parser.ts`) also loads its type and
-cardinality maps from `erdwithai-language.json` at runtime, so the generator and
+cardinality maps from `appwithai-language.json` at runtime, so the generator and
 the language definition never drift.
 
 ---
@@ -179,10 +179,10 @@ generated; when the two disagree, the generator's copy is the language.
 | **reserved** | `%%field` keys other than `enum:` | Renderer-safe, documented, inert |
 
 Each directive also carries its own `status` and `consumedBy` in
-`erdwithai-language.json`, which is authoritative for that directive; the levels
+`appwithai-language.json`, which is authoritative for that directive; the levels
 above just group them.
 
-See `spec/` for the full reference and `erdwithai-language.json` for the
+See `spec/` for the full reference and `appwithai-language.json` for the
 machine-readable contract.
 
 For the whole system — the generator, its templates, and what a generated

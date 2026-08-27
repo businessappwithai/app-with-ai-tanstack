@@ -1,6 +1,6 @@
-# ERDwithAI Scripts
+# APPWITHAI Scripts
 
-This directory contains utility scripts for setting up, testing, and developing ERDwithAI.
+This directory contains utility scripts for setting up, testing, and developing APPWITHAI.
 
 ## Directory Structure
 
@@ -169,7 +169,7 @@ Start the development server with proper PID tracking.
 ```
 
 ### `stop.sh`
-Stop all running ERDwithAI services.
+Stop all running APPWITHAI services.
 
 **Usage:**
 ```bash

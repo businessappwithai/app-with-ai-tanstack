@@ -10,7 +10,7 @@ import { defineConfig, devices } from "@playwright/test";
  * - dictionary-tanstack: Compiere dictionary tests for NestJS API & TanStack Start admin UI
  * - dictionary-odata: Compiere dictionary tests for OData API & OpenUI5 metadata-driven UI
  * - dictionary-generator: Validates DictionaryGenerator output correctness
- * - generator: Tests the ERDwithAI generator UI workflow
+ * - generator: Tests the APPWITHAI generator UI workflow
  * - hospital-tanstack-nestjs: Hospital Management System (TanStack Start + NestJS) E2E tests
  * - hospital-odata-ui5: Hospital Management System (OpenUI5 + OData V4) E2E tests
  * - crm-tanstack-nestjs: CRM System (TanStack Start + NestJS) E2E tests

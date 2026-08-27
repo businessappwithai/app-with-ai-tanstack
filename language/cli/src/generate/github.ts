@@ -48,7 +48,7 @@ export async function publishToGithub(opts: GithubOptions): Promise<GithubResult
   }
   git(["add", "-A"], opts.outDir);
   const commit = git(
-    ["commit", "-m", "Initial commit — generated from EML by the ERDwithAI CLI"],
+    ["commit", "-m", "Initial commit — generated from EML by the APPWITHAI CLI"],
     opts.outDir
   );
   messages.push(commit.ok ? "Created commit." : "Nothing new to commit.");
@@ -82,7 +82,7 @@ export async function publishToGithub(opts: GithubOptions): Promise<GithubResult
     name: repo,
     private: opts.private ?? true,
     auto_init: false,
-    description: "Generated from an EML model by the ERDwithAI CLI",
+    description: "Generated from an EML model by the APPWITHAI CLI",
   });
   if (!create.ok && !/name already exists/i.test(create.error ?? "")) {
     messages.push(`Could not create repo (${create.error}); assuming it exists and continuing.`);
@@ -127,7 +127,7 @@ async function ghApi(
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github+json",
-        "User-Agent": "erdwithai-eml-cli",
+        "User-Agent": "appwithai-eml-cli",
         "Content-Type": "application/json",
       },
       body: body ? JSON.stringify(body) : undefined,

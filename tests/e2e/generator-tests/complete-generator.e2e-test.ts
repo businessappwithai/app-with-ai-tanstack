@@ -1,5 +1,5 @@
 /**
- * Comprehensive E2E Tests for ERDwithAI Generator
+ * Comprehensive E2E Tests for APPWITHAI Generator
  * Tests all framework generators and their generated applications
  */
 
@@ -39,9 +39,9 @@ const TEST_ERD = `erDiagram
 }`;
 
 /**
- * Test Suite: ERDwithAI Generator Application
+ * Test Suite: APPWITHAI Generator Application
  */
-test.describe("ERDwithAI Generator", () => {
+test.describe("APPWITHAI Generator", () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to home page
     await page.goto("/");

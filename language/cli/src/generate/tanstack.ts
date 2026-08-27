@@ -11,7 +11,7 @@
  * The cross-package generator is loaded via a runtime dynamic import with a
  * non-literal specifier and local structural types, so this file stays
  * self-contained for the CLI's own type-check while still driving the real
- * generator at runtime (under Bun, with `@erdwithai/core` built).
+ * generator at runtime (under Bun, with `@appwithai/core` built).
  */
 
 import type { EmlModel } from "../model.ts";

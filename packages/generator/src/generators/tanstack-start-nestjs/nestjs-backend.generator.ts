@@ -24,7 +24,7 @@ import {
   entityToBusEntity,
   generateEntityDictionary,
   type Relationship,
-} from "@erdwithai/core/types";
+} from "@appwithai/core/types";
 import { type CompiledHook, HOOK_CONTRACTS, hooksByEntity } from "../../hooks";
 import type { EntityCategory } from "../../parsers/category.parser";
 import { type CompiledRbac, hasRbacRules, rbacRoleNames } from "../../rbac";
@@ -1487,6 +1487,16 @@ export async function executeCustomValidateHooks(
     await fs.writeFile(
       path.join(outputDir, "seeds/05b_workflow_transitions.ts"),
       this.renderWorkflowTransitionsSeed(context)
+    );
+
+    // Seed default AnkaReport layouts for every entity into sys_report_designs.
+    const reportDesignsSeedContent = await this.renderTemplate(
+      "../../common/seeds/report-designs.ts.hbs",
+      context
+    );
+    await fs.writeFile(
+      path.join(outputDir, "seeds/06_report_designs.ts"),
+      reportDesignsSeedContent
     );
   }
 

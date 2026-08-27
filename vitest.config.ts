@@ -41,14 +41,14 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./packages/web/src"),
-      "@erdwithai/core": path.resolve(__dirname, "./packages/core/src"),
-      "@erdwithai/core/*": path.resolve(__dirname, "./packages/core/src/*"),
-      "@erdwithai/generator": path.resolve(__dirname, "./packages/generator/src"),
-      "@erdwithai/generator/*": path.resolve(__dirname, "./packages/generator/src/*"),
-      "@erdwithai/ai": path.resolve(__dirname, "./packages/ai/src"),
-      "@erdwithai/ai/*": path.resolve(__dirname, "./packages/ai/src/*"),
-      "@erdwithai/web": path.resolve(__dirname, "./packages/web/src"),
-      "@erdwithai/web/*": path.resolve(__dirname, "./packages/web/src/*"),
+      "@appwithai/core": path.resolve(__dirname, "./packages/core/src"),
+      "@appwithai/core/*": path.resolve(__dirname, "./packages/core/src/*"),
+      "@appwithai/generator": path.resolve(__dirname, "./packages/generator/src"),
+      "@appwithai/generator/*": path.resolve(__dirname, "./packages/generator/src/*"),
+      "@appwithai/ai": path.resolve(__dirname, "./packages/ai/src"),
+      "@appwithai/ai/*": path.resolve(__dirname, "./packages/ai/src/*"),
+      "@appwithai/web": path.resolve(__dirname, "./packages/web/src"),
+      "@appwithai/web/*": path.resolve(__dirname, "./packages/web/src/*"),
     },
   },
 });

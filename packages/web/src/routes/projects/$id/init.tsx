@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { requestContext } from "@/lib/request-context";
 import { ArrowLeft, Check, Info, Loader2, Settings, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
@@ -6,7 +7,22 @@ import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useProjectStore } from "@/store/projectStore";
 
+async function checkAuthMe() {
+  const { baseUrl, fetchInit } = requestContext();
+  const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
+  return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
+}
+
 export const Route = createFileRoute("/projects/$id/init")({
+  beforeLoad: async () => {
+    try {
+      const data = await checkAuthMe();
+      if (!data.user) throw redirect({ to: "/login" });
+    } catch (e) {
+      if (e && typeof e === "object" && "to" in e) throw e;
+      throw redirect({ to: "/login" });
+    }
+  },
   component: InitPage,
 });
 
@@ -51,7 +67,7 @@ function InitPage() {
         description: currentProject.description,
         stackType: currentProject.stackType,
         databaseUrl:
-          currentProject.databaseUrl || `postgresql://erdwithai@127.0.0.1:5432/${projectId}`,
+          currentProject.databaseUrl || `postgresql://appwithai@127.0.0.1:5432/${projectId}`,
       });
       setCurrentProject(projectId);
     }
@@ -348,7 +364,7 @@ function InitPage() {
                         type="text"
                         value={formData.databaseUrl}
                         onChange={(e) => setFormData({ ...formData, databaseUrl: e.target.value })}
-                        placeholder={`postgresql://erdwithai@127.0.0.1:5432/${projectId}`}
+                        placeholder={`postgresql://appwithai@127.0.0.1:5432/${projectId}`}
                         className="w-full font-mono text-sm bg-background border border-border text-foreground rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                       />
                       <p className="text-xs text-muted-foreground mt-1">

@@ -1,4 +1,4 @@
-import { getDatabase, runMigrations } from "@erdwithai/core/services";
+import { getDatabase, runMigrations } from "@appwithai/core/services";
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();

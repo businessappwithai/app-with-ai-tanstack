@@ -108,7 +108,7 @@ export interface RuleExecutionContext {
 
 /**
  * Rule definition from sys_rule table (legacy/database-level type)
- * For the business-layer type, see RuleDefinition in @erdwithai/core/rules
+ * For the business-layer type, see RuleDefinition in @appwithai/core/rules
  */
 export interface SysRuleDefinition {
   id: string;

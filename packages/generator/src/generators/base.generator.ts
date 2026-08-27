@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import type { Entity, Relationship } from "@erdwithai/core/types";
+import type { Entity, Relationship } from "@appwithai/core/types";
 import { TemplateLoader } from "../templates/loader";
 
 export abstract class BaseGenerator {

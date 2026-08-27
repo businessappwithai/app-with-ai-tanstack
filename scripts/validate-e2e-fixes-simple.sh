@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Simple project-structure validation for ERDwithAI (TanStack Start edition)
+# Simple project-structure validation for APPWITHAI (TanStack Start edition)
 ###############################################################################
 
 GREEN='\033[0;32m'
@@ -50,16 +50,16 @@ check_grep() {
 }
 
 echo -e "${BLUE}======================================${NC}"
-echo -e "${BLUE}ERDwithAI Validation Report${NC}"
+echo -e "${BLUE}APPWITHAI Validation Report${NC}"
 echo -e "${BLUE}======================================${NC}"
 echo ""
 
 echo -e "${BLUE}[1] Monorepo packages${NC}"
 check_dir "packages/"               "$PROJECT_ROOT/packages"
-check_dir "@erdwithai/core"         "$PROJECT_ROOT/packages/core"
-check_dir "@erdwithai/generator"    "$PROJECT_ROOT/packages/generator"
-check_dir "@erdwithai/ai"           "$PROJECT_ROOT/packages/ai"
-check_dir "@erdwithai/web"          "$PROJECT_ROOT/packages/web"
+check_dir "@appwithai/core"         "$PROJECT_ROOT/packages/core"
+check_dir "@appwithai/generator"    "$PROJECT_ROOT/packages/generator"
+check_dir "@appwithai/ai"           "$PROJECT_ROOT/packages/ai"
+check_dir "@appwithai/web"          "$PROJECT_ROOT/packages/web"
 echo ""
 
 echo -e "${BLUE}[2] Web app (TanStack Start / Vite)${NC}"

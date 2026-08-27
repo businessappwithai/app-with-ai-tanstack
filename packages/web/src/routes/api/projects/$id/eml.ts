@@ -41,9 +41,9 @@ export const Route = createFileRoute("/api/projects/$id/eml")({
           const access = await requireProjectAccess(request, params.id);
           if (access.response) return access.response;
 
-          const { projectDb } = await import("@erdwithai/core/services");
+          const { projectDb } = await import("@appwithai/core/services");
           const { extractRuleSections, extractWorkflowSections } = await import(
-            "@erdwithai/generator"
+            "@appwithai/generator"
           );
 
           const project = await projectDb.findById(params.id);
@@ -68,9 +68,9 @@ export const Route = createFileRoute("/api/projects/$id/eml")({
           const access = await requireProjectAccess(request, params.id, "read_write");
           if (access.response) return access.response;
 
-          const { erdVersionDb, projectDb } = await import("@erdwithai/core/services");
+          const { erdVersionDb, projectDb } = await import("@appwithai/core/services");
           const { mergeSections, extractRuleSections, extractWorkflowSections, parseModel } =
-            await import("@erdwithai/generator");
+            await import("@appwithai/generator");
 
           const project = await projectDb.findById(params.id);
           if (!project) return json({ error: "Project not found" }, 404);
@@ -118,7 +118,7 @@ export const Route = createFileRoute("/api/projects/$id/eml")({
           // keeping even when the vector store is unreachable, and stale
           // context is a worse answer, not a lost document.
           try {
-            const { ingestProjectModel } = await import("@erdwithai/ai");
+            const { ingestProjectModel } = await import("@appwithai/ai");
             await ingestProjectModel(params.id, eml, { name: project.name });
           } catch (ingestError) {
             console.warn("[eml] model saved but not re-embedded:", ingestError);

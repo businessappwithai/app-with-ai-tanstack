@@ -12,7 +12,7 @@ import {
   kebabCase as coreKebab,
   pascalCase as corePascal,
   snakeCase as coreSnake,
-} from "@erdwithai/core/utils";
+} from "@appwithai/core/utils";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — plain JavaScript shipped into generated applications
 import { evaluate, test as testExpression } from "../../../../templates/wasm/server/lib/expr.js";
@@ -204,7 +204,7 @@ describe("access control", () => {
 
 describe("naming stays identical to core's", () => {
   // The runtime carries its own copy because it is shipped to a browser, where
-  // an `@erdwithai/*` import would not resolve. A divergence would give an app
+  // an `@appwithai/*` import would not resolve. A divergence would give an app
   // URLs that disagree with its own dictionary.
   const samples = ["SalesOrder", "order_line", "CAPA", "StabilityPull", "user"];
 
@@ -229,7 +229,7 @@ describe("the generated application", () => {
     const runtime = new Set(Object.keys(RUNTIME_ASSETS));
     const extra = [...generated.files.keys()].filter((name) => !runtime.has(name));
     expect(extra.sort()).toEqual([
-      ".erdwithai.json",
+      ".appwithai.json",
       "README.md",
       "app/model.json",
       "app/schema.bus.sql",

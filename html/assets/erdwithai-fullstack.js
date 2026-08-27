@@ -431,24 +431,24 @@ var init_language = __esm(() => {
   init_node_url();
   LANGUAGE_DEFINITION_PATH = (() => {
     const here = node_path_default.dirname(fileURLToPath(import.meta.url));
-    return node_path_default.join(here, "erdwithai-language.json");
+    return node_path_default.join(here, "appwithai-language.json");
   })();
 });
 
-// language/erdwithai-language.json
-var erdwithai_language_default;
-var init_erdwithai_language = __esm(() => {
-  erdwithai_language_default = {
+// language/appwithai-language.json
+var appwithai_language_default;
+var init_appwithai_language = __esm(() => {
+  appwithai_language_default = {
     $schema: "https://json-schema.org/draft/2020-12/schema",
-    $id: "https://erdwithai.dev/language/erdwithai-language.json",
+    $id: "https://appwithai.dev/language/appwithai-language.json",
     language: {
-      id: "erdwithai-eml",
-      name: "ERDwithAI Modeling Language",
+      id: "appwithai-eml",
+      name: "APPWITHAI Modeling Language",
       abbreviation: "EML",
       version: "1.2.0",
       basedOn: "mermaid",
       mermaidCompatibility: "All EML documents are valid, renderable Mermaid. EML is a semantic superset that assigns generator meaning to standard Mermaid constructs (erDiagram, flowchart, stateDiagram-v2) and to `%%`-prefixed directive comments.",
-      description: "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the ERDwithAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
+      description: "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the APPWITHAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
       fileExtensions: [".eml.mmd", ".erd.mmd", ".flow.mmd", ".rules.mmd", ".mmd"],
       encoding: "utf-8",
       caseSensitivity: {
@@ -1100,7 +1100,7 @@ var init_erdwithai_language = __esm(() => {
         }
       },
       stepNodes: {
-        description: "Executable step types for a `kind: saga` workflow. A %%step directive binds a flowchart node to one of these and supplies its properties; each becomes one bpmn:serviceTask with erdwithai:property extension elements. This table is the single source of truth for the checker, the generator, the EML authoring canvas and the generated Workflow Designer.",
+        description: "Executable step types for a `kind: saga` workflow. A %%step directive binds a flowchart node to one of these and supplies its properties; each becomes one bpmn:serviceTask with appwithai:property extension elements. This table is the single source of truth for the checker, the generator, the EML authoring canvas and the generated Workflow Designer.",
         directive: "%%step <nodeId> <stepType> <key>: <value> ...",
         propertyForm: "Space-separated `key: value` pairs. A value runs to the next `<key>:` token or the end of the line, so it may contain spaces. `fields` is JSON and must be the last key on the line.",
         variables: "Steps share a context: the triggering record's columns, plus every variable a previous step published. CreateEntity publishes the new row's id under `as`; Formula publishes under `target`. A later step reads one by naming it in `source` or `targetSource`. This is what lets a workflow reach a row it created earlier.",
@@ -1629,7 +1629,7 @@ var init_erdwithai_language = __esm(() => {
       }
     },
     grammar: {
-      notation: "EBNF-like; see language/grammar/erdwithai.ebnf for the full grammar.",
+      notation: "EBNF-like; see language/grammar/appwithai.ebnf for the full grammar.",
       topLevel: "document ::= ( comment | directive | erdSection | ruleSection | workflowSection | blankLine )*",
       erdSection: "erdSection ::= 'erDiagram' NEWLINE ( entityBlock | relationship | comment )*",
       entityBlock: "entityBlock ::= IDENT '{' NEWLINE attribute* '}' NEWLINE",
@@ -1746,7 +1746,7 @@ function findDefinitionFile() {
   for (const start of starts) {
     let dir = start;
     for (let i = 0;i < 12; i++) {
-      const candidate = node_path_default.join(dir, "language", "erdwithai-language.json");
+      const candidate = node_path_default.join(dir, "language", "appwithai-language.json");
       if (existsSync(candidate))
         return candidate;
       const parent = node_path_default.dirname(dir);
@@ -13726,7 +13726,7 @@ class CheckEngine {
       if (rawBase && rawBase !== "string" && !(rawBase in def.types.map)) {
         this.warn("EML115", `Unknown type "${attr.rawType}" on "${entity2.name}.${attr.name}"; mapped to "string".`, {
           line: attrLine,
-          hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in erdwithai-language.json).`
+          hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in appwithai-language.json).`
         });
       }
       if (attr.isPrimaryKey && attrLine) {
@@ -15649,7 +15649,7 @@ const steps = [];
 function report(payload) {
   if (window.parent === window) return;
   try {
-    window.parent.postMessage({ source: "erdwithai-boot", ...payload }, "*");
+    window.parent.postMessage({ source: "appwithai-boot", ...payload }, "*");
   } catch {
     // A parent on another origin that refuses messages is not a boot failure.
   }
@@ -15960,7 +15960,7 @@ function installNodeCompat() {
       arch: "wasm32",
       type: "worker",
       // Deliberately no \`node\` key. See above.
-      versions: { erdwithai: "wasm-browser" },
+      versions: { appwithai: "wasm-browser" },
       pid: 1,
       cwd: () => "/",
       exit: (code) => {
@@ -16305,7 +16305,7 @@ export async function createServer(options) {
   // rather than by the host because only the model knows its key, and a host
   // that guessed would put two applications in one database.
   const resolvedDataDir =
-    dataDir === "auto" ? \`idb://erdwithai-\${model.project.dataKey || model.project.slug}\` : dataDir;
+    dataDir === "auto" ? \`idb://appwithai-\${model.project.dataKey || model.project.slug}\` : dataDir;
 
   log(\`Opening PostgreSQL (wasm)\${resolvedDataDir ? \` at \${resolvedDataDir}\` : " in memory"}\`);
   const db = await Database.open({ PGlite, dataDir: resolvedDataDir });
@@ -16513,7 +16513,7 @@ function timingSafeEqual(left, right) {
   return mismatch === 0;
 }
 
-export const SESSION_COOKIE = "erdwithai_session";
+export const SESSION_COOKIE = "appwithai_session";
 
 export function readCookie(request, name) {
   const header = request.headers.get("cookie");
@@ -17667,10 +17667,10 @@ export async function labelsForRows(db, entity, rows) {
 }
 `,
     "server/lib/naming.js": `/**
- * Naming, kept identical to @erdwithai/core/utils.
+ * Naming, kept identical to @appwithai/core/utils.
  *
  * Duplicated rather than imported because this file is copied verbatim into a
- * generated application and shipped to a browser: an \`@erdwithai/*\` import
+ * generated application and shipped to a browser: an \`@appwithai/*\` import
  * would not survive the trip. The parity test in the generator package asserts
  * these agree with core's, so a divergence fails the build rather than
  * producing an app whose URLs disagree with its own dictionary.
@@ -20236,8 +20236,8 @@ a { color: var(--primary); }
  * is what the hosted generator needs, and costs nothing here.
  */
 
-const CACHE = "erdwithai-wasm-vfs-v1";
-const MOUNTS_KEY = "/__erdwithai_mounts__";
+const CACHE = "appwithai-wasm-vfs-v1";
+const MOUNTS_KEY = "/__appwithai_mounts__";
 
 /** MessagePorts to backend workers, keyed by the base path each serves. */
 const backends = new Map();
@@ -20477,7 +20477,7 @@ function contentType(name) {
  * does not inherit the session, and closing the tab ends it.
  */
 
-const TOKEN_KEY = "erdwithai.session";
+const TOKEN_KEY = "appwithai.session";
 
 let base = "/";
 let onUnauthorized = () => {};
@@ -23228,7 +23228,7 @@ function buildSampleData(parsed, options) {
   if (count === 0 || parsed.entities.length === 0)
     return {};
   const nullRate = options.nullRate ?? 0.15;
-  const salt = options.seed ?? "erdwithai";
+  const salt = options.seed ?? "appwithai";
   const entities = parsed.entities.map((entity2) => ({
     name: entity2.name,
     table: tableNameFor(entity2),
@@ -23541,7 +23541,7 @@ function generateWasmApp(parsed, options) {
   }
   files2.set("package.json", packageJson(options));
   files2.set("README.md", readme(options, parsed));
-  files2.set(".erdwithai.json", `${JSON.stringify({
+  files2.set(".appwithai.json", `${JSON.stringify({
     name: options.name,
     version: options.version,
     description: options.description,
@@ -23552,7 +23552,7 @@ function generateWasmApp(parsed, options) {
     workflows: parsed.workflows.map((workflow) => workflow.name),
     sagas: parsed.sagas.map((saga) => saga.name),
     generatedAt: new Date().toISOString(),
-    generator: "erdwithai-wasm"
+    generator: "appwithai-wasm"
   }, null, 2)}
 `);
   let bytes = 0;
@@ -23583,7 +23583,7 @@ function packageJson(options) {
       server: "node host/node-host.mjs --port 4000"
     },
     devDependencies: { "@electric-sql/pglite": "^0.5.5" },
-    erdwithai: { stack: "wasm-browser" }
+    appwithai: { stack: "wasm-browser" }
   }, null, 2)}
 `;
 }
@@ -23592,7 +23592,7 @@ function readme(options, parsed) {
 
 ${options.description}
 
-Generated by \`erdwithai-wasm\` from an EML model. It runs entirely in a browser
+Generated by \`appwithai-wasm\` from an EML model. It runs entirely in a browser
 tab: PostgreSQL 18 compiled to WebAssembly, an application server on a Worker,
 and a Service Worker answering the page's own \`/api\` requests. After the first
 load nothing is fetched, and no data leaves the browser.
@@ -23741,18 +23741,18 @@ var init_model_check_error = __esm(() => {
 
 // packages/generator/src/browser/full-stack.ts
 init_language();
-// language/erdwithai-language.json
-var erdwithai_language_default = {
+// language/appwithai-language.json
+var appwithai_language_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "https://erdwithai.dev/language/erdwithai-language.json",
+  $id: "https://appwithai.dev/language/appwithai-language.json",
   language: {
-    id: "erdwithai-eml",
-    name: "ERDwithAI Modeling Language",
+    id: "appwithai-eml",
+    name: "APPWITHAI Modeling Language",
     abbreviation: "EML",
     version: "1.2.0",
     basedOn: "mermaid",
     mermaidCompatibility: "All EML documents are valid, renderable Mermaid. EML is a semantic superset that assigns generator meaning to standard Mermaid constructs (erDiagram, flowchart, stateDiagram-v2) and to `%%`-prefixed directive comments.",
-    description: "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the ERDwithAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
+    description: "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the APPWITHAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
     fileExtensions: [".eml.mmd", ".erd.mmd", ".flow.mmd", ".rules.mmd", ".mmd"],
     encoding: "utf-8",
     caseSensitivity: {
@@ -24404,7 +24404,7 @@ var erdwithai_language_default = {
       }
     },
     stepNodes: {
-      description: "Executable step types for a `kind: saga` workflow. A %%step directive binds a flowchart node to one of these and supplies its properties; each becomes one bpmn:serviceTask with erdwithai:property extension elements. This table is the single source of truth for the checker, the generator, the EML authoring canvas and the generated Workflow Designer.",
+      description: "Executable step types for a `kind: saga` workflow. A %%step directive binds a flowchart node to one of these and supplies its properties; each becomes one bpmn:serviceTask with appwithai:property extension elements. This table is the single source of truth for the checker, the generator, the EML authoring canvas and the generated Workflow Designer.",
       directive: "%%step <nodeId> <stepType> <key>: <value> ...",
       propertyForm: "Space-separated `key: value` pairs. A value runs to the next `<key>:` token or the end of the line, so it may contain spaces. `fields` is JSON and must be the last key on the line.",
       variables: "Steps share a context: the triggering record's columns, plus every variable a previous step published. CreateEntity publishes the new row's id under `as`; Formula publishes under `target`. A later step reads one by naming it in `source` or `targetSource`. This is what lets a workflow reach a row it created earlier.",
@@ -24937,7 +24937,7 @@ var erdwithai_language_default = {
     }
   },
   grammar: {
-    notation: "EBNF-like; see language/grammar/erdwithai.ebnf for the full grammar.",
+    notation: "EBNF-like; see language/grammar/appwithai.ebnf for the full grammar.",
     topLevel: "document ::= ( comment | directive | erdSection | ruleSection | workflowSection | blankLine )*",
     erdSection: "erdSection ::= 'erDiagram' NEWLINE ( entityBlock | relationship | comment )*",
     entityBlock: "entityBlock ::= IDENT '{' NEWLINE attribute* '}' NEWLINE",
@@ -25166,7 +25166,7 @@ export declare function escapeLiteral(value: string): string;
  * This package is installed under the name \`pg\`, so every \`import { Pool } from
  * "pg"\` in the generated backend resolves here instead of to the network
  * driver. That is the entire database difference between an application
- * generated by \`erdwithai\` and one generated by \`erdwithai-wasm\`: not one line
+ * generated by \`appwithai\` and one generated by \`appwithai-wasm\`: not one line
  * of the backend's own source changes — not the Nest database module, not
  * better-auth, not the migration runner, not the seeds — because none of them
  * ever knew what was on the other side of a \`Pool\`.
@@ -25862,7 +25862,7 @@ function findDefinitionFile() {
   for (const start of starts) {
     let dir = start;
     for (let i = 0;i < 12; i++) {
-      const candidate = node_path_default.join(dir, "language", "erdwithai-language.json");
+      const candidate = node_path_default.join(dir, "language", "appwithai-language.json");
       if (existsSync(candidate))
         return candidate;
       const parent = node_path_default.dirname(dir);
@@ -31365,13 +31365,13 @@ function buildSagaBpmn(saga, tableName, resolveTable = (entity2) => entity2) {
     for (const [key, value] of Object.entries(step.props)) {
       entries.push([key, key === "entity" ? resolveTable(value) : value]);
     }
-    const properties = entries.map(([key, value]) => `          <erdwithai:property name="${escapeXmlAttr(key)}" value="${escapeXmlAttr(value)}" />`).join(`
+    const properties = entries.map(([key, value]) => `          <appwithai:property name="${escapeXmlAttr(key)}" value="${escapeXmlAttr(value)}" />`).join(`
 `);
     return `    <bpmn:serviceTask id="${escapeXmlAttr(step.nodeId)}" name="${escapeXmlAttr(step.label)}">
       <bpmn:extensionElements>
-        <erdwithai:properties xmlns:erdwithai="http://erdwithai.io/schema/1.0">
+        <appwithai:properties xmlns:appwithai="http://appwithai.io/schema/1.0">
 ${properties}
-        </erdwithai:properties>
+        </appwithai:properties>
       </bpmn:extensionElements>
     </bpmn:serviceTask>`;
   }).join(`
@@ -31380,7 +31380,7 @@ ${properties}
   const flows = ids.slice(0, -1).map((from, index) => `    <bpmn:sequenceFlow id="flow_${index}" sourceRef="${escapeXmlAttr(from)}" targetRef="${escapeXmlAttr(ids[index + 1])}" />`).join(`
 `);
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="defs_${processId}" targetNamespace="http://appwithai.dev/bpmn">
   <bpmn:process id="${processId}" isExecutable="true">
     <bpmn:startEvent id="start" name="Record written" />
 ${tasks}
@@ -31502,12 +31502,12 @@ function buildStateEntryBpmn(workflow, tableName, statusField) {
   const taskId = "task_enter_initial";
   const task = workflow.initial ? `    <bpmn:serviceTask id="${taskId}" name="Enter ${escapeXml(workflow.initial)}">
       <bpmn:extensionElements>
-        <erdwithai:properties xmlns:erdwithai="http://erdwithai.dev/bpmn">
-          <erdwithai:property name="nodeType" value="UpdateEntity" />
-          <erdwithai:property name="entity" value="${escapeXml(tableName)}" />
-          <erdwithai:property name="field" value="${escapeXml(statusField)}" />
-          <erdwithai:property name="value" value="${escapeXml(workflow.initial)}" />
-        </erdwithai:properties>
+        <appwithai:properties xmlns:appwithai="http://appwithai.dev/bpmn">
+          <appwithai:property name="nodeType" value="UpdateEntity" />
+          <appwithai:property name="entity" value="${escapeXml(tableName)}" />
+          <appwithai:property name="field" value="${escapeXml(statusField)}" />
+          <appwithai:property name="value" value="${escapeXml(workflow.initial)}" />
+        </appwithai:properties>
       </bpmn:extensionElements>
     </bpmn:serviceTask>
 ` : "";
@@ -31516,7 +31516,7 @@ function buildStateEntryBpmn(workflow, tableName, statusField) {
 ` : `    <bpmn:sequenceFlow id="flow_1" sourceRef="start" targetRef="end" />
 `;
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://appwithai.dev/bpmn">
   <bpmn:process id="${processId}" isExecutable="true">
     <bpmn:startEvent id="start" name="Record written" />
 ${task}${flows}    <bpmn:endEvent id="end" name="Done" />
@@ -31527,16 +31527,16 @@ ${task}${flows}    <bpmn:endEvent id="end" name="Done" />
 function buildPassThroughBpmn(tableName) {
   const processId = `${tableName}_passthrough`;
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://appwithai.dev/bpmn">
   <bpmn:process id="${processId}" isExecutable="true">
     <bpmn:startEvent id="start" name="Record written" />
     <bpmn:serviceTask id="task_noop" name="No workflow declared">
       <bpmn:extensionElements>
-        <erdwithai:properties xmlns:erdwithai="http://erdwithai.dev/bpmn">
-          <erdwithai:property name="nodeType" value="Formula" />
-          <erdwithai:property name="target" value="acknowledged" />
-          <erdwithai:property name="expression" value="true" />
-        </erdwithai:properties>
+        <appwithai:properties xmlns:appwithai="http://appwithai.dev/bpmn">
+          <appwithai:property name="nodeType" value="Formula" />
+          <appwithai:property name="target" value="acknowledged" />
+          <appwithai:property name="expression" value="true" />
+        </appwithai:properties>
       </bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="flow_1" sourceRef="start" targetRef="task_noop" />
@@ -36166,7 +36166,7 @@ function buildGeneratorOptions(model, settings) {
 async function writeManifest(outputDir, model, settings, extras = {}) {
   const port = settings.port ?? GENERATION_DEFAULTS.port;
   try {
-    await writeFile(join(outputDir, ".erdwithai.json"), JSON.stringify({
+    await writeFile(join(outputDir, ".appwithai.json"), JSON.stringify({
       name: settings.projectName,
       version: settings.projectVersion ?? GENERATION_DEFAULTS.projectVersion,
       description: settings.projectDescription ?? GENERATION_DEFAULTS.projectDescription,
@@ -37079,7 +37079,7 @@ class CheckEngine {
       if (rawBase && rawBase !== "string" && !(rawBase in def.types.map)) {
         this.warn("EML115", `Unknown type "${attr.rawType}" on "${entity2.name}.${attr.name}"; mapped to "string".`, {
           line: attrLine,
-          hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in erdwithai-language.json).`
+          hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in appwithai-language.json).`
         });
       }
       if (attr.isPrimaryKey && attrLine) {
@@ -38618,8 +38618,8 @@ function reviewModel(source, options = {}) {
 // packages/generator/src/browser/full-stack.ts
 init_memory_fs();
 init_model_check_error();
-setLanguageDefinition2(erdwithai_language_default);
-setLanguageDefinition(erdwithai_language_default);
+setLanguageDefinition2(appwithai_language_default);
+setLanguageDefinition(appwithai_language_default);
 var TEMPLATE_ROOT = "/templates";
 var OUTPUT_ROOT = "/app";
 async function generateFullStack(options) {

@@ -1,4 +1,4 @@
-import { getDatabase, runMigrations } from "@erdwithai/core/services";
+import { getDatabase, runMigrations } from "@appwithai/core/services";
 
 async function seedAdmin() {
   const args = process.argv.slice(2);

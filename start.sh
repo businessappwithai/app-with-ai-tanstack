@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ERDwithAI Start Script
+# APPWITHAI Start Script
 # Starts the web app (TanStack Start / Vite) and Mastra AI service.
 # For the local LLM server use: ./scripts/start-llm.sh
 # Optional services that fail to start are skipped with an error message.
@@ -23,8 +23,8 @@ print_header()  {
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
 }
 
-WEB_PID_FILE=".erdwithai-web.pid"
-MASTRA_PID_FILE=".erdwithai-mastra.pid"
+WEB_PID_FILE=".appwithai-web.pid"
+MASTRA_PID_FILE=".appwithai-mastra.pid"
 MAX_RETRIES=3
 
 is_running() {
@@ -107,7 +107,7 @@ start_with_retry() {
     return 1
 }
 
-print_header "Starting ERDwithAI"
+print_header "Starting APPWITHAI"
 
 # Prerequisite checks
 if ! command -v bun &> /dev/null; then
@@ -139,7 +139,7 @@ print_header "Starting Mastra AI Service"
 if ! script_exists "dev:mastra"; then
     print_error "Script 'dev:mastra' not found in package.json — skipping Mastra AI"
 else
-    if start_with_retry "Mastra AI" "$MASTRA_PID_FILE" "erdwithai-mastra.log" "dev:mastra" "http://localhost:4111/api/health" 10; then
+    if start_with_retry "Mastra AI" "$MASTRA_PID_FILE" "appwithai-mastra.log" "dev:mastra" "http://localhost:4111/api/health" 10; then
         MASTRA_PID="$STARTED_PID"
         MASTRA_OK=true
         print_success "Mastra AI started (PID: $MASTRA_PID)"
@@ -155,11 +155,11 @@ if ! script_exists "dev"; then
 fi
 
 WEB_PID=""
-if start_with_retry "Web Server" "$WEB_PID_FILE" "erdwithai-web.log" "dev" "http://localhost:3000" 5; then
+if start_with_retry "Web Server" "$WEB_PID_FILE" "appwithai-web.log" "dev" "http://localhost:3000" 5; then
     WEB_PID="$STARTED_PID"
     print_success "Web server started (PID: $WEB_PID)"
 else
-    print_info "Check: tail -50 erdwithai-web.log"
+    print_info "Check: tail -50 appwithai-web.log"
     exit 1
 fi
 
@@ -180,9 +180,9 @@ if $MASTRA_OK; then
 fi
 echo ""
 print_info "Logs:"
-echo -e "  tail -f erdwithai-web.log"
+echo -e "  tail -f appwithai-web.log"
 if $MASTRA_OK; then
-    echo -e "  tail -f erdwithai-mastra.log"
+    echo -e "  tail -f appwithai-mastra.log"
 fi
 echo ""
 print_info "To stop: ${GREEN}./stop.sh${NC}"

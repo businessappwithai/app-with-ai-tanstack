@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { requestContext } from "@/lib/request-context";
 import { ArrowLeftIcon, CheckIcon, ClockIcon, RotateCwIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -20,7 +21,22 @@ interface WorkflowRunDetail {
   updated_at: string;
 }
 
+async function checkAuthMe() {
+  const { baseUrl, fetchInit } = requestContext();
+  const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
+  return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
+}
+
 export const Route = createFileRoute("/admin/workflows/$workflowId")({
+  beforeLoad: async () => {
+    try {
+      const data = await checkAuthMe();
+      if (!data.user) throw redirect({ to: "/login" });
+    } catch (e) {
+      if (e && typeof e === "object" && "to" in e) throw e;
+      throw redirect({ to: "/login" });
+    }
+  },
   component: WorkflowDetailPage,
 });
 

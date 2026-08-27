@@ -1,4 +1,4 @@
-# ERDwithAI Design System
+# APPWITHAI Design System
 
 **Version:** 1.0  
 **Last Updated:** 2026-04-25  

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide describes the complete audit trail architecture for ERDwithAI-generated applications. The system uses **immudb** for tamper-proof immutable audit storage combined with **PostgreSQL** for fast search and filtering.
+This guide describes the complete audit trail architecture for APPWITHAI-generated applications. The system uses **immudb** for tamper-proof immutable audit storage combined with **PostgreSQL** for fast search and filtering.
 
 Every mutation in the system (create, update, delete, login, config change, AI action) is recorded as an immutable cryptographically-verifiable event. The admin UI exposes full-text search, multi-field filtering, and per-record tamper verification.
 

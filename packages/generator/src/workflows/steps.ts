@@ -12,7 +12,7 @@
  * and lived only in that database.
  *
  * The step vocabulary is declared canonically in
- * `language/erdwithai-language.json` under `workflowConstructs.stepNodes`; the
+ * `language/appwithai-language.json` under `workflowConstructs.stepNodes`; the
  * table below is its executable mirror, shared with the checker.
  */
 
@@ -608,15 +608,15 @@ export function buildSagaBpmn(
       const properties = entries
         .map(
           ([key, value]) =>
-            `          <erdwithai:property name="${escapeXmlAttr(key)}" value="${escapeXmlAttr(value)}" />`
+            `          <appwithai:property name="${escapeXmlAttr(key)}" value="${escapeXmlAttr(value)}" />`
         )
         .join("\n");
 
       return `    <bpmn:serviceTask id="${escapeXmlAttr(step.nodeId)}" name="${escapeXmlAttr(step.label)}">
       <bpmn:extensionElements>
-        <erdwithai:properties xmlns:erdwithai="http://erdwithai.io/schema/1.0">
+        <appwithai:properties xmlns:appwithai="http://appwithai.io/schema/1.0">
 ${properties}
-        </erdwithai:properties>
+        </appwithai:properties>
       </bpmn:extensionElements>
     </bpmn:serviceTask>`;
     })
@@ -632,7 +632,7 @@ ${properties}
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="defs_${processId}" targetNamespace="http://appwithai.dev/bpmn">
   <bpmn:process id="${processId}" isExecutable="true">
     <bpmn:startEvent id="start" name="Record written" />
 ${tasks}

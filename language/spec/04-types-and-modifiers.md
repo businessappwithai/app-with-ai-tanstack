@@ -1,6 +1,6 @@
 # EML — Types, Modifiers & Cardinalities
 
-The authoritative maps live in `language/erdwithai-language.json`
+The authoritative maps live in `language/appwithai-language.json`
 (`types`, `modifiers`, `cardinalities`). This page documents them.
 
 ## Attribute types

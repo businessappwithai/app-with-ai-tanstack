@@ -18,9 +18,9 @@ services:
     profiles: ["", "local-db"]
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${PGDATABASE:-erdwithai}
-      POSTGRES_USER: ${PGUSER:-erdwithai}
-      POSTGRES_PASSWORD: ${PGPASSWORD:-erdwithai}
+      POSTGRES_DB: ${PGDATABASE:-appwithai}
+      POSTGRES_USER: ${PGUSER:-appwithai}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-appwithai}
     ports:
       - "${PGPORT:-5432}:5432"
     volumes:
@@ -32,7 +32,7 @@ services:
 
       - generator_db:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-erdwithai}"]
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-appwithai}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -41,19 +41,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: erdwithai-generator:${IMAGE_TAG:-latest}
+    image: appwithai-generator:${IMAGE_TAG:-latest}
     restart: unless-stopped
     ports:
       - "${GENERATOR_PORT:-3000}:3000"
     environment:
       # Falls back to the bundled Postgres. Set DATABASE_URL to point anywhere.
-      DATABASE_URL: ${DATABASE_URL:-postgresql://${PGUSER:-erdwithai}:${PGPASSWORD:-erdwithai}@postgres:5432/${PGDATABASE:-erdwithai}}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${PGUSER:-appwithai}:${PGPASSWORD:-appwithai}@postgres:5432/${PGDATABASE:-appwithai}}
       # Whichever of these is set decides where the starting model comes from.
       SEED_MODEL: ${SEED_MODEL:-}
       SEED_DATABASE_URL: ${SEED_DATABASE_URL:-}
       SEED_PROJECT_NAME: ${SEED_PROJECT_NAME:-}
-      SEED_OWNER_EMAIL: ${SEED_OWNER_EMAIL:-admin@erdwithai.local}
-      SEED_OWNER_PASSWORD: ${SEED_OWNER_PASSWORD:-erdwithai}
+      SEED_OWNER_EMAIL: ${SEED_OWNER_EMAIL:-admin@appwithai.local}
+      SEED_OWNER_PASSWORD: ${SEED_OWNER_PASSWORD:-appwithai}
       VITE_APP_URL: ${VITE_APP_URL:-http://localhost:${GENERATOR_PORT:-3000}}
       LOCAL_AI_BASE_URL: ${LOCAL_AI_BASE_URL:-http://host.docker.internal:8000/v1}
       LOCAL_AI_MODEL: ${LOCAL_AI_MODEL:-qwen3.6:27b-mlx}

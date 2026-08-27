@@ -13,7 +13,7 @@ import {
   WORKFLOW_ERROR_CODES,
   WORKFLOW_POLLING,
   WORKFLOW_TIMEOUTS,
-} from "@erdwithai/core/config";
+} from "@appwithai/core/config";
 
 /**
  * Trigger.dev execution status values (lowercased)

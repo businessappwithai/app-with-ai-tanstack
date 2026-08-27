@@ -273,7 +273,7 @@ export function validateStateFlow(flow: StateFlow): string[] {
  * node ids are bookkeeping the author should never have to hold in their head.
  *
  * The vocabulary mirrors `workflowConstructs.stepNodes` in
- * `language/erdwithai-language.json`, which is the canonical declaration.
+ * `language/appwithai-language.json`, which is the canonical declaration.
  */
 export const SAGA_STEP_TYPES = [
   "Decision",

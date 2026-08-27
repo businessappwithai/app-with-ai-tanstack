@@ -30,7 +30,7 @@ import {
   type SysTab,
   type SysTable,
   type SysWindow,
-} from "@erdwithai/core/types";
+} from "@appwithai/core/types";
 
 export interface DictionaryGeneratorOptions {
   databaseType: "postgresql" | "mysql" | "sqlite";

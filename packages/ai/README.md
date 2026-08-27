@@ -1,4 +1,4 @@
-# @erdwithai/ai
+# @appwithai/ai
 
 AI-powered ERD design with Mastra.ai orchestration.
 
@@ -13,10 +13,10 @@ AI-powered ERD design with Mastra.ai orchestration.
 
 ```bash
 # CLI usage
-erdwithai-convert "Blog with users and posts" -o blog.mermaid
+appwithai-convert "Blog with users and posts" -o blog.mermaid
 
 # Programmatic usage
-import { convertToMermaid } from '@erdwithai/ai/converter';
+import { convertToMermaid } from '@appwithai/ai/converter';
 const mermaid = await convertToMermaid("Your description");
 ```
 

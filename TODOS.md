@@ -105,7 +105,7 @@ semantics.
 
 ## 3. JDM Editor Self-Hosting — ✅ ALREADY DONE
 
-`@gorules/jdm-editor` is a declared dependency of `@erdwithai/web` and is imported
+`@gorules/jdm-editor` is a declared dependency of `@appwithai/web` and is imported
 directly as an ES module in `packages/web/src/components/workflow/GoRulesEditor.tsx`:
 
 ```ts

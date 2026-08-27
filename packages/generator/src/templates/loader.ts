@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import { existsSync, promises as fs } from "node:fs";
 import path from "node:path";
-import { ReferenceType } from "@erdwithai/core/types";
+import { ReferenceType } from "@appwithai/core/types";
 import {
   addBusPrefix,
   addSysPrefix,
@@ -24,7 +24,7 @@ import {
   tableNameToModuleName,
   tableNameToRoutePath,
   tableNameToServiceName,
-} from "@erdwithai/core/utils";
+} from "@appwithai/core/utils";
 import Handlebars from "handlebars";
 
 function resolveOsUser(): string {

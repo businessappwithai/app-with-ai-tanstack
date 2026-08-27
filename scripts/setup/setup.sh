@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ERDwithAI Setup Script
+# APPWITHAI Setup Script
 # This script checks prerequisites, installs dependencies, and builds all packages
 
 set -e  # Exit on error
@@ -40,7 +40,7 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-print_header "ERDwithAI Setup"
+print_header "APPWITHAI Setup"
 
 # Step 1: Check Prerequisites
 print_header "Step 1: Checking Prerequisites"
@@ -116,21 +116,21 @@ print_success "Dependencies installed"
 # Step 5: Build Packages
 print_header "Step 5: Building Packages"
 
-print_info "Building @erdwithai/core..."
+print_info "Building @appwithai/core..."
 bun run build:core
-print_success "@erdwithai/core built successfully"
+print_success "@appwithai/core built successfully"
 
-print_info "Building @erdwithai/generator..."
+print_info "Building @appwithai/generator..."
 bun run build:generator
-print_success "@erdwithai/generator built successfully"
+print_success "@appwithai/generator built successfully"
 
-print_info "Building @erdwithai/ai..."
+print_info "Building @appwithai/ai..."
 bun run build:ai
-print_success "@erdwithai/ai built successfully"
+print_success "@appwithai/ai built successfully"
 
-print_info "Building @erdwithai/web..."
+print_info "Building @appwithai/web..."
 bun run build:web
-print_success "@erdwithai/web built successfully"
+print_success "@appwithai/web built successfully"
 
 # Step 6: Verify Installation
 print_header "Step 6: Verifying Installation"

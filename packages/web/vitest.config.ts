@@ -22,11 +22,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "@erdwithai/core": path.resolve(__dirname, "../core/src"),
-      "@erdwithai/core/types": path.resolve(__dirname, "../core/src/types"),
-      "@erdwithai/core/hooks": path.resolve(__dirname, "../core/src/hooks"),
-      "@erdwithai/core/services": path.resolve(__dirname, "../core/src/services"),
-      "@erdwithai/generator": path.resolve(__dirname, "../generator/src"),
+      "@appwithai/core": path.resolve(__dirname, "../core/src"),
+      "@appwithai/core/types": path.resolve(__dirname, "../core/src/types"),
+      "@appwithai/core/hooks": path.resolve(__dirname, "../core/src/hooks"),
+      "@appwithai/core/services": path.resolve(__dirname, "../core/src/services"),
+      "@appwithai/generator": path.resolve(__dirname, "../generator/src"),
     },
   },
 });

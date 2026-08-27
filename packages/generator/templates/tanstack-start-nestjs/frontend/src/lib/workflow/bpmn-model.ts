@@ -3,7 +3,7 @@
  *
  * bpmn-js owns the diagram; this owns what the diagram *means*. Every
  * executable step is a `bpmn:serviceTask` whose behaviour is carried by
- * `erdwithai:property` extension elements, and the executor runs them in
+ * `appwithai:property` extension elements, and the executor runs them in
  * sequence-flow order. These functions read that back out — in the same order
  * the executor will use — so the editor can show a workflow's variable wiring
  * without guessing.

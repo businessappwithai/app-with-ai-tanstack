@@ -11,7 +11,7 @@ export const Route = createFileRoute("/api/auth/login")({
         if (limited) return limited;
 
         const { setSessionCookie } = await import("@/lib/auth-server");
-        const { getDatabase } = await import("@erdwithai/core/services");
+        const { getDatabase } = await import("@appwithai/core/services");
         const { hashPassword } = await import("@/lib/password");
         try {
           const body = await request.json();

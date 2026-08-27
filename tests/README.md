@@ -1,8 +1,8 @@
-# ERDwithAI Testing Guide
+# APPWITHAI Testing Guide
 
 ## Overview
 
-This directory contains comprehensive test suites for the ERDwithAI application generator, including E2E tests, unit tests, and framework-specific tests.
+This directory contains comprehensive test suites for the APPWITHAI application generator, including E2E tests, unit tests, and framework-specific tests.
 
 ## Quick Start
 

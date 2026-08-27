@@ -177,7 +177,7 @@ function installNodeCompat() {
       arch: "wasm32",
       type: "worker",
       // Deliberately no `node` key. See above.
-      versions: { erdwithai: "wasm-browser" },
+      versions: { appwithai: "wasm-browser" },
       pid: 1,
       cwd: () => "/",
       exit: (code) => {

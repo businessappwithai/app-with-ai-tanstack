@@ -20,8 +20,8 @@
  * is what the hosted generator needs, and costs nothing here.
  */
 
-const CACHE = "erdwithai-wasm-vfs-v1";
-const MOUNTS_KEY = "/__erdwithai_mounts__";
+const CACHE = "appwithai-wasm-vfs-v1";
+const MOUNTS_KEY = "/__appwithai_mounts__";
 
 /** MessagePorts to backend workers, keyed by the base path each serves. */
 const backends = new Map();

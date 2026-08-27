@@ -2,6 +2,7 @@ import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/rea
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ExternalLink, Home, Star } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { ReportPrintModal } from "@/components/reports/ReportPrintModal";
 import { toast } from "sonner";
 import { DynamicForm } from "@/components/forms/dynamic-form";
 import { DynamicTable } from "@/components/tables/dynamic-table";
@@ -263,10 +264,18 @@ export function ADDetailShell({
   const [activeChildTab, setActiveChildTab] = useState(() => level.childTabs?.[0]?.id ?? "");
   const [isEditing, setIsEditing] = useState(initialMode === "edit");
   const [saveErrors, setSaveErrors] = useState<string[]>([]);
+  const [isPrintOpen, setIsPrintOpen] = useState(false);
 
   // Fetch entity metadata to resolve summary fields — skip for sys-level windows that supply static fields
   const hasDynamicFields = !level.formFields || level.formFields.length === 0;
   const { data: entityMeta } = useEntityMetadata(level.id, hasDynamicFields);
+
+  // Fetch report design to know if a Print button should appear
+  const { data: reportDesign } = useQuery({
+    queryKey: ["report-design", level.id],
+    queryFn: () => apiClient.get<{ layout?: object } | null>(`/sys/report-designs/${level.id}`),
+    staleTime: 60_000,
+  });
   const summaryFields: FieldMetadata[] = (entityMeta?.columns ?? []).filter(
     (c: any) => c.group_layout_type === "summary" && c.is_displayed
   ) as FieldMetadata[];
@@ -428,6 +437,8 @@ export function ADDetailShell({
 
   const listHref = buildAdminListUrl(parentContext, level);
 
+  const hasReportDesign = !!(reportDesign?.layout);
+
   return (
     <div className="flex flex-col h-full">
       <ADToolbar
@@ -448,6 +459,7 @@ export function ADDetailShell({
             setHasChanges(false);
           }
         }}
+        onPrint={() => setIsPrintOpen(true)}
         isSaving={saveMutation.isPending}
         isDeleting={deleteMutation.isPending}
         hasChanges={hasChanges}
@@ -455,6 +467,7 @@ export function ADDetailShell({
         canCreate={false}
         isEditing={isEditing}
         isDetailView={true}
+        hasPrintReport={hasReportDesign}
       />
 
       {/* Header panel — breadcrumb + record identity + nav */}
@@ -530,6 +543,17 @@ export function ADDetailShell({
           )}
         </div>
       </div>
+
+      {/* Print modal — only mounts when a design exists and the user clicks Print */}
+      {hasReportDesign && currentRecord && reportDesign?.layout && (
+        <ReportPrintModal
+          open={isPrintOpen}
+          onClose={() => setIsPrintOpen(false)}
+          layout={reportDesign.layout}
+          data={currentRecord}
+          entityLabel={level.label}
+        />
+      )}
 
       {/* Content */}
       <div className="flex-1 overflow-auto">

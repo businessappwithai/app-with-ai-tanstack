@@ -14,7 +14,7 @@
  * this adds is the loop between them — fix, then check again, so that what is
  * reported is what survived the repair rather than what was wrong before it.
  *
- * Both callers need it and neither can use the CLI: `erdwithai-wasm` is a
+ * Both callers need it and neither can use the CLI: `appwithai-wasm` is a
  * different command, and the upload page is a browser tab with no processes to
  * spawn and no files to write.
  */

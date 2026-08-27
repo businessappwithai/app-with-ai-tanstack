@@ -20,7 +20,7 @@ sleep 1
 # Start dev server in background
 echo "Starting dev server..."
 cd "$PROJECT_ROOT"
-bun run dev > /tmp/erdwithai-dev-server.log 2>&1 &
+bun run dev > /tmp/appwithai-dev-server.log 2>&1 &
 DEV_SERVER_PID=$!
 
 # Wait for server (up to 90 s)
@@ -32,7 +32,7 @@ for i in $(seq 1 90); do
     fi
     if [ "$i" -eq 90 ]; then
         echo "Server failed to start within 90 seconds"
-        cat /tmp/erdwithai-dev-server.log
+        cat /tmp/appwithai-dev-server.log
         kill "$DEV_SERVER_PID" 2>/dev/null || true
         exit 1
     fi

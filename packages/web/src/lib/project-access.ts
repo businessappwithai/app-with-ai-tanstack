@@ -60,7 +60,7 @@ export async function requireProjectAccess(
   const user = await getCurrentUser(request);
   if (!user) return { response: json({ error: "Unauthorized" }, 401) };
 
-  const { getDatabase } = await import("@erdwithai/core/services");
+  const { getDatabase } = await import("@appwithai/core/services");
   const db = getDatabase();
 
   const project = await db

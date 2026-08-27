@@ -18,7 +18,7 @@
  * does not inherit the session, and closing the tab ends it.
  */
 
-const TOKEN_KEY = "erdwithai.session";
+const TOKEN_KEY = "appwithai.session";
 
 let base = "/";
 let onUnauthorized = () => {};

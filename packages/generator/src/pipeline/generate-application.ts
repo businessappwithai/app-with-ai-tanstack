@@ -1,7 +1,7 @@
 /**
  * The generation pipeline.
  *
- * Every entry point — the `erdwithai` CLI and the web app's `/api/generate`
+ * Every entry point — the `appwithai` CLI and the web app's `/api/generate`
  * route — goes through here, so a model generates the same application however
  * it was submitted. They used to assemble the generator's options separately,
  * and the copies drifted: the web path never parsed `%%category` directives, so
@@ -112,7 +112,7 @@ export interface ManifestExtras {
 }
 
 /**
- * Write `.erdwithai.json` so `erdwithai info` — and anything else inspecting a
+ * Write `.appwithai.json` so `appwithai info` — and anything else inspecting a
  * generated project — can tell what produced it.
  */
 export async function writeManifest(
@@ -124,7 +124,7 @@ export async function writeManifest(
   const port = settings.port ?? GENERATION_DEFAULTS.port;
   try {
     await fs.writeFile(
-      path.join(outputDir, ".erdwithai.json"),
+      path.join(outputDir, ".appwithai.json"),
       JSON.stringify(
         {
           name: settings.projectName,
@@ -172,7 +172,7 @@ export interface GenerateApplicationOptions extends GenerationSettings {
   /** Pre-parsed model, when the caller has already parsed and logged it. */
   model?: ParsedModel;
   manifest?: ManifestExtras;
-  /** Set false to skip `.erdwithai.json` (dry runs). */
+  /** Set false to skip `.appwithai.json` (dry runs). */
   writeManifestFile?: boolean;
 }
 

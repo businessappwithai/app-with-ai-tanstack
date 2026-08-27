@@ -6,7 +6,7 @@ import { AIToMermaidConverter } from "../converter";
 const program = new Command();
 
 program
-  .name("erdwithai-convert")
+  .name("appwithai-convert")
   .description("Convert natural language to Mermaid ERD")
   .version("5.1.0")
   .argument("[description]", "Domain description")
@@ -16,7 +16,7 @@ program
   .option("--analyze-only", "Only analyze, don't generate Mermaid")
   .option("--json", "Output JSON instead of Mermaid")
   .action(async (description, options) => {
-    console.log("🤖 ERDwithAI Natural Language Converter");
+    console.log("🤖 APPWITHAI Natural Language Converter");
     console.log("======================================");
 
     // Get description
@@ -27,7 +27,7 @@ program
 
     if (!desc) {
       console.error("❌ Error: No description provided");
-      console.log('Usage: erdwithai-convert "your description" -o output.mermaid');
+      console.log('Usage: appwithai-convert "your description" -o output.mermaid');
       process.exit(1);
     }
 

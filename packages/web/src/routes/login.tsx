@@ -156,7 +156,7 @@ function LoginPage() {
           </div>
 
           <h1 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
-            ERDwithAI
+            APPWITHAI
           </h1>
 
           <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">

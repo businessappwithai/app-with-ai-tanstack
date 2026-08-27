@@ -32,9 +32,9 @@ Available gstack skills:
 
 ---
 
-# ERDwithAI - AI Coding Assistant Guide
+# APPWITHAI - AI Coding Assistant Guide
 
-**Project**: ERDwithAI - AI-Powered Entity Relationship Design & Code Generation Platform
+**Project**: APPWITHAI - AI-Powered Entity Relationship Design & Code Generation Platform
 **Version**: 5.1.0
 **Runtime**: Bun.js 1.3+
 **Node**: v20+ compatible
@@ -67,7 +67,7 @@ Available gstack skills:
 
 ## Project Overview
 
-ERDwithAI transforms natural language descriptions into production-ready full-stack applications. It features:
+APPWITHAI transforms natural language descriptions into production-ready full-stack applications. It features:
 - AI-powered entity extraction using Claude Sonnet 4 (via Mastra.ai agents)
 - Human-in-the-loop (HITL) approval workflow for ERD design
 - Visual ERD designer with Mermaid diagram rendering
@@ -115,20 +115,20 @@ app-with-ai-tanstack/
 
 | Alias | Package | Purpose |
 |-------|---------|---------|
-| `@erdwithai/core` | packages/core | Core logic, types, services |
-| `@erdwithai/core/types` | packages/core | Type definitions |
-| `@erdwithai/core/hooks` | packages/core | Hook system |
-| `@erdwithai/core/services` | packages/core | Base service classes |
-| `@erdwithai/core/utils` | packages/core | Utility functions |
-| `@erdwithai/generator` | packages/generator | Code generation |
-| `@erdwithai/ai` | packages/ai | AI agents & workflows |
-| `@erdwithai/web` | packages/web | Web application |
+| `@appwithai/core` | packages/core | Core logic, types, services |
+| `@appwithai/core/types` | packages/core | Type definitions |
+| `@appwithai/core/hooks` | packages/core | Hook system |
+| `@appwithai/core/services` | packages/core | Base service classes |
+| `@appwithai/core/utils` | packages/core | Utility functions |
+| `@appwithai/generator` | packages/generator | Code generation |
+| `@appwithai/ai` | packages/ai | AI agents & workflows |
+| `@appwithai/web` | packages/web | Web application |
 
 ---
 
 ## Package Details
 
-### @erdwithai/core (`packages/core/`)
+### @appwithai/core (`packages/core/`)
 
 Core business logic shared by all other packages.
 
@@ -161,11 +161,11 @@ src/
     └── schemas.ts             # Zod schemas
 ```
 
-### @erdwithai/generator (`packages/generator/`)
+### @appwithai/generator (`packages/generator/`)
 
 Code generation engine with CLI and Handlebars template system.
 
-**CLI**: `erdwithai` / `erdwithai-generate` binaries
+**CLI**: `appwithai` / `appwithai-generate` binaries
 
 ```
 src/
@@ -193,11 +193,11 @@ templates/
     └── frontend/      # Controllers, Views (XML), Fragments, i18n, Manifest
 ```
 
-### @erdwithai/ai (`packages/ai/`)
+### @appwithai/ai (`packages/ai/`)
 
 AI orchestration using Mastra.ai framework and Anthropic Claude.
 
-**CLI**: `erdwithai-convert` binary
+**CLI**: `appwithai-convert` binary
 
 ```
 src/
@@ -228,7 +228,7 @@ src/
 - Observability: enabled by default
 - Port: `MASTRA_PORT=4111`
 
-### @erdwithai/web (`packages/web/`)
+### @appwithai/web (`packages/web/`)
 
 TanStack Start web application with file-based routing and Vite.
 
@@ -305,7 +305,7 @@ src/
 ### Import Order
 
 1. External dependencies (React, TanStack, etc.)
-2. Internal package imports (`@erdwithai/*`)
+2. Internal package imports (`@appwithai/*`)
 3. Relative imports (`./types`, `../utils`)
 4. Type-only imports (`import type`)
 
@@ -314,8 +314,8 @@ import React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Database } from "lucide-react";
 
-import { mastra } from "@erdwithai/ai";
-import type { EntityDefinition } from "@erdwithai/core/types";
+import { mastra } from "@appwithai/ai";
+import type { EntityDefinition } from "@appwithai/core/types";
 
 import { analyzeDomain } from "../agents/domain-agent";
 ```

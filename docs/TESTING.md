@@ -1,8 +1,8 @@
-# ERDwithAI Testing Guide
+# APPWITHAI Testing Guide
 
 ## Overview
 
-ERDwithAI includes comprehensive E2E testing for all generated applications using Playwright. Tests are automatically generated as part of the code generation process.
+APPWITHAI includes comprehensive E2E testing for all generated applications using Playwright. Tests are automatically generated as part of the code generation process.
 
 ## E2E Test Generation
 

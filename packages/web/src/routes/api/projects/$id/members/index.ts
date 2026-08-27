@@ -5,7 +5,7 @@ let _dbReady = false;
 async function ensureDb() {
   if (!_dbReady) {
     _dbReady = true;
-    const { runMigrations } = await import("@erdwithai/core/services");
+    const { runMigrations } = await import("@appwithai/core/services");
     await runMigrations().catch((err) => console.error("[DB] Migration error:", err));
   }
 }
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/projects/$id/members/")({
       GET: async ({ request, params }) => {
         await ensureDb();
         try {
-          const { getDatabase } = await import("@erdwithai/core/services");
+          const { getDatabase } = await import("@appwithai/core/services");
           const user = await getCurrentUser(request);
           if (!user) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -80,7 +80,7 @@ export const Route = createFileRoute("/api/projects/$id/members/")({
       POST: async ({ request, params }) => {
         await ensureDb();
         try {
-          const { getDatabase } = await import("@erdwithai/core/services");
+          const { getDatabase } = await import("@appwithai/core/services");
           const user = await getCurrentUser(request);
           if (!user) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), {

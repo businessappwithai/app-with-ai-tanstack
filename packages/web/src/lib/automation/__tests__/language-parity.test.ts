@@ -1,7 +1,7 @@
 /**
  * The language definition must describe the builder that ships.
  *
- * `language/erdwithai-language.json` is declared the single source of truth for
+ * `language/appwithai-language.json` is declared the single source of truth for
  * EML, but nothing enforced that — the automation builder was written with its
  * own trigger, operator and step vocabulary and the definition was never
  * updated, so the canonical description of the language omitted the dialect
@@ -21,7 +21,7 @@ import { OPERATORS, parseAutomation, STEP_FIELDS, TRIGGER_EVENTS, TRIGGER_HOOKS 
 
 const definition = JSON.parse(
   readFileSync(
-    join(import.meta.dirname, "../../../../../../language/erdwithai-language.json"),
+    join(import.meta.dirname, "../../../../../../language/appwithai-language.json"),
     "utf8"
   )
 ) as {

@@ -84,7 +84,7 @@ A column ending in `_by` names a person by the role they played
 (`reported_by_id`, `registered_by_id`, `approved_by_id`), so it resolves to the
 user entity rather than to a `bus_reported_by` table that does not exist. The
 full list of person-role columns is in `foreignKeys.personRoleColumns` in
-`erdwithai-language.json`.
+`appwithai-language.json`.
 
 **A column that resolves to nothing is silently degraded**: the generator stores
 it as a plain string, so grids and forms render the raw UUID with no lookup and
@@ -109,7 +109,7 @@ A column named like a reference to an entity this document declares, with no
 The same is true one field over: a `%%enum` does nothing to a column until a
 `%%field` binds it. An unbound `status`, `state` or `stage` column is recorded as
 free text, and the form will accept values the state machine cannot act on —
-`EML146`. See `applicationDictionary` in `erdwithai-language.json` for the whole
+`EML146`. See `applicationDictionary` in `appwithai-language.json` for the whole
 derivation.
 
 ## Relationships

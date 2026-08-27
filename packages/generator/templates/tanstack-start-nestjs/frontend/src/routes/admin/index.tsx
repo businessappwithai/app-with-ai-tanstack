@@ -10,6 +10,7 @@ import {
   Home,
   Layers,
   LayoutList,
+  Printer,
   RefreshCw,
   Settings,
   ShieldCheck,
@@ -129,6 +130,12 @@ function AdminDashboardPage() {
       description: "Immutable tamper-proof audit trail of all user and system actions",
       icon: ShieldCheck,
       to: "/admin/audit" as const,
+    },
+    {
+      title: "Report Designs",
+      description: "Design printable document reports for each entity; users get a Print button on their records",
+      icon: Printer,
+      to: "/admin/reports" as const,
     },
   ];
 

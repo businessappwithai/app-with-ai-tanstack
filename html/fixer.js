@@ -67,7 +67,7 @@ var init_language = __esm(() => {
   init_node_url();
   LANGUAGE_DEFINITION_PATH = (() => {
     const here = node_path_default.dirname(fileURLToPath(import.meta.url));
-    return node_path_default.join(here, "erdwithai-language.json");
+    return node_path_default.join(here, "appwithai-language.json");
   })();
 });
 
@@ -923,7 +923,7 @@ class CheckEngine {
       if (rawBase && rawBase !== "string" && !(rawBase in def.types.map)) {
         this.warn("EML115", `Unknown type "${attr.rawType}" on "${entity.name}.${attr.name}"; mapped to "string".`, {
           line: attrLine,
-          hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in erdwithai-language.json).`
+          hint: `Valid types: ${def.types.canonical.join(", ")} (plus aliases listed in appwithai-language.json).`
         });
       }
       if (attr.isPrimaryKey && attrLine) {
@@ -2083,18 +2083,18 @@ var AUTO_FIXABLE_CODES = new Set([
   "EML103"
 ]);
 if (false) {}
-// language/erdwithai-language.json
-var erdwithai_language_default = {
+// language/appwithai-language.json
+var appwithai_language_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "https://erdwithai.dev/language/erdwithai-language.json",
+  $id: "https://appwithai.dev/language/appwithai-language.json",
   language: {
-    id: "erdwithai-eml",
-    name: "ERDwithAI Modeling Language",
+    id: "appwithai-eml",
+    name: "APPWITHAI Modeling Language",
     abbreviation: "EML",
     version: "1.2.0",
     basedOn: "mermaid",
     mermaidCompatibility: "All EML documents are valid, renderable Mermaid. EML is a semantic superset that assigns generator meaning to standard Mermaid constructs (erDiagram, flowchart, stateDiagram-v2) and to `%%`-prefixed directive comments.",
-    description: "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the ERDwithAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
+    description: "A single, standalone, Mermaid-based language for describing an application's Entity Relationship Diagram (ERD), its business rules, and its business workflows in one place. EML is the source language read by the APPWITHAI generator to produce full-stack applications (TanStack Start + NestJS, or OpenUI5 + OData V4).",
     fileExtensions: [".eml.mmd", ".erd.mmd", ".flow.mmd", ".rules.mmd", ".mmd"],
     encoding: "utf-8",
     caseSensitivity: {
@@ -2746,7 +2746,7 @@ var erdwithai_language_default = {
       }
     },
     stepNodes: {
-      description: "Executable step types for a `kind: saga` workflow. A %%step directive binds a flowchart node to one of these and supplies its properties; each becomes one bpmn:serviceTask with erdwithai:property extension elements. This table is the single source of truth for the checker, the generator, the EML authoring canvas and the generated Workflow Designer.",
+      description: "Executable step types for a `kind: saga` workflow. A %%step directive binds a flowchart node to one of these and supplies its properties; each becomes one bpmn:serviceTask with appwithai:property extension elements. This table is the single source of truth for the checker, the generator, the EML authoring canvas and the generated Workflow Designer.",
       directive: "%%step <nodeId> <stepType> <key>: <value> ...",
       propertyForm: "Space-separated `key: value` pairs. A value runs to the next `<key>:` token or the end of the line, so it may contain spaces. `fields` is JSON and must be the last key on the line.",
       variables: "Steps share a context: the triggering record's columns, plus every variable a previous step published. CreateEntity publishes the new row's id under `as`; Formula publishes under `target`. A later step reads one by naming it in `source` or `targetSource`. This is what lets a workflow reach a row it created earlier.",
@@ -3279,7 +3279,7 @@ var erdwithai_language_default = {
     }
   },
   grammar: {
-    notation: "EBNF-like; see language/grammar/erdwithai.ebnf for the full grammar.",
+    notation: "EBNF-like; see language/grammar/appwithai.ebnf for the full grammar.",
     topLevel: "document ::= ( comment | directive | erdSection | ruleSection | workflowSection | blankLine )*",
     erdSection: "erdSection ::= 'erDiagram' NEWLINE ( entityBlock | relationship | comment )*",
     entityBlock: "entityBlock ::= IDENT '{' NEWLINE attribute* '}' NEWLINE",
@@ -3734,8 +3734,8 @@ if (false) {}
 
 // language/browser/fixer.entry.ts
 init_language();
-setLanguageDefinition(erdwithai_language_default);
-var LANGUAGE_VERSION = erdwithai_language_default.language.version;
+setLanguageDefinition(appwithai_language_default);
+var LANGUAGE_VERSION = appwithai_language_default.language.version;
 var AUTO_FIXABLE = [...AUTO_FIXABLE_CODES].sort();
 var SEVERITY_ORDER = { error: 0, warning: 1, info: 2 };
 function mark(result) {

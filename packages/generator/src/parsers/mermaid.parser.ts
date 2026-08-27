@@ -27,11 +27,11 @@ import type {
   EntityEnum,
   EntityIndex,
   Relationship,
-} from "@erdwithai/core/types";
+} from "@appwithai/core/types";
 import { getCardinalityKind, getDefaultType, getTypeMap } from "./language-maps";
 
 // Type mapping from Mermaid types to our standard types.
-// Sourced from language/erdwithai-language.json at runtime (with a built-in
+// Sourced from language/appwithai-language.json at runtime (with a built-in
 // fallback) so the parser stays in lockstep with the EML language definition.
 const TYPE_MAP: Record<string, EntityAttribute["type"]> = getTypeMap();
 
@@ -390,7 +390,7 @@ export class MermaidParser {
    *
    * Supports all 8 Mermaid ER cardinality operators defined in the EML language
    * spec by delegating operator→kind resolution to getCardinalityKind() so the
-   * parser stays in lockstep with erdwithai-language.json.
+   * parser stays in lockstep with appwithai-language.json.
    *
    * Left side glyphs:  ||  |o  }o  }|
    * Right side glyphs: ||  o|  o{  |{

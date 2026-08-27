@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { requestContext } from "@/lib/request-context";
 import {
   AlertCircle,
   Download,
@@ -12,7 +13,22 @@ import {
 import { useEffect, useState } from "react";
 import type { MermaidFile } from "@/types/project";
 
+async function checkAuthMe() {
+  const { baseUrl, fetchInit } = requestContext();
+  const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
+  return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
+}
+
 export const Route = createFileRoute("/admin/mermaid/")({
+  beforeLoad: async () => {
+    try {
+      const data = await checkAuthMe();
+      if (!data.user) throw redirect({ to: "/login" });
+    } catch (e) {
+      if (e && typeof e === "object" && "to" in e) throw e;
+      throw redirect({ to: "/login" });
+    }
+  },
   component: MermaidLibraryPage,
 });
 

@@ -29,7 +29,7 @@
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
-import { getDatabase, introspectDatabase, runMigrations } from "@erdwithai/core/services";
+import { getDatabase, introspectDatabase, runMigrations } from "@appwithai/core/services";
 import { hashPassword } from "../packages/web/src/lib/password";
 
 interface Options {
@@ -60,8 +60,8 @@ function parseArgs(argv: string[]): Options {
     file: first(value("--file"), process.env.SEED_MODEL),
     fromDatabase: first(value("--from-database"), process.env.SEED_DATABASE_URL),
     name: first(value("--name"), process.env.SEED_PROJECT_NAME),
-    ownerEmail: first(value("--owner"), process.env.SEED_OWNER_EMAIL) ?? "admin@erdwithai.local",
-    ownerPassword: first(process.env.SEED_OWNER_PASSWORD) ?? "erdwithai",
+    ownerEmail: first(value("--owner"), process.env.SEED_OWNER_EMAIL) ?? "admin@appwithai.local",
+    ownerPassword: first(process.env.SEED_OWNER_PASSWORD) ?? "appwithai",
   };
 }
 
@@ -191,10 +191,10 @@ async function main(): Promise<void> {
 
   // Counts come from the parser rather than a regex over the text, so a
   // document the generator would reject fails here instead of at generate time.
-  const { parseModel } = await import("@erdwithai/generator");
+  const { parseModel } = await import("@appwithai/generator");
   const model = parseModel(eml);
 
-  const { erdVersionDb } = await import("@erdwithai/core/services");
+  const { erdVersionDb } = await import("@appwithai/core/services");
   await erdVersionDb.createVersion({
     project_id: projectId,
     mermaid_code: eml,

@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@erdwithai/eml-cli",
+      "name": "@appwithai/eml-cli",
       "devDependencies": {
         "@types/node": "22",
         "bun-types": "^1.3.14",

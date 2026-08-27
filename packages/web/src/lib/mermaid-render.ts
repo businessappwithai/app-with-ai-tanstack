@@ -1,7 +1,7 @@
 // EML → renderable Mermaid normalization.
 //
 // Kept in its own module (rather than in lib/mermaid.ts) because lib/mermaid.ts
-// imports @erdwithai/generator, which is Node-only and cannot be pulled into the
+// imports @appwithai/generator, which is Node-only and cannot be pulled into the
 // browser bundle. This file has no imports, so client routes can use it freely.
 
 // Keywords that open a new Mermaid diagram. An EML document (examples/*.eml.mmd)
@@ -13,7 +13,7 @@ const DIAGRAM_OPENER =
 
 // EML attribute modifiers that stock Mermaid's ER grammar does not accept.
 // OPTIONAL / NULL have no Mermaid equivalent and are dropped; UNIQUE is an
-// EML alias for UK. See language/erdwithai-language.json → modifiers.map.
+// EML alias for UK. See language/appwithai-language.json → modifiers.map.
 const EML_ONLY_MODIFIER = /\s+(OPTIONAL|NULL)\b/g;
 const EML_UNIQUE_MODIFIER = /\bUNIQUE\b/g;
 

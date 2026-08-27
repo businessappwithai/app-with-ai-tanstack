@@ -21,7 +21,7 @@ export const Route = createFileRoute("/api/ai/convert")({
             );
           }
 
-          const { convertToMermaid } = await import("@erdwithai/ai");
+          const { convertToMermaid } = await import("@appwithai/ai");
           const mermaidSyntax = await convertToMermaid(description);
 
           if (!mermaidSyntax) {

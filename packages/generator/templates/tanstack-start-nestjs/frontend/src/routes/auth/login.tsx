@@ -252,13 +252,26 @@ function LoginPage() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-6">
-          <Link
-            to="/"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← Back to Home
-          </Link>
+        <div className="text-center mt-6 space-y-2">
+          <div>
+            <Link
+              to="/"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Back to Home
+            </Link>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Built with{' '}
+            <a
+              href="http://www.appwithai.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors"
+            >
+              APPWITHAI
+            </a>
+          </p>
         </div>
       </div>
     </div>

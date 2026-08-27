@@ -1,8 +1,8 @@
 /**
- * Naming, kept identical to @erdwithai/core/utils.
+ * Naming, kept identical to @appwithai/core/utils.
  *
  * Duplicated rather than imported because this file is copied verbatim into a
- * generated application and shipped to a browser: an `@erdwithai/*` import
+ * generated application and shipped to a browser: an `@appwithai/*` import
  * would not survive the trip. The parity test in the generator package asserts
  * these agree with core's, so a divergence fails the build rather than
  * producing an app whose URLs disagree with its own dictionary.

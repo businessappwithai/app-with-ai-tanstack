@@ -19,8 +19,8 @@
 
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { type Entity, entityToBusEntity, type Relationship } from "@erdwithai/core/types";
-import { kebabCase } from "@erdwithai/core/utils";
+import { type Entity, entityToBusEntity, type Relationship } from "@appwithai/core/types";
+import { kebabCase } from "@appwithai/core/utils";
 import type { CompiledRbac } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
 import { CliExecutor } from "../../utils/cli-executor";

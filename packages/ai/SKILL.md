@@ -1,11 +1,11 @@
 ---
-name: erdwithai-ai
+name: appwithai-ai
 description: Mastra.ai orchestration for AI-powered ERD design with human-in-the-loop workflows
 ---
 
-# @erdwithai/ai Skill
+# @appwithai/ai Skill
 
-This skill provides guidance for working with the AI package of ERDwithAI, which integrates Mastra.ai for AI-powered entity-relationship diagram design with human-in-the-loop (HITL) approval workflows.
+This skill provides guidance for working with the AI package of APPWITHAI, which integrates Mastra.ai for AI-powered entity-relationship diagram design with human-in-the-loop (HITL) approval workflows.
 
 ## Package Overview
 
@@ -51,7 +51,7 @@ Each agent is specialized for a specific task in the ERD design process:
 Analyzes natural language descriptions and extracts entities/relationships:
 
 ```typescript
-import { analyzeDomain } from '@erdwithai/ai';
+import { analyzeDomain } from '@appwithai/ai';
 
 const analysis = await analyzeDomain(
   "E-commerce platform where users browse products, add to cart, and place orders"
@@ -65,7 +65,7 @@ console.log(analysis.relationships); // User -> Cart, Cart -> Product, etc.
 Refines entity structure with proper naming and validation:
 
 ```typescript
-import { refineEntity } from '@erdwithai/ai';
+import { refineEntity } from '@appwithai/ai';
 
 const refined = await refineEntity({
   name: 'user',
@@ -78,7 +78,7 @@ const refined = await refineEntity({
 Generates Mermaid ERD syntax (with programmatic fallback):
 
 ```typescript
-import { generateMermaidProgrammatic } from '@erdwithai/ai';
+import { generateMermaidProgrammatic } from '@appwithai/ai';
 
 const result = generateMermaidProgrammatic(entities, relationships);
 console.log(result.mermaidSyntax);
@@ -92,7 +92,7 @@ console.log(result.mermaidSyntax);
 The package uses Mastra.ai for agent orchestration:
 
 ```typescript
-import { mastra } from '@erdwithai/ai';
+import { mastra } from '@appwithai/ai';
 
 // Get the Mastra instance
 const agent = mastra.getAgent('domainAgent');
@@ -106,7 +106,7 @@ const workflow = mastra.getWorkflow('erdDesignWorkflow');
 Workflows support suspension for human approval:
 
 ```typescript
-import { erdDesignWorkflow } from '@erdwithai/ai';
+import { erdDesignWorkflow } from '@appwithai/ai';
 
 // Start workflow
 const run = await erdDesignWorkflow.execute({
@@ -127,7 +127,7 @@ await run.resume({
 For quick conversions without the full workflow:
 
 ```typescript
-import { AIToMermaidConverter, convertToMermaid } from '@erdwithai/ai';
+import { AIToMermaidConverter, convertToMermaid } from '@appwithai/ai';
 
 // Quick conversion
 const mermaid = await convertToMermaid("Blog with users and posts");
@@ -147,16 +147,16 @@ const result = await converter.convert({
 
 ```bash
 # Basic conversion
-erdwithai-convert "Blog with users and posts" -o blog.mermaid
+appwithai-convert "Blog with users and posts" -o blog.mermaid
 
 # From file
-erdwithai-convert -i description.txt -o output.mermaid
+appwithai-convert -i description.txt -o output.mermaid
 
 # Fast mode (programmatic Mermaid, no AI)
-erdwithai-convert "E-commerce" --fast -o ecommerce.mermaid
+appwithai-convert "E-commerce" --fast -o ecommerce.mermaid
 
 # Analysis only (JSON output)
-erdwithai-convert "CRM system" --analyze-only --json
+appwithai-convert "CRM system" --analyze-only --json
 ```
 
 ## Environment Variables
@@ -182,7 +182,7 @@ bun run dev:mastra
 
 ## Dependencies
 
-- **@erdwithai/core**: workspace:* - Core types
+- **@appwithai/core**: workspace:* - Core types
 - **@mastra/core**: ^1.0.0-beta.19 - Mastra AI orchestration
 - **@mastra/loggers**: ^1.0.0-beta.3 - Mastra logging
 - **@mastra/libsql**: ^1.0.0-beta.8 - Mastra LibSQL storage
@@ -260,8 +260,8 @@ interface DomainAnalysis {
 
 ## Exports
 
-- `@erdwithai/ai` - Main entry point
-- CLI: `erdwithai-convert` - CLI binary
+- `@appwithai/ai` - Main entry point
+- CLI: `appwithai-convert` - CLI binary
 
 ## Testing
 

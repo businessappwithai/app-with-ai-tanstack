@@ -15,7 +15,7 @@
  * same name, and the second — the one carrying `unique` — was the no-op.
  */
 
-import { entityToBusEntity } from "@erdwithai/core/types";
+import { entityToBusEntity } from "@appwithai/core/types";
 import { describe, expect, it } from "vitest";
 import { MermaidParser } from "../mermaid.parser";
 

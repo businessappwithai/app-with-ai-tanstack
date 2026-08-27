@@ -87,7 +87,7 @@ bun test tests/e2e/compiere-dictionary-enhancement.e2e.spec.ts -g "TEST 8"
 ## Test Breakdown
 
 ### Test 1: Generate Application
-- Starts ERDwithAI web application
+- Starts APPWITHAI web application
 - Submits generation request with test ERD
 - Waits for generation to complete
 - **Output**: Generated application in `tests/e2e-output/compiere-dictionary-test/`

@@ -1,11 +1,11 @@
 /**
  * The generator, as it runs in a browser.
  *
- * This is the entry point bundled into `html/assets/erdwithai-wasm.js`, and it
+ * This is the entry point bundled into `html/assets/appwithai-wasm.js`, and it
  * is deliberately thin: the parsing, compiling and assembling it exposes are
  * the same functions the CLI calls, imported from the same files. There is no
  * browser edition of the compiler, which is the only way the page can promise
- * that what it generates is what `erdwithai-wasm generate` would have written.
+ * that what it generates is what `appwithai-wasm generate` would have written.
  *
  * What it cannot import is anything reaching `node:fs` — hence `parse-model.ts`
  * being separate from `generate-application.ts`, and hence the runtime being
@@ -13,7 +13,7 @@
  */
 
 import { setLanguageDefinition as setCheckerDefinition } from "../../../../language";
-import languageDefinition from "../../../../language/erdwithai-language.json";
+import languageDefinition from "../../../../language/appwithai-language.json";
 import { setLanguageDefinition } from "../parsers/language-maps";
 import { type ParsedModel, parseModel } from "../pipeline/parse-model";
 import { type ModelReview, reviewModel } from "../pipeline/review-model";
@@ -37,7 +37,7 @@ import {
 export type { ModelReview, ParsedModel, WasmGeneratorOptions };
 // Exported on its own so the page can check a model the moment it is chosen,
 // rather than only finding out at the point of generating it.
-// Re-exported so `import { ModelCheckError } from "./erdwithai-wasm.js"` keeps
+// Re-exported so `import { ModelCheckError } from "./appwithai-wasm.js"` keeps
 // working; it is defined next door so the full-stack bundle can have it alone.
 export {
   DEFAULT_PGLITE_URL,
@@ -58,7 +58,7 @@ export interface BrowserGenerateOptions extends Partial<WasmGeneratorOptions> {
 /**
  * Rows per entity when a caller asks for sample data but not for an amount.
  *
- * Ten is what `erdwithai-wasm generate` uses, and the number matters more than
+ * Ten is what `appwithai-wasm generate` uses, and the number matters more than
  * it looks: three rows is a screenshot rather than a grid, and a hundred puts
  * the reader in front of a paginator before they have seen a record. Ten fills
  * every list, every lookup and the dashboard counts on one screen.

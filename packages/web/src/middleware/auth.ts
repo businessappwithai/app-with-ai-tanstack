@@ -39,7 +39,7 @@ export async function isAuthenticated(request: Request): Promise<boolean> {
   const sessionToken = cookieHeader
     .split(";")
     .map((c) => c.trim())
-    .find((c) => c.startsWith("erdwithai-session="))
+    .find((c) => c.startsWith("appwithai-session="))
     ?.split("=")[1];
 
   if (!sessionToken) {
@@ -48,7 +48,7 @@ export async function isAuthenticated(request: Request): Promise<boolean> {
 
   // Validate session exists and hasn't expired
   try {
-    const { getDatabase } = await import("@erdwithai/core/services");
+    const { getDatabase } = await import("@appwithai/core/services");
     const db = getDatabase();
     const now = new Date().toISOString();
 

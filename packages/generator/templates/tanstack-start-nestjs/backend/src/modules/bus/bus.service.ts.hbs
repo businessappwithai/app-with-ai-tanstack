@@ -613,7 +613,7 @@ export class BusService {
    * FK columns naming a person by the role they played rather than by entity.
    * The `_by` / `_by_id` suffixes are handled by rule in resolveRefTableName;
    * this map covers the role names that carry no suffix at all. Kept in sync
-   * with `foreignKeys.personRoleColumns` in language/erdwithai-language.json.
+   * with `foreignKeys.personRoleColumns` in language/appwithai-language.json.
    */
   private static readonly COLUMN_TABLE_ALIASES: Record<string, string> = {
     owner_id: 'bus_user',

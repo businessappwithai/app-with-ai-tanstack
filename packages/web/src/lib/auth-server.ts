@@ -1,4 +1,4 @@
-import type { AuthUsersTable } from "@erdwithai/core/config/db.types";
+import type { AuthUsersTable } from "@appwithai/core/config/db.types";
 
 let _authService: any = null;
 let _dbReady = false;
@@ -6,7 +6,7 @@ let _dbReady = false;
 async function ensureDb() {
   if (!_dbReady) {
     _dbReady = true;
-    const { runMigrations } = await import("@erdwithai/core/services");
+    const { runMigrations } = await import("@appwithai/core/services");
     await runMigrations().catch((err) => console.error("[Auth] Migration error:", err));
   }
 }
@@ -14,12 +14,12 @@ async function ensureDb() {
 export async function getAuthService(): Promise<any> {
   await ensureDb();
   if (!_authService) {
-    const { AuthService } = await import("@erdwithai/core/auth");
-    const { getDatabase } = await import("@erdwithai/core/services");
+    const { AuthService } = await import("@appwithai/core/auth");
+    const { getDatabase } = await import("@appwithai/core/services");
     const secret =
       process.env.BETTER_AUTH_SECRET ||
       process.env.SESSION_SECRET ||
-      "erdwithai-default-secret-key-change-in-production-32chars";
+      "appwithai-default-secret-key-change-in-production-32chars";
     _authService = new AuthService({
       db: getDatabase(),
       secret,
@@ -29,7 +29,7 @@ export async function getAuthService(): Promise<any> {
   return _authService;
 }
 
-export const AUTH_COOKIE = "erdwithai-session";
+export const AUTH_COOKIE = "appwithai-session";
 export const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days in seconds
 
 export function getSessionToken(request: Request): string | null {
@@ -51,7 +51,7 @@ export async function getCurrentUser(request: Request): Promise<AuthUsersTable |
   const token = getSessionToken(request);
   if (!token) return null;
 
-  const { getDatabase } = await import("@erdwithai/core/services");
+  const { getDatabase } = await import("@appwithai/core/services");
   const db = getDatabase();
   const now = new Date().toISOString();
 

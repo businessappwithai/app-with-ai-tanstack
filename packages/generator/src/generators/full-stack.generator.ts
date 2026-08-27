@@ -10,7 +10,7 @@
 
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import type { Entity, EntityEnum, Relationship } from "@erdwithai/core/types";
+import type { Entity, EntityEnum, Relationship } from "@appwithai/core/types";
 import type { CompiledHook } from "../hooks";
 import type { EntityCategory } from "../parsers/category.parser";
 import type { CompiledRbac } from "../rbac";

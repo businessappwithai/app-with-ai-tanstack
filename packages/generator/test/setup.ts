@@ -7,7 +7,7 @@
 import * as fs from "node:fs/promises";
 import os from "node:os";
 import * as path from "node:path";
-import type { Entity, Relationship } from "@erdwithai/core/types";
+import type { Entity, Relationship } from "@appwithai/core/types";
 import { vi } from "vitest";
 
 // Mock fs module for tests that don't need real file operations

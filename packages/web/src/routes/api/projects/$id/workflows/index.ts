@@ -5,7 +5,7 @@ export const Route = createFileRoute("/api/projects/$id/workflows/")({
     handlers: {
       GET: async ({ params }) => {
         try {
-          const { workflowDb } = await import("@erdwithai/core/services");
+          const { workflowDb } = await import("@appwithai/core/services");
           const id = params.id as string;
 
           const workflows = await workflowDb.getWorkflows(id);
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/projects/$id/workflows/")({
 
       POST: async ({ request, params }) => {
         try {
-          const { workflowDb } = await import("@erdwithai/core/services");
+          const { workflowDb } = await import("@appwithai/core/services");
           const id = params.id as string;
           const body = await request.json();
           const { name, serviceName, mermaidCode, description, extensionPoints } = body;

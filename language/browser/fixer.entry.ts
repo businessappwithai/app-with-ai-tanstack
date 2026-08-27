@@ -25,7 +25,7 @@ import {
   type CheckResult,
   checkSource,
 } from "../checker";
-import languageDefinition from "../erdwithai-language.json";
+import languageDefinition from "../appwithai-language.json";
 import { applyFixes, type FixResult } from "../fixer";
 import { type LanguageDefinition, setLanguageDefinition } from "../index";
 

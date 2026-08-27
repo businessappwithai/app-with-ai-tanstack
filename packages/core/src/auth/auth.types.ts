@@ -1,6 +1,6 @@
 /**
  * Authentication and Authorization Types
- * Better Auth integration for ERDwithAI
+ * Better Auth integration for APPWITHAI
  */
 
 import type { Session, User } from "better-auth/types";

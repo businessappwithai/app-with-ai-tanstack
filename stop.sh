@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ERDwithAI Stop Script
+# APPWITHAI Stop Script
 # Stops web server, Mastra AI, and (optionally) the local LLM server.
 
 # Colors
@@ -44,11 +44,11 @@ stop_service() {
     fi
 }
 
-print_header "Stopping ERDwithAI Services"
+print_header "Stopping APPWITHAI Services"
 
-stop_service ".erdwithai-web.pid"    "Web Server"
-stop_service ".erdwithai-mastra.pid" "Mastra AI"
-stop_service ".erdwithai-llm.pid"    "LLM Server"
+stop_service ".appwithai-web.pid"    "Web Server"
+stop_service ".appwithai-mastra.pid" "Mastra AI"
+stop_service ".appwithai-llm.pid"    "LLM Server"
 
 # Fallback: kill by port in case PID files are missing
 print_info "Checking for remaining processes on known ports..."
@@ -62,10 +62,10 @@ for port in 3000 4111 8000; do
 done
 
 print_header "Cleanup Complete"
-print_success "All ERDwithAI services stopped"
+print_success "All APPWITHAI services stopped"
 echo ""
 print_info "Log files preserved for debugging:"
-echo -e "  ${BLUE}erdwithai-web.log${NC}"
-echo -e "  ${BLUE}erdwithai-mastra.log${NC}"
-echo -e "  ${BLUE}erdwithai-llm.log${NC}"
+echo -e "  ${BLUE}appwithai-web.log${NC}"
+echo -e "  ${BLUE}appwithai-mastra.log${NC}"
+echo -e "  ${BLUE}appwithai-llm.log${NC}"
 echo ""

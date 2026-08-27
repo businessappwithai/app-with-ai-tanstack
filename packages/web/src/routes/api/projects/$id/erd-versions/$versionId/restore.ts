@@ -5,7 +5,7 @@ export const Route = createFileRoute("/api/projects/$id/erd-versions/$versionId/
     handlers: {
       POST: async ({ params }) => {
         try {
-          const { erdVersionDb } = await import("@erdwithai/core/services");
+          const { erdVersionDb } = await import("@appwithai/core/services");
           const versionId = params.versionId as string;
 
           const version = await erdVersionDb.setCurrentVersion(versionId);
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/projects/$id/erd-versions/$versionId/
 
       DELETE: async ({ params }) => {
         try {
-          const { erdVersionDb } = await import("@erdwithai/core/services");
+          const { erdVersionDb } = await import("@appwithai/core/services");
           const versionId = params.versionId as string;
 
           await erdVersionDb.delete(versionId);

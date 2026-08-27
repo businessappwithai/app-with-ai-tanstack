@@ -1,6 +1,6 @@
 # NestJS Integration Guide - Auth, Workflow & Rules Engine
 
-This guide shows how to integrate the Auth, Workflow, and Rules Engine modules from `@erdwithai/core` into a NestJS backend.
+This guide shows how to integrate the Auth, Workflow, and Rules Engine modules from `@appwithai/core` into a NestJS backend.
 
 ## Target Project
 
@@ -11,7 +11,7 @@ This guide shows how to integrate the Auth, Workflow, and Rules Engine modules f
 
 ## Prerequisites
 
-1. Ensure you have the latest `@erdwithai/core` package
+1. Ensure you have the latest `@appwithai/core` package
 2. Run database migrations for auth/workflow/rules tables
 3. Set up environment variables
 
@@ -24,7 +24,7 @@ This guide shows how to integrate the Auth, Workflow, and Rules Engine modules f
 ```json
 {
   "dependencies": {
-    "@erdwithai/core": "workspace:*",
+    "@appwithai/core": "workspace:*",
     "better-auth": "^1.5.6"
   }
 }
@@ -62,7 +62,7 @@ ENABLE_RULES_ENGINE=true
 
 ## Step 3: Database Migrations
 
-The following migrations should already exist in your `migrations/` directory from `@erdwithai/core`:
+The following migrations should already exist in your `migrations/` directory from `@appwithai/core`:
 
 - `004_add_better_auth_tables.ts`
 - `005_add_workflow_rules_tables.ts`
@@ -118,8 +118,8 @@ export class AuthModule {}
 ```typescript
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createAuthService, type LoginCredentials, type RegisterData } from '@erdwithai/core/auth';
-import { getDatabase } from '@erdwithai/core/services';
+import { createAuthService, type LoginCredentials, type RegisterData } from '@appwithai/core/auth';
+import { getDatabase } from '@appwithai/core/services';
 
 @Injectable()
 export class AuthService {
@@ -355,8 +355,8 @@ export class WorkflowModule {}
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createWorkflowService } from '@erdwithai/core/workflow';
-import { getDatabase } from '@erdwithai/core/services';
+import { createWorkflowService } from '@appwithai/core/workflow';
+import { getDatabase } from '@appwithai/core/services';
 
 @Injectable()
 export class WorkflowService {
@@ -466,8 +466,8 @@ export class RulesModule {}
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { createRulesEngineService } from '@erdwithai/core/rules';
-import { getDatabase } from '@erdwithai/core/services';
+import { createRulesEngineService } from '@appwithai/core/rules';
+import { getDatabase } from '@appwithai/core/services';
 
 @Injectable()
 export class RulesService {
@@ -580,8 +580,8 @@ Import and extend BaseService:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { BaseService } from '@erdwithai/core/services';
-import { getDatabase } from '@erdwithai/core/services';
+import { BaseService } from '@appwithai/core/services';
+import { getDatabase } from '@appwithai/core/services';
 import { WorkflowService } from '../workflow/workflow.service';
 
 @Injectable()
@@ -832,4 +832,4 @@ curl -X POST http://localhost:3001/patients \
 ---
 
 **Generated**: March 30, 2026
-**For**: ERDwithAI v5.1.0+
+**For**: APPWITHAI v5.1.0+

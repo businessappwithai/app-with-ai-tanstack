@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the comprehensive End-to-End (E2E) testing system for the ERDwithAI generator application. The E2E tests validate the complete workflow from creating projects to generating applications with different stack options.
+This document describes the comprehensive End-to-End (E2E) testing system for the APPWITHAI generator application. The E2E tests validate the complete workflow from creating projects to generating applications with different stack options.
 
 ## Test Architecture
 

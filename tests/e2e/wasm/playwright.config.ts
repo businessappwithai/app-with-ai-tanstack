@@ -11,7 +11,7 @@
  *   bunx playwright test --config tests/e2e/wasm/playwright.config.ts --grep @cli
  *
  * The suite covers both halves of the stack, because the stack is both halves:
- * `cli.e2e.spec.ts` runs `erdwithai-wasm` and inspects what it wrote, and
+ * `cli.e2e.spec.ts` runs `appwithai-wasm` and inspects what it wrote, and
  * `browser.e2e.spec.ts` drives the hosted page through the same generation and
  * into the running application. A change that breaks one usually breaks the
  * other, and until now only the second had a test.

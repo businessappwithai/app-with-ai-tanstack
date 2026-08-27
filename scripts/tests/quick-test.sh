@@ -76,7 +76,7 @@ log_success "Packages built"
 # Generate app
 log "Generating TanStack Start + NestJS test app..."
 rm -rf "$TEST_OUTPUT_DIR"
-bun --filter @erdwithai/generator generate -- \
+bun --filter @appwithai/generator generate -- \
     -i "$PROJECT_ROOT/test-data/hospital-erd.mermaid" \
     -o "$TEST_OUTPUT_DIR" \
     -n "quick-test" \

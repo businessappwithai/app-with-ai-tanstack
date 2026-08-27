@@ -1,6 +1,6 @@
 {
-  "name": "@erdwithai/eml-cli",
-  "version": "1.0.0",
+  "name": "@appwithai/eml-cli",
+  "version": "0.0.1",
   "type": "module",
   "description": "Build applications from an EML (.mmd) model describing an ERD, business rules, and workflows.",
   "bin": {

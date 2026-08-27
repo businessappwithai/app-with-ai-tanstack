@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/model-context")({
           const access = await requireProjectAccess(request, projectId);
           if (access.response) return access.response;
 
-          const { buildModelContext } = await import("@erdwithai/ai");
+          const { buildModelContext } = await import("@appwithai/ai");
           const context = await buildModelContext(projectId, question, {
             surface: body.surface ?? "general",
             topK: Math.min(body.topK ?? 8, 20),

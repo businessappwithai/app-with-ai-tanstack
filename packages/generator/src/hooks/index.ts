@@ -17,7 +17,7 @@
  * outside a `%%workflow` block is still a hook.
  */
 
-/** The lifecycle events a hook may bind to. Mirrors `language/erdwithai-language.json`. */
+/** The lifecycle events a hook may bind to. Mirrors `language/appwithai-language.json`. */
 export const HOOK_TYPES = [
   "beforeCreate",
   "afterCreate",

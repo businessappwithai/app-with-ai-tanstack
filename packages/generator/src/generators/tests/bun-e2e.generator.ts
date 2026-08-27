@@ -17,8 +17,8 @@
 
 import { existsSync, promises as fs } from "node:fs";
 import path from "node:path";
-import type { BusEntity, Entity, Relationship } from "@erdwithai/core/types";
-import { entityToBusEntity } from "@erdwithai/core/types";
+import type { BusEntity, Entity, Relationship } from "@appwithai/core/types";
+import { entityToBusEntity } from "@appwithai/core/types";
 import { BaseGenerator } from "../base.generator";
 
 function resolveTemplateDir(subpath: string): string {

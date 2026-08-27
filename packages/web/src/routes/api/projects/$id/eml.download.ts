@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/projects/$id/eml/download")({
           const access = await requireProjectAccess(request, params.id);
           if (access.response) return access.response;
 
-          const { projectDb } = await import("@erdwithai/core/services");
+          const { projectDb } = await import("@appwithai/core/services");
 
           const project = await projectDb.findById(params.id);
           if (!project) {

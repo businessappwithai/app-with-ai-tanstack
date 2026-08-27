@@ -4,7 +4,7 @@ export const Route = createFileRoute("/api/auth/me")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const { getDatabase } = await import("@erdwithai/core/services");
+        const { getDatabase } = await import("@appwithai/core/services");
         const { getSessionToken } = await import("@/lib/auth-server");
 
         try {

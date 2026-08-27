@@ -1,4 +1,4 @@
-import { parseRuleActions } from "@erdwithai/generator/rules";
+import { parseRuleActions } from "@appwithai/generator/rules";
 import { describe, expect, it } from "vitest";
 import { emitRuleFlow, parseRuleFlow } from "@/lib/eml/rule-flow";
 

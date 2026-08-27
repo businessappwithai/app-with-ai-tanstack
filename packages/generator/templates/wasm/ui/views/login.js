@@ -152,6 +152,11 @@ export async function loginView(root, { project, onSignedIn }) {
           el("li", el("strong", "A Service Worker"), " answering this page's own /api requests"),
           el("li", el("strong", "No network"), " after load, and no data leaves the browser")
         )
+      ),
+      el(
+        "p.login__footer",
+        "Built with ",
+        el("a", { href: "http://www.appwithai.org", target: "_blank", rel: "noopener noreferrer" }, "APPWITHAI")
       )
     )
   );

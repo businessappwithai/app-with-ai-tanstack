@@ -1,4 +1,4 @@
-# ERDwithAI Generator Enhancement Plan
+# APPWITHAI Generator Enhancement Plan
 ## Natural Language AI Data Access for Generated Applications
 
 **Document Version:** 2.0
@@ -36,7 +36,7 @@
 
 ### 1.1 Objective
 
-Enhance the ERDwithAI generator to produce applications that include:
+Enhance the APPWITHAI generator to produce applications that include:
 
 1. **Natural Language Data Access** - Users can query their data using plain English
 2. **AI-Powered Analytics** - Intelligent data insights and recommendations
@@ -210,7 +210,7 @@ The platform already has:
 
 **Gap Analysis:**
 
-| Feature | ERDwithAI Platform | Generated Applications |
+| Feature | APPWITHAI Platform | Generated Applications |
 |---------|-------------------|------------------------|
 | AI Agents | ✅ Present | ❌ Not generated |
 | Natural Language Queries | ✅ For ERD design | ❌ Not for data access |
@@ -3113,9 +3113,9 @@ packages/generator/templates/
 *Please review and provide approval or feedback before implementation begins.*
 
 
-ERDwithAI - AI Enhancement Plan
+APPWITHAI - AI Enhancement Plan
 Two-Stage AI Natural Language Generator Workflow
-Document Version: 3.0 Date: February 12, 2026 Status: ACTIVE Platform Version: ERDwithAI v5.1
+Document Version: 3.0 Date: February 12, 2026 Status: ACTIVE Platform Version: APPWITHAI v5.1
 
 Table of Contents
 Overview
@@ -3131,7 +3131,7 @@ Workflow: How to Use AI NL
 Implementation Phases
 Testing Strategy
 1. Overview
-ERDwithAI is an AI-powered platform that uses natural language (NL) input to generate complete full-stack applications through a two-stage process:
+APPWITHAI is an AI-powered platform that uses natural language (NL) input to generate complete full-stack applications through a two-stage process:
 
 Stage	Input	AI Processing	Output Format	Purpose
 Stage 1	Natural language business description	Domain, Entity, Relationship, Mermaid agents	Mermaid ERD syntax	Define database schema (entities, attributes, relationships)

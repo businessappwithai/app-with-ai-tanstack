@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { requestContext } from "@/lib/request-context";
 import {
   ArrowRight,
   Code2,
@@ -11,7 +12,22 @@ import {
   Zap,
 } from "lucide-react";
 
+async function checkAuthMe() {
+  const { baseUrl, fetchInit } = requestContext();
+  const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
+  return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
+}
+
 export const Route = createFileRoute("/dashboard")({
+  beforeLoad: async () => {
+    try {
+      const data = await checkAuthMe();
+      if (!data.user) throw redirect({ to: "/login" });
+    } catch (e) {
+      if (e && typeof e === "object" && "to" in e) throw e;
+      throw redirect({ to: "/login" });
+    }
+  },
   component: DashboardPage,
 });
 
@@ -106,9 +122,9 @@ function DashboardPage() {
               <div>
                 <h1 className="text-xl font-bold">
                   <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-                    ERDwithAI
+                    APPWITHAI
                   </span>
-                  <span className="ml-2 text-sm font-normal text-muted-foreground">v5.1</span>
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">v0.01</span>
                 </h1>
                 <p className="text-xs text-muted-foreground">AI-Powered Database Design Platform</p>
               </div>
@@ -240,7 +256,7 @@ function DashboardPage() {
 
       <footer className="mt-12 border-t bg-card/50 py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>ERDwithAI v5.1 - AI-Powered Database Schema Designer</p>
+          <p>APPWITHAI v0.01 - AI-Powered Database Schema Designer</p>
           <p className="mt-1">
             Built with TanStack Start, CopilotKit, Mastra.ai, and Anthropic Claude
           </p>

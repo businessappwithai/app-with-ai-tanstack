@@ -1,5 +1,5 @@
 /**
- * `erdwithai-wasm`, end to end, from the outside.
+ * `appwithai-wasm`, end to end, from the outside.
  *
  * These run the CLI as a command and read what it wrote, rather than importing
  * its functions — because every failure this suite exists to catch was a failure
@@ -378,7 +378,7 @@ test.describe("@cli the WebAssembly overlay", () => {
 
     // `--no-setup` for the ordinary CLI only: it installs, migrates and seeds
     // after generating, and there is no database here — nor any need for one,
-    // since this compares what was written. `erdwithai-wasm` has no such step
+    // since this compares what was written. `appwithai-wasm` has no such step
     // and does not take the flag.
     const ordinary = await run(
       "bun",
@@ -427,7 +427,7 @@ test.describe("@cli the WebAssembly overlay", () => {
     }
 
     expect(changed.sort()).toEqual([
-      ".erdwithai.json",
+      ".appwithai.json",
       "backend/.env",
       "backend/.env.example",
       "backend/package.json",

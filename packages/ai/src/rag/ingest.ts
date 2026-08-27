@@ -25,7 +25,7 @@ export async function ingestProjectModel(
   eml: string,
   options: { name?: string; embed?: Embedder } = {}
 ): Promise<{ ingested: number; entities: number }> {
-  const { parseModel, chunkModel, extractEnums } = await import("@erdwithai/generator");
+  const { parseModel, chunkModel, extractEnums } = await import("@appwithai/generator");
 
   const parsed = parseModel(eml);
 
@@ -71,7 +71,7 @@ export async function ingestLanguageSpec(
   specs: { source: string; markdown: string }[],
   options: { embed?: Embedder } = {}
 ): Promise<{ ingested: number }> {
-  const { chunkMarkdown } = await import("@erdwithai/generator");
+  const { chunkMarkdown } = await import("@appwithai/generator");
 
   const chunks = specs.flatMap((spec) => chunkMarkdown(spec.markdown, spec.source));
   return ingestChunks(SPEC_PROJECT_ID, chunks, options.embed);

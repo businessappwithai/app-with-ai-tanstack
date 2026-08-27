@@ -1,8 +1,8 @@
-# ERDwithAI Architecture & Development Guide
+# APPWITHAI Architecture & Development Guide
 
 ## System Overview
 
-ERDwithAI is an AI-powered Entity Relationship Design & Code Generation platform built with:
+APPWITHAI is an AI-powered Entity Relationship Design & Code Generation platform built with:
 
 - **Runtime**: Bun.js 1.3+ (Node.js 20+ compatible)
 - **AI Framework**: Mastra.ai, CopilotKit, AG-UI
@@ -73,7 +73,7 @@ ERDwithAI is an AI-powered Entity Relationship Design & Code Generation platform
 ## Monorepo Structure
 
 ```
-erdwithai/
+appwithai/
 ├── packages/
 │   ├── core/              # Core business logic, types, hooks, services
 │   ├── generator/         # Code generation engine & Handlebars templates
@@ -86,7 +86,7 @@ erdwithai/
 
 ## Package Descriptions
 
-### @erdwithai/core
+### @appwithai/core
 Business logic, hooks, RBAC, validation, utilities.
 
 **Key Components:**
@@ -95,7 +95,7 @@ Business logic, hooks, RBAC, validation, utilities.
 - Hook system (Registry, Executor, Builder)
 - Base services with automatic hook execution
 
-### @erdwithai/generator
+### @appwithai/generator
 Code generation engine with template loading.
 
 **Key Components:**
@@ -104,7 +104,7 @@ Code generation engine with template loading.
 - Base generator class
 - CLI tool
 
-### @erdwithai/ai ⭐
+### @appwithai/ai ⭐
 Mastra.ai orchestration for AI-powered design.
 
 **Key Components:**
@@ -113,7 +113,7 @@ Mastra.ai orchestration for AI-powered design.
 - Standalone converter
 - CLI tool
 
-### @erdwithai/web ⭐
+### @appwithai/web ⭐
 TanStack Start web application with CopilotKit.
 
 **Key Components:**
@@ -180,7 +180,7 @@ TanStack Start web application with CopilotKit.
 
 **Order of imports:**
 1. External dependencies (React, TanStack, etc.)
-2. Internal package imports (@erdwithai/\*)
+2. Internal package imports (@appwithai/\*)
 3. Relative imports (./types, ../utils)
 4. Type imports (import type)
 
@@ -190,22 +190,22 @@ import React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Database, FileCode } from "lucide-react";
 
-import { mastra } from "@erdwithai/ai";
-import type { EntityDefinition } from "@erdwithai/core/types";
+import { mastra } from "@appwithai/ai";
+import type { EntityDefinition } from "@appwithai/core/types";
 
 import { analyzeDomain } from "../agents/domain-agent";
 import type { DomainAnalysis } from "../types";
 ```
 
 **Package aliases:**
-- `@erdwithai/core` - Core business logic
-- `@erdwithai/core/types` - Type definitions
-- `@erdwithai/core/hooks` - Hook system
-- `@erdwithai/core/services` - Base services
-- `@erdwithai/core/utils` - Utility functions
-- `@erdwithai/generator` - Code generation
-- `@erdwithai/ai` - AI features
-- `@erdwithai/web` - Web application
+- `@appwithai/core` - Core business logic
+- `@appwithai/core/types` - Type definitions
+- `@appwithai/core/hooks` - Hook system
+- `@appwithai/core/services` - Base services
+- `@appwithai/core/utils` - Utility functions
+- `@appwithai/generator` - Code generation
+- `@appwithai/ai` - AI features
+- `@appwithai/web` - Web application
 
 ### Naming Conventions
 

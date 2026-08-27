@@ -1,4 +1,4 @@
-# ERDwithAI Roadmap
+# APPWITHAI Roadmap
 
 ## Version 6.0 - Complete Multi-Stack Generation with Application Dictionary
 
@@ -7,7 +7,7 @@
 
 ### Overview
 
-This enhancement transforms ERDwithAI into a complete application generator that produces enterprise-grade applications following the Compiere Application Dictionary pattern. Every generated project will include:
+This enhancement transforms APPWITHAI into a complete application generator that produces enterprise-grade applications following the Compiere Application Dictionary pattern. Every generated project will include:
 
 - **System Tables (sys_ prefix)**: Application Dictionary metadata tables
 - **Business Tables (bus_ prefix)**: User-defined business entities from ERD
@@ -334,7 +334,7 @@ Mermaid Flowchart → ANTLR4 Lexer → ANTLR4 Parser → AST → TypeScript Code
 
 ### Overview
 
-Successfully migrated the entire ERDwithAI project from npm/yarn to Bun.js runtime.
+Successfully migrated the entire APPWITHAI project from npm/yarn to Bun.js runtime.
 
 ### Key Changes
 

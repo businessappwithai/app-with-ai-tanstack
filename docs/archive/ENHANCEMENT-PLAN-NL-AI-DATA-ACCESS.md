@@ -1,4 +1,4 @@
-# ERDwithAI Generator Enhancement Plan
+# APPWITHAI Generator Enhancement Plan
 ## Natural Language AI Data Access for Generated Applications
 
 **Document Version:** 2.0
@@ -36,7 +36,7 @@
 
 ### 1.1 Objective
 
-Enhance the ERDwithAI generator to produce applications that include:
+Enhance the APPWITHAI generator to produce applications that include:
 
 1. **Natural Language Data Access** - Users can query their data using plain English
 2. **AI-Powered Analytics** - Intelligent data insights and recommendations
@@ -210,7 +210,7 @@ The platform already has:
 
 **Gap Analysis:**
 
-| Feature | ERDwithAI Platform | Generated Applications |
+| Feature | APPWITHAI Platform | Generated Applications |
 |---------|-------------------|------------------------|
 | AI Agents | ✅ Present | ❌ Not generated |
 | Natural Language Queries | ✅ For ERD design | ❌ Not for data access |

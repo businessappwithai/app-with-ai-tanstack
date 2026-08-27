@@ -23,7 +23,7 @@
 
 ## 1. Executive Summary
 
-This review covers the three enhancement plans for ERDwithAI v6.0:
+This review covers the three enhancement plans for APPWITHAI v6.0:
 
 | Plan | Document | Lines | Status |
 |------|----------|-------|--------|

@@ -58,7 +58,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
     handlers: {
       GET: async ({ request, params }) => {
         try {
-          const { workflowDb } = await import("@erdwithai/core/services");
+          const { workflowDb } = await import("@appwithai/core/services");
           const rows = await workflowDb.getWorkflows(params.id);
 
           // Paged at 200. A project accumulates automations faster than anyone
@@ -81,7 +81,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
           }));
 
           // The current ERD, so the builder's pickers have something in them.
-          const { getDb } = await import("@erdwithai/core/config");
+          const { getDb } = await import("@appwithai/core/config");
           const erd = await getDb()
             .selectFrom("erd_versions")
             .select(["mermaid_code"])
@@ -130,7 +130,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
             );
           }
 
-          const { workflowDb } = await import("@erdwithai/core/services");
+          const { workflowDb } = await import("@appwithai/core/services");
           const created = await workflowDb.create({
             project_id: params.id,
             name: body.name,

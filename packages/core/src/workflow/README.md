@@ -1,6 +1,6 @@
 # Workflow Module
 
-Workflow automation module for ERDwithAI. Integrates with Trigger.dev for background job processing and entity lifecycle management.
+Workflow automation module for APPWITHAI. Integrates with Trigger.dev for background job processing and entity lifecycle management.
 
 ## Features
 
@@ -23,7 +23,7 @@ bun add @trigger.dev/sdk
 ### 1. Initialize Workflow Service
 
 ```typescript
-import { createWorkflowService } from "@erdwithai/core/workflow";
+import { createWorkflowService } from "@appwithai/core/workflow";
 import knex from "knex";
 
 const db = knex({
@@ -43,7 +43,7 @@ const workflowService = createWorkflowService(db, {
 ### 2. Enable Workflows in Your Service
 
 ```typescript
-import { BaseService } from "@erdwithai/core/services";
+import { BaseService } from "@appwithai/core/services";
 
 export class PatientService extends BaseService<Patient> {
   protected entityName = "Patient";
@@ -201,7 +201,7 @@ console.log(`Timed out ${timedOut} workflows`);
 The BaseService class automatically triggers workflows when enabled:
 
 ```typescript
-import { BaseService } from "@erdwithai/core/services";
+import { BaseService } from "@appwithai/core/services";
 
 class MyService extends BaseService<MyEntity> {
   // CREATE → triggers CREATE workflow
@@ -260,7 +260,7 @@ WORKFLOW_TIMEOUT=300                     # Timeout in seconds
 ### Unit Tests
 
 ```typescript
-import { WorkflowService } from "@erdwithai/core/workflow";
+import { WorkflowService } from "@appwithai/core/workflow";
 
 describe("WorkflowService", () => {
   it("should trigger workflow", async () => {

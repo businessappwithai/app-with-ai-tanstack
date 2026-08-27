@@ -1,7 +1,7 @@
 /**
  * What the overlay is allowed to change.
  *
- * The value of `erdwithai-wasm` is that it is not a second stack: it runs the
+ * The value of `appwithai-wasm` is that it is not a second stack: it runs the
  * same pipeline and then changes the driver and the scripts. That claim is only
  * worth making if something checks it, because the natural drift is for one
  * more file to get "just a small tweak" until the two stacks are two codebases.

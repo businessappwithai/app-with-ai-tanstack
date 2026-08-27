@@ -51,7 +51,7 @@ export const Route = createFileRoute("/api/eml/validate")({
           }
 
           const { parseModel, extractRuleSections, extractWorkflowSections } = await import(
-            "@erdwithai/generator"
+            "@appwithai/generator"
           );
 
           const problems: string[] = [];

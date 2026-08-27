@@ -6,7 +6,7 @@ export const Route = createFileRoute("/api/admin/users/$id/reject")({
     handlers: {
       POST: async ({ request, params }) => {
         try {
-          const { getDatabase } = await import("@erdwithai/core/services");
+          const { getDatabase } = await import("@appwithai/core/services");
           const token = getSessionToken(request);
           if (!token) {
             return new Response(JSON.stringify({ error: "Unauthorized" }), {

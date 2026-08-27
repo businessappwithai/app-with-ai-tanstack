@@ -4,7 +4,7 @@ let _dbReady = false;
 async function ensureDb() {
   if (!_dbReady) {
     _dbReady = true;
-    const { runMigrations } = await import("@erdwithai/core/services");
+    const { runMigrations } = await import("@appwithai/core/services");
     await runMigrations().catch((err) => console.error("[DB] Migration error:", err));
   }
 }
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/rules/")({
       GET: async ({ request }) => {
         await ensureDb();
         try {
-          const { rulesDb } = await import("@erdwithai/core/services");
+          const { rulesDb } = await import("@appwithai/core/services");
           const url = new URL(request.url);
           const entityName = url.searchParams.get("entityName") ?? undefined;
           const operation = url.searchParams.get("operation") ?? undefined;
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/api/rules/")({
       POST: async ({ request }) => {
         await ensureDb();
         try {
-          const { rulesDb } = await import("@erdwithai/core/services");
+          const { rulesDb } = await import("@appwithai/core/services");
           const body = await request.json();
           const { entityName, ruleName, operation, jdmContent } = body;
 

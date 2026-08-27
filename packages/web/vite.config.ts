@@ -10,7 +10,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // The repo's env lives in one file at the monorepo root — README.md says
 // `cp .env.example .env` there, and .env.example is the only template. But
-// `bun run dev` is `bun --filter @erdwithai/web dev`, which runs `vite dev`
+// `bun run dev` is `bun --filter @appwithai/web dev`, which runs `vite dev`
 // with cwd = packages/web, and Bun's automatic .env loading is per-process at
 // cwd: it reads packages/web/.env (which does not exist) and does not export
 // the root file's values to the child. So the SSR handlers ran with no
@@ -49,7 +49,7 @@ const config = defineConfig({
       "@anush008/tokenizers",
       "@anush008/tokenizers-darwin-universal",
       "pg",
-      "@erdwithai/core",
+      "@appwithai/core",
     ],
     // CJS interop: pre-bundle elkjs bundled JS so Vite handles it as ESM
     include: ["elkjs/lib/elk.bundled.js"],
@@ -58,8 +58,8 @@ const config = defineConfig({
     // Treat workspace packages as Node.js externals so their dist/index.js
     // files are used directly instead of being re-processed by Vite SSR.
     // Without this, Vite SSR fails to resolve named exports (e.g. entityToBusEntity)
-    // from subpath exports like @erdwithai/core/types.
-    external: ["@erdwithai/core", "@erdwithai/generator", "@erdwithai/ai"],
+    // from subpath exports like @appwithai/core/types.
+    external: ["@appwithai/core", "@appwithai/generator", "@appwithai/ai"],
   },
   resolve: {
     tsconfigPaths: true,

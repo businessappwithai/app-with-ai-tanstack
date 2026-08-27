@@ -59,7 +59,7 @@ jobs:
 
       - name: Build core package (required for the tanstack-nestjs stack)
         if: ${{ inputs.stack == 'tanstack-nestjs' }}
-        run: bun run --filter @erdwithai/core build
+        run: bun run --filter @appwithai/core build
 
       - name: Download the online EML model
         run: |

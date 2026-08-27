@@ -245,11 +245,11 @@ MICROSOFT_CLIENT_SECRET=<microsoft-client-secret>
 
 1. **NestJS Stack**: Use decorators (`@Roles()`, `@RequirePermission()`) + Guards
 2. **OData V4 Stack**: Use middleware (`auth.middleware.ts`, `rbac.middleware.ts`)
-3. **Both**: Use `AuthService` and `GuardFactory` from `@erdwithai/core/auth`
+3. **Both**: Use `AuthService` and `GuardFactory` from `@appwithai/core/auth`
 
 ## Migration Path 🔄
 
-For existing ERDwithAI-generated projects:
+For existing APPWITHAI-generated projects:
 
 1. **Run migrations** to add new tables and columns
 2. **Install dependencies** (better-auth)

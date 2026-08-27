@@ -21,7 +21,7 @@
 // `generateFullStack`: the reader is looking at the model now, and a document
 // with an error is not going to become an application by pressing Assemble.
 import { checkAndFix } from "../fixer.js";
-import { generateFullStack, loadTemplates } from "./erdwithai-fullstack.js";
+import { generateFullStack, loadTemplates } from "./appwithai-fullstack.js";
 
 const WEBCONTAINER_API = "https://esm.sh/@webcontainer/api@1.6.4";
 
@@ -341,7 +341,7 @@ function showResult(result) {
     <p class="result__note">
       The WebAssembly overlay added ${overlay.added.length} files, rewrote
       ${overlay.rewritten.length} and moved ${overlay.debunned.length} scripts off Bun.
-      Every other file is what <code>erdwithai</code> generates, unchanged.
+      Every other file is what <code>appwithai</code> generates, unchanged.
     </p>`;
   $("result").classList.add("is-shown");
 }

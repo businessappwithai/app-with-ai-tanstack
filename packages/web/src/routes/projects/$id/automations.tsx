@@ -8,7 +8,8 @@
  * them across two pages is what made rules and workflows feel like two products.
  */
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { requestContext } from "@/lib/request-context";
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import {
   AutomationBuilder,
@@ -26,7 +27,22 @@ import {
 } from "@/lib/automation/model";
 import { type DecisionTable, emptyDecisionTable } from "@/lib/workflow/bpmn-model";
 
+async function checkAuthMe() {
+  const { baseUrl, fetchInit } = requestContext();
+  const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
+  return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
+}
+
 export const Route = createFileRoute("/projects/$id/automations")({
+  beforeLoad: async () => {
+    try {
+      const data = await checkAuthMe();
+      if (!data.user) throw redirect({ to: "/login" });
+    } catch (e) {
+      if (e && typeof e === "object" && "to" in e) throw e;
+      throw redirect({ to: "/login" });
+    }
+  },
   component: AutomationsPage,
 });
 
@@ -354,7 +370,7 @@ function AutomationsPage() {
         <span className="grid h-[26px] w-[26px] place-items-center rounded-lg bg-primary text-[13px] font-bold text-primary-foreground">
           E
         </span>
-        <span className="text-[15px] font-bold">ERDwithAI</span>
+        <span className="text-[15px] font-bold">APPWITHAI</span>
         <span className="text-[13px] text-muted-foreground">
           Automations ›{" "}
           <b className="font-semibold text-foreground">

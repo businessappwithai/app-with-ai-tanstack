@@ -30,8 +30,8 @@ there are environmental rather than functional.
 ### G-1 — `bun install && bun run dev` cannot serve a single request (high)
 
 The documented first-run sequence leaves the workspace packages unbuilt, so
-`packages/web` resolves `@erdwithai/core` to a `dist/` that does not exist. The
-first API call fails with `Cannot find module '@erdwithai/core/services'`, and
+`packages/web` resolves `@appwithai/core` to a `dist/` that does not exist. The
+first API call fails with `Cannot find module '@appwithai/core/services'`, and
 the resulting unhandled rejection **takes the dev server process down** —
 `ERR_INVALID_ARG_TYPE` in srvx's `writeHead`, exit code 1. A new developer sees
 the server die on the login page.

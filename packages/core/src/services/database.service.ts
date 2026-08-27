@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Database service for ERDwithAI — PostgreSQL via Kysely + pg
+ * Database service for APPWITHAI — PostgreSQL via Kysely + pg
  *
  * Connection config lives in ONE place: packages/core/src/config/db.config.ts
  * Change driver / connection string there only.

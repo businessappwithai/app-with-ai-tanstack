@@ -12,7 +12,7 @@
  * from there had to change.
  */
 
-import type { Entity, EntityEnum, Relationship } from "@erdwithai/core/types";
+import type { Entity, EntityEnum, Relationship } from "@appwithai/core/types";
 import { extractRuleSections } from "../eml";
 import type { StackOption } from "../generators/full-stack.generator";
 import { type CompiledHook, compileHooks } from "../hooks";

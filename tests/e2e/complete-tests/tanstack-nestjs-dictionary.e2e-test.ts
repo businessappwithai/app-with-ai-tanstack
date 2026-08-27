@@ -1082,7 +1082,7 @@ test.describe("NestJS API - RBAC (Users, Roles, Access)", () => {
   test("POST /api/sys/users - should create system user", async ({ request }) => {
     const newUser = {
       name: "E2E Test Admin",
-      email: "e2e-admin@erdwithai.test",
+      email: "e2e-admin@appwithai.test",
       password_hash: "hashed_password_placeholder",
       is_system_user: true,
       is_sales_rep: false,

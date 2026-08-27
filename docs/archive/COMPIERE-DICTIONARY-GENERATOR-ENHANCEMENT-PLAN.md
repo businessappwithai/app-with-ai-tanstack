@@ -4,7 +4,7 @@
 
 **Document Version**: 1.0
 **Date**: January 17, 2026
-**Author**: ERDwithAI Development Team
+**Author**: APPWITHAI Development Team
 **Status**: AWAITING APPROVAL
 
 ---
@@ -29,7 +29,7 @@
 
 ### 1.1 Overview
 
-This enhancement transforms ERDwithAI into a complete application generator that produces enterprise-grade applications following the Compiere Application Dictionary pattern. Every generated project will include:
+This enhancement transforms APPWITHAI into a complete application generator that produces enterprise-grade applications following the Compiere Application Dictionary pattern. Every generated project will include:
 
 - **System Tables (sys_ prefix)**: Application Dictionary metadata tables that define the structure, behavior, and layout of the application
 - **Business Tables (bus_ prefix)**: User-defined business entities from the ERD design
@@ -75,7 +75,7 @@ This enhancement transforms ERDwithAI into a complete application generator that
 
 ### 2.1 Existing Capabilities
 
-The current ERDwithAI v5.1 includes:
+The current APPWITHAI v5.1 includes:
 
 - **Monorepo Architecture**: 4 packages (core, ai, generator, web)
 - **Type Definitions**: Entity, Relationship, and Dictionary types with Zod validation

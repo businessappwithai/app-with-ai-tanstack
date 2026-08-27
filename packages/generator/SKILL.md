@@ -1,11 +1,11 @@
 ---
-name: erdwithai-generator
-description: Code generation engine with Mermaid parsing and Handlebars template loading for ERDwithAI
+name: appwithai-generator
+description: Code generation engine with Mermaid parsing and Handlebars template loading for APPWITHAI
 ---
 
-# @erdwithai/generator Skill
+# @appwithai/generator Skill
 
-This skill provides guidance for working with the generator package of ERDwithAI, which handles parsing Mermaid ERD syntax and generating application code using Handlebars templates.
+This skill provides guidance for working with the generator package of APPWITHAI, which handles parsing Mermaid ERD syntax and generating application code using Handlebars templates.
 
 ## Package Overview
 
@@ -47,7 +47,7 @@ packages/generator/
 Parses Mermaid ERD syntax into structured data:
 
 ```typescript
-import { MermaidParser } from '@erdwithai/generator';
+import { MermaidParser } from '@appwithai/generator';
 
 const parser = new MermaidParser();
 const result = parser.parse(`
@@ -77,7 +77,7 @@ console.log(result.relationships); // Array of Relationship objects
 Loads Handlebars templates with pre-registered helpers:
 
 ```typescript
-import { TemplateLoader } from '@erdwithai/generator';
+import { TemplateLoader } from '@appwithai/generator';
 
 const loader = new TemplateLoader('./templates/tanstackjs-nestjs');
 const template = await loader.load('page.tsx.hbs');
@@ -108,8 +108,8 @@ The template loader registers these helpers automatically:
 All generators extend the BaseGenerator class:
 
 ```typescript
-import { BaseGenerator } from '@erdwithai/generator';
-import type { Entity, Relationship } from '@erdwithai/core/types';
+import { BaseGenerator } from '@appwithai/generator';
+import type { Entity, Relationship } from '@appwithai/core/types';
 
 class CustomGenerator extends BaseGenerator {
   async generate(entities: Entity[], relationships: Relationship[]): Promise<void> {
@@ -123,13 +123,13 @@ class CustomGenerator extends BaseGenerator {
 
 ```bash
 # Generate TanStack Start application
-bun --filter @erdwithai/generator generate -- --stack tanstack --input schema.erd --output ./generated
+bun --filter @appwithai/generator generate -- --stack tanstack --input schema.erd --output ./generated
 
 # Generate OData service
-bun --filter @erdwithai/generator generate -- --stack odata --input schema.erd --output ./generated
+bun --filter @appwithai/generator generate -- --stack odata --input schema.erd --output ./generated
 
 # Generate OpenUI5 application
-bun --filter @erdwithai/generator generate -- --stack ui5 --input schema.erd --output ./generated
+bun --filter @appwithai/generator generate -- --stack ui5 --input schema.erd --output ./generated
 ```
 
 ## Building the Package
@@ -144,7 +144,7 @@ bun run build:core && bun run build:generator
 
 ## Dependencies
 
-- **@erdwithai/core**: workspace:* - Core types and utilities
+- **@appwithai/core**: workspace:* - Core types and utilities
 - **handlebars**: ^4.7.8 - Template engine
 - **commander**: ^11.1.0 - CLI framework
 - **kysely**: ^0.27.0 - Type-safe SQL query builder (for database operations)
@@ -198,8 +198,8 @@ Templates receive these context variables:
 
 ## Exports
 
-- `@erdwithai/generator` - Main entry point
-- CLI: `erdwithai-generate` - CLI binary
+- `@appwithai/generator` - Main entry point
+- CLI: `appwithai-generate` - CLI binary
 
 ## Testing
 

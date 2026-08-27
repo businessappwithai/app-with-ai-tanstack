@@ -182,8 +182,8 @@ describe("buildSagaBpmn", () => {
     expect(xml.match(/<bpmn:serviceTask/g)).toHaveLength(4);
     expect(xml).toContain('sourceRef="start" targetRef="B"');
     expect(xml).toContain('sourceRef="E" targetRef="end"');
-    expect(xml).toContain('<erdwithai:property name="nodeType" value="CreateEntity" />');
-    expect(xml).toContain('<erdwithai:property name="as" value="newCapaId" />');
+    expect(xml).toContain('<appwithai:property name="nodeType" value="CreateEntity" />');
+    expect(xml).toContain('<appwithai:property name="as" value="newCapaId" />');
   });
 
   it("escapes the quotes in a JSON field map so the XML stays parseable", () => {

@@ -1,6 +1,6 @@
 # EML Overview
 
-**ERDwithAI Modeling Language (EML)**, version 1.2.0 — a Mermaid-based language
+**APPWITHAI Modeling Language (EML)**, version 1.2.0 — a Mermaid-based language
 for describing an application's data model, business rules, and business
 workflows as one artifact.
 
@@ -11,7 +11,7 @@ workflows as one artifact.
 2. **Valid Mermaid.** Every EML document renders as-is in any Mermaid viewer.
    Nothing is lost when a stakeholder opens the file in a diagram tool.
 3. **Machine-readable and standalone.** The entire language is defined in
-   `language/erdwithai-language.json`, independent of any single parser, so the
+   `language/appwithai-language.json`, independent of any single parser, so the
    generator (and future tooling) reads one authoritative contract.
 4. **Renderer-safe extensibility.** Extra semantics ride on `%%` comments, which
    Mermaid ignores. Adding generator meaning never breaks rendering.
@@ -47,7 +47,7 @@ A single file may hold several sections separated by blank lines.
   enforces their syntax so a malformed one fails validation rather than being
   silently dropped.
 
-  Each directive carries its own `status` in `erdwithai-language.json`, which is
+  Each directive carries its own `status` in `appwithai-language.json`, which is
   authoritative. See [`05-directives.md`](05-directives.md) for the reference.
 
 ### Disambiguating flowchart vs. rules vs. workflow
@@ -63,7 +63,7 @@ a workflow (its states map to a status enum for the bound entity).
 
 ## The pipeline
 
-Every entry point — the `erdwithai` CLI and the web app's `/api/generate` —
+Every entry point — the `appwithai` CLI and the web app's `/api/generate` —
 runs the same pipeline, so a model produces the same application however it was
 submitted.
 
@@ -106,7 +106,7 @@ bun language/checker.ts model.mmd          # writes model.mmd.error beside it
 bun language/fixer.ts   model.mmd.error    # applies the auto-fixable codes, re-checks
 ```
 
-The checker validates a document against `erdwithai-language.json` and emits
+The checker validates a document against `appwithai-language.json` and emits
 diagnostics at three severities:
 
 | Severity | Meaning | Fails the run |
@@ -119,7 +119,7 @@ Codes are grouped by what they are about: `EML0xx` document, `EML1xx` entities
 and their directives, `EML2xx` directive-declared hooks/rules/workflows,
 `EML3xx` rule flowcharts, `EML4xx` workflow sections, `EML5xx` cross-section
 consistency. The full list, the auto-fixable set, and what each fix does are in
-the `diagnostics` block of `erdwithai-language.json`.
+the `diagnostics` block of `appwithai-language.json`.
 
 Warnings are worth reading rather than clearing: most of them describe something
 the generator will silently accept and quietly get wrong. `EML118` is the

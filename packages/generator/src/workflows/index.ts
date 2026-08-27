@@ -151,12 +151,12 @@ export function buildStateEntryBpmn(
   const task = workflow.initial
     ? `    <bpmn:serviceTask id="${taskId}" name="Enter ${escapeXml(workflow.initial)}">
       <bpmn:extensionElements>
-        <erdwithai:properties xmlns:erdwithai="http://erdwithai.dev/bpmn">
-          <erdwithai:property name="nodeType" value="UpdateEntity" />
-          <erdwithai:property name="entity" value="${escapeXml(tableName)}" />
-          <erdwithai:property name="field" value="${escapeXml(statusField)}" />
-          <erdwithai:property name="value" value="${escapeXml(workflow.initial)}" />
-        </erdwithai:properties>
+        <appwithai:properties xmlns:appwithai="http://appwithai.dev/bpmn">
+          <appwithai:property name="nodeType" value="UpdateEntity" />
+          <appwithai:property name="entity" value="${escapeXml(tableName)}" />
+          <appwithai:property name="field" value="${escapeXml(statusField)}" />
+          <appwithai:property name="value" value="${escapeXml(workflow.initial)}" />
+        </appwithai:properties>
       </bpmn:extensionElements>
     </bpmn:serviceTask>
 `
@@ -170,7 +170,7 @@ export function buildStateEntryBpmn(
 `;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://appwithai.dev/bpmn">
   <bpmn:process id="${processId}" isExecutable="true">
     <bpmn:startEvent id="start" name="Record written" />
 ${task}${flows}    <bpmn:endEvent id="end" name="Done" />
@@ -190,16 +190,16 @@ ${task}${flows}    <bpmn:endEvent id="end" name="Done" />
 export function buildPassThroughBpmn(tableName: string): string {
   const processId = `${tableName}_passthrough`;
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://appwithai.dev/bpmn">
   <bpmn:process id="${processId}" isExecutable="true">
     <bpmn:startEvent id="start" name="Record written" />
     <bpmn:serviceTask id="task_noop" name="No workflow declared">
       <bpmn:extensionElements>
-        <erdwithai:properties xmlns:erdwithai="http://erdwithai.dev/bpmn">
-          <erdwithai:property name="nodeType" value="Formula" />
-          <erdwithai:property name="target" value="acknowledged" />
-          <erdwithai:property name="expression" value="true" />
-        </erdwithai:properties>
+        <appwithai:properties xmlns:appwithai="http://appwithai.dev/bpmn">
+          <appwithai:property name="nodeType" value="Formula" />
+          <appwithai:property name="target" value="acknowledged" />
+          <appwithai:property name="expression" value="true" />
+        </appwithai:properties>
       </bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="flow_1" sourceRef="start" targetRef="task_noop" />

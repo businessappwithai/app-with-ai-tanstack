@@ -1,4 +1,4 @@
-# ERDwithAI Development Guide
+# APPWITHAI Development Guide
 
 ## Quick Start
 
@@ -18,15 +18,15 @@ bun run start
 
 ### Build Status
 
-The ERDwithAI generator builds successfully with the following status:
+The APPWITHAI generator builds successfully with the following status:
 
 ```bash
 $ bun run build
 ✓ Lint check passed (41 warnings, 0 errors)
-✓ @erdwithai/core build successful
-✓ @erdwithai/generator build successful
-✓ @erdwithai/ai build successful
-✓ @erdwithai/web build successful
+✓ @appwithai/core build successful
+✓ @appwithai/generator build successful
+✓ @appwithai/ai build successful
+✓ @appwithai/web build successful
 ```
 
 ### Build Steps Completed
@@ -42,16 +42,16 @@ $ bun run build
 
 | Package | Size | Modules |
 |---------|------|---------|
-| @erdwithai/core | 124.75 KB | 27 modules |
-| @erdwithai/generator | 220.68 KB | 51 modules + CLI |
-| @erdwithai/ai | 37.16 KB + 7.54 KB (Mastra) | CLI tools |
-| @erdwithai/web | Next.js optimized | Full app |
+| @appwithai/core | 124.75 KB | 27 modules |
+| @appwithai/generator | 220.68 KB | 51 modules + CLI |
+| @appwithai/ai | 37.16 KB + 7.54 KB (Mastra) | CLI tools |
+| @appwithai/web | Next.js optimized | Full app |
 
 ## Migration History
 
 ### Bun.js Migration (Completed January 2026)
 
-**Overview**: Successfully migrated the entire ERDwithAI project from npm/yarn to Bun.js runtime.
+**Overview**: Successfully migrated the entire APPWITHAI project from npm/yarn to Bun.js runtime.
 
 **Key Changes:**
 - **Runtime**: Bun.js 1.1+ (Node.js 20+ compatible)
@@ -91,10 +91,10 @@ bun run dev:mastra            # Start AI server (port 4111)
 
 ```bash
 bun run build                  # Build all packages
-bun run build:core            # Build @erdwithai/core only
-bun run build:generator       # Build @erdwithai/generator only
-bun run build:ai              # Build @erdwithai/ai only
-bun run build:web             # Build @erdwithai/web only
+bun run build:core            # Build @appwithai/core only
+bun run build:generator       # Build @appwithai/generator only
+bun run build:ai              # Build @appwithai/ai only
+bun run build:web             # Build @appwithai/web only
 ```
 
 ### Production
@@ -194,7 +194,7 @@ All endpoints tested and working:
 
 ```bash
 # Stop web server
-kill $(cat /tmp/erdwithai-web.pid)
+kill $(cat /tmp/appwithai-web.pid)
 
 # Or kill by port
 lsof -ti:3000 | xargs kill -9
@@ -214,13 +214,13 @@ bun run dev
 
 ```bash
 # Real-time logs
-tail -f /tmp/erdwithai-web.log
+tail -f /tmp/appwithai-web.log
 
 # Last 50 lines
-tail -50 /tmp/erdwithai-web.log
+tail -50 /tmp/appwithai-web.log
 
 # Search for errors
-grep -i error /tmp/erdwithai-web.log
+grep -i error /tmp/appwithai-web.log
 ```
 
 ### Environment Configuration
@@ -232,7 +232,7 @@ NODE_ENV=development
 PORT=3000
 ANTHROPIC_API_KEY=your_key_here
 DATABASE_URL=postgresql://...
-MASTRA_DATABASE_URL=file:./erdwithai-mastra.db
+MASTRA_DATABASE_URL=file:./appwithai-mastra.db
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
@@ -343,7 +343,7 @@ ps aux | grep "bun.*dev"
 lsof -i:3000
 
 # View logs
-tail -50 /tmp/erdwithai-web.log
+tail -50 /tmp/appwithai-web.log
 
 # Restart if needed
 lsof -ti:3000 | xargs kill -9 && bun run dev

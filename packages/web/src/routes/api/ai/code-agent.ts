@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/ai/code-agent")({
             if (options.outputFormat) prompt += `- Output format: ${options.outputFormat}\n`;
           }
 
-          const { codeAgent } = await import("@erdwithai/ai");
+          const { codeAgent } = await import("@appwithai/ai");
           const result = await codeAgent.generate(prompt, {
             maxSteps: 25,
           });

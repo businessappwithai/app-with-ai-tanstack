@@ -1,12 +1,12 @@
 # Business Enhancement Document
 ## Auth, Workflow Automation & Business Rules Engine Integration
-### ERDwithAI Hospital Management Software — v5.1 → v6.0
+### APPWITHAI Hospital Management Software — v5.1 → v6.0
 
 ---
 
 ## Executive Summary
 
-This document describes the integration of three major open-source systems into the ERDwithAI-generated Hospital Management Software (HMS):
+This document describes the integration of three major open-source systems into the APPWITHAI-generated Hospital Management Software (HMS):
 
 1. **Better Auth** — A framework-agnostic TypeScript authentication & authorization library replacing the current JWT-only auth system
 2. **Trigger.dev** — An open-source background job and workflow orchestration platform that intercepts every CRUD operation on HMS entities

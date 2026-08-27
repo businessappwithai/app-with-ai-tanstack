@@ -1,7 +1,7 @@
 # EML CLI (`eml`)
 
 A robust, zero-runtime-dependency TypeScript CLI that reads the
-[ERDwithAI Modeling Language](../README.md) definition, parses an `.mmd` EML
+[APPWITHAI Modeling Language](../README.md) definition, parses an `.mmd` EML
 model (ERD + business rules + workflows), validates it **with self-correction**,
 and **generates a complete, runnable application** from it.
 
@@ -72,11 +72,11 @@ to produce a full **TanStack Start frontend + NestJS backend** project
 (`backend/` + `frontend/`). The EML model is mapped to the core
 `Entity[]`/`Relationship[]` the orchestrator consumes, and generation runs in
 template-only mode (no network scaffolding). Requires the workspace deps
-installed and `@erdwithai/core` built once:
+installed and `@appwithai/core` built once:
 
 ```bash
 bun install
-bun run --filter @erdwithai/core build
+bun run --filter @appwithai/core build
 bun language/cli/eml.ts generate -i model.mmd -o ./out --stack tanstack-nestjs
 ```
 
@@ -143,7 +143,7 @@ The generated app wires each section of the EML model:
 ```
 .mmd EML ──parser.ts──▶ EmlModel ──validator.ts──▶ (self-corrected) ──generate/*──▶ app
                  ▲
-     language/erdwithai-language.json  (types, cardinalities, hook types, …)
+     language/appwithai-language.json  (types, cardinalities, hook types, …)
 ```
 
 ## Validation & self-correction

@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-The ERDwithAI web application was returning HTTP 500 errors on startup, with the error `TypeError: entries.routerEntry.getRouter is not a function`. This prevented any page from loading and blocked QA testing.
+The APPWITHAI web application was returning HTTP 500 errors on startup, with the error `TypeError: entries.routerEntry.getRouter is not a function`. This prevented any page from loading and blocked QA testing.
 
 ## Root Cause Analysis
 

@@ -21,8 +21,8 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "paths": {
-      "@erdwithai/core": ["../core/src"],
-      "@erdwithai/core/*": ["../core/src/*"]
+      "@appwithai/core": ["../core/src"],
+      "@appwithai/core/*": ["../core/src/*"]
     }
   },
   "include": ["src/**/*"],

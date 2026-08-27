@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# ERDwithAI — Local LLM Startup Script
+# APPWITHAI — Local LLM Startup Script
 #
 # Starts the mlx_lm.server with the configured model, waits until the
 # OpenAI-compatible endpoint is ready, then prints connection details.
@@ -46,8 +46,8 @@ LLM_MODEL="${LOCAL_AI_MODEL:-mlx-community/Qwen3-27B-4bit}"
 LLM_PORT="${LOCAL_AI_PORT:-8000}"
 LLM_HOST="${LOCAL_AI_HOST:-127.0.0.1}"
 LLM_BASE_URL="http://${LLM_HOST}:${LLM_PORT}/v1"
-PID_FILE="$PROJECT_ROOT/.erdwithai-llm.pid"
-LOG_FILE="$PROJECT_ROOT/erdwithai-llm.log"
+PID_FILE="$PROJECT_ROOT/.appwithai-llm.pid"
+LOG_FILE="$PROJECT_ROOT/appwithai-llm.log"
 WAIT_TIMEOUT=120  # seconds to wait for model to load
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -121,7 +121,7 @@ cmd_stop() {
 cmd_start() {
     local foreground="${1:-false}"
 
-    print_header "ERDwithAI — Local LLM Server"
+    print_header "APPWITHAI — Local LLM Server"
 
     # Already running?
     if is_server_ready; then

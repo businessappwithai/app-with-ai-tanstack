@@ -5,7 +5,7 @@
  * the ERD (`erDiagram`), business-rule and workflow flows (`flowchart`/`graph`),
  * state workflows (`stateDiagram-v2`), and every `%%` directive. Type and
  * cardinality vocabularies come from the canonical language definition
- * (`language/erdwithai-language.json`) via the shared loader, so the parser
+ * (`language/appwithai-language.json`) via the shared loader, so the parser
  * stays in lockstep with the language.
  */
 

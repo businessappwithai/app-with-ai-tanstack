@@ -53,7 +53,7 @@ export async function createServer(options) {
   // rather than by the host because only the model knows its key, and a host
   // that guessed would put two applications in one database.
   const resolvedDataDir =
-    dataDir === "auto" ? `idb://erdwithai-${model.project.dataKey || model.project.slug}` : dataDir;
+    dataDir === "auto" ? `idb://appwithai-${model.project.dataKey || model.project.slug}` : dataDir;
 
   log(`Opening PostgreSQL (wasm)${resolvedDataDir ? ` at ${resolvedDataDir}` : " in memory"}`);
   const db = await Database.open({ PGlite, dataDir: resolvedDataDir });

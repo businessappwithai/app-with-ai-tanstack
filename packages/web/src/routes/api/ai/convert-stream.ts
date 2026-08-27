@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/ai/convert-stream")({
                 });
 
                 const { analyzeDomainWithOpenAI, generateMermaidWithValidation } = await import(
-                  "@erdwithai/ai"
+                  "@appwithai/ai"
                 );
 
                 const domainAnalysis = await analyzeDomainWithOpenAI(

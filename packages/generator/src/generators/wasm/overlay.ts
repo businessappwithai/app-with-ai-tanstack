@@ -1,8 +1,8 @@
 /**
  * The WASM overlay.
  *
- * `erdwithai-wasm` does not have a stack of its own. It runs the same pipeline
- * `erdwithai` runs — the same NestJS backend, the same TanStack Start front
+ * `appwithai-wasm` does not have a stack of its own. It runs the same pipeline
+ * `appwithai` runs — the same NestJS backend, the same TanStack Start front
  * end, the same migrations, guards, rules engine and dictionary — and then
  * changes the two things that stop that application running without a server:
  *

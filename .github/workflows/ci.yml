@@ -146,7 +146,7 @@ jobs:
             fi
           done | sort)
           echo "Changed by the overlay:"; echo "$changed"
-          expected=$(printf '%s\n' ./.erdwithai.json ./backend/.env ./backend/.env.example \
+          expected=$(printf '%s\n' ./.appwithai.json ./backend/.env ./backend/.env.example \
             ./backend/package.json ./backend/run-app.sh \
             ./backend/src/modules/audit/immudb.service.ts ./docker-start.sh \
             ./frontend/package.json ./package.json | sort)

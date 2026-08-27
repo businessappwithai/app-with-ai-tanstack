@@ -5,7 +5,7 @@ export const Route = createFileRoute("/api/workflows/")({
     handlers: {
       GET: async ({ request }) => {
         try {
-          const { getDatabase } = await import("@erdwithai/core/services");
+          const { getDatabase } = await import("@appwithai/core/services");
           const url = new URL(request.url);
           const status = url.searchParams.get("status");
           const entity = url.searchParams.get("entity");

@@ -23,7 +23,7 @@ export const Route = createAPIFileRoute("/api/db/generate-schema")({
       }
 
       // Parse ERD
-      const { MermaidParser } = await import("@erdwithai/generator");
+      const { MermaidParser } = await import("@appwithai/generator");
       const parser = new MermaidParser();
       const schema = parser.parse(mermaidCode);
 

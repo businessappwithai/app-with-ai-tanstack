@@ -1,4 +1,4 @@
-# QA report — ERDwithAI generator + generated Enterprise CRM
+# QA report — APPWITHAI generator + generated Enterprise CRM
 
 **Date:** 2026-08-17
 **Branch:** `claude/enterprise-crm-mmd-diagram-rko0x9`
@@ -27,7 +27,7 @@ application could change its status.
 ### ISSUE-001 — web dev server never read the root `.env` (high) — `66c321c`
 
 `READEME.md` says `cp .env.example .env` at the repo root and that is the only
-env template in the tree. `bun run dev` is `bun --filter @erdwithai/web dev`,
+env template in the tree. `bun run dev` is `bun --filter @appwithai/web dev`,
 which runs `vite dev` with cwd `packages/web`; Bun's automatic .env loading is
 per-process at cwd, so it looked for `packages/web/.env` (absent) and never
 passed the root file down. Confirmed against the running process:

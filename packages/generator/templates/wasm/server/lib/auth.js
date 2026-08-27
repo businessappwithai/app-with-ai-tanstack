@@ -89,7 +89,7 @@ function timingSafeEqual(left, right) {
   return mismatch === 0;
 }
 
-export const SESSION_COOKIE = "erdwithai_session";
+export const SESSION_COOKIE = "appwithai_session";
 
 export function readCookie(request, name) {
   const header = request.headers.get("cookie");

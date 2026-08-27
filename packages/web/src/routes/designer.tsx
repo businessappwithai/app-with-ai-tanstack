@@ -114,7 +114,7 @@ function DesignerPage() {
   }, [erdCode]);
 
   const handleSave = useCallback(() => {
-    localStorage.setItem("erdwithai-design", erdCode);
+    localStorage.setItem("appwithai-design", erdCode);
     alert("Design saved locally!");
   }, [erdCode]);
 
@@ -344,7 +344,7 @@ CREATE TABLE users (
       </main>
 
       <footer className="flex h-8 items-center justify-between border-t bg-card px-4 text-xs text-muted-foreground">
-        <span>ERDwithAI v5.1 - Visual Designer</span>
+        <span>APPWITHAI v0.01 - Visual Designer</span>
         <div className="flex items-center gap-4">
           <span>{erdCode.split("\n").length} lines</span>
           {validationErrors.length > 0 && (

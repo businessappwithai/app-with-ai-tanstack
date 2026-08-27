@@ -4,7 +4,7 @@
  * These mirror `DEFAULT_FRONTEND_PORT` / `DEFAULT_BACKEND_PORT` in
  * `packages/generator/src/generators/ports.ts`, which is the source of truth
  * for what generated code actually binds to. They are restated here because
- * this module is imported by client components, and `@erdwithai/generator` is
+ * this module is imported by client components, and `@appwithai/generator` is
  * a server-only package in this app's bundling setup. A unit test asserts the
  * two stay equal, so the copy cannot drift silently.
  */

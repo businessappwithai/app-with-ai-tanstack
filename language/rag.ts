@@ -25,7 +25,7 @@
  * Deliberately dependency-free and structurally typed. `language/` is the
  * source of truth for both the generator and the applications it generates, and
  * this file is copied into generated apps verbatim; an import of
- * `@erdwithai/*` here would not survive the trip.
+ * `@appwithai/*` here would not survive the trip.
  */
 
 /* -------------------------------------------------------------------------- */

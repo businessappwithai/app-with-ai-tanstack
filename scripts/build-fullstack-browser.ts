@@ -10,7 +10,7 @@
  * Rather than rewrite that pipeline to emit a Map, the filesystem it calls is
  * replaced: `node:fs` and `node:fs/promises` resolve to `memory-fs.ts`, and the
  * generators run unmodified above it. That is the only reason the application
- * assembled in `run-real-stack.html` is the application `erdwithai-wasm` would
+ * assembled in `run-real-stack.html` is the application `appwithai-wasm` would
  * have written rather than an approximation of it.
  *
  * The templates are not bundled — `build-stack-templates.ts` writes them beside
@@ -25,7 +25,7 @@ import { join, relative, resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dir, "..");
 const ENTRY = join(ROOT, "packages/generator/src/browser/full-stack.ts");
-const TARGET = join(ROOT, "html/assets/erdwithai-fullstack.js");
+const TARGET = join(ROOT, "html/assets/appwithai-fullstack.js");
 const MEMORY_FS = join(ROOT, "packages/generator/src/browser/memory-fs.ts");
 
 /**

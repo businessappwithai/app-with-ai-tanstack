@@ -1,4 +1,4 @@
-# The ERDwithAI generator, as an image.
+# The APPWITHAI generator, as an image.
 #
 # What comes out is the design-and-generate application: sign in, bring a model,
 # generate a full-stack app from it, and — at the deploy step — build that

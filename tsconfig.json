@@ -45,14 +45,14 @@
 
     /* Path Mapping */
     "paths": {
-      "@erdwithai/core": ["./packages/core/src"],
-      "@erdwithai/core/*": ["./packages/core/src/*"],
-      "@erdwithai/generator": ["./packages/generator/src"],
-      "@erdwithai/generator/*": ["./packages/generator/src/*"],
-      "@erdwithai/ai": ["./packages/ai/src"],
-      "@erdwithai/ai/*": ["./packages/ai/src/*"],
-      "@erdwithai/web": ["./packages/web/src"],
-      "@erdwithai/web/*": ["./packages/web/src/*"],
+      "@appwithai/core": ["./packages/core/src"],
+      "@appwithai/core/*": ["./packages/core/src/*"],
+      "@appwithai/generator": ["./packages/generator/src"],
+      "@appwithai/generator/*": ["./packages/generator/src/*"],
+      "@appwithai/ai": ["./packages/ai/src"],
+      "@appwithai/ai/*": ["./packages/ai/src/*"],
+      "@appwithai/web": ["./packages/web/src"],
+      "@appwithai/web/*": ["./packages/web/src/*"],
       "@/*": ["./packages/web/src/*"]
     }
   },

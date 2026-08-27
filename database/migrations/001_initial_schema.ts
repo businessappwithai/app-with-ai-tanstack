@@ -1,5 +1,5 @@
 /**
- * Initial schema migration for ERDwithAI
+ * Initial schema migration for APPWITHAI
  * Creates tables for projects, ERD versions, and workflows
  */
 

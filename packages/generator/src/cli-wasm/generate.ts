@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * `erdwithai-wasm` — generate an application that runs in a browser tab.
+ * `appwithai-wasm` — generate an application that runs in a browser tab.
  *
- * The sibling of `erdwithai`. It reads the same `.eml.mmd`, through the same
+ * The sibling of `appwithai`. It reads the same `.eml.mmd`, through the same
  * parser, and compiles the same rules, hooks, workflows and `%%rbac`
  * directives; what changes is the target. Instead of a NestJS backend on Bun
  * and a Vite frontend on Node, it emits an application whose database is
@@ -10,9 +10,9 @@
  * Node-API runtime, and whose HTTP layer is a Service Worker — all inside the
  * page that opens it.
  *
- *   erdwithai-wasm generate -i model.eml.mmd -o ./app --name "My App"
- *   erdwithai-wasm serve ./app                # run it, open a browser
- *   erdwithai-wasm inspect model.eml.mmd      # what would be generated
+ *   appwithai-wasm generate -i model.eml.mmd -o ./app --name "My App"
+ *   appwithai-wasm serve ./app                # run it, open a browser
+ *   appwithai-wasm inspect model.eml.mmd      # what would be generated
  *
  * PGlite is ~17MB of WebAssembly. `--vendor-pglite` copies it into the output
  * so the application needs no network at all; without it the app loads PGlite
@@ -36,9 +36,9 @@ import { formatIssue, type ModelReview, reviewModel } from "../pipeline/review-m
 const program = new Command();
 
 program
-  .name("erdwithai-wasm")
+  .name("appwithai-wasm")
   .description(
-    "Generate the same stack `erdwithai` generates, running on WebAssembly Postgres " +
+    "Generate the same stack `appwithai` generates, running on WebAssembly Postgres " +
       "and Node instead of a database server and Bun"
   )
   .version("5.1.0");
@@ -146,7 +146,7 @@ program
   .option("-o, --output <dir>", "Output directory", "./generated-wasm-app")
   .option("-n, --name <name>", "Project name", "my-app")
   .option("-v, --version <version>", "Project version", "1.0.0")
-  // The same default as `erdwithai`, because it is the same application. A
+  // The same default as `appwithai`, because it is the same application. A
   // different one showed up as three files differing between the two CLIs —
   // README, the front end's meta description, the test package — which read
   // like the overlay touching things it does not touch.
@@ -243,7 +243,7 @@ program
         }
       }
 
-      // The same pipeline the `erdwithai` CLI runs. Nothing about the stack is
+      // The same pipeline the `appwithai` CLI runs. Nothing about the stack is
       // re-implemented here — the overlay that follows changes the driver and
       // the scripts, and leaves every generated source file alone.
       say("  Generating the NestJS backend and TanStack Start front end");
@@ -360,7 +360,7 @@ program
   Run it:
 
     cd ${path.relative(process.cwd(), outputDir) || "."}
-    erdwithai-wasm serve .
+    appwithai-wasm serve .
 
   Sign in as ${options.adminEmail} / ${options.adminPassword}
 `);
@@ -422,7 +422,7 @@ program
 /**
  * Check every model file, repair what is repairable, and report the rest.
  *
- * Errors stop the run. That is a deliberate change of posture from `erdwithai`,
+ * Errors stop the run. That is a deliberate change of posture from `appwithai`,
  * and it is the right one here: the applications this CLI writes are meant to be
  * opened and used immediately — in a tab, with no build log to read afterwards —
  * so a model that says something impossible should be rejected while there is
@@ -492,7 +492,7 @@ function describeStack(
   for (const file of overlay.rewritten) say(`    ~ ${file}`);
   say(`    ~ ${overlay.debunned.length} scripts moved from bun to node`);
   say("");
-  say("  Every other file is what `erdwithai` generates, unchanged.");
+  say("  Every other file is what `appwithai` generates, unchanged.");
 }
 
 function describe(
@@ -537,7 +537,7 @@ async function writeFiles(outputDir: string, files: Map<string, string>): Promis
  * Copy PGlite into the application.
  *
  * Resolved from this package's own dependencies rather than the user's cwd, so
- * `erdwithai-wasm` installed globally still finds it. Files that are missing in
+ * `appwithai-wasm` installed globally still finds it. Files that are missing in
  * a given PGlite release are skipped rather than failing the generation: the
  * list is a superset across versions, and a vendored app that is missing an
  * optional filesystem backend still runs.

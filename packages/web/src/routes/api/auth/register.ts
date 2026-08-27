@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/auth/register")({
         const limited = enforceRateLimit(request, "auth:register", AUTH_REGISTER_LIMIT);
         if (limited) return limited;
 
-        const { getDatabase, runMigrations } = await import("@erdwithai/core/services");
+        const { getDatabase, runMigrations } = await import("@appwithai/core/services");
         const { hashPassword } = await import("@/lib/password");
 
         try {

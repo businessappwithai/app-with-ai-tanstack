@@ -1,5 +1,5 @@
 /**
- * Knex.js configuration for ERDwithAI generator migrations
+ * Knex.js configuration for APPWITHAI generator migrations
  * Uses MariaDB/MySQL via mysql2 driver.
  * Connection reads the same env vars as the core db.config.ts.
  */
@@ -14,9 +14,9 @@ function buildConnection() {
   return {
     host: process.env.MARIADB_HOST ?? "127.0.0.1",
     port: Number(process.env.MARIADB_PORT ?? 3306),
-    user: process.env.MARIADB_USER ?? "erdwithai",
+    user: process.env.MARIADB_USER ?? "appwithai",
     password: process.env.MARIADB_PASSWORD ?? "",
-    database: process.env.MARIADB_DATABASE ?? "erdwithai",
+    database: process.env.MARIADB_DATABASE ?? "appwithai",
   };
 }
 

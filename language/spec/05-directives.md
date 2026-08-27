@@ -82,7 +82,7 @@ step created.
 Per-type required properties and the row-targeting rules are in
 [`03-workflows.md`](03-workflows.md#3-saga-workflows--multi-step-processes) and
 declared canonically under `workflowConstructs.stepNodes` in
-`erdwithai-language.json`.
+`appwithai-language.json`.
 
 ## `%%action` — declare a rule's side effect *(compiled)*
 

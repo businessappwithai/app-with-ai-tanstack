@@ -3,7 +3,7 @@
  * Handles deployment operations with logging
  */
 
-import { deploymentDb, processManagerService, projectDb } from "@erdwithai/core/services";
+import { deploymentDb, processManagerService, projectDb } from "@appwithai/core/services";
 import { addLogEntry, completeActionLog, startActionLog } from "@/lib/action-log";
 
 export const deploymentApi = {

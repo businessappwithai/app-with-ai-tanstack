@@ -22,8 +22,8 @@
  * fields attached to the wrong tab.
  */
 
-import type { Entity, EntityAttribute, Relationship } from "@erdwithai/core/types";
-import { ReferenceType } from "@erdwithai/core/types";
+import type { Entity, EntityAttribute, Relationship } from "@appwithai/core/types";
+import { ReferenceType } from "@appwithai/core/types";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { deriveAccess } from "../../rbac/roles";
 import { DictionaryGenerator } from "../dictionary.generator";
@@ -79,7 +79,7 @@ const SEMANTIC_REFERENCE = {
 export function referenceIdFor(attribute: EntityAttribute, isPrimaryKey: boolean): number {
   if (attribute.enumReferenceId) return attribute.enumReferenceId;
   if (isPrimaryKey) return ReferenceType.ID;
-  /* Both conditions, as `attributeReferenceId` in @erdwithai/core requires and
+  /* Both conditions, as `attributeReferenceId` in @appwithai/core requires and
      as the specification states: the modifier says the column is a reference,
      and the `_id`/`_by` ending is what `refTableFor` resolves the parent table
      from. A column marked FK that ends in neither would take the lookup
@@ -544,7 +544,7 @@ const PERSON_ROLE_COLUMNS = new Set([
   "user_id",
 ]);
 
-/** Mirrors isForeignKeyColumnName's person half in @erdwithai/core. */
+/** Mirrors isForeignKeyColumnName's person half in @appwithai/core. */
 function isPersonRoleColumn(columnName: string): boolean {
   return (
     columnName.endsWith("_by") ||

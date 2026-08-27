@@ -225,7 +225,7 @@ echo ""
 # Step 3: Build generator
 echo -e "${CYAN}Step 3: Building generator...${NC}"
 cd "$PROJECT_ROOT"
-bun run --filter @erdwithai/generator build
+bun run --filter @appwithai/generator build
 echo -e "${GREEN}✓ Generator built${NC}"
 echo ""
 

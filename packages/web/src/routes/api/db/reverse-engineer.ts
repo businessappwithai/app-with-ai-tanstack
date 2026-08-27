@@ -1,7 +1,7 @@
 /**
  * Describe an existing database as EML.
  *
- * The introspection itself lives in `@erdwithai/core/services` because the
+ * The introspection itself lives in `@appwithai/core/services` because the
  * container bootstrap seeds a project the same way without going through HTTP.
  * One implementation, so a model imported from a connection string is identical
  * whichever door it came through.
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api/db/reverse-engineer")({
             return json({ error: "Invalid or corrupted connection string" }, 400);
           }
 
-          const { introspectDatabase } = await import("@erdwithai/core/services");
+          const { introspectDatabase } = await import("@appwithai/core/services");
           const schema = await introspectDatabase({ connectionString });
 
           return json({

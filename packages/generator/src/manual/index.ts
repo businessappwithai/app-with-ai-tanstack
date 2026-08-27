@@ -39,8 +39,8 @@
  * application and ship with the other's.
  */
 
-import type { Entity, EntityAttribute, Relationship } from "@erdwithai/core/types";
-import { ReferenceType } from "@erdwithai/core/types";
+import type { Entity, EntityAttribute, Relationship } from "@appwithai/core/types";
+import { ReferenceType } from "@appwithai/core/types";
 import { referenceIdFor, tableNameFor } from "../generators/wasm/model-bundle";
 import type { ParsedModel } from "../pipeline/generate-application";
 import { deriveAccess } from "../rbac/roles";

@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { requestContext } from "@/lib/request-context";
 import {
   AlertCircle,
   ArrowLeft,
@@ -22,7 +23,22 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+async function checkAuthMe() {
+  const { baseUrl, fetchInit } = requestContext();
+  const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
+  return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
+}
+
 export const Route = createFileRoute("/settings")({
+  beforeLoad: async () => {
+    try {
+      const data = await checkAuthMe();
+      if (!data.user) throw redirect({ to: "/login" });
+    } catch (e) {
+      if (e && typeof e === "object" && "to" in e) throw e;
+      throw redirect({ to: "/login" });
+    }
+  },
   component: SettingsPage,
 });
 
@@ -254,7 +270,7 @@ function SettingsPage() {
       setNotificationPermission(permission);
 
       if (permission === "granted") {
-        new Notification("ERDwithAI", {
+        new Notification("APPWITHAI", {
           body: "Notifications enabled! You'll receive updates here.",
           icon: "/favicon.ico",
         });
@@ -454,7 +470,7 @@ function SettingsPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `erdwithai-data-export-${new Date().toISOString().split("T")[0]}.json`;
+      a.download = `appwithai-data-export-${new Date().toISOString().split("T")[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

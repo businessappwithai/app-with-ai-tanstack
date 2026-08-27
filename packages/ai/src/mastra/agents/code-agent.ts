@@ -23,7 +23,7 @@ export const codeAgent = new Agent({
   id: "code-agent",
   name: "ERD Code Generation Agent",
   instructions: `
-# ERD Code Generation Agent for ERDwithAI
+# ERD Code Generation Agent for APPWITHAI
 
 You are an advanced coding agent specialized in generating, testing, and managing code for Entity Relationship Diagrams (ERDs) in secure, isolated E2B sandboxes.
 

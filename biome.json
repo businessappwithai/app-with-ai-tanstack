@@ -17,8 +17,8 @@
       "!**/*.generated.ts",
       "!html/checker.js",
       "!html/fixer.js",
-      "!html/assets/erdwithai-wasm.js",
-      "!html/assets/erdwithai-fullstack.js",
+      "!html/assets/appwithai-wasm.js",
+      "!html/assets/appwithai-fullstack.js",
       "!html/assets/stack-templates.json",
       "!html/wasm-app",
       "!html/assets/vendor"

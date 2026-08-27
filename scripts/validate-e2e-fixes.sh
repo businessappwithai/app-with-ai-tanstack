@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###############################################################################
-# Full E2E Validation Script for ERDwithAI
+# Full E2E Validation Script for APPWITHAI
 #
 # Validates the most recent generated backend project by:
 #   1. Locating the latest generated app in generated-projects/
@@ -95,7 +95,7 @@ start_backend() {
     print_header "STARTING BACKEND SERVER"
 
     cd "$dir"
-    bun run start:dev > /tmp/erdwithai-backend-validate.log 2>&1 &
+    bun run start:dev > /tmp/appwithai-backend-validate.log 2>&1 &
     BACKEND_PID=$!
 
     log_info "Waiting for server on :$BACKEND_PORT (up to ${SERVER_START_TIMEOUT}s)..."
@@ -110,7 +110,7 @@ start_backend() {
     done
 
     log_error "Server did not start within ${SERVER_START_TIMEOUT}s"
-    cat /tmp/erdwithai-backend-validate.log
+    cat /tmp/appwithai-backend-validate.log
     kill "$BACKEND_PID" 2>/dev/null || true
     exit 1
 }
@@ -178,7 +178,7 @@ trap cleanup EXIT INT TERM
 
 # ── Main ───────────────────────────────────────────────────────────────────
 
-print_header "ERDwithAI E2E Validation"
+print_header "APPWITHAI E2E Validation"
 
 BACKEND_DIR=$(find_backend_project)
 setup_backend "$BACKEND_DIR"

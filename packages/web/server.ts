@@ -73,4 +73,4 @@ const server = Bun.serve({
   },
 });
 
-console.log(`ERDwithAI generator listening on http://localhost:${server.port}`);
+console.log(`APPWITHAI generator listening on http://localhost:${server.port}`);

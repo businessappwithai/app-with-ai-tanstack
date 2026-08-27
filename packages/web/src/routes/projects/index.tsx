@@ -207,7 +207,7 @@ function ProjectsPage() {
               <div className="bg-gradient-to-br from-primary to-orange-600 p-2 rounded-lg">
                 <Database className="w-6 h-6 text-white" />
               </div>
-              <h1 className="font-bold text-2xl tracking-tight text-foreground">ERDwithAI</h1>
+              <h1 className="font-bold text-2xl tracking-tight text-foreground">APPWITHAI</h1>
             </div>
             <div className="flex items-center gap-3">
               {/* Desktop nav links — hidden on mobile */}

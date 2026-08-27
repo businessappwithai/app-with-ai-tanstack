@@ -44,7 +44,7 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.32.0
         version: 0.32.1
-      '@erdwithai/core':
+      '@appwithai/core':
         specifier: workspace:*
         version: link:../core
       '@mastra/core':
@@ -87,7 +87,7 @@ importers:
 
   packages/generator:
     dependencies:
-      '@erdwithai/core':
+      '@appwithai/core':
         specifier: workspace:*
         version: link:../core
       commander:
@@ -124,13 +124,13 @@ importers:
       '@copilotkit/runtime':
         specifier: latest
         version: 1.51.2(288ee9be80c1608edffc82e257dc351c)
-      '@erdwithai/ai':
+      '@appwithai/ai':
         specifier: workspace:*
         version: link:../ai
-      '@erdwithai/core':
+      '@appwithai/core':
         specifier: workspace:*
         version: link:../core
-      '@erdwithai/generator':
+      '@appwithai/generator':
         specifier: workspace:*
         version: link:../generator
       '@mastra/client-js':

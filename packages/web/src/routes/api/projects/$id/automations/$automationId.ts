@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/$automationI
     handlers: {
       GET: async ({ params }) => {
         try {
-          const { workflowDb } = await import("@erdwithai/core/services");
+          const { workflowDb } = await import("@appwithai/core/services");
           const row = await workflowDb.findById(params.automationId);
 
           if (!row || row.project_id !== params.id) {
@@ -53,7 +53,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/$automationI
             status?: string;
           };
 
-          const { workflowDb } = await import("@erdwithai/core/services");
+          const { workflowDb } = await import("@appwithai/core/services");
           const existing = await workflowDb.findById(params.automationId);
           if (!existing || existing.project_id !== params.id) {
             return json({ error: "No automation with that id in this project." }, 404);
@@ -76,7 +76,7 @@ export const Route = createFileRoute("/api/projects/$id/automations/$automationI
 
       DELETE: async ({ params }) => {
         try {
-          const { workflowDb } = await import("@erdwithai/core/services");
+          const { workflowDb } = await import("@appwithai/core/services");
           const existing = await workflowDb.findById(params.automationId);
           if (!existing || existing.project_id !== params.id) {
             return json({ error: "No automation with that id in this project." }, 404);

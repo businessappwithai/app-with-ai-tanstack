@@ -180,7 +180,7 @@ jobs:
       - name: Install generator dependencies
         run: bun install
 
-      - name: Build @erdwithai/core
+      - name: Build @appwithai/core
         run: bun run build:core
 
       - name: Download the model

@@ -100,23 +100,23 @@ const SILENT_JDM = JSON.stringify({
 // BPMN XML with UpdateEntity service tasks for workflow execution testing.
 const UPDATE_ENTITY_BPMN = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-                  xmlns:erdwithai="http://erdwithai.com/extensions">
+                  xmlns:appwithai="http://appwithai.com/extensions">
   <bpmn:process id="GenerateClaimWorkflow" isExecutable="true">
     <bpmn:startEvent id="start"/>
     <bpmn:serviceTask id="updateDocStatus" name="Update doc_status">
       <bpmn:extensionElements>
-        <erdwithai:property name="nodeType" value="UpdateEntity"/>
-        <erdwithai:property name="entity"   value="bus_appointment"/>
-        <erdwithai:property name="field"    value="doc_status"/>
-        <erdwithai:property name="value"    value="processing"/>
+        <appwithai:property name="nodeType" value="UpdateEntity"/>
+        <appwithai:property name="entity"   value="bus_appointment"/>
+        <appwithai:property name="field"    value="doc_status"/>
+        <appwithai:property name="value"    value="processing"/>
       </bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="updateWorkflowStatus" name="Update workflow_status">
       <bpmn:extensionElements>
-        <erdwithai:property name="nodeType" value="UpdateEntity"/>
-        <erdwithai:property name="entity"   value="bus_appointment"/>
-        <erdwithai:property name="field"    value="workflow_status"/>
-        <erdwithai:property name="value"    value="triggered"/>
+        <appwithai:property name="nodeType" value="UpdateEntity"/>
+        <appwithai:property name="entity"   value="bus_appointment"/>
+        <appwithai:property name="field"    value="workflow_status"/>
+        <appwithai:property name="value"    value="triggered"/>
       </bpmn:extensionElements>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="f1" sourceRef="start"            targetRef="updateDocStatus"/>
@@ -497,14 +497,14 @@ describe('WorkflowService — triggerByWorkflowName executes BPMN and updates en
   it('marks the run as error when executeBpmn throws', async () => {
     const BPMN_WITH_UNKNOWN_TASK = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-                  xmlns:erdwithai="http://erdwithai.com/extensions">
+                  xmlns:appwithai="http://appwithai.com/extensions">
   <bpmn:process id="TestWf" isExecutable="true">
     <bpmn:serviceTask id="t1" name="Update Missing Entity">
       <bpmn:extensionElements>
-        <erdwithai:property name="nodeType" value="UpdateEntity"/>
-        <erdwithai:property name="entity"   value="bus_appointment"/>
-        <erdwithai:property name="field"    value="doc_status"/>
-        <erdwithai:property name="value"    value="error-state"/>
+        <appwithai:property name="nodeType" value="UpdateEntity"/>
+        <appwithai:property name="entity"   value="bus_appointment"/>
+        <appwithai:property name="field"    value="doc_status"/>
+        <appwithai:property name="value"    value="error-state"/>
       </bpmn:extensionElements>
     </bpmn:serviceTask>
   </bpmn:process>

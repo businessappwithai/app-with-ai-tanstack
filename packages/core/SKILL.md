@@ -1,15 +1,15 @@
 ---
-name: erdwithai-core
-description: Core business logic, types, hooks, RBAC, validation, and utilities for ERDwithAI
+name: appwithai-core
+description: Core business logic, types, hooks, RBAC, validation, and utilities for APPWITHAI
 ---
 
-# @erdwithai/core Skill
+# @appwithai/core Skill
 
-This skill provides guidance for working with the core package of ERDwithAI, which contains all shared business logic, types, hooks, RBAC definitions, validation schemas, and utilities.
+This skill provides guidance for working with the core package of APPWITHAI, which contains all shared business logic, types, hooks, RBAC definitions, validation schemas, and utilities.
 
 ## Package Overview
 
-The core package is the foundation of ERDwithAI and is used by all other packages. It provides:
+The core package is the foundation of APPWITHAI and is used by all other packages. It provides:
 
 - **Dictionary Types**: AD_Table, AD_Column, AD_Window, AD_Tab, AD_Field definitions
 - **RBAC Types**: AD_User, AD_Role, AD_Access for role-based access control
@@ -48,7 +48,7 @@ packages/core/
 ### Entity Types
 
 ```typescript
-import { Entity, EntityAttribute, Relationship } from '@erdwithai/core';
+import { Entity, EntityAttribute, Relationship } from '@appwithai/core';
 
 const userEntity: Entity = {
   name: 'User',
@@ -69,7 +69,7 @@ const userEntity: Entity = {
 The hook system allows intercepting entity lifecycle events:
 
 ```typescript
-import { globalHookRegistry, HookExecutor } from '@erdwithai/core/hooks';
+import { globalHookRegistry, HookExecutor } from '@appwithai/core/hooks';
 
 // Register a hook
 globalHookRegistry.register({
@@ -88,7 +88,7 @@ globalHookRegistry.register({
 All services should extend BaseService to get automatic hook execution:
 
 ```typescript
-import { BaseService } from '@erdwithai/core/services';
+import { BaseService } from '@appwithai/core/services';
 
 class UserService extends BaseService<User> {
   protected entityName = 'User';
@@ -126,7 +126,7 @@ cd packages/core && bun run dev
 
 1. Add function to appropriate file in `src/utils/`
 2. Export from `src/utils/index.ts`
-3. Ensure it's available via `@erdwithai/core/utils`
+3. Ensure it's available via `@appwithai/core/utils`
 
 ### Creating a New Service
 
@@ -139,11 +139,11 @@ cd packages/core && bun run dev
 
 The package provides these subpath exports:
 
-- `@erdwithai/core` - Main entry point
-- `@erdwithai/core/types` - Type definitions
-- `@erdwithai/core/hooks` - Hook system
-- `@erdwithai/core/services` - Service classes
-- `@erdwithai/core/utils` - Utility functions
+- `@appwithai/core` - Main entry point
+- `@appwithai/core/types` - Type definitions
+- `@appwithai/core/hooks` - Hook system
+- `@appwithai/core/services` - Service classes
+- `@appwithai/core/utils` - Utility functions
 
 ## Testing
 

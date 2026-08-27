@@ -1,12 +1,12 @@
 /**
- * ERDwithAI Modeling Language (EML)
+ * APPWITHAI Modeling Language (EML)
  * ---------------------------------
  * Standalone, Mermaid-based language for describing an application's
  * Entity Relationship Diagram (ERD), its business rules, and its business
  * workflows in one artifact.
  *
  * The canonical, machine-readable definition lives in
- * `language/erdwithai-language.json`. This module is a typed loader/accessor
+ * `language/appwithai-language.json`. This module is a typed loader/accessor
  * so the generator application (and any tooling) can read the language
  * definition without re-parsing the JSON by hand.
  *
@@ -26,7 +26,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // ---------------------------------------------------------------------------
-// Types describing the shape of erdwithai-language.json
+// Types describing the shape of appwithai-language.json
 // ---------------------------------------------------------------------------
 
 export type CanonicalType =
@@ -237,7 +237,7 @@ export interface LanguageDefinition {
 export const LANGUAGE_DEFINITION_PATH = (() => {
   // Resolve relative to this module so it works from source and from dist.
   const here = path.dirname(fileURLToPath(import.meta.url));
-  return path.join(here, "erdwithai-language.json");
+  return path.join(here, "appwithai-language.json");
 })();
 
 let cached: LanguageDefinition | null = null;
@@ -245,8 +245,8 @@ let cached: LanguageDefinition | null = null;
 /**
  * Supply the definition instead of reading it from disk.
  *
- * The checker runs in a browser tab now — `erdwithai-wasm`'s upload page checks
- * a model before compiling it — and a tab has no `erdwithai-language.json` to
+ * The checker runs in a browser tab now — `appwithai-wasm`'s upload page checks
+ * a model before compiling it — and a tab has no `appwithai-language.json` to
  * open. The bundler inlines the same JSON and hands it over here, so the
  * vocabulary a document is checked against is the file in this folder either
  * way, rather than a second copy that drifts.

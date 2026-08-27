@@ -8,7 +8,7 @@
  * to refuse a broken model before compiling it.
  *
  * So this file adds no rules. It injects the language definition (a tab has no
- * `erdwithai-language.json` to open, so the bundler inlines the same JSON the
+ * `appwithai-language.json` to open, so the bundler inlines the same JSON the
  * CLI reads) and re-exports the pure half under names a caller who has never
  * seen this repository can guess. A model checked at appwithai.org/checker.js
  * gets the same diagnostics `bun language/checker.ts` prints, because it is the
@@ -23,7 +23,7 @@ import {
   type Issue,
   type Severity,
 } from "../checker";
-import languageDefinition from "../erdwithai-language.json";
+import languageDefinition from "../appwithai-language.json";
 import { type LanguageDefinition, setLanguageDefinition } from "../index";
 
 setLanguageDefinition(languageDefinition as unknown as LanguageDefinition);

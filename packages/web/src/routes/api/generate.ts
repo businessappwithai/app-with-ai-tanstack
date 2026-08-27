@@ -22,7 +22,7 @@ import { createFileRoute } from "@tanstack/react-router";
 async function resolveCli(cwd: string): Promise<string | null> {
   const candidates = [
     path.join(cwd, "packages/generator/dist/cli/generate.js"),
-    path.join(cwd, "node_modules/@erdwithai/generator/dist/cli/generate.js"),
+    path.join(cwd, "node_modules/@appwithai/generator/dist/cli/generate.js"),
     path.join(cwd, "packages/generator/src/cli/generate.ts"),
   ];
   for (const candidate of candidates) {
@@ -65,8 +65,8 @@ export const Route = createFileRoute("/api/generate")({
                 return finish();
               }
 
-              const { projectDb } = await import("@erdwithai/core/services");
-              const { parseModel } = await import("@erdwithai/generator");
+              const { projectDb } = await import("@appwithai/core/services");
+              const { parseModel } = await import("@appwithai/generator");
 
               sendLog("info", "Loading project details...");
               const project = await projectDb.findById(projectId);
@@ -123,7 +123,7 @@ export const Route = createFileRoute("/api/generate")({
               if (!cli) {
                 send({
                   error:
-                    "Generator CLI not found. Run `bun --filter @erdwithai/generator build` and try again.",
+                    "Generator CLI not found. Run `bun --filter @appwithai/generator build` and try again.",
                 });
                 return finish();
               }
@@ -159,7 +159,7 @@ export const Route = createFileRoute("/api/generate")({
                 "--no-setup",
               ];
 
-              sendLog("info", `Running: erdwithai generate --input ${path.basename(modelPath)}`);
+              sendLog("info", `Running: appwithai generate --input ${path.basename(modelPath)}`);
 
               const exitCode = await new Promise<number>((resolve) => {
                 const child = spawn("bun", args, { cwd, env: process.env });

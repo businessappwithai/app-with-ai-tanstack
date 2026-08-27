@@ -5,7 +5,7 @@ export const Route = createFileRoute("/api/projects/$id/erd-versions/")({
     handlers: {
       GET: async ({ params }) => {
         try {
-          const { erdVersionDb } = await import("@erdwithai/core/services");
+          const { erdVersionDb } = await import("@appwithai/core/services");
           const id = params.id as string;
 
           const versions = await erdVersionDb.getVersions(id);
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/projects/$id/erd-versions/")({
 
       POST: async ({ request, params }) => {
         try {
-          const { erdVersionDb } = await import("@erdwithai/core/services");
+          const { erdVersionDb } = await import("@appwithai/core/services");
           const id = params.id as string;
           const body = await request.json();
           const { mermaidCode, description, createdBy, validationErrors } = body;

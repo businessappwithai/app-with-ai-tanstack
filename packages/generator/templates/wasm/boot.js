@@ -35,7 +35,7 @@ const steps = [];
 function report(payload) {
   if (window.parent === window) return;
   try {
-    window.parent.postMessage({ source: "erdwithai-boot", ...payload }, "*");
+    window.parent.postMessage({ source: "appwithai-boot", ...payload }, "*");
   } catch {
     // A parent on another origin that refuses messages is not a boot failure.
   }

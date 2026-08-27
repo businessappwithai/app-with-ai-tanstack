@@ -24,9 +24,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@erdwithai/core": path.resolve(__dirname, "../core/dist"),
-      "@erdwithai/core/types": path.resolve(__dirname, "../core/dist/types"),
-      "@erdwithai/core/utils": path.resolve(__dirname, "../core/dist/utils"),
+      "@appwithai/core": path.resolve(__dirname, "../core/dist"),
+      "@appwithai/core/types": path.resolve(__dirname, "../core/dist/types"),
+      "@appwithai/core/utils": path.resolve(__dirname, "../core/dist/utils"),
     },
   },
 });

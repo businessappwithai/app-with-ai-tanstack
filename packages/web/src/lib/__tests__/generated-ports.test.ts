@@ -1,4 +1,4 @@
-import { DEFAULT_BACKEND_PORT, DEFAULT_FRONTEND_PORT } from "@erdwithai/generator/generators/ports";
+import { DEFAULT_BACKEND_PORT, DEFAULT_FRONTEND_PORT } from "@appwithai/generator/generators/ports";
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_API_PORT,
@@ -8,7 +8,7 @@ import {
 } from "@/lib/generated-ports";
 
 describe("generated ports", () => {
-  // The web app restates these because @erdwithai/generator is server-only in
+  // The web app restates these because @appwithai/generator is server-only in
   // this bundling setup, and the numbers are needed in a client component. A
   // restatement that drifts is worse than none — the UI would promise a port
   // the generated code does not bind to.

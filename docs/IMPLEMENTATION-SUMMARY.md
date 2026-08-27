@@ -8,13 +8,13 @@
 
 ## 🎉 Summary
 
-Successfully implemented the core infrastructure for Auth, Workflow Automation, and Business Rules Engine integration into ERDwithAI! All three major components are now fully functional in the `@erdwithai/core` package and ready for integration into generated applications.
+Successfully implemented the core infrastructure for Auth, Workflow Automation, and Business Rules Engine integration into APPWITHAI! All three major components are now fully functional in the `@appwithai/core` package and ready for integration into generated applications.
 
 ---
 
 ## ✅ Completed Work
 
-### 📦 Package: @erdwithai/core (v5.1.0+)
+### 📦 Package: @appwithai/core (v5.1.0+)
 
 #### **New Modules Created**
 
@@ -95,7 +95,7 @@ Created 4 new migration files:
 ### Component Hierarchy
 
 ```
-@erdwithai/core/
+@appwithai/core/
 ├── auth/              # Authentication & Authorization
 │   ├── AuthService           # Login, register, RBAC
 │   ├── GuardFactory          # Create auth guards
@@ -194,7 +194,7 @@ Return Response (immediate, with draft status)
 ### Using Auth Service
 
 ```typescript
-import { createAuthService } from "@erdwithai/core/auth";
+import { createAuthService } from "@appwithai/core/auth";
 
 const authService = createAuthService({
   db: knexInstance,
@@ -219,7 +219,7 @@ const permission = await authService.hasPermission(
 ### Using Workflow Service
 
 ```typescript
-import { createWorkflowService } from "@erdwithai/core/workflow";
+import { createWorkflowService } from "@appwithai/core/workflow";
 
 const workflowService = createWorkflowService(db, {
   projectId: "trigger-project",
@@ -242,7 +242,7 @@ const patient = await patientService.create({
 ### Using Rules Engine
 
 ```typescript
-import { createRulesEngineService } from "@erdwithai/core/rules";
+import { createRulesEngineService } from "@appwithai/core/rules";
 
 const rulesEngine = createRulesEngineService(db);
 
@@ -494,7 +494,7 @@ bun add @trigger.dev/sdk @gorules/zen-engine @gorules/jdm-editor
 
 ### 1. Platform-Agnostic Core
 - Core package works with both NestJS and OData V4
-- No framework-specific dependencies in @erdwithai/core
+- No framework-specific dependencies in @appwithai/core
 - Decorators are helper functions, not framework-specific
 
 ### 2. Async Non-Blocking Workflows
@@ -535,11 +535,11 @@ bun add @trigger.dev/sdk @gorules/zen-engine @gorules/jdm-editor
 
 ## 🔄 Migration Guide
 
-### For Existing ERDwithAI Projects
+### For Existing APPWITHAI Projects
 
-1. **Update @erdwithai/core**:
+1. **Update @appwithai/core**:
    ```bash
-   bun install @erdwithai/core@latest
+   bun install @appwithai/core@latest
    ```
 
 2. **Run migrations**:
@@ -556,8 +556,8 @@ bun add @trigger.dev/sdk @gorules/zen-engine @gorules/jdm-editor
 
 4. **Update your services**:
    ```typescript
-   import { BaseService } from "@erdwithai/core/services";
-   import { createWorkflowService } from "@erdwithai/core/workflow";
+   import { BaseService } from "@appwithai/core/services";
+   import { createWorkflowService } from "@appwithai/core/workflow";
 
    class MyService extends BaseService<MyEntity> {
      constructor(db: Knex) {
@@ -574,20 +574,20 @@ bun add @trigger.dev/sdk @gorules/zen-engine @gorules/jdm-editor
 
 ## 📦 Package Exports
 
-All modules are exported from `@erdwithai/core`:
+All modules are exported from `@appwithai/core`:
 
 ```typescript
 // Auth
-import { createAuthService, GuardFactory } from "@erdwithai/core/auth";
+import { createAuthService, GuardFactory } from "@appwithai/core/auth";
 
 // Workflow
-import { createWorkflowService } from "@erdwithai/core/workflow";
+import { createWorkflowService } from "@appwithai/core/workflow";
 
 // Rules
-import { createRulesEngineService } from "@erdwithai/core/rules";
+import { createRulesEngineService } from "@appwithai/core/rules";
 
 // Services
-import { BaseService } from "@erdwithai/core/services";
+import { BaseService } from "@appwithai/core/services";
 ```
 
 ---

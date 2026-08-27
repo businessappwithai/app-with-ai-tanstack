@@ -109,7 +109,7 @@ export const zenEngine = new ZenEngine();
 **Acceptance Criteria:**
 - [ ] Singleton exported from zen-engine.singleton.ts
 - [ ] RulesEngineService imports singleton (doesn't create new instance)
-- [ ] Workflow imports singleton from @erdwithai/core
+- [ ] Workflow imports singleton from @appwithai/core
 
 **Dependencies:** CORE-001 (zen-engine must be installed first)
 
@@ -268,7 +268,7 @@ Update existing workflow to use production-ready patterns: Winston logging, conn
 **Changes:**
 1. Replace `console.log` with Winston logger
 2. Add connection pool config to knex instance
-3. Import `zenEngine` from @erdwithai/core (don't create new instance)
+3. Import `zenEngine` from @appwithai/core (don't create new instance)
 4. Implement `loadEntityWithContext()` with eager JOINs for relations
 5. Add structured logging at each step
 
@@ -897,7 +897,7 @@ Document on-call rotation process for rules engine support.
 **Changes:**
 - Replace console.log with Winston logger
 - Add connection pooling config (min: 2, max: 10)
-- Import zenEngine singleton from @erdwithai/core
+- Import zenEngine singleton from @appwithai/core
 - Implement eager loading for relations with JOINs
 - Add WORKFLOW_CONFIG constants
 

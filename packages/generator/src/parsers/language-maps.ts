@@ -1,15 +1,15 @@
 /**
  * Language-definition maps for the Mermaid ERD parser.
  *
- * The canonical, machine-readable definition of the ERDwithAI Modeling Language
- * (EML) lives in `language/erdwithai-language.json`. This module loads the type
+ * The canonical, machine-readable definition of the APPWITHAI Modeling Language
+ * (EML) lives in `language/appwithai-language.json`. This module loads the type
  * and cardinality maps from that file at runtime so the parser stays in lockstep
  * with the language definition instead of duplicating it.
  *
  * Resolution order for the definition file:
  *   1. process.env.ERDWITHAI_LANGUAGE_FILE (explicit override)
- *   2. a `language/erdwithai-language.json` found by walking up from this module
- *   3. a `language/erdwithai-language.json` found by walking up from cwd
+ *   2. a `language/appwithai-language.json` found by walking up from this module
+ *   3. a `language/appwithai-language.json` found by walking up from cwd
  *   4. built-in fallback maps (kept in sync with the JSON)
  *
  * The loader never throws: if the file is missing or malformed it falls back to
@@ -37,7 +37,7 @@ interface LanguageDefinitionShape {
   cardinalities?: { map?: Array<{ operator: string; kind: CardinalityKind }> };
 }
 
-/** Built-in fallback, kept in sync with language/erdwithai-language.json. */
+/** Built-in fallback, kept in sync with language/appwithai-language.json. */
 const FALLBACK_TYPE_MAP: Record<string, CanonicalType> = {
   string: "string",
   varchar: "string",
@@ -99,9 +99,9 @@ function findDefinitionFile(): string | null {
 
   for (const start of starts) {
     let dir = start;
-    // Walk up to the filesystem root looking for language/erdwithai-language.json
+    // Walk up to the filesystem root looking for language/appwithai-language.json
     for (let i = 0; i < 12; i++) {
-      const candidate = path.join(dir, "language", "erdwithai-language.json");
+      const candidate = path.join(dir, "language", "appwithai-language.json");
       if (existsSync(candidate)) return candidate;
       const parent = path.dirname(dir);
       if (parent === dir) break;
@@ -116,7 +116,7 @@ let cachedDefinition: LanguageDefinitionShape | null | undefined;
 /**
  * Supply the definition directly, for hosts that have no filesystem.
  *
- * The browser build of the generator imports `language/erdwithai-language.json`
+ * The browser build of the generator imports `language/appwithai-language.json`
  * as a module and calls this before parsing anything. Without it the browser
  * would silently fall through to FALLBACK_TYPE_MAP — which is kept in sync by
  * hand, so a model generated in a tab could read a type differently from the

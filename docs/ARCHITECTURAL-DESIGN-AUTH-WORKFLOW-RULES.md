@@ -1,11 +1,11 @@
 # Architectural Design Document
 ## Auth, Workflow Automation & Business Rules Engine Integration
-### ERDwithAI Hospital Management System — v5.1 → v6.0
+### APPWITHAI Hospital Management System — v5.1 → v6.0
 
 ---
 
 **Document Version**: 1.0
-**Author**: ERDwithAI Architecture Team
+**Author**: APPWITHAI Architecture Team
 **Date**: March 30, 2026
 **Status**: Design Review
 **Related Documents**:
@@ -46,7 +46,7 @@
 
 ### 1.1 Purpose
 
-This document provides the complete technical architecture for integrating three major open-source systems into ERDwithAI-generated Hospital Management Systems:
+This document provides the complete technical architecture for integrating three major open-source systems into APPWITHAI-generated Hospital Management Systems:
 
 1. **Better Auth** — Modern authentication and authorization framework
 2. **Trigger.dev** — Background job and workflow orchestration platform
@@ -69,7 +69,7 @@ This enhancement applies to both generated application stacks:
 - **Next.js/NestJS Stack**: React frontend + NestJS backend
 - **OpenUI5/OData V4 Stack**: OpenUI5 frontend + OData V4 backend
 
-The enhancement will be integrated into the ERDwithAI code generator templates so that all future generated projects include these capabilities by default.
+The enhancement will be integrated into the APPWITHAI code generator templates so that all future generated projects include these capabilities by default.
 
 ### 1.4 Key Architectural Decisions
 
@@ -87,16 +87,16 @@ The enhancement will be integrated into the ERDwithAI code generator templates s
 
 ### 2.1 Existing Architecture
 
-The current ERDwithAI v5.1 system comprises:
+The current APPWITHAI v5.1 system comprises:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    ERDwithAI Platform                        │
+│                    APPWITHAI Platform                        │
 ├─────────────────────────────────────────────────────────────┤
-│  @erdwithai/core     │ Hook System, RBAC Types, Services     │
-│  @erdwithai/ai       │ Mastra.ai Agents, HITL Workflows      │
-│  @erdwithai/generator│ Mermaid Parser, Handlebars Templates  │
-│  @erdwithai/web      │ Next.js Web App, CopilotKit           │
+│  @appwithai/core     │ Hook System, RBAC Types, Services     │
+│  @appwithai/ai       │ Mastra.ai Agents, HITL Workflows      │
+│  @appwithai/generator│ Mermaid Parser, Handlebars Templates  │
+│  @appwithai/web      │ Next.js Web App, CopilotKit           │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -2745,7 +2745,7 @@ kubectl patch service hms-service -p '{"spec":{"selector":{"version":"v5.1.0"}}}
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0 | 2026-03-30 | ERDwithAI Architecture Team | Initial architectural design document |
+| 1.0 | 2026-03-30 | APPWITHAI Architecture Team | Initial architectural design document |
 
 ---
 

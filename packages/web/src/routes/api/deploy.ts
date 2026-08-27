@@ -97,7 +97,7 @@ export const Route = createFileRoute("/api/deploy")({
               const { projectId } = (await request.json()) as { projectId?: string };
               if (!projectId) return fail("Missing required field: projectId");
 
-              const { projectDb } = await import("@erdwithai/core/services");
+              const { projectDb } = await import("@appwithai/core/services");
               const project = await projectDb.findById(projectId);
               if (!project) return fail("Project not found");
 

@@ -3,7 +3,7 @@
 ################################################################################
 # Comprehensive E2E Test Hardness Script
 #
-# This script performs complete end-to-end testing for ERDwithAI generator:
+# This script performs complete end-to-end testing for APPWITHAI generator:
 # - Generates apps for Option 1 (NestJS+Next.js) and Option 2 (OData+OpenUI5)
 # - Tests with both PostgreSQL and SQLite databases
 # - Runs all E2E tests (Playwright for Option 1, OPA5 for Option 2)

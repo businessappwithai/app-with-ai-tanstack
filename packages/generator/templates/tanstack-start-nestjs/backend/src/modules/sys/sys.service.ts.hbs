@@ -1316,4 +1316,61 @@ export class SysService {
 
     return { deleted, tables: tables.length };
   }
+
+  // ============================================================================
+  // Report Design methods
+  // ============================================================================
+
+  async findAllReportDesigns() {
+    const rows = await this.db.kysely
+      .selectFrom('sys_report_designs')
+      .selectAll()
+      .orderBy('table_name', 'asc')
+      .execute();
+    return rows;
+  }
+
+  async findReportDesignByTable(tableName: string) {
+    const row = await this.db.kysely
+      .selectFrom('sys_report_designs')
+      .selectAll()
+      .where('table_name', '=', tableName)
+      .executeTakeFirst();
+    return row ?? null;
+  }
+
+  async upsertReportDesign(data: { table_name: string; name?: string; layout?: object }) {
+    const existing = await this.findReportDesignByTable(data.table_name);
+    if (existing) {
+      const updated = await this.db.kysely
+        .updateTable('sys_report_designs')
+        .set({
+          name: data.name ?? existing.name,
+          layout: data.layout !== undefined ? JSON.stringify(data.layout) : existing.layout,
+          updated_at: new Date(),
+        })
+        .where('table_name', '=', data.table_name)
+        .returningAll()
+        .executeTakeFirst();
+      return updated;
+    }
+    const created = await this.db.kysely
+      .insertInto('sys_report_designs')
+      .values({
+        table_name: data.table_name,
+        name: data.name ?? 'Default Report',
+        layout: data.layout !== undefined ? JSON.stringify(data.layout) : null,
+      })
+      .returningAll()
+      .executeTakeFirst();
+    return created;
+  }
+
+  async deleteReportDesign(tableName: string) {
+    await this.db.kysely
+      .deleteFrom('sys_report_designs')
+      .where('table_name', '=', tableName)
+      .execute();
+    return { success: true };
+  }
 }

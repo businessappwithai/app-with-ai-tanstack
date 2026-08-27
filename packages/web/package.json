@@ -1,6 +1,6 @@
 {
-  "name": "@erdwithai/web",
-  "version": "5.1.1",
+  "name": "@appwithai/web",
+  "version": "0.0.1",
   "type": "module",
   "private": true,
   "scripts": {
@@ -23,9 +23,9 @@
     "@copilotkit/react-core": "^1.68.1",
     "@copilotkit/react-ui": "^1.68.1",
     "@copilotkit/runtime": "^1.68.1",
-    "@erdwithai/ai": "workspace:*",
-    "@erdwithai/core": "workspace:*",
-    "@erdwithai/generator": "workspace:*",
+    "@appwithai/ai": "workspace:*",
+    "@appwithai/core": "workspace:*",
+    "@appwithai/generator": "workspace:*",
     "@gorules/jdm-editor": "^1.52.0",
     "@mastra/client-js": "^1.40.0",
     "@radix-ui/react-dialog": "^1.0.5",

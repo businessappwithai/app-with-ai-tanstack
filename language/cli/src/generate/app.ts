@@ -166,7 +166,7 @@ function generatePackageJson(appName: string): string {
       version: "1.0.0",
       private: true,
       type: "module",
-      description: "Application generated from an EML (.mmd) model by the ERDwithAI EML CLI.",
+      description: "Application generated from an EML (.mmd) model by the APPWITHAI EML CLI.",
       scripts: {
         start: "node src/server.js",
         dev: "node --watch src/server.js",
@@ -195,7 +195,7 @@ function generateReadme(model: EmlModel, appName: string): string {
 
   return `# ${appName}
 
-Generated from an **EML** model by the ERDwithAI EML CLI. Zero runtime
+Generated from an **EML** model by the APPWITHAI EML CLI. Zero runtime
 dependencies — it runs on plain Node (or Bun).
 
 ## Run

@@ -5,7 +5,7 @@ export const Route = createFileRoute("/api/projects/$id/deployment/")({
     handlers: {
       GET: async ({ params }) => {
         try {
-          const { deploymentDb } = await import("@erdwithai/core/services");
+          const { deploymentDb } = await import("@appwithai/core/services");
           const id = params.id as string;
           const deployments = await deploymentDb.getAllDeployments(id);
           return new Response(JSON.stringify({ deployments }), {
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/projects/$id/deployment/")({
 
       POST: async ({ request, params }) => {
         try {
-          const { deploymentDb } = await import("@erdwithai/core/services");
+          const { deploymentDb } = await import("@appwithai/core/services");
           const id = params.id as string;
           const body = await request.json();
           const { status, port } = body;
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/api/projects/$id/deployment/")({
 
       DELETE: async ({ params }) => {
         try {
-          const { deploymentDb } = await import("@erdwithai/core/services");
+          const { deploymentDb } = await import("@appwithai/core/services");
           const id = params.id as string;
           await deploymentDb.delete(id);
           return new Response(JSON.stringify({ success: true }), {
