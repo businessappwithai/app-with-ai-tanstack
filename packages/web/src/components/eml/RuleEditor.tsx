@@ -7,6 +7,7 @@ import {
   tableToEmlFlowchart,
   validateDecisionTable,
 } from "@/lib/eml/decision-table";
+import { convertFlowchartToTable } from "@/lib/eml/flowchart-to-table";
 
 /**
  * One business rule — shown as a decision table, matching the rule editor in
@@ -71,6 +72,12 @@ export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
     () => entities.find((e) => e.name === rule.entity)?.attributes ?? [],
     [entities, rule.entity]
   );
+  // Whether the authored flowchart can be read as a table, worked out once so
+  // the banner can say which it is rather than warning about both.
+  const conversion = useMemo(
+    () => convertFlowchartToTable(rule.sourceFlowchart ?? "", entityFields),
+    [rule.sourceFlowchart, entityFields]
+  );
 
   return (
     <>
@@ -133,25 +140,64 @@ export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
           <div className="flex items-start gap-1.5 text-xs text-amber-900">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            <p>
-              This rule was written as a flowchart, not as a decision table, so it is shown as
-              authored. Its logic is kept exactly as-is when you save. Converting rewrites it as a
-              table you can edit here — the branches below are not carried over, so you will need to
-              re-enter them.
-            </p>
+            {conversion.ok ? (
+              <p>
+                This rule came from your model as a flowchart. It is saved exactly as it is here.
+                It can also be read as a table of{" "}
+                <strong>
+                  {conversion.table.rules.length} row
+                  {conversion.table.rules.length === 1 ? "" : "s"}
+                </strong>{" "}
+                that decides the same thing — convert it to edit it here.
+              </p>
+            ) : (
+              <p>
+                This rule came from your model as a flowchart, and it is saved exactly as it is
+                here. It cannot be read as a table: {conversion.reason}
+              </p>
+            )}
           </div>
 
           <pre className="mt-2 max-h-72 overflow-auto rounded-md border border-amber-200 bg-white/70 p-3 font-mono text-[11px] leading-relaxed">
             {rule.sourceFlowchart}
           </pre>
 
-          <button
-            type="button"
-            onClick={() => onChange({ sourceFlowchart: undefined, table: emptyDecisionTable() })}
-            className="mt-2 rounded-md border border-amber-400 bg-white px-3 py-1.5 text-sm font-medium text-amber-900"
-          >
-            Convert to a decision table
-          </button>
+          {conversion.ok ? (
+            <>
+              {conversion.notes.map((note) => (
+                <p key={note} className="mt-2 text-[11.5px] text-amber-900">
+                  {note}
+                </p>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  onChange({ sourceFlowchart: undefined, table: conversion.table })
+                }
+                className="mt-2 rounded-md border border-amber-400 bg-white px-3 py-1.5 text-sm font-medium text-amber-900"
+              >
+                Convert to a decision table
+              </button>
+              <p className="mt-1.5 text-[11.5px] text-amber-900/80">
+                Nothing is written until you save, and the table is shown before then.
+              </p>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  onChange({ sourceFlowchart: undefined, table: emptyDecisionTable() })
+                }
+                className="mt-2 rounded-md border border-amber-400 bg-white px-3 py-1.5 text-sm font-medium text-amber-900"
+              >
+                Start an empty table instead
+              </button>
+              <p className="mt-1.5 text-[11.5px] text-amber-900/80">
+                This discards the flowchart above, so you would re-enter the logic by hand.
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <RuleTableEditor
