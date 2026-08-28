@@ -104,6 +104,144 @@ function zenLiteral(value: string): string {
   return `'${value.replace(/'/g, "\\'")}'`;
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Decision tables authored in the editor                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The directive the application's decision-table editor writes.
+ *
+ * The editor emits a placeholder `Start --> End` flowchart and hangs the real
+ * table off this comment so the model still parses as Mermaid. Without the
+ * branch below, `parseMermaidFlowchart` saw only those two nodes and the rule
+ * compiled to an input wired straight to an output — a rule that runs and
+ * decides nothing.
+ */
+const DECISION_TABLE_DIRECTIVE = "%%decision-table ";
+
+interface EditorDecisionTable {
+  hitPolicy?: "first" | "collect";
+  inputs?: Array<{ id: string; name?: string; field?: string }>;
+  outputs?: Array<{ id: string; name?: string; field?: string }>;
+  rules?: Array<Record<string, string>>;
+}
+
+export function parseDecisionTableDirective(flowchart: string): EditorDecisionTable | null {
+  const line = (flowchart ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l.startsWith(DECISION_TABLE_DIRECTIVE));
+  if (!line) return null;
+  try {
+    const parsed = JSON.parse(line.slice(DECISION_TABLE_DIRECTIVE.length)) as EditorDecisionTable;
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+/** A cell that zen should read as a value rather than an identifier reference. */
+function isBareLiteral(value: string): boolean {
+  return (
+    value === "true" ||
+    value === "false" ||
+    value === "null" ||
+    (value !== "" && !Number.isNaN(Number(value)))
+  );
+}
+
+function isQuoted(value: string): boolean {
+  return (
+    value.length >= 2 &&
+    (value.startsWith("'") || value.startsWith('"')) &&
+    value.endsWith(value[0] as string)
+  );
+}
+
+/**
+ * The editor stores what the user typed; zen evaluates expressions.
+ *
+ * An output of `validation-error` is a subtraction of two identifiers to zen,
+ * and an input of `hot` is a reference to an undefined variable. Both have to
+ * be quoted. Numbers, booleans and already-quoted cells are left alone.
+ */
+function zenCell(raw: string | undefined): string {
+  const value = (raw ?? "").trim();
+  if (value === "") return "";
+  if (isQuoted(value) || isBareLiteral(value)) return value;
+  return zenLiteral(value);
+}
+
+/**
+ * Input cells may carry a leading comparison, matching the editor's own
+ * evaluator. `>= 70` stays a unary comparison; a bare `hot` becomes `'hot'`;
+ * an explicit `= hot` drops the operator, because zen reads a bare value as
+ * equality and `= 'hot'` is not valid unary syntax.
+ */
+function zenInputCell(raw: string | undefined): string {
+  const value = (raw ?? "").trim();
+  if (value === "") return "";
+  const match = value.match(/^(>=|<=|!=|=|>|<)\s*(.*)$/);
+  if (!match) return zenCell(value);
+  const [, operator, operand] = match as unknown as [string, string, string];
+  const cell = zenCell(operand);
+  if (!cell) return "";
+  return operator === "=" ? cell : `${operator} ${cell}`;
+}
+
+/**
+ * Compile the editor's table into the one JDM shape the rules engine reads.
+ *
+ * Every declared column is written into every row: zen-engine yields no result
+ * at all for a row with a missing cell, so an omitted column would silently
+ * disable the whole rule.
+ */
+export function buildEditorDecisionTable(
+  ruleName: string,
+  table: EditorDecisionTable
+): JdmGraph {
+  const inputs = (table.inputs ?? []).filter((column) => (column.field ?? "").trim() !== "");
+  const outputs = (table.outputs ?? []).filter((column) => (column.field ?? "").trim() !== "");
+
+  const rows = (table.rules ?? []).map((row, index) => {
+    const compiled: Record<string, string> = { _id: row._id || `${ruleName}-${index + 1}` };
+    for (const column of inputs) compiled[column.id] = zenInputCell(row[column.id]);
+    for (const column of outputs) compiled[column.id] = zenCell(row[column.id]);
+    return compiled;
+  });
+
+  const tableId = `${ruleName}-table`;
+  return {
+    nodes: [
+      { id: "input", name: "Input", type: "inputNode" },
+      {
+        id: tableId,
+        name: ruleName,
+        type: "decisionTableNode",
+        content: {
+          hitPolicy: table.hitPolicy === "collect" ? ("collect" as const) : ("first" as const),
+          inputs: inputs.map((column) => ({
+            id: column.id,
+            name: column.name ?? column.id,
+            field: column.field ?? "",
+          })),
+          outputs: outputs.map((column) => ({
+            id: column.id,
+            name: column.name ?? column.id,
+            field: column.field ?? "",
+          })),
+          rules: rows,
+        },
+      },
+      { id: "output", name: "Output", type: "outputNode" },
+    ],
+    edges: [
+      { id: "edge-1", sourceId: "input", targetId: tableId },
+      { id: "edge-2", sourceId: tableId, targetId: "output" },
+    ],
+  };
+}
+
 /**
  * A GoRules decision table, one row per `%%action`.
  *
@@ -192,8 +330,13 @@ export function compileRules(
     }
 
     try {
+      // A table authored in the editor carries its own directive and only a
+      // placeholder flowchart, so it has to be read before the AST — compiling
+      // the placeholder yields a rule that decides nothing.
+      const editorTable = parseDecisionTableDirective(section.flowchart);
+
       const ast = parseMermaidFlowchart(section.flowchart);
-      if (!ast.nodes.size) {
+      if (!editorTable && !ast.nodes.size) {
         onWarn(`Rule "${section.name}" has no nodes; skipping.`);
         continue;
       }
@@ -201,9 +344,14 @@ export function compileRules(
       // A section that declares actions compiles to a decision table: that is
       // the only JDM shape the rules engine reads actions out of.
       const actions = parseRuleActions(section.flowchart);
-      const jdm = actions.length
-        ? buildActionDecisionTable(section.name, actions)
-        : convertToJdm(ast);
+      let jdm: JdmGraph;
+      if (editorTable) {
+        jdm = buildEditorDecisionTable(section.name, editorTable);
+      } else if (actions.length) {
+        jdm = buildActionDecisionTable(section.name, actions);
+      } else {
+        jdm = convertToJdm(ast);
+      }
       compiled.push({
         name: section.name,
         entity: section.entity,
