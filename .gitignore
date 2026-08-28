@@ -145,3 +145,4 @@ pics/wasm-e2e/
 # `bun run build:stack-templates`. A second copy of files already in this
 # repository — regenerate it rather than commit it.
 html/assets/stack-templates.json
+pics/
