@@ -360,10 +360,16 @@ export interface AutomationHook {
  * Which shape an automation is.
  *
  * `automation` is the original sentence: one trigger, conditions, ordered
- * steps. `hook` is the multi-trigger list above. They share a rail, a ladder
- * and an inspector; they differ in what a rung means.
+ * steps. `hook` is the multi-trigger list above. `saga` is the same ordered
+ * steps as an automation, started by a rule rather than by a lifecycle event.
+ * They share a rail, a ladder and an inspector; they differ in what a rung
+ * means and in how the run begins.
  */
-export type AutomationKind = "automation" | "hook";
+export type AutomationKind = "automation" | "hook" | "saga";
+
+/** How a saga is started. `rule` means a business rule's %%action names it. */
+export type SagaTrigger = "automatic" | "rule";
+export type SagaOperation = "CREATE" | "UPDATE" | "DELETE" | "ALL";
 
 export type AutomationStatus = "draft" | "live" | "paused";
 
@@ -383,6 +389,17 @@ export interface Automation {
    * `trigger.entity` is, because every hook binds to the same record type.
    */
   hooks: AutomationHook[];
+  /**
+   * How a saga starts, when `kind` is `saga`.
+   *
+   * These live on the `%%workflow` directive, not in the diagram, so they are
+   * carried here rather than inferred from `trigger`. Reading a saga into the
+   * single-trigger shape mapped `operation` onto a lifecycle event and threw
+   * both away: a `trigger: rule` saga came back as "runs when created", and
+   * saving it said so in the model.
+   */
+  sagaTrigger?: SagaTrigger;
+  sagaOperation?: SagaOperation;
   status: AutomationStatus;
   updatedAt?: string;
 }
@@ -408,13 +425,19 @@ export function newId(prefix: string): string {
 export function emptyAutomation(entity: string, kind: AutomationKind = "automation"): Automation {
   return {
     id: newId("auto"),
-    name: kind === "hook" ? "Untitled process" : "Untitled automation",
+    name:
+      kind === "hook"
+        ? "Untitled process"
+        : kind === "saga"
+          ? "Untitled process"
+          : "Untitled automation",
     kind,
     trigger: { entity, event: "created" },
     conditions: [],
     loops: [],
     steps: [],
     hooks: kind === "hook" ? [newHook()] : [],
+    ...(kind === "saga" ? { sagaTrigger: "rule" as const, sagaOperation: "CREATE" as const } : {}),
     status: "draft",
   };
 }
@@ -664,6 +687,12 @@ export function validateAutomation(automation: Automation): Problem[] {
   automation.steps.forEach((step, i) => {
     for (const field of STEP_FIELDS[step.type] ?? []) {
       if (field === "inputs" || field === "values" || field === "body") continue;
+      // A Decision may carry its own table instead of naming a saved rule —
+      // the shape every saga in the example models uses — and an UpdateEntity
+      // with no record type writes the record that triggered the run. Demanding
+      // either told authors their working process was broken.
+      if (field === "ruleTable" && step.table) continue;
+      if (field === "entity" && step.type === "UpdateEntity") continue;
       if (!(step.props[field] ?? "").trim()) {
         problems.push({
           target: step.id,
@@ -835,14 +864,54 @@ function serializeHookWorkflow(a: Automation): string {
   return lines.join("\n");
 }
 
-export function serializeAutomation(a: Automation): string {
+/** The `%%workflow` directive names an identifier, not a title. */
+function pascalName(value: string): string {
+  const cleaned = value.replace(/[^A-Za-z0-9]+/g, " ").trim();
+  if (!cleaned) return "Workflow";
+  return cleaned
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+}
+
+export interface SerializeOptions {
+  /**
+   * Whether to write the `%%workflow` / `%%meta` header into the body.
+   *
+   * The automations screen stores this string as the whole record, so it needs
+   * the header. The wizard's Logic step stores name, entity, kind, trigger and
+   * operation as columns and lets language/composer.ts write the directive, so
+   * including it there produces the header twice.
+   */
+  header?: boolean;
+}
+
+export function serializeAutomation(a: Automation, options: SerializeOptions = {}): string {
   if (a.kind === "hook") return serializeHookWorkflow(a);
+  const header = options.header ?? true;
 
   const lines: string[] = [];
   lines.push("flowchart TD");
-  lines.push(`%%meta kind: workflow`);
-  lines.push(`%%workflow name: ${a.name}`);
-  lines.push(`%%hook ${TRIGGER_HOOKS[a.trigger.event]} on ${a.trigger.entity}`);
+  if (header) lines.push(`%%meta kind: workflow`);
+
+  if (!header) {
+    // Nothing: the caller owns the directive.
+  } else if (a.kind === "saga") {
+    // The positional form, matching what language/composer.ts writes. `trigger`
+    // and `operation` live here and nowhere else, so emitting the automation
+    // form instead would silently demote a rule-triggered saga to a lifecycle
+    // one. Both are written only when they differ from the default, which is
+    // the composer's rule too.
+    const trigger = a.sagaTrigger === "rule" ? " trigger: rule" : "";
+    const operation =
+      a.sagaOperation && a.sagaOperation !== "CREATE" ? ` operation: ${a.sagaOperation}` : "";
+    lines.push(
+      `%%workflow ${pascalName(a.name)} entity: ${a.trigger.entity} kind: saga${trigger}${operation}`
+    );
+  } else {
+    lines.push(`%%workflow name: ${a.name}`);
+    lines.push(`%%hook ${TRIGGER_HOOKS[a.trigger.event]} on ${a.trigger.entity}`);
+  }
 
   for (const c of a.conditions) {
     lines.push(`%%guard ${c.field} ${c.operator} ${JSON.stringify(c.value)}`);
@@ -859,7 +928,16 @@ export function serializeAutomation(a: Automation): string {
   // The edge chain, where a loop contributes its subgraph id once rather than
   // each of its members — the repeat is one unit in the flow.
   const ids: string[] = ["start"];
-  lines.push(`  start([${a.trigger.entity} ${TRIGGER_LABELS[a.trigger.event]}])`);
+  // A saga does not start from `trigger.event` — that field is only an
+  // approximation of `operation`, so labelling the start node with it told a
+  // rule-triggered saga it "is created". Say what actually begins the run.
+  const startLabel =
+    a.kind === "saga"
+      ? a.sagaTrigger === "rule"
+        ? `${a.trigger.entity} — a rule decides`
+        : `${a.trigger.entity} ${SAGA_OPERATION_LABELS[a.sagaOperation ?? "CREATE"]}`
+      : `${a.trigger.entity} ${TRIGGER_LABELS[a.trigger.event]}`;
+  lines.push(`  start([${startLabel}])`);
 
   if (a.conditions.length > 0) {
     ids.push("guard");
@@ -926,6 +1004,14 @@ export function serializeAutomation(a: Automation): string {
  * A saga names the CRUD operation; an automation names the moment. Sagas run
  * after the write, so each maps to the corresponding `after` event.
  */
+/** How each operation reads on a saga's start node. */
+const SAGA_OPERATION_LABELS: Record<string, string> = {
+  CREATE: "is created",
+  UPDATE: "is updated",
+  DELETE: "is deleted",
+  ALL: "is written",
+};
+
 const SAGA_OPERATION_EVENTS: Record<string, TriggerEvent> = {
   CREATE: "created",
   UPDATE: "updated",
@@ -1038,8 +1124,27 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
     const saga = line.match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)(.*)$/);
     if (saga?.[1] && saga[2]) {
       a.name = saga[1];
-      const operation = saga[3]?.match(/operation:\s*(\w+)/)?.[1]?.toUpperCase();
+      const rest = saga[3] ?? "";
+      const operation = rest.match(/operation:\s*(\w+)/)?.[1]?.toUpperCase();
+      const trigger = rest.match(/trigger:\s*(\w+)/)?.[1];
       a.trigger = { entity: saga[2], event: SAGA_OPERATION_EVENTS[operation ?? ""] ?? "created" };
+
+      // `kind: saga` carries how the run starts on the directive itself. The
+      // event above is only an approximation of `operation`, and `trigger: rule`
+      // has no lifecycle event at all — keep both verbatim so saving does not
+      // rewrite "a rule decides when this runs" into "runs when created".
+      if (/kind:\s*saga\b/.test(rest)) {
+        a.kind = "saga";
+        // Absent means automatic, because the writer only ever emits the token
+        // for `rule` — language/composer.ts omits it otherwise. Defaulting the
+        // other way turned every automatic saga into a rule-triggered one on
+        // the first re-read.
+        a.sagaTrigger = trigger === "rule" ? "rule" : "automatic";
+        a.sagaOperation =
+          operation === "UPDATE" || operation === "DELETE" || operation === "ALL"
+            ? operation
+            : "CREATE";
+      }
       continue;
     }
 
