@@ -57,9 +57,18 @@ function TriggerInspector({
   trigger,
   entities,
   onChange,
+  /**
+   * A hook workflow has no single trigger: every rung carries its own event,
+   * and `trigger.event` is never serialised for one. Showing the event picker
+   * there offers a control that changes nothing, under copy ("one per
+   * automation") that contradicts the seven cards next to it. The record type
+   * still applies, because every hook binds to the same entity.
+   */
+  hookMode = false,
 }: {
   trigger: Trigger;
   entities: string[];
+  hookMode?: boolean;
   onChange: (next: Trigger) => void;
 }) {
   const inputClass =
@@ -78,13 +87,15 @@ function TriggerInspector({
           <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-amber-700">
             When this happens
           </span>
-          <h3 className="text-[15px] font-bold">The trigger</h3>
+          <h3 className="text-[15px] font-bold">{hookMode ? "This process" : "The trigger"}</h3>
         </div>
       </header>
 
       <div className="flex-1 overflow-y-auto px-4">
         <p className="mb-4 text-xs leading-snug text-muted-foreground">
-          The event that starts the run. One per automation.
+          {hookMode
+            ? "Every step below runs on this record type. Each step says when it runs."
+            : "The event that starts the run. One per automation."}
         </p>
 
         <label className="mb-3.5 block">
@@ -105,6 +116,7 @@ function TriggerInspector({
           </select>
         </label>
 
+        {hookMode ? null : (
         <label className="mb-3.5 block">
           <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
             What happens to it
@@ -124,6 +136,7 @@ function TriggerInspector({
             {TRIGGER_HINTS[trigger.event]}
           </p>
         </label>
+        )}
       </div>
     </div>
   );
@@ -438,7 +451,16 @@ export function AutomationBuilder({
       {/* ---------------------------------------------------------------- */}
       <div className="flex flex-1 flex-col items-center overflow-y-auto bg-muted/30 px-6 pt-6 pb-10">
         <div className="w-full max-w-[604px]">
-          <h1 className="text-xl font-bold tracking-tight">{automation.name}</h1>
+          {/* The name is the heading and is edited in place, so there is no
+              separate title field to go looking for — the same move Jira makes
+              on an automation rule. */}
+          <input
+            aria-label="Name"
+            className="w-full rounded-md border border-transparent bg-transparent px-1.5 py-0.5 -ml-1.5 text-xl font-bold tracking-tight hover:border-border focus-visible:border-primary focus-visible:bg-card focus-visible:outline-none"
+            value={automation.name}
+            placeholder="Name this process"
+            onChange={(e) => onChange({ ...automation, name: e.target.value })}
+          />
           <p className="mt-1 text-[12.5px] text-muted-foreground">
             Runs on every {automation.trigger.entity || "record"}
             {problems.length > 0 ? (
@@ -457,7 +479,9 @@ export function AutomationBuilder({
                   The order is the order the backend runs them in. */}
               {automation.hooks.map((hook, index) => (
                 <Fragment key={hook.id}>
-                  {index > 0 ? <LadderRung onAdd={() => addHookAt(index)} /> : null}
+                  {index > 0 ? (
+                    <LadderRung onAdd={() => addHookAt(index)} label="Add a lifecycle step here" />
+                  ) : null}
                   <LadderCard
                     kind="when"
                     glyph="⚡"
@@ -470,7 +494,10 @@ export function AutomationBuilder({
                 </Fragment>
               ))}
 
-              <LadderRung onAdd={() => addHookAt(automation.hooks.length)} />
+              <LadderRung
+                onAdd={() => addHookAt(automation.hooks.length)}
+                label="Add a lifecycle step here"
+              />
               <button
                 type="button"
                 onClick={() => addHookAt(automation.hooks.length)}
@@ -634,6 +661,7 @@ export function AutomationBuilder({
             <TriggerInspector
               trigger={automation.trigger}
               entities={entities}
+              hookMode={automation.kind === "hook"}
               onChange={(trigger) => onChange({ ...automation, trigger })}
             />
           ) : null}

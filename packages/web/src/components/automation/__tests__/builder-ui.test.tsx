@@ -69,7 +69,9 @@ describe("AutomationBuilder", () => {
     expect(screen.getAllByText("Only continue if").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Then do this").length).toBeGreaterThan(0);
 
-    expect(screen.getByText(/Escalate failed experiments/)).toBeInTheDocument();
+    // The name is an input now, not a heading — it is edited in place, so it
+    // reads as a value rather than as text.
+    expect(screen.getByDisplayValue("Escalate failed experiments")).toBeInTheDocument();
     expect(screen.getByText(/experiment\.status is failed/)).toBeInTheDocument();
     expect(screen.getByText(/Look up Assay tier/)).toBeInTheDocument();
     expect(screen.getByText(/Create a DeviationReport/)).toBeInTheDocument();

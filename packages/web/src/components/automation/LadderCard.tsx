@@ -182,13 +182,22 @@ export function LoopFrame({
  * The `+` lives on the rung rather than in a toolbar because that is where the
  * thing being added will end up — you point at the gap you want filled.
  */
-export function LadderRung({ onAdd, active = false }: { onAdd: () => void; active?: boolean }) {
+export function LadderRung({
+  onAdd,
+  active = false,
+  /** Overridden in hook workflows, where a rung adds a lifecycle step. */
+  label,
+}: {
+  onAdd: () => void;
+  active?: boolean;
+  label?: string;
+}) {
   return (
     <div className="relative h-6 w-0.5 bg-border" aria-hidden={false}>
       <button
         type="button"
         onClick={onAdd}
-        aria-label="Add a condition or an action here"
+        aria-label={label ?? "Add a condition or an action here"}
         className={cn(
           "absolute left-1/2 top-1/2 grid h-[22px] w-[22px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border text-xs leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
           active
