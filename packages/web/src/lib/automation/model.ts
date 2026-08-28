@@ -291,19 +291,112 @@ export function loopIsContiguous(automation: Automation, loopId: string): boolea
 /*  The automation                                                             */
 /* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+/*  Hook rungs — the multi-trigger case                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The thirteen lifecycle events, in the order they run.
+ *
+ * Wider than `TRIGGER_EVENTS`, which names only the six an automation can
+ * *start* from. A hook workflow binds handlers to any of these, including the
+ * read and list points that have no "when this happens, then do that" reading.
+ */
+export const HOOK_EVENTS = [
+  "beforeCreate",
+  "afterCreate",
+  "beforeUpdate",
+  "afterUpdate",
+  "beforeDelete",
+  "afterDelete",
+  "beforeRead",
+  "afterRead",
+  "beforeQuery",
+  "afterQuery",
+  "beforeList",
+  "afterList",
+  "customValidate",
+] as const;
+
+export type HookEvent = (typeof HOOK_EVENTS)[number];
+
+export const HOOK_EVENT_HINTS: Record<HookEvent, string> = {
+  beforeCreate: "Runs before a record is written — hash a password, set a default.",
+  afterCreate: "Runs once the record exists — send a welcome email, emit an event.",
+  beforeUpdate: "Validate or transform before the write.",
+  afterUpdate: "Audit the change, invalidate a cache.",
+  beforeDelete: "Block the delete if the record is still referenced.",
+  afterDelete: "Clean up related rows or files.",
+  beforeRead: "Guard a single-record read.",
+  afterRead: "Redact or enrich a record on the way out.",
+  beforeQuery: "Scope the query — tenant filters, injected conditions.",
+  afterQuery: "Post-process the rows that came back.",
+  beforeList: "Adjust filtering, sorting or pagination.",
+  afterList: "Post-process a page of results.",
+  customValidate: "Cross-field or business validation on any write.",
+};
+
+/**
+ * One named handler bound to one lifecycle event.
+ *
+ * This is the rung a hook workflow is made of, and the reason `trigger` alone
+ * could not carry it: `ContactHygiene` binds twelve handlers across
+ * beforeCreate, customValidate, afterUpdate and beforeList. That is not one
+ * automation with twelve steps — it is twelve triggers, each with its own
+ * handler, sharing a name and an entity. A single `trigger` field can only say
+ * one of them, so reading such a workflow through the automation shape dropped
+ * every handler.
+ */
+export interface AutomationHook {
+  id: string;
+  event: HookEvent;
+  /** Generated function name — the handler the backend will call. */
+  handler: string;
+  /** Optional field the hook is scoped to. */
+  field?: string;
+}
+
+/**
+ * Which shape an automation is.
+ *
+ * `automation` is the original sentence: one trigger, conditions, ordered
+ * steps. `hook` is the multi-trigger list above. They share a rail, a ladder
+ * and an inspector; they differ in what a rung means.
+ */
+export type AutomationKind = "automation" | "hook";
+
 export type AutomationStatus = "draft" | "live" | "paused";
 
 export interface Automation {
   id: string;
   name: string;
   description?: string;
+  kind: AutomationKind;
   trigger: Trigger;
   conditions: Condition[];
   /** Bounded repeats. A step joins one by carrying its id in `loopId`. */
   loops: Loop[];
   steps: AutomationStep[];
+  /**
+   * The rungs, when `kind` is `hook`. Each carries its own event, so
+   * `trigger.event` is not meaningful for a hook workflow — only
+   * `trigger.entity` is, because every hook binds to the same record type.
+   */
+  hooks: AutomationHook[];
   status: AutomationStatus;
   updatedAt?: string;
+}
+
+export function isHookWorkflow(automation: Automation): boolean {
+  return automation.kind === "hook";
+}
+
+export function newHook(event: HookEvent = "beforeCreate"): AutomationHook {
+  return { id: newId("hook"), event, handler: "", field: "" };
+}
+
+export function describeHook(hook: AutomationHook): string {
+  return `${hook.event} → ${hook.handler || "(unnamed)"}${hook.field ? ` · ${hook.field}` : ""}`;
 }
 
 let seq = 0;
@@ -312,14 +405,16 @@ export function newId(prefix: string): string {
   return `${prefix}_${seq.toString(36)}${Date.now().toString(36)}`;
 }
 
-export function emptyAutomation(entity: string): Automation {
+export function emptyAutomation(entity: string, kind: AutomationKind = "automation"): Automation {
   return {
     id: newId("auto"),
-    name: "Untitled automation",
+    name: kind === "hook" ? "Untitled process" : "Untitled automation",
+    kind,
     trigger: { entity, event: "created" },
     conditions: [],
     loops: [],
     steps: [],
+    hooks: kind === "hook" ? [newHook()] : [],
     status: "draft",
   };
 }
@@ -524,6 +619,32 @@ export function validateAutomation(automation: Automation): Problem[] {
     problems.push({ target: "trigger", message: "Pick the record type this watches." });
   }
 
+  // A hook workflow is its rungs. It has no conditions, loops or steps to
+  // check, so validate the handlers and stop.
+  if (automation.kind === "hook") {
+    if (automation.hooks.length === 0) {
+      problems.push({ target: "hooks", message: "Add at least one lifecycle step." });
+    }
+    const seen = new Set<string>();
+    for (const hook of automation.hooks) {
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(hook.handler)) {
+        problems.push({
+          target: hook.id,
+          message: `"${hook.handler || "(unnamed)"}" is not a valid handler name — letters, digits and underscore, not starting with a digit.`,
+        });
+      }
+      const key = `${hook.event}:${hook.handler}`;
+      if (seen.has(key)) {
+        problems.push({
+          target: hook.id,
+          message: `${hook.event} ${hook.handler} is listed twice, so it would run twice.`,
+        });
+      }
+      seen.add(key);
+    }
+    return problems;
+  }
+
   for (const c of automation.conditions) {
     if (!c.field.trim()) {
       problems.push({ target: c.id, message: "This check does not say which field to look at." });
@@ -682,7 +803,41 @@ function humanField(field: string): string {
  * directives carry the semantics and every renderer ignores them, so the
  * artifact stays valid, renderable mermaid.
  */
+/**
+ * Write a hook workflow.
+ *
+ * Byte-for-byte the shape a hand-written workflow uses, because the generator
+ * reads these directives directly: the chain is drawn in run order so a reader
+ * sees the sequence, and the `%%hook` lines carry the meaning. The diagram is
+ * generated from the hooks rather than edited alongside them, so the picture
+ * and the directives cannot disagree.
+ */
+function serializeHookWorkflow(a: Automation): string {
+  const entity = a.trigger.entity || "Record";
+  const lines = ["flowchart TD", `    request[Request] --> validate[Validate ${entity}]`];
+
+  let previous = "validate";
+  a.hooks.forEach((hook, index) => {
+    const id = `step${index + 1}`;
+    lines.push(`    ${previous} --> ${id}[${hook.event}: ${hook.handler}]`);
+    previous = id;
+  });
+
+  lines.push(`    ${previous} --> persist[Persist ${entity}]`, "    persist --> done[Response]", "");
+
+  for (const hook of a.hooks) {
+    lines.push(
+      `    %%hook ${hook.event} ${hook.handler} on ${entity}` +
+        (hook.field ? `[field: ${hook.field}]` : "")
+    );
+  }
+
+  return lines.join("\n");
+}
+
 export function serializeAutomation(a: Automation): string {
+  if (a.kind === "hook") return serializeHookWorkflow(a);
+
   const lines: string[] = [];
   lines.push("flowchart TD");
   lines.push(`%%meta kind: workflow`);
@@ -885,6 +1040,27 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
       a.name = saga[1];
       const operation = saga[3]?.match(/operation:\s*(\w+)/)?.[1]?.toUpperCase();
       a.trigger = { entity: saga[2], event: SAGA_OPERATION_EVENTS[operation ?? ""] ?? "created" };
+      continue;
+    }
+
+    // The hook-workflow form names a handler between the event and the entity:
+    //   %%hook beforeCreate normalizeAccountName on Account[field: name]
+    // Matched before the automation form below, whose pattern requires `on`
+    // directly after the event and so matches none of these — every handler in
+    // a hook workflow was silently dropped, leaving an automation with a
+    // default trigger and no steps.
+    const handlerHook = line.match(
+      /^%%hook\s+(\w+)\s+(\w+)\s+on\s+(\w+)(?:\[\s*field:\s*([^\]]+)\])?/
+    );
+    if (handlerHook?.[1] && handlerHook[2] && handlerHook[3]) {
+      a.kind = "hook";
+      a.trigger = { ...a.trigger, entity: handlerHook[3] };
+      a.hooks.push({
+        id: newId("hook"),
+        event: handlerHook[1] as HookEvent,
+        handler: handlerHook[2],
+        field: handlerHook[4]?.trim() || undefined,
+      });
       continue;
     }
 

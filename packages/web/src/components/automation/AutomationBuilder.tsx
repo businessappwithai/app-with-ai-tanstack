@@ -10,11 +10,16 @@
  * canvas would mean asking authors to lay out a graph that has only one shape.
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import {
   type Automation,
+  type AutomationHook,
   type AutomationStep,
   type Condition,
+  HOOK_EVENT_HINTS,
+  HOOK_EVENTS,
+  type HookEvent,
+  newHook,
   describeCondition,
   describeStep,
   type Loop,
@@ -235,6 +240,7 @@ type Selection =
   | { kind: "condition"; id: string }
   | { kind: "loop"; id: string }
   | { kind: "step"; id: string }
+  | { kind: "hook"; id: string }
   | null;
 
 export interface RuleTableSummary {
@@ -388,6 +394,43 @@ export function AutomationBuilder({
   const selectedStepIndex =
     selection?.kind === "step" ? automation.steps.findIndex((s) => s.id === selection.id) : -1;
 
+  /* ---- hook workflows ---------------------------------------------------- */
+
+  const selectedHook =
+    selection?.kind === "hook"
+      ? (automation.hooks.find((h) => h.id === selection.id) ?? null)
+      : null;
+
+  const updateHook = (next: AutomationHook) =>
+    onChange({
+      ...automation,
+      hooks: automation.hooks.map((h) => (h.id === next.id ? next : h)),
+    });
+
+  const addHookAt = (index: number) => {
+    const hook = newHook();
+    const hooks = [...automation.hooks];
+    hooks.splice(index, 0, hook);
+    onChange({ ...automation, hooks });
+    setSelection({ kind: "hook", id: hook.id });
+  };
+
+  const removeHook = (id: string) => {
+    onChange({ ...automation, hooks: automation.hooks.filter((h) => h.id !== id) });
+    setSelection((s) => (s?.kind === "hook" && s.id === id ? null : s));
+  };
+
+  /** Order is run order, so moving a rung is a real edit, not presentation. */
+  const moveHook = (id: string, delta: number) => {
+    const index = automation.hooks.findIndex((h) => h.id === id);
+    const target = index + delta;
+    if (index < 0 || target < 0 || target >= automation.hooks.length) return;
+    const hooks = [...automation.hooks];
+    const [moved] = hooks.splice(index, 1);
+    if (moved) hooks.splice(target, 0, moved);
+    onChange({ ...automation, hooks });
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-1">
       {/* ---------------------------------------------------------------- */}
@@ -408,6 +451,40 @@ export function AutomationBuilder({
         </div>
 
         <div className="mt-4 flex w-full max-w-[604px] flex-col items-center">
+          {automation.kind === "hook" ? (
+            <>
+              {/* Every rung is its own trigger, so each one is a "when" card.
+                  The order is the order the backend runs them in. */}
+              {automation.hooks.map((hook, index) => (
+                <Fragment key={hook.id}>
+                  {index > 0 ? <LadderRung onAdd={() => addHookAt(index)} /> : null}
+                  <LadderCard
+                    kind="when"
+                    glyph="⚡"
+                    title={<HookTitle hook={hook} entity={automation.trigger.entity} />}
+                    selected={selection?.kind === "hook" && selection.id === hook.id}
+                    problem={problemFor(hook.id)}
+                    onSelect={() => setSelection({ kind: "hook", id: hook.id })}
+                    onRemove={() => removeHook(hook.id)}
+                  />
+                </Fragment>
+              ))}
+
+              <LadderRung onAdd={() => addHookAt(automation.hooks.length)} />
+              <button
+                type="button"
+                onClick={() => addHookAt(automation.hooks.length)}
+                className="w-full rounded-xl border border-dashed border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                ＋ <span className="text-primary">Add a lifecycle step</span>
+              </button>
+
+              {problemFor("hooks") ? (
+                <p className="mt-3 w-full text-xs text-amber-700">{problemFor("hooks")}</p>
+              ) : null}
+            </>
+          ) : (
+            <>
           <LadderCard
             kind="when"
             glyph="⚡"
@@ -506,6 +583,8 @@ export function AutomationBuilder({
           {problemFor("steps") ? (
             <p className="mt-3 w-full text-xs text-amber-700">{problemFor("steps")}</p>
           ) : null}
+            </>
+          )}
         </div>
       </div>
 
@@ -610,9 +689,150 @@ export function AutomationBuilder({
             />
           ) : null}
 
+          {selectedHook ? (
+            <HookInspector
+              hook={selectedHook}
+              index={automation.hooks.findIndex((h) => h.id === selectedHook.id)}
+              count={automation.hooks.length}
+              fields={fieldsFor(automation.trigger.entity)}
+              problem={problemFor(selectedHook.id)}
+              onChange={updateHook}
+              onMove={(delta) => moveHook(selectedHook.id, delta)}
+              onRemove={() => removeHook(selectedHook.id)}
+            />
+          ) : null}
+
           {selection === null ? <EmptyInspector /> : null}
         </div>
       </aside>
+    </div>
+  );
+}
+
+/**
+ * One lifecycle rung, read as a sentence.
+ *
+ * The event leads because that is what decides when the handler runs; the
+ * field, when present, is what the handler is scoped to.
+ */
+function HookTitle({ hook, entity }: { hook: AutomationHook; entity: string }) {
+  return (
+    <span>
+      <Token>{hook.event}</Token> on {entity || "record"} →{" "}
+      <Token>{hook.handler || "(unnamed)"}</Token>
+      {hook.field ? (
+        <>
+          {" · "}
+          <Token>{hook.field}</Token>
+        </>
+      ) : null}
+    </span>
+  );
+}
+
+function HookInspector({
+  hook,
+  index,
+  count,
+  fields,
+  problem,
+  onChange,
+  onMove,
+  onRemove,
+}: {
+  hook: AutomationHook;
+  index: number;
+  count: number;
+  fields: string[];
+  problem?: string;
+  onChange: (next: AutomationHook) => void;
+  onMove: (delta: number) => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="space-y-4 p-4">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Step {index + 1} of {count}
+        </p>
+        <h2 className="text-base font-bold tracking-tight">Lifecycle step</h2>
+        <p className="mt-1 text-[12.5px] text-muted-foreground">
+          {HOOK_EVENT_HINTS[hook.event]}
+        </p>
+      </div>
+
+      <label className="block">
+        <span className="mb-1 block text-xs font-medium">When</span>
+        <select
+          className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+          value={hook.event}
+          onChange={(e) => onChange({ ...hook, event: e.target.value as HookEvent })}
+        >
+          {HOOK_EVENTS.map((event) => (
+            <option key={event} value={event}>
+              {event}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="block">
+        <span className="mb-1 block text-xs font-medium">Handler</span>
+        <input
+          className="w-full rounded-md border border-border px-2 py-1.5 font-mono text-sm"
+          value={hook.handler}
+          onChange={(e) => onChange({ ...hook, handler: e.target.value })}
+          placeholder="normalizeAccountName"
+        />
+        <span className="mt-1 block text-[11.5px] text-muted-foreground">
+          The function the generated backend will call.
+        </span>
+      </label>
+
+      <label className="block">
+        <span className="mb-1 block text-xs font-medium">Field (optional)</span>
+        <select
+          className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+          value={hook.field ?? ""}
+          onChange={(e) => onChange({ ...hook, field: e.target.value || undefined })}
+        >
+          <option value="">— whole record —</option>
+          {fields.map((field) => (
+            <option key={field} value={field}>
+              {field}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {problem ? <p className="text-xs text-amber-700">{problem}</p> : null}
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          disabled={index <= 0}
+          onClick={() => onMove(-1)}
+          className="flex-1 rounded-md border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-40"
+        >
+          ↑ Move up
+        </button>
+        <button
+          type="button"
+          disabled={index >= count - 1}
+          onClick={() => onMove(1)}
+          className="flex-1 rounded-md border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-40"
+        >
+          ↓ Move down
+        </button>
+      </div>
+
+      <button
+        type="button"
+        onClick={onRemove}
+        className="w-full rounded-md border border-border px-3 py-1.5 text-sm font-medium text-destructive"
+      >
+        Remove step
+      </button>
     </div>
   );
 }

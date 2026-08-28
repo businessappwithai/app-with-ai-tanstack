@@ -14,6 +14,7 @@ import {
   Workflow as WorkflowIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
 import { CopilotProvider } from "@/components/CopilotProvider";
 import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
 import { emptyStateFlow } from "@/components/eml/StateFlowCanvas";
@@ -33,6 +34,7 @@ import {
   parseTableFromFlowchart,
   tableToEmlFlowchart,
 } from "@/lib/eml/decision-table";
+import { parseAutomation } from "@/lib/automation/model";
 import {
   emptySagaFlow,
   parseHookWorkflow,
@@ -217,6 +219,18 @@ function LogicPage() {
               title: workflow.title,
               hooks: kind === "hook" ? parseHookWorkflow(workflow.diagram) : [],
               states: kind === "state" ? parseStateFlow(workflow.diagram) : emptyStateFlow(),
+              // A hook workflow is many handlers on different events, which is
+              // the multi-trigger shape the automation ladder now carries. It
+              // reads and writes the same `%%hook` directives, so this is a
+              // change of editor, not of artifact.
+              ...(kind === "hook"
+                ? {
+                    automation: {
+                      ...parseAutomation(workflow.diagram, workflow.entity),
+                      name: workflow.title ?? workflow.name,
+                    },
+                  }
+                : {}),
               // The diagram carries the steps; the trigger lives on the
               // %%workflow directive, so it arrives alongside rather than inside.
               saga: {
@@ -246,6 +260,11 @@ function LogicPage() {
   const entityNames = useMemo(() => entities.map((entity) => entity.name), [entities]);
   const columnsFor = useCallback(
     (entity: string) => entities.find((candidate) => candidate.name === entity)?.attributes ?? [],
+    [entities]
+  );
+  /** The same fields `columnsFor` gives, in the shape the ladder takes them. */
+  const entityFieldMap = useMemo(
+    () => Object.fromEntries(entities.map((entity) => [entity.name, entity.attributes])),
     [entities]
   );
   // A Decision step can evaluate a rule declared here rather than carrying its
@@ -550,6 +569,25 @@ function LogicPage() {
                   onChange={patchRule}
                   onError={setError}
                 />
+              ) : activeWorkflow?.kind === "hook" && activeWorkflow.automation ? (
+                // Hook workflows are edited in the same ladder the generated
+                // application ships, so the two surfaces look and behave alike.
+                <div className="min-h-[560px] overflow-hidden rounded-xl border border-border">
+                  <AutomationBuilder
+                    key={activeWorkflow.key}
+                    automation={activeWorkflow.automation}
+                    onChange={(automation) =>
+                      patchWorkflow({
+                        automation,
+                        entity: automation.trigger.entity,
+                        title: automation.name,
+                        name: pascalWorkflowName(automation.name),
+                      })
+                    }
+                    entities={entityNames}
+                    entityFields={entityFieldMap}
+                  />
+                </div>
               ) : activeWorkflow ? (
                 <WorkflowEditor
                   key={activeWorkflow.key}
