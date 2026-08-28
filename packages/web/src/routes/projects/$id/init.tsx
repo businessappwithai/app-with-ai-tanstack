@@ -8,7 +8,7 @@ import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useProjectStore } from "@/store/projectStore";
 
 async function checkAuthMe() {
-  const { baseUrl, fetchInit } = requestContext();
+  const { baseUrl, fetchInit } = await requestContext();
   const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
   return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
 }

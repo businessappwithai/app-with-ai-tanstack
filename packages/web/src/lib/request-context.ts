@@ -12,6 +12,15 @@
  * when the call is guarded by a `typeof window` check. `createIsomorphicFn`
  * is the supported way to say "these are two different implementations", and it
  * leaves the server one out of the client bundle entirely.
+ *
+ * The server half reaches the module through `await import()`, not `require()`.
+ * The SSR bundle is ESM, so `require` is not a binding there at all: the call
+ * threw `ReferenceError` on the first line of every `beforeLoad`, the `catch`
+ * below swallowed it, and the fallback sent the API call with no cookie. Every
+ * guarded route answered 307 to /login on first paint — deep links and reloads
+ * bounced to the project list — while client-side navigation, which never runs
+ * this branch, worked. That is what makes an async context object worth the
+ * `await` at each call site.
  */
 
 import { createIsomorphicFn } from "@tanstack/react-start";
@@ -33,15 +42,15 @@ const EMPTY: RequestContext = { baseUrl: "", fetchInit: {} };
  * URL there produces a fetch against the process's cwd.
  */
 export const requestContext = createIsomorphicFn()
-  .client((): RequestContext => EMPTY)
-  .server((): RequestContext => {
+  .client(async (): Promise<RequestContext> => EMPTY)
+  .server(async (): Promise<RequestContext> => {
     try {
-      // Required lazily: this module is imported by client code too, and the
+      // Imported lazily: this module is imported by client code too, and the
       // server entry should not be pulled in merely by importing the helper.
-      const { getRequest } = require("@tanstack/react-start/server") as {
-        getRequest: () => Request | undefined;
-      };
-      const request = getRequest();
+      // The specifier stays inside the `.server()` body so the client build
+      // drops it with the rest of this branch.
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const request = getRequest() as Request | undefined;
       if (!request) return fallback();
 
       const cookie = request.headers.get("cookie") ?? "";
@@ -49,7 +58,10 @@ export const requestContext = createIsomorphicFn()
         baseUrl: new URL(request.url).origin,
         fetchInit: cookie ? { headers: { cookie } } : {},
       };
-    } catch {
+    } catch (err) {
+      // A miss here silently downgrades every guarded route to "logged out",
+      // which is invisible in dev and looks like an auth bug. Say so.
+      console.error("[requestContext] could not read the ambient request:", err);
       return fallback();
     }
   });

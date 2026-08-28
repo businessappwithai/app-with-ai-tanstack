@@ -18,7 +18,7 @@ import {
 import { type DecisionTable, emptyDecisionTable } from "@/lib/workflow/bpmn-model";
 
 async function checkAuthMe() {
-  const { baseUrl, fetchInit } = requestContext();
+  const { baseUrl, fetchInit } = await requestContext();
   const res = await fetch(`${baseUrl}/api/auth/me`, fetchInit);
   return res.json() as Promise<{ user: { id: string; email: string; role: string } | null }>;
 }
