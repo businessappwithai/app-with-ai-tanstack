@@ -51,7 +51,7 @@ function ReportsListPage() {
               Dashboard
             </Link>
             <span>/</span>
-            <Link to="/admin/" className="hover:text-primary transition-colors">
+            <Link to="/admin" className="hover:text-primary transition-colors">
               Admin
             </Link>
             <span>/</span>

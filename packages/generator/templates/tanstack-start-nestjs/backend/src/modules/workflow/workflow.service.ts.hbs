@@ -1146,6 +1146,50 @@ export class WorkflowService {
     return await query.orderBy('created_at', 'desc').limit(filters?.limit ?? 100).execute();
   }
 
+  /**
+   * The edges `%%workflow … kind: state` declared, as `sys_workflow_transitions`
+   * holds them and the entity-access guard reads them.
+   *
+   * `table` narrows to one entity; `from` narrows further to the moves legal
+   * from one state, which is the question a form asks when it decides which
+   * status options to offer. The rows come back grouped by table so a caller
+   * asking for everything gets a usable shape rather than a flat list it has to
+   * bucket itself.
+   */
+  async getTransitions(filters?: { table?: string; from?: string }) {
+    let query = this.db
+      .selectFrom('sys_workflow_transitions' as any)
+      .select([
+        'table_name',
+        'status_field',
+        'from_state',
+        'to_state',
+        'transition_name',
+      ] as any)
+      .where('is_active' as any, '=', true);
+
+    if (filters?.table) query = query.where('table_name' as any, '=', filters.table);
+    if (filters?.from) query = query.where('from_state' as any, '=', filters.from);
+
+    const rows = await query
+      .orderBy('table_name' as any)
+      .orderBy('from_state' as any)
+      .orderBy('to_state' as any)
+      .execute();
+
+    const byTable: Record<string, any[]> = {};
+    for (const row of rows as any[]) {
+      (byTable[row.table_name] ??= []).push({
+        statusField: row.status_field,
+        from: row.from_state,
+        to: row.to_state,
+        transition: row.transition_name || null,
+      });
+    }
+
+    return { data: rows, byTable };
+  }
+
   async retry(workflowRunId: string): Promise<void> {
     const workflowRun = await this.db
       .selectFrom('sys_workflow_runs')

@@ -126,14 +126,22 @@ export class EntityAccessGuard implements CanActivate {
 
     // A master role is the administrator escape hatch the dictionary already
     // recognises; it would be surprising for it to hold everywhere except here.
-    if (user.isMaster === true) return true;
+    //
+    // It is an escape hatch from *access* rules — who may do a thing — and not
+    // from the model's own shape. The state machine is the latter: an edge the
+    // diagram never drew is not a permission an administrator is missing, it is
+    // a move that does not exist, and letting it through puts the record in a
+    // state every rule and workflow downstream was written without. So the
+    // master bypass stops here rather than returning, and the topology check
+    // below runs for everyone.
+    const isMaster = user.isMaster === true;
 
     const held = this.rolesOf(user);
     const heldFolded = new Set(held.map((role) => role.toLowerCase()));
     const holdsOne = (roles: string[]) =>
       roles.some((role) => heldFolded.has(role.toLowerCase()));
 
-    if (allowedRoles.length > 0 && !holdsOne(allowedRoles)) {
+    if (!isMaster && allowedRoles.length > 0 && !holdsOne(allowedRoles)) {
       throw new ForbiddenException(
         `Access denied. "${operation}" on "${tableName}" requires one of: ` +
           `${allowedRoles.join(', ')}. Your roles: ${held.join(', ') || 'none'}.`,
@@ -143,7 +151,7 @@ export class EntityAccessGuard implements CanActivate {
     // An update may also be a state transition. Checked after the operation
     // rule, because a caller refused the update outright never gets this far.
     if (operation === 'update') {
-      await this.checkTransition(request, tableName, held, holdsOne);
+      await this.checkTransition(request, tableName, held, holdsOne, isMaster);
     }
 
     return true;
@@ -164,9 +172,40 @@ export class EntityAccessGuard implements CanActivate {
     tableName: string,
     held: string[],
     holdsOne: (roles: string[]) => boolean,
+    isMaster = false,
   ): Promise<void> {
     const body = request.body;
     if (!body || typeof body !== 'object') return;
+
+    // The two questions are asked of two different tables and must be asked
+    // independently:
+    //
+    //   sys_workflow_transitions   which moves exist at all — the shape of the
+    //                              lifecycle the model drew
+    //   sys_transition_access      who may make a given move — the `%%guard`
+    //                              directives layered on top of that shape
+    //
+    // They used to be asked together, from a single pass over the access rules,
+    // which made the topology check reachable only for edges that also carried
+    // a role restriction. A model that guards four of its six edges had the
+    // other two enforced by nothing: a record moved straight from `proposed` to
+    // `on_hold` with no such edge anywhere in the diagram, and no error.
+    let edges: Array<Record<string, any>>;
+    try {
+      edges = await this.db!.kysely
+        .selectFrom('sys_workflow_transitions' as any)
+        .select(['status_field', 'from_state', 'to_state'] as any)
+        .where('table_name' as any, '=', tableName)
+        .where('is_active' as any, '=', true)
+        .execute();
+    } catch (error: any) {
+      // A generated application whose database predates the transitions table
+      // still enforces role access below; it just cannot enforce topology.
+      this.logger.warn(
+        `Transition topology lookup failed for ${tableName}: ${error?.message ?? error}`,
+      );
+      edges = [];
+    }
 
     let rules: Array<Record<string, any>>;
     try {
@@ -180,15 +219,22 @@ export class EntityAccessGuard implements CanActivate {
       this.logger.warn(
         `Transition access lookup failed for ${tableName}: ${error?.message ?? error}`,
       );
-      return;
+      rules = [];
     }
-    if (rules.length === 0) return;
 
-    // Only the columns this write actually sets can move a record.
-    const targeted = rules.filter(
-      (rule) => String(body[rule.status_field] ?? '') === String(rule.to_state),
-    );
-    if (targeted.length === 0) return;
+    if (edges.length === 0 && rules.length === 0) return;
+
+    // Every status column either table has an opinion about, narrowed to the
+    // ones this write actually sets. A write that touches none of them cannot
+    // move the record along an edge.
+    const statusFields = [
+      ...new Set(
+        [...edges, ...rules]
+          .map((row) => String(row.status_field))
+          .filter((field) => field && field in body),
+      ),
+    ];
+    if (statusFields.length === 0) return;
 
     // The record's current state decides which edge is being crossed. Without
     // an id there is no record to read — a create cannot be a transition — so
@@ -196,7 +242,6 @@ export class EntityAccessGuard implements CanActivate {
     const id = request.params?.id;
     if (!id) return;
 
-    const statusFields = [...new Set(targeted.map((rule) => String(rule.status_field)))];
     let current: Record<string, any> | undefined;
     try {
       current = await this.db!.kysely
@@ -213,37 +258,53 @@ export class EntityAccessGuard implements CanActivate {
     if (!current) return;
 
     // ── Topology enforcement ─────────────────────────────────────────────────
-    // Refuse any status transition that has no matching edge in
-    // sys_workflow_transitions, regardless of role. A row there means the
-    // model declared the edge; its absence means it never did.
-    for (const rule of targeted) {
-      const currentState = String(current[rule.status_field] ?? '');
-      const targetState = String(body[rule.status_field] ?? '');
+    // Refuse any status write that has no matching edge, regardless of role. A
+    // row in sys_workflow_transitions means the model drew the edge; its
+    // absence means it never did.
+    //
+    // Scoped per status column: a table whose lifecycle is declared on `status`
+    // says nothing about what some other status-like column may hold, and
+    // refusing a write to that column on the strength of `status`'s edges would
+    // block moves the model never restricted.
+    for (const field of statusFields) {
+      const fieldEdges = edges.filter((edge) => String(edge.status_field) === field);
+      if (fieldEdges.length === 0) continue;
+
+      const currentState = String(current[field] ?? '');
+      const targetState = String(body[field] ?? '');
       if (!currentState || !targetState || currentState === targetState) continue;
-      try {
-        const validEdges = await this.db!.kysely
-          .selectFrom('sys_workflow_transitions' as any)
-          .select(['from_state', 'to_state'])
-          .where('table_name' as any, '=', tableName)
-          .where('is_active' as any, '=', true)
-          .execute();
-        if (validEdges.length > 0) {
-          const hasEdge = validEdges.some(
-            (e: any) => String(e.from_state) === currentState && String(e.to_state) === targetState,
-          );
-          if (!hasEdge) {
-            throw new ForbiddenException(
-              `Invalid transition: '${tableName}' has no edge from '${currentState}' to '${targetState}'. ` +
-              `Valid transitions from '${currentState}': ` +
-              validEdges.filter((e: any) => String(e.from_state) === currentState).map((e: any) => e.to_state).join(', ') || 'none',
-            );
-          }
-        }
-      } catch (err: any) {
-        if (err instanceof ForbiddenException) throw err;
-        this.logger.warn(`Topology check failed for ${tableName}: ${err?.message ?? err}`);
-      }
+
+      const hasEdge = fieldEdges.some(
+        (edge) =>
+          String(edge.from_state) === currentState && String(edge.to_state) === targetState,
+      );
+      if (hasEdge) continue;
+
+      const reachable = fieldEdges
+        .filter((edge) => String(edge.from_state) === currentState)
+        .map((edge) => String(edge.to_state));
+      throw new ForbiddenException(
+        `Invalid transition: '${tableName}' has no edge from '${currentState}' to ` +
+          `'${targetState}'. Valid transitions from '${currentState}': ` +
+          // Parenthesised: without it the `||` binds to the whole concatenated
+          // message, which is never empty, so a state with no outgoing edge
+          // reported an empty list instead of saying so.
+          `${reachable.length > 0 ? reachable.join(', ') : 'none'}.`,
+      );
     }
+
+    // ── Role enforcement ─────────────────────────────────────────────────────
+    // Only the edges the write is actually crossing, and only those the model
+    // put a `%%guard` on. An unguarded edge that passed the topology check
+    // above is open to anyone, which is what an unguarded edge means.
+    //
+    // This half is an access rule, so the master role does bypass it.
+    if (isMaster) return;
+
+    const targeted = rules.filter(
+      (rule) => String(body[rule.status_field] ?? '') === String(rule.to_state),
+    );
+    if (targeted.length === 0) return;
 
     for (const rule of targeted) {
       if (String(current[rule.status_field] ?? '') !== String(rule.from_state)) continue;

@@ -42,6 +42,20 @@ const suitesDir = join(here, "suites");
 const runStartedAt = new Date();
 const runStamp = timestampFor(runStartedAt);
 
+/**
+ * One token for the whole run, handed to every suite process.
+ *
+ * Unique columns are salted with it, so two runs against the same database do
+ * not regenerate each other's values — the suites deliberately leave their rows
+ * behind, which makes a re-run the normal case rather than an abuse. Each suite
+ * is a separate process, so deriving it per-process would give the same run
+ * several identities and make a failing run impossible to replay. Set
+ * E2E_RUN_TOKEN to reproduce an earlier run's values exactly.
+ */
+const runToken =
+  process.env.E2E_RUN_TOKEN ||
+  `${runStartedAt.getTime().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
+
 /** Where the report lands, and where suite processes drop their shards. */
 const resultsDir = join(here, "..", "test-results");
 const shardDir = join(resultsDir, `.shards-${runStamp}`);
@@ -122,6 +136,8 @@ async function runSuite(file: string): Promise<SuiteResult> {
     env: {
       ...process.env,
       E2E_RECORDS_PER_ENTITY: String(recordsPerEntity),
+      // Pinned here rather than per-process: see runToken above.
+      E2E_RUN_TOKEN: runToken,
       // Suites run in their own processes, so they cannot share a counter in
       // memory. Each appends to its own shard here and the runner merges them.
       E2E_METRICS_DIR: shardDir,
@@ -151,6 +167,7 @@ async function main(): Promise<void> {
   console.log(`  Target:            ${config.baseUrl}`);
   console.log(`  Records/entity:    ${fast ? "skipped (--fast)" : recordsPerEntity}`);
   console.log(`  Faker seed:        ${config.fakerSeed}`);
+  console.log(`  Run token:         ${runToken}`);
   if (only) console.log(`  Filter:            ${only}`);
   console.log("");
 

@@ -1374,6 +1374,21 @@ export async function executeCustomValidateHooks(
         slug: "add_operation_access",
         template: "src/migrations/011_add_operation_access.ts.hbs",
       },
+      // sys_workflow_transitions — the edges a `%%workflow … kind: state` diagram
+      // draws. The entity-access guard reads this table to refuse a write that
+      // moves a record to a state with no incoming edge from its current one.
+      // Without it seeded, every transition is allowed and the state machine is
+      // decorative.
+      {
+        slug: "add_workflow_transitions",
+        template: "src/migrations/012_add_workflow_transitions.ts.hbs",
+      },
+      // sys_report_designs — the per-entity document report layouts the admin
+      // report designer saves. Without it, /admin/reports cannot store a layout.
+      {
+        slug: "add_report_designs",
+        template: "src/migrations/013_add_report_designs.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
