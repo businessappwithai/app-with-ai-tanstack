@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { RuleTableEditor } from "@/components/eml/RuleTableEditor";
 import {
   type DecisionTable,
+  emptyDecisionTable,
   tableToEmlFlowchart,
   validateDecisionTable,
 } from "@/lib/eml/decision-table";
@@ -30,6 +31,15 @@ export interface EditableRule {
   priority?: number;
   title?: string;
   table: DecisionTable;
+  /**
+   * The rule's original Mermaid, kept verbatim when it is not a decision table
+   * this editor wrote — a hand-authored `%%rule` flowchart, as every checked-in
+   * example model uses. `table` holds a blank table in that case, and saving
+   * would otherwise replace real branching logic with it. While this is set the
+   * editor shows the source read-only and the save path writes it back
+   * untouched; converting clears it and hands the rule to the table editor.
+   */
+  sourceFlowchart?: string;
 }
 
 export function slugifyRuleName(value: string): string {
@@ -119,14 +129,40 @@ export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
         </label>
       </div>
 
-      <RuleTableEditor
-        name={slugifyRuleName(rule.title ?? rule.name)}
-        table={rule.table}
-        onChange={(table) => onChange({ table })}
-        entityFields={entityFields}
-      />
+      {rule.sourceFlowchart ? (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
+          <div className="flex items-start gap-1.5 text-xs text-amber-900">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <p>
+              This rule was written as a flowchart, not as a decision table, so it is shown as
+              authored. Its logic is kept exactly as-is when you save. Converting rewrites it as a
+              table you can edit here — the branches below are not carried over, so you will need to
+              re-enter them.
+            </p>
+          </div>
 
-      {problems.length > 0 && (
+          <pre className="mt-2 max-h-72 overflow-auto rounded-md border border-amber-200 bg-white/70 p-3 font-mono text-[11px] leading-relaxed">
+            {rule.sourceFlowchart}
+          </pre>
+
+          <button
+            type="button"
+            onClick={() => onChange({ sourceFlowchart: undefined, table: emptyDecisionTable() })}
+            className="mt-2 rounded-md border border-amber-400 bg-white px-3 py-1.5 text-sm font-medium text-amber-900"
+          >
+            Convert to a decision table
+          </button>
+        </div>
+      ) : (
+        <RuleTableEditor
+          name={slugifyRuleName(rule.title ?? rule.name)}
+          table={rule.table}
+          onChange={(table) => onChange({ table })}
+          entityFields={entityFields}
+        />
+      )}
+
+      {!rule.sourceFlowchart && problems.length > 0 && (
         <ul className="mt-3 space-y-1 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           {problems.map((problem) => (
             <li key={problem} className="flex items-start gap-1.5">
@@ -150,7 +186,11 @@ export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
         <pre className="mt-2 max-h-56 overflow-auto rounded-lg border border-border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed">
           {`%%rule ${slugifyRuleName(rule.title ?? rule.name)} on ${
             rule.entity || "<entity>"
-          } event: ${rule.event} priority: ${rule.priority ?? 100}\n${tableToEmlFlowchart(rule.table)}`}
+          } event: ${rule.event} priority: ${rule.priority ?? 100}\n${
+            // Match what the save path will write, or this preview claims the
+            // rule is an empty table when it is really the authored flowchart.
+            rule.sourceFlowchart ?? tableToEmlFlowchart(rule.table)
+          }`}
         </pre>
       )}
     </>

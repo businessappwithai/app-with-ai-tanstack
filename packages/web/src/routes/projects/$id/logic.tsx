@@ -186,15 +186,23 @@ function LogicPage() {
 
         setErd(data.eml ?? "");
         setRules(
-          (data.rules ?? []).map((rule) => ({
-            key: nextKey(),
-            name: rule.name,
-            entity: rule.entity,
-            event: rule.event,
-            priority: rule.priority,
-            title: rule.title,
-            table: parseTableFromFlowchart(rule.flowchart) ?? emptyDecisionTable(),
-          }))
+          (data.rules ?? []).map((rule) => {
+            // Only tables this editor wrote round-trip through the
+            // %%decision-table directive. A hand-authored flowchart parses to
+            // null, and blanking it here would hand the save path an empty
+            // table to overwrite the real logic with — so keep the source.
+            const table = parseTableFromFlowchart(rule.flowchart);
+            return {
+              key: nextKey(),
+              name: rule.name,
+              entity: rule.entity,
+              event: rule.event,
+              priority: rule.priority,
+              title: rule.title,
+              table: table ?? emptyDecisionTable(),
+              ...(table ? {} : { sourceFlowchart: rule.flowchart }),
+            };
+          })
         );
         setWorkflows(
           (data.workflows ?? []).map((workflow) => {
@@ -340,7 +348,9 @@ function LogicPage() {
             event: rule.event,
             priority: rule.priority,
             title: rule.title,
-            flowchart: tableToEmlFlowchart(rule.table),
+            // An unconverted hand-authored rule goes back exactly as it came
+            // in. Re-emitting from `table` would write a blank table over it.
+            flowchart: rule.sourceFlowchart ?? tableToEmlFlowchart(rule.table),
           })),
           workflows: workflows.map((workflow) => ({
             name: pascalWorkflowName(workflow.title ?? workflow.name),
