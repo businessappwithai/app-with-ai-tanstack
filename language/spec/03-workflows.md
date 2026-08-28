@@ -149,9 +149,27 @@ nothing to trigger"* and no run was ever recorded.
 `sys_workflow_transitions`. The entity-access guard checks this table on every
 status-field write: a move from `StateA` to `StateC` when the diagram declares
 no such edge returns **403 Forbidden** with a message naming the current state
-and the states it may legally reach. A table with no rows in
-`sys_workflow_transitions` is unconstrained — only models that declare a
-`kind: state` workflow have their transitions enforced.
+and the states it may legally reach, and the record stays where it was. A table
+with no rows in `sys_workflow_transitions` is unconstrained — only models that
+declare a `kind: state` workflow have their transitions enforced.
+
+This binds **every caller, the master role included**, which is what makes it
+topology rather than access. The two questions are asked independently:
+
+| Question | Answered from | Master role |
+|---|---|---|
+| Does this edge exist? | `sys_workflow_transitions`, from the diagram | bound by it |
+| Who may cross it? | `sys_transition_access`, from `%%rbac` | bypasses it |
+
+So an edge no `%%rbac` names is open to any authenticated caller, while an edge
+the diagram omits is refused to everyone. Asking them together — checking
+topology only where a role rule happened to cover it — leaves every unguarded
+edge open, which is the failure this separation exists to prevent.
+
+**Reading the edges.** `GET /api/workflows/transitions` returns them, narrowable
+by `?table=` and `?from=`. A screen offering a status change should ask this and
+offer only the moves that exist, rather than offering every state and letting
+the save be refused.
 
 ### Complete state workflow — order fulfilment
 
