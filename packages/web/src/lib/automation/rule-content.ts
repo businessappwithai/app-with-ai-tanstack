@@ -21,14 +21,51 @@ export function isDecisionTable(content: unknown): content is DecisionTable {
 
 /** A table to edit, whatever was stored. */
 export function asDecisionTable(content: unknown): DecisionTable {
-  if (isDecisionTable(content)) {
+  // Parse JSON strings that came back from the API as raw text
+  const parsed: unknown =
+    typeof content === "string"
+      ? (() => {
+          try {
+            return JSON.parse(content);
+          } catch {
+            return null;
+          }
+        })()
+      : content;
+
+  if (isDecisionTable(parsed)) {
+    const t = parsed as DecisionTable;
     return {
-      hitPolicy: content.hitPolicy === "collect" ? "collect" : "first",
-      inputs: content.inputs,
-      outputs: content.outputs,
-      rules: content.rules,
+      hitPolicy: t.hitPolicy === "collect" ? "collect" : "first",
+      inputs: t.inputs,
+      outputs: t.outputs,
+      rules: t.rules,
     };
   }
+
+  // JDM graph format: { name, nodes: [..., { type: "decisionTableNode", content: {...} }] }
+  if (parsed && typeof parsed === "object" && Array.isArray((parsed as Record<string, unknown>).nodes)) {
+    const nodes = (parsed as { nodes: unknown[] }).nodes;
+    for (const node of nodes) {
+      if (
+        node &&
+        typeof node === "object" &&
+        (node as Record<string, unknown>).type === "decisionTableNode"
+      ) {
+        const tableContent = (node as Record<string, unknown>).content;
+        if (isDecisionTable(tableContent)) {
+          const t = tableContent as DecisionTable;
+          return {
+            hitPolicy: t.hitPolicy === "collect" ? "collect" : "first",
+            inputs: t.inputs,
+            outputs: t.outputs,
+            rules: t.rules,
+          };
+        }
+      }
+    }
+  }
+
   return emptyDecisionTable();
 }
 
