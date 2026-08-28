@@ -16,10 +16,10 @@ none of that pass's issues had regressed.
 
 | Severity | Found | Fixed | Deferred |
 |----------|------:|------:|---------:|
-| Critical | 2     | 2     | 0        |
-| High     | 4     | 4     | 0        |
-| Medium   | 3     | 3     | 0        |
-| **Total**| **9** | **9** | **0**    |
+| Critical | 2      | 2      | 0        |
+| High     | 4      | 4      | 0        |
+| Medium   | 4      | 4      | 0        |
+| **Total**| **10** | **10** | **0**    |
 
 ### Top 3
 
@@ -248,6 +248,31 @@ than replacing it — distinct within a run because the caller's part varies,
 distinct between runs because the run token does. The runner pins one token
 across its suite processes and prints it; `E2E_RUN_TOKEN` replays a run's values
 exactly.
+
+---
+
+### ISSUE-010 — `--records-per-entity` was computed and then dropped
+**Severity:** Medium · **Category:** CLI · **Status:** verified
+
+The CLI takes `--records-per-entity <count>`, threads it through
+`BunE2ETestGenerator` and into the template context — and `config.ts.hbs` then
+ignored it, hardcoding `int("E2E_RECORDS_PER_ENTITY", 1000)`. An application
+generated with `--records-per-entity 25` still seeded a thousand rows per
+entity, and the only way to get the number asked for was to repeat it at run
+time as `--records 25`.
+
+CI's own `generated-app` job is the case that shows what this costs: it passes
+`--records-per-entity 25`, saying in a comment that it is "here to prove the
+generated application compiles and behaves, not to measure it under load" — and
+then ran `bun test` with no environment override, seeding 1000 per entity across
+19 entities. Forty times the volume the job asked for, on every run.
+
+**Fix:** the template renders `{{config.recordsPerEntity}}` as the default. The
+env var and the runner's `--records` / `--small` / `--full` still override it
+for a single run; with neither, an application now seeds what it was generated
+to seed. Verified on the `bun test` path CI uses, with no environment set:
+an app generated with 300 seeds 300, and one generated with no flag still
+defaults to 1000.
 
 ---
 

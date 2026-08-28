@@ -42,13 +42,20 @@ export const config = {
   /**
    * Records created per entity by the bulk-seed suite.
    *
+   * The default is the `--records-per-entity` the application was generated
+   * with. It used to be hardcoded to 1000 here, which meant the flag was
+   * computed, handed to this template and then dropped — so an application
+   * generated with `--records-per-entity 25` still seeded a thousand rows per
+   * entity, forty times the volume asked for, and the only way to get the
+   * requested number was to say it again at run time.
+   *
    * Two presets are wired into the runner:
    *   --small   10   quick smoke run
-   *   --full  1000   the full volume run (the default)
+   *   --full  1000   the full volume run
    *
-   * `--records <n>` or E2E_RECORDS_PER_ENTITY sets an arbitrary value.
+   * `--records <n>` or E2E_RECORDS_PER_ENTITY overrides it for one run.
    */
-  recordsPerEntity: int("E2E_RECORDS_PER_ENTITY", 1000),
+  recordsPerEntity: int("E2E_RECORDS_PER_ENTITY", {{config.recordsPerEntity}}),
 
   /** Named presets the runner exposes as --small / --full. */
   recordPresets: { small: 10, full: 1000 } as const,
