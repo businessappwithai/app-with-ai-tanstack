@@ -205,6 +205,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/lib/workflow",
       "src/lib/automation",
       "src/components/automation",
+      "src/components/reports",
       "test",
     ];
 
@@ -721,6 +722,16 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/ad-detail-shell.tsx",
       },
       {
+        // ad-detail-shell imports this, so leaving it out of the list does not
+        // lose a feature quietly — it fails the generated app's build.
+        src: "src/components/reports/ReportPrintModal.tsx",
+        dest: "src/components/reports/ReportPrintModal.tsx",
+      },
+      {
+        src: "src/components/reports/ReportDesigner.tsx",
+        dest: "src/components/reports/ReportDesigner.tsx",
+      },
+      {
         src: "src/components/admin/ad-list-shell.tsx",
         dest: "src/components/admin/ad-list-shell.tsx",
       },
@@ -1039,6 +1050,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       { src: "src/routes/admin/element", dest: "src/routes/admin/element" },
       { src: "src/routes/admin/reference", dest: "src/routes/admin/reference" },
       { src: "src/routes/admin/rules", dest: "src/routes/admin/rules" },
+      {
+        // The screen ReportDesigner exists for. Without it the designer is
+        // shipped and unreachable.
+        src: "src/routes/admin/reports.$tableName.tsx",
+        dest: "src/routes/admin/reports.$tableName.tsx",
+      },
       {
         src: "src/routes/admin/workflow-definitions",
         dest: "src/routes/admin/workflow-definitions",
