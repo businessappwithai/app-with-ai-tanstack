@@ -57,6 +57,10 @@ export interface RuleEditorProps {
 export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
   const [showSource, setShowSource] = useState(false);
   const problems = useMemo(() => validateDecisionTable(rule.table), [rule.table]);
+  const entityFields = useMemo(
+    () => entities.find((e) => e.name === rule.entity)?.attributes ?? [],
+    [entities, rule.entity]
+  );
 
   return (
     <>
@@ -119,6 +123,7 @@ export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
         name={slugifyRuleName(rule.title ?? rule.name)}
         table={rule.table}
         onChange={(table) => onChange({ table })}
+        entityFields={entityFields}
       />
 
       {problems.length > 0 && (

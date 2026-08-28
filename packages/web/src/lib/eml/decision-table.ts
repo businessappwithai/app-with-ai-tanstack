@@ -12,6 +12,31 @@ export interface DecisionColumn {
   name: string;
   /** Context key read (inputs) or published (outputs). */
   field: string;
+  /** When set, the cell renders as a dropdown constrained to these values. */
+  options?: string[];
+}
+
+/** The output columns the generated rule engine recognises. */
+export const KNOWN_OUTPUT_FIELDS = [
+  { field: "action", label: "Action" },
+  { field: "message", label: "Message" },
+  { field: "ruleId", label: "Rule ID" },
+  { field: "workflowName", label: "Workflow Name" },
+  { field: "field", label: "Field" },
+  { field: "value", label: "Value" },
+  { field: "targetEntity", label: "Target Entity" },
+  { field: "linkField", label: "Link Field" },
+] as const;
+
+/** Auto-applied options when a column field matches a known name. */
+export const WELL_KNOWN_OPTIONS: Record<string, string[]> = {
+  action: ["trigger-workflow", "validation-error", "transform"],
+};
+
+export function getColumnOptions(col: DecisionColumn): string[] | undefined {
+  if (col.options && col.options.length > 0) return col.options;
+  const key = col.field.trim().toLowerCase();
+  return WELL_KNOWN_OPTIONS[key];
 }
 
 export interface DecisionRow {
