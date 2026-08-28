@@ -220,7 +220,10 @@ export function RuleTableEditor({
   const isCatchAll = (row: DecisionRow) => table.inputs.every((c) => !(row[c.id] ?? "").trim());
   const lastCatchAllIndex = (() => {
     for (let i = table.rules.length - 1; i >= 0; i--) {
-      if (isCatchAll(table.rules[i]!)) return i;
+      // Narrowed rather than asserted: noUncheckedIndexedAccess types this as
+      // possibly undefined, and the assertion was the file's only lint warning.
+      const row = table.rules[i];
+      if (row && isCatchAll(row)) return i;
     }
     return -1;
   })();
