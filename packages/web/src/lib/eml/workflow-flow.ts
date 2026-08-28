@@ -226,12 +226,22 @@ export function parseStateFlow(diagram: string): StateFlow {
 export function emitStateFlow(flow: StateFlow): string {
   const lines = ["stateDiagram-v2"];
 
-  if (flow.initial) lines.push(`    ${START_MARKER} --> ${flow.initial}`);
+  // `initial`, `terminal` and a transition's `from`/`to` all hold state *ids*,
+  // not names. `parseStateFlow` sets `id === name`, so an imported diagram
+  // round-trips whichever one is written — but a state added in the editor gets
+  // an opaque id like `smtd05euwc`, and writing that puts the id where the
+  // status enum value belongs. Resolve to the name on the way out.
+  const nameOf = new Map(flow.states.map((state) => [state.id, state.name] as const));
+  const named = (ref: string) => nameOf.get(ref) ?? ref;
+
+  if (flow.initial) lines.push(`    ${START_MARKER} --> ${named(flow.initial)}`);
   for (const transition of flow.transitions) {
     const label = transition.label?.trim();
-    lines.push(`    ${transition.from} --> ${transition.to}${label ? ` : ${label}` : ""}`);
+    lines.push(
+      `    ${named(transition.from)} --> ${named(transition.to)}${label ? ` : ${label}` : ""}`
+    );
   }
-  for (const state of flow.terminal) lines.push(`    ${state} --> ${START_MARKER}`);
+  for (const state of flow.terminal) lines.push(`    ${named(state)} --> ${START_MARKER}`);
 
   // A state with no transitions at all would vanish; name it so it survives.
   const mentioned = new Set<string>();
