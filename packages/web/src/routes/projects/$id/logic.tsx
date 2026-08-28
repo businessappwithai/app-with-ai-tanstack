@@ -16,7 +16,6 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CopilotProvider } from "@/components/CopilotProvider";
 import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
-import { emptyRuleFlow } from "@/components/eml/RuleFlowCanvas";
 import { emptyStateFlow } from "@/components/eml/StateFlowCanvas";
 import {
   type EditableWorkflow,
@@ -29,7 +28,11 @@ import {
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
-import { emitRuleFlow, parseRuleFlow } from "@/lib/eml/rule-flow";
+import {
+  emptyDecisionTable,
+  parseTableFromFlowchart,
+  tableToEmlFlowchart,
+} from "@/lib/eml/decision-table";
 import {
   emptySagaFlow,
   parseHookWorkflow,
@@ -190,7 +193,7 @@ function LogicPage() {
             event: rule.event,
             priority: rule.priority,
             title: rule.title,
-            flow: parseRuleFlow(rule.flowchart),
+            table: parseTableFromFlowchart(rule.flowchart) ?? emptyDecisionTable(),
           }))
         );
         setWorkflows(
@@ -298,7 +301,7 @@ function LogicPage() {
         entity: entityNames[0] ?? "",
         event: "beforeCreate",
         priority: 100,
-        flow: emptyRuleFlow(),
+        table: emptyDecisionTable(),
       },
     ]);
     setSelected({ kind: "rule", index: rules.length });
@@ -337,7 +340,7 @@ function LogicPage() {
             event: rule.event,
             priority: rule.priority,
             title: rule.title,
-            flowchart: emitRuleFlow(rule.flow),
+            flowchart: tableToEmlFlowchart(rule.table),
           })),
           workflows: workflows.map((workflow) => ({
             name: pascalWorkflowName(workflow.title ?? workflow.name),
