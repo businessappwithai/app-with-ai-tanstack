@@ -44,10 +44,17 @@ const ICON_CYCLE = [
 ];
 
 function parseEntityNamesFromErd(erdCode: string): string[] {
-  const matches = [...erdCode.matchAll(/^\s*([A-Za-z_]\w*)\s*\{/gm)];
-  return matches
-    .map((m) => m[1])
-    .filter((name): name is string => name !== undefined && name !== "erDiagram");
+  // Only parse the erDiagram block — %%rule/%%workflow sections contain flowchart
+  // nodes (single uppercase letters like B{condition?}) that must not be treated
+  // as entities.
+  const erdBlockMatch = erdCode.match(/erDiagram([\s\S]*?)(?=\n%%[a-z]|$)/);
+  const erdBlock = erdBlockMatch ? erdBlockMatch[0] : erdCode;
+  const matches = [...erdBlock.matchAll(/^\s*([A-Za-z_]\w*)\s*\{/gm)];
+  return [...new Set(
+    matches
+      .map((m) => m[1])
+      .filter((name): name is string => name !== undefined && name !== "erDiagram"),
+  )];
 }
 
 function EnhancePage() {

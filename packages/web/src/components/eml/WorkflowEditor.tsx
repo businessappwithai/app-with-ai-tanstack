@@ -1,5 +1,6 @@
-import { AlertCircle, Code2, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, Code2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { LadderCard, LadderRung } from "@/components/automation/LadderCard";
 import { SagaLadder } from "@/components/eml/SagaLadder";
 import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import {
@@ -93,20 +94,30 @@ export function WorkflowEditor({
   onChange,
 }: WorkflowEditorProps) {
   const [showSource, setShowSource] = useState(false);
+  const [selectedHookId, setSelectedHookId] = useState<string | null>(
+    workflow.hooks[0]?.id ?? null,
+  );
   const problems = useMemo(() => validateWorkflow(workflow), [workflow]);
   const pascal = pascalWorkflowName;
 
+  const selectedHook = workflow.hooks.find((h) => h.id === selectedHookId) ?? null;
+
   const addHook = () => {
-    onChange({
-      hooks: [
-        ...workflow.hooks,
-        {
-          id: `h${hookCounter++}`,
-          type: "beforeCreate",
-          handler: `handler${workflow.hooks.length + 1}`,
-        },
-      ],
-    });
+    const hook = {
+      id: `h${hookCounter++}`,
+      type: "beforeCreate",
+      handler: `handler${workflow.hooks.length + 1}`,
+    };
+    onChange({ hooks: [...workflow.hooks, hook] });
+    setSelectedHookId(hook.id);
+  };
+
+  const patchHook = (id: string, patch: Partial<WorkflowHook>) =>
+    onChange({ hooks: workflow.hooks.map((h) => (h.id === id ? { ...h, ...patch } : h)) });
+
+  const removeHook = (id: string) => {
+    onChange({ hooks: workflow.hooks.filter((h) => h.id !== id) });
+    if (selectedHookId === id) setSelectedHookId(null);
   };
 
   return (
@@ -155,39 +166,51 @@ export function WorkflowEditor({
       </div>
 
       {workflow.kind === "hook" ? (
-        <div className="rounded-lg border border-border bg-card p-3">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-medium">Lifecycle steps</h3>
-            <button
-              type="button"
-              onClick={addHook}
-              className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
-            >
-              <Plus className="h-3 w-3" />
-              Add step
-            </button>
+        <div className="flex min-h-[460px] gap-4">
+          {/* Jira-style ladder */}
+          <div className="flex flex-1 flex-col items-center overflow-y-auto rounded-xl border border-border bg-muted/30 px-5 py-5">
+            <div className="w-full max-w-[520px]">
+              {workflow.hooks.length === 0 && (
+                <p className="rounded-md border border-dashed border-border bg-card px-3 py-6 text-center text-xs text-muted-foreground">
+                  No steps yet. Add one to run a handler on this entity&apos;s lifecycle.
+                </p>
+              )}
+
+              {workflow.hooks.map((hook, index) => (
+                <div key={hook.id} className="flex flex-col items-center">
+                  {index > 0 && <LadderRung onAdd={addHook} />}
+                  <LadderCard
+                    kind="when"
+                    glyph="⚡"
+                    ordinal={`· step ${index + 1}`}
+                    title={`${hook.type} → ${hook.handler}${hook.field ? ` · ${hook.field}` : ""}`}
+                    selected={selectedHookId === hook.id}
+                    onSelect={() => setSelectedHookId(hook.id)}
+                    onRemove={() => removeHook(hook.id)}
+                  />
+                </div>
+              ))}
+
+              <div className="flex flex-col items-center">
+                <LadderRung onAdd={addHook} />
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            {workflow.hooks.map((hook, index) => (
-              <div
-                key={hook.id}
-                className="grid grid-cols-1 gap-2 rounded-md border border-border p-2 md:grid-cols-[200px_1fr_160px_auto]"
-              >
+          {/* Inspector */}
+          <div className="flex w-60 shrink-0 flex-col gap-3 rounded-xl border border-border bg-card p-4">
+            {selectedHook ? (
+              <>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Step
+                </p>
+
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-medium">When</span>
+                  <span className="mb-1 block text-xs font-medium">When</span>
                   <select
                     className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
-                    value={hook.type}
-                    onChange={(event) =>
-                      onChange({
-                        hooks: workflow.hooks.map((candidate, position) =>
-                          position === index
-                            ? { ...candidate, type: event.target.value }
-                            : candidate
-                        ),
-                      })
-                    }
+                    value={selectedHook.type}
+                    onChange={(event) => patchHook(selectedHook.id, { type: event.target.value })}
                   >
                     {HOOK_TYPES.map((type) => (
                       <option key={type} value={type}>
@@ -198,39 +221,27 @@ export function WorkflowEditor({
                 </label>
 
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-medium">Handler name</span>
+                  <span className="mb-1 block text-xs font-medium">Handler</span>
                   <input
                     className="w-full rounded-md border border-border px-2 py-1.5 font-mono text-sm"
-                    value={hook.handler}
+                    value={selectedHook.handler}
                     onChange={(event) =>
-                      onChange({
-                        hooks: workflow.hooks.map((candidate, position) =>
-                          position === index
-                            ? { ...candidate, handler: event.target.value }
-                            : candidate
-                        ),
-                      })
+                      patchHook(selectedHook.id, { handler: event.target.value })
                     }
                     placeholder="hashPassword"
                   />
                   <span className="mt-1 block text-[11px] leading-snug text-muted-foreground">
-                    {HOOK_HINTS[hook.type] ?? ""}
+                    {HOOK_HINTS[selectedHook.type] ?? ""}
                   </span>
                 </label>
 
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-medium">Field (optional)</span>
+                  <span className="mb-1 block text-xs font-medium">Field (optional)</span>
                   <input
                     className="w-full rounded-md border border-border px-2 py-1.5 font-mono text-sm"
-                    value={hook.field ?? ""}
+                    value={selectedHook.field ?? ""}
                     onChange={(event) =>
-                      onChange({
-                        hooks: workflow.hooks.map((candidate, position) =>
-                          position === index
-                            ? { ...candidate, field: event.target.value || undefined }
-                            : candidate
-                        ),
-                      })
+                      patchHook(selectedHook.id, { field: event.target.value || undefined })
                     }
                     placeholder="password"
                   />
@@ -238,22 +249,18 @@ export function WorkflowEditor({
 
                 <button
                   type="button"
-                  aria-label="Remove step"
-                  onClick={() =>
-                    onChange({
-                      hooks: workflow.hooks.filter((_h, position) => position !== index),
-                    })
-                  }
-                  className="self-end pb-2"
+                  className="mt-auto flex items-center gap-1.5 rounded-md border border-destructive/40 px-2 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10"
+                  onClick={() => removeHook(selectedHook.id)}
                 >
-                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                  <Trash2 className="h-3 w-3" />
+                  Remove step
                 </button>
-              </div>
-            ))}
-
-            {!workflow.hooks.length && (
-              <p className="rounded-md border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
-                No steps yet. Add one to run a handler on this entity's lifecycle.
+              </>
+            ) : (
+              <p className="text-center text-xs text-muted-foreground">
+                {workflow.hooks.length > 0
+                  ? "Select a step to edit it"
+                  : "Add a step to get started"}
               </p>
             )}
           </div>
