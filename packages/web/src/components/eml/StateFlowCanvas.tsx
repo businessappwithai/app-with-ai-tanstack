@@ -25,10 +25,11 @@ import {
   Position,
   ReactFlow,
   ReactFlowProvider,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Flag, Play, Plus, Settings2, Trash2 } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { StateFlow } from "@/lib/eml/workflow-flow";
 
 type StateData = { name: string; isInitial: boolean; isTerminal: boolean };
@@ -153,7 +154,13 @@ export function StateFlowCanvas({ flow, onChange }: StateFlowCanvasProps) {
   const addState = () => {
     const id = nextId();
     const name = `state_${flow.states.length + 1}`;
-    const position = { x: 80 + flow.states.length * 200, y: 80 + (flow.states.length % 2) * 130 };
+    // Wrapped into rows rather than marching right forever: past the third
+    // state a single row runs outside the canvas, and the node is added but
+    // never seen.
+    const position = {
+      x: 80 + (flow.states.length % 3) * 200,
+      y: 80 + Math.floor(flow.states.length / 3) * 130,
+    };
     positions.current.set(id, position);
     onChange({
       ...flow,
@@ -221,6 +228,7 @@ export function StateFlowCanvas({ flow, onChange }: StateFlowCanvasProps) {
             >
               <Background gap={16} size={1} />
               <Controls showInteractive={false} />
+              <FitOnGrowth count={flow.states.length} />
             </ReactFlow>
           </ReactFlowProvider>
         </div>
@@ -313,6 +321,36 @@ export function StateFlowCanvas({ flow, onChange }: StateFlowCanvasProps) {
       </aside>
     </div>
   );
+}
+
+/**
+ * Bring a newly added state into view.
+ *
+ * `fitView` as a prop only runs on the first render, so a state added later
+ * stayed wherever it was placed while the viewport never moved — the node
+ * existed, was selected, and was serialised, but the canvas showed nothing new
+ * and the button read as broken. This has to sit inside the provider, which is
+ * the only place the instance exists.
+ */
+function FitOnGrowth({ count }: { count: number }) {
+  const instance = useReactFlow();
+  const previous = useRef(count);
+
+  useEffect(() => {
+    if (count > previous.current) {
+      previous.current = count;
+      // The node is measured on the next frame; fitting before that uses a
+      // zero-size node and lands the viewport in the wrong place.
+      const frame = requestAnimationFrame(() =>
+        instance.fitView({ padding: 0.2, duration: 200 })
+      );
+      return () => cancelAnimationFrame(frame);
+    }
+    previous.current = count;
+    return undefined;
+  }, [count, instance]);
+
+  return null;
 }
 
 /** A blank state machine with the draft state most processes start from. */
