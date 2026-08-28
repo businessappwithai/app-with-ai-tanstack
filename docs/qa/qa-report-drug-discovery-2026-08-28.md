@@ -18,8 +18,8 @@ none of that pass's issues had regressed.
 |----------|------:|------:|---------:|
 | Critical | 2      | 2      | 0        |
 | High     | 4      | 4      | 0        |
-| Medium   | 4      | 4      | 0        |
-| **Total**| **10** | **10** | **0**    |
+| Medium   | 5      | 5      | 0        |
+| **Total**| **11** | **11** | **0**    |
 
 ### Top 3
 
@@ -273,6 +273,44 @@ for a single run; with neither, an application now seeds what it was generated
 to seed. Verified on the `bun test` path CI uses, with no environment set:
 an app generated with 300 seeds 300, and one generated with no flag still
 defaults to 1000.
+
+---
+
+### ISSUE-011 — `Date.parse` accepted a username as a datetime
+**Severity:** Medium · **Category:** Test harness · **Status:** verified
+
+Around three per cent of `User` records failed to insert on every run, which
+the bulk seed reported as `created 984/1000 (16 rejected)` and nothing
+explained. The backend was answering `400 A value was not valid for its column
+type` — Postgres `22007`.
+
+The factory picks a value by field name first and then checks the candidate
+against the column's type, falling through when it does not fit. `last_login`
+matches the username pattern (`/username|(^|_)(login|handle)(_|$)/`), so the
+candidate was `faker.internet.username()` — and the type guard for `datetime`
+was `!Number.isNaN(Date.parse(value))`, which let it through:
+
+```
+Date.parse("margie_turner33")        -> 2033-03-01
+Date.parse("marjorie95")             -> 1995-03-01
+Date.parse("lilly.koss-marquardt83") -> 1983-03-01
+```
+
+`Date.parse` falls back to a lenient parser that finds a month name and a
+number in almost anything, and faker's usernames are full of both. The username
+was accepted as a datetime, sent to a `timestamptz` column, and rejected there.
+
+It mattered more than the rate suggests. The bulk-seed suite tolerates a 5%
+shortfall, proportionally — so at 1000 records per entity the losses were
+invisible, but at the 25 the CI job asks for (see ISSUE-010, which is what made
+that number take effect) three rejections out of 25 would fail the suite. The
+fix removed a real source of CI flakiness, not just some missing rows.
+
+**Fix:** the `date` / `datetime` guard matches an ISO-8601 shape rather than
+trusting `Date.parse`. Every date the factory produces is `toISOString()`,
+whole or sliced to ten characters, so nothing legitimate is rejected. Measured
+after: 0 rejections in 200 concurrent creates, where the same probe gave 3%
+before, and 0 across a full run at 300 records per entity.
 
 ---
 
