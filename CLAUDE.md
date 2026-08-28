@@ -9,16 +9,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## gstack Skill Routing
+## Skill routing
 
-ALWAYS invoke the skill FIRST, before any other tool:
-- Bugs/errors → `/investigate`
-- Ship/deploy/PR → `/ship`
-- QA/test → `/qa`
-- Code review → `/review`
-- Architecture → `/plan-eng-review`
-- Visual audit → `/design-review`
-- Docs after shipping → `/document-release`
+When the user's request matches an available skill, invoke it via the Skill tool,
+FIRST, before any other tool. When in doubt, invoke the skill.
+
+| Request | Skill |
+|---------|-------|
+| Product ideas / brainstorming | `/office-hours` |
+| Strategy / scope | `/plan-ceo-review` |
+| Architecture | `/plan-eng-review` |
+| Design system / plan review | `/design-consultation` or `/plan-design-review` |
+| Full review pipeline | `/autoplan` |
+| Bugs / errors | `/investigate` |
+| QA / testing site behavior | `/qa` or `/qa-only` |
+| Code review / diff check | `/review` |
+| Visual polish | `/design-review` |
+| Ship / deploy / PR | `/ship` or `/land-and-deploy` |
+| Docs after shipping | `/document-release` |
+| Save progress | `/context-save` |
+| Resume context | `/context-restore` |
+| Author a backlog-ready spec/issue | `/spec` |
 
 Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 
