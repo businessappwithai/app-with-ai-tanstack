@@ -874,6 +874,8 @@ function ServiceWorkflowPage() {
                 navigate({ to: "/projects/$id/init", params: { id: projectId } });
               } else if (step === "design") {
                 navigate({ to: "/projects/$id/design", params: { id: projectId } });
+              } else if (step === "logic") {
+                navigate({ to: "/projects/$id/logic", params: { id: projectId } });
               } else if (step === "generate") {
                 navigate({ to: "/projects/$id/generate", params: { id: projectId } });
               } else if (step === "deploy") {
