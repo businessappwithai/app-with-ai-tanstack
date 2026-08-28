@@ -45,7 +45,7 @@ function ReportDesignPage() {
             </Link>
             <span className="text-muted-foreground/40">/</span>
             <Link
-              to="/admin/"
+              to="/admin"
               className="hover:text-primary transition-colors"
             >
               Admin

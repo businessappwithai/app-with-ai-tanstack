@@ -1,0 +1,235 @@
+/**
+ * State machines — the edges the model drew, and only those.
+ *
+ * `%%workflow … kind: state` declares a lifecycle: which state a record starts
+ * in, which moves are legal from there, and which states it can end in. The
+ * backend stores those edges in `sys_workflow_transitions` and the
+ * entity-access guard refuses any status write with no matching edge.
+ *
+ * There are two ways for that to be wrong, and both look like a working
+ * application from the outside:
+ *
+ *   the table is empty      — every transition is allowed, because the guard
+ *                             only enforces a topology it can find. A record
+ *                             jumps from draft straight to approved and no rule
+ *                             or workflow in between ever runs.
+ *   the table disagrees     — an edge the diagram drew is missing, so a move
+ *     with the model           the model calls routine is refused in production.
+ *
+ * So this suite checks both directions: every edge the model declared is
+ * offered and accepted, and a move the model never drew is refused. It walks
+ * each machine breadth-first from its initial state rather than assuming a
+ * record can be created directly in the state under test.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
+import {
+  getEntity,
+  harness,
+  illegalTargetFrom,
+  pathTo,
+  stateMachines,
+  successorsOf,
+  type StateMachine,
+} from "../harness/index.ts";
+
+interface TransitionRow {
+  table_name: string;
+  status_field: string;
+  from_state: string;
+  to_state: string;
+  transition_name?: string | null;
+}
+
+interface TransitionsResponse {
+  data: TransitionRow[];
+  byTable: Record<string, Array<{ from: string; to: string }>>;
+}
+
+/** `from→to`, the shape both the model and the API are reduced to for compare. */
+function edgeKey(from: string, to: string): string {
+  return `${from}→${to}`;
+}
+
+describe("state machines", () => {
+  let served: TransitionRow[] = [];
+  let endpointAvailable = false;
+
+  beforeAll(async () => {
+    await harness.setup();
+    const response = await harness.client.get<TransitionsResponse>("/workflows/transitions", {
+      allowFailure: true,
+    });
+    endpointAvailable = response.ok;
+    served = response.ok ? (response.data?.data ?? []) : [];
+  });
+
+  afterAll(async () => {
+    await harness.teardown();
+  });
+
+  it("exposes the declared transitions", () => {
+    expect(endpointAvailable).toBe(true);
+  });
+
+  // A model with no state diagrams is legitimate; the suite then has nothing
+  // to assert and says so rather than passing silently on an empty loop.
+  it("has a state machine to drive, or declares none", () => {
+    if (stateMachines.length === 0) {
+      console.log("  the model declares no state machines — nothing to drive");
+      return;
+    }
+    expect(served.length).toBeGreaterThan(0);
+  });
+
+  for (const machine of stateMachines) {
+    describe(machine.entity, () => {
+      const entity = getEntity(machine.entity);
+
+      it("stores every edge the model drew", () => {
+        const declared = machine.edges.map((edge) => edgeKey(edge.from, edge.to)).sort();
+        const stored = served
+          .filter((row) => row.table_name === machine.tableName)
+          .map((row) => edgeKey(row.from_state, row.to_state))
+          .sort();
+        expect([...new Set(stored)]).toEqual([...new Set(declared)]);
+      });
+
+      it("stores them against the status column the guard reads", () => {
+        const fields = new Set(
+          served
+            .filter((row) => row.table_name === machine.tableName)
+            .map((row) => row.status_field)
+        );
+        expect([...fields]).toEqual([machine.statusField]);
+      });
+
+      it("accepts every legal move, walking from the initial state", async () => {
+        const refused: string[] = [];
+
+        for (const edge of machine.edges) {
+          // Reach `edge.from` first. A machine whose initial state cannot reach
+          // it has nothing to test for that edge — a disconnected diagram,
+          // which the model, not this record, would have to fix.
+          const approach = pathTo(machine, edge.from);
+          if (approach === null) continue;
+
+          const record = await harness.createWithParents(entity, {
+            [machine.statusField]: machine.initial,
+          });
+          if (!record?.id) continue;
+
+          let reached = true;
+          for (const step of approach) {
+            const response = await harness.client.patch(
+              `/bus/${entity.route}/${record.id}`,
+              { [machine.statusField]: step.to },
+              { allowFailure: true }
+            );
+            if (!response.ok) {
+              reached = false;
+              break;
+            }
+          }
+          if (!reached) {
+            refused.push(`could not reach ${edge.from} (${edgeKey(edge.from, edge.to)})`);
+            continue;
+          }
+
+          const move = await harness.client.patch(
+            `/bus/${entity.route}/${record.id}`,
+            { [machine.statusField]: edge.to },
+            { allowFailure: true }
+          );
+          // 403 is the guard refusing an edge the model drew — the failure this
+          // test is for. Any other error is the record, not the topology.
+          if (move.status === 403) refused.push(edgeKey(edge.from, edge.to));
+        }
+
+        expect(refused).toEqual([]);
+      });
+
+      it("refuses a move the model never drew", async () => {
+        const from = machine.initial || machine.edges[0]?.from;
+        if (!from) return;
+
+        const illegal = illegalTargetFrom(machine, from);
+        if (!illegal) {
+          // Every state is reachable from here in one step, so there is no
+          // illegal move to attempt. Not a failure — a very permissive machine.
+          console.log(`  ${machine.entity}: every state is legal from "${from}"`);
+          return;
+        }
+
+        const record = await harness.createWithParents(entity, {
+          [machine.statusField]: from,
+        });
+        expect(record?.id).toBeTruthy();
+        if (!record?.id) return;
+
+        const response = await harness.client.patch(
+          `/bus/${entity.route}/${record.id}`,
+          { [machine.statusField]: illegal },
+          { allowFailure: true }
+        );
+
+        expect(response.ok).toBe(false);
+        expect(response.status).toBe(403);
+      });
+
+      it("leaves the record in its old state when a move is refused", async () => {
+        const from = machine.initial || machine.edges[0]?.from;
+        const illegal = from ? illegalTargetFrom(machine, from) : null;
+        if (!from || !illegal) return;
+
+        const record = await harness.createWithParents(entity, {
+          [machine.statusField]: from,
+        });
+        if (!record?.id) return;
+
+        await harness.client.patch(
+          `/bus/${entity.route}/${record.id}`,
+          { [machine.statusField]: illegal },
+          { allowFailure: true }
+        );
+
+        // A refused write that still landed would be worse than one that was
+        // allowed: the guard would be reporting a state the record is not in.
+        const after = await harness.client.get<Record<string, unknown>>(
+          `/bus/${entity.route}/${record.id}`,
+          { allowFailure: true }
+        );
+        if (!after.ok) return;
+        const body = (after.data as { data?: Record<string, unknown> })?.data ?? after.data;
+        expect(String(body?.[machine.statusField] ?? "")).toBe(from);
+      });
+
+      it("answers which moves are legal from a given state", async () => {
+        const from = machine.initial || machine.edges[0]?.from;
+        if (!from) return;
+
+        const response = await harness.client.get<TransitionsResponse>(
+          `/workflows/transitions?table=${machine.tableName}&from=${encodeURIComponent(from)}`,
+          { allowFailure: true }
+        );
+        expect(response.status).toBe(200);
+
+        const offered = (response.data?.data ?? []).map((row) => row.to_state).sort();
+        expect([...new Set(offered)]).toEqual([...new Set(successorsOf(machine, from))].sort());
+      });
+    });
+  }
+
+  it("stores no transition for a table the model gave no state machine", () => {
+    const modelled = new Set(stateMachines.map((machine: StateMachine) => machine.tableName));
+    // A stray row here means something other than the model wrote the topology,
+    // and the guard would be enforcing a lifecycle nobody declared.
+    const stray = [...new Set(served.map((row) => row.table_name))].filter(
+      (table) => !modelled.has(table)
+    );
+    expect(stray).toEqual([]);
+  });
+});

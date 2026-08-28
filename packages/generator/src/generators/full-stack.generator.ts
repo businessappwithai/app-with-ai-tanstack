@@ -204,6 +204,11 @@ export class FullStackGenerator {
         port: this.options.port,
         frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         recordsPerEntity: this.options.recordsPerEntity,
+        // What the model declared, handed to the suites as data so they can
+        // check the running application against it rather than against the
+        // dictionary the same generator wrote.
+        modelEnums: this.options.modelEnums,
+        compiledWorkflows: this.options.compiledWorkflows,
       });
       await testGenerator.generate(entities, relationships, outputDir);
     }

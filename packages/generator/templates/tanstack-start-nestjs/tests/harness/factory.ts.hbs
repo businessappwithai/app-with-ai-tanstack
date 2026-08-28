@@ -35,12 +35,31 @@ export function reseed(seed: number = config.fakerSeed): void {
  * never across them. `Math.random` is not seeded, so this stays unique per
  * process while leaving every other value reproducible.
  */
-const RUN_ID = `${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
+const RUN_ID =
+  process.env.E2E_RUN_TOKEN ||
+  `${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
 let uniqueCounter = 0;
 
 function nextUniqueSalt(): string {
   uniqueCounter += 1;
   return `${RUN_ID}${uniqueCounter.toString(36)}`;
+}
+
+/**
+ * Fold a caller-supplied salt into this run's identity.
+ *
+ * A caller that knows how to keep its own values apart — the bulk seeder, which
+ * salts by row index so a batch of 500 cannot collide with itself — still needs
+ * the run half, and passing a bare index dropped it. Every row of the second
+ * run against the same database then regenerated the first run's values and was
+ * refused, so a re-run reported zero records created for every entity with a
+ * unique column, which is most of them.
+ *
+ * Distinct within a run because the caller's part varies; distinct between runs
+ * because RUN_ID does. Set E2E_RUN_TOKEN to replay a run's values exactly.
+ */
+export function scopedSalt(salt: string | number): string {
+  return `${RUN_ID}${salt}`;
 }
 
 export { faker };
@@ -162,7 +181,7 @@ export function fakeValue(field: FieldMeta, uniqueSalt?: string | number): unkno
 
     let value = candidate;
     if (field.unique && typeof value === "string") {
-      const salt = uniqueSalt ?? nextUniqueSalt();
+      const salt = uniqueSalt === undefined ? nextUniqueSalt() : scopedSalt(uniqueSalt);
       value = value.includes("@") ? value.replace("@", `+${salt}@`) : `${value}-${salt}`;
     }
     return truncate(value, field);
@@ -170,7 +189,8 @@ export function fakeValue(field: FieldMeta, uniqueSalt?: string | number): unkno
 
   let value = byType(field);
   if (field.unique && typeof value === "string") {
-    value = `${value}-${uniqueSalt ?? nextUniqueSalt()}`;
+    const salt = uniqueSalt === undefined ? nextUniqueSalt() : scopedSalt(uniqueSalt);
+    value = `${value}-${salt}`;
   }
   return truncate(value, field);
 }
