@@ -1,11 +1,11 @@
 {
   "file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai-tanstack/examples/hospital-management-system.mmd",
-  "checkedAt": "2026-08-29T07:11:50.099Z",
+  "checkedAt": "2026-08-29T10:06:23.270Z",
   "languageVersion": "1.2.0",
   "summary": {
     "errors": 0,
     "warnings": 1,
-    "infos": 7,
+    "infos": 1,
     "ok": true
   },
   "issues": [
@@ -15,48 +15,6 @@
       "message": "%%step B reads \"bed_id\", which no earlier step publishes.",
       "line": 710,
       "hint": "Publish it with `as: bed_id` on a CreateEntity step or `target: bed_id` on a Formula step — unless it is a column of the triggering record.",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"ClinicalNote.author_id\" has no relationship to \"User\".",
-      "hint": "Add:  User ||--o{ ClinicalNote : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"VitalSign.recorded_by_id\" has no relationship to \"User\".",
-      "hint": "Add:  User ||--o{ VitalSign : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"Diagnosis.recorded_by_id\" has no relationship to \"User\".",
-      "hint": "Add:  User ||--o{ Diagnosis : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"LabOrder.ordered_by_id\" has no relationship to \"User\".",
-      "hint": "Add:  User ||--o{ LabOrder : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"LabResult.verified_by_id\" has no relationship to \"User\".",
-      "hint": "Add:  User ||--o{ LabResult : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"ImagingOrder.ordered_by_id\" has no relationship to \"User\".",
-      "hint": "Add:  User ||--o{ ImagingOrder : \"...\"  (or reverse for manyToOne).",
       "autoFixable": false
     },
     {
