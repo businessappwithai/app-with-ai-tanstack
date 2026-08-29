@@ -17020,6 +17020,13 @@ npm-debug.log*
 # Database
 *.db
 *.sqlite
+
+# What a test run leaves behind. The metrics reports and the seed manifest name
+# the rows one particular run created, on one particular database — committing
+# them would put a second developer's ids in everyone's tree, and the next run
+# rewrites them anyway.
+test-results/
+tests/.e2e-seed-manifest.json
 `;
     await writeFile(join(outputDir, ".gitignore"), gitignore);
     await this.writeContainerFiles(outputDir);
