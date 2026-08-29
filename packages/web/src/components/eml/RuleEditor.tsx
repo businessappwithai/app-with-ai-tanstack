@@ -140,8 +140,8 @@ export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {conversion.ok ? (
               <p>
-                This rule came from your model as a flowchart. It is saved exactly as it is here.
-                It can also be read as a table of{" "}
+                This rule came from your model as a flowchart. It is saved exactly as it is here. It
+                can also be read as a table of{" "}
                 <strong>
                   {conversion.table.rules.length} row
                   {conversion.table.rules.length === 1 ? "" : "s"}
@@ -169,9 +169,7 @@ export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
               ))}
               <button
                 type="button"
-                onClick={() =>
-                  onChange({ sourceFlowchart: undefined, table: conversion.table })
-                }
+                onClick={() => onChange({ sourceFlowchart: undefined, table: conversion.table })}
                 className="mt-2 rounded-md border border-amber-400 bg-white px-3 py-1.5 text-sm font-medium text-amber-900"
               >
                 Convert to a decision table
