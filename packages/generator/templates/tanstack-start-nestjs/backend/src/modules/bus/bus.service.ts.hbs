@@ -609,23 +609,10 @@ export class BusService {
     }
   }
 
-  /**
-   * FK columns naming a person by the role they played rather than by entity.
-   * The `_by` / `_by_id` suffixes are handled by rule in resolveRefTableName;
-   * this map covers the role names that carry no suffix at all. Kept in sync
-   * with `foreignKeys.personRoleColumns` in language/appwithai-language.json.
-   */
   private static readonly COLUMN_TABLE_ALIASES: Record<string, string> = {
-    owner_id: 'bus_user',
-    author_id: 'bus_user',
-    manager_id: 'bus_user',
-    assigned_to: 'bus_user',
-    pi_id: 'bus_user',
-    lab_manager_id: 'bus_user',
-    remediation_owner: 'bus_user',
-    remediation_owner_id: 'bus_user',
-    user_id: 'bus_user',
-    created_by_user: 'bus_user',
+{{#each fkOverrides}}
+    '{{column}}': '{{table}}',
+{{/each}}
   };
 
   private async resolveRefLabelFields(refTableName: string): Promise<string[]> {
@@ -659,12 +646,7 @@ export class BusService {
     if (BusService.COLUMN_TABLE_ALIASES[columnName]) {
       return BusService.COLUMN_TABLE_ALIASES[columnName];
     }
-    // A _by column names a person: reported_by_id, approved_by_id, performed_by
-    // all point at a user. Both spellings are matched — _by_id is the form the
-    // EML fixer produces, _by is what an unfixed model still carries. Deriving
-    // bus_reported_by from the name would look up a table that does not exist,
-    // so the column would fall back to rendering its raw id.
-    if (columnName.endsWith('_by_id') || columnName.endsWith('_by')) return 'bus_user';
+    if (columnName.endsWith('_by_id') || columnName.endsWith('_by')) return undefined;
     if (!columnName.endsWith('_id') || columnName === 'id') return undefined;
     const baseName = columnName.slice(0, -3);
     return `bus_${baseName}`;

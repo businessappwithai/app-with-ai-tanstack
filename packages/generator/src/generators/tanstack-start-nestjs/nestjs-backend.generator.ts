@@ -536,22 +536,33 @@ export class NestJsBackendGenerator extends BaseGenerator {
       }
     }
 
-    const personRoleDefaults: Record<string, string> = {
-      pi_id: "bus_user",
-      lab_manager_id: "bus_user",
-      assigned_to: "bus_user",
-      owner_id: "bus_user",
-      author_id: "bus_user",
-      manager_id: "bus_user",
-      user_id: "bus_user",
-      created_by_user: "bus_user",
-      remediation_owner: "bus_user",
-      remediation_owner_id: "bus_user",
-    };
-    for (const [col, table] of Object.entries(personRoleDefaults)) {
+    const personTable =
+      tableSet.has("bus_user") ? "bus_user" :
+      tableSet.has("bus_staff") ? "bus_staff" :
+      tableSet.has("bus_employee") ? "bus_employee" :
+      "bus_user";
+
+    const personRoleColumns = [
+      "pi_id", "lab_manager_id", "assigned_to", "owner_id",
+      "author_id", "manager_id", "user_id", "created_by_user",
+      "remediation_owner", "remediation_owner_id",
+    ];
+    for (const col of personRoleColumns) {
       if (!seen.has(col)) {
-        overrides.push({ column: col, table });
+        overrides.push({ column: col, table: personTable });
         seen.add(col);
+      }
+    }
+
+    for (const entity of busEntities) {
+      const fkAttrs = (entity.attributes || []).filter((a) => a.isForeignKey);
+      for (const attr of fkAttrs) {
+        const col = attr.columnName || attr.name;
+        if (seen.has(col)) continue;
+        if (col.endsWith("_by_id") || col.endsWith("_by")) {
+          overrides.push({ column: col, table: personTable });
+          seen.add(col);
+        }
       }
     }
 

@@ -155,6 +155,7 @@ function truncate(value: unknown, field: FieldMeta): unknown {
 function matchesType(value: unknown, type: FieldMeta["type"]): boolean {
   switch (type) {
     case "integer":
+      return typeof value === "number" && Number.isFinite(value) && Number.isInteger(value);
     case "decimal":
       return typeof value === "number" && Number.isFinite(value);
     case "boolean":
