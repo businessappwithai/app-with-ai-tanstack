@@ -352,12 +352,12 @@ var appwithai_language_default = {
     description: "How an FK column name resolves to the table it points at. The generator derives the target from the column name alone — there is no explicit target syntax on the attribute — so the name has to carry the reference.",
     suffix: "_id",
     resolution: [
-      "1. A person-role name (see personRoleColumns) resolves to the user entity.",
+      "1. A person-role name (see personRoleColumns) resolves to the model's person entity (User if it exists, then Staff, then Employee).",
       "2. Otherwise <entity>_id resolves to bus_<entity>.",
       "3. A column that resolves to nothing is stored as a plain string: no lookup, no display name, the raw id renders in grids and forms."
     ],
     personRoleColumns: {
-      description: "Columns naming a person by the role they played rather than by entity. All resolve to the model's user entity (bus_user).",
+      description: "Columns naming a person by the role they played rather than by entity. All resolve to the model's person entity (User > Staff > Employee, whichever exists first).",
       suffixes: ["_by", "_by_id"],
       names: [
         "assigned_to",
@@ -371,13 +371,13 @@ var appwithai_language_default = {
         "user_id"
       ],
       examples: [
-        "reported_by_id -> bus_user",
-        "registered_by_id -> bus_user",
-        "pi_id -> bus_user (a principal investigator is a user, not a bus_pi table)"
+        "reported_by_id -> bus_user (or bus_staff when the model has no User entity)",
+        "registered_by_id -> bus_user (or bus_staff / bus_employee)",
+        "pi_id -> bus_user (a principal investigator is a person, not a bus_pi table)"
       ]
     },
     checkerCodes: {
-      EML114: "FK column does not end in _id. Auto-fixable: the fixer appends the suffix, so `reported_by FK` becomes `reported_by_id FK` and starts resolving to bus_user.",
+      EML114: "FK column does not end in _id. Auto-fixable: the fixer appends the suffix, so `reported_by FK` becomes `reported_by_id FK` and starts resolving to the person entity.",
       EML119: "A column named like a reference (_id/_by, resolving to a declared entity) that carries no FK modifier. Both conditions are required for TABLE_DIRECT, and a column that fails either is recorded as a plain String."
     }
   },

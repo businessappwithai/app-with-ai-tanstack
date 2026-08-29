@@ -56,6 +56,45 @@ function status(message) {
   report({ type: "status", status: message });
 }
 
+/**
+ * Reclaim the databases the old data-directory prefix left behind.
+ *
+ * Each run of this application keeps its PostgreSQL in IndexedDB, under
+ * `/pglite/appwithai-<slug>`. That prefix used to be `erdwithai-`, and renaming
+ * it does not free the old databases — it strands them: never opened again,
+ * never collected, and ten megabytes each against an origin quota that a
+ * browser will start refusing writes against long before the reader connects
+ * the two. Dropping exactly the retired prefix is safe, because nothing reads
+ * it any more.
+ *
+ * Best-effort throughout. `indexedDB.databases()` is unimplemented in some
+ * browsers and a delete can be blocked by another tab; neither is a reason to
+ * refuse to start.
+ */
+async function dropRetiredDatabases() {
+  const RETIRED = "/pglite/erdwithai-";
+  try {
+    if (typeof indexedDB.databases !== "function") return;
+    const stale = (await indexedDB.databases())
+      .map((entry) => entry.name)
+      .filter((name) => typeof name === "string" && name.startsWith(RETIRED));
+    if (!stale.length) return;
+
+    await Promise.all(
+      stale.map(
+        (name) =>
+          new Promise((resolve) => {
+            const request = indexedDB.deleteDatabase(name);
+            request.onsuccess = request.onerror = request.onblocked = () => resolve();
+          })
+      )
+    );
+    log(`Reclaimed ${stale.length} database(s) from a previous version`, "ok");
+  } catch {
+    // Storage that will not enumerate is storage we simply leave alone.
+  }
+}
+
 async function main() {
   status("Starting");
 
@@ -67,6 +106,8 @@ async function main() {
   }
 
   log(`Application root: ${BASE}`);
+
+  await dropRetiredDatabases();
 
   // Two ways this page can be reached, and only one of them needs a worker
   // registered here.
@@ -154,15 +195,53 @@ async function main() {
   window.setTimeout(() => screen.remove(), 400);
 }
 
+/**
+ * Say what actually went wrong.
+ *
+ * This used to print the `file://` hint after every failure, whichever failure
+ * it was. On a page served over https that sentence is not merely unhelpful, it
+ * is false — and it is the only advice the reader is given, so a PostgreSQL that
+ * aborted inside `callMain` was reported as a protocol mistake the reader had
+ * not made. The hint now has to earn its place.
+ */
+function hintFor(error) {
+  if (window.location.protocol === "file:") {
+    return (
+      "This application needs to be opened over http:// or https:// — a Service Worker cannot be " +
+      "registered from a file:// URL. Run `npx serve .` in this directory, or `bun run start`."
+    );
+  }
+
+  const text = String(error?.message || error);
+
+  // PGlite aborts inside `callMain` when initdb cannot write its data
+  // directory, and by far the commonest reason is a full origin: every run of
+  // this application leaves a PGlite database of its own in IndexedDB, and
+  // browsers with a tight per-origin quota (Safari especially) start refusing
+  // the write long before the reader has any idea storage was involved.
+  if (/callMain|Aborted|abort\(|RuntimeError|memory access out of bounds/i.test(text)) {
+    return (
+      "PostgreSQL could not start. This is usually the browser's storage quota for this site: " +
+      "each run keeps its database in IndexedDB. Add ?ephemeral to the URL to run without " +
+      "persistence, or clear this site's storage and reload."
+    );
+  }
+
+  if (/[Qq]uota|storage|IndexedDB|IDBDatabase|NotAllowedError|SecurityError/.test(text)) {
+    return (
+      "The browser refused this site persistent storage. A private window, a storage-blocking " +
+      "setting or a full quota will all do it. Add ?ephemeral to the URL to run in memory instead."
+    );
+  }
+
+  return "Add ?ephemeral to the URL to run without persistence, which rules storage out.";
+}
+
 main().catch((error) => {
   console.error(error);
   report({ type: "failed", message: String(error.message || error) });
   status("Could not start");
   screen.classList.add("boot--failed");
   log(String(error.message || error), "error");
-  log(
-    "This application needs to be opened over http:// or https:// — a Service Worker cannot be " +
-      "registered from a file:// URL. Run `npx serve .` in this directory, or `bun run start`.",
-    "hint"
-  );
+  log(hintFor(error), "hint");
 });
