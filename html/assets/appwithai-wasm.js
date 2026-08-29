@@ -1465,7 +1465,7 @@ var FALLBACK_CARDINALITY_MAP = [
   { operator: "|o--o|", kind: "oneToOne" }
 ];
 function findDefinitionFile() {
-  const envPath = process.env.ERDWITHAI_LANGUAGE_FILE;
+  const envPath = process.env.APPWITHAI_LANGUAGE_FILE ?? process.env.ERDWITHAI_LANGUAGE_FILE;
   if (envPath && existsSync(envPath))
     return envPath;
   const starts = [];

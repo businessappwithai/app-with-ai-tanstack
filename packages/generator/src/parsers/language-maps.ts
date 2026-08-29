@@ -7,7 +7,9 @@
  * with the language definition instead of duplicating it.
  *
  * Resolution order for the definition file:
- *   1. process.env.ERDWITHAI_LANGUAGE_FILE (explicit override)
+ *   1. process.env.APPWITHAI_LANGUAGE_FILE (explicit override; the retired
+ *      ERDWITHAI_LANGUAGE_FILE is still honoured so an existing override does
+ *      not silently stop applying)
  *   2. a `language/appwithai-language.json` found by walking up from this module
  *   3. a `language/appwithai-language.json` found by walking up from cwd
  *   4. built-in fallback maps (kept in sync with the JSON)
@@ -86,7 +88,11 @@ const FALLBACK_CARDINALITY_MAP: Array<{ operator: string; kind: CardinalityKind 
 ];
 
 function findDefinitionFile(): string | null {
-  const envPath = process.env.ERDWITHAI_LANGUAGE_FILE;
+  // The old spelling still works. An override that quietly stopped applying
+  // would send the parser to a different language definition than the one the
+  // caller chose, which is the sort of thing found much later than it is caused.
+  const envPath =
+    process.env.APPWITHAI_LANGUAGE_FILE ?? process.env.ERDWITHAI_LANGUAGE_FILE;
   if (envPath && existsSync(envPath)) return envPath;
 
   const starts: string[] = [];
