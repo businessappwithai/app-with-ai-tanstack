@@ -104,21 +104,23 @@ export class BusController {
 
         // Parse operator:value format
         if (typeof value === 'string' && value.includes(':')) {
-          const [operator, searchValue] = value.split(':', 2);
+          const separator = value.indexOf(':');
+          const operator = value.slice(0, separator);
+          const searchValue = value.slice(separator + 1);
 
           switch (operator) {
             case 'contains':
-              parsed[fieldName] = `%${searchValue}%`;
+              parsed[fieldName] = { operator: 'ilike', value: `%${searchValue}%` };
               break;
             case 'startsWith':
-              parsed[fieldName] = `${searchValue}%`;
+              parsed[fieldName] = { operator: 'ilike', value: `${searchValue}%` };
               break;
             case 'endsWith':
-              parsed[fieldName] = `%${searchValue}`;
+              parsed[fieldName] = { operator: 'ilike', value: `%${searchValue}` };
               break;
             case 'equals':
             case 'eq':
-              parsed[fieldName] = searchValue;
+              parsed[fieldName] = { operator: '=', value: searchValue };
               break;
             case 'gt':
               parsed[fieldName] = { operator: '>', value: searchValue };
@@ -133,18 +135,19 @@ export class BusController {
               parsed[fieldName] = { operator: '<=', value: searchValue };
               break;
             default:
-              // Unknown operator, treat as exact match
-              parsed[fieldName] = value;
+              // Unknown operator, treat the whole thing as an exact match.
+              parsed[fieldName] = { operator: '=', value };
           }
 
           this.logger.debug(`[parseFilters] Parsed filter: ${fieldName} with operator ${operator}`);
         } else {
-          // No operator specified, use as-is
-          parsed[fieldName] = value;
+          // No operator specified: an exact match on the value as given.
+          parsed[fieldName] = { operator: '=', value };
         }
       } else if (!key.startsWith('page') && !key.startsWith('limit') && !key.startsWith('orderBy') && !key.startsWith('orderDir')) {
-        // Non-filter query params, pass through as-is
-        parsed[key] = value;
+        // Non-filter query params — the parent-record links and the grid's
+        // column filters — are equality, always.
+        parsed[key] = { operator: '=', value };
       }
     }
 

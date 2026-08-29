@@ -65,15 +65,29 @@ export class DatabaseService {
       .selectAll()
       .where('deleted_at' as any, 'is', null);
 
-    for (const [key, value] of Object.entries(filters)) {
-      if (value !== undefined && value !== null && value !== '') {
-        if (typeof value === 'object' && 'operator' in value && 'value' in value) {
-          query = query.where(key as any, value.operator, value.value);
-        } else if (typeof value === 'string' && value.includes('%')) {
-          query = query.where(sql.ref(key), 'ilike', value);
-        } else {
-          query = query.where(key as any, '=', value);
-        }
+    /*
+     * Every filter arrives as `{ operator, value }` — see `parseFilters` in
+     * bus.controller. It used to arrive as a bare value and the operator was
+     * inferred from whether the string contained a `%`, which was wrong twice
+     * over: an `equals` on a value that legitimately contains a percent sign
+     * ("50% off") silently became a pattern match, and a `contains` on any
+     * non-text column asked PostgreSQL for `uuid ~~* unknown` and got an error
+     * instead of results.
+     */
+    for (const [key, raw] of Object.entries(filters)) {
+      const spec =
+        raw && typeof raw === 'object' && 'operator' in raw
+          ? (raw as { operator: string; value: unknown })
+          : { operator: '=', value: raw };
+
+      if (spec.value === undefined || spec.value === null || spec.value === '') continue;
+
+      if (spec.operator === 'ilike') {
+        // Cast, so a pattern match works on any column the dictionary offers
+        // rather than only the text ones.
+        query = query.where(sql`${sql.ref(key)}::text`, 'ilike', spec.value as any);
+      } else {
+        query = query.where(key as any, spec.operator as any, spec.value as any);
       }
     }
 

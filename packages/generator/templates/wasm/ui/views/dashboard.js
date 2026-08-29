@@ -66,6 +66,29 @@ export async function dashboardView(root, { entities, navigate, project, user })
        */
       manualBanner(project),
 
+      /*
+       * A role that may read nothing gets told so.
+       *
+       * `%%rbac … .read` decides what a role sees, and the seeded `User`
+       * account holds no functional role at all — deliberately, because an
+       * account that can reach nothing is what demonstrates that a restriction
+       * restricts. Rendered as bare emptiness that reads as a broken build, so
+       * it says which of the two it is.
+       */
+      entities.length === 0
+        ? el(
+            "section.category",
+            el("div.category__head", el("span.category__name", "Nothing to show")),
+            el(
+              "p.category__desc",
+              `This account holds no role that may read any of this application's entities. ` +
+                `That is what the model says rather than a fault: %%rbac grants read access by ` +
+                `role, and this one has none. Sign out and pick a role account to see the ` +
+                `application it was given.`
+            )
+          )
+        : null,
+
       [...byCategory.entries()]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([category, group]) =>

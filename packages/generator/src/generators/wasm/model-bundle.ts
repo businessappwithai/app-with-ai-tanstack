@@ -335,6 +335,12 @@ export function buildModelBundle(
       description: entity.description,
       primaryKey: entity.primaryKey,
       category: categoryOf.get(entity.name) ?? "General",
+      /* `%%entity <E> parent: <P>`. A child has no window and no dashboard
+         card; it is reached as a tab inside its parent. */
+      parentEntity: entity.parentEntity,
+      parentLinkColumn: entity.parentLinkColumn
+        ? snake(entity.parentLinkColumn)
+        : undefined,
       attributes: entity.attributes.map((attribute, index) => ({
         name: attribute.name,
         columnName: snake(attribute.name),
@@ -441,16 +447,25 @@ export function buildModelBundle(
         description: window.description,
         windowType: "maintain",
       })),
-      tables: dictionary.sysTables.map((table) => ({
+      tables: dictionary.sysTables.map((table) => {
+        /* The window a table's records are reached through is the window of its
+           own tab — not a window sharing its name, which a line item does not
+           have. Looking it up by name left every child table pointing at a
+           window nobody created, and the tab was then skipped as unseedable. */
+        const ownTab = dictionary.sysTabs.find((tab) => tab._tableRef === table._tempId);
+        const ownWindow = ownTab
+          ? dictionary.sysWindows.find((window) => window._tempId === ownTab._windowRef)
+          : undefined;
+        return {
         tableName: table.table_name,
         name: table.name,
         description: table.description,
         entityType: "bus",
         accessLevel: table.access_level, // 'S' | 'C' | 'O' | 'CO' | 'A'
-        window:
-          dictionary.sysWindows.find((window) => window.name === table.name)?.name ?? table.name,
+        window: ownWindow?.name ?? table.name,
         category: categoryOf.get(entityNameFor(entities, table.table_name)) ?? "General",
-      })),
+        };
+      }),
       tabs: dictionary.sysTabs.map((tab) => ({
         tableName: tableByTemp.get(tab._tableRef) ?? "",
         window:
@@ -460,6 +475,13 @@ export function buildModelBundle(
         description: tab.description,
         seqNo: tab.seq_no,
         isSingleRow: false,
+        /* A detail tab sits at level 1 under its master and links on the
+           column that ties the two — see the note in dictionary.generator. */
+        tabLevel: tab.tab_level ?? 0,
+        linkColumn: tab.link_column_id
+          ? dictionary.sysColumns.find((column) => column._tempId === tab.link_column_id)
+              ?.column_name
+          : undefined,
       })),
       columns: dictionary.sysColumns.map((column) => ({
         tableName: tableByTemp.get(column._tableRef) ?? "",

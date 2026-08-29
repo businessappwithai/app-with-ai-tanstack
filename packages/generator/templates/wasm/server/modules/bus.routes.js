@@ -71,7 +71,7 @@ async function entityMetadata(db, entity) {
 
   const columns = await db.query(
     `SELECT c.sys_column_id, c.column_name, c.sys_reference_id, c.field_length, c.default_value,
-            c.ref_table_name, c.is_key, c.is_identifier, c.is_selection_column,
+            c.ref_table_name, c.is_key, c.is_identifier, c.is_selection_column, c.is_parent,
             f.sys_field_id, f.name, COALESCE(f.description, c.description) AS description,
             f.is_displayed, f.is_displayed_grid,
             f.is_read_only, f.is_mandatory, f.is_updateable, f.is_insertable,
@@ -117,6 +117,10 @@ async function entityMetadata(db, entity) {
       is_displayed: column.is_displayed !== false,
       is_displayed_grid: column.is_displayed_grid !== false,
       is_key: column.is_key ?? false,
+      /* The column tying a detail row to its master, from
+         `%%entity <Child> parent: <Parent>`. Projected so the dictionary screen
+         can show what the tab links on rather than leaving it a mystery. */
+      is_parent: column.is_parent ?? false,
       field_length: column.field_length,
       default_value: column.default_value,
       ref_table_name: column.ref_table_name,

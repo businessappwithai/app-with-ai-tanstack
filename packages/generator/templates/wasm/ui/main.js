@@ -82,6 +82,17 @@ export function setActions(actions, token = state.renderId) {
 /** The token a screen should carry if it wants to set actions later. */
 export const currentRender = () => state.renderId;
 
+/**
+ * The line-item entities belonging to one parent.
+ *
+ * Read from the same list the dashboard filters them out of, so the two cannot
+ * disagree about what is a child. Empty for an entity nobody declared a
+ * `parent:` against, which is most of them.
+ */
+export function childEntitiesOf(parentName) {
+  return state.entities.filter((entity) => entity.parentEntity === parentName);
+}
+
 async function render() {
   const root = document.getElementById("app");
 
@@ -128,7 +139,16 @@ async function render() {
 
     if (!section) {
       setCrumbs([]);
-      return void (await dashboardView(outlet, { entities: state.entities, navigate, project: state.project, user: state.user }));
+      /*
+       * Line items are not on the dashboard.
+       *
+       * `%%entity <E> parent: <P>` says the child has no life away from its
+       * parent, so a card offering a list of every invoice line ever written
+       * is an invitation to a screen nobody wants. They are reached through
+       * the parent's window, as a tab under the record they belong to.
+       */
+      const topLevel = state.entities.filter((entity) => !entity.parentEntity);
+      return void (await dashboardView(outlet, { entities: topLevel, navigate, project: state.project, user: state.user }));
     }
 
     if (section === "entity") {

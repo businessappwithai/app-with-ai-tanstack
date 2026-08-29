@@ -68,6 +68,17 @@ export interface Entity {
   timestamps: boolean;
   /** Explicit `%%index` declarations bound to this entity. */
   indexes?: EntityIndex[];
+  /**
+   * The entity this one is a line item of, from `%%entity <E> parent: <P>`.
+   *
+   * A child is not a thing you navigate to. It has no window of its own and no
+   * card on the dashboard; it appears as a tab inside its parent's window,
+   * linked on the foreign key it already declared. An invoice line away from
+   * its invoice is not a record anyone wants a list of.
+   */
+  parentEntity?: string;
+  /** The child's foreign key back to `parentEntity`, resolved at parse time. */
+  parentLinkColumn?: string;
 }
 
 export interface Relationship {

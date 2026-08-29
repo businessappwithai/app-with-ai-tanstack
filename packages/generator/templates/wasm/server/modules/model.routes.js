@@ -56,6 +56,11 @@ export function modelRoutes(model, readAsset) {
         tableName: entity.tableName,
         route: entity.routeName,
         displayName: entity.displayName,
+        /* A line item: no dashboard card, reached as a tab under its parent.
+           The link column is the child's own key back, so the tab can ask for
+           exactly the rows belonging to the record on screen. */
+        parentEntity: entity.parentEntity,
+        parentLinkColumn: entity.parentLinkColumn,
         attributes: entity.attributes.map((attribute) => ({
           name: attribute.columnName,
           label: attribute.displayName,

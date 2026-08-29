@@ -127,7 +127,14 @@ export async function loginView(root, { project, onSignedIn }) {
                         "span.accounts__scope",
                         account.isAdmin
                           ? `all ${config?.totalEntities ?? account.entities} entities`
-                          : `${account.entities} of ${config?.totalEntities ?? account.entities} entities`
+                          : /* Zero is a real answer, not a broken seed: this is
+                               the account holding no functional role, and an
+                               empty application is the point of it. Said plainly
+                               here, because a card reading "0 of 28" and nothing
+                               else looks like the generator failed. */
+                            account.entities === 0
+                            ? "no entities — signed in, holding no role"
+                            : `${account.entities} of ${config?.totalEntities ?? account.entities} entities`
                       )
                     )
                   )

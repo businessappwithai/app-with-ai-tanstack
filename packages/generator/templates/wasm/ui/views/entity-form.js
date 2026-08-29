@@ -27,7 +27,7 @@
 
 import { el, mount, spinner, toast, displayValue } from "../dom.js";
 import { api } from "../api.js";
-import { setActions } from "../main.js";
+import { setActions, childEntitiesOf } from "../main.js";
 
 const referenceCache = new Map();
 const lookupCache = new Map();
@@ -231,6 +231,18 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     )
   );
 
+  /*
+   * The line items belonging to this record.
+   *
+   * Rendered under the form rather than as a separate screen, because that is
+   * what `parent:` means: an invoice line is part of the invoice you are
+   * looking at. Only for a saved record — a child of a parent with no id yet
+   * has nothing to hang from, and offering the tab would be offering a list
+   * that cannot exist.
+   */
+  const detailSlot = el("div");
+  if (!isNew) void renderDetails(detailSlot, entity, id, navigate);
+
   mount(
     root,
     el(
@@ -240,10 +252,79 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
         el("h2.record__title", isNew ? `New ${entity.singularName}` : recordTitle(record, editable, entity)),
         el("button.record__close", { title: "Close", "aria-label": "Close", onclick: onClose }, "✕")
       ),
-      form
+      form,
+      detailSlot
     ),
     isNew ? null : el("div.split", el("div"), el("aside.side", await sidePanels(entity, id, record, onSaved)))
   );
+}
+
+/**
+ * The detail tabs: one per entity that named this one as its `parent:`.
+ *
+ * Each asks the server for exactly the rows whose link column holds this
+ * record's id — the same equality filter the grid's column filters already use,
+ * so no new endpoint and no new contract. A row opens the child in its own
+ * window; the child has no dashboard card, but it is still a record with a form.
+ */
+async function renderDetails(slot, entity, id, navigate) {
+  const children = childEntitiesOf(entity.name);
+  if (!children.length) return;
+
+  const sections = [];
+  for (const child of children) {
+    if (!child.parentLinkColumn) continue;
+    try {
+      const [fields, page] = await Promise.all([
+        api.get(`/bus/${child.routeName}/fields/grid`),
+        api.get(`/bus/${child.routeName}?${child.parentLinkColumn}=${encodeURIComponent(id)}&limit=100`),
+      ]);
+      const columns = fields.filter((field) => field.column_name !== child.parentLinkColumn);
+
+      sections.push(
+        el(
+          "section.detail",
+          el(
+            "div.detail__head",
+            el("h3.detail__title", child.displayName),
+            el("span.detail__count", `${page.total} row${page.total === 1 ? "" : "s"}`)
+          ),
+          page.data.length
+            ? el(
+                "div.table-wrap",
+                el(
+                  "table.table",
+                  el("thead", el("tr", columns.map((column) => el("th", column.name)))),
+                  el(
+                    "tbody",
+                    page.data.map((row) =>
+                      el(
+                        "tr.table__row",
+                        { onclick: () => navigate(`/entity/${child.routeName}/${row.id}`) },
+                        columns.map((column) => {
+                          const label = page.labels?.[column.column_name]?.[row[column.column_name]];
+                          return el(
+                            "td",
+                            label === undefined
+                              ? displayValue(row[column.column_name], column)
+                              : el("span.cell--ref", { title: row[column.column_name] }, label)
+                          );
+                        })
+                      )
+                    )
+                  )
+                )
+              )
+            : el("p.detail__empty", `No ${child.displayName} on this ${entity.singularName} yet.`)
+        )
+      );
+    } catch {
+      // A child the signed-in role may not read is simply not shown. The 403 is
+      // the access rules working, not a fault worth putting on screen.
+    }
+  }
+
+  if (sections.length) mount(slot, ...sections);
 }
 
 async function sidePanels(entity, id, record, onSaved) {

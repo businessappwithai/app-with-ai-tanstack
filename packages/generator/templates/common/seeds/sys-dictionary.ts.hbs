@@ -485,9 +485,12 @@ export async function seed(db: Kysely<any>): Promise<void> {
   // {{displayName}} ({{tableName}})
   // --------------------------------------------------------------------------
   const {{camelCase name}}TableId = uuidv4();
+  {{#unless parentEntity}}
   const {{camelCase name}}WindowId = uuidv4();
+  {{/unless}}
   const {{camelCase name}}TabId = uuidv4();
 
+  {{#unless parentEntity}}
   // Create sys_window entry FIRST (sys_table references it)
   await db.insertInto('sys_window').values({
     sys_window_id: {{camelCase name}}WindowId,
@@ -504,6 +507,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     created_at: now,
     updated_at: now,
   }).execute();
+  {{/unless}}
 
   // Create sys_table entry AFTER sys_window
   await db.insertInto('sys_table').values({
@@ -520,7 +524,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_document: false,
     is_high_volume: false,
     is_changelog: true,
-    sys_window_id: {{camelCase name}}WindowId,
+    sys_window_id: {{camelCase windowOwner}}WindowId,
     entity_type: 'U',
     is_active: true,
     created_by: createdBy,
@@ -532,12 +536,12 @@ export async function seed(db: Kysely<any>): Promise<void> {
   // Create sys_tab entry
   await db.insertInto('sys_tab').values({
     sys_tab_id: {{camelCase name}}TabId,
-    sys_window_id: {{camelCase name}}WindowId,
+    sys_window_id: {{camelCase windowOwner}}WindowId,
     sys_table_id: {{camelCase name}}TableId,
     name: '{{displayName}}',
     help: tabHelpFor('{{tableName}}'),
-    tab_level: 0,
-    seq_no: 10,
+    tab_level: {{#if parentEntity}}1{{else}}0{{/if}},
+    seq_no: {{#if parentEntity}}20{{else}}10{{/if}},
     is_single_row: true,
     has_tree: false,
     is_info_tab: false,
@@ -599,6 +603,25 @@ export async function seed(db: Kysely<any>): Promise<void> {
   {{camelCase ../name}}ColumnSeqNo += 10;
   {{/each}}
 
+  {{#if parentLinkColumn}}
+  /* A line item links to its master on one column. Set after the columns
+     exist, because the tab was written before them, and marked `is_parent` the
+     way Compiere marks the column that ties a detail row to its master. */
+  {
+    const linkColumn = {{camelCase name}}Columns.find((c) => c.name === '{{parentLinkColumn}}');
+    if (linkColumn) {
+      await db.updateTable('sys_tab')
+        .set({ link_column_id: linkColumn.id })
+        .where('sys_tab_id', '=', {{camelCase name}}TabId)
+        .execute();
+      await db.updateTable('sys_column')
+        .set({ is_parent: true })
+        .where('sys_column_id', '=', linkColumn.id)
+        .execute();
+    }
+  }
+  {{/if}}
+
   // Create sys_field entries with sequential seq_no
   for (let i = 0; i < {{camelCase name}}Columns.length; i++) {
     const col = {{camelCase name}}Columns[i];
@@ -632,7 +655,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_access_id: uuidv4(),
     sys_role_id: adminRoleId,
     sys_table_id: {{camelCase name}}TableId,
-    sys_window_id: {{camelCase name}}WindowId,
+    sys_window_id: {{camelCase windowOwner}}WindowId,
     access_type_table: 'W',
     is_read_only: false,
     is_exclude: false,
@@ -661,7 +684,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       sys_access_id: uuidv4(),
       sys_role_id: roleId,
       sys_table_id: {{camelCase name}}TableId,
-      sys_window_id: {{camelCase name}}WindowId,
+      sys_window_id: {{camelCase windowOwner}}WindowId,
       access_type_table: 'R',
       is_read_only: true,
       is_exclude: false,

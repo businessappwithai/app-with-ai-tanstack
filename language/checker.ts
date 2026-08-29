@@ -236,6 +236,11 @@ class CheckEngine {
        dictionary and the entity's screen both show. */
     "help",
     "description",
+    /* `parent` is compiled too, and it is the one key that changes the shape of
+       the application rather than its text: the entity becomes a line item of
+       the one it names — no window, no dashboard card, a tab inside its
+       parent's window linked on the foreign key it already declared. */
+    "parent",
   ]);
   private validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
   private validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
@@ -1006,6 +1011,48 @@ class CheckEngine {
           hint: `Known keys: ${[...this.validEntityKeys].join(", ")}.`,
         });
       }
+
+      /*
+       * `parent:` decides where an entity lives, so both halves of it are
+       * checked. A parent nobody declared, or a child with no key back to it,
+       * leaves the line item with nowhere to be shown — it loses its own
+       * window to the directive and gains no tab in exchange, which is an
+       * entity that has quietly vanished from the application.
+       */
+      if (key === "parent") {
+        const parentName = (m[3] ?? "").trim();
+        const parent = this.model.entities.find((candidate) => candidate.name === parentName);
+        const child = this.model.entities.find((candidate) => candidate.name === entityName);
+
+        if (!parent) {
+          this.error("EML147", `%%entity ${entityName} parent: "${parentName}" is not declared.`, {
+            line: lineNo,
+            hint: `Declare "${parentName}" in the erDiagram section, or name the entity that owns ${entityName}.`,
+          });
+        } else if (parentName === entityName) {
+          this.error("EML147", `%%entity ${entityName} cannot be its own parent.`, {
+            line: lineNo,
+            hint: "A line item belongs to a different entity. Remove the directive if it has no owner.",
+          });
+        } else if (child) {
+          const snake = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+          const link = child.attributes.find(
+            (attribute) =>
+              attribute.isForeignKey &&
+              (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`))
+          );
+          if (!link) {
+            this.error(
+              "EML148",
+              `%%entity ${entityName} parent: ${parentName}, but ${entityName} has no foreign key to it.`,
+              {
+                line: lineNo,
+                hint: `Add \`string ${snake}_id FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`,
+              }
+            );
+          }
+        }
+      }
     }
   }
 
@@ -1489,9 +1536,20 @@ class CheckEngine {
     ]);
 
     for (const section of this.sagaSections()) {
-      // Variables a step can read: every entity column is in scope, plus
-      // whatever an earlier step published.
+      // Variables a step can read: whatever an earlier step published, plus the
+      // columns of the record that triggered the saga — those are in scope from
+      // the first step, because the executor puts the triggering row there.
+      //
+      // Seeding them is what stops EML264 firing on a perfectly good model:
+      // `%%workflow … entity: Admission` reaching `targetSource: bed_id` is
+      // reading its own trigger's column, which the diagnostic's own hint
+      // already excused in prose while the check itself still reported it.
       const published = new Set<string>();
+      const trigger = this.model.entities.find(
+        (candidate) => candidate.name.toLowerCase() === section.entity.toLowerCase()
+      );
+      for (const attribute of trigger?.attributes ?? []) published.add(attribute.name);
+
       const bound = new Set<string>();
 
       for (const { lineNo, text } of section.steps) {
@@ -1732,17 +1790,20 @@ class CheckEngine {
    */
   private sagaSections(): Array<{
     name: string;
+    entity: string;
     nodeIds: Set<string>;
     steps: Array<{ lineNo: number; text: string }>;
   }> {
     const sections: Array<{
       name: string;
+      entity: string;
       nodeIds: Set<string>;
       steps: Array<{ lineNo: number; text: string }>;
     }> = [];
 
     let current: {
       name: string;
+      entity: string;
       nodeIds: Set<string>;
       steps: Array<{ lineNo: number; text: string }>;
     } | null = null;
@@ -1755,12 +1816,12 @@ class CheckEngine {
     for (const { lineNo, text } of all) {
       const trimmed = text.trim();
 
-      const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*\w+\s+kind:\s*(\w+)/);
+      const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
       if (workflow) {
         if (current) sections.push(current);
         current =
-          workflow[2] === "saga"
-            ? { name: workflow[1]!, nodeIds: new Set<string>(), steps: [] }
+          workflow[3] === "saga"
+            ? { name: workflow[1]!, entity: workflow[2]!, nodeIds: new Set<string>(), steps: [] }
             : null;
         continue;
       }
@@ -2294,7 +2355,28 @@ class CheckEngine {
     }
 
     // EML502: FK attributes — verify a relationship exists between this entity and the referenced entity
+    const declaredNames = new Set(this.model.entities.map((candidate) => candidate.name));
     for (const entity of this.model.entities) {
+      /*
+       * Parents this entity declares an edge to, minus the ones another foreign
+       * key already accounts for by name. The generator resolves an unnamed
+       * key through exactly this list — see `buildFkOverrides` — so a column
+       * the compiler resolves must not be reported here as resolving to
+       * nothing. `ImagingReport.radiologist_id` derives a `Radiologist` nobody
+       * declared, and the model plainly says `Doctor ||--o{ ImagingReport`;
+       * the compiler wins, and the definition is the bug.
+       */
+      const claimed = new Set(
+        entity.attributes
+          .filter((candidate) => candidate.isForeignKey && candidate.name.endsWith("_id"))
+          .map((candidate) => this.fkToEntityName(candidate.name))
+          .filter((name) => declaredNames.has(name))
+      );
+      const spareParents = this.model.relationships
+        .filter((r) => r.target === entity.name && r.source !== entity.name)
+        .map((r) => r.source)
+        .filter((name) => declaredNames.has(name) && !claimed.has(name));
+
       for (const attr of entity.attributes) {
         if (attr.isForeignKey && attr.name.endsWith("_id")) {
           // Derive the expected parent entity name from the FK attribute name
@@ -2304,7 +2386,13 @@ class CheckEngine {
               (r.source === entity.name || r.target === entity.name) &&
               (r.source === parentEntityName || r.target === parentEntityName)
           );
-          if (!hasRelationship) {
+          // A name that resolves to nothing, on an entity with a spare declared
+          // parent, is the case the generator overrides rather than drops.
+          const resolvedByRelationship =
+            !declaredNames.has(parentEntityName) && spareParents.length > 0;
+          if (resolvedByRelationship) spareParents.shift();
+
+          if (!hasRelationship && !resolvedByRelationship) {
             this.info(
               "EML502",
               `FK attribute "${entity.name}.${attr.name}" has no relationship to "${parentEntityName}".`,
