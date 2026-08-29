@@ -155,27 +155,48 @@ async function loadMounts() {
     mounted = [];
   }
 }
-loadMounts();
+
+/**
+ * Held, not fired and forgotten.
+ *
+ * A Service Worker is stopped whenever the browser feels like it — around
+ * thirty seconds idle — and started again by the next request. `mounted` is
+ * rebuilt from the cache at startup, and *that read is asynchronous*, so a
+ * worker woken by a request used to answer it while still believing it served
+ * nothing. The base then fell back to the registration scope, `run/api/…` no
+ * longer looked like an API path, and the sign-in POST was served as though it
+ * were a static file: straight past the backend to the network, which answered
+ * `405 Not Allowed`. Routing waits for this now.
+ */
+const mountsReady = loadMounts();
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname === MOUNTS_KEY) return;
 
+  /* Scope is known synchronously, and everything this worker could ever answer
+     is under it — so the decision to take the request can be made now, and the
+     decision about what to do with it deferred until the mount list is in. */
   const scope = normalizeBase(new URL(self.registration.scope).pathname);
+  if (!url.pathname.startsWith(scope)) return;
+
+  event.respondWith(route(event.request, scope));
+});
+
+async function route(request, scope) {
+  await mountsReady;
+
+  const url = new URL(request.url);
   const base = [...new Set([...backends.keys(), ...mounted, scope])]
     .filter((candidate) => url.pathname.startsWith(candidate))
     .sort((a, b) => b.length - a.length)[0];
 
-  if (!base) return;
+  if (!base) return fetch(request);
 
   const rest = url.pathname.slice(base.length);
-  if (rest.startsWith("api/")) {
-    event.respondWith(forward(base, event.request));
-    return;
-  }
-  event.respondWith(serve(event.request));
-});
+  return rest.startsWith("api/") ? forward(base, request) : serve(request);
+}
 
 /**
  * Serve a mounted file.
@@ -213,7 +234,17 @@ async function serve(request) {
 }
 
 async function forward(base, request) {
-  const port = backends.get(base) || (await waitForBackend(base));
+  let port = backends.get(base);
+  if (!port) {
+    /* A restart loses the ports but not the pages. `backends` holds
+       MessagePorts, which live only as long as the worker that received them,
+       so a woken worker has no way back to a backend that is still running
+       happily in a tab. Waiting alone meant a minute of nothing followed by a
+       503 for an application that was never down. Asking first costs one
+       message and usually answers in a frame. */
+    await askClientsToReattach(base);
+    port = backends.get(base) || (await waitForBackend(base));
+  }
   if (!port) {
     return new Response(
       JSON.stringify({ message: "The application server has not started yet. Reload the page." }),
@@ -235,6 +266,22 @@ async function forward(base, request) {
 
   const result = await answer;
   return new Response(result.body, { status: result.status, headers: result.headers });
+}
+
+/**
+ * Ask every page under this scope to hand over a fresh port.
+ *
+ * `includeUncontrolled` because the page that owns the backend is the one that
+ * generated the application, and it sits *outside* this worker's scope — it is
+ * the iframe it opened that is controlled, not the page itself.
+ */
+async function askClientsToReattach(base) {
+  try {
+    const clients = await self.clients.matchAll({ includeUncontrolled: true, type: "window" });
+    for (const client of clients) client.postMessage({ type: "reattach", basePath: base });
+  } catch {
+    // Nothing to ask, or a browser that will not say: fall through to waiting.
+  }
 }
 
 /** A reload races the worker's boot; wait rather than 503 on the first paint. */

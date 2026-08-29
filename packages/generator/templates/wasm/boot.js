@@ -166,12 +166,32 @@ async function main() {
     );
   });
 
-  const channel = new MessageChannel();
-  worker.postMessage({ type: "port", port: channel.port1 }, [channel.port1]);
-  navigator.serviceWorker.controller.postMessage(
-    { type: "attach", basePath: BASE, port: channel.port2 },
-    [channel.port2]
-  );
+  /**
+   * Open the request pipe: one MessageChannel, one end to the backend worker,
+   * the other to the Service Worker that will forward `/api` to it.
+   *
+   * Re-openable on demand, because the Service Worker is stopped whenever the
+   * browser feels like it and its half of every channel dies with it. The
+   * backend worker in this page survives that quite happily — so a woken
+   * Service Worker asks for a new port rather than reporting an application
+   * that is still running as down.
+   */
+  const attach = () => {
+    const channel = new MessageChannel();
+    worker.postMessage({ type: "port", port: channel.port1 }, [channel.port1]);
+    navigator.serviceWorker.controller?.postMessage(
+      { type: "attach", basePath: BASE, port: channel.port2 },
+      [channel.port2]
+    );
+  };
+
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data?.type !== "reattach" || event.data.basePath !== BASE) return;
+    log("Reopening the request pipe after the Service Worker restarted");
+    attach();
+  });
+
+  attach();
   log("Request pipe attached");
 
   const ephemeral = new URLSearchParams(window.location.search).has("ephemeral");
