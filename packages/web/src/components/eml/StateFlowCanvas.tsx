@@ -341,9 +341,7 @@ function FitOnGrowth({ count }: { count: number }) {
       previous.current = count;
       // The node is measured on the next frame; fitting before that uses a
       // zero-size node and lands the viewport in the wrong place.
-      const frame = requestAnimationFrame(() =>
-        instance.fitView({ padding: 0.2, duration: 200 })
-      );
+      const frame = requestAnimationFrame(() => instance.fitView({ padding: 0.2, duration: 200 }));
       return () => cancelAnimationFrame(frame);
     }
     previous.current = count;

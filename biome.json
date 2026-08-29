@@ -15,6 +15,7 @@
       "!**/routeTree.gen.ts",
       "!**/*.css",
       "!**/*.generated.ts",
+      "!packages/ai/.mastra",
       "!html/checker.js",
       "!html/fixer.js",
       "!html/assets/appwithai-wasm.js",

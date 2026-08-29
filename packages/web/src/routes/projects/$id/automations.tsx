@@ -9,7 +9,6 @@
  */
 
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { requestContext } from "@/lib/request-context";
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import {
   AutomationBuilder,
@@ -25,6 +24,7 @@ import {
   serializeAutomation,
   validateAutomation,
 } from "@/lib/automation/model";
+import { requestContext } from "@/lib/request-context";
 import { type DecisionTable, emptyDecisionTable } from "@/lib/workflow/bpmn-model";
 
 async function checkAuthMe() {

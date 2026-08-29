@@ -1,7 +1,6 @@
 import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
 import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { requestContext } from "@/lib/request-context";
 import {
   AlertCircle,
   CheckCircle2,
@@ -48,6 +47,7 @@ import { useModelAssistant } from "@/hooks/useModelAssistant";
 import type { ERDVersion } from "@/lib/api/projects";
 import { erdVersionsApi } from "@/lib/api/projects";
 import { toRenderableMermaid } from "@/lib/mermaid-render";
+import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
 
 async function checkAuthMe() {

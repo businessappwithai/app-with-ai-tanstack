@@ -19,13 +19,13 @@
  * touch rather than guessing.
  */
 
+import languageDefinition from "../appwithai-language.json";
 import {
   AUTO_FIXABLE_CODES,
   type Issue as CheckerIssue,
   type CheckResult,
   checkSource,
 } from "../checker";
-import languageDefinition from "../appwithai-language.json";
 import { applyFixes, type FixResult } from "../fixer";
 import { type LanguageDefinition, setLanguageDefinition } from "../index";
 

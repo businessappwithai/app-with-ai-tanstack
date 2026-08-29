@@ -16,6 +16,7 @@
  * is how a document comes to pass in one place and fail in the other.
  */
 
+import languageDefinition from "../appwithai-language.json";
 import {
   AUTO_FIXABLE_CODES,
   type CheckResult,
@@ -23,7 +24,6 @@ import {
   type Issue,
   type Severity,
 } from "../checker";
-import languageDefinition from "../appwithai-language.json";
 import { type LanguageDefinition, setLanguageDefinition } from "../index";
 
 setLanguageDefinition(languageDefinition as unknown as LanguageDefinition);

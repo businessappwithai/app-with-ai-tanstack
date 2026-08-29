@@ -1,5 +1,4 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { requestContext } from "@/lib/request-context";
 import {
   ArrowRight,
   Code2,
@@ -11,6 +10,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { requestContext } from "@/lib/request-context";
 
 async function checkAuthMe() {
   const { baseUrl, fetchInit } = await requestContext();

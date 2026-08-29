@@ -16,20 +16,20 @@ import {
   type AutomationHook,
   type AutomationStep,
   type Condition,
+  describeCondition,
+  describeStep,
   HOOK_EVENT_HINTS,
   HOOK_EVENTS,
   type HookEvent,
-  newHook,
-  type SagaOperation,
-  type SagaTrigger,
-  describeCondition,
-  describeStep,
   type Loop,
   loopsOf,
   newCondition,
+  newHook,
   newLoop,
   newStep,
   type Problem,
+  type SagaOperation,
+  type SagaTrigger,
   STEP_GLYPHS,
   STEP_HINTS,
   STEP_LABELS,
@@ -181,25 +181,25 @@ function TriggerInspector({
         ) : null}
 
         {hookMode || saga ? null : (
-        <label className="mb-3.5 block">
-          <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-            What happens to it
-          </span>
-          <select
-            className={inputClass}
-            value={trigger.event}
-            onChange={(e) => onChange({ ...trigger, event: e.target.value as Trigger["event"] })}
-          >
-            {TRIGGER_EVENTS.map((ev) => (
-              <option key={ev} value={ev}>
-                {TRIGGER_LABELS[ev]}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1.5 text-[11.5px] leading-snug text-muted-foreground">
-            {TRIGGER_HINTS[trigger.event]}
-          </p>
-        </label>
+          <label className="mb-3.5 block">
+            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+              What happens to it
+            </span>
+            <select
+              className={inputClass}
+              value={trigger.event}
+              onChange={(e) => onChange({ ...trigger, event: e.target.value as Trigger["event"] })}
+            >
+              {TRIGGER_EVENTS.map((ev) => (
+                <option key={ev} value={ev}>
+                  {TRIGGER_LABELS[ev]}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1.5 text-[11.5px] leading-snug text-muted-foreground">
+              {TRIGGER_HINTS[trigger.event]}
+            </p>
+          </label>
         )}
       </div>
     </div>
@@ -576,116 +576,119 @@ export function AutomationBuilder({
             </>
           ) : (
             <>
-          <LadderCard
-            kind="when"
-            glyph="⚡"
-            title={
-              <TriggerTitle
-                trigger={automation.trigger}
-                saga={
-                  automation.kind === "saga"
-                    ? {
-                        sagaTrigger: automation.sagaTrigger ?? "rule",
-                        sagaOperation: automation.sagaOperation ?? "CREATE",
-                      }
-                    : undefined
+              <LadderCard
+                kind="when"
+                glyph="⚡"
+                title={
+                  <TriggerTitle
+                    trigger={automation.trigger}
+                    saga={
+                      automation.kind === "saga"
+                        ? {
+                            sagaTrigger: automation.sagaTrigger ?? "rule",
+                            sagaOperation: automation.sagaOperation ?? "CREATE",
+                          }
+                        : undefined
+                    }
+                  />
                 }
+                selected={selection?.kind === "trigger"}
+                problem={problemFor("trigger")}
+                onSelect={() => setSelection({ kind: "trigger" })}
               />
-            }
-            selected={selection?.kind === "trigger"}
-            problem={problemFor("trigger")}
-            onSelect={() => setSelection({ kind: "trigger" })}
-          />
 
-          {automation.conditions.map((c) => (
-            <ConditionRow
-              key={c.id}
-              condition={c}
-              selected={selection?.kind === "condition" && selection.id === c.id}
-              problem={problemFor(c.id)}
-              onSelect={() => setSelection({ kind: "condition", id: c.id })}
-              onRemove={() => removeCondition(c.id)}
-              onAddAbove={() => setAddingAt(0)}
-            />
-          ))}
-
-          {runs.map((run) => {
-            const rows = run.steps.map(({ step, index }) => (
-              <StepRow
-                key={step.id}
-                step={step}
-                index={index}
-                selected={selection?.kind === "step" && selection.id === step.id}
-                problem={problemFor(step.id)}
-                adding={addingAt === index}
-                onSelect={() => setSelection({ kind: "step", id: step.id })}
-                onRemove={() => removeStep(step.id)}
-                onOpenAdd={() => setAddingAt(index)}
-                onCancelAdd={() => setAddingAt(null)}
-                onAddCondition={addCondition}
-                onAddLoop={() => addLoop(index)}
-                onAddStep={(type) => addStep(type, index)}
-              />
-            ));
-
-            if (!run.loop) return rows;
-
-            const last = run.steps[run.steps.length - 1];
-            return (
-              <div key={run.loop.id} className="w-full">
-                <LadderRung onAdd={() => setAddingAt(run.steps[0]?.index ?? 0)} />
-                <LadderCard
-                  kind="loop"
-                  glyph="↻"
-                  title={<LoopTitle loop={run.loop} />}
-                  selected={selection?.kind === "loop" && selection.id === run.loop.id}
-                  problem={problemFor(run.loop.id)}
-                  onSelect={() => setSelection({ kind: "loop", id: run.loop?.id as string })}
-                  onRemove={() => removeLoop(run.loop?.id as string)}
+              {automation.conditions.map((c) => (
+                <ConditionRow
+                  key={c.id}
+                  condition={c}
+                  selected={selection?.kind === "condition" && selection.id === c.id}
+                  problem={problemFor(c.id)}
+                  onSelect={() => setSelection({ kind: "condition", id: c.id })}
+                  onRemove={() => removeCondition(c.id)}
+                  onAddAbove={() => setAddingAt(0)}
                 />
-                <LoopFrame stepCount={run.steps.length} problem={Boolean(problemFor(run.loop.id))}>
-                  {rows}
-                  <div className="mt-1 flex flex-col items-center">
-                    <LadderRung onAdd={() => setAddingAt(last ? last.index + 1 : 0)} />
-                    <button
-                      type="button"
-                      onClick={() => setAddingAt(last ? last.index + 1 : 0)}
-                      className="w-full rounded-lg border border-dashed border-teal-300 bg-card py-2 text-xs font-semibold text-teal-700 hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              ))}
+
+              {runs.map((run) => {
+                const rows = run.steps.map(({ step, index }) => (
+                  <StepRow
+                    key={step.id}
+                    step={step}
+                    index={index}
+                    selected={selection?.kind === "step" && selection.id === step.id}
+                    problem={problemFor(step.id)}
+                    adding={addingAt === index}
+                    onSelect={() => setSelection({ kind: "step", id: step.id })}
+                    onRemove={() => removeStep(step.id)}
+                    onOpenAdd={() => setAddingAt(index)}
+                    onCancelAdd={() => setAddingAt(null)}
+                    onAddCondition={addCondition}
+                    onAddLoop={() => addLoop(index)}
+                    onAddStep={(type) => addStep(type, index)}
+                  />
+                ));
+
+                if (!run.loop) return rows;
+
+                const last = run.steps[run.steps.length - 1];
+                return (
+                  <div key={run.loop.id} className="w-full">
+                    <LadderRung onAdd={() => setAddingAt(run.steps[0]?.index ?? 0)} />
+                    <LadderCard
+                      kind="loop"
+                      glyph="↻"
+                      title={<LoopTitle loop={run.loop} />}
+                      selected={selection?.kind === "loop" && selection.id === run.loop.id}
+                      problem={problemFor(run.loop.id)}
+                      onSelect={() => setSelection({ kind: "loop", id: run.loop?.id as string })}
+                      onRemove={() => removeLoop(run.loop?.id as string)}
+                    />
+                    <LoopFrame
+                      stepCount={run.steps.length}
+                      problem={Boolean(problemFor(run.loop.id))}
                     >
-                      ＋ Add a step inside this repeat
-                    </button>
+                      {rows}
+                      <div className="mt-1 flex flex-col items-center">
+                        <LadderRung onAdd={() => setAddingAt(last ? last.index + 1 : 0)} />
+                        <button
+                          type="button"
+                          onClick={() => setAddingAt(last ? last.index + 1 : 0)}
+                          className="w-full rounded-lg border border-dashed border-teal-300 bg-card py-2 text-xs font-semibold text-teal-700 hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        >
+                          ＋ Add a step inside this repeat
+                        </button>
+                      </div>
+                    </LoopFrame>
                   </div>
-                </LoopFrame>
-              </div>
-            );
-          })}
+                );
+              })}
 
-          {addingAt === automation.steps.length ? (
-            <>
-              <LadderRung onAdd={() => setAddingAt(null)} active />
-              <AddMenu
-                onAddCondition={addCondition}
-                onAddLoop={() => addLoop(automation.steps.length)}
-                onAddStep={(type) => addStep(type, automation.steps.length)}
-                onCancel={() => setAddingAt(null)}
-              />
-            </>
-          ) : (
-            <>
-              <LadderRung onAdd={() => setAddingAt(automation.steps.length)} />
-              <button
-                type="button"
-                onClick={() => setAddingAt(automation.steps.length)}
-                className="w-full rounded-xl border border-dashed border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                ＋ <span className="text-primary">Add a condition or an action</span>
-              </button>
-            </>
-          )}
+              {addingAt === automation.steps.length ? (
+                <>
+                  <LadderRung onAdd={() => setAddingAt(null)} active />
+                  <AddMenu
+                    onAddCondition={addCondition}
+                    onAddLoop={() => addLoop(automation.steps.length)}
+                    onAddStep={(type) => addStep(type, automation.steps.length)}
+                    onCancel={() => setAddingAt(null)}
+                  />
+                </>
+              ) : (
+                <>
+                  <LadderRung onAdd={() => setAddingAt(automation.steps.length)} />
+                  <button
+                    type="button"
+                    onClick={() => setAddingAt(automation.steps.length)}
+                    className="w-full rounded-xl border border-dashed border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  >
+                    ＋ <span className="text-primary">Add a condition or an action</span>
+                  </button>
+                </>
+              )}
 
-          {problemFor("steps") ? (
-            <p className="mt-3 w-full text-xs text-amber-700">{problemFor("steps")}</p>
-          ) : null}
+              {problemFor("steps") ? (
+                <p className="mt-3 w-full text-xs text-amber-700">{problemFor("steps")}</p>
+              ) : null}
             </>
           )}
         </div>
@@ -869,9 +872,7 @@ function HookInspector({
           Step {index + 1} of {count}
         </p>
         <h2 className="text-base font-bold tracking-tight">Lifecycle step</h2>
-        <p className="mt-1 text-[12.5px] text-muted-foreground">
-          {HOOK_EVENT_HINTS[hook.event]}
-        </p>
+        <p className="mt-1 text-[12.5px] text-muted-foreground">{HOOK_EVENT_HINTS[hook.event]}</p>
       </div>
 
       <label className="block">

@@ -13,15 +13,9 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  type Automation,
-  emptyAutomation,
-  parseAutomation,
-  serializeAutomation,
-} from "../model";
+import { type Automation, emptyAutomation, parseAutomation, serializeAutomation } from "../model";
 
-const doc = (header: string, ...body: string[]) =>
-  [header, "flowchart TD", ...body].join("\n");
+const doc = (header: string, ...body: string[]) => [header, "flowchart TD", ...body].join("\n");
 
 /** The five shapes the CRM model actually uses. */
 const HEADERS = [
