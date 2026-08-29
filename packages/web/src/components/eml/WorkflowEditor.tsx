@@ -2,13 +2,13 @@ import { AlertCircle, Code2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { LadderCard, LadderRung } from "@/components/automation/LadderCard";
 import { SagaLadder } from "@/components/eml/SagaLadder";
+import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import {
   type Automation,
   emptyAutomation,
   serializeAutomation,
   validateAutomation,
 } from "@/lib/automation/model";
-import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import {
   emitHookWorkflow,
   emitSagaFlow,
@@ -73,9 +73,7 @@ export function emptyWorkflow(kind: WorkflowKind, key: string, entity: string): 
     hooks: [],
     states: emptyStateFlow(),
     saga: emptySagaFlow(),
-    ...(kind === "hook" || kind === "saga"
-      ? { automation: emptyAutomation(entity, kind) }
-      : {}),
+    ...(kind === "hook" || kind === "saga" ? { automation: emptyAutomation(entity, kind) } : {}),
   };
 }
 
@@ -135,7 +133,7 @@ export function WorkflowEditor({
 }: WorkflowEditorProps) {
   const [showSource, setShowSource] = useState(false);
   const [selectedHookId, setSelectedHookId] = useState<string | null>(
-    workflow.hooks[0]?.id ?? null,
+    workflow.hooks[0]?.id ?? null
   );
   const problems = useMemo(() => validateWorkflow(workflow), [workflow]);
   const pascal = pascalWorkflowName;

@@ -1,6 +1,5 @@
 import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { requestContext } from "@/lib/request-context";
 import {
   AlertCircle,
   ArrowRight,
@@ -29,18 +28,19 @@ import {
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
+import { parseAutomation } from "@/lib/automation/model";
 import {
   emptyDecisionTable,
   parseTableFromFlowchart,
   tableToEmlFlowchart,
 } from "@/lib/eml/decision-table";
-import { parseAutomation } from "@/lib/automation/model";
 import {
   emptySagaFlow,
   parseHookWorkflow,
   parseSagaFlow,
   parseStateFlow,
 } from "@/lib/eml/workflow-flow";
+import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
 
 /**

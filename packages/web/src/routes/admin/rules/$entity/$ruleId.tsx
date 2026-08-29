@@ -1,5 +1,4 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { requestContext } from "@/lib/request-context";
 import { ArrowLeftIcon, CheckIcon, SaveIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { asDecisionTable, wouldReplaceStoredContent } from "@/lib/automation/rule-content";
+import { requestContext } from "@/lib/request-context";
 import type { DecisionTable } from "@/lib/workflow/bpmn-model";
 
 async function checkAuthMe() {

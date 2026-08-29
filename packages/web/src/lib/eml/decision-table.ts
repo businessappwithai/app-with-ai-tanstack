@@ -108,7 +108,10 @@ export interface TableTestResult {
   outputs: Record<string, string>;
 }
 
-export function evaluateTable(table: DecisionTable, values: Record<string, string>): TableTestResult {
+export function evaluateTable(
+  table: DecisionTable,
+  values: Record<string, string>
+): TableTestResult {
   for (let i = 0; i < table.rules.length; i++) {
     const row = table.rules[i];
     if (!row) continue;
@@ -135,13 +138,20 @@ function cellMatches(cell: string, value: string): boolean {
   const b = Number(raw);
   const numeric = !Number.isNaN(a) && !Number.isNaN(b) && value.trim() !== "";
   switch (op) {
-    case "=":  return numeric ? a === b : value === raw;
-    case "!=": return numeric ? a !== b : value !== raw;
-    case ">":  return numeric && a > b;
-    case ">=": return numeric && a >= b;
-    case "<":  return numeric && a < b;
-    case "<=": return numeric && a <= b;
-    default:   return false;
+    case "=":
+      return numeric ? a === b : value === raw;
+    case "!=":
+      return numeric ? a !== b : value !== raw;
+    case ">":
+      return numeric && a > b;
+    case ">=":
+      return numeric && a >= b;
+    case "<":
+      return numeric && a < b;
+    case "<=":
+      return numeric && a <= b;
+    default:
+      return false;
   }
 }
 

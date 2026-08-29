@@ -852,7 +852,11 @@ function serializeHookWorkflow(a: Automation): string {
     previous = id;
   });
 
-  lines.push(`    ${previous} --> persist[Persist ${entity}]`, "    persist --> done[Response]", "");
+  lines.push(
+    `    ${previous} --> persist[Persist ${entity}]`,
+    "    persist --> done[Response]",
+    ""
+  );
 
   for (const hook of a.hooks) {
     lines.push(

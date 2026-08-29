@@ -44,7 +44,11 @@ export function asDecisionTable(content: unknown): DecisionTable {
   }
 
   // JDM graph format: { name, nodes: [..., { type: "decisionTableNode", content: {...} }] }
-  if (parsed && typeof parsed === "object" && Array.isArray((parsed as Record<string, unknown>).nodes)) {
+  if (
+    parsed &&
+    typeof parsed === "object" &&
+    Array.isArray((parsed as Record<string, unknown>).nodes)
+  ) {
     const nodes = (parsed as { nodes: unknown[] }).nodes;
     for (const node of nodes) {
       if (

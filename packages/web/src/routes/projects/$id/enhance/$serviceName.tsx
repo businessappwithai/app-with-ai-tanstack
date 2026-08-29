@@ -1,5 +1,4 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { requestContext } from "@/lib/request-context";
 import {
   AlertCircle,
   ArrowLeft,
@@ -18,6 +17,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { parseAutomation, serializeAutomation } from "@/lib/automation/model";
+import { requestContext } from "@/lib/request-context";
 import { generateFlowchartFromHooks, type ParsedHookDefinition } from "@/lib/workflow/hook-parser";
 import { useProjectStore } from "@/store/projectStore";
 
