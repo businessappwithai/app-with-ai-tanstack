@@ -1843,8 +1843,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
       // `as const` gives `TRANSITIONS.length` a literal type, so comparing it
       // to 0 is `TS2367` in the generated backend's own build. The empty case
       // returns the no-op module above.
-      `  // Replace all model-declared transitions on each table, keeping any`,
-      `  // hand-crafted rows (source = 'designer') untouched.`,
+      `  // Replace every transition on each table the model declares. The table`,
+      `  // has no provenance column, so this is a full replacement, not a merge:`,
+      `  // a transition added by hand on one of these tables does not survive a`,
+      `  // re-seed. Tables the model says nothing about are left alone.`,
       `  const tables = [...new Set(TRANSITIONS.map((t) => t.tableName))];`,
       `  for (const tbl of tables) {`,
       `    await sql\``,

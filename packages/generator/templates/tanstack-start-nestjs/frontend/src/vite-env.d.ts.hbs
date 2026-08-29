@@ -13,6 +13,32 @@
  * Project: {{project.name}}
  */
 
+/**
+ * `import.meta.env`, declared locally.
+ *
+ * The reference above only types this when `vite/client` resolves, and the
+ * generated app depends on vinxi rather than on vite directly — so on a fresh
+ * install the reference finds nothing and every `import.meta.env.VITE_*` read
+ * fails to typecheck. Declaring the shape here does not depend on a package
+ * being present, and interface merging keeps it correct for anyone who does
+ * add vite to the app.
+ */
+interface ImportMetaEnv {
+  readonly MODE: string;
+  readonly BASE_URL: string;
+  readonly DEV: boolean;
+  readonly PROD: boolean;
+  readonly SSR: boolean;
+  readonly VITE_API_URL?: string;
+  readonly VITE_ELECTRIC_SYNC?: string;
+  readonly VITE_ELECTRIC_PROXY_URL?: string;
+  readonly [key: string]: string | boolean | undefined;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 declare module '*?url' {
   const src: string;
   export default src;

@@ -370,7 +370,9 @@ function WorkflowDefinitionDetail() {
 
   const toggleMutation = useMutation({
     mutationFn: () =>
-      apiClient.patch(`/workflow-definitions/${id}`, { is_active: !wf?.is_active }),
+      // The update DTO is camelCase; `is_active` was silently ignored, so the
+      // toggle wrote nothing even once the route answered.
+      apiClient.patch(`/workflow-definitions/${id}`, { isActive: !wf?.is_active }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workflow-definition', id] }),
   });
 

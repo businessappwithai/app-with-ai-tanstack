@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -62,6 +63,18 @@ export class WorkflowDefinitionsController {
 
   @Put(":id")
   update(@Param('id') id: string, @Body() dto: Partial<WorkflowDefinitionDto>) {
+    return this.service.update(id, dto);
+  }
+
+  /**
+   * The same partial update under PATCH, which is what the admin screens send
+   * for a single-field edit such as the active toggle. Only PUT was mapped, so
+   * that toggle answered 404 on every generated app. This needs its own method:
+   * Nest stores one HTTP verb per handler, so stacking @Patch on the @Put
+   * handler would silently replace the mapping rather than add one.
+   */
+  @Patch(":id")
+  patch(@Param('id') id: string, @Body() dto: Partial<WorkflowDefinitionDto>) {
     return this.service.update(id, dto);
   }
 
