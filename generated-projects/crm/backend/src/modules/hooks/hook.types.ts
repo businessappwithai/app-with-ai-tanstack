@@ -2,7 +2,7 @@
  * Hook System Types
  *
  * Defines the lifecycle events and hook interfaces for the application.
- * Generated: 2026-08-17T17:20:18.406Z
+ * Generated: 2026-08-29T04:45:21.666Z
  */
 
 export type HookLifecycle =

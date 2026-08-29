@@ -8,7 +8,7 @@ function RootErrorComponent({ error }: { error: Error }) {
   return (
     <html lang="en">
       <head>
-        <title>Error - crm</title>
+        <title>Error - my-app</title>
         <Meta />
       </head>
       <body className="font-sans antialiased">
@@ -39,7 +39,7 @@ function RootNotFoundComponent() {
   return (
     <html lang="en">
       <head>
-        <title>Not Found - crm</title>
+        <title>Not Found - my-app</title>
         <Meta />
       </head>
       <body className="font-sans antialiased">
@@ -85,8 +85,8 @@ function RootLayout() {
   return (
     <html lang="en">
       <head>
-        <title>crm</title>
-        <meta name="description" content="Enterprise CRM generated from language/examples/crm.eml.mmd" />
+        <title>my-app</title>
+        <meta name="description" content="Generated application" />
         <Meta />
       </head>
       <body className="font-sans antialiased">

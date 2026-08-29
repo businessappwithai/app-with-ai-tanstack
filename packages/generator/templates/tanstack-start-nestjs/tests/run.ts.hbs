@@ -180,6 +180,16 @@ async function main(): Promise<void> {
     }
   } else {
     managed = await startServer(backendDir);
+    // The backend runs in its own process group so the runner can take the
+    // whole tree down (see startServer). The cost of that group is that a
+    // Ctrl-C on this terminal no longer reaches it, so the interrupt has to be
+    // forwarded by hand — otherwise the backend outlives the run it belongs to
+    // and the next one attaches to it instead of starting its own.
+    for (const signal of ["SIGINT", "SIGTERM"] as const) {
+      process.once(signal, () => {
+        void managed?.stop().finally(() => process.exit(130));
+      });
+    }
   }
 
   const suites = await orderedSuites();

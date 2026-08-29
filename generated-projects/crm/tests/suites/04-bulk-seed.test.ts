@@ -7,14 +7,14 @@
  *
  * Records here are deliberately NOT tracked for harness teardown — the point is
  * to leave the database populated for the rules and workflow suites that follow.
- * Every id is written to `.e2e-seed-manifest.json` instead, so `bun run clean`
+ * Every id is written to `.e2e-seed-manifest.json` instead, so `npm run clean`
  * can remove exactly this data later without touching the app's own seed rows.
  *
- * Generated: 2026-08-17T17:20:18.824Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.137Z
+ * Project: my-app
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
 import {
   buildRecord,
   config,
@@ -23,7 +23,7 @@ import {
   harness,
   recordSeeded,
   reseed,
-} from "../harness";
+} from "../harness/index.ts";
 
 /** Ids created per entity, reused to satisfy the next entity's foreign keys. */
 const createdIds = new Map<string, string[]>();

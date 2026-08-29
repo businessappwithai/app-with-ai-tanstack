@@ -5,11 +5,11 @@
  * write a record → rule matches → workflow run is enqueued → run reaches a
  * terminal state.
  *
- * Generated: 2026-08-17T17:20:18.825Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.138Z
+ * Project: my-app
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
 import {
   buildWorkflowTriggerJdm,
   collectActions,
@@ -24,7 +24,7 @@ import {
   runsForEntity,
   waitForEntityRuns,
   type RuleRecord,
-} from "../harness";
+} from "../harness/index.ts";
 
 const suiteId = `e2e-wf-${Date.now().toString(36)}`;
 

@@ -5,7 +5,7 @@
  * - sys_table, sys_column, sys_field
  * - sys_category (entity grouping for the dashboard)
  *
- * Generated: 2026-08-17T17:20:18.475Z
+ * Generated: 2026-08-29T04:45:21.733Z
  */
 
 import { Module } from '@nestjs/common';

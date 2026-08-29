@@ -9,8 +9,8 @@
  * `code`) rather than duplicating them, and only re-assigns entities that are
  * still uncategorised or whose category no longer exists.
  *
- * Generated: 2026-08-17T17:20:18.587Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.864Z
+ * Project: my-app
  */
 
 import type { Kysely } from 'kysely';
@@ -32,7 +32,7 @@ const CATEGORIES: CategorySeed[] = [
   {
     name: 'Accounts and Contacts',
     code: 'accounts-and-contacts',
-    description: 'Customer organisations, their people and the territories that cover them',
+    description: "Customer organisations, their people and the territories that cover them",
     icon: 'Building2',
     color: '#6366f1',
     seqNo: 0,
@@ -42,7 +42,7 @@ const CATEGORIES: CategorySeed[] = [
   {
     name: 'Demand Generation',
     code: 'demand-generation',
-    description: 'Campaigns, campaign membership and inbound leads',
+    description: "Campaigns, campaign membership and inbound leads",
     icon: 'Megaphone',
     color: '#ec4899',
     seqNo: 1,
@@ -52,7 +52,7 @@ const CATEGORIES: CategorySeed[] = [
   {
     name: 'Sales Pipeline',
     code: 'sales-pipeline',
-    description: 'Opportunities, their line items and the products sold',
+    description: "Opportunities, their line items and the products sold",
     icon: 'TrendingUp',
     color: '#0ea5e9',
     seqNo: 2,
@@ -62,7 +62,7 @@ const CATEGORIES: CategorySeed[] = [
   {
     name: 'Quotes and Contracts',
     code: 'quotes-and-contracts',
-    description: 'Priced quotes, their line items and signed agreements',
+    description: "Priced quotes, their line items and signed agreements",
     icon: 'FileSignature',
     color: '#14b8a6',
     seqNo: 3,
@@ -72,7 +72,7 @@ const CATEGORIES: CategorySeed[] = [
   {
     name: 'Customer Service',
     code: 'customer-service',
-    description: 'Support cases and the service levels that govern them',
+    description: "Support cases and the service levels that govern them",
     icon: 'LifeBuoy',
     color: '#f59e0b',
     seqNo: 4,
@@ -82,7 +82,7 @@ const CATEGORIES: CategorySeed[] = [
   {
     name: 'Activities',
     code: 'activities',
-    description: 'Calls, emails, meetings and tasks logged against any record',
+    description: "Calls, emails, meetings and tasks logged against any record",
     icon: 'CalendarClock',
     color: '#8b5cf6',
     seqNo: 5,
@@ -92,7 +92,7 @@ const CATEGORIES: CategorySeed[] = [
   {
     name: 'People and Teams',
     code: 'people-and-teams',
-    description: 'Users, selling teams and organisational structure',
+    description: "Users, selling teams and organisational structure",
     icon: 'Users',
     color: '#64748b',
     seqNo: 6,

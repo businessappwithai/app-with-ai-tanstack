@@ -1,8 +1,8 @@
 /**
  * Unit tests for AuthController
  *
- * Generated: 2026-08-17T17:20:18.680Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.003Z
+ * Project: my-app
  */
 
 import { describe, it, expect } from 'bun:test';

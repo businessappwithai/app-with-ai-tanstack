@@ -4,12 +4,13 @@
  * A rule action of type `trigger-workflow` enqueues a run. Runs are async, so
  * everything here polls to a terminal state rather than assuming completion.
  *
- * Generated: 2026-08-17T17:20:18.815Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.127Z
+ * Project: my-app
  */
 
-import { config } from "./config";
-import type { HttpClient } from "./http";
+import { config } from "./config.ts";
+import type { HttpClient } from "./http.ts";
+import { sleep } from "./testing.ts";
 
 export interface WorkflowRun {
   id?: string;
@@ -104,7 +105,7 @@ export async function waitForEntityRuns(
       if (!options.requireTerminal) return runs;
       if (runs.every((run) => isTerminal(run.status))) return runs;
     }
-    await Bun.sleep(400);
+    await sleep(400);
   }
 
   return runs;
@@ -122,7 +123,7 @@ export async function waitForRun(
   while (Date.now() < deadline) {
     run = await getRun(client, runId);
     if (run && isTerminal(run.status)) return run;
-    await Bun.sleep(400);
+    await sleep(400);
   }
   return run;
 }
@@ -132,7 +133,7 @@ export async function waitForRun(
 /**
  * One step of a workflow, as the BPMN executor reads it.
  *
- * `props` are the `erdwithai:property` entries the executor looks for. The
+ * `props` are the `appwithai:property` entries the executor looks for. The
  * builder below does not validate them — a suite asserting on a mis-typed
  * property should see the executor skip that node, which is the behaviour worth
  * testing.
@@ -162,13 +163,13 @@ export function buildWorkflowBpmn(processId: string, steps: WorkflowStep[]): str
   const tasks = steps
     .map((step) => {
       const props = Object.entries(step.props)
-        .map(([k, v]) => `          <erdwithai:property name="${k}" value="${escapeXmlAttr(v)}" />`)
+        .map(([k, v]) => `          <appwithai:property name="${k}" value="${escapeXmlAttr(v)}" />`)
         .join("\n");
       return `    <bpmn:serviceTask id="${step.id}" name="${escapeXmlAttr(step.name)}">
       <bpmn:extensionElements>
-        <erdwithai:properties xmlns:erdwithai="http://erdwithai.dev/bpmn">
+        <appwithai:properties xmlns:appwithai="http://appwithai.dev/bpmn">
 ${props}
-        </erdwithai:properties>
+        </appwithai:properties>
       </bpmn:extensionElements>
     </bpmn:serviceTask>`;
     })
@@ -181,7 +182,7 @@ ${props}
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://erdwithai.dev/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" id="defs_${processId}" targetNamespace="http://appwithai.dev/bpmn">
   <bpmn:process id="${processId}" isExecutable="true">
     <bpmn:startEvent id="start" name="Start" />
 ${tasks}

@@ -17,8 +17,8 @@
  * store is unreachable should serve its business data exactly as before and
  * simply have a less useful assistant.
  *
- * Generated: 2026-08-17T17:20:18.502Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.754Z
+ * Project: my-app
  */
 
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -163,14 +163,14 @@ export class ModelContextService implements OnModuleInit {
 
     return chunkModel(
       {
-        name: 'crm',
+        name: 'my-app',
         entities,
         relationships,
         enums: extractEnums(document),
         rules: parseRules(document),
         sagas: parseSagas(document),
       },
-      'crm'
+      'my-app'
     );
   }
 

@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 /**
  * Everything under /api, served from the front end's own origin and forwarded
  * to the NestJS API. The reasoning lives in src/lib/api-proxy.ts.
@@ -6,10 +7,11 @@
  * this one because the router tries routes with more path segments first. And
  * the assistant is answered here — see the note on it below.
  *
- * Generated: 2026-08-17T17:20:18.718Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.028Z
+ * Project: my-app
  */
 
+import type { ResolveParams } from '@tanstack/react-router'
 import { createAPIFileRoute } from '@tanstack/start/api'
 // Relative rather than the `@/` alias: this module is bundled by the API
 // router, which is configured separately from the client and the SSR server,
@@ -17,9 +19,21 @@ import { createAPIFileRoute } from '@tanstack/start/api'
 import { apiUnavailable, proxyToBackend } from '../../lib/api-proxy'
 import { handleCopilotRequest, isCopilotPath } from '../../lib/copilot-runtime'
 
+// `ResolveParams` is the exact type the route's own callback signature uses.
+// Writing `Record<string, string>` instead looked equivalent and was not: the
+// resolved type has no string index signature, so every method below was
+// rejected as an incompatible callback — nine type errors from one annotation.
+// The handlers are built by a factory rather than written inline, so they get
+// no contextual typing to infer from and the annotation has to be right.
 function handler(method: string) {
-  return async ({ request, params }: { request: Request; params: Record<string, string> }) => {
-    const path = params['_splat'] ?? ''
+  return async ({
+    request,
+    params,
+  }: {
+    request: Request
+    params: ResolveParams<'/api/$'>
+  }) => {
+    const path = params._splat ?? ''
 
     // The assistant is served here rather than forwarded. It is answered from
     // this route and not from a /api/copilotkit/$ file of its own because the
@@ -36,7 +50,7 @@ function handler(method: string) {
   }
 }
 
-const route = createAPIFileRoute('/api/$')({
+export const Route = createAPIFileRoute('/api/$')({
   GET: handler('GET'),
   HEAD: handler('HEAD'),
   POST: handler('POST'),
@@ -46,9 +60,17 @@ const route = createAPIFileRoute('/api/$')({
   OPTIONS: handler('OPTIONS'),
 })
 
-// Both names, on purpose. The router registers a route file by its `APIRoute`
-// export and ignores anything else, so a file that exports only `Route` is
-// silently absent — and an absent API route answers with the HTML of a missing
-// page, not a 404 anyone would recognise as a routing problem.
-export const APIRoute = route
-export const Route = route
+// Both names, on purpose, and `Route` is the one holding the call.
+//
+// The router registers an API route file by its `APIRoute` export and ignores
+// anything else, so a file exporting only `Route` is silently absent — and an
+// absent API route answers with the HTML of a missing page rather than a 404
+// anyone would recognise as a routing problem. That is why both exist.
+//
+// Which of the two is the alias is not a style choice. The route generator
+// parses these files and requires the `Route` export to be initialised by a
+// call expression directly; assigning it from a local const failed that check
+// with `expected "Route" export to be initialized by a CallExpression`, and
+// a failed generate leaves no src/routeTree.gen.ts — which every route file
+// imports, so a freshly generated frontend did not typecheck at all.
+export const APIRoute = Route

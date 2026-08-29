@@ -31,8 +31,8 @@
  * decision table, give every existing row an explicit "''" for it, or the whole
  * table stops matching.
  *
- * Generated: 2026-08-17T17:20:18.428Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.698Z
+ * Project: my-app
  */
 
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';

@@ -1,33 +1,37 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * E2E runner.
  *
  * Starts the backend (unless one is already listening), waits for it to become
- * healthy, then runs the suites **in order** — each in its own `bun test`
+ * healthy, then runs the suites **in order** — each in its own test-runner
  * process so a crash in one suite cannot take the rest down, and so the
  * ordering the suites depend on (seed before rules before workflows) holds.
  *
  * Usage:
- *   bun run run.ts                 # everything, in order (1000 records/entity)
- *   bun run run.ts --small         # 10 records per entity — quick smoke run
- *   bun run run.ts --full          # 1000 records per entity (the default)
- *   bun run run.ts --records 250   # an arbitrary volume
- *   bun run run.ts --fast          # skip the bulk-seed suite entirely
- *   bun run run.ts --only crud     # substring filter on suite file names
- *   bun run run.ts --no-server     # attach to an already-running backend
+ *   npm test --                 # everything, in order (1000 records/entity)
+ *   npm test -- --small         # 10 records per entity — quick smoke run
+ *   npm test -- --full          # 1000 records per entity (the default)
+ *   npm test -- --records 250   # an arbitrary volume
+ *   npm test -- --fast          # skip the bulk-seed suite entirely
+ *   npm test -- --only crud     # substring filter on suite file names
+ *   npm test -- --no-server     # attach to an already-running backend
  *
- * Generated: 2026-08-17T17:20:18.799Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.098Z
+ * Project: my-app
  */
 
-import { spawn } from "bun";
+// node:child_process, not Bun's spawn: this runner has to work under both
+// runtimes, since the wasm stack has no Bun to run it with.
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { readdir, rm } from "node:fs/promises";
-import { join } from "node:path";
-import { config } from "./harness/config";
-import { formatComparison, formatSummary, timestampFor, writeReport } from "./harness/report";
-import { isServerUp, startServer } from "./harness/server";
+import { dirname, join } from "node:path";
+import { config } from "./harness/config.ts";
+import { formatComparison, formatSummary, timestampFor, writeReport } from "./harness/report.ts";
+import { isServerUp, startServer } from "./harness/server.ts";
 
-const here = import.meta.dir;
+// Standard `import.meta.url` rather than Bun's `import.meta.dir`.
+const here = dirname(fileURLToPath(import.meta.url));
 const suitesDir = join(here, "suites");
 
 /**
@@ -37,6 +41,20 @@ const suitesDir = join(here, "suites");
  */
 const runStartedAt = new Date();
 const runStamp = timestampFor(runStartedAt);
+
+/**
+ * One token for the whole run, handed to every suite process.
+ *
+ * Unique columns are salted with it, so two runs against the same database do
+ * not regenerate each other's values — the suites deliberately leave their rows
+ * behind, which makes a re-run the normal case rather than an abuse. Each suite
+ * is a separate process, so deriving it per-process would give the same run
+ * several identities and make a failing run impossible to replay. Set
+ * E2E_RUN_TOKEN to reproduce an earlier run's values exactly.
+ */
+const runToken =
+  process.env.E2E_RUN_TOKEN ||
+  `${runStartedAt.getTime().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
 
 /** Where the report lands, and where suite processes drop their shards. */
 const resultsDir = join(here, "..", "test-results");
@@ -97,26 +115,39 @@ async function orderedSuites(): Promise<string[]> {
 async function runSuite(file: string): Promise<SuiteResult> {
   const started = Date.now();
 
-  const child = spawn({
-    // bun:test defaults to a 5s per-test timeout, which is too tight for
-    // suites that make several round trips against a populated database.
-    // Individual heavy tests set their own longer timeouts on top of this.
-    cmd: ["bun", "test", "--timeout", String(config.suiteTimeoutMs), join(suitesDir, file)],
+  // Both runners understand `node:test`, which is what the suites are written
+  // against, so each is invoked with whichever one is running this file. The
+  // default per-test timeout in both is far too tight for suites making several
+  // round trips against a populated database; individual heavy tests set longer
+  // ones on top.
+  const onBun = typeof process.versions.bun === "string";
+  const [command, args] = onBun
+    ? ["bun", ["test", "--timeout", String(config.suiteTimeoutMs), join(suitesDir, file)]]
+    : [
+        process.execPath,
+        ["--test", `--test-timeout=${config.suiteTimeoutMs}`, join(suitesDir, file)],
+      ];
+
+  const child = spawn(command as string, args as string[], {
     cwd: here,
-    stdout: "inherit",
-    stderr: "inherit",
+    stdio: "inherit",
     // Pin the resolved volume so every suite in the run agrees on it,
     // regardless of which flag or env var selected it.
     env: {
       ...process.env,
       E2E_RECORDS_PER_ENTITY: String(recordsPerEntity),
+      // Pinned here rather than per-process: see runToken above.
+      E2E_RUN_TOKEN: runToken,
       // Suites run in their own processes, so they cannot share a counter in
       // memory. Each appends to its own shard here and the runner merges them.
       E2E_METRICS_DIR: shardDir,
     },
   });
 
-  const exitCode = await child.exited;
+  const exitCode = await new Promise<number>((resolve) => {
+    child.once("exit", (code) => resolve(code ?? 1));
+    child.once("error", () => resolve(1));
+  });
   return {
     file,
     ok: exitCode === 0,
@@ -131,11 +162,12 @@ function format(ms: number): string {
 
 async function main(): Promise<void> {
   console.log("\n═══════════════════════════════════════════");
-  console.log("  crm — end-to-end tests");
+  console.log("  my-app — end-to-end tests");
   console.log("═══════════════════════════════════════════\n");
   console.log(`  Target:            ${config.baseUrl}`);
   console.log(`  Records/entity:    ${fast ? "skipped (--fast)" : recordsPerEntity}`);
   console.log(`  Faker seed:        ${config.fakerSeed}`);
+  console.log(`  Run token:         ${runToken}`);
   if (only) console.log(`  Filter:            ${only}`);
   console.log("");
 
@@ -148,6 +180,16 @@ async function main(): Promise<void> {
     }
   } else {
     managed = await startServer(backendDir);
+    // The backend runs in its own process group so the runner can take the
+    // whole tree down (see startServer). The cost of that group is that a
+    // Ctrl-C on this terminal no longer reaches it, so the interrupt has to be
+    // forwarded by hand — otherwise the backend outlives the run it belongs to
+    // and the next one attaches to it instead of starting its own.
+    for (const signal of ["SIGINT", "SIGTERM"] as const) {
+      process.once(signal, () => {
+        void managed?.stop().finally(() => process.exit(130));
+      });
+    }
   }
 
   const suites = await orderedSuites();

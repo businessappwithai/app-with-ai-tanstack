@@ -17,9 +17,10 @@ none of that pass's issues had regressed.
 | Severity | Found | Fixed | Deferred |
 |----------|------:|------:|---------:|
 | Critical | 2      | 2      | 0        |
-| High     | 4      | 4      | 0        |
-| Medium   | 5      | 5      | 0        |
-| **Total**| **11** | **11** | **0**    |
+| High     | 5      | 5      | 0        |
+| Medium   | 6      | 6      | 0        |
+| Low      | 1      | 1      | 0        |
+| **Total**| **14** | **14** | **0**    |
 
 ### Top 3
 
@@ -34,6 +35,13 @@ none of that pass's issues had regressed.
 3. **The generated frontend could not produce its route tree**, so a fresh
    application did not typecheck at all — around seventy errors, all the same
    missing module (ISSUE-005, high).
+
+ISSUE-012 to ISSUE-014 came out of a later pass that ran the suite repeatedly
+rather than once. Two of them are about how the suite is *run* rather than what
+it asserts, and both produced failures that pointed somewhere other than their
+cause: a runner that killed a launcher and left the server behind (ISSUE-012),
+and a CI job running an ordered, stateful suite in one parallel process
+(ISSUE-013).
 
 ---
 
@@ -312,6 +320,86 @@ whole or sliced to ten characters, so nothing legitimate is rejected. Measured
 after: 0 rejections in 200 concurrent creates, where the same probe gave 3%
 before, and 0 across a full run at 300 records per entity.
 
+### ISSUE-012 — The runner killed a launcher and left the server running
+
+**Severity:** High · **Category:** Test harness · **Status:** verified
+
+A second full run, started straight after a first, failed every suite from
+`01-auth` onwards — nine consecutive sixty-second timeouts against a backend
+that answered `/api/health` perfectly well. The database was fine; a backend
+started by hand against the same database ran all forty-seven suites green.
+
+`run.ts` stops the backend it started in a `finally`, and it does call
+`child.kill()`. But the child it holds is `npm run start`, a launcher that
+spawns the real server as *its* child:
+
+```
+ 8220     1  bun run start
+ 8223  8220  bun run src/main.ts     ← the one holding port 4001
+```
+
+SIGTERM reaped 8220 and orphaned 8223, which kept the port. The next run then
+found something listening, printed `Attaching to the backend already listening`,
+and used it — and that orphan's stderr was still a pipe whose reader, the
+previous runner, had exited. `startServer` already knew this hazard: stdout is
+discarded and stderr is actively drained, with a comment saying why. What it
+could not do was drain a pipe after the process holding it was gone. Sixty-four
+kilobytes of request logging later the write blocked, and the backend stopped
+answering mid-request while still accepting connections. Health passes, because
+it logs almost nothing. Everything else waits out its timeout.
+
+The failure only shows on the second run, presents as nine unrelated suites
+timing out, and points at the data volume the first run left behind — none of
+which is where it is.
+
+**Fix:** the backend is spawned `detached: true`, into a process group of its
+own, and `stop()` signals the group rather than the pid — SIGTERM, then SIGKILL
+if the port is still answering after five seconds, because the port is what the
+next run collides with and a launcher's exit says nothing about its child. The
+group means a terminal's Ctrl-C no longer reaches the backend, so `run.ts`
+forwards SIGINT and SIGTERM to `stop()` before exiting. Measured after: two
+consecutive runner-managed runs, 47/47 each, nothing left listening between
+them.
+
+---
+
+### ISSUE-013 — CI ran an ordered, stateful suite as if it were parallel
+
+**Severity:** Medium · **Category:** CI · **Status:** verified
+
+The `generated-app` job ran the generated suite with `bun test --timeout
+180000`, which loads all fifty-one files into one process and runs them
+together. The suite is not built for that and says so in its own runner's
+header: it is ordered (seed before rules before workflows) and it runs one
+process per suite so a crash in one cannot take the rest down.
+
+Run that way, `Deviation Report CRUD > deletes a record and reports what ran`
+fails — the delete rolls back because another suite is concurrently holding a
+reference to the row, and the endpoint answers `200 {deleted: false}`, which is
+the honest report of a delete that did not happen. The same test passes in
+isolation under both `bun test` and `node --test`, and passes in the full run
+under `run.ts`. Which test fails moves around between runs, because which
+suites overlap does.
+
+**Fix:** the job runs `node run.ts --no-server` — the runner the generator
+ships and the generated README points at, attaching to the backend the previous
+step already started. It also removes the last thing in that job that needed
+Bun: the suites have been `node:test` since the wasm port.
+
+---
+
+### ISSUE-014 — A test run's own output was left for the next reader to commit
+
+**Severity:** Low · **Category:** Generator · **Status:** verified
+
+`tests/.e2e-seed-manifest.json` records the row ids one run created on one
+database, and `test-results/` holds its metrics reports. Neither was in the
+generated `.gitignore`, so both turned up as untracked files after the first
+`bun run test:e2e` — inviting a developer to commit one machine's uuids into
+everyone's tree, where the next run overwrites them anyway.
+
+**Fix:** both are ignored in the `.gitignore` the generator writes.
+
 ---
 
 ## Verification
@@ -326,6 +414,20 @@ before, and 0 across a full run at 300 records per entity.
 | `bun run lint` (this repository) | ✅ |
 | `bun run test` (this repository) | ✅ 512 passed, 6 skipped |
 | `bun run test:wasm:cli` — overlay footprint contract | ✅ 16/16 |
+
+Re-verified after ISSUE-012 to ISSUE-014, on bun 1.4.0 / linux-x64, with every
+job in `ci.yml` reproduced locally:
+
+| Check | Result |
+|-------|--------|
+| Two consecutive runner-managed runs, `crm`, 250 records/entity | ✅ 47/47 each, nothing left listening |
+| `node run.ts --no-server`, `drug-discovery`, the command CI now runs | ✅ 51/51 |
+| Generated backend `bun run build` / frontend `bun run build` | ✅ |
+| Generated `tests/` `tsc --noEmit`, and every harness module imported under Node | ✅ |
+| The four bundle-currency `--check` steps | ✅ all current |
+| `bun run test:language-tools` | ✅ 4 models, checker and fixer agree with the CLI |
+| Overlay footprint — 9 changed, 0 added beyond the ledger | ✅ |
+| `bun run test:wasm` | ✅ 39/39 |
 
 Read performance at ~1,100 rows in the largest table, 15 samples per shape:
 

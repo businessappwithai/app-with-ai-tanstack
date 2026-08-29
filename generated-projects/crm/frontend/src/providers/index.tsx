@@ -5,12 +5,12 @@
  * Provider order (outer → inner):
  * 1. QueryProvider  — TanStack Query server state
  * 2. AuthProvider   — session / user object
- * 3. ElectricProvider — syncs sys_ metadata for the current user's role into
- *                       TanStack DB Collections (local PGlite); role-scoped so
- *                       only relevant rows are loaded client-side
+ * 3. ElectricProvider — syncs the Application Dictionary into TanStack DB
+ *                       collections over ElectricSQL. The server scopes the
+ *                       shape to the session's roles, so a client only ever
+ *                       holds the part of the dictionary it may see.
  * 4. TranslationProvider — i18n
  *
- * Generated: 2026-08-17T17:20:18.712Z
  */
 
 import React, { startTransition, type ReactNode, useEffect, useState } from 'react';
@@ -41,10 +41,9 @@ function ClientToaster() {
  */
 function ElectricBridge({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const role  = (user as { role?: string } | null)?.role ?? '';
-  const token = (user as { token?: string } | null)?.token;
+  const role = (user as { role?: string } | null)?.role ?? '';
   return (
-    <ElectricProvider role={role} token={token}>
+    <ElectricProvider role={role}>
       {children}
     </ElectricProvider>
   );

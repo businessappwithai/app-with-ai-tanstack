@@ -7,8 +7,6 @@
  * Enables runtime UI layout customization by fetching field
  * ordering and display settings from the backend.
  *
- * Generated: 2026-08-17T17:20:18.730Z
- * Project: crm
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -17,6 +15,8 @@ import { apiClient, type PaginatedResponse } from '@/lib/api-client';
 export interface FieldMetadata {
   sys_field_id: string;
   sys_column_id: string;
+  /** Owning tab — the join key the local dictionary queries walk. */
+  sys_tab_id: string;
   name: string;
   seq_no: number;
   seq_no_grid: number;
@@ -49,6 +49,24 @@ export interface SysReference {
   sys_reference_id: number;
   name: string;
   description: string;
+}
+
+export interface SysWindow {
+  sys_window_id: string;
+  name: string;
+  description: string;
+}
+
+/**
+ * A tab binds one window to one table. Walking window → tab → field is how a
+ * screen's layout is resolved without asking the server for it.
+ */
+export interface SysTab {
+  sys_tab_id: string;
+  sys_window_id: string;
+  sys_table_id: string;
+  name: string;
+  seq_no: number;
 }
 
 /**

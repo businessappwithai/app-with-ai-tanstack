@@ -4,8 +4,8 @@
  * Every knob is env-overridable so the same suites run against a locally
  * started app, a docker-compose stack, or CI.
  *
- * Generated: 2026-08-17T17:20:18.802Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.101Z
+ * Project: my-app
  */
 
 function int(name: string, fallback: number): number {
@@ -36,17 +36,24 @@ export const config = {
    */
   admin: {
     email: str("E2E_ADMIN_EMAIL", process.env.ADMIN_EMAIL ?? "admin@admin.com"),
-    password: str("E2E_ADMIN_PASSWORD", process.env.ADMIN_PASSWORD ?? "admin"),
+    password: str("E2E_ADMIN_PASSWORD", process.env.ADMIN_PASSWORD ?? "admin123"),
   },
 
   /**
    * Records created per entity by the bulk-seed suite.
    *
+   * The default is the `--records-per-entity` the application was generated
+   * with. It used to be hardcoded to 1000 here, which meant the flag was
+   * computed, handed to this template and then dropped — so an application
+   * generated with `--records-per-entity 25` still seeded a thousand rows per
+   * entity, forty times the volume asked for, and the only way to get the
+   * requested number was to say it again at run time.
+   *
    * Two presets are wired into the runner:
    *   --small   10   quick smoke run
-   *   --full  1000   the full volume run (the default)
+   *   --full  1000   the full volume run
    *
-   * `--records <n>` or E2E_RECORDS_PER_ENTITY sets an arbitrary value.
+   * `--records <n>` or E2E_RECORDS_PER_ENTITY overrides it for one run.
    */
   recordsPerEntity: int("E2E_RECORDS_PER_ENTITY", 1000),
 
@@ -72,8 +79,8 @@ export const config = {
   requestTimeoutMs: int("E2E_REQUEST_TIMEOUT_MS", 30_000),
 
   /**
-   * Default per-test timeout handed to `bun test --timeout`. bun:test's own
-   * default is 5s, which is too tight once the database holds real volume.
+   * Default per-test timeout, handed to whichever runner the suite runs under.
+   * Both default to 5s, which is too tight once the database holds real volume.
    */
   suiteTimeoutMs: int("E2E_SUITE_TIMEOUT_MS", 60_000),
 
@@ -92,6 +99,20 @@ export const config = {
 
   /** Set E2E_VERBOSE=1 to log every request. */
   verbose: process.env.E2E_VERBOSE === "1",
+
+  /**
+   * How the runner starts the backend, when it starts one.
+   *
+   * Asked of the runtime rather than written down, because this suite now runs
+   * under both: the ordinary stack is installed with Bun and the wasm stack with
+   * npm, and naming either here would break the other. What is invoked is the
+   * backend's own `start` script, which the wasm overlay has already rewritten
+   * to node — so this decides who reads package.json, not what starting means.
+   */
+  startCommand: (process.env.E2E_START_COMMAND?.split(" ") ??
+    (typeof process.versions.bun === "string"
+      ? ["bun", "run", "start"]
+      : ["npm", "run", "start"])) as string[],
 } as const;
 
 export type TestConfig = typeof config;

@@ -1,4 +1,4 @@
-name: Deploy - crm
+name: Deploy - my-app
 
 on:
   push:
@@ -60,13 +60,13 @@ jobs:
         with:
           payload: |
             {
-              "text": "Staging deployment for crm",
+              "text": "Staging deployment for my-app",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*crm - Staging Deployment*\nStatus: ${{ job.status }}\nCommit: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\nAuthor: ${{ github.actor }}"
+                    "text": "*my-app - Staging Deployment*\nStatus: ${{ job.status }}\nCommit: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\nAuthor: ${{ github.actor }}"
                   }
                 }
               ]
@@ -163,13 +163,13 @@ jobs:
         with:
           payload: |
             {
-              "text": "Production deployment for crm",
+              "text": "Production deployment for my-app",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*crm - Production Deployment*\nStatus: ${{ job.status }}\nCommit: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\nAuthor: ${{ github.actor }}"
+                    "text": "*my-app - Production Deployment*\nStatus: ${{ job.status }}\nCommit: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\nAuthor: ${{ github.actor }}"
                   }
                 }
               ]

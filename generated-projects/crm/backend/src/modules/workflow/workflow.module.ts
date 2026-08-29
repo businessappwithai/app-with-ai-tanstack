@@ -3,8 +3,8 @@
  *
  * Provides workflow orchestration for entity lifecycle events.
  *
- * Generated: 2026-08-17T17:20:18.430Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.699Z
+ * Project: my-app
  */
 
 import { Module, forwardRef } from '@nestjs/common';

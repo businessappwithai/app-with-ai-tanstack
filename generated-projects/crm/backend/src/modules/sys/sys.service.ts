@@ -3,7 +3,7 @@
  *
  * Provides data access for all sys_ tables using Kysely.
  *
- * Generated: 2026-08-17T17:20:18.479Z
+ * Generated: 2026-08-29T04:45:21.738Z
  */
 
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
@@ -1276,5 +1276,101 @@ export class SysService {
     await (this.db.kysely as any).deleteFrom('sys_element')
       .where('sys_element_id', '=', id)
       .execute();
+  }
+
+  /**
+   * Empty every business table, and nothing else.
+   *
+   * A generated application arrives with seeded rows so that it can be looked
+   * at, and whoever has finished looking wants their own data in it — which
+   * otherwise meant deleting every record by hand, entity by entity, or
+   * re-running the whole setup and losing everything else they had done.
+   *
+   * **Business tables only.** The dictionary, the roles, the users, the rules
+   * and the workflow definitions are what the application *is*, not what it
+   * holds; emptying those leaves a running application with no screens.
+   *
+   * One `TRUNCATE` naming every `bus_` table at once, so the foreign keys
+   * between them need no ordering — and deliberately no `CASCADE`, which would
+   * reach the audit trail. A purge that erased the record of itself would be
+   * the wrong shape entirely.
+   *
+   * Administrator-only, and not by a decorator: `DictionaryWriteGuard` already
+   * refuses every non-GET on this controller from anyone else.
+   */
+  async purgeBusinessData(): Promise<{ deleted: number; tables: number }> {
+    const tables = ['bus_user', 'bus_team', 'bus_territory', 'bus_account', 'bus_contact', 'bus_lead', 'bus_campaign', 'bus_campaign_member', 'bus_opportunity', 'bus_opportunity_line_item', 'bus_product', 'bus_quote', 'bus_quote_line_item', 'bus_contract', 'bus_support_case', 'bus_sla_policy', 'bus_activity'];
+    if (tables.length === 0) return { deleted: 0, tables: 0 };
+
+    let deleted = 0;
+    for (const table of tables) {
+      const row = await sql<{ count: string }>`
+        SELECT COUNT(*)::int AS count FROM ${sql.id(table)}
+      `.execute(this.db.kysely as any);
+      deleted += Number(row.rows[0]?.count ?? 0);
+    }
+
+    await sql`
+      TRUNCATE TABLE ${sql.join(tables.map((table) => sql.id(table)), sql`, `)}
+    `.execute(this.db.kysely as any);
+
+    return { deleted, tables: tables.length };
+  }
+
+  // ============================================================================
+  // Report Design methods
+  // ============================================================================
+
+  async findAllReportDesigns() {
+    const rows = await this.db.kysely
+      .selectFrom('sys_report_designs')
+      .selectAll()
+      .orderBy('table_name', 'asc')
+      .execute();
+    return rows;
+  }
+
+  async findReportDesignByTable(tableName: string) {
+    const row = await this.db.kysely
+      .selectFrom('sys_report_designs')
+      .selectAll()
+      .where('table_name', '=', tableName)
+      .executeTakeFirst();
+    return row ?? null;
+  }
+
+  async upsertReportDesign(data: { table_name: string; name?: string; layout?: object }) {
+    const existing = await this.findReportDesignByTable(data.table_name);
+    if (existing) {
+      const updated = await this.db.kysely
+        .updateTable('sys_report_designs')
+        .set({
+          name: data.name ?? existing.name,
+          layout: data.layout !== undefined ? JSON.stringify(data.layout) : existing.layout,
+          updated_at: new Date(),
+        })
+        .where('table_name', '=', data.table_name)
+        .returningAll()
+        .executeTakeFirst();
+      return updated;
+    }
+    const created = await this.db.kysely
+      .insertInto('sys_report_designs')
+      .values({
+        table_name: data.table_name,
+        name: data.name ?? 'Default Report',
+        layout: data.layout !== undefined ? JSON.stringify(data.layout) : null,
+      })
+      .returningAll()
+      .executeTakeFirst();
+    return created;
+  }
+
+  async deleteReportDesign(tableName: string) {
+    await this.db.kysely
+      .deleteFrom('sys_report_designs')
+      .where('table_name', '=', tableName)
+      .execute();
+    return { success: true };
   }
 }

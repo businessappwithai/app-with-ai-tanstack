@@ -4,14 +4,14 @@
  * Runs BPMN workflow definitions synchronously in-process.
  * Replaces the Trigger.dev placeholder with a real executor that:
  *   1. Loads matching sys_workflow_definitions for entity + operation
- *   2. Parses BPMN XML to extract service tasks (erdwithai:property extensions)
+ *   2. Parses BPMN XML to extract service tasks (appwithai:property extensions)
  *   3. Executes each task: UpdateEntity | CreateEntity | REST | Formula
  *   4. Records every run in sys_workflow_runs (status: success | error)
  *
  * Called from BusService after successful entity CRUD (fire-and-forget so
  * workflow errors never fail the originating CRUD request).
- * Generated: 2026-08-17T17:20:18.432Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.702Z
+ * Project: my-app
  */
 
 import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
@@ -487,7 +487,7 @@ export class WorkflowService {
   }
 
   /**
-   * Extract all bpmn:serviceTask elements and their erdwithai:property values,
+   * Extract all bpmn:serviceTask elements and their appwithai:property values,
    * ordered by the diagram's sequence flow.
    *
    * Multi-step workflows only mean anything if the steps run in the order the
@@ -505,7 +505,7 @@ export class WorkflowService {
     while ((taskMatch = taskRe.exec(bpmnXml)) !== null) {
       const id = /\bid="([^"]+)"/.exec(taskMatch[1])?.[1];
       const props: BpmnTaskProps = { nodeType: '' };
-      const propRe = /<erdwithai:property\s+name="([^"]+)"\s+value="([^"]*)"\s*\/>/g;
+      const propRe = /<appwithai:property\s+name="([^"]+)"\s+value="([^"]*)"\s*\/>/g;
       let propMatch: RegExpExecArray | null;
       while ((propMatch = propRe.exec(taskMatch[2])) !== null) {
         props[propMatch[1]] = this.decodeXmlEntities(propMatch[2]);
@@ -1144,6 +1144,50 @@ export class WorkflowService {
     if (filters?.status) query = query.where('status', '=', filters.status);
     if (filters?.entityName) query = query.where('entity_name', '=', filters.entityName);
     return await query.orderBy('created_at', 'desc').limit(filters?.limit ?? 100).execute();
+  }
+
+  /**
+   * The edges `%%workflow … kind: state` declared, as `sys_workflow_transitions`
+   * holds them and the entity-access guard reads them.
+   *
+   * `table` narrows to one entity; `from` narrows further to the moves legal
+   * from one state, which is the question a form asks when it decides which
+   * status options to offer. The rows come back grouped by table so a caller
+   * asking for everything gets a usable shape rather than a flat list it has to
+   * bucket itself.
+   */
+  async getTransitions(filters?: { table?: string; from?: string }) {
+    let query = this.db
+      .selectFrom('sys_workflow_transitions' as any)
+      .select([
+        'table_name',
+        'status_field',
+        'from_state',
+        'to_state',
+        'transition_name',
+      ] as any)
+      .where('is_active' as any, '=', true);
+
+    if (filters?.table) query = query.where('table_name' as any, '=', filters.table);
+    if (filters?.from) query = query.where('from_state' as any, '=', filters.from);
+
+    const rows = await query
+      .orderBy('table_name' as any)
+      .orderBy('from_state' as any)
+      .orderBy('to_state' as any)
+      .execute();
+
+    const byTable: Record<string, any[]> = {};
+    for (const row of rows as any[]) {
+      (byTable[row.table_name] ??= []).push({
+        statusField: row.status_field,
+        from: row.from_state,
+        to: row.to_state,
+        transition: row.transition_name || null,
+      });
+    }
+
+    return { data: rows, byTable };
   }
 
   async retry(workflowRunId: string): Promise<void> {

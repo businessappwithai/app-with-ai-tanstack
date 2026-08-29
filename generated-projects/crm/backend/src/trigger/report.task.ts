@@ -4,8 +4,8 @@
  * Background task for generating reports (PDF, CSV, etc.).
  * Triggered via generateReportTask.trigger(payload) from JobQueueService.
  *
- * Generated: 2026-08-17T17:20:18.412Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.675Z
+ * Project: my-app
  */
 
 import { task } from '@trigger.dev/sdk/v3';

@@ -1,16 +1,23 @@
 /**
- * Electric Shape Proxy Controller
+ * Electric Shape Proxy
  *
- * Proxies ElectricSQL shape requests to the upstream Electric server.
- * Only sys_ tables are permitted. The `role` query param (forwarded by
- * the client) is used to inject a per-role WHERE clause so each client
- * only receives the sys_ rows its role is allowed to see.
+ * Fronts the upstream ElectricSQL server so a browser never talks to it
+ * directly. Two things are decided here and nowhere else:
  *
- * Clients: GET /v1/shape?table=sys_table&role=admin&...
- * Upstream: GET ELECTRIC_URL/v1/shape?table=sys_table&where=<role-clause>&...
+ *   1. Which tables may be synced at all — the Application Dictionary, and
+ *      nothing else. Business data is not shape-synced.
+ *   2. Which rows of them this caller may see — derived from the roles on the
+ *      authenticated session, never from anything the client sends.
  *
- * Generated: 2026-08-17T17:20:18.485Z
- * Project: crm
+ * The client asks for a table; it does not get to say who it is. An earlier
+ * revision read the role from a `role` query parameter and interpolated it
+ * into the upstream `where` clause, which let any caller name its own role and
+ * inject SQL through it. Both are closed here: the role set comes off the
+ * session, and it is matched against roles that exist in the database before it
+ * is used, so only a known role name is ever formatted into a clause.
+ *
+ * Generated: 2026-08-29T04:45:21.742Z
+ * Project: my-app
  */
 
 import {
@@ -19,84 +26,173 @@ import {
   Query,
   Req,
   Res,
+  UseGuards,
   HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import type { FastifyRequest, FastifyReply } from 'fastify';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { DatabaseService } from '../../database/database.service';
 
+/** Dictionary tables a client may sync. Nothing else is reachable this way. */
 const ALLOWED_SYS_TABLES = new Set([
+  'sys_window',
   'sys_table',
+  'sys_tab',
   'sys_column',
   'sys_field',
   'sys_reference',
-  'sys_window',
+  'sys_ref_list',
 ]);
 
-const ELECTRIC_UPSTREAM = process.env.ELECTRIC_URL ?? null;
+/**
+ * Tables carrying no per-role rows. They are the shared type vocabulary every
+ * window needs to render a field, so they sync whole rather than filtered.
+ */
+const UNSCOPED_SYS_TABLES = new Set(['sys_reference', 'sys_ref_list']);
 
-/** Map a role string to a Postgres WHERE clause applied to every sys_ shape. */
-function roleWhereClause(role: string): string {
-  // Admins see everything; all other roles only see active, non-admin rows.
-  if (role === 'admin' || role === 'superuser') {
-    return `is_active = true`;
-  }
-  return `is_active = true AND (allowed_roles IS NULL OR allowed_roles @> ARRAY['${role}']::text[])`;
+/** Electric's own protocol parameters. Anything else the client sends is dropped. */
+const FORWARDED_PARAMS = new Set([
+  'offset',
+  'handle',
+  'live',
+  'cursor',
+  'columns',
+  'replica',
+]);
+
+/**
+ * Read per request, not once at module scope.
+ *
+ * Nest imports this controller while `AppModule` is being resolved, which
+ * happens as main.ts is imported — before its bootstrap has loaded .env. A
+ * constant captured up here is therefore always null in a dotenv-configured
+ * deployment, and sync silently never turns on.
+ */
+function electricUpstream(): string | null {
+  return process.env.ELECTRIC_URL ?? null;
 }
 
 @ApiTags('electric')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('v1/shape')
 export class ElectricController {
   private readonly logger = new Logger(ElectricController.name);
 
+  constructor(private readonly databaseService: DatabaseService) {}
+
+  /**
+   * The sys_role names this session holds.
+   *
+   * Read from the database by joining the session's user through
+   * `sys_user_roles`, not taken from the session object. The session carries
+   * Better Auth's own coarse `role` field ('admin' / 'user'), which is a
+   * different vocabulary from the sys_role names the dictionary is scoped by —
+   * and more to the point, a role used to build a SQL clause has to come from
+   * the database rather than from anything travelling with the request. Only
+   * names that come back from this query are ever formatted into a clause.
+   */
+  private async resolveRoles(user: unknown): Promise<string[]> {
+    const u = user as { id?: unknown; sysUserId?: unknown } | null;
+    const userId = typeof u?.id === 'string' ? u.id : null;
+    const sysUserId = typeof u?.sysUserId === 'string' ? u.sysUserId : null;
+
+    // The session may or may not carry the sys_user link; resolve it if not.
+    let resolvedSysUserId = sysUserId;
+    if (!resolvedSysUserId && userId) {
+      const row = await this.databaseService.kysely
+        .selectFrom('user')
+        .select('sysUserId')
+        .where('id', '=', userId)
+        .executeTakeFirst();
+      resolvedSysUserId = (row as { sysUserId?: string } | undefined)?.sysUserId ?? null;
+    }
+    if (!resolvedSysUserId) return [];
+
+    const rows = await this.databaseService.kysely
+      .selectFrom('sys_user_roles')
+      .innerJoin('sys_role', 'sys_role.sys_role_id', 'sys_user_roles.sys_role_id')
+      .select('sys_role.name')
+      .where('sys_user_roles.sys_user_id', '=', resolvedSysUserId)
+      .where('sys_user_roles.is_active', '=', true)
+      .where('sys_role.is_active', '=', true)
+      .execute();
+
+    return rows.map((r: { name: string }) => r.name);
+  }
+
   @Get()
-  @ApiOperation({ summary: 'Role-scoped Electric shape proxy for sys_ tables' })
+  @ApiOperation({ summary: 'Role-scoped Electric shape proxy for the Application Dictionary' })
   async proxyShape(
     @Query() query: Record<string, string>,
     @Req() req: FastifyRequest,
     @Res() res: FastifyReply,
   ) {
+    // Authorization first, and before the upstream is even considered. What a
+    // caller may sync is not a function of whether Electric happens to be
+    // running, and deciding it here means the rules stay observable — and
+    // testable — in a deployment that has sync switched off.
     const table = query['table'];
-    const role  = query['role'] ?? 'user';
-
-    if (!ELECTRIC_UPSTREAM) {
-      throw new HttpException(
-        'Electric upstream not configured (set ELECTRIC_URL env var); client should use HTTP API fallback',
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
-    }
-
     if (!table || !ALLOWED_SYS_TABLES.has(table)) {
       throw new HttpException(
-        `Table '${table}' is not accessible via the Electric proxy`,
+        `Table '${table ?? ''}' is not available through the Electric proxy`,
         HttpStatus.FORBIDDEN,
       );
     }
 
-    // Strip the `role` param before forwarding; replace with server-generated WHERE
-    const upstreamParams = new URLSearchParams(query);
-    upstreamParams.delete('role');
-    upstreamParams.set('where', roleWhereClause(role));
+    const roles = await this.resolveRoles((req as { user?: unknown }).user);
+    if (roles.length === 0) {
+      throw new HttpException(
+        'No active role on this session; nothing to sync',
+        HttpStatus.FORBIDDEN,
+      );
+    }
 
-    const upstreamUrl = `${ELECTRIC_UPSTREAM}/v1/shape?${upstreamParams.toString()}`;
-    this.logger.debug(`Electric proxy [role=${role}]: ${upstreamUrl}`);
+    const upstreamBase = electricUpstream();
+    if (!upstreamBase) {
+      throw new HttpException(
+        'Electric upstream not configured (set ELECTRIC_URL); the client falls back to the HTTP API',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    // Built from the allowlist and from role names verified against sys_role —
+    // no caller-supplied text reaches this string.
+    const upstreamParams = new URLSearchParams();
+    upstreamParams.set('table', table);
+    for (const [key, value] of Object.entries(query)) {
+      if (FORWARDED_PARAMS.has(key) && typeof value === 'string') {
+        upstreamParams.set(key, value);
+      }
+    }
+    if (!UNSCOPED_SYS_TABLES.has(table)) {
+      const list = roles.map((r) => `'${r}'`).join(',');
+      upstreamParams.set('where', `allowed_roles @> ARRAY[${list}]::text[]`);
+    }
+
+    const upstreamUrl = `${upstreamBase}/v1/shape?${upstreamParams.toString()}`;
+    this.logger.debug(`Electric proxy [roles=${roles.join(',')}]: ${table}`);
 
     try {
       const upstream = await fetch(upstreamUrl, {
         headers: {
-          Accept: req.headers['accept'] ?? 'application/json',
+          Accept: (req.headers['accept'] as string) ?? 'application/json',
           'Cache-Control': 'no-cache',
-          // Forward auth token to upstream Electric if present
-          ...(req.headers['authorization']
-            ? { Authorization: req.headers['authorization'] as string }
-            : {}),
         },
       });
 
+      // Electric's own cache headers describe a response computed for one role.
+      // Passing them through would let a shared cache hand that response to a
+      // different role, so the proxy marks every response private.
       const headers: Record<string, string> = {};
-      upstream.headers.forEach((value, key) => { headers[key] = value; });
-      headers['Access-Control-Allow-Origin'] = '*';
+      upstream.headers.forEach((value, key) => {
+        if (key.toLowerCase() === 'cache-control') return;
+        headers[key] = value;
+      });
+      headers['cache-control'] = 'private, no-store';
 
       const body = await upstream.arrayBuffer();
       res.status(upstream.status).headers(headers).send(Buffer.from(body));

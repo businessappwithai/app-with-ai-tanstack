@@ -9,8 +9,8 @@
  * 4. Parse output mutations and apply to database
  * 5. Write sys_workflow_runs record
  *
- * Generated: 2026-08-17T17:20:18.414Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.685Z
+ * Project: my-app
  */
 
 import { task } from '@trigger.dev/sdk/v3';

@@ -1,13 +1,13 @@
 {
-  "name": "crm-frontend",
+  "name": "my-app-frontend",
   "version": "1.0.0",
-  "description": "Enterprise CRM generated from language/examples/crm.eml.mmd - TanStack Start Frontend",
+  "description": "Generated application - TanStack Start Frontend",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vinxi dev --port 4000",
     "build": "vinxi build",
-    "start": "vinxi start",
+    "start": "PORT=4000 vinxi start",
     "lint": "biome lint --write src",
     "lint:fix": "biome lint --write src",
     "format": "biome format --write src",
@@ -51,15 +51,17 @@
     "zod": "^3.22.0",
     "sonner": "^1.4.0",
     "date-fns": "^3.3.0",
-    "@electric-sql/pglite": "^0.2.17",
-    "@electric-sql/pglite-sync": "^0.2.17",
-    "@tanstack/db": "^0.0.1",
+    "@tanstack/db": "^0.7.2",
+    "@tanstack/react-db": "^0.2.1",
+    "@tanstack/electric-db-collection": "^0.3.18",
+    "@electric-sql/client": "^1.5.26",
     "@copilotkit/react-core": "^1.68.1",
     "@copilotkit/react-ui": "^1.68.1",
     "@copilotkit/runtime": "^1.68.1",
     "openai": "^7.1.0",
     "bpmn-js": "^18.21.0",
-    "reactflow": "^11.11.4"
+    "reactflow": "^11.11.4",
+    "ankareport": "0.1.0-beta.19"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

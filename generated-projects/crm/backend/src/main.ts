@@ -1,9 +1,38 @@
 /**
  * NestJS Application Entry Point with Fastify Adapter
  *
- * Generated: 2026-08-17T17:20:18.387Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.646Z
+ * Project: my-app
  */
+
+// Loaded before anything else is imported. Nest's ConfigModule only runs once
+// AppModule is being constructed, and modules imported below read
+// `process.env` at their own load time — so without this, whether a variable
+// is visible depends on import order rather than on being present in .env.
+//
+// The file is found by walking up rather than by a fixed `../`. This module
+// runs from `src/` under `bun run src/main.ts` but from `dist/src/` after a
+// Nest build, so any fixed depth is wrong in one of the two — which is how
+// ELECTRIC_URL could sit in .env and still read as unset in a built server.
+import { config as loadEnv } from 'dotenv';
+import * as nodeFs from 'fs';
+import * as nodePath from 'path';
+
+function loadEnvFiles(): void {
+  let dir = __dirname;
+  for (let depth = 0; depth < 5; depth++) {
+    if (nodeFs.existsSync(nodePath.join(dir, '.env'))) {
+      loadEnv({ path: nodePath.join(dir, '.env') });
+      loadEnv({ path: nodePath.join(dir, '.env.local'), override: true });
+      return;
+    }
+    const parent = nodePath.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+}
+
+loadEnvFiles();
 
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -16,16 +45,19 @@ import { AuditService } from './modules/audit/audit.service';
 
 async function ensureAdminUser(logger: Logger) {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
+  // Must satisfy the `minPasswordLength` in src/lib/better-auth.ts. A shorter
+  // default is rejected at sign-in with "Invalid email or password", which
+  // reads as a wrong password rather than a password the server never allowed.
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
   const pool = process.env.DATABASE_URL
     ? new Pool({ connectionString: process.env.DATABASE_URL })
     : new Pool({
         host: process.env.DB_HOST ?? '127.0.0.1',
         port: Number(process.env.DB_PORT ?? 5432),
-        user: process.env.DB_USER ?? process.env.USER ?? 'crm',
+        user: process.env.DB_USER ?? process.env.USER ?? 'my_app',
         password: process.env.DB_PASSWORD ?? '',
-        database: process.env.DB_NAME ?? 'crm',
+        database: process.env.DB_NAME ?? 'my_app',
       });
 
   const db = new Kysely<any>({ dialect: new PostgresDialect({ pool }) });
@@ -193,8 +225,12 @@ async function bootstrap() {
     }),
   );
 
-  // Global prefix for API routes — exclude Electric shape proxy so it lives at /v1/shape
-  app.setGlobalPrefix('api', { exclude: ['v1/shape'] });
+  // Global prefix for every route, the Electric shape proxy included. It used
+  // to be excluded so it sat at /v1/shape, which put it outside the front end's
+  // /api forwarder — the browser could only reach it cross-origin, without the
+  // session cookie the proxy needs to know which roles to scope a shape to.
+  // Under the prefix it is same-origin and credentialed like every other call.
+  app.setGlobalPrefix('api');
 
   const port = process.env.PORT || 4001;
   // Enable CORS BEFORE raw Fastify routes so all routes get CORS headers

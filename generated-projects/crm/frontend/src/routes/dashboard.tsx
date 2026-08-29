@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/contexts/auth-context';
 import {
@@ -24,6 +24,9 @@ import {
   LogOut,
 } from 'lucide-react';
 import { Icon } from '@/components/ui/icon';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { APP_NAME } from "@/lib/app-meta";
 
 // Map admin window names from the DB to frontend icon + route
 const ADMIN_WINDOW_META: Record<string, { icon: any; href: string }> = {
@@ -246,7 +249,7 @@ function DashboardPage() {
         <div className="container-swiss">
           <div className="flex h-14 items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-3">
-              <h1 className="font-display truncate text-xl font-semibold text-foreground">crm</h1>
+              <h1 className="font-display truncate text-xl font-semibold text-foreground">{APP_NAME}</h1>
             </div>
             <div className="flex min-w-0 items-center gap-3">
               {/* The search box shrinks rather than pushing the account
@@ -293,6 +296,16 @@ function DashboardPage() {
       </header>
 
       <main className="container-swiss py-8 space-y-10">
+        {/* The manual, above everything else.
+
+            Generation writes public/manual.html beside this application: every
+            entity, every field, the processes it runs and the decisions it
+            makes, out of the same model these screens are drawn from. It is a
+            plain anchor rather than a route because it is a static document the
+            router knows nothing about — and it opens in a new tab, since a
+            reader wants it beside the screen it describes. */}
+        <ManualBanner />
+
         {/* Loading */}
         {(isLoading || categoriesLoading) && (
           <div className="swiss-card p-12 text-center">
@@ -416,6 +429,21 @@ function DashboardPage() {
           </section>
         )}
 
+        {/* Start over without re-running the setup.
+
+            A generated application arrives with seeded rows so that it can be
+            looked at, and whoever has finished looking wants their own data in
+            it — which otherwise meant deleting every record by hand, entity by
+            entity. Set apart from the dashlet grid rather than sitting in it:
+            it is the one control here that cannot be undone, and a destructive
+            action that looks like the cards around it is one somebody presses
+            by accident.
+
+            Administrator-only, and the server agrees independently —
+            DictionaryWriteGuard refuses every non-GET on /sys from anyone else,
+            so hiding it here is courtesy rather than the enforcement. */}
+        {perms?.isMaster && <PurgeBusinessData />}
+
         {/* Empty search */}
         {!isLoading && !error && groupedEntityCount === 0 && filteredBus.length === 0 && filteredAdmin.length === 0 && (
           <div className="swiss-card p-12 text-center">
@@ -426,5 +454,85 @@ function DashboardPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function ManualBanner() {
+  return (
+    <section className="flex flex-wrap items-center gap-5 rounded-lg border border-border border-l-4 border-l-primary bg-card p-5">
+      <div className="flex-1 min-w-[20rem]">
+        <h2 className="text-sm font-semibold mb-1">Manual</h2>
+        <p className="text-sm text-muted-foreground max-w-prose">
+          Every kind of record {APP_NAME} keeps, every field on it, the processes it runs and
+          the decisions it makes &mdash; written from the same model this application was
+          generated from.
+        </p>
+      </div>
+      {/* An anchor wearing the button's classes: this Button renders a
+          <button>, and it has no `asChild`, so a real link is the only way to
+          get a new tab out of it. */}
+      <a
+        href="/manual.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={buttonVariants({ variant: 'outline', size: 'sm' })}
+      >
+        Open the manual
+      </a>
+    </section>
+  );
+}
+
+function PurgeBusinessData() {
+  const queryClient = useQueryClient();
+  const [armed, setArmed] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const run = async () => {
+    setBusy(true);
+    try {
+      const result = await apiClient.post<{ deleted: number; tables: number }>(
+        '/sys/purge-business-data',
+        {},
+      );
+      toast.success(`Deleted ${result.deleted} record(s) across ${result.tables} table(s)`);
+      // Every count on this screen is now wrong, and a stale dashboard after a
+      // purge reads as the purge having failed.
+      await queryClient.invalidateQueries();
+      setArmed(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not delete the records');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="mt-10 rounded-lg border border-border border-l-4 border-l-destructive bg-card">
+      <div className="p-5">
+        <h2 className="text-sm font-semibold mb-1">Start from an empty database</h2>
+        <p className="text-sm text-muted-foreground mb-4 max-w-prose">
+          {armed
+            ? 'Every business record is deleted — the seeded rows and anything you have added. The model, the dictionary, the rules and the accounts are untouched. This cannot be undone.'
+            : 'Deletes every business record and leaves the application itself in place.'}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {armed ? (
+            <>
+              <Button variant="destructive" size="sm" onClick={run} disabled={busy}>
+                {busy ? 'Deleting…' : 'Yes, delete every record'}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setArmed(false)} disabled={busy}>
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => setArmed(true)}>
+              Delete all records
+            </Button>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }

@@ -182,7 +182,10 @@ bun run build:language-tools
 
 ## Requirements
 
-- **Bun** ≥ 1.3.14 — this repository is bun-only; `npm` and `pnpm` are not used
+- **Bun** 1.4.0 — this repository is bun-only; `npm` and `pnpm` are not used.
+  The version is pinned, not a floor: four committed bundles are compared
+  byte for byte against a fresh build, and `Bun.build`'s output depends on
+  both the bun version and the platform.
 - **PostgreSQL** with `pgvector`, for the modelling tool (generated apps need
   only stock PostgreSQL, or none at all in the browser build)
 - **Docker**, optionally, to bring a generated application up with one command

@@ -6,6 +6,7 @@ import {
   Hash,
   LayoutList,
   Menu,
+  Printer,
   Settings,
   ShieldCheck,
   Tags,
@@ -55,6 +56,11 @@ const MENU_ITEMS = [
     label: "Audit Log",
     to: "/admin/audit",
     icon: ShieldCheck,
+  },
+  {
+    label: "Report Designs",
+    to: "/admin/reports",
+    icon: Printer,
   },
 ];
 

@@ -2,7 +2,7 @@
  * System Dictionary Seed
  * Populates sys_ tables with metadata for business entities
  *
- * Generated: 2026-08-17T17:20:18.564Z
+ * Generated: 2026-08-29T04:45:21.834Z
  *
  * This seed creates:
  * - sys_table entries for each business entity
@@ -662,6 +662,45 @@ export async function seed(db: Kysely<any>): Promise<void> {
     }).execute();
   }
 
+  // Every role that is not the Administrator gets the business windows.
+  //
+  // Granting only 'User' was invisible while the dictionary was served
+  // unfiltered over HTTP — every role saw every window regardless. Now that a
+  // shape is scoped by role, a role with no grant syncs no dictionary at all,
+  // and 00_users_and_roles seeds Manager and Analyst accounts that would open
+  // to an empty application.
+  const businessRoles = await db
+    .selectFrom('sys_role')
+    .select('sys_role_id')
+    .where('sys_role_id', '!=', adminRoleId)
+    .where('is_active', '=', true)
+    .execute();
+  const businessRoleIds: string[] = businessRoles.length > 0
+    ? businessRoles.map((r: { sys_role_id: string }) => r.sys_role_id)
+    : [userRoleId];
+
+  /**
+   * Role ids for the names a `%%rbac … .read` directive used.
+   *
+   * The model writes `support_agent` and the dictionary seeds `Support Agent`,
+   * so the match normalises separators and case — the same rule the runtime
+   * guard applies, and for the same reason: a name that resolves in the guard
+   * and not here would hide a window from the very role allowed to read it.
+   */
+  const normalizeRole = (value: string) =>
+    String(value ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+  const allRoles = await db
+    .selectFrom('sys_role')
+    .select(['sys_role_id', 'name'])
+    .where('is_active', '=', true)
+    .execute();
+  const roleIdsNamed = (names: string[]): string[] => {
+    const wanted = new Set(names.map(normalizeRole));
+    return allRoles
+      .filter((r: { name: string }) => wanted.has(normalizeRole(r.name)))
+      .map((r: { sys_role_id: string }) => r.sys_role_id);
+  };
+
   // ============================================================================
   // Create Default Admin User (lookup-or-create so re-runs are safe)
   // ============================================================================
@@ -789,7 +828,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: userTableId,
     table_name: 'bus_user',
     name: 'User',
-    description: 'Manage User records',
+    description: "Someone who signs in and does the work — a rep, a manager, an agent. Every business record names one as its owner.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -878,7 +917,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: userTableId,
     column_name: 'email',
     name: 'Email',
-    sys_reference_id: 10,
+    sys_reference_id: 30,
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -1043,7 +1082,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: userTableId,
     column_name: 'phone',
     name: 'Phone',
-    sys_reference_id: 10,
+    sys_reference_id: 31,
     is_key: false,
     is_parent: false,
     is_mandatory: false,
@@ -1241,22 +1280,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: userTableId,
-    sys_window_id: userWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const userRoleIds = roleIdsNamed(['sales_manager', 'sales_ops', 'support_manager']);
+  for (const roleId of userRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: userTableId,
+      sys_window_id: userWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for User');
 
@@ -1289,7 +1337,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: teamTableId,
     table_name: 'bus_team',
     name: 'Team',
-    description: 'Manage Team records',
+    description: "A group of users under one manager, carrying a shared quota. Teams are how sales targets roll up.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -1576,22 +1624,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: teamTableId,
-    sys_window_id: teamWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const teamRoleIds = roleIdsNamed(['sales_manager', 'sales_ops']);
+  for (const roleId of teamRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: teamTableId,
+      sys_window_id: teamWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Team');
 
@@ -1624,7 +1681,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: territoryTableId,
     table_name: 'bus_territory',
     name: 'Territory',
-    description: 'Manage Territory records',
+    description: "A slice of the market — a region, a country, a company-size band — that accounts are assigned to.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -1977,22 +2034,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: territoryTableId,
-    sys_window_id: territoryWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const territoryRoleIds = roleIdsNamed(['sales_manager', 'sales_ops']);
+  for (const roleId of territoryRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: territoryTableId,
+      sys_window_id: territoryWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Territory');
 
@@ -2025,7 +2091,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: accountTableId,
     table_name: 'bus_account',
     name: 'Account',
-    description: 'Manage Account records',
+    description: "A company you sell to or support. Almost everything else in this application hangs off an account.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -2279,7 +2345,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: accountTableId,
     column_name: 'website',
     name: 'Website',
-    sys_reference_id: 10,
+    sys_reference_id: 24,
     is_key: false,
     is_parent: false,
     is_mandatory: false,
@@ -2312,7 +2378,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: accountTableId,
     column_name: 'phone',
     name: 'Phone',
-    sys_reference_id: 10,
+    sys_reference_id: 31,
     is_key: false,
     is_parent: false,
     is_mandatory: false,
@@ -2741,22 +2807,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: accountTableId,
-    sys_window_id: accountWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const accountRoleIds = roleIdsNamed(['account_executive', 'marketing_manager', 'sales_manager', 'sales_ops', 'sales_rep', 'support_agent', 'support_manager']);
+  for (const roleId of accountRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: accountTableId,
+      sys_window_id: accountWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Account');
 
@@ -2789,7 +2864,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: contactTableId,
     table_name: 'bus_contact',
     name: 'Contact',
-    description: 'Manage Contact records',
+    description: "A person at an account. Contacts are who you talk to; accounts are who you invoice.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -2977,7 +3052,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: contactTableId,
     column_name: 'email',
     name: 'Email',
-    sys_reference_id: 10,
+    sys_reference_id: 30,
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -3010,7 +3085,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: contactTableId,
     column_name: 'phone',
     name: 'Phone',
-    sys_reference_id: 10,
+    sys_reference_id: 31,
     is_key: false,
     is_parent: false,
     is_mandatory: false,
@@ -3043,7 +3118,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: contactTableId,
     column_name: 'mobile',
     name: 'Mobile',
-    sys_reference_id: 10,
+    sys_reference_id: 31,
     is_key: false,
     is_parent: false,
     is_mandatory: false,
@@ -3373,22 +3448,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: contactTableId,
-    sys_window_id: contactWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const contactRoleIds = roleIdsNamed(['account_executive', 'marketing_manager', 'sales_manager', 'sales_ops', 'sales_rep', 'support_agent', 'support_manager']);
+  for (const roleId of contactRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: contactTableId,
+      sys_window_id: contactWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Contact');
 
@@ -3421,7 +3505,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: leadTableId,
     table_name: 'bus_lead',
     name: 'Lead',
-    description: 'Manage Lead records',
+    description: "An unqualified enquiry that has not been connected to an account yet. A lead is either converted into an account, a contact and an opportunity, or disqualified.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -3609,7 +3693,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: leadTableId,
     column_name: 'email',
     name: 'Email',
-    sys_reference_id: 10,
+    sys_reference_id: 30,
     is_key: false,
     is_parent: false,
     is_mandatory: true,
@@ -3642,7 +3726,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: leadTableId,
     column_name: 'phone',
     name: 'Phone',
-    sys_reference_id: 10,
+    sys_reference_id: 31,
     is_key: false,
     is_parent: false,
     is_mandatory: false,
@@ -4104,22 +4188,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: leadTableId,
-    sys_window_id: leadWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const leadRoleIds = roleIdsNamed(['account_executive', 'marketing_manager', 'sales_manager', 'sales_ops', 'sales_rep']);
+  for (const roleId of leadRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: leadTableId,
+      sys_window_id: leadWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Lead');
 
@@ -4152,7 +4245,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: campaignTableId,
     table_name: 'bus_campaign',
     name: 'Campaign',
-    description: 'Manage Campaign records',
+    description: "A marketing programme with a budget and a window, run to generate leads.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -4637,22 +4730,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: campaignTableId,
-    sys_window_id: campaignWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const campaignRoleIds = roleIdsNamed(['marketing_manager', 'sales_ops']);
+  for (const roleId of campaignRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: campaignTableId,
+      sys_window_id: campaignWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Campaign');
 
@@ -4685,7 +4787,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: campaignMemberTableId,
     table_name: 'bus_campaign_member',
     name: 'Campaign Member',
-    description: 'Manage Campaign Member records',
+    description: "One person on one campaign's target list, and whether they responded.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -4779,7 +4881,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: true,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -4812,7 +4914,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: false,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -5005,22 +5107,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: campaignMemberTableId,
-    sys_window_id: campaignMemberWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const campaignMemberRoleIds = roleIdsNamed(['marketing_manager', 'sales_ops']);
+  for (const roleId of campaignMemberRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: campaignMemberTableId,
+      sys_window_id: campaignMemberWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Campaign Member');
 
@@ -5053,7 +5164,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: opportunityTableId,
     table_name: 'bus_opportunity',
     name: 'Opportunity',
-    description: 'Manage Opportunity records',
+    description: "A deal in progress against an account, with an amount, a stage and a close date. The pipeline is the sum of these.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -5703,22 +5814,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: opportunityTableId,
-    sys_window_id: opportunityWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const opportunityRoleIds = roleIdsNamed(['account_executive', 'sales_manager', 'sales_ops', 'sales_rep']);
+  for (const roleId of opportunityRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: opportunityTableId,
+      sys_window_id: opportunityWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Opportunity');
 
@@ -5751,7 +5871,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: opportunityLineItemTableId,
     table_name: 'bus_opportunity_line_item',
     name: 'Opportunity Line Item',
-    description: 'Manage Opportunity Line Item records',
+    description: "One product on one opportunity, priced. The opportunity's amount is what these add up to.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -5845,7 +5965,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: true,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -5878,7 +5998,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: true,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -6104,22 +6224,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: opportunityLineItemTableId,
-    sys_window_id: opportunityLineItemWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const opportunityLineItemRoleIds = roleIdsNamed(['account_executive', 'sales_manager', 'sales_ops', 'sales_rep']);
+  for (const roleId of opportunityLineItemRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: opportunityLineItemTableId,
+      sys_window_id: opportunityLineItemWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Opportunity Line Item');
 
@@ -6152,7 +6281,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: productTableId,
     table_name: 'bus_product',
     name: 'Product',
-    description: 'Manage Product records',
+    description: "Something you sell, with a list price. Products are what line items point at.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -6538,22 +6667,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: productTableId,
-    sys_window_id: productWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const productRoleIds = roleIdsNamed(['account_executive', 'sales_manager', 'sales_ops', 'sales_rep']);
+  for (const roleId of productRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: productTableId,
+      sys_window_id: productWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Product');
 
@@ -6586,7 +6724,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: quoteTableId,
     table_name: 'bus_quote',
     name: 'Quote',
-    description: 'Manage Quote records',
+    description: "A priced, versioned offer to an account for one opportunity. A quote is what gets approved and sent.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -7236,22 +7374,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: quoteTableId,
-    sys_window_id: quoteWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const quoteRoleIds = roleIdsNamed(['account_executive', 'sales_manager', 'sales_ops', 'sales_rep']);
+  for (const roleId of quoteRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: quoteTableId,
+      sys_window_id: quoteWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Quote');
 
@@ -7284,7 +7431,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: quoteLineItemTableId,
     table_name: 'bus_quote_line_item',
     name: 'Quote Line Item',
-    description: 'Manage Quote Line Item records',
+    description: "One product on one quote, priced, in the order it appears on the document.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -7378,7 +7525,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: true,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -7411,7 +7558,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: true,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -7637,22 +7784,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: quoteLineItemTableId,
-    sys_window_id: quoteLineItemWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const quoteLineItemRoleIds = roleIdsNamed(['account_executive', 'sales_manager', 'sales_ops', 'sales_rep']);
+  for (const roleId of quoteLineItemRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: quoteLineItemTableId,
+      sys_window_id: quoteLineItemWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Quote Line Item');
 
@@ -7685,7 +7841,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: contractTableId,
     table_name: 'bus_contract',
     name: 'Contract',
-    description: 'Manage Contract records',
+    description: "The signed commitment that follows an accepted quote — a term, an annual value and a renewal date.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -7812,7 +7968,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: true,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -7845,7 +8001,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: false,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -8236,22 +8392,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: contractTableId,
-    sys_window_id: contractWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const contractRoleIds = roleIdsNamed(['account_executive', 'sales_manager', 'sales_ops']);
+  for (const roleId of contractRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: contractTableId,
+      sys_window_id: contractWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Contract');
 
@@ -8284,7 +8449,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: supportCaseTableId,
     table_name: 'bus_support_case',
     name: 'Support Case',
-    description: 'Manage Support Case records',
+    description: "A customer problem, from the moment it arrives to the moment it is resolved, measured against an SLA.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -8510,7 +8675,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: true,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -9033,22 +9198,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: supportCaseTableId,
-    sys_window_id: supportCaseWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const supportCaseRoleIds = roleIdsNamed(['support_agent', 'support_manager']);
+  for (const roleId of supportCaseRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: supportCaseTableId,
+      sys_window_id: supportCaseWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Support Case');
 
@@ -9081,7 +9255,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: slaPolicyTableId,
     table_name: 'bus_sla_policy',
     name: 'Sla Policy',
-    description: 'Manage Sla Policy records',
+    description: "How quickly cases must be answered and resolved for a given tier of customer.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -9401,22 +9575,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: slaPolicyTableId,
-    sys_window_id: slaPolicyWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const slaPolicyRoleIds = roleIdsNamed(['support_agent', 'support_manager']);
+  for (const roleId of slaPolicyRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: slaPolicyTableId,
+      sys_window_id: slaPolicyWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Sla Policy');
 
@@ -9449,7 +9632,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     sys_table_id: activityTableId,
     table_name: 'bus_activity',
     name: 'Activity',
-    description: 'Manage Activity records',
+    description: "A call, a meeting, an email or a task, attached to whatever it was about. The history of a relationship is its activities.",
     access_level: 'A',
     is_view: false,
     is_document: false,
@@ -9576,7 +9759,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     is_parent: false,
     is_mandatory: true,
     is_updateable: true,
-    is_identifier: false,
+    is_identifier: true,
     is_selection_column: false,
     is_translated: false,
     is_encrypted: false,
@@ -10066,22 +10249,31 @@ export async function seed(db: Kysely<any>): Promise<void> {
     updated_at: now,
   }).execute();
 
-  // Grant read access to user role
-  await db.insertInto('sys_access').values({
-    sys_access_id: uuidv4(),
-    sys_role_id: userRoleId,
-    sys_table_id: activityTableId,
-    sys_window_id: activityWindowId,
-    access_type_table: 'R',
-    is_read_only: true,
-    is_exclude: false,
-    entity_type: 'U',
-    is_active: true,
-    created_by: createdBy,
-    updated_by: createdBy,
-    created_at: now,
-    updated_at: now,
-  }).execute();
+  // Grant read access.
+  //
+  // To the roles the model says own this entity, when it restricted `read` on
+  // it — that is what makes a functional role's application *its* application
+  // rather than the whole system with most of it refusing to open. To every
+  // role otherwise, which is the behaviour of every model that declares no read
+  // restriction, and therefore of every model written before this existed.
+  const activityRoleIds = roleIdsNamed(['account_executive', 'marketing_manager', 'sales_manager', 'sales_ops', 'sales_rep', 'support_agent', 'support_manager']);
+  for (const roleId of activityRoleIds) {
+    await db.insertInto('sys_access').values({
+      sys_access_id: uuidv4(),
+      sys_role_id: roleId,
+      sys_table_id: activityTableId,
+      sys_window_id: activityWindowId,
+      access_type_table: 'R',
+      is_read_only: true,
+      is_exclude: false,
+      entity_type: 'U',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
 
   console.log('✓ Created dictionary entries for Activity');
 
@@ -10233,7 +10425,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   console.log('');
   console.log('Dictionary seed complete:');
   console.log('  - 17 business entities');
-  console.log('  - 2 default roles (Administrator, User)');
+  console.log(`  - ${businessRoleIds.length + 1} roles granted window access`);
   console.log('  - 1 admin user (admin@localhost)');
   console.log('  - 3 field groups');
   console.log('  - 7 admin windows (Application Dictionary)');

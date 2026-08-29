@@ -2,7 +2,7 @@
  * Business Data Seed
  * Sample records for each business entity for E2E testing
  *
- * Generated: 2026-08-17T17:20:18.600Z
+ * Generated: 2026-08-29T04:45:21.875Z
  */
 
 import { Kysely, sql } from 'kysely';
@@ -41,7 +41,7 @@ const ids: Record<string, string[]> = {
  * FK columns naming a person by the role they played rather than by entity.
  * The _by / _by_id suffixes are handled by rule in fk(); this map covers the
  * role names that carry no suffix at all. Kept in sync with
- * `foreignKeys.personRoleColumns` in language/erdwithai-language.json.
+ * `foreignKeys.personRoleColumns` in language/appwithai-language.json.
  */
 const FK_COLUMN_TABLE_MAP: Record<string, string> = {
   pi_id: 'bus_user',
@@ -567,7 +567,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const teamRecords = [
     {
       id: ids['bus_team'][0],
-        name: 'Name 1',
+        name: 'Team 1',
         
         
         
@@ -629,7 +629,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_team'][1],
-        name: 'Name 2',
+        name: 'Team 2',
         
         
         
@@ -691,7 +691,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_team'][2],
-        name: 'Name 3',
+        name: 'Team 3',
         
         
         
@@ -753,7 +753,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_team'][3],
-        name: 'Name 4',
+        name: 'Team 4',
         
         
         
@@ -823,7 +823,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const territoryRecords = [
     {
       id: ids['bus_territory'][0],
-        name: 'Name 1',
+        name: 'Territory 1',
         
         
         
@@ -907,7 +907,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_territory'][1],
-        name: 'Name 2',
+        name: 'Territory 2',
         
         
         
@@ -991,7 +991,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_territory'][2],
-        name: 'Name 3',
+        name: 'Territory 3',
         
         
         
@@ -1075,7 +1075,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_territory'][3],
-        name: 'Name 4',
+        name: 'Territory 4',
         
         
         
@@ -1167,7 +1167,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const accountRecords = [
     {
       id: ids['bus_account'][0],
-        name: 'Name 1',
+        name: 'Account 1',
         
         
         
@@ -1178,7 +1178,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        account_number: 'Account Number 1',
+        account_number: 'ACC-0001',
         
         
         
@@ -1372,7 +1372,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_account'][1],
-        name: 'Name 2',
+        name: 'Account 2',
         
         
         
@@ -1383,7 +1383,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        account_number: 'Account Number 2',
+        account_number: 'ACC-0002',
         
         
         
@@ -1577,7 +1577,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_account'][2],
-        name: 'Name 3',
+        name: 'Account 3',
         
         
         
@@ -1588,7 +1588,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        account_number: 'Account Number 3',
+        account_number: 'ACC-0003',
         
         
         
@@ -1782,7 +1782,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_account'][3],
-        name: 'Name 4',
+        name: 'Account 4',
         
         
         
@@ -1793,7 +1793,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        account_number: 'Account Number 4',
+        account_number: 'ACC-0004',
         
         
         
@@ -3431,7 +3431,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const campaignRecords = [
     {
       id: ids['bus_campaign'][0],
-        name: 'Name 1',
+        name: 'Campaign 1',
         
         
         
@@ -3559,7 +3559,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_campaign'][1],
-        name: 'Name 2',
+        name: 'Campaign 2',
         
         
         
@@ -3687,7 +3687,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_campaign'][2],
-        name: 'Name 3',
+        name: 'Campaign 3',
         
         
         
@@ -3815,7 +3815,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_campaign'][3],
-        name: 'Name 4',
+        name: 'Campaign 4',
         
         
         
@@ -4284,7 +4284,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 1',
+        name: 'Opportunity 1',
         
         
         
@@ -4467,7 +4467,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 2',
+        name: 'Opportunity 2',
         
         
         
@@ -4650,7 +4650,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 3',
+        name: 'Opportunity 3',
         
         
         
@@ -4833,7 +4833,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 4',
+        name: 'Opportunity 4',
         
         
         
@@ -5346,7 +5346,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 1',
+        name: 'Product 1',
         
         
         
@@ -5441,7 +5441,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 2',
+        name: 'Product 2',
         
         
         
@@ -5536,7 +5536,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 3',
+        name: 'Product 3',
         
         
         
@@ -5631,7 +5631,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 4',
+        name: 'Product 4',
         
         
         
@@ -5723,7 +5723,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const quoteRecords = [
     {
       id: ids['bus_quote'][0],
-        quote_number: 'Quote Number 1',
+        quote_number: 'QUO-0001',
         
         
         
@@ -5756,7 +5756,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 1',
+        name: 'Quote 1',
         
         
         
@@ -5906,7 +5906,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_quote'][1],
-        quote_number: 'Quote Number 2',
+        quote_number: 'QUO-0002',
         
         
         
@@ -5939,7 +5939,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 2',
+        name: 'Quote 2',
         
         
         
@@ -6089,7 +6089,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_quote'][2],
-        quote_number: 'Quote Number 3',
+        quote_number: 'QUO-0003',
         
         
         
@@ -6122,7 +6122,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 3',
+        name: 'Quote 3',
         
         
         
@@ -6272,7 +6272,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_quote'][3],
-        quote_number: 'Quote Number 4',
+        quote_number: 'QUO-0004',
         
         
         
@@ -6305,7 +6305,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         
         
         
-        name: 'Name 4',
+        name: 'Quote 4',
         
         
         
@@ -6807,7 +6807,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const contractRecords = [
     {
       id: ids['bus_contract'][0],
-        contract_number: 'Contract Number 1',
+        contract_number: 'CON-0001',
         
         
         
@@ -6957,7 +6957,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_contract'][1],
-        contract_number: 'Contract Number 2',
+        contract_number: 'CON-0002',
         
         
         
@@ -7107,7 +7107,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_contract'][2],
-        contract_number: 'Contract Number 3',
+        contract_number: 'CON-0003',
         
         
         
@@ -7257,7 +7257,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_contract'][3],
-        contract_number: 'Contract Number 4',
+        contract_number: 'CON-0004',
         
         
         
@@ -7415,7 +7415,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const supportCaseRecords = [
     {
       id: ids['bus_support_case'][0],
-        case_number: 'Case Number 1',
+        case_number: 'SUP-0001',
         
         
         
@@ -7631,7 +7631,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_support_case'][1],
-        case_number: 'Case Number 2',
+        case_number: 'SUP-0002',
         
         
         
@@ -7847,7 +7847,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_support_case'][2],
-        case_number: 'Case Number 3',
+        case_number: 'SUP-0003',
         
         
         
@@ -8063,7 +8063,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_support_case'][3],
-        case_number: 'Case Number 4',
+        case_number: 'SUP-0004',
         
         
         
@@ -8287,7 +8287,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const slaPolicyRecords = [
     {
       id: ids['bus_sla_policy'][0],
-        name: 'Name 1',
+        name: 'Sla Policy 1',
         
         
         
@@ -8360,7 +8360,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_sla_policy'][1],
-        name: 'Name 2',
+        name: 'Sla Policy 2',
         
         
         
@@ -8433,7 +8433,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_sla_policy'][2],
-        name: 'Name 3',
+        name: 'Sla Policy 3',
         
         
         
@@ -8506,7 +8506,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     },
     {
       id: ids['bus_sla_policy'][3],
-        name: 'Name 4',
+        name: 'Sla Policy 4',
         
         
         

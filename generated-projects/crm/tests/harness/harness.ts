@@ -8,21 +8,21 @@
  * The harness also owns cleanup: anything registered with `track()` is deleted
  * on teardown, in reverse creation order so children go before parents.
  *
- * Generated: 2026-08-17T17:20:18.821Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.131Z
+ * Project: my-app
  */
 
-import { login, type SessionUser } from "./auth";
+import { login, type SessionUser } from "./auth.ts";
 import {
   type EntityMeta,
   foreignKeyFields,
   parentEntityForColumn,
   topologicalEntities,
-} from "./entities";
-import { buildRecord } from "./factory";
-import { HttpClient } from "./http";
-import { deleteRule } from "./rules";
-import { waitForServer } from "./server";
+} from "./entities.ts";
+import { buildRecord } from "./factory.ts";
+import { HttpClient } from "./http.ts";
+import { deleteRule } from "./rules.ts";
+import { waitForServer } from "./server.ts";
 
 export interface TrackedRecord {
   entity: string;

@@ -41,6 +41,11 @@ on:
 permissions:
   contents: read
 
+# Pinned, matching ci.yml. `latest` silently becomes the next major the day it
+# ships, which would change this workflow's behaviour without a commit to it.
+env:
+  BUN_VERSION: "1.4.0"
+
 jobs:
   generate-and-publish:
     name: Generate from ${{ inputs.mmd_url }} → ${{ inputs.target_repo }}
@@ -52,7 +57,7 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: Install dependencies
         run: bun install

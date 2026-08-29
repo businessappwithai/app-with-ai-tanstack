@@ -18,6 +18,9 @@ import { sleep } from "./testing.ts";
 
 const HEALTH_PATH = "/api/me/health";
 
+/** How long a signalled backend gets to go away before the next one is sent. */
+const SHUTDOWN_GRACE_MS = 5000;
+
 /** Poll the health endpoint until it answers or the deadline passes. */
 export async function waitForServer(
   timeoutMs: number = config.serverReadyTimeoutMs
@@ -94,8 +97,19 @@ export async function startServer(backendDir: string): Promise<ManagedServer | n
   // `npm run start` under either runtime: the backend's own package.json says
   // what starting it means, and the wasm overlay has already rewritten that to
   // node. Asking for a runtime by name here would undo the overlay's work.
+  // `detached: true` puts the backend in a process group of its own, and that
+  // is what makes it stoppable. `npm run start` is a launcher: it spawns the
+  // real server as *its* child and exits or ignores the signal. Killing the pid
+  // we hold therefore reaps the launcher and orphans the server, which keeps
+  // the port — so the next run finds something listening, attaches to it, and
+  // inherits a process whose stderr pipe no longer has a reader. Sixty-four
+  // kilobytes of logging later that pipe is full, the write blocks, and the
+  // backend stops answering mid-request. Every suite after the first then times
+  // out against a server that looks alive and is not. With its own group we can
+  // signal the group and take the whole tree down.
   const child = spawn(config.startCommand[0]!, config.startCommand.slice(1), {
     cwd: backendDir,
+    detached: true,
     stdio: ["ignore", config.verbose ? "inherit" : "ignore", "pipe"],
     env: {
       ...process.env,
@@ -119,12 +133,35 @@ export async function startServer(backendDir: string): Promise<ManagedServer | n
     child.once("error", () => resolve());
   });
 
-  const stop = async (): Promise<void> => {
+  /**
+   * Signal the backend's whole process group, not just the pid we hold.
+   *
+   * SIGTERM first so it can close its pool; SIGKILL if the group is still
+   * listening after a grace period, because a backend left running is not a
+   * tidier outcome than one killed hard — it is the one that breaks the next
+   * run.
+   */
+  const signalGroup = (signal: NodeJS.Signals): void => {
     try {
-      child.kill();
-      await exited;
+      if (child.pid) process.kill(-child.pid, signal);
     } catch {
-      // already gone
+      // The group is gone, or this platform has none; fall back to the pid.
+      try {
+        child.kill(signal);
+      } catch {
+        // already gone
+      }
+    }
+  };
+
+  const stop = async (): Promise<void> => {
+    signalGroup("SIGTERM");
+    await Promise.race([exited, sleep(SHUTDOWN_GRACE_MS)]);
+    // Whether the launcher exited says nothing about the server it spawned, so
+    // the port is what decides — it is the resource the next run collides with.
+    if (await isServerUp()) {
+      signalGroup("SIGKILL");
+      await Promise.race([exited, sleep(SHUTDOWN_GRACE_MS)]);
     }
   };
 

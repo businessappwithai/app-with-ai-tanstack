@@ -1,6 +1,6 @@
-# crm
+# my-app
 
-Enterprise CRM generated from language/examples/crm.eml.mmd
+Generated application
 
 ## Tech Stack
 
@@ -60,7 +60,7 @@ bun run build
 ## Project Structure
 
 ```
-crm/
+my-app/
 ├── backend/           # NestJS API
 │   ├── src/
 │   │   ├── modules/

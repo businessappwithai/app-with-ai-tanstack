@@ -3,7 +3,7 @@
  *
  * Protects routes by validating session tokens from BetterAuth
  *
- * Generated: 2026-08-17T17:20:18.398Z
+ * Generated: 2026-08-29T04:45:21.656Z
  */
 
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Inject } from '@nestjs/common';

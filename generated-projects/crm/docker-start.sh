@@ -1,5 +1,5 @@
 #!/bin/sh
-# Start crm inside the single-image build.
+# Start my-app inside the single-image build.
 #
 # Two servers in one container, which is not how you would run this at scale but
 # is exactly what "here is the application, run it" should mean. The API and the
@@ -10,7 +10,7 @@
 # useless without the API behind it.
 set -e
 
-log() { echo "[crm] $*"; }
+log() { echo "[my-app] $*"; }
 
 : "${PORT:=4000}"
 : "${BACKEND_PORT:=4001}"

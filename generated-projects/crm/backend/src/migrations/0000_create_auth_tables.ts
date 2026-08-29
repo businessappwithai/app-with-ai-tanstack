@@ -1,8 +1,19 @@
 /**
- * Auth Tables Migration - BetterAuth schema
- * Creates user, session, account, verification tables for better-auth
+ * Auth Tables Migration — Better Auth schema
  *
- * Generated: 2026-08-17T17:20:18.508Z
+ * Creates `user`, `session`, `account` and `verification`.
+ *
+ * The column types here are the ones Better Auth expects from Postgres, not the
+ * lowest common denominator that also parses as SQLite. Timestamps used to be
+ * TEXT and flags INTEGER, which the library reported on every start ("Expected
+ * date but got text") and which made writes fail outright once it began sending
+ * real booleans: `invalid input syntax for type integer: "false"`.
+ *
+ * This file only covers the tables as of the version generated against.
+ * `010_sync_better_auth_schema` reconciles them with whatever version is
+ * actually installed, so a dependency bump does not silently break sign-in.
+ *
+ * Generated: 2026-08-29T04:45:21.761Z
  */
 
 import { Kysely, sql } from 'kysely';
@@ -13,10 +24,10 @@ export async function up(db: Kysely<any>): Promise<void> {
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
-      "emailVerified" INTEGER NOT NULL DEFAULT 0,
+      "emailVerified" BOOLEAN NOT NULL DEFAULT false,
       image TEXT,
-      "createdAt" TEXT NOT NULL,
-      "updatedAt" TEXT NOT NULL,
+      "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       role TEXT DEFAULT 'user',
       "sysUserId" TEXT
     )
@@ -25,13 +36,13 @@ export async function up(db: Kysely<any>): Promise<void> {
   await sql`
     CREATE TABLE IF NOT EXISTS session (
       id TEXT PRIMARY KEY,
-      "expiresAt" TEXT NOT NULL,
+      "expiresAt" TIMESTAMPTZ NOT NULL,
       token TEXT NOT NULL UNIQUE,
-      "createdAt" TEXT NOT NULL,
-      "updatedAt" TEXT NOT NULL,
+      "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       "ipAddress" TEXT,
       "userAgent" TEXT,
-      "userId" TEXT NOT NULL REFERENCES "user"(id)
+      "userId" TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
     )
   `.execute(db);
 
@@ -40,16 +51,16 @@ export async function up(db: Kysely<any>): Promise<void> {
       id TEXT PRIMARY KEY,
       "accountId" TEXT NOT NULL,
       "providerId" TEXT NOT NULL,
-      "userId" TEXT NOT NULL REFERENCES "user"(id),
+      "userId" TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
       "accessToken" TEXT,
       "refreshToken" TEXT,
       "idToken" TEXT,
-      "accessTokenExpiresAt" TEXT,
-      "refreshTokenExpiresAt" TEXT,
+      "accessTokenExpiresAt" TIMESTAMPTZ,
+      "refreshTokenExpiresAt" TIMESTAMPTZ,
       scope TEXT,
       password TEXT,
-      "createdAt" TEXT NOT NULL,
-      "updatedAt" TEXT NOT NULL
+      "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `.execute(db);
 
@@ -58,9 +69,16 @@ export async function up(db: Kysely<any>): Promise<void> {
       id TEXT PRIMARY KEY,
       identifier TEXT NOT NULL,
       value TEXT NOT NULL,
-      "expiresAt" TEXT NOT NULL,
-      "createdAt" TEXT,
-      "updatedAt" TEXT
+      "expiresAt" TIMESTAMPTZ NOT NULL,
+      "createdAt" TIMESTAMPTZ DEFAULT NOW(),
+      "updatedAt" TIMESTAMPTZ DEFAULT NOW()
     )
   `.execute(db);
+}
+
+export async function down(db: Kysely<any>): Promise<void> {
+  await sql`DROP TABLE IF EXISTS verification CASCADE`.execute(db);
+  await sql`DROP TABLE IF EXISTS account CASCADE`.execute(db);
+  await sql`DROP TABLE IF EXISTS session CASCADE`.execute(db);
+  await sql`DROP TABLE IF EXISTS "user" CASCADE`.execute(db);
 }

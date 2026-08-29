@@ -1,8 +1,8 @@
 /**
  * Unit tests for syncEntityTask (Trigger.dev v3)
  *
- * Generated: 2026-08-17T17:20:18.696Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.013Z
+ * Project: my-app
  */
 
 import { describe, it, expect } from 'bun:test';

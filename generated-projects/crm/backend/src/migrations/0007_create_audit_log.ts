@@ -9,8 +9,8 @@
  * been migrated still records events; keeping the schema here as well means it
  * is versioned, indexed, and present before the first request arrives.
  *
- * Generated: 2026-08-17T17:20:18.546Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.811Z
+ * Project: my-app
  */
 
 import { type Kysely, sql } from 'kysely';

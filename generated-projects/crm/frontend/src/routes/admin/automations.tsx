@@ -8,7 +8,7 @@
  * the pickers and the help examples name User rather than a
  * stand-in the reader has to translate.
  *
- * Generated for: crm
+ * Generated for: my-app
  */
 
 import { createFileRoute } from '@tanstack/react-router';
@@ -305,7 +305,7 @@ function AutomationsPage() {
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card px-5">
-        <span className="text-[15px] font-bold">crm</span>
+        <span className="text-[15px] font-bold">my-app</span>
         <span className="text-[13px] text-muted-foreground">
           Automations ›{' '}
           <b className="font-semibold text-foreground">

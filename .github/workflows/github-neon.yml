@@ -89,6 +89,11 @@ concurrency:
   group: githubneon
   cancel-in-progress: false
 
+# Pinned, matching ci.yml. `latest` silently becomes the next major the day it
+# ships, which would change this workflow's behaviour without a commit to it.
+env:
+  BUN_VERSION: "1.4.0"
+
 jobs:
   generate-deploy-run:
     name: Generate, seed Neon, and run
@@ -124,7 +129,7 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: ${{ env.BUN_VERSION }}
 
       # ── Inputs ──────────────────────────────────────────────────────────────
       # Every input is read through the environment rather than interpolated

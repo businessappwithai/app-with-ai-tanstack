@@ -3,11 +3,11 @@
  *
  * One file per entity, so a failure names the entity that broke.
  *
- * Generated: 2026-08-17T17:20:18.840Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.149Z
+ * Project: my-app
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
 import {
   buildInvalidRecord,
   buildRecord,
@@ -16,7 +16,7 @@ import {
   harness,
   scalarFields,
   writableFields,
-} from "../harness";
+} from "../harness/index.ts";
 
 const entity = getEntity("Campaign");
 

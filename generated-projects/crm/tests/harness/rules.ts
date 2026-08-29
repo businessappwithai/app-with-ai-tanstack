@@ -5,12 +5,12 @@
  * zen-engine on every bus_ write, and a rule may emit a `trigger-workflow`
  * action that the workflow suite then follows.
  *
- * Generated: 2026-08-17T17:20:18.813Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.126Z
+ * Project: my-app
  */
 
-import type { EntityMeta, FieldMeta } from "./entities";
-import type { HttpClient } from "./http";
+import type { EntityMeta, FieldMeta } from "./entities.ts";
+import type { HttpClient } from "./http.ts";
 
 export interface RuleRecord {
   id: string;

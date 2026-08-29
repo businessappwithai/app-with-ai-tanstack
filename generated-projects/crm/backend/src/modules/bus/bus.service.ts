@@ -4,7 +4,7 @@
  * Dynamic service for all bus_ prefixed tables.
  * Validates data against Application Dictionary metadata.
  *
- * Generated: 2026-08-17T17:20:18.492Z
+ * Generated: 2026-08-29T04:45:21.749Z
  */
 
 import { Injectable, NotFoundException, BadRequestException, ConflictException, Inject, Logger } from '@nestjs/common';
@@ -37,6 +37,8 @@ export interface FieldMetadata {
   help?: string;
   ref_table_name?: string;
   ref_label_fields?: string[];
+  /** Populated for enum columns: the allowed values from sys_ref_list. */
+  options?: { value: string; label: string }[];
 }
 
 export interface EntityMetadata {
@@ -444,6 +446,31 @@ export class BusService {
       refLabelFieldsMap[t] = await this.resolveRefLabelFields(t);
     }));
 
+    // Fetch enum options (sys_ref_list) for all columns that reference a list.
+    // FK references (18/19) and built-in scalar types (10-30) have no ref-list
+    // entries; anything >= 1000 is a custom model enum.
+    const SCALAR_REF_IDS = new Set([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 28, 30, 31]);
+    const enumRefIds = [...new Set(
+      columns
+        .map((c: any) => c.sys_reference_id as number)
+        .filter((id: number) => id && !SCALAR_REF_IDS.has(id))
+    )];
+    const enumOptionsMap: Record<number, { value: string; label: string }[]> = {};
+    if (enumRefIds.length > 0) {
+      const refListRows = await this.kysely
+        .selectFrom('sys_ref_list')
+        .select(['sys_reference_id', 'value', 'name'])
+        .where('sys_reference_id', 'in', enumRefIds)
+        .where('is_active', '=', true)
+        .orderBy('value')
+        .execute();
+      for (const row of refListRows) {
+        const id = row.sys_reference_id as number;
+        if (!enumOptionsMap[id]) enumOptionsMap[id] = [];
+        enumOptionsMap[id].push({ value: row.value as string, label: row.name as string });
+      }
+    }
+
     const metadata: EntityMetadata = {
       table: {
         sys_table_id: table.sys_table_id,
@@ -453,6 +480,9 @@ export class BusService {
       },
       columns: columns.map((col: any) => {
         const refTableName = this.resolveRefTableName(col.column_name, col.sys_reference_id);
+        const options = !refTableName && enumOptionsMap[col.sys_reference_id]?.length
+          ? enumOptionsMap[col.sys_reference_id]
+          : undefined;
         return {
           sys_field_id: col.sys_field_id,
           name: col.field_name || col.name,
@@ -464,6 +494,7 @@ export class BusService {
           default_value: col.default_value,
           ref_table_name: refTableName,
           ref_label_fields: refTableName ? (refLabelFieldsMap[refTableName] ?? []) : undefined,
+          options,
           seq_no: col.field_seq_no || col.seq_no || 0,
           seq_no_grid: col.seq_no_grid || 0,
           is_displayed: col.is_displayed !== false,
@@ -582,7 +613,7 @@ export class BusService {
    * FK columns naming a person by the role they played rather than by entity.
    * The `_by` / `_by_id` suffixes are handled by rule in resolveRefTableName;
    * this map covers the role names that carry no suffix at all. Kept in sync
-   * with `foreignKeys.personRoleColumns` in language/erdwithai-language.json.
+   * with `foreignKeys.personRoleColumns` in language/appwithai-language.json.
    */
   private static readonly COLUMN_TABLE_ALIASES: Record<string, string> = {
     owner_id: 'bus_user',

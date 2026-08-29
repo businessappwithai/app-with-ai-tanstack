@@ -9,7 +9,7 @@
  * - Separate seed execution (after all migrations)
  * - Graceful error handling for constraint conflicts
  *
- * Generated: 2026-08-17T17:20:18.639Z
+ * Generated: 2026-08-29T04:45:21.938Z
  */
 
 import * as path from 'path';
@@ -31,9 +31,9 @@ function buildPool() {
   return new Pool({
     host: process.env.DB_HOST ?? '127.0.0.1',
     port: Number(process.env.DB_PORT ?? 5432),
-    user: process.env.DB_USER ?? 'crm',
+    user: process.env.DB_USER ?? 'my_app',
     password: process.env.DB_PASSWORD ?? '',
-    database: process.env.DB_NAME ?? 'crm',
+    database: process.env.DB_NAME ?? 'my_app',
   });
 }
 
@@ -216,6 +216,13 @@ async function runSeeds(db: Kysely<any>) {
     .filter(f => f.endsWith(ext) && !f.endsWith('.map'))
     .sort();
 
+  // A seed that throws for a reason other than "this row is already here" is a
+  // defect in the generated application, not a transient condition. The run
+  // continues so one broken seed does not hide the state of the others, but
+  // every genuine failure is collected and re-thrown at the end — a database
+  // set up from a failed seed run must not report success and exit 0.
+  const failures: Array<{ file: string; message: string }> = [];
+
   for (const file of files) {
     const seedPath = path.join(seedDir, file);
     const seedModule = await import(seedPath);
@@ -230,11 +237,17 @@ async function runSeeds(db: Kysely<any>) {
         if (error?.code === '23505' || error?.message?.includes('duplicate key')) {
           console.log(`⊘ Seed "${file}" is idempotent (data already exists)\n`);
         } else {
-          console.error(`✗ Seed "${file}" failed:`, error?.message || error);
-          // Don't throw - continue with other seeds
+          const message = error?.message || String(error);
+          console.error(`✗ Seed "${file}" failed:`, message);
+          failures.push({ file, message });
         }
       }
     }
+  }
+
+  if (failures.length > 0) {
+    const detail = failures.map(f => `  • ${f.file}: ${f.message}`).join('\n');
+    throw new Error(`${failures.length} seed(s) failed:\n${detail}`);
   }
 
   console.log('✓ Seeds completed');

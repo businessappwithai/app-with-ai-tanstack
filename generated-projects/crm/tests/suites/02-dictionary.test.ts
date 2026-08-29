@@ -4,12 +4,12 @@
  * Every entity in the ERD must be registered with columns and field layouts,
  * otherwise the frontend renders an empty form for it.
  *
- * Generated: 2026-08-17T17:20:18.824Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.134Z
+ * Project: my-app
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { entities, harness, writableFields } from "../harness";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
+import { entities, harness, writableFields } from "../harness/index.ts";
 
 describe("application dictionary", () => {
   beforeAll(async () => {

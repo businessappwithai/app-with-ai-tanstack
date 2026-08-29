@@ -13,12 +13,12 @@
  * Which is why the entity benchmarked is the one with the most rows: a phase
  * measured against a hundred rows tells you nothing about a hundred thousand.
  *
- * Generated: 2026-08-17T17:20:18.830Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.143Z
+ * Project: my-app
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { config, entities, firstTextField, harness, scalarFields, timed } from "../harness";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
+import { config, entities, firstTextField, harness, scalarFields, timed } from "../harness/index.ts";
 
 /** Repetitions per phase. 30 is enough for a median and a believable p95. */
 const REPS = Number(process.env.E2E_BENCH_REPS ?? 30);

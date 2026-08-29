@@ -6,8 +6,8 @@
  * realistic values and the relationship metadata the workflow suite needs to
  * wire records together.
  *
- * Generated: 2026-08-17T17:20:18.807Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.107Z
+ * Project: my-app
  */
 
 export type FieldType =
@@ -2249,7 +2249,7 @@ export function getEntity(name: string): EntityMeta {
 
 /**
  * FK columns naming a person by the role they played rather than by entity.
- * Mirrors `foreignKeys.personRoleColumns` in erdwithai-language.json and the
+ * Mirrors `foreignKeys.personRoleColumns` in appwithai-language.json and the
  * backend's own COLUMN_TABLE_ALIASES.
  */
 const PERSON_ROLE_COLUMNS = new Set([

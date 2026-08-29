@@ -38,7 +38,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 # APPWITHAI
 
 **Project**: AI-powered ERD design + full-stack code generation  
-**Version**: 5.1.1 | **Runtime**: Bun.js >= 1.3.14
+**Version**: 5.1.1 | **Runtime**: Bun.js 1.4.0 (pinned — see below)
 
 ## Commands
 
@@ -83,7 +83,7 @@ bunx playwright test tests/e2e/specific.e2e.spec.ts
 
 | Layer | Technology |
 |-------|------------|
-| Runtime | Bun.js >= 1.3.14 |
+| Runtime | Bun.js 1.4.0 (pinned) |
 | AI Orchestration | Mastra.ai v1.59+, CopilotKit v1.68+ |
 | AI Model | Local OpenAI-compatible endpoint (:8000) |
 | Retrieval | `@mastra/pg` PgVector (HNSW) |

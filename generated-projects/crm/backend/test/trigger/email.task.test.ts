@@ -1,8 +1,8 @@
 /**
  * Unit tests for sendEmailTask (Trigger.dev v3)
  *
- * Generated: 2026-08-17T17:20:18.694Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.011Z
+ * Project: my-app
  */
 
 import { describe, it, expect } from 'bun:test';
