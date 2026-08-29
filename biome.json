@@ -12,6 +12,7 @@
       "!packages/generator/templates",
       "!language/cli/runtime",
       "!generated-projects",
+      "!**/.mastra",
       "!**/routeTree.gen.ts",
       "!**/*.css",
       "!**/*.generated.ts",
