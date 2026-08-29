@@ -222,6 +222,11 @@ of the roles they name. A master role bypasses. Role names match
 directives are written lower-case (`role:manager`); an exact match would make
 such a rule unsatisfiable, locking out the people it was written to admit.
 
+The master bypass is over **access** — who may do a thing. It is not a bypass
+over the shape of the model: a state machine's topology is enforced for the
+master role too (§3.5). An edge the diagram never drew is a move that does not
+exist, not a permission an administrator is missing.
+
 `<op>` is a CRUD operation (`create` `read` `update` `delete` `*`, plus aliases)
 **or** a transition event from the entity's `stateDiagram-v2`.
 
@@ -383,7 +388,22 @@ may hold; compiles to BPMN seeded into `sys_workflow_definitions`. States should
 be backed by a declared `%%enum` (`EML426`/`EML428` check this). Each declared
 edge is also seeded into `sys_workflow_transitions`; the entity-access guard
 reads that table on every status-field write and returns **403** for any move
-that has no matching edge — topology is enforced, not just role access.
+that has no matching edge, leaving the record in the state it was in.
+
+**Topology binds every caller, the master role included** — that is what makes
+it topology rather than access. Whether an edge *exists* is decided by the
+diagram; *who may cross* an existing edge is the separate question `%%rbac`
+answers from `sys_transition_access`, and that one the master role does bypass.
+So an edge no `%%rbac` names is open to any authenticated caller, while an edge
+the diagram omits is refused to everyone. The two are enforced independently:
+checking topology only where a role rule happens to cover it would leave every
+unguarded edge open.
+
+`GET /api/workflows/transitions` returns the stored edges, narrowable by
+`?table=` and `?from=`. A screen offering a status change should ask this and
+offer only the moves that exist, rather than offering every state and letting
+the save be refused. An entity with no state diagram has no rows, and nothing
+is enforced for it.
 
 ```mermaid
 stateDiagram-v2
@@ -579,7 +599,7 @@ data.
 | `sys_element`, `sys_reference`, `sys_ref_list`, `sys_ref_table` | shared labels and lookups |
 | `sys_role`, `sys_user`, `sys_user_roles`, `sys_access` | roles, users, and which windows a role may open |
 | `sys_operation_access`, `sys_transition_access` | what `%%rbac` compiles to: per-operation and per-transition role restrictions |
-| `sys_workflow_transitions` | valid edges from `%%workflow kind:state`; guard returns 403 for any status write that crosses no declared edge |
+| `sys_workflow_transitions` | valid edges from `%%workflow kind:state`; guard returns 403 for any status write that crosses no declared edge, for every caller including the master role. Read them at `GET /api/workflows/transitions` |
 | `sys_rule_definitions` | seeded JDM rules |
 | `sys_workflow_definitions` | seeded BPMN; automations live here too, not in a table of their own |
 | `sys_workflow_runs` | one row per workflow execution |
@@ -618,6 +638,7 @@ Global prefix `/api`. Controllers:
 | `/api/sys/{tables,columns,windows,tabs,fields,elements,references,field-groups}` | dictionary CRUD |
 | `/api/rules`, `/api/rules/:id/history`, `/api/rules/validate`, `/dry-run` | rules admin |
 | `/api/workflows/runs[/:runId]`, `/runs/:runId/retry`, `/entity/:name/:id` | workflow runs |
+| `GET /api/workflows/transitions[?table=&from=]` | the state-machine edges the model declared |
 | `/api/audit/:id/verify`, `/api/audit/:id/history` | audit trail |
 | `/api/auth/{health,permissions}` | auth |
 | `/api/model-context` | retrieval over the model |

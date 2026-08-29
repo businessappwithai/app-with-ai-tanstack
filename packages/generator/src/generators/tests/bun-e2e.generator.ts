@@ -17,8 +17,15 @@
 
 import { existsSync, promises as fs } from "node:fs";
 import path from "node:path";
-import type { BusEntity, Entity, Relationship } from "@appwithai/core/types";
+import type {
+  BusEntity,
+  BusEntityAttribute,
+  Entity,
+  EntityEnum,
+  Relationship,
+} from "@appwithai/core/types";
 import { entityToBusEntity } from "@appwithai/core/types";
+import type { CompiledWorkflow } from "../../workflows";
 import { BaseGenerator } from "../base.generator";
 
 function resolveTemplateDir(subpath: string): string {
@@ -48,6 +55,19 @@ export interface BunE2ETestGeneratorOptions {
   frontendPort: number;
   /** Records the bulk-seed suite creates per entity. */
   recordsPerEntity?: number;
+  /**
+   * The `%%enum` declarations a `%%field` binds to a column. The dictionary
+   * suite compares the options the API offers for a column against these, so
+   * a dropdown that has drifted from the model is a failing test rather than a
+   * screen nobody looked at.
+   */
+  modelEnums?: EntityEnum[];
+  /**
+   * The state machines `%%workflow … kind: state` declares. The transition
+   * suite drives each one edge by edge, and asserts the edges the model never
+   * drew are refused.
+   */
+  compiledWorkflows?: CompiledWorkflow[];
 }
 
 /** Static harness files copied verbatim (after Handlebars rendering). */
@@ -57,6 +77,10 @@ const HARNESS_FILES = [
   "auth.ts",
   "server.ts",
   "entities.ts",
+  // What the model declared, as data: enum values and state-machine edges.
+  // The dictionary and transition suites compare the running application
+  // against this rather than against themselves.
+  "model.ts",
   "factory.ts",
   "rules.ts",
   "workflows.ts",
@@ -74,13 +98,22 @@ const SHARED_SUITES = [
   "00-health.test.ts",
   "01-auth.test.ts",
   "02-dictionary.test.ts",
+  // The window/tab/field layout every screen is drawn from, and the references
+  // every lookup and dropdown is fed by. Split from 02 because a broken layout
+  // and a broken reference fail for different reasons and want different names.
+  "02b-dictionary-layout.test.ts",
+  "02c-dictionary-references.test.ts",
   "04-bulk-seed.test.ts",
   "06-rules-workflow.test.ts",
+  // The state machine, driven edge by edge — after the rule-triggered
+  // workflows, because both write to the same status fields.
+  "06b-workflow-transitions.test.ts",
   "07-workflow-random.test.ts",
   "08-users-roles.test.ts",
   "09-workflow-multistep.test.ts",
-  // Last, so it measures the fullest the tables will be this run.
+  // Last, so they measure the fullest the tables will be this run.
   "10-benchmark.test.ts",
+  "11-performance-budget.test.ts",
 ];
 
 /** Root-level files. */
@@ -141,8 +174,58 @@ export class BunE2ETestGenerator extends BaseGenerator {
       },
       entities,
       relationships,
+      modelEnums: this.options.modelEnums ?? [],
+      stateMachines: this.stateMachines(entities),
       now: new Date().toISOString(),
     };
+  }
+
+  /**
+   * The model's state machines, resolved onto the physical tables the suites
+   * drive: entity name, table, the status column the guard reads, and the
+   * edges — the same derivation the backend's transition seed performs, so the
+   * suite and the seed cannot disagree about what the model said.
+   */
+  private stateMachines(entities: BusEntity[]): Array<Record<string, unknown>> {
+    const byEntity = new Map<string, CompiledWorkflow>();
+    for (const workflow of this.options.compiledWorkflows ?? []) {
+      if (!byEntity.has(workflow.entity)) byEntity.set(workflow.entity, workflow);
+    }
+
+    const machines: Array<Record<string, unknown>> = [];
+    for (const entity of entities) {
+      // `originalName` is the entity as the ERD spelled it, which is the key
+      // `CompiledWorkflow.entity` carries; `name` is the same string for every
+      // model that does not rename, and the fallback covers the ones that do.
+      const workflow = byEntity.get(entity.name) ?? byEntity.get(entity.originalName);
+      if (!workflow || workflow.transitions.length === 0) continue;
+
+      // entityToBusEntity gives every attribute a physical `columnName`; the
+      // inherited attribute type does not declare it, so it is read through the
+      // bus-entity attribute shape rather than assumed.
+      const columns = ((entity.attributes ?? []) as Array<Partial<BusEntityAttribute>>).map(
+        (attribute) => attribute.columnName ?? attribute.name
+      );
+      const statusField = columns.includes("status") ? "status" : "workflow_status";
+
+      // `[*]` is the diagram's start and end marker, not a state a record is
+      // ever in — the seed drops those edges, so the suite must too or it
+      // would assert against transitions the guard has never heard of.
+      const edges = workflow.transitions
+        .filter((t) => t.from !== "[*]" && t.to !== "[*]")
+        .map((t) => ({ from: t.from, to: t.to, trigger: t.trigger ?? "" }));
+      if (edges.length === 0) continue;
+
+      machines.push({
+        entity: entity.name,
+        tableName: entity.tableName,
+        statusField,
+        initial: workflow.initial ?? "",
+        terminal: workflow.terminal ?? [],
+        edges,
+      });
+    }
+    return machines;
   }
 
   // ── writers ───────────────────────────────────────────────────────────────
