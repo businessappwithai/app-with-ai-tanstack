@@ -52,8 +52,8 @@
 %% Group entities into dashboard sections. One block per category.
 %%category name: Accounts and Contacts; description: Customer organisations, their people and the territories that cover them; icon: Building2; color: #6366f1; entities: Account, Contact, Territory
 %%category name: Demand Generation; description: Campaigns, campaign membership and inbound leads; icon: Megaphone; color: #ec4899; entities: Campaign, CampaignMember, Lead
-%%category name: Sales Pipeline; description: Opportunities, their line items and the products sold; icon: TrendingUp; color: #0ea5e9; entities: Opportunity, OpportunityLineItem, Product
-%%category name: Quotes and Contracts; description: Priced quotes, their line items and signed agreements; icon: FileSignature; color: #14b8a6; entities: Quote, QuoteLineItem, Contract
+%%category name: Sales Pipeline; description: Opportunities and the products sold; line items live inside the opportunity; icon: TrendingUp; color: #0ea5e9; entities: Opportunity, Product
+%%category name: Quotes and Contracts; description: Priced quotes and signed agreements; line items live inside the quote; icon: FileSignature; color: #14b8a6; entities: Quote, Contract
 %%category name: Customer Service; description: Support cases and the service levels that govern them; icon: LifeBuoy; color: #f59e0b; entities: SupportCase, SlaPolicy
 %%category name: Activities; description: Calls, emails, meetings and tasks logged against any record; icon: CalendarClock; color: #8b5cf6; entities: Activity
 %%category name: People and Teams; description: Users, selling teams and organisational structure; icon: Users; color: #64748b; default: true; entities: User, Team
@@ -483,9 +483,11 @@ erDiagram
     %%entity CampaignMember help: One person on one campaign's target list, and whether they responded.
     %%entity Opportunity help: A deal in progress against an account, with an amount, a stage and a close date. The pipeline is the sum of these.
     %%entity OpportunityLineItem help: One product on one opportunity, priced. The opportunity's amount is what these add up to.
+    %%entity OpportunityLineItem parent: Opportunity
     %%entity Product help: Something you sell, with a list price. Products are what line items point at.
     %%entity Quote help: A priced, versioned offer to an account for one opportunity. A quote is what gets approved and sent.
     %%entity QuoteLineItem help: One product on one quote, priced, in the order it appears on the document.
+    %%entity QuoteLineItem parent: Quote
     %%entity Contract help: The signed commitment that follows an accepted quote — a term, an annual value and a renewal date.
     %%entity SupportCase help: A customer problem, from the moment it arrives to the moment it is resolved, measured against an SLA.
     %%entity SlaPolicy help: How quickly cases must be answered and resolved for a given tier of customer.

@@ -15496,6 +15496,10 @@ export async function executeCustomValidateHooks(
       {
         slug: "add_report_designs",
         template: "src/migrations/013_add_report_designs.ts.hbs"
+      },
+      {
+        slug: "add_record_notes",
+        template: "src/migrations/014_add_record_notes.ts.hbs"
       }
     ];
     const scaffoldSlugs = new Set(scaffold.map((m) => m.slug));
@@ -15918,7 +15922,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
       "audit.module.ts",
       "audit.service.ts",
       "audit.types.ts",
-      "immudb.service.ts"
+      "immudb.service.ts",
+      "record-history.controller.ts",
+      "record-history.service.ts"
     ];
     for (const file of auditFiles) {
       try {

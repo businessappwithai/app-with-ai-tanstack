@@ -1482,6 +1482,11 @@ export async function executeCustomValidateHooks(
         slug: "add_report_designs",
         template: "src/migrations/013_add_report_designs.ts.hbs",
       },
+      // sys_note — the notes people leave on a record, shown above its history
+      {
+        slug: "add_record_notes",
+        template: "src/migrations/014_add_record_notes.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -2150,6 +2155,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
       "audit.service.ts",
       "audit.types.ts",
       "immudb.service.ts",
+      // One record's history and its notes, scoped to that entity's own `read`
+      // rather than to an admin role — see RecordHistoryController.
+      "record-history.controller.ts",
+      "record-history.service.ts",
     ];
 
     for (const file of auditFiles) {

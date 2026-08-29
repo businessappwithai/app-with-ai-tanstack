@@ -1,6 +1,6 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ExternalLink, FilePlus2, FileX2, History, Home, Pencil, Star } from "lucide-react";
+import { ExternalLink, FilePlus2, FileX2, History, Home, MessageSquare, Pencil, Star } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { ReportPrintModal } from "@/components/reports/ReportPrintModal";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { DynamicTable } from "@/components/tables/dynamic-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type FieldMetadata, useEntityMetadata } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
@@ -237,6 +238,117 @@ function SummaryPanel({ fields, record }: { fields: FieldMetadata[]; record: Any
   );
 }
 
+
+// ---------------------------------------------------------------------------
+// Notes on a record — what a person wanted to say about it
+// ---------------------------------------------------------------------------
+
+interface RecordNote {
+  id: string;
+  note: string;
+  userName?: string | null;
+  userEmail?: string | null;
+  at: string;
+}
+
+/**
+ * Notes sit above the audit trail, and the order is the argument.
+ *
+ * The trail records what the system observed and must not be editable; a note
+ * is somebody's sentence about the same record. Keeping them in one list would
+ * make the history writable, which is the one thing an audit trail may not be —
+ * so they are two sections, two tables, and only the note is something a person
+ * chose to write.
+ *
+ * A note cannot be edited or deleted once left. That is not an omission: a note
+ * somebody can quietly rewrite is worth about as much as a conversation nobody
+ * remembers.
+ */
+function EntityNotes({ entityType, recordId }: { entityType: string; recordId: string }) {
+  const queryClient = useQueryClient();
+  const [draft, setDraft] = useState("");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["entity-notes", entityType, recordId],
+    queryFn: () =>
+      apiClient.get<{ data: RecordNote[] }>(`/records/${entityType}/${recordId}/notes`),
+    staleTime: 30_000,
+    retry: false,
+  });
+
+  const addNote = useMutation({
+    mutationFn: (note: string) =>
+      apiClient.post<RecordNote>(`/records/${entityType}/${recordId}/notes`, { note }),
+    onSuccess: () => {
+      setDraft("");
+      queryClient.invalidateQueries({ queryKey: ["entity-notes", entityType, recordId] });
+      toast.success("Note added");
+    },
+    onError: (error: any) => {
+      toast.error(error?.message ?? "Could not add the note");
+    },
+  });
+
+  const notes = data?.data ?? [];
+  const trimmed = draft.trim();
+
+  return (
+    <div className="px-6 py-4 border-t border-border">
+      <div className="flex items-center gap-2 mb-3">
+        <MessageSquare className="h-4 w-4 text-muted-foreground" />
+        <span className="text-sm font-semibold">Notes</span>
+        {notes.length > 0 && (
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+            {notes.length}
+          </span>
+        )}
+      </div>
+
+      <div className="flex items-start gap-2 mb-3">
+        <Textarea
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="Add a note about this record…"
+          rows={2}
+          maxLength={4000}
+          className="flex-1 text-sm"
+        />
+        <Button
+          type="button"
+          size="sm"
+          disabled={!trimmed || addNote.isPending}
+          onClick={() => addNote.mutate(trimmed)}
+        >
+          {addNote.isPending ? "Adding…" : "Add note"}
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <Skeleton className="h-8 w-full" />
+      ) : notes.length === 0 ? (
+        <p className="text-xs text-muted-foreground italic">No notes yet.</p>
+      ) : (
+        <ol className="space-y-2">
+          {notes.map((note) => (
+            <li key={note.id} className="rounded-md border border-border bg-muted/10 px-3 py-2">
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-xs font-medium">
+                  {note.userName ?? note.userEmail ?? "unknown"}
+                </span>
+                <time className="text-[11px] text-muted-foreground ml-auto">
+                  {new Date(note.at).toLocaleString()}
+                </time>
+              </div>
+              {/* Plain text: a note is whatever somebody typed. */}
+              <p className="text-sm whitespace-pre-wrap">{note.note}</p>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Entity-level audit trail — compact timeline of changes for this record
 // ---------------------------------------------------------------------------
@@ -274,14 +386,20 @@ function auditActionLabel(action: string): string {
 function EntityAuditTrail({ entityType, recordId }: { entityType: string; recordId: string }) {
   const [expanded, setExpanded] = React.useState<string | null>(null);
 
+  /*
+   * `/records/:entity/:id/history`, not `/audit`.
+   *
+   * The whole audit log is administrator-only and rightly so — it spans every
+   * table and carries the before and after of every changed field. This asks
+   * only for the record already on screen, gated on that entity's own `read`,
+   * so an ordinary user sees the history of the thing they are looking at. On
+   * `/audit` they saw nothing at all, which read as "this record has never been
+   * touched" rather than "you may not see this".
+   */
   const { data, isLoading } = useQuery({
     queryKey: ["entity-audit", entityType, recordId],
     queryFn: () =>
-      apiClient.get<AuditResponse>("/audit", {
-        entity_type: entityType,
-        entity_id: recordId,
-        limit: 20,
-      }),
+      apiClient.get<AuditResponse>(`/records/${entityType}/${recordId}/history`),
     staleTime: 30_000,
     retry: false,
   });
@@ -793,7 +911,9 @@ export function ADDetailShell({
               </div>
             )}
 
-            {/* Per-entity audit trail — shows who changed this record and when */}
+            {/* Notes first, then the history: what someone chose to say about
+                this record, above the account of what was done to it. */}
+            <EntityNotes entityType={level.id} recordId={recordId} />
             <EntityAuditTrail entityType={level.id} recordId={recordId} />
           </>
         )}

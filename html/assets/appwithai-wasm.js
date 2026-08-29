@@ -5710,6 +5710,24 @@ CREATE TABLE IF NOT EXISTS sys_audit_log (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- A note somebody left on a record.
+--
+-- Separate from sys_audit_log on purpose: the trail records what the system
+-- observed, and this records what a person wanted to say. Mixing them would
+-- make the history editable, which is the one thing an audit trail may not be.
+CREATE TABLE IF NOT EXISTS sys_note (
+  sys_note_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  table_name VARCHAR(100) NOT NULL,
+  record_id VARCHAR(100) NOT NULL,
+  note TEXT NOT NULL,
+  user_id UUID,
+  user_name VARCHAR(200),
+  user_email VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sys_note_record ON sys_note (table_name, record_id);
+
 -- Written by the %%rbac compiler. A target with no row here is open to any
 -- authenticated caller — the directive restricts, it does not grant.
 CREATE TABLE IF NOT EXISTS sys_operation_access (
@@ -8941,8 +8959,8 @@ const titleize = (value) =>
  */
 
 import { Router } from "../lib/router.js";
-import { json } from "../lib/http.js";
-import { requireAdmin } from "../lib/guards.js";
+import { badRequest, json, readJson } from "../lib/http.js";
+import { requireAdmin, checkOperationAccess } from "../lib/guards.js";
 
 export async function recordAudit(db, entry) {
   try {
@@ -8988,6 +9006,124 @@ export function auditRoutes() {
       parameters
     );
     return json({ data, total, page, limit });
+  });
+
+  /**
+   * One record's history.
+   *
+   * Not admin-only, and that is the point: this is the trail shown at the foot
+   * of a record's own screen, so anyone who may read the record may read what
+   * has been done to it. Access is checked against the entity itself rather
+   * than assumed — the same \`read\` the record needed to be on screen at all, so
+   * a role that cannot see Invoices cannot read their history either.
+   *
+   * Admin-only is still the rule for the whole log (\`GET /audit\`), which spans
+   * every table and every sign-in attempt.
+   */
+  router.get("/record/:table/:id", async (_request, { db, params, user }) => {
+    await checkOperationAccess(db, user, params.table, "read");
+
+    const rows = await db.query(
+      \`SELECT sys_audit_log_id, user_email, action, changed_fields, before_value, after_value,
+              success, error_message, created_at
+         FROM sys_audit_log
+        WHERE entity_type = $1 AND entity_id = $2
+        ORDER BY created_at DESC
+        LIMIT 50\`,
+      [params.table, String(params.id)]
+    );
+
+    /* Normalised here rather than in the browser, so a screen does not have to
+       know how history is stored.
+       
+       These columns are JSONB, so the driver hands back a parsed value already
+       — but \`recordAudit\` writes them with \`JSON.stringify\`, and a build that
+       stored them as TEXT would hand back the string. Accepting both is what
+       stops \`changedFields\` silently arriving empty: parsing an array throws,
+       and the catch turned every entry into "nothing changed". A value that
+       will not parse is returned as null rather than failing the request; one
+       corrupt line of history is not worth refusing the other forty-nine. */
+    const safe = (value) => {
+      if (value == null) return null;
+      if (typeof value !== "string") return value;
+      try {
+        return JSON.parse(value);
+      } catch {
+        return null;
+      }
+    };
+
+    return json({
+      data: rows.map((row) => ({
+        id: row.sys_audit_log_id,
+        userEmail: row.user_email,
+        action: row.action,
+        changedFields: safe(row.changed_fields) ?? [],
+        before: safe(row.before_value),
+        after: safe(row.after_value),
+        success: row.success !== false,
+        error: row.error_message,
+        at: row.created_at,
+      })),
+    });
+  });
+
+  /**
+   * The notes people have left on a record.
+   *
+   * Readable by whoever may read the record, writable by whoever may update
+   * it: a note is a change to what the record says about itself, even though
+   * it touches no column of it. Never editable and never deleted — a note that
+   * can be rewritten is worth no more than a conversation nobody remembers.
+   */
+  router.get("/notes/:table/:id", async (_request, { db, params, user }) => {
+    await checkOperationAccess(db, user, params.table, "read");
+    const rows = await db.query(
+      \`SELECT sys_note_id, note, user_name, user_email, created_at
+         FROM sys_note
+        WHERE table_name = $1 AND record_id = $2
+        ORDER BY created_at DESC
+        LIMIT 100\`,
+      [params.table, String(params.id)]
+    );
+    return json({
+      data: rows.map((row) => ({
+        id: row.sys_note_id,
+        note: row.note,
+        userName: row.user_name,
+        userEmail: row.user_email,
+        at: row.created_at,
+      })),
+    });
+  });
+
+  router.post("/notes/:table/:id", async (request, { db, params, user }) => {
+    await checkOperationAccess(db, user, params.table, "update");
+
+    const body = await readJson(request);
+    const note = String(body.note ?? "").trim();
+    if (!note) throw badRequest("A note needs some text.");
+    if (note.length > 4000) throw badRequest("A note is at most 4000 characters.");
+
+    const created = await db.insert("sys_note", {
+      table_name: params.table,
+      record_id: String(params.id),
+      note,
+      user_id: user ? user.id : null,
+      user_name: user ? user.name ?? user.username ?? null : null,
+      user_email: user ? user.email : null,
+    });
+
+    return json(
+      {
+        id: created.sys_note_id,
+        note: created.note,
+        userName: created.user_name,
+        userEmail: created.user_email,
+        at: created.created_at,
+      },
+      { status: 201 }
+    );
   });
 
   router.get("/entity-types", async (_request, { db, user }) => {
@@ -10850,6 +10986,55 @@ a { color: var(--primary); }
 .detail__title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
 .detail__count { font-size: 12.5px; color: var(--text-soft); }
 .detail__empty { margin: 0; font-size: 13px; color: var(--text-soft); font-style: italic; }
+
+/* The record's own history, at the foot of its screen. Written on every create,
+   update and delete; see /audit/record/:table/:id. */
+.audit { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+.audit__head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.audit__title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
+.audit__count { font-size: 12.5px; color: var(--text-soft); }
+.audit__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.audit__entry {
+  padding: 10px 12px; border: 1px solid var(--border); border-left-width: 3px;
+  border-radius: var(--radius-sm); background: var(--bg-soft);
+}
+.audit__entry[data-action="CREATE"] { border-left-color: var(--green); }
+.audit__entry[data-action="UPDATE"] { border-left-color: var(--accent); }
+.audit__entry[data-action="DELETE"] { border-left-color: var(--red); }
+.audit__entry[data-failed] { border-left-color: var(--red); background: var(--red-soft); }
+.audit__line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 13px; }
+.audit__action { font-weight: 600; color: var(--text); }
+.audit__who { color: var(--text-soft); }
+.audit__when { margin-left: auto; color: var(--text-faint); font-size: 12px; }
+.audit__fields { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.audit__field { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; flex-wrap: wrap; }
+.audit__col { font-family: var(--mono, ui-monospace, monospace); color: var(--text-soft); min-width: 130px; }
+.audit__from { color: var(--text-faint); text-decoration: line-through; }
+.audit__arrow { color: var(--text-faint); }
+.audit__to { color: var(--text); }
+.audit__error { margin: 8px 0 0; font-size: 12.5px; color: var(--red); }
+
+/* Notes on a record — what a person wanted to say, above the history that
+   records what the system observed. */
+.notes { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+.notes__head { margin-bottom: 10px; }
+.notes__title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
+.notes__compose { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 12px; }
+.notes__input {
+  flex: 1; font: inherit; font-size: 13px; padding: 8px 11px; resize: vertical; min-height: 42px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+}
+.notes__empty { margin: 0; font-size: 13px; color: var(--text-soft); font-style: italic; }
+.notes__items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.note {
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+}
+.note__line { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; margin-bottom: 4px; }
+.note__who { font-weight: 600; color: var(--text); }
+.note__when { margin-left: auto; color: var(--text-faint); font-size: 12px; }
+.note__text { margin: 0; font-size: 13px; color: var(--text); white-space: pre-wrap; }
 `,
   "sw.js": `/**
  * The Service Worker — this application's HTTP layer.
@@ -12712,6 +12897,21 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
   const detailSlot = el("div");
   if (!isNew) void renderDetails(detailSlot, entity, id, navigate);
 
+  /*
+   * What has been done to this record, at the foot of it.
+   *
+   * The trail is written on every create, update and delete; showing it here
+   * is what makes it answerable rather than archival — "who changed this, and
+   * to what" is a question asked about a record you are looking at, not one
+   * anybody goes to an admin screen to ask.
+   */
+  const auditSlot = el("div");
+  const notesSlot = el("div");
+  if (!isNew) {
+    void renderNotes(notesSlot, entity, id);
+    void renderAudit(auditSlot, entity, id);
+  }
+
   mount(
     root,
     el(
@@ -12722,9 +12922,180 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
         el("button.record__close", { title: "Close", "aria-label": "Close", onclick: onClose }, "✕")
       ),
       form,
-      detailSlot
+      detailSlot,
+      notesSlot,
+      auditSlot
     ),
     isNew ? null : el("div.split", el("div"), el("aside.side", await sidePanels(entity, id, record, onSaved)))
+  );
+}
+
+/**
+ * Notes on a record: what a person wanted to say about it.
+ *
+ * Above the history rather than inside it, and deliberately so. The trail
+ * records what the system observed and must not be editable; a note is
+ * somebody's sentence, and belongs beside that account without becoming part
+ * of it. Both are stamped with who and when, which is the only thing they
+ * genuinely have in common.
+ *
+ * A note cannot be edited or removed once left. That is not an omission: a
+ * note somebody can quietly rewrite is worth about as much as a conversation
+ * nobody remembers.
+ */
+async function renderNotes(slot, entity, id) {
+  const path = \`/audit/notes/\${entity.tableName}/\${encodeURIComponent(id)}\`;
+
+  const listSlot = el("div.notes__list");
+  const box = el("textarea.notes__input", {
+    rows: 2,
+    placeholder: \`Add a note about this \${entity.singularName}…\`,
+    "aria-label": \`Add a note about this \${entity.singularName}\`,
+    maxlength: 4000,
+  });
+  const addButton = el("button.btn.btn--primary.btn--small", { type: "button" }, "Add note");
+
+  const when = (value) => {
+    const at = new Date(value);
+    return Number.isNaN(at.getTime()) ? String(value ?? "") : at.toLocaleString();
+  };
+
+  const paint = (entries) =>
+    mount(
+      listSlot,
+      entries.length
+        ? el(
+            "ol.notes__items",
+            entries.map((entry) =>
+              el(
+                "li.note",
+                el(
+                  "div.note__line",
+                  el("span.note__who", entry.userEmail || "unknown"),
+                  el("span.note__when", when(entry.at))
+                ),
+                /* textContent, not markup: a note is whatever somebody typed. */
+                el("p.note__text", entry.note)
+              )
+            )
+          )
+        : el("p.notes__empty", "No notes yet.")
+    );
+
+  let entries;
+  try {
+    entries = (await api.get(path)).data ?? [];
+  } catch {
+    return; // No read access to the entity means no notes panel.
+  }
+  paint(entries);
+
+  addButton.addEventListener("click", async () => {
+    const note = box.value.trim();
+    if (!note) return;
+    addButton.disabled = true;
+    try {
+      const created = await api.post(path, { note });
+      entries = [created, ...entries];
+      box.value = "";
+      paint(entries);
+      toast("Note added", "success");
+    } catch (error) {
+      toast(error.message || "Could not add the note", "error");
+    } finally {
+      addButton.disabled = false;
+    }
+  });
+
+  mount(
+    slot,
+    el(
+      "section.notes",
+      el("div.notes__head", el("h3.notes__title", "Notes")),
+      el("div.notes__compose", box, addButton),
+      listSlot
+    )
+  );
+}
+
+const AUDIT_LABEL = { CREATE: "Created", UPDATE: "Updated", DELETE: "Deleted" };
+
+/**
+ * This record's history: who changed it, when, and which columns moved.
+ *
+ * Fifty entries at most and newest first, because the question is nearly always
+ * "what happened to it recently". Each update lists the columns that actually
+ * changed — the server works that out by comparing before and after, so a save
+ * that touched one field does not read as a rewrite of the whole record.
+ *
+ * A role that may not read the entity is refused the trail with it, and the
+ * section simply does not appear: its absence is the access rules working.
+ */
+async function renderAudit(slot, entity, id) {
+  let entries;
+  try {
+    const answer = await api.get(\`/audit/record/\${entity.tableName}/\${encodeURIComponent(id)}\`);
+    entries = answer.data ?? [];
+  } catch {
+    return;
+  }
+  if (!entries.length) return;
+
+  const when = (value) => {
+    const at = new Date(value);
+    return Number.isNaN(at.getTime()) ? String(value ?? "") : at.toLocaleString();
+  };
+
+  mount(
+    slot,
+    el(
+      "section.audit",
+      el(
+        "div.audit__head",
+        el("h3.audit__title", "History"),
+        el("span.audit__count", \`\${entries.length} change\${entries.length === 1 ? "" : "s"}\`)
+      ),
+      el(
+        "ol.audit__list",
+        entries.map((entry) => {
+          const changed = (entry.changedFields || []).filter(
+            (column) => !["updated_at", "updated_by", "version"].includes(column)
+          );
+          return el(
+            "li.audit__entry",
+            { "data-action": entry.action, "data-failed": entry.success ? null : "true" },
+            el(
+              "div.audit__line",
+              el("span.audit__action", AUDIT_LABEL[entry.action] ?? entry.action),
+              el("span.audit__who", entry.userEmail || "unknown"),
+              el("span.audit__when", when(entry.at))
+            ),
+            /* Which columns moved, and to what. The old value is worth the room
+               only when there was one — a create has nothing to compare. */
+            changed.length
+              ? el(
+                  "ul.audit__fields",
+                  changed.slice(0, 8).map((column) =>
+                    el(
+                      "li.audit__field",
+                      el("span.audit__col", column),
+                      entry.before && entry.before[column] !== undefined
+                        ? el("span.audit__from", String(entry.before[column] ?? "—"))
+                        : null,
+                      el("span.audit__arrow", "→"),
+                      el(
+                        "span.audit__to",
+                        String((entry.after && entry.after[column]) ?? "—")
+                      )
+                    )
+                  )
+                )
+              : null,
+            entry.success ? null : el("p.audit__error", entry.error || "This attempt failed.")
+          );
+        })
+      )
+    )
   );
 }
 
@@ -13659,7 +14030,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 309484;
+var RUNTIME_BYTES = 323844;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
