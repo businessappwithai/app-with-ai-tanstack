@@ -3,8 +3,8 @@
  *
  * REST API for Application Dictionary entity categories.
  *
- * Generated: 2026-08-17T17:20:18.484Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.740Z
+ * Project: my-app
  */
 
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';

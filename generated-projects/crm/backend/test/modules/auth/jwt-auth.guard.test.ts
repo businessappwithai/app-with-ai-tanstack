@@ -1,8 +1,8 @@
 /**
  * Unit tests for JwtAuthGuard (BetterAuth session validation)
  *
- * Generated: 2026-08-17T17:20:18.681Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.004Z
+ * Project: my-app
  */
 
 import { describe, it, expect } from 'bun:test';

@@ -5,12 +5,12 @@
  * message should say why the app is unreachable rather than surfacing as a
  * cascade of auth errors.
  *
- * Generated: 2026-08-17T17:20:18.822Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.133Z
+ * Project: my-app
  */
 
-import { describe, expect, it } from "bun:test";
-import { config, HttpClient, isServerUp, waitForServer } from "../harness";
+import { describe, expect, it } from "../harness/testing.ts";
+import { config, HttpClient, isServerUp, waitForServer } from "../harness/index.ts";
 
 describe("health", () => {
   it("answers the health endpoint", async () => {

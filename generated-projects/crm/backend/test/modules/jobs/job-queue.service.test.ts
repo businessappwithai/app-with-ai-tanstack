@@ -1,8 +1,8 @@
 /**
  * Unit tests for JobQueueService (Trigger.dev v3 integration)
  *
- * Generated: 2026-08-17T17:20:18.690Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.008Z
+ * Project: my-app
  */
 
 import { describe, it, expect, beforeEach } from 'bun:test';

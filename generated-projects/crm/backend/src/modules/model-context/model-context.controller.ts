@@ -5,8 +5,8 @@
  * including entities a given user may have no access to, so retrieval must not
  * become a way to read the shape of data the row-level checks would refuse.
  *
- * Generated: 2026-08-17T17:20:18.503Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.755Z
+ * Project: my-app
  */
 
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';

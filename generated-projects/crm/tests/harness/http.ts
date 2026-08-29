@@ -5,12 +5,13 @@
  * persist cookies on its own, so the jar here is what keeps a suite logged in
  * across requests.
  *
- * Generated: 2026-08-17T17:20:18.803Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.102Z
+ * Project: my-app
  */
 
-import { config } from "./config";
-import { classify, record, recordPromotion } from "./metrics";
+import { config } from "./config.ts";
+import { classify, record, recordPromotion } from "./metrics.ts";
+import { sleep } from "./testing.ts";
 
 export interface ApiResponse<T = unknown> {
   status: number;
@@ -22,15 +23,21 @@ export interface ApiResponse<T = unknown> {
 }
 
 export class HttpError extends Error {
-  constructor(
-    message: string,
-    readonly status: number,
-    readonly body: unknown,
-    readonly method: string,
-    readonly path: string
-  ) {
+  readonly status: number;
+  readonly body: unknown;
+  readonly method: string;
+  readonly path: string;
+
+  // Fields and assignments rather than parameter properties: Node runs these
+  // files by stripping the types out, which can only remove syntax, and a
+  // parameter property is syntax that also *does* something.
+  constructor(message: string, status: number, body: unknown, method: string, path: string) {
     super(message);
     this.name = "HttpError";
+    this.status = status;
+    this.body = body;
+    this.method = method;
+    this.path = path;
   }
 }
 
@@ -92,7 +99,11 @@ export interface RequestOptions {
 export class HttpClient {
   readonly jar = new CookieJar();
 
-  constructor(private readonly baseUrl: string = config.baseUrl) {}
+  private readonly baseUrl: string;
+
+  constructor(baseUrl: string = config.baseUrl) {
+    this.baseUrl = baseUrl;
+  }
 
   private url(path: string, absolute = false): string {
     if (path.startsWith("http://") || path.startsWith("https://")) return path;
@@ -136,7 +147,7 @@ export class HttpClient {
       if (config.verbose) {
         console.log(`  ⏳ 429 on ${method} ${path} — waiting ${waitMs}ms (attempt ${attempt + 1})`);
       }
-      await Bun.sleep(waitMs);
+      await sleep(waitMs);
       throttled = true;
       response = await this.send<T>(method, path, body, options);
     }

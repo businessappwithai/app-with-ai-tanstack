@@ -1,11 +1,11 @@
 /**
  * Authentication — the login the whole run depends on.
  *
- * Generated: 2026-08-17T17:20:18.823Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.134Z
+ * Project: my-app
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
 import {
   config,
   currentUser,
@@ -17,7 +17,7 @@ import {
   permissions,
   register,
   buildUser,
-} from "../harness";
+} from "../harness/index.ts";
 
 describe("authentication", () => {
   beforeAll(async () => {

@@ -4,7 +4,6 @@
  * Monitor workflow execution history and status
  *
  * Generated: 2026-06-09T07:37:11.495Z
- * Project: crm
  */
 
 import { useState } from 'react';
@@ -26,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { APP_NAME } from "@/lib/app-meta";
 
 export const Route = createFileRoute('/admin/workflows')({
   component: AdminWorkflowsPage,
@@ -380,7 +380,7 @@ function AdminWorkflowsPage() {
       <footer className="border-t-2 border-black mt-16">
         <div className="max-w-7xl mx-auto px-8 py-6">
           <p className="text-sm text-gray-400">
-            crm · Workflow Monitor · Auto-refreshing every 5 seconds
+            {APP_NAME} · Workflow Monitor · Auto-refreshing every 5 seconds
           </p>
         </div>
       </footer>

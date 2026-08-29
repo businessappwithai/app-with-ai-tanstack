@@ -4,7 +4,7 @@
  * Handles CRUD operations for all sys_ tables.
  * The sys_field endpoints are critical for runtime UI modification.
  *
- * Generated: 2026-08-17T17:20:18.477Z
+ * Generated: 2026-08-29T04:45:21.734Z
  */
 
 import {
@@ -24,6 +24,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { DictionaryWriteGuard } from '../auth/guards/dictionary-write.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { SysService } from './sys.service';
 
@@ -60,10 +61,33 @@ function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
  */
 @ApiTags('sys')
 @ApiBearerAuth()
-@UseGuards(SessionAuthGuard, RolesGuard)
+// DictionaryWriteGuard, not more @Roles decorators: RolesGuard permits any
+// route that declares none, and this controller declared one on a single
+// endpoint out of fifty-two. A signed-in user with no privileges could PATCH a
+// field or DELETE a table — and since every screen is drawn from these rows,
+// that changes what everybody else sees. Reads stay open because the ordinary
+// hooks need them to render a form at all.
+@UseGuards(SessionAuthGuard, RolesGuard, DictionaryWriteGuard)
 @Controller('sys')
 export class SysController {
   constructor(private readonly sysService: SysService) {}
+
+  // ============================================================================
+  // Data lifecycle
+  // ============================================================================
+
+  /**
+   * Empty every business table.
+   *
+   * A POST rather than a DELETE because it names no resource — and on this
+   * controller a non-GET is administrator-only already, enforced by
+   * DictionaryWriteGuard on the method rather than by a decorator here.
+   */
+  @Post('purge-business-data')
+  @ApiOperation({ summary: 'Delete every business record, leaving the application itself intact' })
+  async purgeBusinessData() {
+    return this.sysService.purgeBusinessData();
+  }
 
   // ============================================================================
   // SYS_TABLE Endpoints
@@ -504,5 +528,47 @@ export class SysController {
   @ApiOperation({ summary: 'List all system roles' })
   async findAllSysRoles() {
     return this.sysService.findAllSysRoles();
+  }
+
+  // ============================================================================
+  // SYS_REPORT_DESIGN Endpoints
+  // ============================================================================
+
+  @Get('report-designs')
+  @ApiOperation({ summary: 'List all report designs' })
+  async findAllReportDesigns() {
+    return this.sysService.findAllReportDesigns();
+  }
+
+  @Get('report-designs/:tableName')
+  @ApiOperation({ summary: 'Get report design for a table' })
+  async findReportDesignByTable(@Param('tableName') tableName: string) {
+    return this.sysService.findReportDesignByTable(tableName);
+  }
+
+  @Post('report-designs')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Create a report design (administrators only)' })
+  async createReportDesign(
+    @Body() body: { table_name: string; name?: string; layout?: object }
+  ) {
+    return this.sysService.upsertReportDesign(body);
+  }
+
+  @Put('report-designs/:tableName')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Save report design for a table (administrators only)' })
+  async saveReportDesign(
+    @Param('tableName') tableName: string,
+    @Body() body: { name?: string; layout?: object }
+  ) {
+    return this.sysService.upsertReportDesign({ table_name: tableName, ...body });
+  }
+
+  @Delete('report-designs/:tableName')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Delete report design for a table (administrators only)' })
+  async deleteReportDesign(@Param('tableName') tableName: string) {
+    return this.sysService.deleteReportDesign(tableName);
   }
 }

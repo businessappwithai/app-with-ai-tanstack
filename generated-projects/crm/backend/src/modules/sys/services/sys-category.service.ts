@@ -5,8 +5,8 @@
  * entities into a named section; the dashboard renders one block per category,
  * ordered by name.
  *
- * Generated: 2026-08-17T17:20:18.483Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.739Z
+ * Project: my-app
  */
 
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';

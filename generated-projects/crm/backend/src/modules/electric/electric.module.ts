@@ -1,18 +1,22 @@
 /**
  * Electric Module
  *
- * Exposes a GET /v1/shape proxy that forwards ElectricSQL shape
- * requests to the upstream Electric server, adding role-based
- * filtering for sys_ entity metadata.
+ * Exposes GET /v1/shape — the role-scoped proxy in front of the upstream
+ * ElectricSQL server that streams the Application Dictionary to each client.
  *
- * Generated: 2026-08-17T17:20:18.486Z
- * Project: crm
+ * DatabaseModule is imported because the proxy verifies the session's roles
+ * against sys_role before they are used to filter a shape.
+ *
+ * Generated: 2026-08-29T04:45:21.742Z
+ * Project: my-app
  */
 
 import { Module } from '@nestjs/common';
+import { DatabaseModule } from '../../database/database.module';
 import { ElectricController } from './electric.controller';
 
 @Module({
+  imports: [DatabaseModule],
   controllers: [ElectricController],
 })
 export class ElectricModule {}

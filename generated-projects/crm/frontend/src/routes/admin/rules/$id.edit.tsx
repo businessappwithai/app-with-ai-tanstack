@@ -288,7 +288,14 @@ function EditRulePage() {
             <RuleTableEditor
               name={rule.ruleName}
               table={asDecisionTable(jdmContent)}
-              onChange={setJdmContent}
+              // Serialised on the way out. `jdmContent` is the JSON text the
+              // rules API stores and every check on this page parses; the
+              // editor hands back a DecisionTable object. Passing the setter
+              // straight in put the object into a string state, so the save
+              // path's JSON.parse threw and a rule authored in the table editor
+              // could not be saved at all — it failed validation as "Invalid
+              // JDM content" with nothing on screen to explain why.
+              onChange={(next) => setJdmContent(JSON.stringify(next, null, 2))}
             />
             {errors.jdmContent && (
               <p className="text-xs text-red-600 px-4 pb-2">{errors.jdmContent}</p>

@@ -7,15 +7,20 @@
  * recorded here, and `cleanup.ts` deletes exactly those rows — leaving the
  * application's own seed data (roles, admin user, dictionary) untouched.
  *
- * Generated: 2026-08-17T17:20:18.818Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.128Z
+ * Project: my-app
  */
 
 import { existsSync } from "node:fs";
 import { readFile, unlink, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-export const MANIFEST_PATH = join(import.meta.dir, "..", ".e2e-seed-manifest.json");
+// `import.meta.dir` is Bun's; `import.meta.url` is the standard both runtimes
+// provide, and this file has to load under either.
+const here = dirname(fileURLToPath(import.meta.url));
+
+export const MANIFEST_PATH = join(here, "..", ".e2e-seed-manifest.json");
 
 export interface SeedManifest {
   /** ISO timestamp of the run that produced this manifest. */

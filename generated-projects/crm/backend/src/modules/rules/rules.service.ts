@@ -4,8 +4,8 @@
  * Provides CRUD operations for managing business rules in the database.
  * Integrates with GoRules Zen Engine for rule evaluation.
  *
- * Generated: 2026-08-17T17:20:18.420Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.691Z
+ * Project: my-app
  */
 
 import { Injectable, Logger, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';

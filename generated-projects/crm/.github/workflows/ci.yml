@@ -1,4 +1,4 @@
-name: CI - crm
+name: CI - my-app
 
 on:
   push:
@@ -85,7 +85,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: crm
+          POSTGRES_DB: my-app
         ports:
           - 5432:5432
         options: >-
@@ -111,7 +111,7 @@ jobs:
         run: bun run db:setup
         working-directory: ../backend
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/crm
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/my-app
 
       # The runner starts the backend itself and waits for its health check.
       # Record volume is reduced from the 1000 default so CI stays under the
@@ -120,7 +120,7 @@ jobs:
         run: bun run test
         working-directory: ../tests
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/crm
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/my-app
           E2E_BASE_URL: http://localhost:{{config.backendPort}}
           E2E_RECORDS_PER_ENTITY: 100
           E2E_USERS_TO_CREATE: 10

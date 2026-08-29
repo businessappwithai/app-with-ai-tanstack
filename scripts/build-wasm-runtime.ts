@@ -18,6 +18,7 @@
 
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
+import { VERBATIM_NOTICE } from "./lib/build-env.ts";
 
 const ROOT = resolve(import.meta.dir, "..");
 /**
@@ -112,5 +113,6 @@ for (const bundle of BUNDLES) {
 
 if (stale) {
   console.error("\nRun: bun run build:wasm-runtime");
+  console.error(VERBATIM_NOTICE);
   process.exit(1);
 }

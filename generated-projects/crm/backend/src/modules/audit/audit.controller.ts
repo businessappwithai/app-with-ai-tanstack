@@ -1,12 +1,22 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Roles } from "../auth/decorators/roles.decorator";
+import { RolesGuard } from "../auth/guards/roles.guard";
 import { SessionAuthGuard } from "../auth/guards/session-auth.guard";
 import { AuditService } from "./audit.service";
 import type { AuditSearchParams, AuditSource } from "./audit.types";
 
 @ApiTags("audit")
 @ApiBearerAuth()
-@UseGuards(SessionAuthGuard)
+// The audit trail is administrative. It had SessionAuthGuard alone, so any
+// signed-in account could page through every mutation in the application —
+// including the old and new value of each changed field, which is the record
+// contents of every table regardless of who may read those tables. Filtering it
+// per caller would mean row-level rules the model has no way to express; the
+// surface is reached from /admin/audit in the UI, so an administrator gate is
+// the honest boundary.
+@UseGuards(SessionAuthGuard, RolesGuard)
+@Roles("admin", "administrator")
 @Controller("audit")
 export class AuditController {
   constructor(private readonly auditService: AuditService) {}

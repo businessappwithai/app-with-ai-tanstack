@@ -2,7 +2,7 @@
 /**
  * Sidebar Navigation Component
  *
- * Generated: 2026-08-17T17:20:18.738Z
+ * Generated: 2026-08-29T04:45:22.041Z
  */
 
 import { useState } from 'react';
@@ -189,7 +189,7 @@ export function Sidebar({ className }: SidebarProps) {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <Database className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold">crm</span>
+            <span className="font-semibold">my-app</span>
           </div>
         )}
         <Button

@@ -1,7 +1,7 @@
 {
-  "name": "crm-backend",
+  "name": "my-app-backend",
   "version": "1.0.0",
-  "description": "Enterprise CRM generated from language/examples/crm.eml.mmd - NestJS Backend",
+  "description": "Generated application - NestJS Backend",
   "private": true,
   "license": "MIT",
   "scripts": {

@@ -1,8 +1,9 @@
 /**
  * API Client for Backend Communication
  *
- * Generated: 2026-08-17T17:20:18.723Z
  */
+
+import { BACKEND_PORT } from "./app-meta";
 
 // Empty is the recommended setting, in development and in production alike: it
 // makes every call a relative /api/… request against the page's own origin,
@@ -254,7 +255,7 @@ class ApiClient {
       typeof window !== "undefined"
         ? window.location.origin
         : (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
-            ?.BACKEND_URL ?? "http://127.0.0.1:4001";
+            ?.BACKEND_URL ?? `http://127.0.0.1:${BACKEND_PORT}`;
     let basePath = this.baseUrl || "/api";
 
     // If baseUrl is an absolute URL without /api, append /api

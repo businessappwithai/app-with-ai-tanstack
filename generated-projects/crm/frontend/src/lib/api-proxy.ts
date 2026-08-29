@@ -19,9 +19,9 @@
  * negotiation, and it works unchanged on localhost, on a LAN address, behind a
  * reverse proxy, and over plain HTTP.
  *
- * Generated: 2026-08-17T17:20:18.716Z
- * Project: crm
  */
+
+import { BACKEND_PORT } from "./app-meta";
 
 /**
  * Where the API is. Both halves in one container is loopback; the split compose
@@ -30,7 +30,7 @@
 export const BACKEND_URL = (
   process.env.BACKEND_URL ||
   process.env.API_URL ||
-  'http://127.0.0.1:4001'
+  `http://127.0.0.1:${BACKEND_PORT}`
 ).replace(/\/$/, '')
 
 /**

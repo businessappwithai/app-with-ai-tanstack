@@ -1,7 +1,7 @@
 {
-  "name": "crm",
+  "name": "my-app",
   "version": "1.0.0",
-  "description": "Enterprise CRM generated from language/examples/crm.eml.mmd",
+  "description": "Generated application",
   "private": true,
   "workspaces": [
     "backend",

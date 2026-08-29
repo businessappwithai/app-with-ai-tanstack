@@ -12,14 +12,14 @@
  * 3× the time is a scaling curve while 1× the data costing 3× the time is a
  * regression, and only the reader knows which question was asked.
  *
- * Generated: 2026-08-17T17:20:18.819Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.130Z
+ * Project: my-app
  */
 
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { MetricSample } from "./metrics";
-import { WRITE_PHASES } from "./metrics";
+import type { MetricSample } from "./metrics.ts";
+import { WRITE_PHASES } from "./metrics.ts";
 
 export interface PhaseSummary {
   count: number;
@@ -321,7 +321,7 @@ export function writeReport(input: WriteReportInput): { path: string; report: Ru
   );
 
   const report: RunReport = {
-    project: "crm",
+    project: "my-app",
     startedAt: input.startedAt.toISOString(),
     finishedAt: finishedAt.toISOString(),
     durationMs: finishedAt.getTime() - input.startedAt.getTime(),

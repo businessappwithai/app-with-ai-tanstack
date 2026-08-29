@@ -4,11 +4,11 @@
  * Covers the seeded role hierarchy, faker-generated user registration at
  * volume, and the access-control surface that role membership drives.
  *
- * Generated: 2026-08-17T17:20:18.827Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.141Z
+ * Project: my-app
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
 import {
   buildUser,
   config,
@@ -19,7 +19,7 @@ import {
   permissions,
   register,
   reseed,
-} from "../harness";
+} from "../harness/index.ts";
 
 interface SysRole {
   sys_role_id: string;

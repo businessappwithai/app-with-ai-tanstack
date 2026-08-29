@@ -9,8 +9,8 @@
  * declaration the root route fails to typecheck on a freshly generated app,
  * which is not a real problem with the code and reads like one.
  *
- * Generated: 2026-08-17T17:20:18.723Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.034Z
+ * Project: my-app
  */
 
 declare module '*?url' {

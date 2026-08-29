@@ -1,19 +1,17 @@
 /**
  * Users and Roles Seed
  * Creates system roles and initial users with Better-Auth integration
- * Default password for all users: "admin"
+ * Sign-in credentials are created through Better Auth's own API, so the rows
+ * always match the installed version's schema and hasher.
+ * Default password for all users: "admin123" — long enough for the configured
+ * minPasswordLength; change it before this runs anywhere real.
  *
- * Generated: 2026-08-17T17:20:18.548Z
+ * Generated: 2026-08-29T04:45:21.818Z
  */
 
 import { Kysely } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 
-// Better-Auth credential hash for password "admin" (generated via better-auth internal hasher)
-function createBetterAuthPassword(_password: string): string {
-  // Known hash for "admin" password compatible with better-auth credential provider
-  return 'e5e1ee3b93fa0dd2a2eb900e7d8a9da4:fe3dfa2b6d9e05c570a9518d19dccf7f795dda25362d4aa93314dd89291b3004e7773c39138849c71223aebc81d77023bed93d6a295614303b9d93865b21deb7';
-}
 
 interface RoleDefinition {
   name: string;
@@ -30,67 +28,188 @@ interface UserDefinition {
   description: string;
 }
 
+/**
+ * The roles this application has, and they come from the model.
+ *
+ * They used to be four fixed placeholders — Administrator, Manager, Analyst,
+ * User — which meant an application generated from a model declaring
+ * `role:support_agent` seeded no account that held it. Every restriction the
+ * model wrote was therefore invisible: the administrator bypasses all of them,
+ * and nobody else held anything.
+ *
+ * Now every role named by a `%%rbac` directive is seeded, one account holds
+ * each, and `Administrator` and `User` remain as the two ends to compare
+ * against — the account that bypasses everything, and the account that holds
+ * nothing.
+ */
 const ROLES: RoleDefinition[] = [
   {
     name: 'Administrator',
-    description: 'System administrator with full access to all modules',
+    description: 'Full access to every entity, and bypasses every restriction',
     level: 'S',
     canExport: true,
     canReport: true,
   },
   {
-    name: 'Manager',
-    description: 'Manages operations and team assignments',
-    level: 'C',
-    canExport: true,
-    canReport: true,
-  },
-  {
-    name: 'Analyst',
-    description: 'Reviews and analyses application data',
-    level: 'C',
-    canExport: true,
-    canReport: true,
-  },
-  {
     name: 'User',
-    description: 'Standard user with basic access',
+    description: 'Signed in, holding no functional role',
     level: 'C',
-    canExport: false,
-    canReport: false,
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'Account Executive',
+    description: 'Declared by %%rbac as account_executive',
+    level: 'C',
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'Marketing Manager',
+    description: 'Declared by %%rbac as marketing_manager',
+    level: 'C',
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'Sales Manager',
+    description: 'Declared by %%rbac as sales_manager',
+    level: 'C',
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'Sales Ops',
+    description: 'Declared by %%rbac as sales_ops',
+    level: 'C',
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'Sales Rep',
+    description: 'Declared by %%rbac as sales_rep',
+    level: 'C',
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'Support Agent',
+    description: 'Declared by %%rbac as support_agent',
+    level: 'C',
+    canExport: true,
+    canReport: true,
+  },
+  {
+    name: 'Support Manager',
+    description: 'Declared by %%rbac as support_manager',
+    level: 'C',
+    canExport: true,
+    canReport: true,
   },
 ];
 
+/** Seeded for every demo account; change it before anything real runs here. */
+const DEFAULT_PASSWORD = 'admin123';
+
+/**
+ * One account per role.
+ *
+ * Signing in as `support.agent@…` is the only way to see what the model's
+ * access rules actually did — the administrator bypasses them, so an
+ * application with a single account cannot demonstrate its own authorization.
+ */
 const USERS: UserDefinition[] = [
   {
     email: 'admin@admin.com',
-    name: 'Admin User',
+    name: 'Administrator',
     roleName: 'Administrator',
-    description: 'System administrator account',
+    description: 'Bypasses every restriction — the account to compare the others against',
   },
   {
-    email: 'manager@crm.com',
-    name: 'Manager User',
-    roleName: 'Manager',
-    description: 'Operations manager account',
-  },
-  {
-    email: 'analyst@crm.com',
-    name: 'Analyst User',
-    roleName: 'Analyst',
-    description: 'Data analyst account',
-  },
-  {
-    email: 'user@crm.com',
-    name: 'Standard User',
+    email: 'user@my-app.example.com',
+    name: 'User',
     roleName: 'User',
-    description: 'Standard user account',
+    description: 'Holds User and nothing else',
+  },
+  {
+    email: 'account.executive@my-app.example.com',
+    name: 'Account Executive',
+    roleName: 'Account Executive',
+    description: 'Holds Account Executive and nothing else',
+  },
+  {
+    email: 'marketing.manager@my-app.example.com',
+    name: 'Marketing Manager',
+    roleName: 'Marketing Manager',
+    description: 'Holds Marketing Manager and nothing else',
+  },
+  {
+    email: 'sales.manager@my-app.example.com',
+    name: 'Sales Manager',
+    roleName: 'Sales Manager',
+    description: 'Holds Sales Manager and nothing else',
+  },
+  {
+    email: 'sales.ops@my-app.example.com',
+    name: 'Sales Ops',
+    roleName: 'Sales Ops',
+    description: 'Holds Sales Ops and nothing else',
+  },
+  {
+    email: 'sales.rep@my-app.example.com',
+    name: 'Sales Rep',
+    roleName: 'Sales Rep',
+    description: 'Holds Sales Rep and nothing else',
+  },
+  {
+    email: 'support.agent@my-app.example.com',
+    name: 'Support Agent',
+    roleName: 'Support Agent',
+    description: 'Holds Support Agent and nothing else',
+  },
+  {
+    email: 'support.manager@my-app.example.com',
+    name: 'Support Manager',
+    roleName: 'Support Manager',
+    description: 'Holds Support Manager and nothing else',
   },
 ];
+
+/**
+ * Which entities each role may look at, from the model's `read` restrictions.
+ *
+ * Empty unless the model restricted reading. That is deliberate and is
+ * explained at length in `packages/generator/src/rbac/roles.ts`: a model
+ * protecting *deletion* of an entity is not asking for that entity to disappear
+ * from everyone's navigation, and only a `read` rule says who an entity belongs
+ * to.
+ */
+export const ENTITY_VISIBILITY: Record<string, string[]> = {
+  'Account': ['account_executive', 'marketing_manager', 'sales_manager', 'sales_ops', 'sales_rep', 'support_agent', 'support_manager'],
+  'Activity': ['account_executive', 'marketing_manager', 'sales_manager', 'sales_ops', 'sales_rep', 'support_agent', 'support_manager'],
+  'Campaign': ['marketing_manager', 'sales_ops'],
+  'CampaignMember': ['marketing_manager', 'sales_ops'],
+  'Contact': ['account_executive', 'marketing_manager', 'sales_manager', 'sales_ops', 'sales_rep', 'support_agent', 'support_manager'],
+  'Contract': ['account_executive', 'sales_manager', 'sales_ops'],
+  'Lead': ['account_executive', 'marketing_manager', 'sales_manager', 'sales_ops', 'sales_rep'],
+  'Opportunity': ['account_executive', 'sales_manager', 'sales_ops', 'sales_rep'],
+  'OpportunityLineItem': ['account_executive', 'sales_manager', 'sales_ops', 'sales_rep'],
+  'Product': ['account_executive', 'sales_manager', 'sales_ops', 'sales_rep'],
+  'Quote': ['account_executive', 'sales_manager', 'sales_ops', 'sales_rep'],
+  'QuoteLineItem': ['account_executive', 'sales_manager', 'sales_ops', 'sales_rep'],
+  'SlaPolicy': ['support_agent', 'support_manager'],
+  'SupportCase': ['support_agent', 'support_manager'],
+  'Team': ['sales_manager', 'sales_ops'],
+  'Territory': ['sales_manager', 'sales_ops'],
+  'User': ['sales_manager', 'sales_ops', 'support_manager'],
+};
 
 export async function seed(db: Kysely<any>): Promise<void> {
   const now = new Date();
   const createdBy = 'system';
+
+  const { initAuth } = await import('../src/lib/better-auth');
+  const auth = await initAuth();
 
   console.log('🔐 Creating users and roles...');
 
@@ -204,7 +323,15 @@ export async function seed(db: Kysely<any>): Promise<void> {
       .onConflict((oc) => oc.doNothing())
       .execute();
 
-    // Create better-auth user and account
+    // Create the sign-in credentials through Better Auth itself.
+    //
+    // These rows used to be written here by hand — a `user` row, an `account`
+    // row, and a password hash copied from some earlier release. Every one of
+    // those is the library's private business, and each drifted: the hash no
+    // longer matched the verifier, and `account` grew a NOT NULL column the
+    // insert knew nothing about. Asking Better Auth to create the account means
+    // the rows are whatever the installed version says they should be, and this
+    // seed cannot fall out of step with it again.
     const existingBaUser = await db
       .selectFrom('user')
       .select('id')
@@ -212,46 +339,47 @@ export async function seed(db: Kysely<any>): Promise<void> {
       .executeTakeFirst();
 
     if (!existingBaUser) {
-      const userId = uuidv4();
-      const role = userDef.roleName === 'Administrator' ? 'admin' : 'user';
+      await auth.api.signUpEmail({
+        body: { email: userDef.email, password: DEFAULT_PASSWORD, name: userDef.name },
+      });
 
+      // Better Auth owns the identity; the application's own columns — which
+      // role this user holds, and which sys_user they map to — are ours to set.
       await db
-        .insertInto('user')
-        .values({
-          id: userId,
-          name: userDef.name,
-          email: userDef.email,
-          emailVerified: 1,
-          image: null,
-          createdAt: now.toISOString(),
-          updatedAt: now.toISOString(),
-          role: role,
+        .updateTable('user')
+        .set({
+          role: userDef.roleName === 'Administrator' ? 'admin' : 'user',
           sysUserId: sysUserId,
         })
+        .where('email', '=', userDef.email)
         .execute();
 
-      await db
-        .insertInto('account')
-        .values({
-          id: uuidv4(),
-          accountId: `credential-${userId}`,
-          providerId: 'credential',
-          userId: userId,
-          password: createBetterAuthPassword('admin'),
-          createdAt: now.toISOString(),
-          updatedAt: now.toISOString(),
-        })
-        .execute();
-
-      console.log(`  ✓ Created better-auth user: ${userDef.email} (password: "admin")`);
+      console.log(`  ✓ Created better-auth user: ${userDef.email} (password: "${DEFAULT_PASSWORD}")`);
     }
   }
 
   console.log('✓ Users and roles seeded successfully');
   console.log('\n📋 Default Credentials:');
-  console.log('   All users can log in with password: "admin"');
+  console.log(`   All users can log in with password: "${DEFAULT_PASSWORD}"`);
   console.log('\n👥 Users Created:');
   for (const user of USERS) {
     console.log(`   - ${user.email} (${user.roleName})`);
+  }
+
+  // What each role will actually see. Printed because "the roles were seeded"
+  // and "the roles see different applications" are different claims, and this
+  // is the one worth checking after a migration.
+  const owned = new Map<string, string[]>();
+  for (const [entity, roles] of Object.entries(ENTITY_VISIBILITY)) {
+    for (const role of roles) {
+      owned.set(role, [...(owned.get(role) ?? []), entity]);
+    }
+  }
+  if (owned.size > 0) {
+    console.log('\n🔐 Entities per functional role:');
+    for (const [role, entities] of [...owned].sort()) {
+      console.log(`   - ${role}: ${entities.length} (${entities.join(', ')})`);
+    }
+    console.log('   - Administrator: every entity, and bypasses every restriction');
   }
 }

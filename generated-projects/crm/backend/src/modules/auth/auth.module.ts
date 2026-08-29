@@ -7,14 +7,18 @@
  * This module provides guards for protecting other routes:
  * - SessionAuthGuard: validates session cookies against better-auth
  * - RolesGuard: checks user roles for authorization
+ * - EntityAccessGuard: enforces the model's %%rbac directives on entity routes
+ * - DictionaryWriteGuard: dictionary reads open, dictionary writes admin-only
  *
- * Generated: 2026-08-17T17:20:18.400Z
+ * Generated: 2026-08-29T04:45:21.662Z
  */
 
 import { Module } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { SessionAuthGuard } from './guards/session-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { EntityAccessGuard } from './guards/entity-access.guard';
+import { DictionaryWriteGuard } from './guards/dictionary-write.guard';
 import { AuthController } from './auth.controller';
 import { DatabaseModule } from '../../database/database.module';
 
@@ -25,7 +29,15 @@ import { DatabaseModule } from '../../database/database.module';
     Reflector,
     SessionAuthGuard,
     RolesGuard,
+    EntityAccessGuard,
+    DictionaryWriteGuard,
   ],
-  exports: [SessionAuthGuard, RolesGuard, DatabaseModule],
+  exports: [
+    SessionAuthGuard,
+    RolesGuard,
+    EntityAccessGuard,
+    DictionaryWriteGuard,
+    DatabaseModule,
+  ],
 })
 export class AuthModule {}

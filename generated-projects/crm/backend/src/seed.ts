@@ -2,12 +2,12 @@
  * Database Seed Runner
  * Run with: bun run src/seed.ts
  *
- * Generated: 2026-08-17T17:20:18.640Z
+ * Generated: 2026-08-29T04:45:21.939Z
  */
 
 import * as path from 'path';
 import * as fs from 'fs';
-import { Kysely, PostgresDialect } from 'kysely';
+import { Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool } from 'pg';
 import { config } from 'dotenv';
 
@@ -26,7 +26,7 @@ async function createDialect(): Promise<PostgresDialect> {
       port: Number(process.env.DB_PORT ?? 5432),
       user: process.env.DB_USER ?? 'postgres',
       password: process.env.DB_PASSWORD ?? '',
-      database: process.env.DB_NAME ?? 'crm',
+      database: process.env.DB_NAME ?? 'my_app',
     }),
   });
 }
@@ -52,6 +52,14 @@ async function runSeeds(db: Kysely<any>) {
       }
     }
   }
+
+  // The dictionary's allowed_roles column is derived from sys_access, and a
+  // trigger keeps it current as grants are written. Seeds also insert windows,
+  // tabs and fields *after* the grants that cover them, so those rows would be
+  // left unscoped — and a row with no role attached syncs to nobody. One
+  // recompute at the end settles the whole dictionary.
+  await sql`SELECT sys_refresh_dictionary_scope()`.execute(db);
+  console.log('✓ Dictionary role scope refreshed');
 }
 
 (async () => {

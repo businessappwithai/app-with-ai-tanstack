@@ -1,4 +1,4 @@
-name: CI - crm Backend
+name: CI - my-app Backend
 
 on:
   push:
@@ -61,7 +61,7 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: crm_test
+          POSTGRES_DB: my-app_test
           POSTGRES_USER: test_user
           POSTGRES_PASSWORD: test_password
         options: >-
@@ -87,12 +87,12 @@ jobs:
       - name: Run migrations
         run: bun run migrate
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/crm_test
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/my-app_test
 
       - name: Run unit tests with bun:test
         run: bun run test
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/crm_test
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/my-app_test
           NODE_ENV: test
 
       - name: Upload coverage

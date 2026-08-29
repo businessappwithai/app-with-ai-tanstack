@@ -1,4 +1,4 @@
-# crm — the whole application in one image.
+# my-app — the whole application in one image.
 #
 # The per-service Dockerfiles under backend/ and frontend/ build two images that
 # scale independently, which is the right shape for a real deployment. This one
@@ -11,9 +11,9 @@
 # Everything below is either already in the base image or is a dependency the
 # application declares, so this builds anywhere.
 #
-#   docker build -t crm:latest .
+#   docker build -t my-app:latest .
 #   docker run -p 4000:4000 \
-#     -e DATABASE_URL=postgres://… crm:latest
+#     -e DATABASE_URL=postgres://… my-app:latest
 
 # Behind a TLS-intercepting proxy the dependency install cannot verify any
 # certificate and fails with SELF_SIGNED_CERT_IN_CHAIN. Drop the proxy's CA into

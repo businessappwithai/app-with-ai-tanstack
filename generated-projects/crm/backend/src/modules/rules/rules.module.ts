@@ -1,9 +1,9 @@
 /**
  * Rules Module
  *
- * Business rules engine module for crm
+ * Business rules engine module for my-app
  *
- * Generated: 2026-08-17T17:20:18.419Z
+ * Generated: 2026-08-29T04:45:21.690Z
  */
 
 import { Module, forwardRef } from '@nestjs/common';

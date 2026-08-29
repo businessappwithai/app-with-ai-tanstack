@@ -7,25 +7,54 @@
  * - Retrying failed workflows
  * - Monitoring workflow execution
  *
- * Generated: 2026-08-17T17:20:18.434Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.703Z
+ * Project: my-app
  */
 
 import { Controller, Get, Post, Param, Query, UseGuards, Logger } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { EntityAccessGuard } from '../auth/guards/entity-access.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { WorkflowService } from './workflow.service';
 
 @ApiTags('workflows')
 @ApiBearerAuth()
-@UseGuards(SessionAuthGuard, RolesGuard)
+// EntityAccessGuard covers `entity/:entityName/:entityId`, which returns a
+// record's workflow history — the old and new values of every field a run
+// touched. Without it a caller denied `%%rbac ... on <E>.read` on /bus reads the
+// same data here by changing the URL, which is the restriction not holding.
+// Routes with no entity in the path fall straight through it.
+@UseGuards(SessionAuthGuard, RolesGuard, EntityAccessGuard)
 @Controller('workflows')
 export class WorkflowController {
   private readonly logger = new Logger(WorkflowController.name);
 
   constructor(private readonly workflowService: WorkflowService) {}
+
+  /**
+   * The state machine itself — the edges `%%workflow … kind: state` declared,
+   * as the guard reads them.
+   *
+   * Until this existed, the topology was enforced but unreadable: a client had
+   * no way to ask which states a record may move to next, so every screen
+   * offering a status change had to offer all of them and let the save be
+   * refused. Answering the question up front is what lets a form show only the
+   * transitions that exist.
+   *
+   * Declared before `runs/:runId` so the literal path is matched first; Fastify
+   * would otherwise read "transitions" as a run id.
+   */
+  @Get('transitions')
+  @ApiOperation({ summary: 'Valid state-machine transitions, optionally for one table' })
+  @ApiResponse({ status: 200, description: 'Transitions retrieved' })
+  async getTransitions(
+    @Query('table') table?: string,
+    @Query('from') from?: string,
+  ) {
+    return await this.workflowService.getTransitions({ table, from });
+  }
 
   @Get('runs/:runId')
   @ApiOperation({ summary: 'Get workflow status by run ID' })

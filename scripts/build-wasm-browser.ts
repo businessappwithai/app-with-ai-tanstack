@@ -13,6 +13,7 @@
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
+import { bundlerEnvNotice, VERBATIM_NOTICE } from "./lib/build-env.ts";
 
 const ROOT = resolve(import.meta.dir, "..");
 const ENTRY = join(ROOT, "packages/generator/src/browser/index.ts");
@@ -106,12 +107,14 @@ if (process.argv.includes("--check")) {
   const existing = await readFile(TARGET, "utf-8").catch(() => "");
   if (existing !== bundle) {
     console.error("html/assets/appwithai-wasm.js is out of date.\nRun: bun run build:wasm-browser");
+    console.error(bundlerEnvNotice(ROOT));
     process.exit(1);
   }
   const worker = await readFile(join(ROOT, "html/wasm-app/sw.js"), "utf-8").catch(() => "");
   const source = await readFile(join(ROOT, "packages/generator/templates/wasm/sw.js"), "utf-8");
   if (worker !== source) {
     console.error("html/wasm-app/sw.js is out of date.\nRun: bun run build:wasm-browser");
+    console.error(VERBATIM_NOTICE);
     process.exit(1);
   }
   console.log("✓ html/assets/appwithai-wasm.js and html/wasm-app/sw.js are up to date");

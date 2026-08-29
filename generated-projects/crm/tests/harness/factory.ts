@@ -5,19 +5,19 @@
  * `phone` gets a phone number) and its declared type second. The faker seed is
  * fixed in config, so a failing bulk run reproduces byte-for-byte.
  *
- * Generated: 2026-08-17T17:20:18.812Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.124Z
+ * Project: my-app
  */
 
 import { faker } from "@faker-js/faker";
-import { config } from "./config";
+import { config } from "./config.ts";
 import {
   type EntityMeta,
   type FieldMeta,
   foreignKeyFields,
   scalarFields,
   writableFields,
-} from "./entities";
+} from "./entities.ts";
 
 faker.seed(config.fakerSeed);
 
@@ -35,12 +35,31 @@ export function reseed(seed: number = config.fakerSeed): void {
  * never across them. `Math.random` is not seeded, so this stays unique per
  * process while leaving every other value reproducible.
  */
-const RUN_ID = `${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
+const RUN_ID =
+  process.env.E2E_RUN_TOKEN ||
+  `${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
 let uniqueCounter = 0;
 
 function nextUniqueSalt(): string {
   uniqueCounter += 1;
   return `${RUN_ID}${uniqueCounter.toString(36)}`;
+}
+
+/**
+ * Fold a caller-supplied salt into this run's identity.
+ *
+ * A caller that knows how to keep its own values apart — the bulk seeder, which
+ * salts by row index so a batch of 500 cannot collide with itself — still needs
+ * the run half, and passing a bare index dropped it. Every row of the second
+ * run against the same database then regenerated the first run's values and was
+ * refused, so a re-run reported zero records created for every entity with a
+ * unique column, which is most of them.
+ *
+ * Distinct within a run because the caller's part varies; distinct between runs
+ * because RUN_ID does. Set E2E_RUN_TOKEN to replay a run's values exactly.
+ */
+export function scopedSalt(salt: string | number): string {
+  return `${RUN_ID}${salt}`;
 }
 
 export { faker };
@@ -140,9 +159,29 @@ function matchesType(value: unknown, type: FieldMeta["type"]): boolean {
       return typeof value === "number" && Number.isFinite(value);
     case "boolean":
       return typeof value === "boolean";
+    // ISO-8601 by shape, deliberately not `Date.parse`.
+    //
+    // `Date.parse` falls back to a lenient parser that finds a date in almost
+    // any string with a month name and a number in it, and faker's usernames
+    // are full of both: `Date.parse("margie_turner33")` is 2033-03-01, and
+    // "marjorie95", "janae44" and "maritza_graham56" all parse too. So a
+    // column named `last_login` — matched by the username pattern above, and
+    // typed datetime — had its username accepted by this guard, sent to a
+    // timestamptz column, and rejected by Postgres as 22007. Around three per
+    // cent of such records failed to insert, which the bulk seed reported as
+    // "rejected" and nothing explained.
+    //
+    // Every date this factory produces is `toISOString()`, whole or sliced to
+    // ten characters, so requiring that shape rejects nothing legitimate.
     case "date":
     case "datetime":
-      return typeof value === "string" && !Number.isNaN(Date.parse(value));
+      return (
+        typeof value === "string" &&
+        /^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/.test(
+          value
+        ) &&
+        !Number.isNaN(Date.parse(value))
+      );
     case "json":
       return typeof value === "object" && value !== null;
     default:
@@ -162,7 +201,7 @@ export function fakeValue(field: FieldMeta, uniqueSalt?: string | number): unkno
 
     let value = candidate;
     if (field.unique && typeof value === "string") {
-      const salt = uniqueSalt ?? nextUniqueSalt();
+      const salt = uniqueSalt === undefined ? nextUniqueSalt() : scopedSalt(uniqueSalt);
       value = value.includes("@") ? value.replace("@", `+${salt}@`) : `${value}-${salt}`;
     }
     return truncate(value, field);
@@ -170,7 +209,8 @@ export function fakeValue(field: FieldMeta, uniqueSalt?: string | number): unkno
 
   let value = byType(field);
   if (field.unique && typeof value === "string") {
-    value = `${value}-${uniqueSalt ?? nextUniqueSalt()}`;
+    const salt = uniqueSalt === undefined ? nextUniqueSalt() : scopedSalt(uniqueSalt);
+    value = `${value}-${salt}`;
   }
   return truncate(value, field);
 }

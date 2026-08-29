@@ -7,8 +7,8 @@
  * The dashboard renders one block per category, ordered by name, and the admin
  * dictionary exposes a maintenance form for them.
  *
- * Generated: 2026-08-17T17:20:18.545Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.811Z
+ * Project: my-app
  */
 
 import { type Kysely, sql } from 'kysely';

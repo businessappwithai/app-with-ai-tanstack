@@ -5,8 +5,8 @@
  * administrator extending it has an assistant that can answer from what the
  * application declares.
  *
- * Generated: 2026-08-17T17:20:18.504Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.756Z
+ * Project: my-app
  */
 
 import { Module } from '@nestjs/common';

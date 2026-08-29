@@ -1,7 +1,7 @@
 /**
  * System Reference Types Seed
  *
- * Generated: 2026-08-17T17:20:18.549Z
+ * Generated: 2026-08-29T04:45:21.821Z
  */
 
 import { Kysely } from 'kysely';

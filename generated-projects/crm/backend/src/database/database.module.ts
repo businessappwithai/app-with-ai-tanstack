@@ -1,7 +1,7 @@
 /**
  * Database Module with Kysely and PostgreSQL
  *
- * Generated: 2026-08-17T17:20:18.646Z
+ * Generated: 2026-08-29T04:45:21.959Z
  */
 
 import { Module, Global, OnModuleDestroy, Inject } from '@nestjs/common';
@@ -19,9 +19,9 @@ function buildPoolConfig(configService: ConfigService) {
   return {
     host: configService.get('DB_HOST', '127.0.0.1'),
     port: configService.get<number>('DB_PORT', 5432),
-    user: configService.get('DB_USER', 'crm'),
+    user: configService.get('DB_USER', 'my_app'),
     password: configService.get('DB_PASSWORD', ''),
-    database: configService.get('DB_NAME', 'crm'),
+    database: configService.get('DB_NAME', 'my_app'),
   };
 }
 

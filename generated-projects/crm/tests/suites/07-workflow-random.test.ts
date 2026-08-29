@@ -9,11 +9,11 @@
  *
  * The faker seed is fixed, so a failing run replays exactly.
  *
- * Generated: 2026-08-17T17:20:18.826Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.140Z
+ * Project: my-app
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
+import { afterAll, beforeAll, describe, expect, it, sleep } from "../harness/testing.ts";
 import {
   buildRecord,
   buildWorkflowTriggerJdm,
@@ -30,7 +30,7 @@ import {
   reseed,
   runsForEntity,
   type RuleRecord,
-} from "../harness";
+} from "../harness/index.ts";
 
 const suiteId = `e2e-chaos-${Date.now().toString(36)}`;
 
@@ -195,12 +195,12 @@ describe("randomised workflow chaos", () => {
     }
   });
 
-  // The settle time below is 5s, which is exactly bun's default per-test
+  // The settle time below is 5s, which is exactly the default per-test
   // timeout — so without an explicit one this test could only pass if every
   // other line took no time at all, and it failed on timing alone.
   it("leaves every observed workflow run in a terminal state", async () => {
     // Give any in-flight dispatch a moment to settle before judging it.
-    await Bun.sleep(SETTLE_MS);
+    await sleep(SETTLE_MS);
 
     const runs = await listRuns(harness.client, { limit: 100 });
     const pending = runs.filter((run) => !isTerminal(run.status));

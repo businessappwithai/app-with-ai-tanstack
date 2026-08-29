@@ -1,8 +1,8 @@
 /**
  * Root Application Module
  *
- * Generated: 2026-08-17T17:20:18.390Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:21.648Z
+ * Project: my-app
  */
 
 import { Module } from '@nestjs/common';
@@ -71,7 +71,7 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
     // Background job processing (Trigger.dev v3)
     JobQueueModule,
 
-    // Electric shape proxy (serves sys_ tables to PGlite clients)
+    // Electric shape proxy — streams the role-scoped Application Dictionary
     ElectricModule,
 
     // System/Dictionary module (sys_ tables)

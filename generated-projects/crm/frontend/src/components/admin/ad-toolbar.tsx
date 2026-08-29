@@ -2,6 +2,7 @@ import {
   Copy,
   Pencil,
   Plus,
+  Printer,
   RefreshCw,
   RotateCcw,
   Save,
@@ -13,6 +14,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface ADToolbarProps {
   onNew?: () => void;
@@ -24,6 +36,7 @@ interface ADToolbarProps {
   onEdit?: () => void;
   onCancelEdit?: () => void;
   onAdvancedSearchToggle?: () => void;
+  onPrint?: () => void;
   advancedFilterCount?: number;
   isSaving?: boolean;
   isDeleting?: boolean;
@@ -33,6 +46,7 @@ interface ADToolbarProps {
   isEditing?: boolean;
   isDetailView?: boolean;
   isAdvancedSearchOpen?: boolean;
+  hasPrintReport?: boolean;
 }
 
 export function ADToolbar({
@@ -45,6 +59,7 @@ export function ADToolbar({
   onEdit,
   onCancelEdit,
   onAdvancedSearchToggle,
+  onPrint,
   advancedFilterCount = 0,
   isSaving,
   isDeleting,
@@ -54,6 +69,7 @@ export function ADToolbar({
   isEditing = false,
   isDetailView = false,
   isAdvancedSearchOpen = false,
+  hasPrintReport = false,
 }: ADToolbarProps) {
   return (
     <TooltipProvider delayDuration={300}>
@@ -164,20 +180,40 @@ export function ADToolbar({
             </Tooltip>
 
             {canDelete && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="sm"
-                    onClick={onDelete}
-                    disabled={isDeleting}
-                    className="h-9 gap-2 px-4 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm disabled:opacity-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    {isDeleting ? "Deleting…" : "Delete"}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Delete Record</TooltipContent>
-              </Tooltip>
+              <AlertDialog>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        disabled={isDeleting}
+                        className="h-9 gap-2 px-4 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm disabled:opacity-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        {isDeleting ? "Deleting…" : "Delete"}
+                      </Button>
+                    </AlertDialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Delete Record</TooltipContent>
+                </Tooltip>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete this record?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. The record will be permanently deleted.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={onDelete}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
 
             {hasChanges && (
@@ -217,7 +253,23 @@ export function ADToolbar({
           </Tooltip>
         )}
 
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          {isDetailView && hasPrintReport && onPrint && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onPrint}
+                  className="h-9 gap-2 px-3 text-sm font-medium text-violet-700 border-violet-300 hover:bg-violet-50 hover:border-violet-400"
+                >
+                  <Printer className="h-4 w-4" />
+                  <span className="hidden sm:inline">Print</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Print Report</TooltipContent>
+            </Tooltip>
+          )}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

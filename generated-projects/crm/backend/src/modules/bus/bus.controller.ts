@@ -4,7 +4,7 @@
  * Dynamic controller for all bus_ prefixed tables.
  * CRUD operations are driven by the Application Dictionary metadata.
  *
- * Generated: 2026-08-17T17:20:18.491Z
+ * Generated: 2026-08-29T04:45:21.747Z
  */
 
 import {
@@ -28,10 +28,14 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { BusService } from './bus.service';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
+import { EntityAccessGuard } from '../auth/guards/entity-access.guard';
 
 @ApiTags('bus')
 @ApiBearerAuth()
-@UseGuards(SessionAuthGuard)
+// Order matters: SessionAuthGuard puts the caller's roles on the request, and
+// EntityAccessGuard reads them. Reversed, every %%rbac rule would see a request
+// with no roles and refuse a caller who holds the right one.
+@UseGuards(SessionAuthGuard, EntityAccessGuard)
 @Controller('bus')
 export class BusController {
   private readonly logger = new Logger(BusController.name);

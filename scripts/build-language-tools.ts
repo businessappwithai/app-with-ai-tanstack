@@ -24,6 +24,7 @@
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
+import { bundlerEnvNotice } from "./lib/build-env.ts";
 
 // Pinned to the repository root, not the working directory. Bun labels each
 // bundled module with its path relative to the cwd, so a build from anywhere
@@ -166,4 +167,7 @@ for (const tool of TOOLS) {
   }
 }
 
-if (stale) process.exit(1);
+if (stale) {
+  console.error(bundlerEnvNotice(ROOT));
+  process.exit(1);
+}

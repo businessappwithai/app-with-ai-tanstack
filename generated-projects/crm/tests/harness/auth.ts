@@ -4,12 +4,12 @@
  * Sign-in goes through better-auth, which is mounted outside the `api` global
  * prefix at /api/auth/* — hence `absolute: true` on those calls.
  *
- * Generated: 2026-08-17T17:20:18.804Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.103Z
+ * Project: my-app
  */
 
-import { config } from "./config";
-import { type HttpClient, HttpError } from "./http";
+import { config } from "./config.ts";
+import { type HttpClient, HttpError } from "./http.ts";
 
 export interface SessionUser {
   id: string;

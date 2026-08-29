@@ -22,6 +22,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
+import { bundlerEnvNotice } from "./lib/build-env.ts";
 
 const ROOT = resolve(import.meta.dir, "..");
 const ENTRY = join(ROOT, "packages/generator/src/browser/full-stack.ts");
@@ -144,6 +145,7 @@ if (process.argv.includes("--check")) {
     console.error(
       `${relative(ROOT, TARGET)} is out of date.\nRun: bun run build:fullstack-browser`
     );
+    console.error(bundlerEnvNotice(ROOT));
     process.exit(1);
   }
   console.log(`✓ ${relative(ROOT, TARGET)} is up to date`);

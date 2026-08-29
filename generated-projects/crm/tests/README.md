@@ -1,7 +1,7 @@
-# crm — End-to-End Tests
+# my-app — End-to-End Tests
 
-Bun-native end-to-end tests for the generated application. Everything here runs
-on `bun:test` — there is no Playwright, Jest or Vitest in this directory.
+Dependency-light end-to-end tests for the generated application. Everything here runs
+on `node:test` — there is no Playwright, Jest or Vitest in this directory.
 
 The suites drive the application through its **HTTP API**, the same surface the
 generated frontend uses: they sign in with a real session cookie, exercise CRUD
@@ -14,31 +14,31 @@ rule → workflow → cross-entity write chain.
 
 ```bash
 # From the project root — generates nothing, just runs
-bun run test:e2e
+npm run test:e2e
 ```
 
 or from this directory:
 
 ```bash
-bun install
-bun run test          # everything, in order (starts the backend for you)
-bun run test:fast     # skip the 1000-record bulk seed
-bun run test:attach   # attach to a backend you already started
+npm install
+npm run test          # everything, in order (starts the backend for you)
+npm run test:fast     # skip the 1000-record bulk seed
+npm run test:attach   # attach to a backend you already started
 ```
 
 Target one group:
 
 ```bash
-bun run test:crud
-bun run test:rules
-bun run test:workflows
-bun run test:users
+npm run test:crud
+npm run test:rules
+npm run test:workflows
+npm run test:users
 ```
 
 Or a single file:
 
 ```bash
-bun test suites/01-auth.test.ts
+node --test suites/01-auth.test.ts
 ```
 
 ### Prerequisites
@@ -47,7 +47,7 @@ The database must be migrated and seeded — the suites sign in as the seeded
 administrator and assume the Application Dictionary is populated:
 
 ```bash
-cd ../backend && bun run db:setup
+cd ../backend && npm run db:setup
 ```
 
 The runner starts the backend itself unless one is already listening on the
@@ -92,7 +92,7 @@ populates the tables the rules and workflow suites then operate on.
 Every suite calls the same shared harness:
 
 ```ts
-import { harness, getEntity, buildRecord } from "../harness";
+import { harness, getEntity, buildRecord } from "../harness/index.ts";
 
 beforeAll(async () => { await harness.setup(); });   // wait for server + login
 afterAll(async () => { await harness.teardown(); }); // delete what we created
@@ -116,7 +116,7 @@ opts out: its volume data is left behind for the suites that follow.
 | `01-auth` | Sign-in as the seeded admin, session persistence, bad credentials, registration, sign-out |
 | `02-dictionary` | Every ERD column registered in `sys_column`; form and grid field ordering |
 | `03-crud.<entity>` | List, create, read, update (PATCH + PUT), version bump, validation rejection, 404s, sort, search, filter, soft delete |
-| `04-bulk-seed` | 25+ faker records per entity, parents first; totals and pagination at volume |
+| `04-bulk-seed` | 1000+ faker records per entity, parents first; totals and pagination at volume |
 | `05-rules.<entity>` | JDM built and validated, rule registered, valid records pass, invalid records prevented, dry-run has no side effects, deactivation stops enforcement |
 | `06-rules-workflow` | `trigger-workflow` actions emitted and workflow runs enqueued, reaching a terminal state |
 | `07-workflow-random` | Randomised creates/updates across random entities with cascade rules; no 5xx, no stuck runs, records stay readable |
@@ -145,7 +145,7 @@ Every knob is an environment variable — see `harness/config.ts`.
 Lower the volume for a quick local run:
 
 ```bash
-E2E_RECORDS_PER_ENTITY=25 bun run test
+E2E_RECORDS_PER_ENTITY=25 npm run test
 ```
 
 ---
@@ -156,7 +156,7 @@ The faker seed is fixed, so a failing bulk or chaos run replays identically.
 Re-run the single suite that failed with verbose logging:
 
 ```bash
-E2E_VERBOSE=1 bun test suites/07-workflow-random.test.ts
+E2E_VERBOSE=1 node --test suites/07-workflow-random.test.ts
 ```
 
 To replay with a different data set, change `E2E_FAKER_SEED`.

@@ -1,4 +1,4 @@
-name: Deploy - crm Backend
+name: Deploy - my-app Backend
 
 on:
   push:
@@ -101,13 +101,13 @@ jobs:
         with:
           payload: |
             {
-              "text": "Staging deployment for crm Backend",
+              "text": "Staging deployment for my-app Backend",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*crm Backend - Staging Deployment*\nStatus: ${{ job.status }}\nURL: https://api-staging-{{project.id | slugify}}.example.com\nCommit: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                    "text": "*my-app Backend - Staging Deployment*\nStatus: ${{ job.status }}\nURL: https://api-staging-{{project.id | slugify}}.example.com\nCommit: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
                   }
                 }
               ]
@@ -249,13 +249,13 @@ jobs:
         with:
           payload: |
             {
-              "text": "Production deployment for crm Backend",
+              "text": "Production deployment for my-app Backend",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*crm Backend - Production Deployment*\nStatus: ${{ job.status }}\nURL: https://api-{{project.id | slugify}}.example.com\nCommit: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                    "text": "*my-app Backend - Production Deployment*\nStatus: ${{ job.status }}\nURL: https://api-{{project.id | slugify}}.example.com\nCommit: <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
                   }
                 }
               ]

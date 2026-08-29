@@ -5,14 +5,21 @@
  * already listening. Either way the suites do not begin until /api/me/health
  * answers.
  *
- * Generated: 2026-08-17T17:20:18.805Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.104Z
+ * Project: my-app
  */
 
-import { spawn, type Subprocess } from "bun";
-import { config } from "./config";
+// node:child_process rather than Bun's spawn: this suite has to run under
+// whichever runtime the application it is testing runs under, and the wasm
+// stack has no Bun. Both runtimes provide this module.
+import { type ChildProcess, spawn } from "node:child_process";
+import { config } from "./config.ts";
+import { sleep } from "./testing.ts";
 
 const HEALTH_PATH = "/api/me/health";
+
+/** How long a signalled backend gets to go away before the next one is sent. */
+const SHUTDOWN_GRACE_MS = 5000;
 
 /** Poll the health endpoint until it answers or the deadline passes. */
 export async function waitForServer(
@@ -34,12 +41,12 @@ export async function waitForServer(
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error);
     }
-    await Bun.sleep(500);
+    await sleep(500);
   }
 
   throw new Error(
     `Backend at ${config.baseUrl} was not ready within ${timeoutMs}ms (last: ${lastError}). ` +
-      `Start it with "bun run dev" in the project root, or let "bun run test:e2e" start it for you.`
+      `Start it with "npm run dev" in the project root, or let the runner start it for you.`
   );
 }
 
@@ -57,7 +64,7 @@ export async function isServerUp(): Promise<boolean> {
 }
 
 export interface ManagedServer {
-  process: Subprocess;
+  process: ChildProcess;
   stop: () => Promise<void>;
 }
 
@@ -87,11 +94,23 @@ export async function startServer(backendDir: string): Promise<ManagedServer | n
   // an unread pipe fills its OS buffer and blocks the server mid-run. stderr is
   // piped but actively drained below for the same reason — we keep only a
   // rolling tail, which is all a startup failure needs.
-  const child = spawn({
-    cmd: ["bun", "run", "start"],
+  // `npm run start` under either runtime: the backend's own package.json says
+  // what starting it means, and the wasm overlay has already rewritten that to
+  // node. Asking for a runtime by name here would undo the overlay's work.
+  // `detached: true` puts the backend in a process group of its own, and that
+  // is what makes it stoppable. `npm run start` is a launcher: it spawns the
+  // real server as *its* child and exits or ignores the signal. Killing the pid
+  // we hold therefore reaps the launcher and orphans the server, which keeps
+  // the port — so the next run finds something listening, attaches to it, and
+  // inherits a process whose stderr pipe no longer has a reader. Sixty-four
+  // kilobytes of logging later that pipe is full, the write blocks, and the
+  // backend stops answering mid-request. Every suite after the first then times
+  // out against a server that looks alive and is not. With its own group we can
+  // signal the group and take the whole tree down.
+  const child = spawn(config.startCommand[0]!, config.startCommand.slice(1), {
     cwd: backendDir,
-    stdout: config.verbose ? "inherit" : "ignore",
-    stderr: "pipe",
+    detached: true,
+    stdio: ["ignore", config.verbose ? "inherit" : "ignore", "pipe"],
     env: {
       ...process.env,
       NODE_ENV: process.env.NODE_ENV ?? "test",
@@ -101,30 +120,48 @@ export async function startServer(backendDir: string): Promise<ManagedServer | n
     },
   });
 
+  // stderr is piped but actively drained: an unread pipe fills its OS buffer
+  // and blocks the server mid-run. Only a rolling tail is kept, which is all a
+  // startup failure needs.
   let stderrTail = "";
-  const drain = (async () => {
-    if (!child.stderr) return;
-    const reader = (child.stderr as ReadableStream<Uint8Array>).getReader();
-    const decoder = new TextDecoder();
+  child.stderr?.on("data", (chunk: Buffer) => {
+    stderrTail = (stderrTail + chunk.toString()).slice(-4000);
+    if (config.verbose) process.stderr.write(chunk);
+  });
+  const exited = new Promise<void>((resolve) => {
+    child.once("exit", () => resolve());
+    child.once("error", () => resolve());
+  });
+
+  /**
+   * Signal the backend's whole process group, not just the pid we hold.
+   *
+   * SIGTERM first so it can close its pool; SIGKILL if the group is still
+   * listening after a grace period, because a backend left running is not a
+   * tidier outcome than one killed hard — it is the one that breaks the next
+   * run.
+   */
+  const signalGroup = (signal: NodeJS.Signals): void => {
     try {
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        stderrTail = (stderrTail + decoder.decode(value, { stream: true })).slice(-4000);
-        if (config.verbose) process.stderr.write(value);
-      }
+      if (child.pid) process.kill(-child.pid, signal);
     } catch {
-      // stream closed with the process
+      // The group is gone, or this platform has none; fall back to the pid.
+      try {
+        child.kill(signal);
+      } catch {
+        // already gone
+      }
     }
-  })();
+  };
 
   const stop = async (): Promise<void> => {
-    try {
-      child.kill();
-      await child.exited;
-      await drain;
-    } catch {
-      // already gone
+    signalGroup("SIGTERM");
+    await Promise.race([exited, sleep(SHUTDOWN_GRACE_MS)]);
+    // Whether the launcher exited says nothing about the server it spawned, so
+    // the port is what decides — it is the resource the next run collides with.
+    if (await isServerUp()) {
+      signalGroup("SIGKILL");
+      await Promise.race([exited, sleep(SHUTDOWN_GRACE_MS)]);
     }
   };
 

@@ -1,14 +1,13 @@
 /**
  * BetterAuth Configuration
  *
- * Modern authentication for crm
+ * Modern authentication for my-app
  * - Email/Password authentication
  * - Session management
  * - Role-based access control
  */
 
 import { betterAuth } from 'better-auth';
-import { kyselyAdapter } from '@better-auth/kysely-adapter';
 import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
 import { config } from 'dotenv';
@@ -28,18 +27,32 @@ function buildPool() {
   return new Pool({
     host: process.env.DB_HOST ?? '127.0.0.1',
     port: Number(process.env.DB_PORT ?? 5432),
-    user: process.env.DB_USER ?? 'crm',
+    user: process.env.DB_USER ?? 'my_app',
     password: process.env.DB_PASSWORD ?? '',
-    database: process.env.DB_NAME ?? 'crm',
+    database: process.env.DB_NAME ?? 'my_app',
   });
 }
 
-export async function initAuth() {
-  if (!authInstance) {
-    const kysely = new Kysely<any>({ dialect: new PostgresDialect({ pool: buildPool() }) });
+/**
+ * The options this application configures Better Auth with.
+ *
+ * Exported separately from the instance so the schema migration can ask the
+ * library what tables these options require without standing up a second auth
+ * instance — the diff has to be taken against the same configuration the app
+ * will query with, or it reconciles the wrong schema.
+ */
+export function buildAuthOptions(): any {
+  const kysely = new Kysely<any>({ dialect: new PostgresDialect({ pool: buildPool() }) });
 
-    authInstance = betterAuth({
-      database: kyselyAdapter(kysely),
+  return {
+      // `{ db, type }` rather than `kyselyAdapter(db)`. Handed a bare adapter,
+      // Better Auth cannot tell what it is talking to and falls back to SQLite
+      // — against Postgres that produces queries the database answers with
+      // nothing, so every sign-in came back "Invalid email or password" while
+      // the row sat there in the table. Naming the dialect also lets the
+      // library run its own migrations, which is how 0010 keeps this schema
+      // level with the installed version.
+      database: { db: kysely, type: 'postgres' },
       baseURL: process.env.BETTER_AUTH_URL || `http://localhost:${process.env.PORT || '4001'}`,
       // Better Auth rejects a state-changing request whose Origin is not listed
       // here, and the front end's /api/auth proxy passes the browser's Origin
@@ -106,12 +119,17 @@ export async function initAuth() {
         },
       },
       advanced: {
-        cookiePrefix: 'crm_app',
+        cookiePrefix: 'my_app_app',
         crossSubDomainCookies: {
           enabled: false,
         },
       },
-    });
+  };
+}
+
+export async function initAuth() {
+  if (!authInstance) {
+    authInstance = betterAuth(buildAuthOptions());
   }
 
   return authInstance;

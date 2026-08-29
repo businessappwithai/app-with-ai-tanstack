@@ -15,8 +15,8 @@
  * The route files it serves must export their route as `APIRoute` —
  * `createAPIFileRoute(…)` assigned to any other name is not registered.
  *
- * Generated: 2026-08-17T17:20:18.715Z
- * Project: crm
+ * Generated: 2026-08-29T04:45:22.027Z
+ * Project: my-app
  */
 
 import { createStartAPIHandler, defaultAPIFileRouteHandler } from '@tanstack/start/api'

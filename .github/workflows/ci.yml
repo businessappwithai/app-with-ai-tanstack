@@ -380,12 +380,24 @@ jobs:
           tail -n 200 "$GITHUB_WORKSPACE/run-logs/backend.log"
           exit 1
 
+      # `run.ts`, not `bun test`. The generator ships that runner and the
+      # application's own README points at it, because the suites are ordered
+      # and stateful: seed before rules before workflows, one process per suite
+      # so a crash cannot take the rest down. `bun test` runs all fifty-one
+      # files together in one parallel process, which breaks both properties —
+      # a delete asserted by one suite rolls back because another is holding a
+      # reference to the row, and the failure moves around between runs. Running
+      # it the documented way is also the last thing that needed Bun here: the
+      # suites are `node:test`.
+      #
+      # --no-server: the step above already started the backend and is watching
+      # it, so the runner attaches rather than starting a second one.
       - name: Run the generated E2E suite
         working-directory: ${{ env.APP_DIR }}/tests
         env:
           E2E_BASE_URL: http://127.0.0.1:${{ env.BACKEND_PORT }}
           E2E_ORIGIN: http://localhost:${{ env.FRONTEND_PORT }}
-        run: bun test --timeout 180000
+        run: node run.ts --no-server
 
       - name: The application's own logs, whatever happened
         if: always()

@@ -1,7 +1,8 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ExternalLink, Home, Star } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { ExternalLink, FilePlus2, FileX2, History, Home, Pencil, Star } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { ReportPrintModal } from "@/components/reports/ReportPrintModal";
 import { toast } from "sonner";
 import { DynamicForm } from "@/components/forms/dynamic-form";
 import { DynamicTable } from "@/components/tables/dynamic-table";
@@ -236,6 +237,160 @@ function SummaryPanel({ fields, record }: { fields: FieldMetadata[]; record: Any
   );
 }
 
+// ---------------------------------------------------------------------------
+// Entity-level audit trail — compact timeline of changes for this record
+// ---------------------------------------------------------------------------
+
+interface AuditEvent {
+  id: string;
+  timestamp: string;
+  user_name?: string;
+  user_email?: string;
+  action: string;
+  changed_fields?: string[];
+  before_value?: Record<string, unknown>;
+  after_value?: Record<string, unknown>;
+  success: boolean;
+}
+
+interface AuditResponse {
+  data: AuditEvent[];
+  meta: { total: number; page: number; limit: number };
+}
+
+function auditActionIcon(action: string) {
+  if (action === "ENTITY_CREATE") return <FilePlus2 className="h-3.5 w-3.5 text-emerald-600" />;
+  if (action === "ENTITY_DELETE") return <FileX2 className="h-3.5 w-3.5 text-red-500" />;
+  return <Pencil className="h-3.5 w-3.5 text-blue-500" />;
+}
+
+function auditActionLabel(action: string): string {
+  if (action === "ENTITY_CREATE") return "Created";
+  if (action === "ENTITY_DELETE") return "Deleted";
+  if (action === "ENTITY_UPDATE") return "Updated";
+  return action.replace(/_/g, " ");
+}
+
+function EntityAuditTrail({ entityType, recordId }: { entityType: string; recordId: string }) {
+  const [expanded, setExpanded] = React.useState<string | null>(null);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["entity-audit", entityType, recordId],
+    queryFn: () =>
+      apiClient.get<AuditResponse>("/audit", {
+        entity_type: entityType,
+        entity_id: recordId,
+        limit: 20,
+      }),
+    staleTime: 30_000,
+    retry: false,
+  });
+
+  const events = data?.data ?? [];
+
+  if (isLoading) {
+    return (
+      <div className="px-6 py-4 border-t border-border">
+        <div className="flex items-center gap-2 mb-3">
+          <History className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-semibold text-muted-foreground">Audit Trail</span>
+        </div>
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-8 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (events.length === 0) return null;
+
+  return (
+    <div className="px-6 py-4 border-t border-border bg-muted/10">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <History className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-semibold">Audit Trail</span>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+            {data?.meta?.total ?? events.length}
+          </span>
+        </div>
+      </div>
+
+      <ol className="relative border-l border-border ml-1.5 space-y-0">
+        {events.map((event) => {
+          const isOpen = expanded === event.id;
+          const changedFields = event.changed_fields ?? [];
+          const hasDetail =
+            changedFields.length > 0 || event.before_value || event.after_value;
+
+          return (
+            <li key={event.id} className="ml-4 pb-4">
+              {/* dot on the timeline */}
+              <span className="absolute -left-[7px] flex h-3.5 w-3.5 items-center justify-center rounded-full bg-background ring-1 ring-border">
+                {auditActionIcon(event.action)}
+              </span>
+
+              <div className="flex items-start gap-2 flex-wrap">
+                <div className="flex-1 min-w-0">
+                  <p className="flex items-center gap-2 text-sm">
+                    <span className="font-medium">{auditActionLabel(event.action)}</span>
+                    {event.user_name || event.user_email ? (
+                      <span className="text-muted-foreground text-xs">
+                        by {event.user_name ?? event.user_email}
+                      </span>
+                    ) : null}
+                    <time className="text-xs text-muted-foreground ml-auto">
+                      {new Date(event.timestamp).toLocaleString(undefined, {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
+                    </time>
+                  </p>
+
+                  {changedFields.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Changed: {changedFields.join(", ")}
+                    </p>
+                  )}
+                </div>
+
+                {hasDetail && (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(isOpen ? null : event.id)}
+                    className="text-[11px] text-primary hover:underline shrink-0"
+                  >
+                    {isOpen ? "Less" : "Details"}
+                  </button>
+                )}
+              </div>
+
+              {isOpen && (event.before_value || event.after_value) && (
+                <div className="mt-2 grid grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <p className="font-semibold text-muted-foreground mb-1">Before</p>
+                    <pre className="bg-red-50 border border-red-100 rounded p-2 overflow-auto max-h-36 whitespace-pre-wrap text-red-900 text-[11px]">
+                      {event.before_value ? JSON.stringify(event.before_value, null, 2) : "—"}
+                    </pre>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-muted-foreground mb-1">After</p>
+                    <pre className="bg-green-50 border border-green-100 rounded p-2 overflow-auto max-h-36 whitespace-pre-wrap text-green-900 text-[11px]">
+                      {event.after_value ? JSON.stringify(event.after_value, null, 2) : "—"}
+                    </pre>
+                  </div>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
 export interface ADDetailShellProps {
   level: ADLevel;
   recordId: string;
@@ -263,10 +418,18 @@ export function ADDetailShell({
   const [activeChildTab, setActiveChildTab] = useState(() => level.childTabs?.[0]?.id ?? "");
   const [isEditing, setIsEditing] = useState(initialMode === "edit");
   const [saveErrors, setSaveErrors] = useState<string[]>([]);
+  const [isPrintOpen, setIsPrintOpen] = useState(false);
 
   // Fetch entity metadata to resolve summary fields — skip for sys-level windows that supply static fields
   const hasDynamicFields = !level.formFields || level.formFields.length === 0;
   const { data: entityMeta } = useEntityMetadata(level.id, hasDynamicFields);
+
+  // Fetch report design to know if a Print button should appear
+  const { data: reportDesign } = useQuery({
+    queryKey: ["report-design", level.id],
+    queryFn: () => apiClient.get<{ layout?: object } | null>(`/sys/report-designs/${level.id}`),
+    staleTime: 60_000,
+  });
   const summaryFields: FieldMetadata[] = (entityMeta?.columns ?? []).filter(
     (c: any) => c.group_layout_type === "summary" && c.is_displayed
   ) as FieldMetadata[];
@@ -428,6 +591,8 @@ export function ADDetailShell({
 
   const listHref = buildAdminListUrl(parentContext, level);
 
+  const hasReportDesign = !!(reportDesign?.layout);
+
   return (
     <div className="flex flex-col h-full">
       <ADToolbar
@@ -448,6 +613,7 @@ export function ADDetailShell({
             setHasChanges(false);
           }
         }}
+        onPrint={() => setIsPrintOpen(true)}
         isSaving={saveMutation.isPending}
         isDeleting={deleteMutation.isPending}
         hasChanges={hasChanges}
@@ -455,6 +621,7 @@ export function ADDetailShell({
         canCreate={false}
         isEditing={isEditing}
         isDetailView={true}
+        hasPrintReport={hasReportDesign}
       />
 
       {/* Header panel — breadcrumb + record identity + nav */}
@@ -530,6 +697,17 @@ export function ADDetailShell({
           )}
         </div>
       </div>
+
+      {/* Print modal — only mounts when a design exists and the user clicks Print */}
+      {hasReportDesign && currentRecord && reportDesign?.layout && (
+        <ReportPrintModal
+          open={isPrintOpen}
+          onClose={() => setIsPrintOpen(false)}
+          layout={reportDesign.layout}
+          data={currentRecord}
+          entityLabel={level.label}
+        />
+      )}
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
@@ -614,6 +792,9 @@ export function ADDetailShell({
                 </Tabs>
               </div>
             )}
+
+            {/* Per-entity audit trail — shows who changed this record and when */}
+            <EntityAuditTrail entityType={level.id} recordId={recordId} />
           </>
         )}
       </div>

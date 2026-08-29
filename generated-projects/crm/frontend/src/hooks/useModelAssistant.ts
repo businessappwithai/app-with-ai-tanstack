@@ -12,8 +12,6 @@
  * administrator can see what the assistant consulted before acting on advice
  * about their production data.
  *
- * Generated: 2026-08-17T17:20:18.731Z
- * Project: crm
  */
 
 import { useCopilotAction, useCopilotReadable } from '@copilotkit/react-core'
