@@ -23,41 +23,26 @@ const ids: Record<string, string[]> = {
   {{/each}}
 };
 
-/**
- * FK columns naming a person by the role they played rather than by entity.
- * The _by / _by_id suffixes are handled by rule in fk(); this map covers the
- * role names that carry no suffix at all. Kept in sync with
- * `foreignKeys.personRoleColumns` in language/appwithai-language.json.
- */
 const FK_COLUMN_TABLE_MAP: Record<string, string> = {
-  pi_id: 'bus_user',
-  lab_manager_id: 'bus_user',
-  assigned_to: 'bus_user',
-  owner_id: 'bus_user',
-  author_id: 'bus_user',
-  manager_id: 'bus_user',
-  user_id: 'bus_user',
-  created_by_user: 'bus_user',
-  remediation_owner: 'bus_user',
-  remediation_owner_id: 'bus_user',
+  {{#each fkOverrides}}
+  '{{column}}': '{{table}}',
+  {{/each}}
 };
 
-/**
- * Resolve a foreign key column to a real parent row id.
- * Handles: explicit alias map, _by / _by_id suffix (→ bus_user), standard
- * <entity>_id. Returns null when unresolvable so the field is left empty rather
- * than filled with a UUID that points at nothing.
- */
 function fk(column: string, index: number): string | null {
   if (FK_COLUMN_TABLE_MAP[column]) {
     const pool = ids[FK_COLUMN_TABLE_MAP[column]];
     if (pool && pool.length > 0) return pool[index % pool.length];
   }
-  // Both spellings: _by_id is what the EML fixer produces, _by is what an
-  // unfixed model still carries.
   if (column.endsWith('_by_id') || column.endsWith('_by')) {
-    const pool = ids['bus_user'];
-    if (pool && pool.length > 0) return pool[index % pool.length];
+    for (const suffix of ['_by_id', '_by']) {
+      if (!column.endsWith(suffix)) continue;
+      const stem = `bus_${column.slice(0, -suffix.length)}`;
+      const pool = ids[stem];
+      if (pool && pool.length > 0) return pool[index % pool.length];
+    }
+    const userPool = ids['bus_user'] || ids['bus_staff'];
+    if (userPool && userPool.length > 0) return userPool[index % userPool.length];
   }
   const parent = `bus_${column.replace(/_id$/, '')}`;
   const pool = ids[parent];

@@ -369,6 +369,8 @@ export class NestJsBackendGenerator extends BaseGenerator {
         ? process.env.USER || process.env.USERNAME || "postgres"
         : "postgres";
 
+    const fkOverrides = this.buildFkOverrides(busEntities, relationships);
+
     return {
       project: {
         name: this.options.projectName,
@@ -392,6 +394,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       projectKebab: this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       entities: busEntities,
       relationships,
+      fkOverrides,
       sysTables,
       sysColumns,
       modelEnums,
@@ -484,6 +487,75 @@ export class NestJsBackendGenerator extends BaseGenerator {
         .map((entityName) => tableByName.get(entityName.toLowerCase()))
         .filter((tableName): tableName is string => !!tableName),
     }));
+  }
+
+  private buildFkOverrides(
+    busEntities: Array<{
+      tableName: string;
+      originalName?: string;
+      name: string;
+      attributes?: Array<{ name: string; columnName?: string; isForeignKey?: boolean }>;
+    }>,
+    relationships: Relationship[]
+  ): Array<{ column: string; table: string }> {
+    const tableSet = new Set(busEntities.map((e) => e.tableName));
+    const entityToTable = new Map(
+      busEntities.map((e) => [(e.originalName || e.name).toLowerCase(), e.tableName])
+    );
+
+    const overrides: Array<{ column: string; table: string }> = [];
+    const seen = new Set<string>();
+
+    for (const entity of busEntities) {
+      const entityName = (entity.originalName || entity.name).toLowerCase();
+      const fkAttrs = (entity.attributes || []).filter((a) => a.isForeignKey);
+      const parentRels = relationships.filter(
+        (r) => r.targetEntity.toLowerCase() === entityName
+      );
+
+      for (const attr of fkAttrs) {
+        const col = attr.columnName || attr.name;
+        if (seen.has(col)) continue;
+        const base = col.replace(/_id$/, "");
+        if (tableSet.has(`bus_${base}`)) continue;
+
+        for (const rel of parentRels) {
+          const srcTable = entityToTable.get(rel.sourceEntity.toLowerCase());
+          if (!srcTable) continue;
+          const srcBase = srcTable.replace(/^bus_/, "");
+          if (base === srcBase) continue;
+          const alreadyResolved = fkAttrs.some((a) => {
+            const b = (a.columnName || a.name).replace(/_id$/, "");
+            return b === srcBase;
+          });
+          if (alreadyResolved) continue;
+          overrides.push({ column: col, table: srcTable });
+          seen.add(col);
+          break;
+        }
+      }
+    }
+
+    const personRoleDefaults: Record<string, string> = {
+      pi_id: "bus_user",
+      lab_manager_id: "bus_user",
+      assigned_to: "bus_user",
+      owner_id: "bus_user",
+      author_id: "bus_user",
+      manager_id: "bus_user",
+      user_id: "bus_user",
+      created_by_user: "bus_user",
+      remediation_owner: "bus_user",
+      remediation_owner_id: "bus_user",
+    };
+    for (const [col, table] of Object.entries(personRoleDefaults)) {
+      if (!seen.has(col)) {
+        overrides.push({ column: col, table });
+        seen.add(col);
+      }
+    }
+
+    return overrides;
   }
 
   private async generateCoreFiles(outputDir: string, context: any): Promise<void> {
