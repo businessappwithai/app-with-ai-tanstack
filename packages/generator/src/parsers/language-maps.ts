@@ -91,8 +91,7 @@ function findDefinitionFile(): string | null {
   // The old spelling still works. An override that quietly stopped applying
   // would send the parser to a different language definition than the one the
   // caller chose, which is the sort of thing found much later than it is caused.
-  const envPath =
-    process.env.APPWITHAI_LANGUAGE_FILE ?? process.env.ERDWITHAI_LANGUAGE_FILE;
+  const envPath = process.env.APPWITHAI_LANGUAGE_FILE ?? process.env.ERDWITHAI_LANGUAGE_FILE;
   if (envPath && existsSync(envPath)) return envPath;
 
   const starts: string[] = [];

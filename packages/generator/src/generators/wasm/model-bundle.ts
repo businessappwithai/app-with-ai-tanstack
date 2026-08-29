@@ -338,9 +338,7 @@ export function buildModelBundle(
       /* `%%entity <E> parent: <P>`. A child has no window and no dashboard
          card; it is reached as a tab inside its parent. */
       parentEntity: entity.parentEntity,
-      parentLinkColumn: entity.parentLinkColumn
-        ? snake(entity.parentLinkColumn)
-        : undefined,
+      parentLinkColumn: entity.parentLinkColumn ? snake(entity.parentLinkColumn) : undefined,
       attributes: entity.attributes.map((attribute, index) => ({
         name: attribute.name,
         columnName: snake(attribute.name),
@@ -457,13 +455,13 @@ export function buildModelBundle(
           ? dictionary.sysWindows.find((window) => window._tempId === ownTab._windowRef)
           : undefined;
         return {
-        tableName: table.table_name,
-        name: table.name,
-        description: table.description,
-        entityType: "bus",
-        accessLevel: table.access_level, // 'S' | 'C' | 'O' | 'CO' | 'A'
-        window: ownWindow?.name ?? table.name,
-        category: categoryOf.get(entityNameFor(entities, table.table_name)) ?? "General",
+          tableName: table.table_name,
+          name: table.name,
+          description: table.description,
+          entityType: "bus",
+          accessLevel: table.access_level, // 'S' | 'C' | 'O' | 'CO' | 'A'
+          window: ownWindow?.name ?? table.name,
+          category: categoryOf.get(entityNameFor(entities, table.table_name)) ?? "General",
         };
       }),
       tabs: dictionary.sysTabs.map((tab) => ({
