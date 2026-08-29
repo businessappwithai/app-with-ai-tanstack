@@ -480,12 +480,32 @@ var appwithai_language_default = {
       "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
       "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
       "%%field <Entity>.<column> help: and %%entity <Name> help: become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table. %%entity description: is the same key under its other name.",
+      "%%entity <Child> parent: <Parent> makes the child a line item: no window and no dashboard card, a tab inside the parent's window instead. See masterDetail.",
       "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
     ],
+    masterDetail: {
+      description: "A line item is an entity with no life away from its owner - an invoice line, an order line, a prescription item. The ERD cannot tell one from an ordinary reference, because InvoiceLine.invoice_id and Invoice.patient_id are both a foreign key with a relationship behind it. The modeller says which it is.",
+      directive: "%%entity <Child> parent: <Parent>",
+      effects: [
+        "The child gets no sys_window and no dashboard card: it is not somewhere the user navigates to.",
+        "The child's sys_tab is created under the parent's window at tab_level 1, sequenced after the master tab.",
+        "sys_tab.link_column_id is set to the child's own foreign key back to the parent, and that column is marked sys_column.is_parent.",
+        "Opening a parent record lists its children beneath the form, filtered to that record."
+      ],
+      linkColumn: "The child's existing foreign key to the parent - <parent_snake>_id when present, else the first FK column whose name begins with the parent's snake_case name. Never declared twice: the relationship is already in the ERD.",
+      identifyingAChild: [
+        "Would a list of these records, away from their owner, be useful to anyone? If not, it is a child.",
+        "Does the row's identity depend on the owner - line 1 of invoice 7, rather than line 1? If so, it is a child.",
+        "Would deleting the owner make the row meaningless? If so, it is a child.",
+        "A reference is the opposite: Invoice.patient_id points at a Patient who exists, and matters, independently."
+      ]
+    },
     checkerCodes: {
       EML103: "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
       EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
       EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
+      EML147: "%%entity ... parent: names an entity that is not declared, or the entity names itself.",
+      EML148: "%%entity ... parent: is declared but the child has no foreign key back to the parent, so the detail tab has nothing to link on.",
       EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     reportDesigns: {
@@ -1856,6 +1876,7 @@ class MermaidParser {
     const enumBindings = [];
     const fieldHelpText = [];
     const entityHelpText = new Map;
+    const entityParents = new Map;
     for (let i = 0;i < lines.length; i++) {
       const line = lines[i] ?? "";
       const trimmed = line.trim();
@@ -1879,6 +1900,9 @@ class MermaidParser {
         const entityHelp = this.parseEntityHelpDirective(trimmed);
         if (entityHelp)
           entityHelpText.set(entityHelp.entity, entityHelp.help);
+        const entityParent = this.parseEntityParentDirective(trimmed);
+        if (entityParent)
+          entityParents.set(entityParent.entity, entityParent.parent);
         continue;
       }
       const relationship = this.parseRelationship(trimmed);
@@ -1919,6 +1943,7 @@ class MermaidParser {
     }
     this.attachIndexes(entities, declaredIndexes);
     this.attachHelp(entities, fieldHelpText, entityHelpText);
+    this.attachParents(entities, entityParents);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
     return { entities, relationships, enums };
   }
@@ -1932,6 +1957,20 @@ class MermaidParser {
       const attribute = entities.find((candidate) => candidate.name === name)?.attributes.find((candidate) => candidate.name === column);
       if (attribute)
         attribute.description = help;
+    }
+  }
+  attachParents(entities, parents) {
+    for (const [childName, parentName] of parents) {
+      const child = entities.find((candidate) => candidate.name === childName);
+      const parent = entities.find((candidate) => candidate.name === parentName);
+      if (!child || !parent)
+        continue;
+      const snake = parent.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+      const link = child.attributes.find((a) => a.isForeignKey && a.name === `${snake}_id`) ?? child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`));
+      if (!link)
+        continue;
+      child.parentEntity = parent.name;
+      child.parentLinkColumn = link.name;
     }
   }
   parseIndexDirective(line) {
@@ -1981,6 +2020,12 @@ class MermaidParser {
       return null;
     const help = match[2].trim();
     return help ? { entity: match[1], help } : null;
+  }
+  parseEntityParentDirective(line) {
+    const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+parent\s*:\s*([A-Za-z_]\w*)\s*$/);
+    if (!match?.[1] || !match[2])
+      return null;
+    return { entity: match[1], parent: match[2] };
   }
   attachEnums(entities, declared, bindings) {
     const used = new Set;
@@ -3585,7 +3630,8 @@ class CheckEngine {
     "label",
     "icon",
     "help",
-    "description"
+    "description",
+    "parent"
   ]);
   validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
   validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
@@ -4062,6 +4108,31 @@ class CheckEngine {
           hint: `Known keys: ${[...this.validEntityKeys].join(", ")}.`
         });
       }
+      if (key === "parent") {
+        const parentName = (m[3] ?? "").trim();
+        const parent = this.model.entities.find((candidate) => candidate.name === parentName);
+        const child = this.model.entities.find((candidate) => candidate.name === entityName);
+        if (!parent) {
+          this.error("EML147", `%%entity ${entityName} parent: "${parentName}" is not declared.`, {
+            line: lineNo,
+            hint: `Declare "${parentName}" in the erDiagram section, or name the entity that owns ${entityName}.`
+          });
+        } else if (parentName === entityName) {
+          this.error("EML147", `%%entity ${entityName} cannot be its own parent.`, {
+            line: lineNo,
+            hint: "A line item belongs to a different entity. Remove the directive if it has no owner."
+          });
+        } else if (child) {
+          const snake = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+          const link = child.attributes.find((attribute) => attribute.isForeignKey && (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`)));
+          if (!link) {
+            this.error("EML148", `%%entity ${entityName} parent: ${parentName}, but ${entityName} has no foreign key to it.`, {
+              line: lineNo,
+              hint: `Add \`string ${snake}_id FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`
+            });
+          }
+        }
+      }
     }
   }
   checkHooks() {
@@ -4360,6 +4431,9 @@ class CheckEngine {
     ]);
     for (const section of this.sagaSections()) {
       const published = new Set;
+      const trigger = this.model.entities.find((candidate) => candidate.name.toLowerCase() === section.entity.toLowerCase());
+      for (const attribute of trigger?.attributes ?? [])
+        published.add(attribute.name);
       const bound = new Set;
       for (const { lineNo, text } of section.steps) {
         const match = text.trim().match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
@@ -4526,11 +4600,11 @@ class CheckEngine {
     const all = this.src.findAll(/.*/);
     for (const { lineNo, text } of all) {
       const trimmed = text.trim();
-      const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*\w+\s+kind:\s*(\w+)/);
+      const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
       if (workflow) {
         if (current)
           sections.push(current);
-        current = workflow[2] === "saga" ? { name: workflow[1], nodeIds: new Set, steps: [] } : null;
+        current = workflow[3] === "saga" ? { name: workflow[1], entity: workflow[2], nodeIds: new Set, steps: [] } : null;
         continue;
       }
       if (trimmed.startsWith("%%rule ")) {
@@ -4894,12 +4968,18 @@ class CheckEngine {
         }
       }
     }
+    const declaredNames = new Set(this.model.entities.map((candidate) => candidate.name));
     for (const entity of this.model.entities) {
+      const claimed = new Set(entity.attributes.filter((candidate) => candidate.isForeignKey && candidate.name.endsWith("_id")).map((candidate) => this.fkToEntityName(candidate.name)).filter((name) => declaredNames.has(name)));
+      const spareParents = this.model.relationships.filter((r) => r.target === entity.name && r.source !== entity.name).map((r) => r.source).filter((name) => declaredNames.has(name) && !claimed.has(name));
       for (const attr of entity.attributes) {
         if (attr.isForeignKey && attr.name.endsWith("_id")) {
           const parentEntityName = this.fkToEntityName(attr.name);
           const hasRelationship = this.model.relationships.some((r) => (r.source === entity.name || r.target === entity.name) && (r.source === parentEntityName || r.target === parentEntityName));
-          if (!hasRelationship) {
+          const resolvedByRelationship = !declaredNames.has(parentEntityName) && spareParents.length > 0;
+          if (resolvedByRelationship)
+            spareParents.shift();
+          if (!hasRelationship && !resolvedByRelationship) {
             this.info("EML502", `FK attribute "${entity.name}.${attr.name}" has no relationship to "${parentEntityName}".`, {
               hint: `Add:  ${parentEntityName} ||--o{ ${entity.name} : "..."  (or reverse for manyToOne).`
             });
@@ -5494,6 +5574,10 @@ CREATE TABLE IF NOT EXISTS sys_tab (
   seq_no INTEGER DEFAULT 0,
   is_active BOOLEAN DEFAULT true,
   is_single_row BOOLEAN DEFAULT false,
+  -- A detail tab sits at level 1 inside its master's window and links to the
+  -- open master row on one column. See \`%%entity <Child> parent: <Parent>\`.
+  tab_level INTEGER NOT NULL DEFAULT 0,
+  link_column_id UUID,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -8526,6 +8610,15 @@ async function seedDictionary(db, model) {
       [tableId, windowId]
     );
     if (exists) continue;
+    /* A detail tab links to its master on one column. Resolved here rather
+       than carried as an id, because the column rows were inserted above and
+       this is the first point at which their ids exist. */
+    const linkColumnId = tab.linkColumn
+      ? await db.value(
+          "SELECT sys_column_id FROM sys_column WHERE sys_table_id = $1 AND column_name = $2",
+          [tableId, tab.linkColumn]
+        )
+      : null;
     await db.insert("sys_tab", {
       sys_table_id: tableId,
       sys_window_id: windowId,
@@ -8533,7 +8626,14 @@ async function seedDictionary(db, model) {
       description: tab.description ?? null,
       seq_no: tab.seqNo ?? 0,
       is_single_row: !!tab.isSingleRow,
+      tab_level: tab.tabLevel ?? 0,
+      link_column_id: linkColumnId,
     });
+    if (linkColumnId) {
+      await db.query("UPDATE sys_column SET is_parent = true WHERE sys_column_id = $1", [
+        linkColumnId,
+      ]);
+    }
   }
 
   for (const group of dictionary.fieldGroups || []) {
@@ -9141,7 +9241,7 @@ async function entityMetadata(db, entity) {
 
   const columns = await db.query(
     \`SELECT c.sys_column_id, c.column_name, c.sys_reference_id, c.field_length, c.default_value,
-            c.ref_table_name, c.is_key, c.is_identifier, c.is_selection_column,
+            c.ref_table_name, c.is_key, c.is_identifier, c.is_selection_column, c.is_parent,
             f.sys_field_id, f.name, COALESCE(f.description, c.description) AS description,
             f.is_displayed, f.is_displayed_grid,
             f.is_read_only, f.is_mandatory, f.is_updateable, f.is_insertable,
@@ -9187,6 +9287,10 @@ async function entityMetadata(db, entity) {
       is_displayed: column.is_displayed !== false,
       is_displayed_grid: column.is_displayed_grid !== false,
       is_key: column.is_key ?? false,
+      /* The column tying a detail row to its master, from
+         \`%%entity <Child> parent: <Parent>\`. Projected so the dictionary screen
+         can show what the tab links on rather than leaving it a mystery. */
+      is_parent: column.is_parent ?? false,
       field_length: column.field_length,
       default_value: column.default_value,
       ref_table_name: column.ref_table_name,
@@ -9687,6 +9791,11 @@ export function modelRoutes(model, readAsset) {
         tableName: entity.tableName,
         route: entity.routeName,
         displayName: entity.displayName,
+        /* A line item: no dashboard card, reached as a tab under its parent.
+           The link column is the child's own key back, so the tab can ask for
+           exactly the rows belonging to the record on screen. */
+        parentEntity: entity.parentEntity,
+        parentLinkColumn: entity.parentLinkColumn,
         attributes: entity.attributes.map((attribute) => ({
           name: attribute.columnName,
           label: attribute.displayName,
@@ -10732,6 +10841,15 @@ a { color: var(--primary); }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* Detail tabs — the line items of the record above them. A child declared with
+   \`%%entity <E> parent: <P>\` has no window and no dashboard card; this is the
+   only place its rows are shown. */
+.detail { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+.detail__head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.detail__title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
+.detail__count { font-size: 12.5px; color: var(--text-soft); }
+.detail__empty { margin: 0; font-size: 13px; color: var(--text-soft); font-style: italic; }
 `,
   "sw.js": `/**
  * The Service Worker — this application's HTTP layer.
@@ -11341,6 +11459,17 @@ export function setActions(actions, token = state.renderId) {
 /** The token a screen should carry if it wants to set actions later. */
 export const currentRender = () => state.renderId;
 
+/**
+ * The line-item entities belonging to one parent.
+ *
+ * Read from the same list the dashboard filters them out of, so the two cannot
+ * disagree about what is a child. Empty for an entity nobody declared a
+ * \`parent:\` against, which is most of them.
+ */
+export function childEntitiesOf(parentName) {
+  return state.entities.filter((entity) => entity.parentEntity === parentName);
+}
+
 async function render() {
   const root = document.getElementById("app");
 
@@ -11387,7 +11516,16 @@ async function render() {
 
     if (!section) {
       setCrumbs([]);
-      return void (await dashboardView(outlet, { entities: state.entities, navigate, project: state.project, user: state.user }));
+      /*
+       * Line items are not on the dashboard.
+       *
+       * \`%%entity <E> parent: <P>\` says the child has no life away from its
+       * parent, so a card offering a list of every invoice line ever written
+       * is an invitation to a screen nobody wants. They are reached through
+       * the parent's window, as a tab under the record they belong to.
+       */
+      const topLevel = state.entities.filter((entity) => !entity.parentEntity);
+      return void (await dashboardView(outlet, { entities: topLevel, navigate, project: state.project, user: state.user }));
     }
 
     if (section === "entity") {
@@ -12132,6 +12270,29 @@ export async function dashboardView(root, { entities, navigate, project, user })
        */
       manualBanner(project),
 
+      /*
+       * A role that may read nothing gets told so.
+       *
+       * \`%%rbac … .read\` decides what a role sees, and the seeded \`User\`
+       * account holds no functional role at all — deliberately, because an
+       * account that can reach nothing is what demonstrates that a restriction
+       * restricts. Rendered as bare emptiness that reads as a broken build, so
+       * it says which of the two it is.
+       */
+      entities.length === 0
+        ? el(
+            "section.category",
+            el("div.category__head", el("span.category__name", "Nothing to show")),
+            el(
+              "p.category__desc",
+              \`This account holds no role that may read any of this application's entities. \` +
+                \`That is what the model says rather than a fault: %%rbac grants read access by \` +
+                \`role, and this one has none. Sign out and pick a role account to see the \` +
+                \`application it was given.\`
+            )
+          )
+        : null,
+
       [...byCategory.entries()]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([category, group]) =>
@@ -12335,7 +12496,7 @@ function purgeSection(project, navigate) {
 
 import { el, mount, spinner, toast, displayValue } from "../dom.js";
 import { api } from "../api.js";
-import { setActions } from "../main.js";
+import { setActions, childEntitiesOf } from "../main.js";
 
 const referenceCache = new Map();
 const lookupCache = new Map();
@@ -12539,6 +12700,18 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     )
   );
 
+  /*
+   * The line items belonging to this record.
+   *
+   * Rendered under the form rather than as a separate screen, because that is
+   * what \`parent:\` means: an invoice line is part of the invoice you are
+   * looking at. Only for a saved record — a child of a parent with no id yet
+   * has nothing to hang from, and offering the tab would be offering a list
+   * that cannot exist.
+   */
+  const detailSlot = el("div");
+  if (!isNew) void renderDetails(detailSlot, entity, id, navigate);
+
   mount(
     root,
     el(
@@ -12548,10 +12721,79 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
         el("h2.record__title", isNew ? \`New \${entity.singularName}\` : recordTitle(record, editable, entity)),
         el("button.record__close", { title: "Close", "aria-label": "Close", onclick: onClose }, "✕")
       ),
-      form
+      form,
+      detailSlot
     ),
     isNew ? null : el("div.split", el("div"), el("aside.side", await sidePanels(entity, id, record, onSaved)))
   );
+}
+
+/**
+ * The detail tabs: one per entity that named this one as its \`parent:\`.
+ *
+ * Each asks the server for exactly the rows whose link column holds this
+ * record's id — the same equality filter the grid's column filters already use,
+ * so no new endpoint and no new contract. A row opens the child in its own
+ * window; the child has no dashboard card, but it is still a record with a form.
+ */
+async function renderDetails(slot, entity, id, navigate) {
+  const children = childEntitiesOf(entity.name);
+  if (!children.length) return;
+
+  const sections = [];
+  for (const child of children) {
+    if (!child.parentLinkColumn) continue;
+    try {
+      const [fields, page] = await Promise.all([
+        api.get(\`/bus/\${child.routeName}/fields/grid\`),
+        api.get(\`/bus/\${child.routeName}?\${child.parentLinkColumn}=\${encodeURIComponent(id)}&limit=100\`),
+      ]);
+      const columns = fields.filter((field) => field.column_name !== child.parentLinkColumn);
+
+      sections.push(
+        el(
+          "section.detail",
+          el(
+            "div.detail__head",
+            el("h3.detail__title", child.displayName),
+            el("span.detail__count", \`\${page.total} row\${page.total === 1 ? "" : "s"}\`)
+          ),
+          page.data.length
+            ? el(
+                "div.table-wrap",
+                el(
+                  "table.table",
+                  el("thead", el("tr", columns.map((column) => el("th", column.name)))),
+                  el(
+                    "tbody",
+                    page.data.map((row) =>
+                      el(
+                        "tr.table__row",
+                        { onclick: () => navigate(\`/entity/\${child.routeName}/\${row.id}\`) },
+                        columns.map((column) => {
+                          const label = page.labels?.[column.column_name]?.[row[column.column_name]];
+                          return el(
+                            "td",
+                            label === undefined
+                              ? displayValue(row[column.column_name], column)
+                              : el("span.cell--ref", { title: row[column.column_name] }, label)
+                          );
+                        })
+                      )
+                    )
+                  )
+                )
+              )
+            : el("p.detail__empty", \`No \${child.displayName} on this \${entity.singularName} yet.\`)
+        )
+      );
+    } catch {
+      // A child the signed-in role may not read is simply not shown. The 403 is
+      // the access rules working, not a fault worth putting on screen.
+    }
+  }
+
+  if (sections.length) mount(slot, ...sections);
 }
 
 async function sidePanels(entity, id, record, onSaved) {
@@ -13364,7 +13606,14 @@ export async function loginView(root, { project, onSignedIn }) {
                         "span.accounts__scope",
                         account.isAdmin
                           ? \`all \${config?.totalEntities ?? account.entities} entities\`
-                          : \`\${account.entities} of \${config?.totalEntities ?? account.entities} entities\`
+                          : /* Zero is a real answer, not a broken seed: this is
+                               the account holding no functional role, and an
+                               empty application is the point of it. Said plainly
+                               here, because a card reading "0 of 28" and nothing
+                               else looks like the generator failed. */
+                            account.entities === 0
+                            ? "no entities — signed in, holding no role"
+                            : \`\${account.entities} of \${config?.totalEntities ?? account.entities} entities\`
                       )
                     )
                   )
@@ -13410,7 +13659,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 301837;
+var RUNTIME_BYTES = 309484;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
@@ -17637,6 +17886,7 @@ function entityToBusEntity(entity) {
     tableName,
     originalName: entity.name,
     displayName: formatDisplayName(entity.name),
+    windowOwner: entity.parentEntity ?? entity.name,
     indexes: mergeIndexes(entity),
     attributes: withIdentifiers(entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey)), entity.primaryKey)
   };
@@ -18115,6 +18365,8 @@ class DictionaryGenerator {
     let tabCounter = 0;
     let fieldCounter = 0;
     let fieldGroupCounter = 0;
+    const windowByEntity = new Map;
+    const childTabs = [];
     for (const entity2 of entities) {
       const busEntity = entityToBusEntity(entity2);
       busEntities.push(busEntity);
@@ -18164,21 +18416,36 @@ class DictionaryGenerator {
         };
       });
       sysColumns.push(...columnEntries);
+      const isChild = !!entity2.parentEntity;
       const windowId = `win_${++windowCounter}`;
-      const sysWindow = {
-        ...generateSysWindow(busEntity, this.config),
-        _tempId: windowId,
-        _tableRef: tableId
-      };
-      sysWindows.push(sysWindow);
+      if (!isChild) {
+        sysWindows.push({
+          ...generateSysWindow(busEntity, this.config),
+          _tempId: windowId,
+          _tableRef: tableId
+        });
+      }
       const tabId = `tab_${++tabCounter}`;
       const sysTab = {
-        ...generateSysTab(windowId, tableId, busEntity, 0, this.config),
+        ...generateSysTab(windowId, tableId, busEntity, isChild ? 1 : 0, this.config),
         _tempId: tabId,
         _windowRef: windowId,
         _tableRef: tableId
       };
       sysTabs.push(sysTab);
+      if (isChild) {
+        const link = columnEntries.find((col) => col.column_name === entity2.parentLinkColumn);
+        if (link)
+          link.is_parent = true;
+        childTabs.push({
+          tab: sysTab,
+          table: sysTable,
+          parentEntity: entity2.parentEntity,
+          linkColumnRef: link?._tempId
+        });
+      } else {
+        windowByEntity.set(entity2.name, windowId);
+      }
       const groups = generateSysFieldGroups(busEntity.displayName, this.config);
       const groupEntries = groups.map((group) => ({
         ...group,
@@ -18199,6 +18466,19 @@ class DictionaryGenerator {
         _columnRef: columnEntries[idx]?._tempId ?? ""
       }));
       sysFields.push(...fieldEntries);
+    }
+    let childSeq = 20;
+    for (const child of childTabs) {
+      const parentWindow = windowByEntity.get(child.parentEntity);
+      if (!parentWindow)
+        continue;
+      child.tab._windowRef = parentWindow;
+      child.tab.sys_window_id = parentWindow;
+      child.tab.seq_no = childSeq;
+      childSeq += 10;
+      if (child.linkColumnRef)
+        child.tab.link_column_id = child.linkColumnRef;
+      child.table.sys_window_id = parentWindow;
     }
     return {
       entities: busEntities,
@@ -18467,6 +18747,8 @@ function buildModelBundle(parsed, project) {
       description: entity2.description,
       primaryKey: entity2.primaryKey,
       category: categoryOf.get(entity2.name) ?? "General",
+      parentEntity: entity2.parentEntity,
+      parentLinkColumn: entity2.parentLinkColumn ? snake(entity2.parentLinkColumn) : undefined,
       attributes: entity2.attributes.map((attribute, index) => ({
         name: attribute.name,
         columnName: snake(attribute.name),
@@ -18538,22 +18820,28 @@ function buildModelBundle(parsed, project) {
         description: window.description,
         windowType: "maintain"
       })),
-      tables: dictionary2.sysTables.map((table) => ({
-        tableName: table.table_name,
-        name: table.name,
-        description: table.description,
-        entityType: "bus",
-        accessLevel: table.access_level,
-        window: dictionary2.sysWindows.find((window) => window.name === table.name)?.name ?? table.name,
-        category: categoryOf.get(entityNameFor(entities, table.table_name)) ?? "General"
-      })),
+      tables: dictionary2.sysTables.map((table) => {
+        const ownTab = dictionary2.sysTabs.find((tab) => tab._tableRef === table._tempId);
+        const ownWindow = ownTab ? dictionary2.sysWindows.find((window) => window._tempId === ownTab._windowRef) : undefined;
+        return {
+          tableName: table.table_name,
+          name: table.name,
+          description: table.description,
+          entityType: "bus",
+          accessLevel: table.access_level,
+          window: ownWindow?.name ?? table.name,
+          category: categoryOf.get(entityNameFor(entities, table.table_name)) ?? "General"
+        };
+      }),
       tabs: dictionary2.sysTabs.map((tab) => ({
         tableName: tableByTemp.get(tab._tableRef) ?? "",
         window: dictionary2.sysWindows.find((window) => window._tempId === tab._windowRef)?.name ?? tab.name,
         name: tab.name,
         description: tab.description,
         seqNo: tab.seq_no,
-        isSingleRow: false
+        isSingleRow: false,
+        tabLevel: tab.tab_level ?? 0,
+        linkColumn: tab.link_column_id ? dictionary2.sysColumns.find((column) => column._tempId === tab.link_column_id)?.column_name : undefined
       })),
       columns: dictionary2.sysColumns.map((column) => ({
         tableName: tableByTemp.get(column._tableRef) ?? "",

@@ -374,6 +374,7 @@ erDiagram
 %%entity InsurancePolicy help: A patient's active or historical insurance coverage used for billing.
 %%entity Invoice help: A patient charge document summarizing services and the amount still owed.
 %%entity InvoiceLine help: One billable service or charge on an invoice.
+%%entity InvoiceLine parent: Invoice
 %%entity Payment help: A financial receipt applied to an invoice.
 %%entity InventoryItem help: A stock-controlled medicine, consumable or other hospital item.
 %%entity Supplier help: An external supplier providing stock items to the hospital.
@@ -400,7 +401,7 @@ erDiagram
 %%category name: Inpatient Care; icon: bed; entities: Ward, Bed, Admission
 %%category name: Pharmacy; icon: pill; entities: Medication, Prescription, PrescriptionItem
 %%category name: Diagnostics; icon: flask; entities: LabOrder, LabResult, ImagingOrder, ImagingReport
-%%category name: Billing; icon: receipt; entities: Invoice, InvoiceLine, Payment
+%%category name: Billing; icon: receipt; entities: Invoice, Payment
 %%category name: Inventory; icon: boxes; entities: InventoryItem, Supplier, StockTransaction
 
 %%rbac role:admin on Patient.*

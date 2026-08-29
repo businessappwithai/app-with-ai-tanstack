@@ -111,6 +111,16 @@ export class DictionaryGenerator {
     let fieldCounter = 0;
     let fieldGroupCounter = 0;
 
+    /** Window per top-level entity, so a child tab can find its parent's. */
+    const windowByEntity = new Map<string, string>();
+    /** Child tabs, re-pointed at the parent's window once all windows exist. */
+    const childTabs: Array<{
+      tab: { _windowRef: string; sys_window_id: string; link_column_id?: string; seq_no: number };
+      table: { sys_window_id?: string };
+      parentEntity: string;
+      linkColumnRef?: string;
+    }> = [];
+
     // Generate dictionary entries for each entity
     for (const entity of entities) {
       const busEntity = entityToBusEntity(entity);
@@ -174,24 +184,54 @@ export class DictionaryGenerator {
       });
       sysColumns.push(...columnEntries);
 
-      // Generate sys_window
+      /*
+       * A line item gets no window of its own.
+       *
+       * `%%entity InvoiceLine parent: Invoice` says the child has no life away
+       * from its parent, and the dictionary is where that stops being a comment
+       * and starts being the application: no window means no card on the
+       * dashboard and nothing to navigate to, and the tab created below is
+       * attached to the *parent's* window instead — which is what puts the
+       * lines under the invoice you opened.
+       *
+       * The parent's window may not exist yet (entities arrive in declaration
+       * order), so the tab is created now with its own id and re-pointed once
+       * every window is known.
+       */
+      const isChild = !!entity.parentEntity;
       const windowId = `win_${++windowCounter}`;
-      const sysWindow = {
-        ...generateSysWindow(busEntity, this.config),
-        _tempId: windowId,
-        _tableRef: tableId,
-      };
-      sysWindows.push(sysWindow);
+      if (!isChild) {
+        sysWindows.push({
+          ...generateSysWindow(busEntity, this.config),
+          _tempId: windowId,
+          _tableRef: tableId,
+        });
+      }
 
       // Generate sys_tab
       const tabId = `tab_${++tabCounter}`;
       const sysTab = {
-        ...generateSysTab(windowId, tableId, busEntity, 0, this.config),
+        ...generateSysTab(windowId, tableId, busEntity, isChild ? 1 : 0, this.config),
         _tempId: tabId,
         _windowRef: windowId,
         _tableRef: tableId,
       };
       sysTabs.push(sysTab);
+
+      if (isChild) {
+        const link = columnEntries.find((col) => col.column_name === entity.parentLinkColumn);
+        // Compiere's own marking: the column that ties a detail row to its
+        // master is `is_parent`, and the tab links on it.
+        if (link) link.is_parent = true;
+        childTabs.push({
+          tab: sysTab,
+          table: sysTable,
+          parentEntity: entity.parentEntity as string,
+          linkColumnRef: link?._tempId,
+        });
+      } else {
+        windowByEntity.set(entity.name, windowId);
+      }
 
       // Generate sys_field_group entries
       const groups = generateSysFieldGroups(busEntity.displayName, this.config);
@@ -216,6 +256,26 @@ export class DictionaryGenerator {
         _columnRef: columnEntries[idx]?._tempId ?? "",
       }));
       sysFields.push(...fieldEntries);
+    }
+
+    /*
+     * Re-point each child tab at its parent's window, now that every window is
+     * known. A child whose parent has no window of its own — a line item of a
+     * line item, or a parent that does not exist — keeps the window it was
+     * given rather than being dropped: an orphaned tab is visible and fixable,
+     * where a silently discarded entity is neither.
+     */
+    let childSeq = 20;
+    for (const child of childTabs) {
+      const parentWindow = windowByEntity.get(child.parentEntity);
+      if (!parentWindow) continue;
+      child.tab._windowRef = parentWindow;
+      child.tab.sys_window_id = parentWindow;
+      child.tab.seq_no = childSeq;
+      childSeq += 10;
+      if (child.linkColumnRef) child.tab.link_column_id = child.linkColumnRef;
+      // The table points at the window its records are actually reached through.
+      child.table.sys_window_id = parentWindow;
     }
 
     return {

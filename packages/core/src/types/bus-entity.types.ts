@@ -84,6 +84,8 @@ export interface BusEntity extends Omit<Entity, "tableName"> {
   tableName: string; // Will have bus_ prefix
   originalName: string; // Original entity name from ERD
   displayName: string; // Human-readable name
+  /** The entity whose window holds this one's tab — itself, or its `parent:`. */
+  windowOwner: string;
 }
 
 /**
@@ -132,6 +134,15 @@ export function entityToBusEntity(entity: Entity): BusEntity {
     tableName,
     originalName: entity.name,
     displayName: formatDisplayName(entity.name),
+    /*
+     * Whose window this entity's records are reached through.
+     *
+     * Itself, unless `%%entity <E> parent: <P>` made it a line item — in which
+     * case the parent's, because a child has no window of its own. Computed
+     * here rather than in each template so the seed can name one variable
+     * whichever order the two entities were declared in.
+     */
+    windowOwner: entity.parentEntity ?? entity.name,
     indexes: mergeIndexes(entity),
     attributes: withIdentifiers(
       entity.attributes.map((attr, index) =>

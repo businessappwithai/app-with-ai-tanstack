@@ -218,6 +218,31 @@ the generated manual (§5.6). A model that omits them produces an application
 whose manual is a table of dashes. Every *other* key on either directive is
 validated only.
 
+**Help is not optional. Write `%%entity <Name> help:` for every entity and
+`%%field <Entity>.<column> help:` for every column, without exception.**
+
+This is the single most-skipped part of a model and the most expensive to skip.
+The generated application has no other source of explanation: no tooltips
+written by hand, no README beside the form, no designer to ask. What you write
+here is what a user reads under the control, what the Application Dictionary
+shows beside the column, and the whole of the manual the generator ships. Leave
+it out and the application still runs — which is exactly why it gets left out —
+but every field on every form is a label with nothing behind it.
+
+- **Every entity**, including the ones that feel self-evident. "Invoice" is not
+  a description of an invoice.
+- **Every column**, including `status`, the foreign keys and the enums. A
+  reference column should say what the reference is *for* ("the ward this bed
+  stands in"), not restate its type.
+- **Say what it is for, not what it is.** `%%field Lead.score help: 0-100, set
+  by the scoring rule. Anything over 70 routes to a salesperson.` tells a reader
+  something. `The score of the lead.` does not.
+- **Nobody adds it later.** The model is the only place it can be written, and
+  the moment it is being written is the only moment anyone knows the answer.
+
+The checklist in §10 asks for both, and a delivery missing them is incomplete
+even though the checker returns zero errors.
+
 ### 3.2.1 `%%rbac` — access control
 
 ```
@@ -350,6 +375,57 @@ erDiagram
   entity (User if it exists, otherwise Staff, then Employee).
 - **Cardinalities**: all 8 Mermaid ER operators are compiled.
 - `id PK` is auto-added when an entity declares none.
+
+### 3.3.1 Parent and child — line items
+
+Some entities have no life away from their owner: an invoice line, an order
+line, a prescription item. **The ERD cannot express this**, and that is the
+whole reason the directive exists — `InvoiceLine.invoice_id` and
+`Invoice.patient_id` are both a foreign key with a relationship behind it, and
+nothing in Mermaid says that a line means nothing without its invoice while a
+patient means a great deal without one.
+
+```
+%%entity InvoiceLine parent: Invoice
+```
+
+**Decide it with these questions, in this order:**
+
+1. Would a list of these records, *away from their owner*, be useful to anyone?
+   A screen of every invoice line ever written is not a screen anyone opens.
+   If no — it is a child.
+2. Does the row's identity depend on the owner? "Line 1 of invoice 7", not
+   "line 1". If yes — it is a child.
+3. Would deleting the owner make the row meaningless? If yes — it is a child.
+
+A **reference** is the opposite on all three: `Invoice.patient_id` points at a
+Patient who exists, and matters, on their own. Most foreign keys are references.
+Line items are the minority, and they are usually obvious once the questions are
+asked: the noun is a *line*, an *item*, a *detail*, an *entry*.
+
+**What it does to the application:**
+
+| | Parent | Child |
+|---|---|---|
+| `sys_window` | its own | **none** |
+| Dashboard | a card | **no card — not navigable** |
+| `sys_tab` | `tab_level: 0` | `tab_level: 1`, in the *parent's* window |
+| Reached by | opening the window | opening a parent record |
+
+The tab links on the child's own foreign key back to the parent — the one
+already in the ERD, marked `sys_column.is_parent` and stored as
+`sys_tab.link_column_id`. **Do not declare a second column for it**, and do not
+drop the relationship line: the directive names the parent, the ERD still draws
+the edge.
+
+Two errors police it: `EML147` when the parent is not declared (or an entity
+names itself), `EML148` when the child has no foreign key back — a line item
+with nothing to link on would lose its own window and gain no tab, which is an
+entity that has quietly left the application.
+
+A child is still a real table with real rules, access control and a form. It is
+only its *placement* that changes. Leave it out of `%%category` — a category
+lists what appears on the dashboard, and a child does not.
 
 ### 3.4 Rules section
 
@@ -1320,9 +1396,23 @@ Name the file after the business: **`<business-name>.mmd`** — lower-case,
 hyphenated, no spaces (`acme-dance-studio.mmd`). One file. Every EML document is
 valid Mermaid (§0), so it must render in any Mermaid viewer as well as compile.
 
-Check a directive's `status` before relying on it (§3.2). `%%entity`, `%%rule`
-and `%%trigger` are validated but not compiled — they will not change a generated
-application, so do not promise the user behaviour that rides on them.
+Check a directive's `status` before relying on it (§3.2). `%%rule` and
+`%%trigger` are validated but not compiled — they will not change a generated
+application, so do not promise the user behaviour that rides on them. `%%entity`
+is compiled for `help:`/`description:` and for `parent:`, validated otherwise.
+
+**Two things are not optional, and both are usually what is missing when a model
+checks clean and the application still disappoints:**
+
+- **Help on every entity and every column** (§3.2). `%%entity <Name> help:` for
+  each entity, `%%field <Entity>.<column> help:` for each column. No exceptions,
+  including the obvious ones. This is the only explanation the generated
+  application will ever have, and nobody adds it afterwards.
+- **Line items declared as such** (§3.3.1). Go through the entities and ask of
+  each: is this a thing in its own right, or part of another thing? Every
+  invoice line, order line, prescription item, delivery line and answer-to-a-
+  question gets `%%entity <Child> parent: <Parent>`. Missing it puts a screen on
+  the dashboard listing every line ever written, which is a screen nobody opens.
 
 ### 10.3 Validate against the published checker — three runs, three repairs
 

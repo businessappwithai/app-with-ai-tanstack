@@ -1,28 +1,12 @@
 {
   "file": "/Users/pramodkoshy/projects/dynamic/test/app-with-ai-tanstack/examples/hospital-management-system.mmd",
-  "checkedAt": "2026-08-29T10:06:23.270Z",
+  "checkedAt": "2026-08-29T13:15:10.607Z",
   "languageVersion": "1.2.0",
   "summary": {
     "errors": 0,
-    "warnings": 1,
-    "infos": 1,
+    "warnings": 0,
+    "infos": 0,
     "ok": true
   },
-  "issues": [
-    {
-      "severity": "warning",
-      "code": "EML264",
-      "message": "%%step B reads \"bed_id\", which no earlier step publishes.",
-      "line": 710,
-      "hint": "Publish it with `as: bed_id` on a CreateEntity step or `target: bed_id` on a Formula step — unless it is a column of the triggering record.",
-      "autoFixable": false
-    },
-    {
-      "severity": "info",
-      "code": "EML502",
-      "message": "FK attribute \"ImagingReport.radiologist_id\" has no relationship to \"Radiologist\".",
-      "hint": "Add:  Radiologist ||--o{ ImagingReport : \"...\"  (or reverse for manyToOne).",
-      "autoFixable": false
-    }
-  ]
+  "issues": []
 }

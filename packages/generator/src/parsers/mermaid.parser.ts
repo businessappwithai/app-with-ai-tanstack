@@ -139,6 +139,7 @@ export class MermaidParser {
     const enumBindings: Array<{ entity: string; column: string; enumName: string }> = [];
     const fieldHelpText: Array<{ entity: string; column: string; help: string }> = [];
     const entityHelpText = new Map<string, string>();
+    const entityParents = new Map<string, string>();
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i] ?? "";
@@ -163,6 +164,8 @@ export class MermaidParser {
         if (fieldHelp) fieldHelpText.push(fieldHelp);
         const entityHelp = this.parseEntityHelpDirective(trimmed);
         if (entityHelp) entityHelpText.set(entityHelp.entity, entityHelp.help);
+        const entityParent = this.parseEntityParentDirective(trimmed);
+        if (entityParent) entityParents.set(entityParent.entity, entityParent.parent);
         continue;
       }
 
@@ -216,6 +219,7 @@ export class MermaidParser {
 
     this.attachIndexes(entities, declaredIndexes);
     this.attachHelp(entities, fieldHelpText, entityHelpText);
+    this.attachParents(entities, entityParents);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
 
     return { entities, relationships, enums };
@@ -243,6 +247,38 @@ export class MermaidParser {
         .find((candidate) => candidate.name === name)
         ?.attributes.find((candidate) => candidate.name === column);
       if (attribute) attribute.description = help;
+    }
+  }
+
+  /**
+   * Bind each `%%entity <Child> parent: <Parent>` to the column that links them.
+   *
+   * The link is the child's own foreign key to the parent — the modeller has
+   * already drawn it, so asking for it again would be a second way to say one
+   * thing. It is found by the ordinary rule, `<parent>_id`, and failing that by
+   * any FK column whose name carries the parent's snake_case name.
+   *
+   * A parent that does not exist, or a child with no key back to it, is left
+   * unlinked rather than guessed at: the checker reports both (EML147, EML148),
+   * and a child tab keyed on the wrong column would silently show one invoice's
+   * lines under another's.
+   */
+  private attachParents(entities: Entity[], parents: Map<string, string>): void {
+    for (const [childName, parentName] of parents) {
+      const child = entities.find((candidate) => candidate.name === childName);
+      const parent = entities.find((candidate) => candidate.name === parentName);
+      if (!child || !parent) continue;
+
+      const snake = parent.name
+        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+        .toLowerCase();
+      const link =
+        child.attributes.find((a) => a.isForeignKey && a.name === `${snake}_id`) ??
+        child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`));
+      if (!link) continue;
+
+      child.parentEntity = parent.name;
+      child.parentLinkColumn = link.name;
     }
   }
 
@@ -333,6 +369,23 @@ export class MermaidParser {
     if (!match?.[1] || !match[2]) return null;
     const help = match[2].trim();
     return help ? { entity: match[1], help } : null;
+  }
+
+  /**
+   * `%%entity InvoiceLine parent: Invoice` — a line item, not a reference.
+   *
+   * The ERD alone cannot tell the two apart. `InvoiceLine.invoice_id` and
+   * `Invoice.patient_id` are both a foreign key with a relationship behind it,
+   * and nothing in Mermaid says that a line has no life of its own while a
+   * patient plainly does. This key says it, and the Application Dictionary
+   * turns it into the arrangement the distinction was always about: the child
+   * becomes a tab *inside* the parent's window rather than a window of its own,
+   * linked on the foreign key it already declared.
+   */
+  private parseEntityParentDirective(line: string): { entity: string; parent: string } | null {
+    const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+parent\s*:\s*([A-Za-z_]\w*)\s*$/);
+    if (!match?.[1] || !match[2]) return null;
+    return { entity: match[1], parent: match[2] };
   }
 
   /**

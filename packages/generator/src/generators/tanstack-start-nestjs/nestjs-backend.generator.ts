@@ -302,8 +302,18 @@ export class NestJsBackendGenerator extends BaseGenerator {
     entities: Entity[],
     relationships: Relationship[]
   ): Record<string, unknown> {
-    // Convert entities to bus_ prefixed entities
-    const busEntities = entities.map((entity) => entityToBusEntity(entity));
+    /*
+     * Convert to bus_ prefixed entities, parents before their line items.
+     *
+     * The dictionary seed declares one `const …WindowId` per entity and a child
+     * names its parent's. `const` is not usable before its declaration, so a
+     * model that happened to declare `InvoiceLine` above `Invoice` rendered a
+     * seed that would not compile. Ordering here costs nothing and removes the
+     * dependency on how the author arranged the file.
+     */
+    const busEntities = entities
+      .map((entity) => entityToBusEntity(entity))
+      .sort((a, b) => Number(!!a.parentEntity) - Number(!!b.parentEntity));
 
     // Generate dictionary entries using the proper helper function
     const dictionaryEntries = entities.map((entity) => generateEntityDictionary(entity));

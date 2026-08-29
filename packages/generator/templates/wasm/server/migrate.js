@@ -186,6 +186,15 @@ async function seedDictionary(db, model) {
       [tableId, windowId]
     );
     if (exists) continue;
+    /* A detail tab links to its master on one column. Resolved here rather
+       than carried as an id, because the column rows were inserted above and
+       this is the first point at which their ids exist. */
+    const linkColumnId = tab.linkColumn
+      ? await db.value(
+          "SELECT sys_column_id FROM sys_column WHERE sys_table_id = $1 AND column_name = $2",
+          [tableId, tab.linkColumn]
+        )
+      : null;
     await db.insert("sys_tab", {
       sys_table_id: tableId,
       sys_window_id: windowId,
@@ -193,7 +202,14 @@ async function seedDictionary(db, model) {
       description: tab.description ?? null,
       seq_no: tab.seqNo ?? 0,
       is_single_row: !!tab.isSingleRow,
+      tab_level: tab.tabLevel ?? 0,
+      link_column_id: linkColumnId,
     });
+    if (linkColumnId) {
+      await db.query("UPDATE sys_column SET is_parent = true WHERE sys_column_id = $1", [
+        linkColumnId,
+      ]);
+    }
   }
 
   for (const group of dictionary.fieldGroups || []) {

@@ -6273,12 +6273,32 @@ var appwithai_language_default = {
       "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
       "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
       "%%field <Entity>.<column> help: and %%entity <Name> help: become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table. %%entity description: is the same key under its other name.",
+      "%%entity <Child> parent: <Parent> makes the child a line item: no window and no dashboard card, a tab inside the parent's window instead. See masterDetail.",
       "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
     ],
+    masterDetail: {
+      description: "A line item is an entity with no life away from its owner - an invoice line, an order line, a prescription item. The ERD cannot tell one from an ordinary reference, because InvoiceLine.invoice_id and Invoice.patient_id are both a foreign key with a relationship behind it. The modeller says which it is.",
+      directive: "%%entity <Child> parent: <Parent>",
+      effects: [
+        "The child gets no sys_window and no dashboard card: it is not somewhere the user navigates to.",
+        "The child's sys_tab is created under the parent's window at tab_level 1, sequenced after the master tab.",
+        "sys_tab.link_column_id is set to the child's own foreign key back to the parent, and that column is marked sys_column.is_parent.",
+        "Opening a parent record lists its children beneath the form, filtered to that record."
+      ],
+      linkColumn: "The child's existing foreign key to the parent - <parent_snake>_id when present, else the first FK column whose name begins with the parent's snake_case name. Never declared twice: the relationship is already in the ERD.",
+      identifyingAChild: [
+        "Would a list of these records, away from their owner, be useful to anyone? If not, it is a child.",
+        "Does the row's identity depend on the owner - line 1 of invoice 7, rather than line 1? If so, it is a child.",
+        "Would deleting the owner make the row meaningless? If so, it is a child.",
+        "A reference is the opposite: Invoice.patient_id points at a Patient who exists, and matters, independently."
+      ]
+    },
     checkerCodes: {
       EML103: "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
       EML119: "A reference-shaped column with no FK modifier - the lookup is lost.",
       EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
+      EML147: "%%entity ... parent: names an entity that is not declared, or the entity names itself.",
+      EML148: "%%entity ... parent: is declared but the child has no foreign key back to the parent, so the detail tab has nothing to link on.",
       EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     reportDesigns: {
@@ -12321,6 +12341,7 @@ function entityToBusEntity(entity) {
     tableName,
     originalName: entity.name,
     displayName: formatDisplayName(entity.name),
+    windowOwner: entity.parentEntity ?? entity.name,
     indexes: mergeIndexes(entity),
     attributes: withIdentifiers(entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey)), entity.primaryKey)
   };
@@ -14654,7 +14675,7 @@ class NestJsBackendGenerator extends BaseGenerator {
     }
   }
   prepareContext(entities, relationships) {
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2));
+    const busEntities = entities.map((entity2) => entityToBusEntity(entity2)).sort((a, b) => Number(!!a.parentEntity) - Number(!!b.parentEntity));
     const dictionaryEntries = entities.map((entity2) => generateEntityDictionary(entity2));
     const sysTables = dictionaryEntries.map((entry) => entry.dictionaryPlaceholders.table);
     const modelEnums = this.options.modelEnums ?? [];
@@ -18065,6 +18086,7 @@ class MermaidParser {
     const enumBindings = [];
     const fieldHelpText = [];
     const entityHelpText = new Map;
+    const entityParents = new Map;
     for (let i = 0;i < lines.length; i++) {
       const line = lines[i] ?? "";
       const trimmed = line.trim();
@@ -18088,6 +18110,9 @@ class MermaidParser {
         const entityHelp = this.parseEntityHelpDirective(trimmed);
         if (entityHelp)
           entityHelpText.set(entityHelp.entity, entityHelp.help);
+        const entityParent = this.parseEntityParentDirective(trimmed);
+        if (entityParent)
+          entityParents.set(entityParent.entity, entityParent.parent);
         continue;
       }
       const relationship = this.parseRelationship(trimmed);
@@ -18128,6 +18153,7 @@ class MermaidParser {
     }
     this.attachIndexes(entities, declaredIndexes);
     this.attachHelp(entities, fieldHelpText, entityHelpText);
+    this.attachParents(entities, entityParents);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
     return { entities, relationships, enums };
   }
@@ -18141,6 +18167,20 @@ class MermaidParser {
       const attribute = entities.find((candidate) => candidate.name === name)?.attributes.find((candidate) => candidate.name === column);
       if (attribute)
         attribute.description = help;
+    }
+  }
+  attachParents(entities, parents) {
+    for (const [childName, parentName] of parents) {
+      const child = entities.find((candidate) => candidate.name === childName);
+      const parent = entities.find((candidate) => candidate.name === parentName);
+      if (!child || !parent)
+        continue;
+      const snake2 = parent.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+      const link = child.attributes.find((a) => a.isForeignKey && a.name === `${snake2}_id`) ?? child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake2}_`));
+      if (!link)
+        continue;
+      child.parentEntity = parent.name;
+      child.parentLinkColumn = link.name;
     }
   }
   parseIndexDirective(line) {
@@ -18190,6 +18230,12 @@ class MermaidParser {
       return null;
     const help = match[2].trim();
     return help ? { entity: match[1], help } : null;
+  }
+  parseEntityParentDirective(line) {
+    const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+parent\s*:\s*([A-Za-z_]\w*)\s*$/);
+    if (!match?.[1] || !match[2])
+      return null;
+    return { entity: match[1], parent: match[2] };
   }
   attachEnums(entities, declared, bindings) {
     const used = new Set;
@@ -19429,7 +19475,8 @@ class CheckEngine {
     "label",
     "icon",
     "help",
-    "description"
+    "description",
+    "parent"
   ]);
   validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
   validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
@@ -19906,6 +19953,31 @@ class CheckEngine {
           hint: `Known keys: ${[...this.validEntityKeys].join(", ")}.`
         });
       }
+      if (key === "parent") {
+        const parentName = (m[3] ?? "").trim();
+        const parent = this.model.entities.find((candidate) => candidate.name === parentName);
+        const child = this.model.entities.find((candidate) => candidate.name === entityName);
+        if (!parent) {
+          this.error("EML147", `%%entity ${entityName} parent: "${parentName}" is not declared.`, {
+            line: lineNo,
+            hint: `Declare "${parentName}" in the erDiagram section, or name the entity that owns ${entityName}.`
+          });
+        } else if (parentName === entityName) {
+          this.error("EML147", `%%entity ${entityName} cannot be its own parent.`, {
+            line: lineNo,
+            hint: "A line item belongs to a different entity. Remove the directive if it has no owner."
+          });
+        } else if (child) {
+          const snake2 = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+          const link = child.attributes.find((attribute) => attribute.isForeignKey && (attribute.name === `${snake2}_id` || attribute.name.startsWith(`${snake2}_`)));
+          if (!link) {
+            this.error("EML148", `%%entity ${entityName} parent: ${parentName}, but ${entityName} has no foreign key to it.`, {
+              line: lineNo,
+              hint: `Add \`string ${snake2}_id FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`
+            });
+          }
+        }
+      }
     }
   }
   checkHooks() {
@@ -20204,6 +20276,9 @@ class CheckEngine {
     ]);
     for (const section of this.sagaSections()) {
       const published = new Set;
+      const trigger = this.model.entities.find((candidate) => candidate.name.toLowerCase() === section.entity.toLowerCase());
+      for (const attribute of trigger?.attributes ?? [])
+        published.add(attribute.name);
       const bound = new Set;
       for (const { lineNo, text } of section.steps) {
         const match = text.trim().match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
@@ -20370,11 +20445,11 @@ class CheckEngine {
     const all = this.src.findAll(/.*/);
     for (const { lineNo, text } of all) {
       const trimmed = text.trim();
-      const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*\w+\s+kind:\s*(\w+)/);
+      const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
       if (workflow) {
         if (current)
           sections.push(current);
-        current = workflow[2] === "saga" ? { name: workflow[1], nodeIds: new Set, steps: [] } : null;
+        current = workflow[3] === "saga" ? { name: workflow[1], entity: workflow[2], nodeIds: new Set, steps: [] } : null;
         continue;
       }
       if (trimmed.startsWith("%%rule ")) {
@@ -20738,12 +20813,18 @@ class CheckEngine {
         }
       }
     }
+    const declaredNames = new Set(this.model.entities.map((candidate) => candidate.name));
     for (const entity2 of this.model.entities) {
+      const claimed = new Set(entity2.attributes.filter((candidate) => candidate.isForeignKey && candidate.name.endsWith("_id")).map((candidate) => this.fkToEntityName(candidate.name)).filter((name) => declaredNames.has(name)));
+      const spareParents = this.model.relationships.filter((r) => r.target === entity2.name && r.source !== entity2.name).map((r) => r.source).filter((name) => declaredNames.has(name) && !claimed.has(name));
       for (const attr of entity2.attributes) {
         if (attr.isForeignKey && attr.name.endsWith("_id")) {
           const parentEntityName = this.fkToEntityName(attr.name);
           const hasRelationship = this.model.relationships.some((r) => (r.source === entity2.name || r.target === entity2.name) && (r.source === parentEntityName || r.target === parentEntityName));
-          if (!hasRelationship) {
+          const resolvedByRelationship = !declaredNames.has(parentEntityName) && spareParents.length > 0;
+          if (resolvedByRelationship)
+            spareParents.shift();
+          if (!hasRelationship && !resolvedByRelationship) {
             this.info("EML502", `FK attribute "${entity2.name}.${attr.name}" has no relationship to "${parentEntityName}".`, {
               hint: `Add:  ${parentEntityName} ||--o{ ${entity2.name} : "..."  (or reverse for manyToOne).`
             });

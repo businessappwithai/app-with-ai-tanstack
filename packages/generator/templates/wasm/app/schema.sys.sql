@@ -140,6 +140,10 @@ CREATE TABLE IF NOT EXISTS sys_tab (
   seq_no INTEGER DEFAULT 0,
   is_active BOOLEAN DEFAULT true,
   is_single_row BOOLEAN DEFAULT false,
+  -- A detail tab sits at level 1 inside its master's window and links to the
+  -- open master row on one column. See `%%entity <Child> parent: <Parent>`.
+  tab_level INTEGER NOT NULL DEFAULT 0,
+  link_column_id UUID,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
