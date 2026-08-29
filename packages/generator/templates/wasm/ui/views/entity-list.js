@@ -25,11 +25,76 @@ async function gridFields(route) {
   return gridCache.get(route);
 }
 
+/*
+ * Two searches, and they are not the same search.
+ *
+ * The action bar's **Search** names the entity's own columns and asks the
+ * server: it is how you find a record that is not on this page, and it is the
+ * only one of the two that can. The bar above the grid filters the rows already
+ * in the browser — instant, no request, and honest about its reach.
+ *
+ * They were briefly one thing, with the grid's bar posting `?search=` and the
+ * action-bar button doing nothing but focus it. That reads as a simpler design
+ * and is a worse one: every keystroke became a round trip, the field list
+ * disappeared, and a filter that said "no matches" could not tell you whether
+ * it meant on this page or in the table. The NestJS stack never lost the split,
+ * which is the other reason to keep it — one model, one behaviour, either
+ * stack.
+ */
+
+const FILTER_OPERATORS = {
+  text: [
+    { value: "contains", label: "contains" },
+    { value: "equals", label: "equals" },
+    { value: "startsWith", label: "starts with" },
+    { value: "endsWith", label: "ends with" },
+  ],
+  number: [
+    { value: "equals", label: "=" },
+    { value: "gt", label: ">" },
+    { value: "gte", label: "≥" },
+    { value: "lt", label: "<" },
+    { value: "lte", label: "≤" },
+  ],
+  date: [
+    { value: "equals", label: "on" },
+    { value: "gt", label: "after" },
+    { value: "gte", label: "on or after" },
+    { value: "lt", label: "before" },
+    { value: "lte", label: "on or before" },
+  ],
+  boolean: [{ value: "equals", label: "is" }],
+};
+
+/** The same `sys_reference_id` split the React stack's filter builder uses. */
+function filterCategory(referenceId) {
+  if (referenceId === 11 || referenceId === 12) return "number";
+  if (referenceId === 15 || referenceId === 16) return "date";
+  if (referenceId === 20) return "boolean";
+  return "text";
+}
+
+/** Does a loaded row match the grid bar's text? Every displayed cell, as text. */
+function matchesRow(row, columns, needle, labels) {
+  const term = needle.toLowerCase();
+  return columns.some((column) => {
+    const label = labels?.[column.column_name]?.[row[column.column_name]];
+    const cell = label === undefined ? row[column.column_name] : label;
+    return cell !== null && cell !== undefined && String(cell).toLowerCase().includes(term);
+  });
+}
+
 export async function entityListView(root, { entity, recordId, navigate }) {
   const params = new URLSearchParams((window.location.hash.split("?")[1] ?? ""));
   const state = {
     page: 1,
     limit: 25,
+    /** The grid bar: filters rows already loaded. Never sent anywhere. */
+    filter: "",
+    /** The action bar: `{column, operator, value}` rows, applied on the server. */
+    searchRows: [],
+    searchOpen: false,
+    /** `?q=` still works as a free-text server search, for links into a list. */
     search: params.get("q") ?? "",
     sort: null,
     order: "desc",
@@ -42,16 +107,18 @@ export async function entityListView(root, { entity, recordId, navigate }) {
 
   const panelSlot = el("div");
   const listSlot = el("div");
-  const searchInput = el("input", {
+
+  /* The grid bar. Filters what is on screen, so it re-renders from the page
+     already in hand rather than asking for another one. */
+  const filterInput = el("input", {
     type: "search",
-    placeholder: "Search...",
-    value: state.search,
-    "aria-label": `Search ${entity.displayName}`,
+    placeholder: "Filter these records...",
+    value: state.filter,
+    "aria-label": `Filter the loaded ${entity.displayName} records`,
     oninput: debounce(() => {
-      state.search = searchInput.value.trim();
-      state.page = 1;
-      renderList();
-    }, 250),
+      state.filter = filterInput.value.trim();
+      paint();
+    }, 120),
   });
 
   mount(root, panelSlot, listSlot);
@@ -59,7 +126,7 @@ export async function entityListView(root, { entity, recordId, navigate }) {
   const openRecord = async (id) => {
     if (!id) {
       mount(panelSlot);
-      setActions({ onNew: () => openRecord("new"), newLabel: entity.singularName, onSearch: focusSearch });
+      setActions({ onNew: () => openRecord("new"), newLabel: entity.singularName, onSearch: toggleSearch });
       return;
     }
     await recordPanel(panelSlot, {
@@ -75,10 +142,36 @@ export async function entityListView(root, { entity, recordId, navigate }) {
     });
   };
 
-  const focusSearch = () => {
-    searchInput.focus();
-    searchInput.select();
+  const toggleSearch = () => {
+    state.searchOpen = !state.searchOpen;
+    if (state.searchOpen && !state.searchRows.length) addSearchRow();
+    paint();
   };
+
+  /** The last answer from the server; the grid bar filters this, in place. */
+  let loaded = null;
+
+  function addSearchRow() {
+    const first = (loaded?.fields ?? []).find((field) => field.column_name);
+    if (!first) return;
+    const category = filterCategory(first.sys_reference_id);
+    state.searchRows.push({
+      column: first.column_name,
+      operator: FILTER_OPERATORS[category][0].value,
+      value: "",
+    });
+  }
+
+  /** `filter.<column>=<operator>:<value>`, the contract both stacks parse. */
+  function searchParams() {
+    const params = {};
+    for (const row of state.searchRows) {
+      if (row.column && row.operator && row.value !== "") {
+        params[`filter.${row.column}`] = `${row.operator}:${row.value}`;
+      }
+    }
+    return params;
+  }
 
   async function renderList() {
     mount(listSlot, spinner(`Loading ${entity.displayName}`));
@@ -92,29 +185,61 @@ export async function entityListView(root, { entity, recordId, navigate }) {
             search: state.search,
             sort: state.sort,
             order: state.order,
+            ...searchParams(),
           })}`
         ),
       ]);
+      loaded = { fields, page };
+      paint();
+    } catch (error) {
+      mount(listSlot, empty("Could not load these records", error.message));
+      if (error.status !== 403) toast(error.message, "error");
+    }
+  }
+
+  function paint() {
+    if (!loaded) return;
+    const { fields, page } = loaded;
+
+    try {
+      const columns = fields.length
+        ? fields
+        : entity.attributes
+            .slice(0, 6)
+            .map((attribute) => ({ column_name: attribute.columnName, name: attribute.displayName }));
+
+      /* The grid bar's reach, stated plainly: it filters the rows on this page
+         and nothing else. Saying "3 of 25 on this page" rather than "3 entries"
+         is the difference between a filter you can trust and one that looks
+         like it searched the table. */
+      const rows = state.filter
+        ? page.data.filter((row) => matchesRow(row, columns, state.filter, page.labels))
+        : page.data;
 
       const bar = el(
         "div.listbar",
-        el("div.listbar__search", searchInput),
+        el("div.listbar__search", filterInput),
         el(
           "span.listbar__count",
-          page.total === 0
-            ? "No entries"
-            : `Showing ${(page.page - 1) * page.limit + 1} to ` +
-              `${Math.min(page.page * page.limit, page.total)} of ${page.total} entries`
+          state.filter
+            ? `${rows.length} of ${page.data.length} on this page`
+            : page.total === 0
+              ? "No entries"
+              : `Showing ${(page.page - 1) * page.limit + 1} to ` +
+                `${Math.min(page.page * page.limit, page.total)} of ${page.total} entries`
         )
       );
+
+      const searching = Object.keys(searchParams()).length > 0 || !!state.search;
 
       if (!page.data.length) {
         mount(
           listSlot,
+          searchPanel(),
           bar,
           empty(
-            state.search ? "Nothing matched that search" : `No ${entity.displayName} records yet`,
-            state.search
+            searching ? "Nothing matched that search" : `No ${entity.displayName} records yet`,
+            searching
               ? "Clear the search to see every record."
               : `Use “New ${entity.singularName}” above to add the first one.`
           )
@@ -122,14 +247,22 @@ export async function entityListView(root, { entity, recordId, navigate }) {
         return;
       }
 
-      const columns = fields.length
-        ? fields
-        : entity.attributes
-            .slice(0, 6)
-            .map((attribute) => ({ column_name: attribute.columnName, name: attribute.displayName }));
+      if (!rows.length) {
+        mount(
+          listSlot,
+          searchPanel(),
+          bar,
+          empty(
+            "Nothing on this page matches",
+            "This filters the records already loaded. Use Search above to look through the whole table."
+          )
+        );
+        return;
+      }
 
       mount(
         listSlot,
+        searchPanel(),
         bar,
         el(
           "div.table-wrap",
@@ -160,7 +293,7 @@ export async function entityListView(root, { entity, recordId, navigate }) {
             ),
             el(
               "tbody",
-              page.data.map((row) =>
+              rows.map((row) =>
                 el(
                   "tr.table__row",
                   { onclick: () => navigate(`/entity/${entity.routeName}/${row.id}`) },
@@ -190,7 +323,106 @@ export async function entityListView(root, { entity, recordId, navigate }) {
     }
   }
 
-  setActions({ onNew: () => navigate(`/entity/${entity.routeName}/new`), newLabel: entity.singularName, onSearch: focusSearch });
+  /**
+   * The action bar's Search: the entity's own columns, an operator each, and a
+   * value — applied on the server, so it reaches records this page never had.
+   *
+   * Which columns are offered is the dictionary's answer, not this file's: a
+   * column hidden from the grid is hidden from the search with it, the same way
+   * the React stack filters on `is_displayed_grid`.
+   */
+  function searchPanel() {
+    if (!state.searchOpen) return null;
+    const fields = (loaded?.fields ?? []).filter((field) => field.column_name);
+    if (!fields.length) {
+      return el("div.searchpanel", el("p.searchpanel__hint", "This entity has no searchable columns."));
+    }
+
+    const rowEl = (row, index) => {
+      const field = fields.find((candidate) => candidate.column_name === row.column) ?? fields[0];
+      const category = filterCategory(field.sys_reference_id);
+
+      const columnSelect = el(
+        "select.searchpanel__col",
+        {
+          "aria-label": "Column to search",
+          onchange: () => {
+            row.column = columnSelect.value;
+            const next = fields.find((candidate) => candidate.column_name === row.column);
+            row.operator = FILTER_OPERATORS[filterCategory(next?.sys_reference_id)][0].value;
+            row.value = "";
+            paint();
+          },
+        },
+        fields.map((candidate) =>
+          el("option", { value: candidate.column_name, selected: candidate.column_name === row.column }, candidate.name)
+        )
+      );
+
+      const operatorSelect = el(
+        "select.searchpanel__op",
+        { "aria-label": "How to compare", onchange: () => { row.operator = operatorSelect.value; } },
+        FILTER_OPERATORS[category].map((operator) =>
+          el("option", { value: operator.value, selected: operator.value === row.operator }, operator.label)
+        )
+      );
+
+      const valueInput = el("input.searchpanel__val", {
+        type: category === "date" ? "date" : category === "number" ? "number" : "text",
+        value: row.value,
+        placeholder: "Value",
+        "aria-label": `Value for ${field.name}`,
+        oninput: () => { row.value = valueInput.value; },
+        onkeydown: (event) => { if (event.key === "Enter") applySearch(); },
+      });
+
+      return el(
+        "div.searchpanel__row",
+        columnSelect,
+        operatorSelect,
+        valueInput,
+        el(
+          "button.btn.searchpanel__drop",
+          { title: "Remove this condition", onclick: () => { state.searchRows.splice(index, 1); paint(); } },
+          "✕"
+        )
+      );
+    };
+
+    return el(
+      "div.searchpanel",
+      el(
+        "div.searchpanel__rows",
+        state.searchRows.length
+          ? state.searchRows.map(rowEl)
+          : el("p.searchpanel__hint", "No conditions yet — add one to narrow the search.")
+      ),
+      el(
+        "div.searchpanel__actions",
+        el("button.btn", { onclick: () => { addSearchRow(); paint(); } }, "+ Add condition"),
+        el("button.btn", { onclick: clearSearch }, "Clear"),
+        el("button.btn.btn--primary", { onclick: applySearch }, "Search")
+      )
+    );
+  }
+
+  function applySearch() {
+    state.page = 1;
+    renderList();
+  }
+
+  function clearSearch() {
+    state.searchRows = [];
+    state.search = "";
+    state.page = 1;
+    renderList();
+  }
+
+  setActions({
+    onNew: () => navigate(`/entity/${entity.routeName}/new`),
+    newLabel: entity.singularName,
+    onSearch: toggleSearch,
+  });
 
   await Promise.all([openRecord(recordId), renderList()]);
 }
