@@ -5971,8 +5971,16 @@ async function boot(message) {
 
   /* \`binary\` keeps the bytes as bytes; see the note on the static route in
      \`server/index.js\`. */
+  /*
+   * No \`cache: "no-store"\`. These files exist only in the Service Worker's
+   * cache, so telling the *network* not to store them buys nothing — and it
+   * cost the application Safari entirely: WebKit will not match a request
+   * carrying that cache mode, so the first schema read 404'd against a file the
+   * worker was holding. The mounted responses already carry \`Cache-Control:
+   * no-cache\`, which is the header that actually governs staleness here.
+   */
   const readAsset = async (name, encoding = "utf-8") => {
-    const response = await fetch(new URL(name, base).href, { cache: "no-store" });
+    const response = await fetch(new URL(name, base).href);
     if (!response.ok) throw new Error(\`Asset not found: \${name} (\${response.status})\`);
     return encoding === "binary" ? new Uint8Array(await response.arrayBuffer()) : response.text();
   };
@@ -10799,9 +10807,32 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(serve(event.request));
 });
 
+/**
+ * Serve a mounted file.
+ *
+ * **Matched on the URL, not on the Request**, and that is the whole of the fix
+ * for two failures that looked nothing like each other. A Request carries a
+ * method and a cache mode into \`caches.match\`, and both have hidden a file that
+ * this worker was in fact holding:
+ *
+ *   - The Cache API matches GET only, so the generated application's HEAD
+ *     probes for optional files escaped to the network and 404'd.
+ *   - WebKit declines to match a request made with \`cache: "no-store"\`, which
+ *     is exactly how \`readAsset\` used to read the schema files — so chapter 09
+ *     died in Safari on \`app/schema.sys.sql\` while working in Chromium, with a
+ *     404 for a file sitting in the cache the whole time.
+ *
+ * A URL string builds a default GET Request internally and can inherit neither
+ * property. The cache is keyed by URL anyway, so nothing is given up. A HEAD
+ * still gets headers without a body, the way a real server replies.
+ */
 async function serve(request) {
-  const cached = await caches.match(request, { cacheName: CACHE, ignoreSearch: true });
-  if (cached) return cached;
+  const cached = await caches.match(request.url, { cacheName: CACHE, ignoreSearch: true });
+  if (cached) {
+    return request.method === "HEAD"
+      ? new Response(null, { status: cached.status, headers: cached.headers })
+      : cached;
+  }
   try {
     return await fetch(request);
   } catch {
@@ -12995,7 +13026,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 285395;
+var RUNTIME_BYTES = 286957;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
@@ -20835,7 +20866,31 @@ var PERSON_COLUMNS = new Set([
   "remediation_owner_id",
   "user_id"
 ]);
-function inDependencyOrder(entities, personEntity) {
+var overrideKey = (entity2, column) => `${entity2}.${column}`.toLowerCase();
+function buildFkOverrides(entities, relationships, personEntity) {
+  const byName = new Map(entities.map((entity2) => [entity2.name.toLowerCase(), entity2.name]));
+  const overrides = new Map;
+  for (const entity2 of entities) {
+    const foreignKeys = entity2.columns.filter((column) => column.isForeignKey);
+    const claimed = new Set(foreignKeys.map((column) => fkTarget(column.columnName, personEntity)?.toLowerCase()).filter((name) => !!name && byName.has(name)));
+    const parents = relationships.filter((relationship) => relationship.targetEntity.toLowerCase() === entity2.name.toLowerCase()).map((relationship) => byName.get(relationship.sourceEntity.toLowerCase())).filter((name) => !!name);
+    for (const column of foreignKeys) {
+      const derived = fkTarget(column.columnName, personEntity);
+      if (derived && byName.has(derived.toLowerCase()))
+        continue;
+      const free = parents.find((parent) => !claimed.has(parent.toLowerCase()));
+      if (!free)
+        continue;
+      overrides.set(overrideKey(entity2.name, column.columnName), free);
+      claimed.add(free.toLowerCase());
+    }
+  }
+  return overrides;
+}
+function resolveTarget(entity2, column, personEntity, overrides) {
+  return overrides.get(overrideKey(entity2, column.columnName)) ?? fkTarget(column.columnName, personEntity);
+}
+function inDependencyOrder(entities, personEntity, overrides) {
   const byName = new Map(entities.map((entity2) => [entity2.name, entity2]));
   const pending = new Map;
   for (const entity2 of entities) {
@@ -20843,7 +20898,7 @@ function inDependencyOrder(entities, personEntity) {
     for (const column of entity2.columns) {
       if (!column.isForeignKey)
         continue;
-      const target = fkTarget(column.columnName, personEntity);
+      const target = resolveTarget(entity2.name, column, personEntity, overrides);
       if (target && target !== entity2.name && byName.has(target))
         parents.add(target);
     }
@@ -20914,9 +20969,10 @@ function buildSampleData(parsed, options) {
     }))
   }));
   const personEntity = entities.find((entity2) => entity2.name === "User")?.name ?? entities.find((entity2) => /^(user|staff|employee|person|account)s?$/i.test(entity2.name))?.name;
+  const fkOverrides = buildFkOverrides(entities, parsed.relationships ?? [], personEntity);
   const ids = new Map;
   const data = {};
-  for (const entity2 of inDependencyOrder(entities, personEntity)) {
+  for (const entity2 of inDependencyOrder(entities, personEntity, fkOverrides)) {
     const full = entities.find((candidate) => candidate.name === entity2.name);
     if (!full)
       continue;
@@ -20941,7 +20997,8 @@ function buildSampleData(parsed, options) {
           ids,
           personEntity,
           selfIds: generatedIds,
-          entityName: full.name
+          entityName: full.name,
+          fkOverrides
         });
       }
       rows.push(record);
@@ -20953,7 +21010,7 @@ function buildSampleData(parsed, options) {
 }
 function valueFor(column, entity2, row, draw, context) {
   if (column.isForeignKey) {
-    const target = fkTarget(column.columnName, context.personEntity);
+    const target = resolveTarget(context.entityName, column, context.personEntity, context.fkOverrides);
     const pool = target === context.entityName ? context.selfIds.slice(0, row) : context.ids.get(target ?? "");
     if (!pool || pool.length === 0)
       return null;

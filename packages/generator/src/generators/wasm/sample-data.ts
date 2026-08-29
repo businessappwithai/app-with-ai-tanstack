@@ -322,6 +322,76 @@ const PERSON_COLUMNS = new Set([
   "user_id",
 ]);
 
+/** Key into the override map: a column is only ambiguous within its entity. */
+const overrideKey = (entity: string, column: string) => `${entity}.${column}`.toLowerCase();
+
+/**
+ * Where a foreign key points when its *name* points nowhere.
+ *
+ * Name derivation gets most of them — `patient_id` finds `Patient`. It cannot
+ * get the ones named for the role the parent plays rather than for the parent:
+ * `ImagingReport.radiologist_id` derives `Radiologist`, an entity nobody
+ * declared, while the model says plainly `Doctor ||--o{ ImagingReport`. The
+ * checker reports the mismatch as `EML502`, and left unresolved the column is
+ * simply never filled — which for a NOT NULL column takes every sample row of
+ * that table down with it, one `violates not-null constraint` per row.
+ *
+ * So where the name resolves to nothing, a *declared parent relationship* is
+ * used instead: the first one no other foreign key on the entity already
+ * claims. Mirrors `buildFkOverrides` in the NestJS generator, so the browser
+ * application and the deployable one fill the same columns.
+ */
+function buildFkOverrides(
+  entities: Array<{ name: string; columns: Column[] }>,
+  relationships: Array<{ sourceEntity: string; targetEntity: string }>,
+  personEntity: string | undefined
+): Map<string, string> {
+  const byName = new Map(entities.map((entity) => [entity.name.toLowerCase(), entity.name]));
+  const overrides = new Map<string, string>();
+
+  for (const entity of entities) {
+    const foreignKeys = entity.columns.filter((column) => column.isForeignKey);
+
+    /* What the other keys on this entity already point at, so two unresolved
+       columns cannot both be handed the same parent. */
+    const claimed = new Set(
+      foreignKeys
+        .map((column) => fkTarget(column.columnName, personEntity)?.toLowerCase())
+        .filter((name): name is string => !!name && byName.has(name))
+    );
+
+    const parents = relationships
+      .filter((relationship) => relationship.targetEntity.toLowerCase() === entity.name.toLowerCase())
+      .map((relationship) => byName.get(relationship.sourceEntity.toLowerCase()))
+      .filter((name): name is string => !!name);
+
+    for (const column of foreignKeys) {
+      const derived = fkTarget(column.columnName, personEntity);
+      if (derived && byName.has(derived.toLowerCase())) continue;
+
+      const free = parents.find((parent) => !claimed.has(parent.toLowerCase()));
+      if (!free) continue;
+      overrides.set(overrideKey(entity.name, column.columnName), free);
+      claimed.add(free.toLowerCase());
+    }
+  }
+
+  return overrides;
+}
+
+/** The name rule, then the relationship the model drew. */
+function resolveTarget(
+  entity: string,
+  column: Column,
+  personEntity: string | undefined,
+  overrides: Map<string, string>
+): string | undefined {
+  return (
+    overrides.get(overrideKey(entity, column.columnName)) ??
+    fkTarget(column.columnName, personEntity)
+  );
+}
+
 /**
  * Parents before children, so a foreign key can take an id that exists.
  *
@@ -342,7 +412,8 @@ const PERSON_COLUMNS = new Set([
  */
 function inDependencyOrder(
   entities: Array<{ name: string; columns: Column[] }>,
-  personEntity: string | undefined
+  personEntity: string | undefined,
+  overrides: Map<string, string>
 ): Array<{ name: string; columns: Column[] }> {
   const byName = new Map(entities.map((entity) => [entity.name, entity]));
   const pending = new Map<string, Set<string>>();
@@ -351,7 +422,10 @@ function inDependencyOrder(
     const parents = new Set<string>();
     for (const column of entity.columns) {
       if (!column.isForeignKey) continue;
-      const target = fkTarget(column.columnName, personEntity);
+      /* The override counts as a dependency too, or the parent it names is not
+         guaranteed to have been emitted when the child asks for one of its
+         ids — the column would resolve and still come out null. */
+      const target = resolveTarget(entity.name, column, personEntity, overrides);
       if (target && target !== entity.name && byName.has(target)) parents.add(target);
     }
     pending.set(entity.name, parents);
@@ -462,10 +536,12 @@ export function buildSampleData(parsed: ParsedModel, options: SampleDataOptions)
     entities.find((entity) => entity.name === "User")?.name ??
     entities.find((entity) => /^(user|staff|employee|person|account)s?$/i.test(entity.name))?.name;
 
+  const fkOverrides = buildFkOverrides(entities, parsed.relationships ?? [], personEntity);
+
   const ids = new Map<string, string[]>();
   const data: SampleData = {};
 
-  for (const entity of inDependencyOrder(entities, personEntity)) {
+  for (const entity of inDependencyOrder(entities, personEntity, fkOverrides)) {
     const full = entities.find((candidate) => candidate.name === entity.name);
     if (!full) continue;
     const rows: Array<Record<string, unknown>> = [];
@@ -497,6 +573,7 @@ export function buildSampleData(parsed: ParsedModel, options: SampleDataOptions)
           personEntity,
           selfIds: generatedIds,
           entityName: full.name,
+          fkOverrides,
         });
       }
       rows.push(record);
@@ -514,6 +591,7 @@ interface ValueContext {
   personEntity: string | undefined;
   selfIds: string[];
   entityName: string;
+  fkOverrides: Map<string, string>;
 }
 
 function valueFor(
@@ -527,7 +605,12 @@ function valueFor(
      row has would make every lookup in the generated application empty — the
      failure this whole file exists to avoid. */
   if (column.isForeignKey) {
-    const target = fkTarget(column.columnName, context.personEntity);
+    const target = resolveTarget(
+      context.entityName,
+      column,
+      context.personEntity,
+      context.fkOverrides
+    );
     const pool =
       target === context.entityName ? context.selfIds.slice(0, row) : context.ids.get(target ?? "");
     if (!pool || pool.length === 0) return null;
