@@ -3459,10 +3459,10 @@ globalThis.EMLChecker = {
   LANGUAGE_VERSION
 };
 export {
-  formatReport,
-  formatIssue,
-  checkSource,
-  check,
+  AUTO_FIXABLE,
   LANGUAGE_VERSION,
-  AUTO_FIXABLE
+  check,
+  checkSource,
+  formatIssue,
+  formatReport
 };

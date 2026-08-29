@@ -3806,9 +3806,9 @@ globalThis.EMLFixer = {
   LANGUAGE_VERSION
 };
 export {
-  fix,
-  checkAndFix,
-  applyFixes,
+  AUTO_FIXABLE,
   LANGUAGE_VERSION,
-  AUTO_FIXABLE
+  applyFixes,
+  checkAndFix,
+  fix
 };
