@@ -8,7 +8,7 @@
 > (nine chapters, every screenshot from the CRM described in §9. The material
 > is inlined here in §9 so you do not need to fetch it.)
 
-- **Spec version**: 1.2.0 · **Project version**: 5.1.x · **Updated**: 2026-08-19
+- **Spec version**: 1.2.0 · **Project version**: 5.1.x · **Updated**: 2026-08-29
 - **Authority**: `language/appwithai-language.json`. When this file and that
   file disagree, that file wins. When that file and a shipped compiler
   disagree, the compiler wins and the definition is the bug.
@@ -62,8 +62,12 @@ app-with-ai-tanstack/
 │   └── web/           # The modelling tool itself (TanStack Start, :3000)
 ├── database/          # Migrations for the modelling tool's own database
 ├── llmtext/           # This file
-├── html/              # The human guide published at appwithai.org/guide,
-│                   #   plus checker.js and fixer.js — the published validators
+├── html/              # The human guide published at appwithai.org/guide, plus
+│                   #   checker.js and fixer.js — the published validators — and
+│                   #   the pages that run a whole stack in a browser tab
+├── scripts/           # Build and CI scripts, incl. the four --check bundlers (§8)
+├── tests/             # Playwright: the modelling tool, and the browser stack
+├── docs/              # Architecture notes and QA reports
 ├── generated-projects/# Output of the generator
 └── examples/          # Sample models (.mmd / .eml.mmd)
 ```
@@ -189,7 +193,7 @@ it. **reserved** = documented, renderer-safe, inert.
 | `%%hook` | `%%hook <type> <handler> on <E>` · `%%hook <type> on <E>` | compiled | `generator/src/hooks/index.ts` |
 | `%%step` | `%%step <nodeId> <stepType> <k>: <v> …` | compiled | `generator/src/workflows/steps.ts` |
 | `%%action` | `%%action <name> <type> when: <expr> …` | compiled | `generator/src/rules/index.ts` |
-| `%%field` | `%%field <E>.<attr> <k>: <v>` | compiled *(`enum:` key only)* | `generator/src/parsers/mermaid.parser.ts` |
+| `%%field` | `%%field <E>.<attr> <k>: <v>` | compiled *(`enum:` and `help:`)* | `generator/src/parsers/mermaid.parser.ts` |
 | `%%enum` | `%%enum <Name>: a, b, c` | compiled | `mermaid.parser.ts` |
 | `%%category` | `%%category name: X; icon: Y; entities: A, B` | compiled | `generator/src/parsers/category.parser.ts` |
 | `%%index` | `%%index <E>(<a>[, <b>]) [unique]` | compiled | `mermaid.parser.ts` → real DDL |
@@ -197,13 +201,22 @@ it. **reserved** = documented, renderer-safe, inert.
 | `%%loop` | `%%loop <id> while: <f> <op> <v> max: <n>` | compiled | `workflows/steps.ts` |
 | `%%workflow` | `%%workflow <Name> entity: <E> kind: <hook\|state\|saga>` | compiled | `generator/src/workflows/index.ts` |
 | `%%rbac` | `%%rbac <roleExpr> on <E>.<op>` | compiled | `generator/src/rbac/index.ts` |
-| `%%entity` | `%%entity <E> <k>: <v>` | validated | `language/checker.ts` |
+| `%%entity` | `%%entity <E> <k>: <v>` | compiled *(`help:`/`description:`)*, validated otherwise | `mermaid.parser.ts` · `language/checker.ts` |
 | `%%rule` | `%%rule <name> on <E> event: <hook> priority: <n>` | validated | `language/checker.ts` |
 | `%%trigger` | `%%trigger <source> -> <handler> on <E>` | validated | `language/checker.ts` |
 
 **Do not tell a user a directive "will do X" without checking its status.** A
 `%%entity Order audited: true` is validated but not compiled: it will not make
 the table audited today.
+
+The two rows with a key-level split are the ones to read carefully, because the
+mistake they invite is the expensive direction — concluding that `help:` is
+inert and skipping it. It is not: `%%field <E>.<col> help:` and `%%entity <Name>
+help:` are compiled to `sys_column.description` and `sys_table.description`,
+shown in the running application, and are the entire "what it is for" column of
+the generated manual (§5.6). A model that omits them produces an application
+whose manual is a table of dashes. Every *other* key on either directive is
+validated only.
 
 ### 3.2.1 `%%rbac` — access control
 
@@ -482,11 +495,12 @@ can decide but cannot act.
 
 ## 4. The generator
 
-### 4.1 One pipeline, two entry points
+### 4.1 One pipeline, three entry points
 
 `packages/generator/src/pipeline/generate-application.ts` is **the** generation
-path. Both the CLI and the modelling tool's `/api/generate` go through it, so a
-model produces the same application however it was submitted.
+path. The CLI, the modelling tool's `/api/generate`, and the WASM CLI (§4.1.1)
+all go through it, so a model produces the same application however it was
+submitted.
 
 > Adding a generator input means adding it **here, once**. The two call sites
 > used to assemble options separately and drifted: the web path never parsed
@@ -513,6 +527,29 @@ where the modelling tool runs. Source of truth
 `generator/src/generators/ports.ts`; `web/src/lib/generated-ports.ts` mirrors it
 for client components with a unit test asserting they stay equal.
 
+### 4.1.1 The third entry point — the browser stack
+
+`bun run wasm generate` (`generator/src/cli-wasm/generate.ts`) runs **the same
+pipeline**, then applies an overlay. It is not a second stack, and the CI checks
+in §8 exist to keep that true: the overlay changes 9 files and adds 6, and
+exactly one of the nine is application source.
+
+Two modes, and they produce very different things:
+
+| | Default | `--standalone` |
+|---|---|---|
+| Output | ~430 files — the full NestJS + TanStack source, with `pg` swapped for WebAssembly Postgres and `bun` for `node` | ~40 files — a self-contained browser application |
+| The model becomes | the same generated source any other stack gets | `app/model.json` plus `schema.sys.sql` / `schema.bus.sql`; **no per-entity source at all** |
+| Needs | `npm install`, a build | neither — open `index.html` |
+
+The standalone mode is the one that surprises people: there is no
+`bus_lead.controller.ts` to read, because the entities are data the runtime
+interprets, exactly as the Application Dictionary already made screens data
+(§5.3). Its runtime lives in `templates/wasm/` and `templates/wasm-overlay/` as
+plain `.js` copied verbatim — **after editing either, run `bun run
+build:wasm-runtime` from the repo root**, or the generator keeps emitting
+yesterday's runtime while the diff shows today's.
+
 ### 4.2 Compilation map
 
 | Model input | Compiler | Output in the generated app |
@@ -529,28 +566,35 @@ for client components with a unit test asserting they stay equal.
 | `%%rbac` | `rbac/index.ts` | `sys_operation_access` + `sys_transition_access`, enforced by `EntityAccessGuard` |
 | whole document | `language/rag.ts` | retrieval chunks → pgvector `model_context` |
 
-### 4.3 Templates — 270 Handlebars files
+### 4.3 Templates — 171 Handlebars files, plus two verbatim trees
 
 ```
 packages/generator/templates/
-├── common/                        27 .hbs — stack-independent
-│   ├── migrations/                bus-tables, sys-tables, field-groups
+├── common/                        11 .hbs — stack-independent
+│   ├── migrations/                bus-tables, sys-tables, fix-numeric-columns
 │   ├── seeds/                     sys-dictionary, sys-references, business-rules,
-│   │                              business-data, entity-categories, users-and-roles
-│   ├── hooks/                     hook-executor, hook-registry, hook.types
-│   ├── services/                  field-cache.service
-│   │                              (rbac-tables.ts.hbs and rbac.service.ts.hbs sit
-│   │                               in this folder but are dead: not registered in
-│   │                               the loader, never emitted, and written for Knex
-│   │                               while the generated app uses Kysely)
-│   └── ai/                        data-query-agent, insights-agent, sql-validator
-└── tanstack-start-nestjs/
-    ├── backend/    148 .hbs — modules: ai, audit, auth, bus, electric, hooks,
-    │                          jobs, model-context, rules, sys, workflow,
-    │                          workflow-definitions
-    ├── frontend/    63 .hbs — routes, components, automation UI, i18n, fonts
-    └── tests/       29 .hbs — harness/ + suites/
+│   │                              business-data, entity-categories, users-and-roles,
+│   │                              operation-access, report-designs
+│   └── design-tokens.json         the palette, stated once (not a template)
+├── tanstack-start-nestjs/
+│   ├── backend/    94 .hbs — modules: ai, audit, auth, bus, electric, hooks,
+│   │                         jobs, model-context, rules, sys, workflow,
+│   │                         workflow-definitions
+│   ├── frontend/   27 .hbs — routes, components, automation UI, i18n, fonts
+│   └── tests/      34 .hbs — harness/ + suites/ + run.ts (§4.4)
+├── wasm/           35 files — the standalone browser runtime. Not Handlebars:
+│                             plain .js copied verbatim, so after editing it run
+│                             `bun run build:wasm-runtime` from the repo root to
+│                             re-inline it. CI compares the inlined copy byte for
+│                             byte and fails on drift.
+└── wasm-overlay/    7 files — what the WASM stack swaps in over the generated
+                              app (pg → WebAssembly Postgres, bun → node). Also
+                              verbatim; the same re-inline step applies.
 ```
+
+The counts move. Treat them as the shape of the tree rather than a fact to
+quote back — `find packages/generator/templates -name '*.hbs' | wc -l` is the
+answer at any given moment.
 
 Adding a template: create the `.hbs`, register it in
 `generator/src/templates/loader.ts`, supply context in the matching generator
@@ -560,12 +604,65 @@ bugs reached main that way. CI's `generated-app` job exists for exactly this.
 
 ### 4.4 The generated test suite
 
-`templates/tanstack-start-nestjs/tests/` renders a runnable `bun:test` suite
-into every generated app:
+`templates/tanstack-start-nestjs/tests/` renders a runnable **`node:test`**
+suite into every generated app. Not `bun:test` — it was ported, because the
+WASM stack has no Bun in it anywhere and a suite that needed one could not test
+the application it shipped with. `harness/testing.ts` supplies the twenty lines
+of `expect` that `node:test` lacks.
 
-- `harness/` — auth, http, factory, entities, rules, workflows, metrics, report
-- `suites/` — health, auth, dictionary, bulk-seed, rules-workflow, workflow
-  random/multistep, users-roles, benchmark, plus per-entity CRUD and rules
+- `harness/` — auth, http, factory, entities, rules, workflows, metrics,
+  report, manifest, server, and **`model.ts`**
+- `suites/`, in the order they run:
+
+| | Asserts |
+|---|---|
+| `00-health`, `01-auth` | the app is up and a session works |
+| `02-dictionary` | every column the ERD declared reached `sys_column` |
+| `02b-dictionary-layout` | every entity has a window, a tab under it, and a field per column — a missing `sys_field` row errors nowhere, it just renders a form without that input |
+| `02c-dictionary-references` | every column resolves to a control: dropdowns carry their `%%enum` values, lookups carry a target table and a label column. A degraded reference is a plain text box, which is invisible to a test that only checks the column exists |
+| `03-crud.<entity>` | CRUD per entity |
+| `04-bulk-seed` | volume, and that a re-run against a populated database still inserts |
+| `05-rules.<entity>` | the rules bound to each entity |
+| `06-rules-workflow`, `06b-workflow-transitions` | rules firing workflows; and that every edge `%%workflow kind: state` drew is accepted and every edge it did not is refused |
+| `07`, `09` | random and multi-step workflow runs |
+| `08-users-roles` | roles and what they may reach |
+| `10-benchmark`, `11-performance-budget` | measures and reports; then asserts on *ratios* (deep page vs first page, filtered vs unfiltered), which survive the change of machine that an absolute millisecond does not |
+
+**`harness/model.ts` is the point of the newer suites.** It carries the model's
+own `%%enum` values and state-machine edges into the assertions. A suite that
+reads the running application's dictionary and then asserts against that same
+dictionary proves only that the application is self-consistent — it passes just
+as happily when the generator dropped a value on the floor. Asserting against
+the model is what makes a lost dropdown option or a missing transition fail.
+
+**Run it with `run.ts`**, which the generated `package.json` exposes as
+`npm run test:e2e` (and `test:e2e:attach` for a backend that is already up):
+
+```
+node run.ts                 # everything, in order, 1000 records/entity
+node run.ts --small         # 10 records — a smoke run
+node run.ts --records 250   # an arbitrary volume
+node run.ts --fast          # skip the bulk-seed volume suite
+node run.ts --only crud     # substring filter on suite file names
+node run.ts --no-server     # attach to a backend already listening
+```
+
+Do **not** suggest `bun test` or `node --test suites/` over the whole
+directory. The suites are ordered (seed before rules before workflows) and
+`run.ts` gives each one its own process so a crash in one cannot take the rest
+down. Run together in a single parallel process they interfere — a delete rolls
+back because another suite is holding a reference to the row — and *which* test
+fails moves between runs.
+
+Two properties worth knowing before reading a failure:
+
+- **The suites leave their rows behind on purpose**, so a re-run against a
+  populated database is the normal case, not an abuse. Unique values are salted
+  with a per-run token (`E2E_RUN_TOKEN`, printed at the top of every run) folded
+  into any caller-supplied salt. Set it to reproduce an earlier run exactly.
+- **A backend the runner started is stopped by killing its process group**, not
+  its pid: `npm run start` is a launcher whose child holds the port. An orphan
+  left listening poisons the *next* run, which attaches to it.
 
 ---
 
@@ -579,7 +676,7 @@ generated-projects/<name>/
 │   └── src/{modules,migrations,database,common,lib,trigger}, main.ts, seed.ts
 ├── frontend/   TanStack Start + React 19, :4000
 │   └── src/{routes,components,hooks,contexts,providers,i18n,lib}
-├── tests/      bun:test E2E suite
+├── tests/      node:test E2E suite, driven by its own run.ts (see 4.4)
 ├── model/      the .eml.mmd it was generated from
 ├── frontend/public/manual.html   the generated manual (see 5.6)
 └── Dockerfile, docker-compose.yml, README.md
@@ -605,6 +702,7 @@ data.
 | `sys_workflow_runs` | one row per workflow execution |
 | `sys_audit_log`, `sys_change_log` | audit trail |
 | `sys_category` | dashboard grouping from `%%category` |
+| `sys_report_designs` | one default AnkaReport layout per entity; drives the Print button and Admin → Report Designs (see 5.7) |
 | `sys_session`, `sys_val_rule` | sessions, validation rules |
 
 **auth tables** — Better Auth.
@@ -950,11 +1048,23 @@ isHookType("beforeCreate");  // true
 | `bun run type-check` | repo TypeScript |
 | `bun run type-check:language` | `language/` (own config: Bun-style `.ts` imports) |
 | `bun run lint:fix` | Biome check + autofix |
-| `bun run test` | Vitest (370 tests) |
+| `bun run test` | Vitest — 540 passing, 6 skipped, across core/generator/ai/web |
 | `bun language/checker.ts <f.mmd>` | validate a model |
 | `bun language/fixer.ts <f.mmd.error>` | apply the five auto-repairs |
 | `bun run build:language-tools` | rebuild `html/checker.js` + `html/fixer.js` (§10.3) |
 | `bun run test:language-tools` | assert those two still agree with the CLI |
+| `bun run test:wasm` | drive the browser stack in Chromium |
+| `bun run build:wasm-runtime -- --check` | is the inlined WASM runtime current? |
+| `bun run build:fullstack-browser --check` | is `html/assets/appwithai-fullstack.js` current? |
+| `bun run build:wasm-browser -- --check` | is `html/assets/appwithai-wasm.js` current? |
+
+The four `--check` variants compare a committed artifact against a fresh build,
+byte for byte. Two of the four are `Bun.build` output, whose bytes depend on the
+bun version **and** the platform, so a mismatch does not always mean "you forgot
+to rebuild" — the failure message says which case it is and what to do. Drop the
+`--check` to rebuild. CI pins bun `1.4.0` on `linux-x64` for exactly this
+reason; building elsewhere produces a third variant that looks right locally and
+is byte-wrong for CI.
 
 **Known-broken**, do not recommend: `bun run migrate` (points at a missing
 file); root `vitest.config.ts` (missing setup file — `packages/web`'s config is
@@ -986,11 +1096,21 @@ bytes — rotating it invalidates every stored project connection).
 
 ### CI
 
-| Workflow | Does |
+`ci.yml` pins `BUN_VERSION: "1.4.0"` and runs four jobs:
+
+| Job | Does |
 |---|---|
-| `ci.yml` | **checks**: type-check, `type-check:language`, Biome (errors only), unit tests. **generated-app**: generate → build backend/frontend/tests → migrate+seed pgvector Postgres → start backend → run the generated E2E suite |
+| **checks** | type-check, Biome (errors only), unit tests, then the four bundle-currency `--check` steps and `test:language-tools` |
+| **generated-app** | generate from `examples/drug-discovery.eml.mmd` → build backend/frontend → type-check `tests/` → migrate+seed a pgvector Postgres → start the backend → `node run.ts --no-server` |
+| **generated-wasm-app** | generate the stack twice, with and without the overlay, and assert the list of files the overlay changed; assert no Bun is left in the generated app; type-check the suite and load every harness module under Node; then migrate, seed and exercise it on WebAssembly Postgres — on a runner with no Postgres installed, which is the claim |
+| **wasm-e2e** | `test:wasm` — the browser stack in Chromium, plus the CLI specs that assert the overlay's whole footprint: 9 files changed, 6 added, none removed, and **exactly one** of the nine is application source (`immudb.service.ts`). That last number is the claim the approach rests on — the backend never knew what was behind its `Pool` |
+
+| Other workflow | Does |
+|---|---|
 | `github-neon.yml` | generate from an online `.mmd`, run against Neon, verify, optionally publish |
 | `eml-generate-and-publish.yml` | run the `eml` CLI over a model, publish the app to a repo |
+
+All three pin the same `BUN_VERSION`; none uses `bun-version: latest`.
 
 ### Known security limits — state these plainly if asked
 

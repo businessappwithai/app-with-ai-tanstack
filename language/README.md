@@ -74,7 +74,7 @@ language/
 │   └── runtime/                  # static runtime for generated apps
 └── examples/
     ├── crm.eml.mmd               # Enterprise CRM — the reference model: 17 entities,
-    │                             #   8 rules, 5 state machines, 6 hook workflows, 5 sagas
+    │                             #   8 rules, 5 state machines, 7 hook workflows, 5 sagas
     ├── ecommerce.eml.mmd         # Full e-commerce model
     ├── helpdesk.eml.mmd          # Support-ticketing model (used by the CLI test)
     └── minimal.eml.mmd           # Smallest complete example
@@ -175,8 +175,14 @@ generated; when the two disagree, the generator's copy is the language.
 | **rules** | `flowchart` decision flows → JDM via shape semantics; `%%action` → JDM decision table | Compiled |
 | **workflows** | `%%hook` (both forms, all 13 types), `stateDiagram-v2` state machines, `%%workflow kind: saga` with `%%step` and `%%loop` | Compiled |
 | **access** | `%%rbac`, in both its CRUD and state-transition forms | Compiled to `sys_operation_access` / `sys_transition_access`, enforced by the generated guard |
-| **validated** | `%%entity`, `%%rule`, `%%trigger` | No compiler yet; `checker.ts` enforces syntax so a malformed one fails rather than being dropped |
-| **reserved** | `%%field` keys other than `enum:` | Renderer-safe, documented, inert |
+| **help** | `%%field <E>.<col> help:` and `%%entity <Name> help:` (or `description:`) | Compiled — to `sys_column.description` / `sys_table.description`, shown in the app, and the whole "what it is for" column of `manual.html` |
+| **validated** | `%%rule`, `%%trigger`, and the `%%entity` keys other than `help:`/`description:` | No compiler yet; `checker.ts` enforces syntax so a malformed one fails rather than being dropped |
+| **reserved** | `%%field` keys other than `enum:` and `help:` | Renderer-safe, documented, inert |
+
+`help` is a level of its own because it is the one that gets skipped. It reads
+like documentation, so it is easy to leave for later — and then the generated
+manual prints a dash in every row, which is the first thing anyone opening the
+application sees. Write it on every column, not only the ambiguous ones.
 
 Each directive also carries its own `status` and `consumedBy` in
 `appwithai-language.json`, which is authoritative for that directive; the levels
