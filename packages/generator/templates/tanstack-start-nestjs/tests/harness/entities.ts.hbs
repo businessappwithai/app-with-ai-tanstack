@@ -134,7 +134,7 @@ export function foreignKeyFields(entity: EntityMeta): FieldMeta[] {
  * with a format rule is the wrong one to pick — writing `e2e-1785…` into
  * `email` trips the email-format rule and the create is rejected.
  */
-const FORMATTED_TEXT_COLUMNS = /email|url|website|link|phone|mobile|tel|slug|signature/i;
+const FORMATTED_TEXT_COLUMNS = /email|url|website|link|phone|mobile|tel|slug|signature|^status$|^doc_status$/i;
 
 /** The first free-text field, used for search and update assertions. */
 export function firstTextField(entity: EntityMeta): FieldMeta | undefined {
@@ -160,29 +160,16 @@ export function getEntity(name: string): EntityMeta {
   return found;
 }
 
-/**
- * FK columns naming a person by the role they played rather than by entity.
- * Mirrors `foreignKeys.personRoleColumns` in appwithai-language.json and the
- * backend's own COLUMN_TABLE_ALIASES.
- */
-const PERSON_ROLE_COLUMNS = new Set([
-  "assigned_to",
-  "author_id",
-  "lab_manager_id",
-  "manager_id",
-  "owner_id",
-  "pi_id",
-  "remediation_owner_id",
-  "user_id",
-]);
+const FK_COLUMN_TABLE_MAP: Record<string, string> = {
+{{#each fkOverrides}}
+  '{{column}}': '{{table}}',
+{{/each}}
+};
 
-/**
- * Map a foreign-key column (`customer_id`) to the entity it points at.
- *
- * A `_by` column points at a user, so it resolves to the user entity rather
- * than to an entity literally named after the column stem.
- */
 export function parentEntityForColumn(columnName: string): EntityMeta | null {
+  const findByTable = (table: string): EntityMeta | null =>
+    entities.find((e) => e.tableName === table) ?? null;
+
   const findByStem = (stem: string): EntityMeta | null =>
     entities.find(
       (e) =>
@@ -191,13 +178,18 @@ export function parentEntityForColumn(columnName: string): EntityMeta | null {
         e.name.toLowerCase() === stem.toLowerCase()
     ) ?? null;
 
-  if (
-    columnName.endsWith("_by_id") ||
-    columnName.endsWith("_by") ||
-    PERSON_ROLE_COLUMNS.has(columnName)
-  ) {
-    const user = findByStem("user");
-    if (user) return user;
+  if (FK_COLUMN_TABLE_MAP[columnName]) {
+    return findByTable(FK_COLUMN_TABLE_MAP[columnName]);
+  }
+
+  if (columnName.endsWith("_by_id") || columnName.endsWith("_by")) {
+    for (const suffix of ["_by_id", "_by"]) {
+      if (!columnName.endsWith(suffix)) continue;
+      const stem = columnName.slice(0, -suffix.length);
+      const entity = findByStem(stem);
+      if (entity) return entity;
+    }
+    return findByStem("user") ?? findByStem("staff");
   }
 
   if (!columnName.endsWith("_id")) return null;
