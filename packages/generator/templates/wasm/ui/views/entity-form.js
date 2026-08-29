@@ -243,6 +243,21 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
   const detailSlot = el("div");
   if (!isNew) void renderDetails(detailSlot, entity, id, navigate);
 
+  /*
+   * What has been done to this record, at the foot of it.
+   *
+   * The trail is written on every create, update and delete; showing it here
+   * is what makes it answerable rather than archival — "who changed this, and
+   * to what" is a question asked about a record you are looking at, not one
+   * anybody goes to an admin screen to ask.
+   */
+  const auditSlot = el("div");
+  const notesSlot = el("div");
+  if (!isNew) {
+    void renderNotes(notesSlot, entity, id);
+    void renderAudit(auditSlot, entity, id);
+  }
+
   mount(
     root,
     el(
@@ -253,9 +268,180 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
         el("button.record__close", { title: "Close", "aria-label": "Close", onclick: onClose }, "✕")
       ),
       form,
-      detailSlot
+      detailSlot,
+      notesSlot,
+      auditSlot
     ),
     isNew ? null : el("div.split", el("div"), el("aside.side", await sidePanels(entity, id, record, onSaved)))
+  );
+}
+
+/**
+ * Notes on a record: what a person wanted to say about it.
+ *
+ * Above the history rather than inside it, and deliberately so. The trail
+ * records what the system observed and must not be editable; a note is
+ * somebody's sentence, and belongs beside that account without becoming part
+ * of it. Both are stamped with who and when, which is the only thing they
+ * genuinely have in common.
+ *
+ * A note cannot be edited or removed once left. That is not an omission: a
+ * note somebody can quietly rewrite is worth about as much as a conversation
+ * nobody remembers.
+ */
+async function renderNotes(slot, entity, id) {
+  const path = `/audit/notes/${entity.tableName}/${encodeURIComponent(id)}`;
+
+  const listSlot = el("div.notes__list");
+  const box = el("textarea.notes__input", {
+    rows: 2,
+    placeholder: `Add a note about this ${entity.singularName}…`,
+    "aria-label": `Add a note about this ${entity.singularName}`,
+    maxlength: 4000,
+  });
+  const addButton = el("button.btn.btn--primary.btn--small", { type: "button" }, "Add note");
+
+  const when = (value) => {
+    const at = new Date(value);
+    return Number.isNaN(at.getTime()) ? String(value ?? "") : at.toLocaleString();
+  };
+
+  const paint = (entries) =>
+    mount(
+      listSlot,
+      entries.length
+        ? el(
+            "ol.notes__items",
+            entries.map((entry) =>
+              el(
+                "li.note",
+                el(
+                  "div.note__line",
+                  el("span.note__who", entry.userEmail || "unknown"),
+                  el("span.note__when", when(entry.at))
+                ),
+                /* textContent, not markup: a note is whatever somebody typed. */
+                el("p.note__text", entry.note)
+              )
+            )
+          )
+        : el("p.notes__empty", "No notes yet.")
+    );
+
+  let entries;
+  try {
+    entries = (await api.get(path)).data ?? [];
+  } catch {
+    return; // No read access to the entity means no notes panel.
+  }
+  paint(entries);
+
+  addButton.addEventListener("click", async () => {
+    const note = box.value.trim();
+    if (!note) return;
+    addButton.disabled = true;
+    try {
+      const created = await api.post(path, { note });
+      entries = [created, ...entries];
+      box.value = "";
+      paint(entries);
+      toast("Note added", "success");
+    } catch (error) {
+      toast(error.message || "Could not add the note", "error");
+    } finally {
+      addButton.disabled = false;
+    }
+  });
+
+  mount(
+    slot,
+    el(
+      "section.notes",
+      el("div.notes__head", el("h3.notes__title", "Notes")),
+      el("div.notes__compose", box, addButton),
+      listSlot
+    )
+  );
+}
+
+const AUDIT_LABEL = { CREATE: "Created", UPDATE: "Updated", DELETE: "Deleted" };
+
+/**
+ * This record's history: who changed it, when, and which columns moved.
+ *
+ * Fifty entries at most and newest first, because the question is nearly always
+ * "what happened to it recently". Each update lists the columns that actually
+ * changed — the server works that out by comparing before and after, so a save
+ * that touched one field does not read as a rewrite of the whole record.
+ *
+ * A role that may not read the entity is refused the trail with it, and the
+ * section simply does not appear: its absence is the access rules working.
+ */
+async function renderAudit(slot, entity, id) {
+  let entries;
+  try {
+    const answer = await api.get(`/audit/record/${entity.tableName}/${encodeURIComponent(id)}`);
+    entries = answer.data ?? [];
+  } catch {
+    return;
+  }
+  if (!entries.length) return;
+
+  const when = (value) => {
+    const at = new Date(value);
+    return Number.isNaN(at.getTime()) ? String(value ?? "") : at.toLocaleString();
+  };
+
+  mount(
+    slot,
+    el(
+      "section.audit",
+      el(
+        "div.audit__head",
+        el("h3.audit__title", "History"),
+        el("span.audit__count", `${entries.length} change${entries.length === 1 ? "" : "s"}`)
+      ),
+      el(
+        "ol.audit__list",
+        entries.map((entry) => {
+          const changed = (entry.changedFields || []).filter(
+            (column) => !["updated_at", "updated_by", "version"].includes(column)
+          );
+          return el(
+            "li.audit__entry",
+            { "data-action": entry.action, "data-failed": entry.success ? null : "true" },
+            el(
+              "div.audit__line",
+              el("span.audit__action", AUDIT_LABEL[entry.action] ?? entry.action),
+              el("span.audit__who", entry.userEmail || "unknown"),
+              el("span.audit__when", when(entry.at))
+            ),
+            /* Which columns moved, and to what. The old value is worth the room
+               only when there was one — a create has nothing to compare. */
+            changed.length
+              ? el(
+                  "ul.audit__fields",
+                  changed.slice(0, 8).map((column) =>
+                    el(
+                      "li.audit__field",
+                      el("span.audit__col", column),
+                      entry.before && entry.before[column] !== undefined
+                        ? el("span.audit__from", String(entry.before[column] ?? "—"))
+                        : null,
+                      el("span.audit__arrow", "→"),
+                      el(
+                        "span.audit__to",
+                        String((entry.after && entry.after[column]) ?? "—")
+                      )
+                    )
+                  )
+                )
+              : null,
+            entry.success ? null : el("p.audit__error", entry.error || "This attempt failed.")
+          );
+        })
+      )
+    )
   );
 }
 

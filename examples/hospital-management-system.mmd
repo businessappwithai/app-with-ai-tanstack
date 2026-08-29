@@ -367,6 +367,7 @@ erDiagram
 %%entity Medication help: A catalog item that can be prescribed to a patient.
 %%entity Prescription help: A doctor's medication order for a patient arising from an encounter.
 %%entity PrescriptionItem help: One medication, dose, frequency and duration within a prescription.
+%%entity PrescriptionItem parent: Prescription
 %%entity LabOrder help: A laboratory test requested for a patient and tracked through collection and processing.
 %%entity LabResult help: A laboratory result that belongs to a lab order and may require verification.
 %%entity ImagingOrder help: A diagnostic imaging request tracked from ordering through reporting.
@@ -395,11 +396,184 @@ erDiagram
 %%field Invoice.insurance_policy_id help: The insurance policy used to determine covered charges.
 %%field Invoice.balance_due help: The remaining amount payable after payments and adjustments.
 %%field StockTransaction.inventory_item_id help: The stock item whose quantity changes in this transaction.
+%%field Patient.first_name help: The patient's given name, as it should appear on wristbands and letters.
+%%field Patient.last_name help: The patient's family name, used with the date of birth to confirm identity at every handover.
+%%field Patient.gender help: Recorded because it changes reference ranges, screening eligibility and ward placement.
+%%field Patient.phone help: The number the hospital calls to confirm or move an appointment.
+%%field Patient.email help: Where appointment letters and results notifications are sent, when the patient opts in.
+%%field Patient.address help: The residential address used for correspondence and for catchment reporting.
+%%field Patient.emergency_contact_name help: Who to call when the patient cannot speak for themselves.
+%%field Patient.emergency_contact_phone help: The number for that contact. Checked on admission, not at the moment it is needed.
+%%field Patient.status help: Whether this record is in active use, archived, or closed because the patient has died.
+%%field Department.name help: What the department is called on signage and in referral letters.
+%%field Department.code help: The short code used on orders and billing lines where the full name will not fit.
+%%field Department.description help: What this department treats, so referrers pick the right one.
+%%field Staff.employee_number help: The payroll and badge identifier, and the way HR systems refer to this person.
+%%field Staff.first_name help: The staff member's given name as it appears on their badge.
+%%field Staff.last_name help: The staff member's family name, used in clinical records and sign-offs.
+%%field Staff.role help: What this person is employed to do, which decides the screens and actions they get.
+%%field Staff.department_id help: The department this person is established in, for rostering and cost allocation.
+%%field Staff.phone help: The extension or mobile used to reach them while on shift.
+%%field Staff.email help: Their work address, used for notifications and account recovery.
+%%field Staff.is_active help: False when they have left or are suspended; keeps the record without granting access.
+%%field Doctor.staff_id help: The staff record this doctor is, so one person is not held twice.
+%%field Doctor.license_number help: The registration number that proves they may practise. Checked at credentialing.
+%%field Doctor.specialty help: What they are credentialed to treat, which constrains the referrals they can accept.
+%%field Doctor.is_active help: False when their registration lapses or they stop practising here.
+%%field Nurse.staff_id help: The staff record this nurse is, so one person is not held twice.
+%%field Nurse.nursing_license help: The registration number that proves they may practise.
+%%field Nurse.grade help: The banding that decides what they may do unsupervised and how shifts are costed.
+%%field Nurse.is_active help: False when their registration lapses or they leave.
+%%field Ward.department_id help: The department that runs this ward and carries its costs.
+%%field Ward.name help: What the ward is called on signage and in bed-management conversations.
+%%field Ward.ward_type help: What kind of care the ward is equipped for, which limits who can be admitted to it.
+%%field Ward.capacity help: How many beds the ward is established for, against which occupancy is reported.
+%%field Bed.ward_id help: The ward this bed stands in.
+%%field Bed.bed_number help: The bay and bed label staff use to find the patient.
+%%field Bed.status help: Whether the bed can take a patient now, is occupied, or is out of use for cleaning or repair.
+%%field Appointment.department_id help: The department the patient is being seen by.
+%%field Appointment.scheduled_at help: When the patient is expected. Drives reminders and the clinic list.
+%%field Appointment.reason help: Why the appointment was made, in the referrer's words, so the clinician can prepare.
+%%field Appointment.status help: Where the appointment has got to, from requested through to attended or missed.
+%%field Appointment.notes help: Anything the booking clerk needs the clinic to know — interpreter, transport, access.
+%%field Encounter.appointment_id help: The appointment this encounter arose from, when it was a booked one.
+%%field Encounter.department_id help: The department accountable for this episode of care.
+%%field Encounter.started_at help: When the clinician actually began, which is what clinical timings are measured from.
+%%field Encounter.ended_at help: When the encounter closed. Empty while it is still open.
+%%field Encounter.status help: Whether the encounter is open, in progress, finished or abandoned.
+%%field Encounter.chief_complaint help: What the patient said was wrong, in their own words.
+%%field Encounter.clinical_summary help: The clinician's account of what was found and decided, written at the close.
+%%field Admission.patient_id help: The patient occupying the bed.
+%%field Admission.encounter_id help: The encounter that led to admission, tying the stay to its clinical reason.
+%%field Admission.ward_id help: The ward the patient is admitted to.
+%%field Admission.admitted_at help: When the patient took the bed. Length of stay is measured from here.
+%%field Admission.discharged_at help: When the patient left. Empty while they are still in.
+%%field Admission.status help: Whether the admission is planned, current, discharged or cancelled.
+%%field Admission.discharge_summary help: What happened during the stay and what happens next, sent to the GP.
+%%field ClinicalNote.encounter_id help: The encounter this note belongs to.
+%%field ClinicalNote.note_type help: What kind of note it is, which decides where it appears in the record.
+%%field ClinicalNote.note_text help: The note itself. Part of the legal record and never edited after the fact.
+%%field VitalSign.encounter_id help: The encounter these observations were taken during.
+%%field VitalSign.recorded_by_id help: Who took the observations, so a questionable reading can be checked with them.
+%%field VitalSign.recorded_at help: When they were taken, which is what a deteriorating trend is read against.
+%%field VitalSign.temperature help: Body temperature in degrees Celsius.
+%%field VitalSign.pulse help: Heart rate in beats per minute.
+%%field VitalSign.respiratory_rate help: Breaths per minute — the earliest sign of deterioration in most patients.
+%%field VitalSign.systolic_bp help: Systolic blood pressure in mmHg.
+%%field VitalSign.diastolic_bp help: Diastolic blood pressure in mmHg.
+%%field VitalSign.oxygen_saturation help: Peripheral oxygen saturation as a percentage.
+%%field VitalSign.weight help: Body weight in kilograms, used to calculate doses.
+%%field Diagnosis.encounter_id help: The encounter at which this diagnosis was made.
+%%field Diagnosis.recorded_by_id help: The clinician who made it and is accountable for it.
+%%field Diagnosis.diagnosis_code help: The coded diagnosis, which is what reporting and reimbursement are driven from.
+%%field Diagnosis.diagnosis_name help: The diagnosis in words, for anyone reading the record rather than counting it.
+%%field Diagnosis.diagnosis_type help: Whether this is the condition treated, a comorbidity, or a complication.
+%%field Diagnosis.primary_diagnosis help: True for the one condition that most explains the episode of care.
+%%field Procedure.encounter_id help: The encounter during which the procedure was performed.
+%%field Procedure.doctor_id help: The doctor who performed it and is accountable for it.
+%%field Procedure.procedure_code help: The coded procedure, which drives billing and activity reporting.
+%%field Procedure.procedure_name help: The procedure in words, for the clinical record.
+%%field Procedure.performed_at help: When it was done.
+%%field Procedure.charge help: What is billed for the procedure before insurance is applied.
+%%field Procedure.notes help: Anything about how it went that the coded record cannot carry.
+%%field Medication.name help: The brand or trade name staff will search for.
+%%field Medication.generic_name help: The active ingredient, which is what allergy and interaction checks compare.
+%%field Medication.form help: How it is given — tablet, capsule, injection — which changes the dose that makes sense.
+%%field Medication.strength help: The amount of active ingredient per unit, e.g. 500 mg.
+%%field Medication.manufacturer help: Who makes it, which matters for recalls and for supply substitution.
+%%field Medication.is_active help: False when the formulary drops it; keeps history without offering it for new prescriptions.
+%%field Prescription.encounter_id help: The encounter this prescription was written during.
+%%field Prescription.patient_id help: The patient it is for. Held directly so pharmacy can work without opening the encounter.
+%%field Prescription.doctor_id help: The prescriber, who is accountable for it.
+%%field Prescription.prescribed_at help: When it was written, which starts the clock on its validity.
+%%field Prescription.status help: Where it has got to, from draft through dispensed or cancelled.
+%%field Prescription.instructions help: What the patient is told to do, printed on the label.
+%%field PrescriptionItem.prescription_id help: The prescription this line belongs to.
+%%field PrescriptionItem.dose help: How much is taken each time.
+%%field PrescriptionItem.dose_unit help: The unit the dose is measured in, without which the number is meaningless.
+%%field PrescriptionItem.frequency help: How often it is taken, e.g. three times a day.
+%%field PrescriptionItem.duration_days help: How many days the course runs for.
+%%field PrescriptionItem.quantity help: How many units to dispense, which is what pharmacy counts out.
+%%field LabOrder.encounter_id help: The encounter the test was ordered during.
+%%field LabOrder.patient_id help: The patient the sample is from. Held directly so the lab can work without the encounter.
+%%field LabOrder.ordered_by_id help: The clinician who ordered it and who the result goes back to.
+%%field LabOrder.test_name help: What was asked for.
+%%field LabOrder.priority help: How urgently the result is needed, which decides where it sits in the lab queue.
+%%field LabOrder.ordered_at help: When it was requested. Turnaround is measured from here.
+%%field LabOrder.collected_at help: When the sample was actually taken. Empty until it is.
+%%field LabOrder.status help: Where the order has got to, from ordered through to completed or cancelled.
+%%field LabResult.lab_order_id help: The order this result answers.
+%%field LabResult.result_value help: The measured value.
+%%field LabResult.result_unit help: The unit it was measured in, without which the value cannot be read.
+%%field LabResult.reference_range help: The normal range for this test, so the value can be judged.
+%%field LabResult.interpretation help: What the lab concluded — normal, high, low, critical.
+%%field LabResult.verified_at help: When a qualified person checked and released it. Unverified results are not acted on.
+%%field ImagingOrder.encounter_id help: The encounter the imaging was ordered during.
+%%field ImagingOrder.patient_id help: The patient to be imaged. Held directly so radiology can work without the encounter.
+%%field ImagingOrder.ordered_by_id help: The clinician who ordered it and who the report goes back to.
+%%field ImagingOrder.modality help: The kind of imaging — X-ray, CT, MRI — which decides the room and the preparation.
+%%field ImagingOrder.body_site help: What is to be imaged, which the radiographer positions for.
+%%field ImagingOrder.priority help: How urgently it is needed, which decides its place in the list.
+%%field ImagingOrder.ordered_at help: When it was requested.
+%%field ImagingOrder.performed_at help: When the images were actually taken. Empty until they are.
+%%field ImagingOrder.status help: Where the order has got to, from ordered through to reported or cancelled.
+%%field ImagingReport.imaging_order_id help: The imaging order this report answers.
+%%field ImagingReport.findings help: What the radiologist saw, described without conclusion.
+%%field ImagingReport.impression help: What the radiologist concludes it means. This is what the referrer acts on.
+%%field ImagingReport.reported_at help: When the report was issued, which is when the referrer could first have acted.
+%%field InsurancePolicy.patient_id help: The patient covered by the policy.
+%%field InsurancePolicy.insurer_name help: Who the insurer is, and therefore who is billed.
+%%field InsurancePolicy.policy_number help: The policy's identifier, quoted on every claim.
+%%field InsurancePolicy.member_number help: The patient's identifier with that insurer, which differs from the policy number.
+%%field InsurancePolicy.valid_from help: When cover starts. A claim before this date is the patient's to pay.
+%%field InsurancePolicy.valid_to help: When cover ends.
+%%field InsurancePolicy.coverage_percent help: What share of a charge the insurer pays, which decides the patient's balance.
+%%field InsurancePolicy.is_active help: False when the policy lapses or is superseded.
+%%field Invoice.patient_id help: The patient the invoice is raised against.
+%%field Invoice.encounter_id help: The episode of care being billed for.
+%%field Invoice.invoice_number help: The reference quoted on statements and in every payment conversation.
+%%field Invoice.invoice_date help: When it was raised, which starts the payment terms.
+%%field Invoice.subtotal help: The sum of the lines before tax.
+%%field Invoice.tax help: Tax charged on the subtotal.
+%%field Invoice.total help: What is owed in full before payments and insurance.
+%%field Invoice.status help: Where the invoice has got to, from draft through paid, part-paid or written off.
+%%field InvoiceLine.invoice_id help: The invoice this line belongs to.
+%%field InvoiceLine.description help: What is being charged for, in words the patient can recognise.
+%%field InvoiceLine.quantity help: How many units of it.
+%%field InvoiceLine.unit_price help: The price of one unit before tax.
+%%field InvoiceLine.line_total help: Quantity times unit price, held so the invoice does not change if a price later does.
+%%field InvoiceLine.service_type help: What kind of service this is, which drives reporting and insurer categories.
+%%field Payment.invoice_id help: The invoice this payment is against.
+%%field Payment.amount help: How much was paid.
+%%field Payment.method help: How it was paid, which decides reconciliation and refund route.
+%%field Payment.paid_at help: When it was received.
+%%field Payment.status help: Whether the payment cleared, is pending, or failed and must be chased.
+%%field Payment.reference help: The bank or card reference, which is how a disputed payment is traced.
+%%field InventoryItem.sku help: The stock code used on orders and on the shelf label.
+%%field InventoryItem.name help: What the item is called when someone is looking for it.
+%%field InventoryItem.item_type help: What kind of item it is, which decides storage and who may order it.
+%%field InventoryItem.unit help: The unit stock is counted in, without which quantities cannot be compared.
+%%field InventoryItem.reorder_level help: The quantity at which more is ordered. Set too low and the shelf empties.
+%%field InventoryItem.quantity_on_hand help: How much is physically in stock now.
+%%field InventoryItem.unit_cost help: What one unit costs, used to value the stock held.
+%%field InventoryItem.status help: Whether the item is in use, discontinued, or temporarily unavailable.
+%%field Supplier.name help: Who the supplier is, as it appears on purchase orders.
+%%field Supplier.phone help: The number used to chase a late delivery.
+%%field Supplier.email help: Where purchase orders are sent.
+%%field Supplier.address help: Where goods are returned to and invoices come from.
+%%field Supplier.is_active help: False when the contract ends; keeps history without offering them for new orders.
+%%field StockTransaction.supplier_id help: The supplier involved, when the movement is a receipt or a return.
+%%field StockTransaction.transaction_type help: Whether stock came in, went out, or was corrected — which decides the sign.
+%%field StockTransaction.quantity help: How many units moved.
+%%field StockTransaction.unit_cost help: What each unit cost in this movement, which is what stock is valued at.
+%%field StockTransaction.reference_number help: The delivery note or requisition this movement came from.
+%%field StockTransaction.transaction_at help: When the movement happened.
+%%field StockTransaction.status help: Whether the movement is confirmed or still pending.
 
 %%category name: Patient Administration; icon: users; entities: Patient, Appointment, InsurancePolicy
 %%category name: Clinical Care; icon: stethoscope; entities: Department, Staff, Doctor, Nurse, Encounter, ClinicalNote, VitalSign, Diagnosis, Procedure
 %%category name: Inpatient Care; icon: bed; entities: Ward, Bed, Admission
-%%category name: Pharmacy; icon: pill; entities: Medication, Prescription, PrescriptionItem
+%%category name: Pharmacy; icon: pill; entities: Medication, Prescription
 %%category name: Diagnostics; icon: flask; entities: LabOrder, LabResult, ImagingOrder, ImagingReport
 %%category name: Billing; icon: receipt; entities: Invoice, Payment
 %%category name: Inventory; icon: boxes; entities: InventoryItem, Supplier, StockTransaction

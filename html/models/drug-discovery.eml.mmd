@@ -69,7 +69,7 @@
 %% Group entities into dashboard sections. One block per category.
 %%category name: Portfolio; description: Discovery programmes, the targets they pursue and the chemical series that carry them; icon: Target; color: #6366f1; entities: Program, Target, CompoundSeries
 %%category name: Chemistry; description: Registered compound structures and their calculated properties; icon: FlaskConical; color: #8b5cf6; entities: Compound
-%%category name: Screening; description: Assay definitions, the runs that execute them and the results and ADMET profiles they produce; icon: Microscope; color: #0ea5e9; entities: Assay, AssayRun, AssayResult, AdmetProfile
+%%category name: Screening; description: Assay definitions and the runs that execute them; results and ADMET profiles live inside them; icon: Microscope; color: #0ea5e9; entities: Assay, AssayRun
 %%category name: Laboratory; description: Experiments, physical samples and the movements of material between them; icon: Beaker; color: #14b8a6; entities: Experiment, Sample, InventoryTransaction
 %%category name: Instruments; description: Laboratory instruments and their bookings; icon: Cpu; color: #f59e0b; entities: Instrument, InstrumentBooking
 %%category name: Quality and Suppliers; description: Deviations, corrective actions, and the vendors and contract labs that do outsourced work; icon: ShieldCheck; color: #ef4444; entities: DeviationReport, CAPA, Vendor, VendorRequest
@@ -550,6 +550,7 @@ erDiagram
     %%field AssayRun.failure_reason help: Why the run failed, where it did.
 
     %%entity AssayResult help: One compound's measurement from one run. This is the row the whole application exists to produce: a number, its unit, and enough context to know whether to believe it.
+    %%entity AssayResult parent: AssayRun
     %%field AssayResult.assay_run_id help: The run this measurement came from.
     %%field AssayResult.compound_id help: The compound that was measured.
     %%field AssayResult.value help: The measured number, in the unit beside it.
@@ -560,6 +561,7 @@ erDiagram
     %%field AssayResult.is_validated help: Whether a scientist has reviewed and accepted this result.
 
     %%entity AdmetProfile help: What is known about whether a compound could behave like a drug — absorption, distribution, metabolism, excretion and toxicity. Kept apart from Compound because each endpoint is measured separately, at different times, by different people, and a potent compound can be killed by any one of them.
+    %%entity AdmetProfile parent: Compound
     %%field AdmetProfile.compound_id help: The compound this profile describes.
     %%field AdmetProfile.kinetic_solubility_um help: How much of the compound will dissolve, in micromolar. A compound that will not dissolve cannot be dosed and often cannot even be assayed honestly.
     %%field AdmetProfile.caco2_permeability help: Apparent permeability through a Caco-2 cell monolayer, the standard laboratory stand-in for absorption across the gut wall.

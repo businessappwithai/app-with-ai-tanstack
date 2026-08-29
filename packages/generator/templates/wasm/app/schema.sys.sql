@@ -276,6 +276,24 @@ CREATE TABLE IF NOT EXISTS sys_audit_log (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- A note somebody left on a record.
+--
+-- Separate from sys_audit_log on purpose: the trail records what the system
+-- observed, and this records what a person wanted to say. Mixing them would
+-- make the history editable, which is the one thing an audit trail may not be.
+CREATE TABLE IF NOT EXISTS sys_note (
+  sys_note_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  table_name VARCHAR(100) NOT NULL,
+  record_id VARCHAR(100) NOT NULL,
+  note TEXT NOT NULL,
+  user_id UUID,
+  user_name VARCHAR(200),
+  user_email VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sys_note_record ON sys_note (table_name, record_id);
+
 -- Written by the %%rbac compiler. A target with no row here is open to any
 -- authenticated caller — the directive restricts, it does not grant.
 CREATE TABLE IF NOT EXISTS sys_operation_access (

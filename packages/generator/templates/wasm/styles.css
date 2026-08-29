@@ -556,3 +556,52 @@ a { color: var(--primary); }
 .detail__title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
 .detail__count { font-size: 12.5px; color: var(--text-soft); }
 .detail__empty { margin: 0; font-size: 13px; color: var(--text-soft); font-style: italic; }
+
+/* The record's own history, at the foot of its screen. Written on every create,
+   update and delete; see /audit/record/:table/:id. */
+.audit { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+.audit__head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.audit__title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
+.audit__count { font-size: 12.5px; color: var(--text-soft); }
+.audit__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.audit__entry {
+  padding: 10px 12px; border: 1px solid var(--border); border-left-width: 3px;
+  border-radius: var(--radius-sm); background: var(--bg-soft);
+}
+.audit__entry[data-action="CREATE"] { border-left-color: var(--green); }
+.audit__entry[data-action="UPDATE"] { border-left-color: var(--accent); }
+.audit__entry[data-action="DELETE"] { border-left-color: var(--red); }
+.audit__entry[data-failed] { border-left-color: var(--red); background: var(--red-soft); }
+.audit__line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 13px; }
+.audit__action { font-weight: 600; color: var(--text); }
+.audit__who { color: var(--text-soft); }
+.audit__when { margin-left: auto; color: var(--text-faint); font-size: 12px; }
+.audit__fields { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.audit__field { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; flex-wrap: wrap; }
+.audit__col { font-family: var(--mono, ui-monospace, monospace); color: var(--text-soft); min-width: 130px; }
+.audit__from { color: var(--text-faint); text-decoration: line-through; }
+.audit__arrow { color: var(--text-faint); }
+.audit__to { color: var(--text); }
+.audit__error { margin: 8px 0 0; font-size: 12.5px; color: var(--red); }
+
+/* Notes on a record — what a person wanted to say, above the history that
+   records what the system observed. */
+.notes { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+.notes__head { margin-bottom: 10px; }
+.notes__title { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
+.notes__compose { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 12px; }
+.notes__input {
+  flex: 1; font: inherit; font-size: 13px; padding: 8px 11px; resize: vertical; min-height: 42px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+}
+.notes__empty { margin: 0; font-size: 13px; color: var(--text-soft); font-style: italic; }
+.notes__items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.note {
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+}
+.note__line { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; margin-bottom: 4px; }
+.note__who { font-weight: 600; color: var(--text); }
+.note__when { margin-left: auto; color: var(--text-faint); font-size: 12px; }
+.note__text { margin: 0; font-size: 13px; color: var(--text); white-space: pre-wrap; }
