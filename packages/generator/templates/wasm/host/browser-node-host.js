@@ -61,8 +61,16 @@ async function boot(message) {
 
   /* `binary` keeps the bytes as bytes; see the note on the static route in
      `server/index.js`. */
+  /*
+   * No `cache: "no-store"`. These files exist only in the Service Worker's
+   * cache, so telling the *network* not to store them buys nothing — and it
+   * cost the application Safari entirely: WebKit will not match a request
+   * carrying that cache mode, so the first schema read 404'd against a file the
+   * worker was holding. The mounted responses already carry `Cache-Control:
+   * no-cache`, which is the header that actually governs staleness here.
+   */
   const readAsset = async (name, encoding = "utf-8") => {
-    const response = await fetch(new URL(name, base).href, { cache: "no-store" });
+    const response = await fetch(new URL(name, base).href);
     if (!response.ok) throw new Error(`Asset not found: ${name} (${response.status})`);
     return encoding === "binary" ? new Uint8Array(await response.arrayBuffer()) : response.text();
   };

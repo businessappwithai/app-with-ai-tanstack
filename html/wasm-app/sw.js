@@ -177,9 +177,32 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(serve(event.request));
 });
 
+/**
+ * Serve a mounted file.
+ *
+ * **Matched on the URL, not on the Request**, and that is the whole of the fix
+ * for two failures that looked nothing like each other. A Request carries a
+ * method and a cache mode into `caches.match`, and both have hidden a file that
+ * this worker was in fact holding:
+ *
+ *   - The Cache API matches GET only, so the generated application's HEAD
+ *     probes for optional files escaped to the network and 404'd.
+ *   - WebKit declines to match a request made with `cache: "no-store"`, which
+ *     is exactly how `readAsset` used to read the schema files — so chapter 09
+ *     died in Safari on `app/schema.sys.sql` while working in Chromium, with a
+ *     404 for a file sitting in the cache the whole time.
+ *
+ * A URL string builds a default GET Request internally and can inherit neither
+ * property. The cache is keyed by URL anyway, so nothing is given up. A HEAD
+ * still gets headers without a body, the way a real server replies.
+ */
 async function serve(request) {
-  const cached = await caches.match(request, { cacheName: CACHE, ignoreSearch: true });
-  if (cached) return cached;
+  const cached = await caches.match(request.url, { cacheName: CACHE, ignoreSearch: true });
+  if (cached) {
+    return request.method === "HEAD"
+      ? new Response(null, { status: cached.status, headers: cached.headers })
+      : cached;
+  }
   try {
     return await fetch(request);
   } catch {
