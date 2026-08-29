@@ -2116,9 +2116,19 @@ class CheckEngine {
   }
   fkToEntityName(fkAttr) {
     if (isPersonRoleColumn(fkAttr))
-      return "User";
+      return this.personEntity();
     const base = fkAttr.slice(0, -3);
     return base.replace(/(^|_)([a-z])/g, (_, _sep, ch) => ch.toUpperCase());
+  }
+  personEntity() {
+    const names = new Set(this.model.entities.map((e) => e.name));
+    if (names.has("User"))
+      return "User";
+    if (names.has("Staff"))
+      return "Staff";
+    if (names.has("Employee"))
+      return "Employee";
+    return "User";
   }
   checkDocument() {
     const { meta } = this.model;
@@ -3808,9 +3818,9 @@ globalThis.EMLFixer = {
   LANGUAGE_VERSION
 };
 export {
-  AUTO_FIXABLE,
-  LANGUAGE_VERSION,
-  applyFixes,
+  fix,
   checkAndFix,
-  fix
+  applyFixes,
+  LANGUAGE_VERSION,
+  AUTO_FIXABLE
 };

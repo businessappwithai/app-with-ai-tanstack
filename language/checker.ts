@@ -339,13 +339,17 @@ class CheckEngine {
 
   /** Convert a FK column name back to the candidate parent entity name. */
   private fkToEntityName(fkAttr: string): string {
-    // A person-role column names the role, not a table: reported_by_id points at
-    // a user, not at a "ReportedBy" entity. See foreignKeys.personRoleColumns in
-    // appwithai-language.json.
-    if (isPersonRoleColumn(fkAttr)) return "User";
+    if (isPersonRoleColumn(fkAttr)) return this.personEntity();
     const base = fkAttr.slice(0, -3); // strip _id
-    // Convert snake_case to PascalCase
     return base.replace(/(^|_)([a-z])/g, (_, _sep, ch) => ch.toUpperCase());
+  }
+
+  private personEntity(): string {
+    const names = new Set(this.model.entities.map((e) => e.name));
+    if (names.has("User")) return "User";
+    if (names.has("Staff")) return "Staff";
+    if (names.has("Employee")) return "Employee";
+    return "User";
   }
 
   // -------------------------------------------------------------------------
