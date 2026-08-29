@@ -129,6 +129,56 @@ async function entityMetadata(db, entity) {
   };
 }
 
+/**
+ * One `filter.<column>=<operator>:<value>` clause, or null if it names nothing.
+ *
+ * The operator set is the NestJS controller's, deliberately: the advanced
+ * search sends the same query string to either stack, and a model that filters
+ * one way in the browser and another way deployed would make the browser
+ * application a demonstration of something else.
+ *
+ * Text operators compare `::text` so a uuid or a number still matches
+ * `contains`; the rest coerce through the column's own type, so `gt` on a date
+ * compares dates rather than strings. Everything goes through a bound
+ * parameter — `ident()` is the only thing interpolated, and it only ever
+ * receives a column name the model declared.
+ */
+function filterCondition(entity, column, raw, parameters) {
+  const attribute = entity.attributes.find((item) => item.columnName === column);
+  if (!attribute) return null;
+
+  const separator = String(raw).indexOf(":");
+  const operator = separator === -1 ? "equals" : String(raw).slice(0, separator);
+  const value = separator === -1 ? String(raw) : String(raw).slice(separator + 1);
+  if (value === "") return null;
+
+  const bind = (bound) => {
+    parameters.push(bound);
+    return parameters.length;
+  };
+
+  switch (operator) {
+    case "contains":
+      return `${ident(column)}::text ILIKE $${bind(`%${value}%`)}`;
+    case "startsWith":
+      return `${ident(column)}::text ILIKE $${bind(`${value}%`)}`;
+    case "endsWith":
+      return `${ident(column)}::text ILIKE $${bind(`%${value}`)}`;
+    case "gt":
+      return `${ident(column)} > $${bind(coerce(value, attribute))}`;
+    case "gte":
+      return `${ident(column)} >= $${bind(coerce(value, attribute))}`;
+    case "lt":
+      return `${ident(column)} < $${bind(coerce(value, attribute))}`;
+    case "lte":
+      return `${ident(column)} <= $${bind(coerce(value, attribute))}`;
+    case "equals":
+    case "eq":
+    default:
+      return `${ident(column)} = $${bind(coerce(value, attribute))}`;
+  }
+}
+
 /** Coerce a submitted value to what the column can actually store. */
 function coerce(value, attribute) {
   if (value === "" || value === undefined) return attribute.required ? value : null;
@@ -248,8 +298,19 @@ export function busRoutes(model) {
 
     // Equality filters arrive as bare query keys naming a column — the grid's
     // column filters and every "records of this parent" link use them.
+    //
+    // `filter.<column>=<operator>:<value>` is the richer form the advanced
+    // search sends, and it is the same contract the NestJS stack's controller
+    // parses: one stack's model must not search differently from the other's.
     for (const [key, value] of query.entries()) {
       if (["page", "limit", "search", "sort", "order"].includes(key)) continue;
+
+      if (key.startsWith("filter.")) {
+        const condition = filterCondition(entity, key.slice("filter.".length), value, parameters);
+        if (condition) conditions.push(condition);
+        continue;
+      }
+
       const attribute = entity.attributes.find((item) => item.columnName === key);
       if (!attribute) continue;
       parameters.push(coerce(value, attribute));
