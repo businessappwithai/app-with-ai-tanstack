@@ -346,7 +346,8 @@ erDiagram
 - **Types** normalise through `types.map` in the definition JSON; unknown types
   fall back to `string` with `EML115`.
 - **Foreign keys** resolve by name: a column ending `_id` points at the entity
-  whose snake_case name it carries. `_by` columns resolve to the user entity.
+  whose snake_case name it carries. `_by` columns resolve to the model's person
+  entity (User if it exists, otherwise Staff, then Employee).
 - **Cardinalities**: all 8 Mermaid ER operators are compiled.
 - `id PK` is auto-added when an entity declares none.
 
