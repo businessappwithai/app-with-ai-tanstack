@@ -2,13 +2,13 @@ import { AlertCircle, Code2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { LadderCard, LadderRung } from "@/components/automation/LadderCard";
 import { SagaLadder } from "@/components/eml/SagaLadder";
+import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import {
   type Automation,
   emptyAutomation,
   serializeAutomation,
   validateAutomation,
 } from "@/lib/automation/model";
-import { emptyStateFlow, StateFlowCanvas } from "@/components/eml/StateFlowCanvas";
 import {
   emitHookWorkflow,
   emitSagaFlow,
@@ -45,11 +45,12 @@ export interface EditableWorkflow {
   states: StateFlow;
   saga: SagaFlow;
   /**
-   * Set for `hook` workflows, which are now edited in the automation ladder —
-   * the same builder the generated application ships. A hook workflow is a
-   * list of handlers on different lifecycle events, so it is the multi-trigger
-   * case the ladder gained; `hooks` above is kept only so a workflow loaded
-   * before this existed still renders.
+   * Set for `hook` and `saga` workflows, which are edited in the automation
+   * ladder — the same builder the generated application ships. A hook workflow
+   * is a list of handlers on different lifecycle events, which is the
+   * multi-trigger case the ladder gained; a saga is the ordered steps it always
+   * had, started by a rule rather than by an event. `hooks` and `saga` above
+   * are kept only so a workflow loaded before this existed still renders.
    */
   automation?: Automation;
 }
@@ -72,7 +73,7 @@ export function emptyWorkflow(kind: WorkflowKind, key: string, entity: string): 
     hooks: [],
     states: emptyStateFlow(),
     saga: emptySagaFlow(),
-    ...(kind === "hook" ? { automation: emptyAutomation(entity, "hook") } : {}),
+    ...(kind === "hook" || kind === "saga" ? { automation: emptyAutomation(entity, kind) } : {}),
   };
 }
 
@@ -86,7 +87,13 @@ export function emitWorkflowDiagram(workflow: EditableWorkflow): string {
     if (workflow.automation) return serializeAutomation(workflow.automation);
     return emitHookWorkflow(workflow.entity || "Entity", workflow.hooks);
   }
-  if (workflow.kind === "saga") return emitSagaFlow(workflow.saga);
+  if (workflow.kind === "saga") {
+    // Body only: the wizard sends name, entity, kind, trigger and operation as
+    // fields, and language/composer.ts writes the %%workflow directive from
+    // them. Emitting it here too would write the header twice.
+    if (workflow.automation) return serializeAutomation(workflow.automation, { header: false });
+    return emitSagaFlow(workflow.saga);
+  }
   return emitStateFlow(workflow.states);
 }
 
@@ -97,7 +104,12 @@ export function validateWorkflow(workflow: EditableWorkflow): string[] {
     }
     return validateHookWorkflow(workflow.entity, workflow.hooks);
   }
-  if (workflow.kind === "saga") return validateSagaFlow(workflow.saga);
+  if (workflow.kind === "saga") {
+    if (workflow.automation) {
+      return validateAutomation(workflow.automation).map((problem) => problem.message);
+    }
+    return validateSagaFlow(workflow.saga);
+  }
   return validateStateFlow(workflow.states);
 }
 
@@ -121,7 +133,7 @@ export function WorkflowEditor({
 }: WorkflowEditorProps) {
   const [showSource, setShowSource] = useState(false);
   const [selectedHookId, setSelectedHookId] = useState<string | null>(
-    workflow.hooks[0]?.id ?? null,
+    workflow.hooks[0]?.id ?? null
   );
   const problems = useMemo(() => validateWorkflow(workflow), [workflow]);
   const pascal = pascalWorkflowName;

@@ -1,5 +1,4 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { requestContext } from "@/lib/request-context";
 import { ArrowRight, Zap as Bolt, Code, GitBranch, Settings, Zap } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
@@ -7,6 +6,7 @@ import { JourneyArc } from "@/components/JourneyArc";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { erdVersionsApi } from "@/lib/api/projects";
+import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
 
 async function checkAuthMe() {
@@ -50,11 +50,13 @@ function parseEntityNamesFromErd(erdCode: string): string[] {
   const erdBlockMatch = erdCode.match(/erDiagram([\s\S]*?)(?=\n%%[a-z]|$)/);
   const erdBlock = erdBlockMatch ? erdBlockMatch[0] : erdCode;
   const matches = [...erdBlock.matchAll(/^\s*([A-Za-z_]\w*)\s*\{/gm)];
-  return [...new Set(
-    matches
-      .map((m) => m[1])
-      .filter((name): name is string => name !== undefined && name !== "erDiagram"),
-  )];
+  return [
+    ...new Set(
+      matches
+        .map((m) => m[1])
+        .filter((name): name is string => name !== undefined && name !== "erDiagram")
+    ),
+  ];
 }
 
 function EnhancePage() {

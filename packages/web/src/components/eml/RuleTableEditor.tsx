@@ -11,7 +11,6 @@
  */
 
 import { useMemo, useState } from "react";
-import { cn } from "@/lib/utils";
 import {
   checkCoverage,
   type DecisionColumn,
@@ -22,6 +21,7 @@ import {
   KNOWN_OUTPUT_FIELDS,
   newRowId,
 } from "@/lib/eml/decision-table";
+import { cn } from "@/lib/utils";
 
 const cellClass =
   "w-full min-w-[80px] rounded-md border border-input bg-card px-2 py-1.5 text-[13px] focus-visible:outline-none focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/10";
@@ -34,7 +34,12 @@ export interface RuleTableEditorProps {
   entityFields?: string[];
 }
 
-export function RuleTableEditor({ name, table, onChange, entityFields = [] }: RuleTableEditorProps) {
+export function RuleTableEditor({
+  name,
+  table,
+  onChange,
+  entityFields = [],
+}: RuleTableEditorProps) {
   const [testValues, setTestValues] = useState<Record<string, string>>({});
 
   const result = useMemo(() => evaluateTable(table, testValues), [table, testValues]);
@@ -111,7 +116,9 @@ export function RuleTableEditor({ name, table, onChange, entityFields = [] }: Ru
               >
                 <option value="">— pick field —</option>
                 {entityFields.map((f) => (
-                  <option key={f} value={f}>{f}</option>
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
                 ))}
               </select>
             ) : (
@@ -137,7 +144,9 @@ export function RuleTableEditor({ name, table, onChange, entityFields = [] }: Ru
             >
               <option value="">— pick output —</option>
               {KNOWN_OUTPUT_FIELDS.map((f) => (
-                <option key={f.field} value={f.field}>{f.label}</option>
+                <option key={f.field} value={f.field}>
+                  {f.label}
+                </option>
               ))}
             </select>
           </span>

@@ -1027,6 +1027,18 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Admin audit page not found");
     }
 
+    // The report-designs index — the list `/admin/reports` serves, and the only
+    // way into the per-entity designer beneath it. Both the admin landing page
+    // and the designer itself link to it, so leaving it out did not merely hide
+    // a screen: it made those two links point at a route that does not exist,
+    // which is a type error in the generated frontend and a dead link in it.
+    try {
+      const reportsContent = await this.component("src/routes/admin/reports.tsx");
+      await fs.writeFile(path.join(adminDir, "reports.tsx"), reportsContent);
+    } catch (e) {
+      console.warn("Admin reports page template not found");
+    }
+
     // Users page (admin/users.tsx)
     try {
       const usersContent = await this.component("src/routes/admin/users.tsx");
@@ -1062,14 +1074,26 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       },
     ];
 
+    // One entry in that list is a single file, not a directory — the report
+    // designer's route. Handing it to copyDirRecursive created the destination
+    // first and only then failed reading the source, which left a *directory*
+    // named `reports.$tableName.tsx` sitting in src/routes where the route file
+    // should be: the designer was shipped and unreachable, exactly what the
+    // entry above was added to prevent, and the only symptom was one warning
+    // line reading "Admin subdir not found".
     for (const subdir of adminSubdirs) {
+      const src = path.join(templateDir, subdir.src);
+      const dest = path.join(outputDir, subdir.dest);
       try {
-        await this.copyDirRecursive(
-          path.join(templateDir, subdir.src),
-          path.join(outputDir, subdir.dest)
-        );
+        const stats = await fs.stat(src);
+        if (stats.isDirectory()) {
+          await this.copyDirRecursive(src, dest);
+        } else {
+          await fs.mkdir(path.dirname(dest), { recursive: true });
+          await fs.copyFile(src, dest);
+        }
       } catch (e) {
-        console.warn(`Admin subdir not found: ${subdir.src}`);
+        console.warn(`Admin route template not found: ${subdir.src}`);
       }
     }
   }
@@ -1091,8 +1115,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
   }
 
   private async copyDirRecursive(src: string, dest: string): Promise<void> {
-    await fs.mkdir(dest, { recursive: true });
+    // Read the source before creating the destination. The other order left a
+    // directory behind whenever the source could not be read — including when
+    // it was a file all along, which is how an empty directory came to stand
+    // where a route file belonged.
     const entries = await fs.readdir(src, { withFileTypes: true });
+    await fs.mkdir(dest, { recursive: true });
     for (const entry of entries) {
       const srcPath = path.join(src, entry.name);
       const destPath = path.join(dest, entry.name);

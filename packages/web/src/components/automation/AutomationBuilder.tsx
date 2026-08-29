@@ -16,18 +16,20 @@ import {
   type AutomationHook,
   type AutomationStep,
   type Condition,
+  describeCondition,
+  describeStep,
   HOOK_EVENT_HINTS,
   HOOK_EVENTS,
   type HookEvent,
-  newHook,
-  describeCondition,
-  describeStep,
   type Loop,
   loopsOf,
   newCondition,
+  newHook,
   newLoop,
   newStep,
   type Problem,
+  type SagaOperation,
+  type SagaTrigger,
   STEP_GLYPHS,
   STEP_HINTS,
   STEP_LABELS,
@@ -65,10 +67,17 @@ function TriggerInspector({
    * still applies, because every hook binds to the same entity.
    */
   hookMode = false,
+  saga,
 }: {
   trigger: Trigger;
   entities: string[];
   hookMode?: boolean;
+  /** Present for a saga, whose start is a rule or an operation, not an event. */
+  saga?: {
+    sagaTrigger: SagaTrigger;
+    sagaOperation: SagaOperation;
+    onChange: (next: { sagaTrigger: SagaTrigger; sagaOperation: SagaOperation }) => void;
+  };
   onChange: (next: Trigger) => void;
 }) {
   const inputClass =
@@ -87,7 +96,9 @@ function TriggerInspector({
           <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-amber-700">
             When this happens
           </span>
-          <h3 className="text-[15px] font-bold">{hookMode ? "This process" : "The trigger"}</h3>
+          <h3 className="text-[15px] font-bold">
+            {hookMode || saga ? "This process" : "The trigger"}
+          </h3>
         </div>
       </header>
 
@@ -95,7 +106,9 @@ function TriggerInspector({
         <p className="mb-4 text-xs leading-snug text-muted-foreground">
           {hookMode
             ? "Every step below runs on this record type. Each step says when it runs."
-            : "The event that starts the run. One per automation."}
+            : saga
+              ? "The steps below run in order, on this record type."
+              : "The event that starts the run. One per automation."}
         </p>
 
         <label className="mb-3.5 block">
@@ -116,26 +129,77 @@ function TriggerInspector({
           </select>
         </label>
 
-        {hookMode ? null : (
-        <label className="mb-3.5 block">
-          <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-            What happens to it
-          </span>
-          <select
-            className={inputClass}
-            value={trigger.event}
-            onChange={(e) => onChange({ ...trigger, event: e.target.value as Trigger["event"] })}
-          >
-            {TRIGGER_EVENTS.map((ev) => (
-              <option key={ev} value={ev}>
-                {TRIGGER_LABELS[ev]}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1.5 text-[11.5px] leading-snug text-muted-foreground">
-            {TRIGGER_HINTS[trigger.event]}
-          </p>
-        </label>
+        {saga ? (
+          <>
+            <label className="mb-3.5 block">
+              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                What starts it
+              </span>
+              <select
+                className={inputClass}
+                value={saga.sagaTrigger}
+                onChange={(e) =>
+                  saga.onChange({
+                    sagaTrigger: e.target.value as SagaTrigger,
+                    sagaOperation: saga.sagaOperation,
+                  })
+                }
+              >
+                <option value="rule">A business rule decides</option>
+                <option value="automatic">The record's own lifecycle</option>
+              </select>
+              <p className="mt-1.5 text-[11.5px] leading-snug text-muted-foreground">
+                {saga.sagaTrigger === "rule"
+                  ? "Runs only when a rule's action names this process."
+                  : "Runs on every write of the kind chosen below."}
+              </p>
+            </label>
+
+            {saga.sagaTrigger === "automatic" ? (
+              <label className="mb-3.5 block">
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+                  On which write
+                </span>
+                <select
+                  className={inputClass}
+                  value={saga.sagaOperation}
+                  onChange={(e) =>
+                    saga.onChange({
+                      sagaTrigger: saga.sagaTrigger,
+                      sagaOperation: e.target.value as SagaOperation,
+                    })
+                  }
+                >
+                  <option value="CREATE">Created</option>
+                  <option value="UPDATE">Updated</option>
+                  <option value="DELETE">Deleted</option>
+                  <option value="ALL">Any write</option>
+                </select>
+              </label>
+            ) : null}
+          </>
+        ) : null}
+
+        {hookMode || saga ? null : (
+          <label className="mb-3.5 block">
+            <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+              What happens to it
+            </span>
+            <select
+              className={inputClass}
+              value={trigger.event}
+              onChange={(e) => onChange({ ...trigger, event: e.target.value as Trigger["event"] })}
+            >
+              {TRIGGER_EVENTS.map((ev) => (
+                <option key={ev} value={ev}>
+                  {TRIGGER_LABELS[ev]}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1.5 text-[11.5px] leading-snug text-muted-foreground">
+              {TRIGGER_HINTS[trigger.event]}
+            </p>
+          </label>
         )}
       </div>
     </div>
@@ -512,104 +576,119 @@ export function AutomationBuilder({
             </>
           ) : (
             <>
-          <LadderCard
-            kind="when"
-            glyph="⚡"
-            title={<TriggerTitle trigger={automation.trigger} />}
-            selected={selection?.kind === "trigger"}
-            problem={problemFor("trigger")}
-            onSelect={() => setSelection({ kind: "trigger" })}
-          />
-
-          {automation.conditions.map((c) => (
-            <ConditionRow
-              key={c.id}
-              condition={c}
-              selected={selection?.kind === "condition" && selection.id === c.id}
-              problem={problemFor(c.id)}
-              onSelect={() => setSelection({ kind: "condition", id: c.id })}
-              onRemove={() => removeCondition(c.id)}
-              onAddAbove={() => setAddingAt(0)}
-            />
-          ))}
-
-          {runs.map((run) => {
-            const rows = run.steps.map(({ step, index }) => (
-              <StepRow
-                key={step.id}
-                step={step}
-                index={index}
-                selected={selection?.kind === "step" && selection.id === step.id}
-                problem={problemFor(step.id)}
-                adding={addingAt === index}
-                onSelect={() => setSelection({ kind: "step", id: step.id })}
-                onRemove={() => removeStep(step.id)}
-                onOpenAdd={() => setAddingAt(index)}
-                onCancelAdd={() => setAddingAt(null)}
-                onAddCondition={addCondition}
-                onAddLoop={() => addLoop(index)}
-                onAddStep={(type) => addStep(type, index)}
+              <LadderCard
+                kind="when"
+                glyph="⚡"
+                title={
+                  <TriggerTitle
+                    trigger={automation.trigger}
+                    saga={
+                      automation.kind === "saga"
+                        ? {
+                            sagaTrigger: automation.sagaTrigger ?? "rule",
+                            sagaOperation: automation.sagaOperation ?? "CREATE",
+                          }
+                        : undefined
+                    }
+                  />
+                }
+                selected={selection?.kind === "trigger"}
+                problem={problemFor("trigger")}
+                onSelect={() => setSelection({ kind: "trigger" })}
               />
-            ));
 
-            if (!run.loop) return rows;
-
-            const last = run.steps[run.steps.length - 1];
-            return (
-              <div key={run.loop.id} className="w-full">
-                <LadderRung onAdd={() => setAddingAt(run.steps[0]?.index ?? 0)} />
-                <LadderCard
-                  kind="loop"
-                  glyph="↻"
-                  title={<LoopTitle loop={run.loop} />}
-                  selected={selection?.kind === "loop" && selection.id === run.loop.id}
-                  problem={problemFor(run.loop.id)}
-                  onSelect={() => setSelection({ kind: "loop", id: run.loop?.id as string })}
-                  onRemove={() => removeLoop(run.loop?.id as string)}
+              {automation.conditions.map((c) => (
+                <ConditionRow
+                  key={c.id}
+                  condition={c}
+                  selected={selection?.kind === "condition" && selection.id === c.id}
+                  problem={problemFor(c.id)}
+                  onSelect={() => setSelection({ kind: "condition", id: c.id })}
+                  onRemove={() => removeCondition(c.id)}
+                  onAddAbove={() => setAddingAt(0)}
                 />
-                <LoopFrame stepCount={run.steps.length} problem={Boolean(problemFor(run.loop.id))}>
-                  {rows}
-                  <div className="mt-1 flex flex-col items-center">
-                    <LadderRung onAdd={() => setAddingAt(last ? last.index + 1 : 0)} />
-                    <button
-                      type="button"
-                      onClick={() => setAddingAt(last ? last.index + 1 : 0)}
-                      className="w-full rounded-lg border border-dashed border-teal-300 bg-card py-2 text-xs font-semibold text-teal-700 hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              ))}
+
+              {runs.map((run) => {
+                const rows = run.steps.map(({ step, index }) => (
+                  <StepRow
+                    key={step.id}
+                    step={step}
+                    index={index}
+                    selected={selection?.kind === "step" && selection.id === step.id}
+                    problem={problemFor(step.id)}
+                    adding={addingAt === index}
+                    onSelect={() => setSelection({ kind: "step", id: step.id })}
+                    onRemove={() => removeStep(step.id)}
+                    onOpenAdd={() => setAddingAt(index)}
+                    onCancelAdd={() => setAddingAt(null)}
+                    onAddCondition={addCondition}
+                    onAddLoop={() => addLoop(index)}
+                    onAddStep={(type) => addStep(type, index)}
+                  />
+                ));
+
+                if (!run.loop) return rows;
+
+                const last = run.steps[run.steps.length - 1];
+                return (
+                  <div key={run.loop.id} className="w-full">
+                    <LadderRung onAdd={() => setAddingAt(run.steps[0]?.index ?? 0)} />
+                    <LadderCard
+                      kind="loop"
+                      glyph="↻"
+                      title={<LoopTitle loop={run.loop} />}
+                      selected={selection?.kind === "loop" && selection.id === run.loop.id}
+                      problem={problemFor(run.loop.id)}
+                      onSelect={() => setSelection({ kind: "loop", id: run.loop?.id as string })}
+                      onRemove={() => removeLoop(run.loop?.id as string)}
+                    />
+                    <LoopFrame
+                      stepCount={run.steps.length}
+                      problem={Boolean(problemFor(run.loop.id))}
                     >
-                      ＋ Add a step inside this repeat
-                    </button>
+                      {rows}
+                      <div className="mt-1 flex flex-col items-center">
+                        <LadderRung onAdd={() => setAddingAt(last ? last.index + 1 : 0)} />
+                        <button
+                          type="button"
+                          onClick={() => setAddingAt(last ? last.index + 1 : 0)}
+                          className="w-full rounded-lg border border-dashed border-teal-300 bg-card py-2 text-xs font-semibold text-teal-700 hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        >
+                          ＋ Add a step inside this repeat
+                        </button>
+                      </div>
+                    </LoopFrame>
                   </div>
-                </LoopFrame>
-              </div>
-            );
-          })}
+                );
+              })}
 
-          {addingAt === automation.steps.length ? (
-            <>
-              <LadderRung onAdd={() => setAddingAt(null)} active />
-              <AddMenu
-                onAddCondition={addCondition}
-                onAddLoop={() => addLoop(automation.steps.length)}
-                onAddStep={(type) => addStep(type, automation.steps.length)}
-                onCancel={() => setAddingAt(null)}
-              />
-            </>
-          ) : (
-            <>
-              <LadderRung onAdd={() => setAddingAt(automation.steps.length)} />
-              <button
-                type="button"
-                onClick={() => setAddingAt(automation.steps.length)}
-                className="w-full rounded-xl border border-dashed border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                ＋ <span className="text-primary">Add a condition or an action</span>
-              </button>
-            </>
-          )}
+              {addingAt === automation.steps.length ? (
+                <>
+                  <LadderRung onAdd={() => setAddingAt(null)} active />
+                  <AddMenu
+                    onAddCondition={addCondition}
+                    onAddLoop={() => addLoop(automation.steps.length)}
+                    onAddStep={(type) => addStep(type, automation.steps.length)}
+                    onCancel={() => setAddingAt(null)}
+                  />
+                </>
+              ) : (
+                <>
+                  <LadderRung onAdd={() => setAddingAt(automation.steps.length)} />
+                  <button
+                    type="button"
+                    onClick={() => setAddingAt(automation.steps.length)}
+                    className="w-full rounded-xl border border-dashed border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  >
+                    ＋ <span className="text-primary">Add a condition or an action</span>
+                  </button>
+                </>
+              )}
 
-          {problemFor("steps") ? (
-            <p className="mt-3 w-full text-xs text-amber-700">{problemFor("steps")}</p>
-          ) : null}
+              {problemFor("steps") ? (
+                <p className="mt-3 w-full text-xs text-amber-700">{problemFor("steps")}</p>
+              ) : null}
             </>
           )}
         </div>
@@ -662,6 +741,15 @@ export function AutomationBuilder({
               trigger={automation.trigger}
               entities={entities}
               hookMode={automation.kind === "hook"}
+              saga={
+                automation.kind === "saga"
+                  ? {
+                      sagaTrigger: automation.sagaTrigger ?? "rule",
+                      sagaOperation: automation.sagaOperation ?? "CREATE",
+                      onChange: (next) => onChange({ ...automation, ...next }),
+                    }
+                  : undefined
+              }
               onChange={(trigger) => onChange({ ...automation, trigger })}
             />
           ) : null}
@@ -784,9 +872,7 @@ function HookInspector({
           Step {index + 1} of {count}
         </p>
         <h2 className="text-base font-bold tracking-tight">Lifecycle step</h2>
-        <p className="mt-1 text-[12.5px] text-muted-foreground">
-          {HOOK_EVENT_HINTS[hook.event]}
-        </p>
+        <p className="mt-1 text-[12.5px] text-muted-foreground">{HOOK_EVENT_HINTS[hook.event]}</p>
       </div>
 
       <label className="block">
@@ -877,17 +963,47 @@ function EmptyInspector() {
 /*  Rows                                                                       */
 /* -------------------------------------------------------------------------- */
 
-function TriggerTitle({ trigger }: { trigger: Trigger }) {
+function TriggerTitle({
+  trigger,
+  saga,
+}: {
+  trigger: Trigger;
+  /** A saga starts from a rule or an operation, never from `trigger.event`. */
+  saga?: { sagaTrigger: SagaTrigger; sagaOperation: SagaOperation };
+}) {
   if (!trigger.entity) return <span className="text-muted-foreground">Pick a record type…</span>;
   // "An Compound" read as a typo on every card that was not a vowel-initial
   // entity; the article has to follow the name the author actually picked.
   const article = /^[aeiou]/i.test(trigger.entity) ? "An" : "A";
+
+  if (saga) {
+    // Not the `{article} {entity} {predicate}` shape the other cards use: a
+    // rule-triggered saga has no lifecycle event, and forcing it into that
+    // frame reads as "A Lead a rule has decided on".
+    return saga.sagaTrigger === "rule" ? (
+      <>
+        When a rule decides about {article.toLowerCase()} <Token>{trigger.entity}</Token>
+      </>
+    ) : (
+      <>
+        {article} <Token>{trigger.entity}</Token> {SAGA_OPERATION_TITLES[saga.sagaOperation]}
+      </>
+    );
+  }
+
   return (
     <>
       {article} <Token>{trigger.entity}</Token> {TRIGGER_LABELS[trigger.event]}
     </>
   );
 }
+
+const SAGA_OPERATION_TITLES: Record<SagaOperation, string> = {
+  CREATE: "is created",
+  UPDATE: "is updated",
+  DELETE: "is deleted",
+  ALL: "is written",
+};
 
 function ConditionRow({
   condition,

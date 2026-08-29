@@ -1,5 +1,4 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { requestContext } from "@/lib/request-context";
 import {
   CheckCircle2Icon,
   CircleIcon,
@@ -9,6 +8,7 @@ import {
   TrashIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { requestContext } from "@/lib/request-context";
 
 interface RuleDefinition {
   id: string;

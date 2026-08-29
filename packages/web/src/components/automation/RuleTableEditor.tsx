@@ -16,6 +16,8 @@ import {
   type DecisionColumn,
   type DecisionRow,
   type DecisionTable,
+  getColumnOptions,
+  KNOWN_OUTPUT_FIELDS,
   newRowId,
 } from "@/lib/workflow/bpmn-model";
 
@@ -164,9 +166,17 @@ export interface RuleTableEditorProps {
   onChange: (next: DecisionTable) => void;
   /** Automations that look this table up, so a change's blast radius is visible. */
   usedBy?: { name: string; where: string }[];
+  /** Entity field names for the input column dropdowns. */
+  entityFields?: string[];
 }
 
-export function RuleTableEditor({ name, table, onChange, usedBy = [] }: RuleTableEditorProps) {
+export function RuleTableEditor({
+  name,
+  table,
+  onChange,
+  usedBy = [],
+  entityFields = [],
+}: RuleTableEditorProps) {
   const [testValues, setTestValues] = useState<Record<string, string>>({});
 
   const result = useMemo(() => evaluateTable(table, testValues), [table, testValues]);
@@ -212,6 +222,15 @@ export function RuleTableEditor({ name, table, onChange, usedBy = [] }: RuleTabl
     });
 
   const isCatchAll = (row: DecisionRow) => table.inputs.every((c) => !(row[c.id] ?? "").trim());
+  const lastCatchAllIndex = (() => {
+    for (let i = table.rules.length - 1; i >= 0; i--) {
+      // Narrowed rather than asserted: noUncheckedIndexedAccess types this as
+      // possibly undefined, and the assertion was the file's only lint warning.
+      const row = table.rules[i];
+      if (row && isCatchAll(row)) return i;
+    }
+    return -1;
+  })();
 
   return (
     <div className="flex-1 overflow-y-auto bg-muted/30 px-7 py-6">
@@ -233,26 +252,48 @@ export function RuleTableEditor({ name, table, onChange, usedBy = [] }: RuleTabl
         {table.inputs.map((c, i) => (
           <span key={c.id}>
             {i > 0 ? " and " : ""}
-            <input
-              aria-label={`Input ${i + 1} field`}
-              value={c.field}
-              onChange={(e) => setColumn("inputs", c.id, { field: e.target.value })}
-              placeholder="Customer.tier"
-              className="mx-0.5 w-[9.5rem] rounded-md border border-border bg-muted px-2 py-1 text-sm font-semibold focus-visible:outline-none focus-visible:border-primary"
-            />
+            {entityFields.length > 0 ? (
+              <select
+                aria-label={`Input ${i + 1} field`}
+                value={c.field}
+                onChange={(e) => setColumn("inputs", c.id, { field: e.target.value })}
+                className="mx-0.5 w-[9.5rem] rounded-md border border-border bg-muted px-2 py-1 text-sm font-semibold focus-visible:outline-none focus-visible:border-primary"
+              >
+                <option value="">— pick field —</option>
+                {entityFields.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                aria-label={`Input ${i + 1} field`}
+                value={c.field}
+                onChange={(e) => setColumn("inputs", c.id, { field: e.target.value })}
+                placeholder="Customer.tier"
+                className="mx-0.5 w-[9.5rem] rounded-md border border-border bg-muted px-2 py-1 text-sm font-semibold focus-visible:outline-none focus-visible:border-primary"
+              />
+            )}
           </span>
         ))}
         , decide{" "}
         {table.outputs.map((c, i) => (
           <span key={c.id}>
             {i > 0 ? " and " : ""}
-            <input
+            <select
               aria-label={`Outcome ${i + 1} field`}
               value={c.field}
               onChange={(e) => setColumn("outputs", c.id, { field: e.target.value })}
-              placeholder="discount_pct"
               className="mx-0.5 w-[9.5rem] rounded-md border border-primary/30 bg-primary/5 px-2 py-1 text-sm font-semibold text-primary focus-visible:outline-none focus-visible:border-primary"
-            />
+            >
+              <option value="">— pick output —</option>
+              {KNOWN_OUTPUT_FIELDS.map((f) => (
+                <option key={f.field} value={f.field}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
           </span>
         ))}
         <button
@@ -316,7 +357,7 @@ export function RuleTableEditor({ name, table, onChange, usedBy = [] }: RuleTabl
           </thead>
           <tbody>
             {table.rules.map((row, rowIndex) => {
-              const catchAll = isCatchAll(row);
+              const catchAll = isCatchAll(row) && rowIndex === lastCatchAllIndex;
               return (
                 <tr key={row._id} className={cn(catchAll && "bg-muted/30")}>
                   <td className="border-b border-border px-2 py-2 text-center text-xs text-muted-foreground">
@@ -344,22 +385,44 @@ export function RuleTableEditor({ name, table, onChange, usedBy = [] }: RuleTabl
                     ))
                   )}
 
-                  {table.outputs.map((c, i) => (
-                    <td
-                      key={c.id}
-                      className={cn("border-b border-border px-2 py-2", i === 0 && "border-l-2")}
-                    >
-                      <input
-                        aria-label={`Row ${rowIndex + 1}, ${c.field || c.name} answer`}
-                        className={cn(
-                          cellClass,
-                          "border-primary/30 bg-primary/5 font-semibold text-primary"
+                  {table.outputs.map((c, i) => {
+                    const opts = getColumnOptions(c);
+                    return (
+                      <td
+                        key={c.id}
+                        className={cn("border-b border-border px-2 py-2", i === 0 && "border-l-2")}
+                      >
+                        {opts ? (
+                          <select
+                            aria-label={`Row ${rowIndex + 1}, ${c.field || c.name} answer`}
+                            className={cn(
+                              cellClass,
+                              "border-primary/30 bg-primary/5 font-semibold text-primary"
+                            )}
+                            value={row[c.id] ?? ""}
+                            onChange={(e) => setCell(rowIndex, c.id, e.target.value)}
+                          >
+                            <option value="">— pick —</option>
+                            {opts.map((o) => (
+                              <option key={o} value={o}>
+                                {o}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            aria-label={`Row ${rowIndex + 1}, ${c.field || c.name} answer`}
+                            className={cn(
+                              cellClass,
+                              "border-primary/30 bg-primary/5 font-semibold text-primary"
+                            )}
+                            value={row[c.id] ?? ""}
+                            onChange={(e) => setCell(rowIndex, c.id, e.target.value)}
+                          />
                         )}
-                        value={row[c.id] ?? ""}
-                        onChange={(e) => setCell(rowIndex, c.id, e.target.value)}
-                      />
-                    </td>
-                  ))}
+                      </td>
+                    );
+                  })}
 
                   <td className="border-b border-border px-1 py-2 text-center">
                     <div className="flex items-center justify-center gap-0.5">

@@ -171,7 +171,11 @@ export interface RuleTableEditorProps {
 }
 
 export function RuleTableEditor({
-  name, table, onChange, usedBy = [], entityFields = [],
+  name,
+  table,
+  onChange,
+  usedBy = [],
+  entityFields = [],
 }: RuleTableEditorProps) {
   const [testValues, setTestValues] = useState<Record<string, string>>({});
 
@@ -220,7 +224,10 @@ export function RuleTableEditor({
   const isCatchAll = (row: DecisionRow) => table.inputs.every((c) => !(row[c.id] ?? "").trim());
   const lastCatchAllIndex = (() => {
     for (let i = table.rules.length - 1; i >= 0; i--) {
-      if (isCatchAll(table.rules[i]!)) return i;
+      // Narrowed rather than asserted: noUncheckedIndexedAccess types this as
+      // possibly undefined, and the assertion was the file's only lint warning.
+      const row = table.rules[i];
+      if (row && isCatchAll(row)) return i;
     }
     return -1;
   })();
@@ -254,7 +261,9 @@ export function RuleTableEditor({
               >
                 <option value="">— pick field —</option>
                 {entityFields.map((f) => (
-                  <option key={f} value={f}>{f}</option>
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
                 ))}
               </select>
             ) : (
@@ -280,7 +289,9 @@ export function RuleTableEditor({
             >
               <option value="">— pick output —</option>
               {KNOWN_OUTPUT_FIELDS.map((f) => (
-                <option key={f.field} value={f.field}>{f.label}</option>
+                <option key={f.field} value={f.field}>
+                  {f.label}
+                </option>
               ))}
             </select>
           </span>

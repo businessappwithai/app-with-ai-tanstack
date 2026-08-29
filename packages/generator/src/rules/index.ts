@@ -196,10 +196,7 @@ function zenInputCell(raw: string | undefined): string {
  * at all for a row with a missing cell, so an omitted column would silently
  * disable the whole rule.
  */
-export function buildEditorDecisionTable(
-  ruleName: string,
-  table: EditorDecisionTable
-): JdmGraph {
+export function buildEditorDecisionTable(ruleName: string, table: EditorDecisionTable): JdmGraph {
   const inputs = (table.inputs ?? []).filter((column) => (column.field ?? "").trim() !== "");
   const outputs = (table.outputs ?? []).filter((column) => (column.field ?? "").trim() !== "");
 

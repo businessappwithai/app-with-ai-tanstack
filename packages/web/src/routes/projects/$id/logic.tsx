@@ -1,6 +1,5 @@
 import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { requestContext } from "@/lib/request-context";
 import {
   AlertCircle,
   ArrowRight,
@@ -29,18 +28,19 @@ import {
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
+import { parseAutomation } from "@/lib/automation/model";
 import {
   emptyDecisionTable,
   parseTableFromFlowchart,
   tableToEmlFlowchart,
 } from "@/lib/eml/decision-table";
-import { parseAutomation } from "@/lib/automation/model";
 import {
   emptySagaFlow,
   parseHookWorkflow,
   parseSagaFlow,
   parseStateFlow,
 } from "@/lib/eml/workflow-flow";
+import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
 
 /**
@@ -223,11 +223,28 @@ function LogicPage() {
               // the multi-trigger shape the automation ladder now carries. It
               // reads and writes the same `%%hook` directives, so this is a
               // change of editor, not of artifact.
-              ...(kind === "hook"
+              ...(kind === "hook" || kind === "saga"
                 ? {
                     automation: {
                       ...parseAutomation(workflow.diagram, workflow.entity),
+                      kind,
                       name: workflow.title ?? workflow.name,
+                      trigger: {
+                        ...parseAutomation(workflow.diagram, workflow.entity).trigger,
+                        entity: workflow.entity,
+                      },
+                      // For a saga these ride on the %%workflow directive, so
+                      // they reach us beside the diagram rather than inside it.
+                      ...(kind === "saga"
+                        ? {
+                            // Absent means automatic: language/composer.ts only
+                            // ever writes the token for `rule`, so falling back
+                            // to the SagaFlow default ("rule") relabelled every
+                            // automatic saga as rule-triggered.
+                            sagaTrigger: workflow.trigger ?? "automatic",
+                            sagaOperation: workflow.operation ?? saga.operation,
+                          }
+                        : {}),
                     },
                   }
                 : {}),
@@ -377,7 +394,10 @@ function LogicPage() {
             kind: workflow.kind,
             title: workflow.title,
             ...(workflow.kind === "saga"
-              ? { trigger: workflow.saga.trigger, operation: workflow.saga.operation }
+              ? {
+                  trigger: workflow.automation?.sagaTrigger ?? workflow.saga.trigger,
+                  operation: workflow.automation?.sagaOperation ?? workflow.saga.operation,
+                }
               : {}),
             diagram: emitWorkflowDiagram(workflow),
           })),
@@ -569,7 +589,8 @@ function LogicPage() {
                   onChange={patchRule}
                   onError={setError}
                 />
-              ) : activeWorkflow?.kind === "hook" && activeWorkflow.automation ? (
+              ) : (activeWorkflow?.kind === "hook" || activeWorkflow?.kind === "saga") &&
+                activeWorkflow.automation ? (
                 // Hook workflows are edited in the same ladder the generated
                 // application ships, so the two surfaces look and behave alike.
                 <div className="min-h-[560px] overflow-hidden rounded-xl border border-border">
