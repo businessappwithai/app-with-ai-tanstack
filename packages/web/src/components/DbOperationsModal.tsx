@@ -95,7 +95,11 @@ export function DbOperationsModal({
             <Database className="w-5 h-5 text-blue-400" />
             <h2 className="text-lg font-semibold">Database Operations</h2>
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -125,6 +129,7 @@ export function DbOperationsModal({
         )}
         <div className="flex gap-3">
           <button
+            type="button"
             onClick={handleGenerateSchema}
             disabled={isGenerating || isReverseEngineering}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
@@ -137,6 +142,7 @@ export function DbOperationsModal({
             Generate Schema
           </button>
           <button
+            type="button"
             onClick={handleReverseEngineer}
             disabled={isGenerating || isReverseEngineering}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"

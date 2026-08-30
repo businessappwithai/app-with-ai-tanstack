@@ -188,6 +188,7 @@ function WorkflowMonitorPage() {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={fetchWorkflows}
                 className="flex items-center gap-2 px-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#FF8400] hover:border-[#FF8400] transition-all duration-200 font-medium shadow-md hover:shadow-lg"
                 title="Refresh (Ctrl+R)"
@@ -319,6 +320,7 @@ function WorkflowMonitorPage() {
                   <div className="flex gap-2 mb-3">
                     {selectedWorkflow.status === "error" && (
                       <button
+                        type="button"
                         onClick={() => retryWorkflow(selectedWorkflow.id)}
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-[#FF8400] rounded-lg text-[#FF8400] text-sm hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all duration-200 font-medium"
                       >
@@ -331,6 +333,7 @@ function WorkflowMonitorPage() {
                   {/* Tab Navigation (AD-Style) */}
                   <div className="flex gap-1 border-t border-slate-200 dark:border-slate-800 pt-3">
                     <button
+                      type="button"
                       onClick={() => setActiveTab("overview")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "overview"
@@ -341,6 +344,7 @@ function WorkflowMonitorPage() {
                       Overview
                     </button>
                     <button
+                      type="button"
                       onClick={() => setActiveTab("steps")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "steps"
@@ -351,6 +355,7 @@ function WorkflowMonitorPage() {
                       Steps ({steps.length})
                     </button>
                     <button
+                      type="button"
                       onClick={() => setActiveTab("logs")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "logs"

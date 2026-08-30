@@ -49,6 +49,7 @@ export function NewProjectModal({ isOpen, onClose, onCreateProject }: NewProject
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Project</h2>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 hover:bg-muted rounded-lg transition-colors"
             disabled={isSubmitting}

@@ -558,6 +558,7 @@ function SettingsPage() {
         <div className="max-w-screen-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate({ to: "/" })}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
             >
@@ -613,6 +614,7 @@ function SettingsPage() {
                 </label>
                 <div className="grid grid-cols-3 gap-3">
                   <button
+                    type="button"
                     onClick={() => handleThemeChange("light")}
                     className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
                       theme === "light"
@@ -624,6 +626,7 @@ function SettingsPage() {
                     <span className="text-xs font-medium">Light</span>
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleThemeChange("dark")}
                     className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
                       theme === "dark"
@@ -635,6 +638,7 @@ function SettingsPage() {
                     <span className="text-xs font-medium">Dark</span>
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleThemeChange("system")}
                     className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
                       theme === "system"
@@ -662,6 +666,7 @@ function SettingsPage() {
                   <p className="text-sm text-muted-foreground">Receive updates via email</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handleNotificationChange("email", !notifications.email)}
                   disabled={isUpdatingNotification}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
@@ -695,6 +700,7 @@ function SettingsPage() {
                   <p className="text-sm text-muted-foreground">Receive browser notifications</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handleNotificationChange("push", !notifications.push)}
                   disabled={isUpdatingNotification || notificationPermission === "denied"}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
@@ -724,6 +730,7 @@ function SettingsPage() {
                   <p className="text-sm text-muted-foreground">Get notified about new features</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handleNotificationChange("updates", !notifications.updates)}
                   disabled={isUpdatingNotification}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
@@ -747,6 +754,7 @@ function SettingsPage() {
                 <h2 className="font-bold text-lg">Advanced</h2>
               </div>
               <button
+                type="button"
                 onClick={loadCacheInfo}
                 disabled={isLoadingCache}
                 className="p-2 hover:bg-muted rounded-lg transition-colors disabled:opacity-50"
@@ -786,6 +794,7 @@ function SettingsPage() {
 
             <div className="space-y-3">
               <button
+                type="button"
                 onClick={() =>
                   setShowConfirmDialog({
                     type: "cache",
@@ -812,6 +821,7 @@ function SettingsPage() {
               </button>
 
               <button
+                type="button"
                 onClick={() =>
                   setShowConfirmDialog({
                     type: "tempFiles",
@@ -840,6 +850,7 @@ function SettingsPage() {
               </button>
 
               <button
+                type="button"
                 onClick={() =>
                   setShowConfirmDialog({
                     type: "exportData",
@@ -876,6 +887,7 @@ function SettingsPage() {
                 <h2 className="font-bold text-lg">Privacy Settings</h2>
               </div>
               <button
+                type="button"
                 onClick={() => setShowPrivacyDetails(!showPrivacyDetails)}
                 className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
@@ -892,6 +904,7 @@ function SettingsPage() {
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handlePrivacyChange("analytics", !privacySettings.analytics)}
                   className={`relative w-11 h-5.5 rounded-full transition-colors ${
                     privacySettings.analytics ? "bg-primary" : "bg-muted"
@@ -911,6 +924,7 @@ function SettingsPage() {
                   <p className="text-xs text-muted-foreground">Automatically send error reports</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handlePrivacyChange("crashReports", !privacySettings.crashReports)}
                   className={`relative w-11 h-5.5 rounded-full transition-colors ${
                     privacySettings.crashReports ? "bg-primary" : "bg-muted"
@@ -932,6 +946,7 @@ function SettingsPage() {
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() =>
                     handlePrivacyChange("personalization", !privacySettings.personalization)
                   }
@@ -962,6 +977,7 @@ function SettingsPage() {
 
               <div className="pt-4 border-t border-border">
                 <button
+                  type="button"
                   onClick={() =>
                     setShowConfirmDialog({
                       type: "deleteAll",
@@ -995,6 +1011,7 @@ function SettingsPage() {
           </div>
 
           <button
+            type="button"
             onClick={handleSaveChanges}
             disabled={isSaving}
             className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -1030,12 +1047,14 @@ function SettingsPage() {
             </div>
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setShowConfirmDialog({ type: null, title: "", description: "" })}
                 className="flex-1 bg-muted hover:bg-muted/80 py-2.5 rounded-xl text-sm font-bold transition-colors"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleConfirmAction}
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-xl text-sm font-bold transition-colors"
               >
@@ -1060,6 +1079,7 @@ function SettingsPage() {
             )}
             <p className="text-sm font-medium">{actionStatus.message}</p>
             <button
+              type="button"
               onClick={() => setActionStatus({ type: null, message: "" })}
               className="ml-auto p-1 hover:bg-white/10 rounded transition-colors"
             >

@@ -227,6 +227,7 @@ function ProjectsPage() {
                 </Link>
               </div>
               <button
+                type="button"
                 onClick={() => setShowNewProjectModal(true)}
                 disabled={isLoading || isCreatingProject}
                 className="hidden sm:flex bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-xl text-sm font-semibold items-center gap-2 shadow-lg shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -249,6 +250,7 @@ function ProjectsPage() {
                 Import a model
               </button>
               <button
+                type="button"
                 onClick={() => setShowNewProjectModal(true)}
                 disabled={isLoading || isCreatingProject}
                 className="sm:hidden w-10 h-10 flex items-center justify-center rounded-xl shadow-lg shadow-primary/25 transition-all disabled:opacity-50"
@@ -264,6 +266,7 @@ function ProjectsPage() {
               {/* User menu */}
               <div className="relative" ref={userMenuRef}>
                 <button
+                  type="button"
                   onClick={() => setShowUserMenu((v) => !v)}
                   className="flex items-center gap-2 px-3 py-2 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors text-sm font-medium"
                 >
@@ -294,6 +297,7 @@ function ProjectsPage() {
                       </>
                     )}
                     <button
+                      type="button"
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                     >
@@ -304,6 +308,7 @@ function ProjectsPage() {
                 )}
               </div>
               <button
+                type="button"
                 onClick={() => setShowMobileNav((v) => !v)}
                 className="sm:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
                 aria-label="Menu"
@@ -391,6 +396,7 @@ function ProjectsPage() {
               Create your first project and start building with AI-powered database design
             </p>
             <button
+              type="button"
               onClick={() => setShowNewProjectModal(true)}
               disabled={isCreatingProject}
               className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl text-base font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -541,6 +547,7 @@ function ProjectsPage() {
                   <div className="flex gap-2">
                     {project.generatedPath ? (
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate({ to: "/projects/$id/enhance", params: { id: project.id } });
@@ -552,6 +559,7 @@ function ProjectsPage() {
                       </button>
                     ) : (
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEditProject(project.id);
@@ -564,6 +572,7 @@ function ProjectsPage() {
                     )}
                     {!project.ownerId || project.ownerId === user?.id ? (
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setShowShareModal(project.id);
@@ -576,6 +585,7 @@ function ProjectsPage() {
                     ) : null}
                     {!project.ownerId || project.ownerId === user?.id ? (
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setShowMenu(showMenu === project.id ? null : project.id);
@@ -598,6 +608,7 @@ function ProjectsPage() {
                       />
                       <div className="absolute right-0 bottom-16 w-48 bg-card border border-border rounded-lg shadow-2xl z-50 overflow-hidden py-1">
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             setShowDeleteConfirm(project.id);
@@ -634,12 +645,14 @@ function ProjectsPage() {
             </p>
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setShowDeleteConfirm(null)}
                 className="flex-1 bg-muted hover:bg-muted/80 py-2.5 rounded-xl text-sm font-bold transition-colors"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={() => handleDeleteProject(showDeleteConfirm)}
                 className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-xl text-sm font-bold transition-colors"
               >

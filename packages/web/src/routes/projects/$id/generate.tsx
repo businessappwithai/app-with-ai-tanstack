@@ -305,6 +305,7 @@ function GeneratePage() {
           {!isGenerating && !generationComplete && (
             <div className="mt-8 flex gap-4">
               <button
+                type="button"
                 onClick={handleGenerate}
                 disabled={!selectedStack || isGenerating}
                 className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] disabled:opacity-50"
@@ -367,6 +368,7 @@ function GeneratePage() {
 
               {generationComplete && !error && (
                 <button
+                  type="button"
                   onClick={handleContinue}
                   className="mt-6 w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                   style={{ backgroundColor: "#FF8400" }}

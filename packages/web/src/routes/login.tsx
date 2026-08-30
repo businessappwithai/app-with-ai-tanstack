@@ -122,6 +122,7 @@ function LoginPage() {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => {
                 setRegistrationStatus("idle");
                 setTab("login");
@@ -161,6 +162,7 @@ function LoginPage() {
 
           <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
             <button
+              type="button"
               onClick={() => {
                 setTab("login");
                 setError("");
@@ -175,6 +177,7 @@ function LoginPage() {
               Sign In
             </button>
             <button
+              type="button"
               onClick={() => {
                 setTab("register");
                 setError("");

@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api/admin/users/")({
             .where("id", "=", session.userId)
             .executeTakeFirst();
 
-          if (!currentUser || currentUser.role !== "admin") {
+          if (currentUser?.role !== "admin") {
             return new Response(JSON.stringify({ error: "Forbidden" }), {
               status: 403,
               headers: { "Content-Type": "application/json" },

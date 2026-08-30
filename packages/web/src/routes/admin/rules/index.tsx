@@ -145,6 +145,7 @@ function RulesListPage() {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => navigate({ to: "/admin/rules/new" })}
                 className="flex items-center gap-2 px-4 py-2.5 bg-[#FF8400] text-white rounded-lg hover:bg-[#E67300] transition-all duration-200 font-medium shadow-md hover:shadow-lg"
               >
@@ -202,6 +203,7 @@ function RulesListPage() {
                   </select>
                 </div>
                 <button
+                  type="button"
                   onClick={fetchRules}
                   className="w-full flex items-center justify-center gap-2 px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#FF8400] transition-all duration-200 text-sm font-medium"
                   title="Refresh (Ctrl+R)"
@@ -228,6 +230,7 @@ function RulesListPage() {
                   Create your first rule to get started.
                 </p>
                 <button
+                  type="button"
                   onClick={() => navigate({ to: "/admin/rules/new" })}
                   className="w-full px-3 py-2 bg-[#FF8400] text-white text-xs font-medium rounded-lg hover:bg-[#E67300] transition-all duration-200"
                 >
@@ -293,6 +296,7 @@ function RulesListPage() {
                     </div>
                     <div className="flex gap-2">
                       <button
+                        type="button"
                         onClick={() => {
                           navigate({
                             to: "/admin/rules/$entity/$ruleId",
@@ -305,6 +309,7 @@ function RulesListPage() {
                         Edit
                       </button>
                       <button
+                        type="button"
                         onClick={() => deleteRule(selectedRule.id)}
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-red-300 dark:border-red-900 rounded-lg text-red-700 dark:text-red-300 text-sm hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200 font-medium"
                       >
@@ -317,6 +322,7 @@ function RulesListPage() {
                   {/* Tab Navigation (AD-Style) */}
                   <div className="flex gap-1 border-t border-slate-200 dark:border-slate-800 pt-3 mt-3">
                     <button
+                      type="button"
                       onClick={() => setActiveTab("properties")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "properties"
@@ -327,6 +333,7 @@ function RulesListPage() {
                       Properties
                     </button>
                     <button
+                      type="button"
                       onClick={() => setActiveTab("conditions")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "conditions"

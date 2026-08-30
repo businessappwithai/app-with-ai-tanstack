@@ -236,6 +236,7 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
       {/* Action Buttons */}
       <div className="flex items-center gap-2">
         <button
+          type="button"
           onClick={handleGenerateCode}
           disabled={!task.trim() || isProcessing}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -253,6 +254,7 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
           )}
         </button>
         <button
+          type="button"
           onClick={() => {
             setTask("");
             setStatus(null);

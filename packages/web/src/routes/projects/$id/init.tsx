@@ -121,6 +121,7 @@ function InitPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate({ to: "/projects" })}
               className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
             >
@@ -129,6 +130,7 @@ function InitPage() {
             <h1 className="font-bold text-xl tracking-tight">Project Configuration</h1>
           </div>
           <button
+            type="button"
             onClick={() => navigate({ to: "/projects" })}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
           >
@@ -392,6 +394,7 @@ function InitPage() {
           {/* Action Buttons */}
           <div className="flex gap-4 pt-4">
             <button
+              type="button"
               onClick={handleSave}
               disabled={isSaving}
               className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground font-bold py-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -406,6 +409,7 @@ function InitPage() {
               )}
             </button>
             <button
+              type="button"
               onClick={handleContinue}
               className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
               style={{ backgroundColor: "#FF8400" }}
