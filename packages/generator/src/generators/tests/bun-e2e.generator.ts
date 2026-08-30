@@ -196,9 +196,7 @@ export class BunE2ETestGenerator extends BaseGenerator {
     for (const entity of busEntities) {
       const entityName = ((entity as any).originalName || entity.name).toLowerCase();
       const fkAttrs = (entity.attributes || []).filter((a: any) => a.isForeignKey);
-      const parentRels = relationships.filter(
-        (r) => r.targetEntity.toLowerCase() === entityName
-      );
+      const parentRels = relationships.filter((r) => r.targetEntity.toLowerCase() === entityName);
 
       for (const attr of fkAttrs) {
         const col = (attr as any).columnName || attr.name;
@@ -223,16 +221,25 @@ export class BunE2ETestGenerator extends BaseGenerator {
       }
     }
 
-    const personTable =
-      tableSet.has("bus_user") ? "bus_user" :
-      tableSet.has("bus_staff") ? "bus_staff" :
-      tableSet.has("bus_employee") ? "bus_employee" :
-      "bus_user";
+    const personTable = tableSet.has("bus_user")
+      ? "bus_user"
+      : tableSet.has("bus_staff")
+        ? "bus_staff"
+        : tableSet.has("bus_employee")
+          ? "bus_employee"
+          : "bus_user";
 
     const personRoleColumns = [
-      "pi_id", "lab_manager_id", "assigned_to", "owner_id",
-      "author_id", "manager_id", "user_id", "created_by_user",
-      "remediation_owner", "remediation_owner_id",
+      "pi_id",
+      "lab_manager_id",
+      "assigned_to",
+      "owner_id",
+      "author_id",
+      "manager_id",
+      "user_id",
+      "created_by_user",
+      "remediation_owner",
+      "remediation_owner_id",
     ];
     for (const col of personRoleColumns) {
       if (!seen.has(col)) {
