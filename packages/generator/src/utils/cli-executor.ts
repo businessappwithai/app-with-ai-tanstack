@@ -15,6 +15,9 @@ export interface CliExecutorOptions {
   timeout?: number;
 }
 
+// A named utility namespace callers import as CliExecutor.executeSync; splitting it
+// into free functions would churn every call site for no behavioural gain.
+// biome-ignore lint/complexity/noStaticOnlyClass: deliberate utility namespace.
 export class CliExecutor {
   /**
    * Execute a CLI command synchronously

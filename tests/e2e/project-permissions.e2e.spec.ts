@@ -128,7 +128,7 @@ async function shareProject(
 }
 
 test.describe("Project Permissions", () => {
-  test("Owner can see their own project", async ({ browser, context }) => {
+  test("Owner can see their own project", async ({ context }) => {
     const page = await context.newPage();
 
     // Login as User A
@@ -144,7 +144,7 @@ test.describe("Project Permissions", () => {
     await page.close();
   });
 
-  test("Other user cannot see owner's project", async ({ browser, context }) => {
+  test("Other user cannot see owner's project", async ({ context }) => {
     const page = await context.newPage();
 
     // Login as User B
@@ -167,10 +167,7 @@ test.describe("Project Permissions", () => {
     await page.close();
   });
 
-  test("Shared project (read-only) visible to member but editing blocked", async ({
-    browser,
-    context,
-  }) => {
+  test("Shared project (read-only) visible to member but editing blocked", async ({ context }) => {
     const page = await context.newPage();
 
     // Login as User A
@@ -212,7 +209,7 @@ test.describe("Project Permissions", () => {
     await pageB.close();
   });
 
-  test("Shared project (read-write) allows editing", async ({ browser, context }) => {
+  test("Shared project (read-write) allows editing", async ({ context }) => {
     const page = await context.newPage();
 
     // Login as User A
@@ -247,7 +244,7 @@ test.describe("Project Permissions", () => {
     await pageB.close();
   });
 
-  test("Remove share revokes access", async ({ browser, context }) => {
+  test("Remove share revokes access", async ({ context }) => {
     const page = await context.newPage();
 
     // Login as User A

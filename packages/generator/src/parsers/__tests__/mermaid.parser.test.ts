@@ -86,10 +86,10 @@ erDiagram
   }
 `;
       const { entities } = parser.parse(input);
-      const attrs = entities[0]!.attributes.reduce(
-        (map, a) => ({ ...map, [a.name]: a.type }),
-        {} as Record<string, string>
-      );
+      const attrs = entities[0]!.attributes.reduce<Record<string, string>>((map, a) => {
+        map[a.name] = a.type;
+        return map;
+      }, {});
 
       expect(attrs.name).toBe("string");
       expect(attrs.email).toBe("string");

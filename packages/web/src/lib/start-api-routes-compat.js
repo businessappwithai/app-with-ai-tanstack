@@ -130,5 +130,4 @@ export const defaultAPIRoutesHandler =
     return handler({ request, params: match.params });
   };
 
-export const defaultAPIFileRouteHandler = async ({ request }) =>
-  new Response("Not found", { status: 404 });
+export const defaultAPIFileRouteHandler = async () => new Response("Not found", { status: 404 });
