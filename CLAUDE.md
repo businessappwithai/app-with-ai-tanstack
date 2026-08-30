@@ -342,6 +342,7 @@ The suites deliberately leave their rows behind, so **a re-run against a populat
 | `language/appwithai-language.json` | ⭐ EML canonical definition |
 | `language/composer.ts` | ⭐ The only writer of complete EML documents |
 | `llmtext/llms-full.txt` | ⭐ The spec written for language models |
+| `llmtext/llmdetailed.txt` | The same spec, §10 replaced by the interactive authoring walkthrough |
 
 ---
 
