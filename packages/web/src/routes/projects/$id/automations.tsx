@@ -9,7 +9,7 @@
  */
 
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AutomationBuilder,
   type RuleTableSummary,
@@ -303,8 +303,55 @@ function AutomationsPage() {
 
   /* ---------------------------------------------------------------- write */
 
-  const updateAutomation = (next: Automation) =>
+  /**
+   * Persist a draft.
+   *
+   * Publishing was the only write, and it is disabled until the automation
+   * validates — so everything built before that point (steps included) lived
+   * in React state and went away on reload. Every edit now saves, debounced,
+   * keeping the stored status so publishing stays the thing that goes live.
+   */
+  const draftTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  const saveDraft = useCallback(
+    (automation: Automation) => {
+      const storedId = storedIds[automation.id];
+      if (!storedId) return;
+      clearTimeout(draftTimers.current[automation.id]);
+      draftTimers.current[automation.id] = setTimeout(async () => {
+        setSaveState("saving");
+        try {
+          const res = await fetch(`/api/projects/${projectId}/automations/${storedId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: automation.name,
+              entity: automation.trigger.entity,
+              mermaid: serializeAutomation(automation),
+              status: automation.status ?? "draft",
+            }),
+          });
+          setSaveState(res.ok ? "saved" : "error");
+        } catch (error) {
+          console.error("Failed to save automation draft:", error);
+          setSaveState("error");
+        }
+      }, 700);
+    },
+    [projectId, storedIds]
+  );
+
+  useEffect(() => {
+    const timers = draftTimers.current;
+    return () => {
+      for (const t of Object.values(timers)) clearTimeout(t);
+    };
+  }, []);
+
+  const updateAutomation = (next: Automation) => {
     setAutomations((list) => list.map((a) => (a.id === next.id ? next : a)));
+    saveDraft(next);
+  };
 
   const createAutomation = async () => {
     const fresh = emptyAutomation(entities[0] ?? "Record");
@@ -385,7 +432,7 @@ function AutomationsPage() {
         {saveState === "saving" ? (
           <span className="text-xs text-muted-foreground">Saving…</span>
         ) : null}
-        {saveState === "saved" ? <span className="text-xs text-emerald-600">Published</span> : null}
+        {saveState === "saved" ? <span className="text-xs text-emerald-600">Saved</span> : null}
         {saveState === "error" ? (
           <span className="text-xs text-red-600">Could not save. Try again.</span>
         ) : null}

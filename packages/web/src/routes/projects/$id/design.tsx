@@ -1429,9 +1429,10 @@ function DesignPage() {
                 ) : (
                   <div className="divide-y divide-border">
                     {filteredEntities.map((entity, _idx) => (
-                      <div
+                      <button
+                        type="button"
                         key={entity.name}
-                        className="p-3 hover:bg-muted transition-colors cursor-pointer"
+                        className="w-full text-left p-3 hover:bg-muted transition-colors cursor-pointer"
                         onClick={() => jumpToEntity(entity.startLine)}
                       >
                         <div className="flex items-center justify-between mb-1">
@@ -1443,7 +1444,7 @@ function DesignPage() {
                         <div className="text-xs text-muted-foreground truncate">
                           Line {entity.startLine + 1}
                         </div>
-                      </div>
+                      </button>
                     ))}
                     {filteredEntities.length === 0 && entitySearch && (
                       <div className="p-4 text-center text-muted-foreground text-sm">

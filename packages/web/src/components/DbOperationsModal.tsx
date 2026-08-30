@@ -88,7 +88,12 @@ export function DbOperationsModal({
       role="dialog"
       aria-modal="true"
     >
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <button
+        type="button"
+        aria-label="Close dialog"
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+      />
       <div className="relative bg-background border border-border rounded-xl p-6 w-full max-w-md shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">

@@ -272,10 +272,11 @@ function GeneratePage() {
           {!isGenerating && !generationComplete && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {stackOptions.map((stack) => (
-                <div
+                <button
+                  type="button"
                   key={stack.id}
                   onClick={() => setSelectedStack(stack.id)}
-                  className={`bg-card border-2 rounded-2xl p-6 cursor-pointer transition-all ${
+                  className={`w-full text-left bg-card border-2 rounded-2xl p-6 cursor-pointer transition-all ${
                     selectedStack === stack.id
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/50"
@@ -297,7 +298,7 @@ function GeneratePage() {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </button>
               ))}
             </div>
           )}
