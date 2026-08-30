@@ -18,9 +18,9 @@ export const Route = createFileRoute("/api/auth/me")({
 
           const db = getDatabase();
           const session = await db
-            .selectFrom("auth_sessions" as any)
+            .selectFrom("auth_sessions")
             .selectAll()
-            .where("token" as any, "=", token)
+            .where("token", "=", token)
             .executeTakeFirst();
 
           if (!session || new Date((session as any).expiresAt) < new Date()) {
@@ -31,9 +31,9 @@ export const Route = createFileRoute("/api/auth/me")({
           }
 
           const user = await db
-            .selectFrom("auth_users" as any)
-            .select(["id" as any, "email" as any, "name" as any, "status" as any, "role" as any])
-            .where("id" as any, "=", (session as any).userId)
+            .selectFrom("auth_users")
+            .select(["id", "email", "name", "status", "role"])
+            .where("id", "=", (session as any).userId)
             .executeTakeFirst();
 
           if (!user) {

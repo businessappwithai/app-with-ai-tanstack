@@ -17,9 +17,9 @@ export const Route = createFileRoute("/api/admin/users/$id/approve")({
 
           const db = getDatabase();
           const session = await db
-            .selectFrom("auth_sessions" as any)
+            .selectFrom("auth_sessions")
             .selectAll()
-            .where("token" as any, "=", token)
+            .where("token", "=", token)
             .executeTakeFirst();
 
           if (!session) {
@@ -30,9 +30,9 @@ export const Route = createFileRoute("/api/admin/users/$id/approve")({
           }
 
           const currentUser = await db
-            .selectFrom("auth_users" as any)
+            .selectFrom("auth_users")
             .selectAll()
-            .where("id" as any, "=", (session as any).userId)
+            .where("id", "=", (session as any).userId)
             .executeTakeFirst();
 
           if (!currentUser || (currentUser as any).role !== "admin") {
@@ -45,15 +45,15 @@ export const Route = createFileRoute("/api/admin/users/$id/approve")({
           const userId = params.id;
 
           await db
-            .updateTable("auth_users" as any)
+            .updateTable("auth_users")
             .set({ status: "approved" })
-            .where("id" as any, "=", userId)
+            .where("id", "=", userId)
             .execute();
 
           const user = await db
-            .selectFrom("auth_users" as any)
+            .selectFrom("auth_users")
             .selectAll()
-            .where("id" as any, "=", userId)
+            .where("id", "=", userId)
             .executeTakeFirst();
 
           return new Response(

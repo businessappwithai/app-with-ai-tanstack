@@ -53,10 +53,10 @@ export async function isAuthenticated(request: Request): Promise<boolean> {
     const now = new Date().toISOString();
 
     const session = await db
-      .selectFrom("auth_sessions" as any)
+      .selectFrom("auth_sessions")
       .selectAll()
-      .where("token" as any, "=", sessionToken)
-      .where("expiresAt" as any, ">", now)
+      .where("token", "=", sessionToken)
+      .where("expiresAt", ">", now)
       .executeTakeFirst();
 
     return !!session;

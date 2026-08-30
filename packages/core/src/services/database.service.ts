@@ -26,7 +26,7 @@ async function insertAndReturn<T>(
   return db
     .selectFrom(table as any)
     .selectAll()
-    .where("id" as any, "=", values.id)
+    .where("id", "=", values.id)
     .executeTakeFirstOrThrow() as Promise<T>;
 }
 
@@ -39,12 +39,12 @@ async function updateAndReturn<T>(
   await db
     .updateTable(table as any)
     .set(values)
-    .where("id" as any, "=", id)
+    .where("id", "=", id)
     .execute();
   return db
     .selectFrom(table as any)
     .selectAll()
-    .where("id" as any, "=", id)
+    .where("id", "=", id)
     .executeTakeFirstOrThrow() as Promise<T>;
 }
 
