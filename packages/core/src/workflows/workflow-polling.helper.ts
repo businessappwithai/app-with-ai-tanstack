@@ -339,7 +339,7 @@ export function createPollingController(
 
         const backoffDelay = calculateBackoff(attempt, intervalMs);
         await sleep(backoffDelay);
-      } catch (error) {
+      } catch (_error) {
         const backoffDelay = calculateBackoff(attempt, intervalMs);
         await sleep(backoffDelay);
       }

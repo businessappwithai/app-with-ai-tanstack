@@ -179,9 +179,9 @@ erDiagram
     expect(order.indexOf("bus_user")).toBeLessThan(order.indexOf("bus_compound"));
 
     const users = new Set(
-      (generated["bus_user"] as Array<Record<string, unknown>>).map((row) => row.id)
+      (generated.bus_user as Array<Record<string, unknown>>).map((row) => row.id)
     );
-    for (const compound of generated["bus_compound"] as Array<Record<string, unknown>>) {
+    for (const compound of generated.bus_compound as Array<Record<string, unknown>>) {
       /* The point of the ordering: a mandatory reference that a NOT NULL column
          would have rejected. */
       expect(compound.registered_by_id).not.toBeNull();
@@ -210,7 +210,7 @@ erDiagram
     }
 `,
     ]);
-    const offices = buildSampleData(named, { records: 6, seed: "test" })["bus_office"] as Array<
+    const offices = buildSampleData(named, { records: 6, seed: "test" }).bus_office as Array<
       Record<string, unknown>
     >;
 
@@ -239,7 +239,7 @@ erDiagram
 `,
     ]);
     const generated = buildSampleData(selfReferential, { records: 5, seed: "test" });
-    const categories = generated["bus_category"] as Array<Record<string, unknown>>;
+    const categories = generated.bus_category as Array<Record<string, unknown>>;
     expect(categories).toHaveLength(5);
     /* The first row has no earlier row to point at; later ones may. */
     expect(categories[0]?.category_id).toBeNull();

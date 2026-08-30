@@ -9,7 +9,7 @@
  */
 
 import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { Kysely, PostgresDialect, sql } from "kysely";
 // @ts-expect-error — the WebAssembly `pg`, loaded the way the backend loads it
 import { Pool, shutdown } from "../../../../../templates/wasm-overlay/backend/pg-wasm/index.js";

@@ -2,7 +2,7 @@
 // examples.ts
 
 // 1. Basic Completion
-async function basicCompletion() {
+async function _basicCompletion() {
   const response = await openai.Completion.create({
     model: "text-davinci-003",
     prompt: "Once upon a time, ",
@@ -12,7 +12,7 @@ async function basicCompletion() {
 }
 
 // 2. Chat Completion
-async function chatCompletion() {
+async function _chatCompletion() {
   const messages = [
     { role: "user", content: "Hello!" },
     { role: "assistant", content: "Hi there! How can I assist you today?" },
@@ -25,7 +25,7 @@ async function chatCompletion() {
 }
 
 // 3. Retry Mechanism
-async function completionWithRetry() {
+async function _completionWithRetry() {
   const maxRetries = 3;
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -39,7 +39,7 @@ async function completionWithRetry() {
 }
 
 // 4. Streaming Completion
-async function streamingCompletion() {
+async function _streamingCompletion() {
   const stream = openai.Completion.create({
     model: "text-davinci-003",
     prompt: "What is the meaning of life?",
@@ -51,7 +51,7 @@ async function streamingCompletion() {
 }
 
 // 5. Chat Streaming
-async function chatStreaming() {
+async function _chatStreaming() {
   const messages = [{ role: "user", content: "Tell me a joke!" }];
   const stream = openai.ChatCompletion.create({
     model: "gpt-3.5-turbo",
@@ -64,9 +64,9 @@ async function chatStreaming() {
 }
 
 // 6. Handling Errors
-async function handleErrorExample() {
+async function _handleErrorExample() {
   try {
-    const response = await openai.Completion.create({}); // your parameters
+    const _response = await openai.Completion.create({}); // your parameters
   } catch (error) {
     console.error("An error occurred:", error);
   }

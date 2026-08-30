@@ -327,7 +327,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const adminLayoutContent = await this.component("src/routes/admin.tsx");
       await fs.writeFile(path.join(outputDir, "src/routes/admin.tsx"), adminLayoutContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin layout route template not found");
     }
 
@@ -351,7 +351,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const file of providerFiles) {
       try {
         await fs.copyFile(path.join(templateDir, file), path.join(outputDir, file));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Provider file not found: ${file}`);
       }
     }
@@ -363,7 +363,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         path.join(templateDir, "src/contexts/auth-context.tsx"),
         path.join(outputDir, "src/contexts/auth-context.tsx")
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth context file not found");
     }
 
@@ -375,7 +375,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const loginPageContent = await this.component("src/routes/auth/login.tsx");
       await fs.writeFile(path.join(outputDir, "src/routes/auth/login.tsx"), loginPageContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Login page template not found");
     }
 
@@ -389,7 +389,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         path.join(templateDir, "src/lib/auth.ts"),
         path.join(outputDir, "src/lib/auth.ts")
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth lib file not found");
     }
 
@@ -399,7 +399,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const apiEntry = await this.renderTemplate("src/api.ts.hbs", context);
       await fs.writeFile(path.join(outputDir, "src/api.ts"), apiEntry);
-    } catch (e) {
+    } catch (_e) {
       console.warn("API entry template not found");
     }
 
@@ -407,7 +407,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const apiProxy = await this.component("src/lib/api-proxy.ts");
       await fs.writeFile(path.join(outputDir, "src/lib/api-proxy.ts"), apiProxy);
-    } catch (e) {
+    } catch (_e) {
       console.warn("API proxy lib template not found");
     }
 
@@ -417,7 +417,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const copilotRuntime = await this.component("src/lib/copilot-runtime.ts");
       await fs.writeFile(path.join(outputDir, "src/lib/copilot-runtime.ts"), copilotRuntime);
-    } catch (e) {
+    } catch (_e) {
       console.warn("CopilotKit runtime lib template not found");
     }
 
@@ -430,7 +430,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       await fs.mkdir(path.join(outputDir, "src/routes/api"), { recursive: true });
       const apiProxyContent = await this.renderTemplate("src/routes/api/$.ts.hbs", context);
       await fs.writeFile(path.join(outputDir, "src/routes/api/$.ts"), apiProxyContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("API proxy route template not found");
     }
 
@@ -439,7 +439,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       await fs.mkdir(path.join(outputDir, "src/routes/api/auth"), { recursive: true });
       const authProxyContent = await this.renderTemplate("src/routes/api/auth/$.ts.hbs", context);
       await fs.writeFile(path.join(outputDir, "src/routes/api/auth/$.ts"), authProxyContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth proxy route template not found");
     }
 
@@ -452,7 +452,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         context
       );
       await fs.writeFile(path.join(outputDir, "src/routes/api/copilotkit/$.ts"), copilotRuntime);
-    } catch (e) {
+    } catch (_e) {
       console.warn("CopilotKit runtime route template not found");
     }
   }
@@ -508,7 +508,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const file of i18nFiles) {
       try {
         await fs.copyFile(path.join(templateDir, file), path.join(outputDir, file));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`i18n file not found: ${file}`);
       }
     }
@@ -526,7 +526,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const modelAssistant = await this.component("src/hooks/useModelAssistant.ts");
       await fs.writeFile(path.join(outputDir, "src/hooks/useModelAssistant.ts"), modelAssistant);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Model assistant hook template not found");
     }
 
@@ -571,7 +571,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
           path.join(templateDir, `src/components/ui/${component}.tsx`),
           path.join(outputDir, `src/components/ui/${component}.tsx`)
         );
-      } catch (e) {
+      } catch (_e) {
         console.warn(`UI component not found: ${component}`);
       }
     }
@@ -582,7 +582,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         path.join(templateDir, "src/lib/utils.ts"),
         path.join(outputDir, "src/lib/utils.ts")
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Utils file not found");
     }
 
@@ -599,7 +599,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const component of staticLayoutComponents) {
       try {
         await fs.copyFile(path.join(templateDir, component), path.join(outputDir, component));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Layout component not found: ${component}`);
       }
     }
@@ -836,7 +836,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
           path.join(templateDir, component.src),
           path.join(outputDir, component.dest)
         );
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Static component not found: ${component.src}`);
       }
     }
@@ -849,7 +849,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
           path.join(templateDir, "src/routes", routeFile),
           path.join(outputDir, "src/routes", routeFile)
         );
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Dynamic route not found: ${routeFile}`);
       }
     }
@@ -971,7 +971,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
           path.join(templateDir, "src/routes/admin", page),
           path.join(adminDir, page)
         );
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Static admin page not found: ${page}`);
       }
     }
@@ -984,7 +984,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const rulesContent = await this.renderTemplate("src/routes/admin/rules.tsx.hbs", context);
       await fs.writeFile(path.join(adminDir, "rules.tsx"), rulesContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin rules page template not found");
     }
 
@@ -992,7 +992,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const categoriesContent = await this.component("src/routes/admin/categories.tsx");
       await fs.writeFile(path.join(adminDir, "categories.tsx"), categoriesContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin categories page template not found");
     }
 
@@ -1005,7 +1005,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         context
       );
       await fs.writeFile(path.join(adminDir, "automations.tsx"), automationsContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin automations page template not found");
     }
 
@@ -1013,7 +1013,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const workflowsContent = await this.component("src/routes/admin/workflows.tsx");
       await fs.writeFile(path.join(adminDir, "workflows.tsx"), workflowsContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin workflows page template not found");
     }
 
@@ -1023,7 +1023,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         path.join(templateDir, "src/routes/admin/audit.tsx"),
         path.join(adminDir, "audit.tsx")
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin audit page not found");
     }
 
@@ -1035,7 +1035,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const reportsContent = await this.component("src/routes/admin/reports.tsx");
       await fs.writeFile(path.join(adminDir, "reports.tsx"), reportsContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin reports page template not found");
     }
 
@@ -1043,7 +1043,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const usersContent = await this.component("src/routes/admin/users.tsx");
       await fs.writeFile(path.join(adminDir, "users.tsx"), usersContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin users page template not found");
     }
 
@@ -1051,7 +1051,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const rolesContent = await this.component("src/routes/admin/roles.tsx");
       await fs.writeFile(path.join(adminDir, "roles.tsx"), rolesContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin roles page template not found");
     }
 
@@ -1092,7 +1092,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
           await fs.mkdir(path.dirname(dest), { recursive: true });
           await fs.copyFile(src, dest);
         }
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Admin route template not found: ${subdir.src}`);
       }
     }
@@ -1151,7 +1151,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const tanStackConfigContent = await this.renderTemplate("app.config.ts.hbs", context);
       await fs.writeFile(path.join(outputDir, "app.config.ts"), tanStackConfigContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom app.config.ts template not found, keeping TanStack Start default");
     }
 
@@ -1159,7 +1159,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const tailwindContent = await this.component("tailwind.config.js");
       await fs.writeFile(path.join(outputDir, "tailwind.config.js"), tailwindContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom tailwind config template not found, keeping TanStack Start default");
     }
 
@@ -1169,7 +1169,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         path.join(templateDir, "postcss.config.js"),
         path.join(outputDir, "postcss.config.js")
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("postcss.config.js template not found");
     }
 
@@ -1177,7 +1177,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const tsconfigContent = await this.renderTemplate("tsconfig.json.hbs", context);
       await fs.writeFile(path.join(outputDir, "tsconfig.json"), tsconfigContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom tsconfig template not found, keeping TanStack Start default");
     }
 
@@ -1185,7 +1185,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const biomeContent = await this.renderTemplate("biome.json.hbs", context);
       await fs.writeFile(path.join(outputDir, "biome.json"), biomeContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom Biome config template not found, using defaults");
     }
 
@@ -1213,7 +1213,7 @@ PORT=${context.config.frontendPort}
     try {
       const dockerfileContent = await this.renderTemplate("Dockerfile.hbs", context);
       await fs.writeFile(path.join(outputDir, "Dockerfile"), dockerfileContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Frontend Dockerfile template not found, skipping");
     }
   }
@@ -1234,7 +1234,7 @@ PORT=${context.config.frontendPort}
       // Vitest config
       const vitestContent = await this.renderTemplate("vitest.config.ts.hbs", context);
       await fs.writeFile(path.join(outputDir, "vitest.config.ts"), vitestContent);
-    } catch (e) {
+    } catch (_e) {
       // Test templates not found, skip test generation
       console.warn("Unit test templates not found, skipping unit test generation");
     }

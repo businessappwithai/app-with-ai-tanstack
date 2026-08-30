@@ -256,7 +256,7 @@ describe("200 automations over the drug-discovery model", () => {
   it("never offers a step a value produced at or below it", () => {
     const leaks: string[] = [];
     for (const a of automations) {
-      a.steps.forEach((step, i) => {
+      a.steps.forEach((_step, i) => {
         const paths = valuesAvailableAt(a, i, FIELDS).map((v) => v.path);
         for (let later = i; later < a.steps.length; later++) {
           const name = a.steps[later]?.resultName;

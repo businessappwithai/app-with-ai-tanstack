@@ -12,8 +12,8 @@ const userB = {
   name: "User B",
 };
 
-async function registerAndApproveUser(email: string, password: string, name: string) {
-  const page = await test.step(`Register user ${email}`, async () => {
+async function _registerAndApproveUser(email: string, password: string, name: string) {
+  const _page = await test.step(`Register user ${email}`, async () => {
     const newPage = await test.browserContext?.newPage();
     if (!newPage) throw new Error("Failed to create new page");
 
