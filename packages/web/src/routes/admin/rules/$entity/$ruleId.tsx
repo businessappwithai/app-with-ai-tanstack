@@ -66,10 +66,14 @@ function RuleEditorPage() {
       const response = await fetch(`/api/rules/${ruleId}`);
       if (!response.ok) throw new Error("Failed to fetch rule");
 
+      // GET /api/rules/:id answers { rule }, not the rule itself. Reading
+      // data.jdmContent gave undefined, so the editor fell back to an empty
+      // table — and saving then wrote that empty table over the stored rule.
       const data = await response.json();
-      setRule(data);
-      setTable(asDecisionTable(data.jdmContent));
-      setReplacesStored(wouldReplaceStoredContent(data.jdmContent));
+      const loaded = data.rule ?? data;
+      setRule(loaded);
+      setTable(asDecisionTable(loaded.jdmContent));
+      setReplacesStored(wouldReplaceStoredContent(loaded.jdmContent));
     } catch (error) {
       toast.error("Failed to load rule");
       console.error(error);

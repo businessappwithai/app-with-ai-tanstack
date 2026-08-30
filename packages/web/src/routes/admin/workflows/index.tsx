@@ -277,10 +277,11 @@ function WorkflowMonitorPage() {
                   const StatusIcon = statusColors.icon;
 
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={workflow.id}
                       onClick={() => handleSelectWorkflow(workflow)}
-                      className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
+                      className={`w-full text-left p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
                         selectedWorkflow?.id === workflow.id
                           ? "border-[#FF8400] bg-orange-50 dark:bg-slate-900/50 shadow-md"
                           : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm"
@@ -302,7 +303,7 @@ function WorkflowMonitorPage() {
                           {statusLabels[workflow.status]}
                         </div>
                       </div>
-                    </div>
+                    </button>
                   );
                 })}
               </div>

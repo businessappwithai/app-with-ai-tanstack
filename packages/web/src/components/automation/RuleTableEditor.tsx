@@ -360,7 +360,7 @@ export function RuleTableEditor({
               const catchAll = isCatchAll(row) && rowIndex === lastCatchAllIndex;
               return (
                 <tr key={row._id} className={cn(catchAll && "bg-muted/30")}>
-                  <td className="border-b border-border px-2 py-2 text-center text-xs text-muted-foreground">
+                  <td className="w-10 border-b border-border px-2 py-2 text-center text-xs tabular-nums text-muted-foreground">
                     {catchAll ? "↓" : rowIndex + 1}
                   </td>
 
@@ -424,14 +424,14 @@ export function RuleTableEditor({
                     );
                   })}
 
-                  <td className="border-b border-border px-1 py-2 text-center">
-                    <div className="flex items-center justify-center gap-0.5">
+                  <td className="w-24 border-b border-border px-2 py-2 text-center">
+                    <div className="flex items-center justify-center gap-1">
                       <button
                         type="button"
                         aria-label={`Move row ${rowIndex + 1} up`}
                         onClick={() => moveRow(rowIndex, -1)}
                         disabled={rowIndex === 0}
-                        className="rounded px-1 text-xs text-muted-foreground hover:bg-muted disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="inline-flex h-6 w-6 items-center justify-center rounded text-xs leading-none text-muted-foreground hover:bg-muted disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
                         ↑
                       </button>
@@ -440,7 +440,7 @@ export function RuleTableEditor({
                         aria-label={`Move row ${rowIndex + 1} down`}
                         onClick={() => moveRow(rowIndex, 1)}
                         disabled={rowIndex === table.rules.length - 1}
-                        className="rounded px-1 text-xs text-muted-foreground hover:bg-muted disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="inline-flex h-6 w-6 items-center justify-center rounded text-xs leading-none text-muted-foreground hover:bg-muted disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
                         ↓
                       </button>
@@ -448,7 +448,7 @@ export function RuleTableEditor({
                         type="button"
                         aria-label={`Remove row ${rowIndex + 1}`}
                         onClick={() => removeRow(rowIndex)}
-                        className="rounded px-1 text-xs text-muted-foreground hover:bg-muted hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="inline-flex h-6 w-6 items-center justify-center rounded text-xs leading-none text-muted-foreground hover:bg-muted hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
                         ✕
                       </button>

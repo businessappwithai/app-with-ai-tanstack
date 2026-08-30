@@ -248,10 +248,11 @@ function RulesListPage() {
             ) : (
               <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
                 {rules.map((rule) => (
-                  <div
+                  <button
+                    type="button"
                     key={rule.id}
                     onClick={() => handleSelectRule(rule)}
-                    className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
+                    className={`w-full text-left p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
                       selectedRule?.id === rule.id
                         ? "border-[#FF8400] bg-orange-50 dark:bg-slate-900/50 shadow-md"
                         : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm"
@@ -281,7 +282,7 @@ function RulesListPage() {
                         {rule.isActive ? "Active" : "Inactive"}
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
