@@ -17,9 +17,9 @@ export const Route = createFileRoute("/api/admin/users/")({
 
           const db = getDatabase();
           const session = await db
-            .selectFrom("auth_sessions" as any)
+            .selectFrom("auth_sessions")
             .selectAll()
-            .where("token" as any, "=", token)
+            .where("token", "=", token)
             .executeTakeFirst();
 
           if (!session) {
@@ -30,12 +30,12 @@ export const Route = createFileRoute("/api/admin/users/")({
           }
 
           const currentUser = await db
-            .selectFrom("auth_users" as any)
+            .selectFrom("auth_users")
             .selectAll()
-            .where("id" as any, "=", (session as any).userId)
+            .where("id", "=", session.userId)
             .executeTakeFirst();
 
-          if (!currentUser || (currentUser as any).role !== "admin") {
+          if (currentUser?.role !== "admin") {
             return new Response(JSON.stringify({ error: "Forbidden" }), {
               status: 403,
               headers: { "Content-Type": "application/json" },
@@ -45,13 +45,13 @@ export const Route = createFileRoute("/api/admin/users/")({
           const url = new URL(request.url);
           const statusFilter = url.searchParams.get("status");
 
-          let query = db.selectFrom("auth_users" as any).selectAll();
+          let query = db.selectFrom("auth_users").selectAll();
 
           if (statusFilter) {
-            query = query.where("status" as any, "=", statusFilter);
+            query = query.where("status", "=", statusFilter);
           }
 
-          const users = await query.orderBy("createdAt" as any, "desc").execute();
+          const users = await query.orderBy("createdAt", "desc").execute();
 
           return new Response(
             JSON.stringify({

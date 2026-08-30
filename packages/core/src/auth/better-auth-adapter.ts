@@ -31,7 +31,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
     // User operations
     createUser: async (user: any) => {
       const newUser = await db
-        .insertInto("auth_users" as any)
+        .insertInto("auth_users")
         .values({
           id: user.id,
           email: user.email,
@@ -40,7 +40,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
           emailVerified: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-        } as any)
+        })
         .returningAll()
         .executeTakeFirst();
       return newUser as AuthUser;
@@ -48,7 +48,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
 
     getUser: async (id: any) => {
       const user = await db
-        .selectFrom("auth_users" as any)
+        .selectFrom("auth_users")
         .selectAll()
         .where("id", "=", id)
         .executeTakeFirst();
@@ -57,7 +57,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
 
     getUserByEmail: async (email: any) => {
       const user = await db
-        .selectFrom("auth_users" as any)
+        .selectFrom("auth_users")
         .selectAll()
         .where("email", "=", email)
         .executeTakeFirst();
@@ -66,11 +66,11 @@ export function createKyselyAdapter(db: Kysely<any>): any {
 
     updateUser: async (id: any, data: any) => {
       const updated = await db
-        .updateTable("auth_users" as any)
+        .updateTable("auth_users")
         .set({
           ...data,
           updatedAt: new Date(),
-        } as any)
+        })
         .where("id", "=", id)
         .returningAll()
         .executeTakeFirst();
@@ -78,16 +78,13 @@ export function createKyselyAdapter(db: Kysely<any>): any {
     },
 
     deleteUser: async (id: any) => {
-      await db
-        .deleteFrom("auth_users" as any)
-        .where("id", "=", id)
-        .execute();
+      await db.deleteFrom("auth_users").where("id", "=", id).execute();
     },
 
     // Session operations
     createSession: async (session: any) => {
       const newSession = await db
-        .insertInto("auth_sessions" as any)
+        .insertInto("auth_sessions")
         .values({
           id: session.id,
           userId: session.userId,
@@ -95,7 +92,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
           expiresAt: session.expiresAt,
           createdAt: new Date(),
           updatedAt: new Date(),
-        } as any)
+        })
         .returningAll()
         .executeTakeFirst();
       return newSession as AuthSession;
@@ -103,7 +100,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
 
     getSession: async (token: any) => {
       const session = await db
-        .selectFrom("auth_sessions" as any)
+        .selectFrom("auth_sessions")
         .selectAll()
         .where("token", "=", token)
         .executeTakeFirst();
@@ -112,11 +109,11 @@ export function createKyselyAdapter(db: Kysely<any>): any {
 
     updateSession: async (token: any, data: any) => {
       const updated = await db
-        .updateTable("auth_sessions" as any)
+        .updateTable("auth_sessions")
         .set({
           ...data,
           updatedAt: new Date(),
-        } as any)
+        })
         .where("token", "=", token)
         .returningAll()
         .executeTakeFirst();
@@ -124,24 +121,17 @@ export function createKyselyAdapter(db: Kysely<any>): any {
     },
 
     deleteSession: async (token: any) => {
-      await db
-        .deleteFrom("auth_sessions" as any)
-        .where("token", "=", token)
-        .execute();
+      await db.deleteFrom("auth_sessions").where("token", "=", token).execute();
     },
 
     // Account operations (for OAuth)
     createAccount: async (account: any) => {
-      return await db
-        .insertInto("auth_accounts" as any)
-        .values(account as any)
-        .returningAll()
-        .executeTakeFirst();
+      return await db.insertInto("auth_accounts").values(account).returningAll().executeTakeFirst();
     },
 
     getAccount: async (userId: any, provider: any) => {
       return await db
-        .selectFrom("auth_accounts" as any)
+        .selectFrom("auth_accounts")
         .selectAll()
         .where("userId", "=", userId)
         .where("provider", "=", provider)
@@ -150,7 +140,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
 
     deleteAccount: async (userId: any, provider: any) => {
       await db
-        .deleteFrom("auth_accounts" as any)
+        .deleteFrom("auth_accounts")
         .where("userId", "=", userId)
         .where("provider", "=", provider)
         .execute();
@@ -159,25 +149,22 @@ export function createKyselyAdapter(db: Kysely<any>): any {
     // Verification token operations
     createVerificationToken: async (token: any) => {
       return await db
-        .insertInto("auth_verification_tokens" as any)
-        .values(token as any)
+        .insertInto("auth_verification_tokens")
+        .values(token)
         .returningAll()
         .executeTakeFirst();
     },
 
     getVerificationToken: async (token: any) => {
       return await db
-        .selectFrom("auth_verification_tokens" as any)
+        .selectFrom("auth_verification_tokens")
         .selectAll()
         .where("token", "=", token)
         .executeTakeFirst();
     },
 
     deleteVerificationToken: async (token: any) => {
-      await db
-        .deleteFrom("auth_verification_tokens" as any)
-        .where("token", "=", token)
-        .execute();
+      await db.deleteFrom("auth_verification_tokens").where("token", "=", token).execute();
     },
   };
 }

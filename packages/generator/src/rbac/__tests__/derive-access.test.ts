@@ -58,8 +58,8 @@ describe("derived access", () => {
       "%%rbac role:sales_rep|sales_manager on Lead.*",
       "%%rbac role:support_agent on SupportCase.read",
     ]);
-    expect(access.entityVisibility["Lead"]).toEqual(["sales_manager", "sales_rep"]);
-    expect(access.entityVisibility["SupportCase"]).toEqual(["support_agent"]);
+    expect(access.entityVisibility.Lead).toEqual(["sales_manager", "sales_rep"]);
+    expect(access.entityVisibility.SupportCase).toEqual(["support_agent"]);
     expect(access.scoped).toBe(true);
   });
 
@@ -81,6 +81,6 @@ describe("derived access", () => {
       "%%rbac role:sales_rep on Account.read",
       "%%rbac role:support_agent on Account.read",
     ]);
-    expect(access.entityVisibility["Account"]).toEqual(["sales_rep", "support_agent"]);
+    expect(access.entityVisibility.Account).toEqual(["sales_rep", "support_agent"]);
   });
 });

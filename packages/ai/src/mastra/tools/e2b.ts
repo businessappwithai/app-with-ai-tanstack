@@ -419,7 +419,7 @@ export const checkFileExists = createTool({
           path: context.path,
           type: info.type,
         };
-      } catch (e) {
+      } catch (_e) {
         // If getInfo fails, the file doesn't exist
         return {
           exists: false,

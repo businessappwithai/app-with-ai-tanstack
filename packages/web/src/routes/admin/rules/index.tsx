@@ -145,6 +145,7 @@ function RulesListPage() {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => navigate({ to: "/admin/rules/new" })}
                 className="flex items-center gap-2 px-4 py-2.5 bg-[#FF8400] text-white rounded-lg hover:bg-[#E67300] transition-all duration-200 font-medium shadow-md hover:shadow-lg"
               >
@@ -166,10 +167,14 @@ function RulesListPage() {
               </h2>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">
+                  <label
+                    htmlFor="index-entity-2"
+                    className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block"
+                  >
                     Entity
                   </label>
                   <select
+                    id="index-entity-2"
                     className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
                     value={filter.entity || ""}
                     onChange={(e) => setFilter({ ...filter, entity: e.target.value || undefined })}
@@ -183,10 +188,14 @@ function RulesListPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">
+                  <label
+                    htmlFor="index-operation-2"
+                    className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block"
+                  >
                     Operation
                   </label>
                   <select
+                    id="index-operation-2"
                     className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
                     value={filter.operation || ""}
                     onChange={(e) =>
@@ -202,6 +211,7 @@ function RulesListPage() {
                   </select>
                 </div>
                 <button
+                  type="button"
                   onClick={fetchRules}
                   className="w-full flex items-center justify-center gap-2 px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#FF8400] transition-all duration-200 text-sm font-medium"
                   title="Refresh (Ctrl+R)"
@@ -228,6 +238,7 @@ function RulesListPage() {
                   Create your first rule to get started.
                 </p>
                 <button
+                  type="button"
                   onClick={() => navigate({ to: "/admin/rules/new" })}
                   className="w-full px-3 py-2 bg-[#FF8400] text-white text-xs font-medium rounded-lg hover:bg-[#E67300] transition-all duration-200"
                 >
@@ -293,6 +304,7 @@ function RulesListPage() {
                     </div>
                     <div className="flex gap-2">
                       <button
+                        type="button"
                         onClick={() => {
                           navigate({
                             to: "/admin/rules/$entity/$ruleId",
@@ -305,6 +317,7 @@ function RulesListPage() {
                         Edit
                       </button>
                       <button
+                        type="button"
                         onClick={() => deleteRule(selectedRule.id)}
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-red-300 dark:border-red-900 rounded-lg text-red-700 dark:text-red-300 text-sm hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200 font-medium"
                       >
@@ -317,6 +330,7 @@ function RulesListPage() {
                   {/* Tab Navigation (AD-Style) */}
                   <div className="flex gap-1 border-t border-slate-200 dark:border-slate-800 pt-3 mt-3">
                     <button
+                      type="button"
                       onClick={() => setActiveTab("properties")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "properties"
@@ -327,6 +341,7 @@ function RulesListPage() {
                       Properties
                     </button>
                     <button
+                      type="button"
                       onClick={() => setActiveTab("conditions")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "conditions"
@@ -344,10 +359,14 @@ function RulesListPage() {
                   {activeTab === "properties" ? (
                     <div className="space-y-4 max-w-2xl">
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                        <label
+                          htmlFor="index-rule-name"
+                          className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2"
+                        >
                           Rule Name
                         </label>
                         <input
+                          id="index-rule-name"
                           type="text"
                           defaultValue={selectedRule.ruleName}
                           className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"
@@ -355,10 +374,14 @@ function RulesListPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                          <label
+                            htmlFor="index-entity"
+                            className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2"
+                          >
                             Entity
                           </label>
                           <input
+                            id="index-entity"
                             type="text"
                             defaultValue={selectedRule.entityName}
                             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"
@@ -366,10 +389,14 @@ function RulesListPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                          <label
+                            htmlFor="index-operation"
+                            className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2"
+                          >
                             Operation
                           </label>
                           <input
+                            id="index-operation"
                             type="text"
                             defaultValue={selectedRule.operation}
                             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"
@@ -378,9 +405,9 @@ function RulesListPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
                           Status
-                        </label>
+                        </span>
                         <div className="flex gap-4">
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
@@ -405,10 +432,14 @@ function RulesListPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                        <label
+                          htmlFor="index-version"
+                          className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2"
+                        >
                           Version
                         </label>
                         <input
+                          id="index-version"
                           type="text"
                           defaultValue={selectedRule.version}
                           className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"
@@ -416,10 +447,14 @@ function RulesListPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
+                        <label
+                          htmlFor="index-last-updated"
+                          className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2"
+                        >
                           Last Updated
                         </label>
                         <input
+                          id="index-last-updated"
                           type="text"
                           defaultValue={new Date(selectedRule.updatedAt).toLocaleString()}
                           className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] transition-all"

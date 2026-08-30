@@ -342,6 +342,7 @@ function DeployPage() {
             <div>
               <div className="flex items-center gap-3">
                 <button
+                  type="button"
                   onClick={handleViewApp}
                   className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/25 transition-all active:scale-[0.98]"
                 >
@@ -360,6 +361,7 @@ function DeployPage() {
                   Download the model
                 </a>
                 <button
+                  type="button"
                   onClick={handleBackToProjects}
                   className="flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                   style={{ backgroundColor: "#FF8400" }}
@@ -400,6 +402,7 @@ function DeployPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-foreground">Environment Variables</h2>
                   <button
+                    type="button"
                     onClick={handleAddEnvVar}
                     className="flex items-center gap-1 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white text-sm font-medium rounded-lg transition-colors"
                     style={{ backgroundColor: "#FF8400" }}
@@ -431,6 +434,7 @@ function DeployPage() {
                         />
                         {envVar.isSecret && (
                           <button
+                            type="button"
                             onClick={() => toggleSecretVisibility(envVar.key)}
                             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
                           >
@@ -452,6 +456,7 @@ function DeployPage() {
                         Secret
                       </label>
                       <button
+                        type="button"
                         onClick={() => handleRemoveEnvVar(index)}
                         className="p-2 hover:bg-red-500/10 rounded-lg transition-colors"
                       >
@@ -469,6 +474,7 @@ function DeployPage() {
                 </p>
 
                 <button
+                  type="button"
                   onClick={handleDeploy}
                   className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                   style={{ backgroundColor: "#FF8400" }}
@@ -565,6 +571,7 @@ function DeployPage() {
                       </div>
                       {serverStatus === "running" && (
                         <button
+                          type="button"
                           onClick={handleStopServer}
                           className="ml-4 flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/25 transition-all active:scale-[0.98]"
                         >
@@ -599,6 +606,7 @@ function DeployPage() {
                         {deploymentUrl}
                       </a>
                       <button
+                        type="button"
                         onClick={handleViewApp}
                         className="p-2 hover:bg-muted-foreground/10 rounded-lg transition-colors"
                       >
@@ -698,6 +706,7 @@ function DeployPage() {
       </div>
 
       <button
+        type="button"
         className="fixed bottom-6 right-6 w-14 h-14 text-white rounded-full shadow-lg shadow-primary/50 flex items-center justify-center transition-all active:scale-95 z-40"
         style={{ backgroundColor: "#FF8400" }}
       >

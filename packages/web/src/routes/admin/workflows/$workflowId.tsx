@@ -142,44 +142,44 @@ function WorkflowDetailPage() {
             </div>
             <div className="flex items-center gap-2">
               {getStatusIcon(workflow.status)}
-              <Badge variant={getStatusColor(workflow.status) as any}>{workflow.status}</Badge>
+              <Badge variant={getStatusColor(workflow.status)}>{workflow.status}</Badge>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Entity</label>
+              <span className="text-sm font-medium text-muted-foreground">Entity</span>
               <p className="text-lg">{workflow.entity_name}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Entity ID</label>
+              <span className="text-sm font-medium text-muted-foreground">Entity ID</span>
               <p className="text-lg font-mono">{workflow.entity_id}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Operation</label>
+              <span className="text-sm font-medium text-muted-foreground">Operation</span>
               <p className="text-lg">{workflow.operation}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Retry Count</label>
+              <span className="text-sm font-medium text-muted-foreground">Retry Count</span>
               <p className="text-lg">{workflow.retry_count}</p>
             </div>
             {workflow.triggered_by && (
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Triggered By</label>
+                <span className="text-sm font-medium text-muted-foreground">Triggered By</span>
                 <p className="text-lg">{workflow.triggered_by}</p>
               </div>
             )}
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Created At</label>
+              <span className="text-sm font-medium text-muted-foreground">Created At</span>
               <p className="text-lg">{new Date(workflow.created_at).toLocaleString()}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Updated At</label>
+              <span className="text-sm font-medium text-muted-foreground">Updated At</span>
               <p className="text-lg">{new Date(workflow.updated_at).toLocaleString()}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Duration</label>
+              <span className="text-sm font-medium text-muted-foreground">Duration</span>
               <p className="text-lg">
                 {Math.round(
                   (new Date(workflow.updated_at).getTime() -

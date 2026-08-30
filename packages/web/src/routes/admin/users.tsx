@@ -122,6 +122,7 @@ function AdminUsersPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">User Management</h1>
           <button
+            type="button"
             onClick={() => navigate({ to: "/projects" })}
             className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition"
           >
@@ -135,6 +136,7 @@ function AdminUsersPage() {
             <div className="flex gap-2">
               {(["pending", "approved", "rejected", "all"] as const).map((status) => (
                 <button
+                  type="button"
                   key={status}
                   onClick={() => setStatusFilter(status)}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
@@ -197,6 +199,7 @@ function AdminUsersPage() {
                         {user.status === "pending" && (
                           <>
                             <button
+                              type="button"
                               onClick={() => handleApprove(user.id)}
                               disabled={actionLoading === user.id}
                               className="px-3 py-1 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white rounded transition text-xs font-medium"
@@ -204,6 +207,7 @@ function AdminUsersPage() {
                               {actionLoading === user.id ? "..." : "Approve"}
                             </button>
                             <button
+                              type="button"
                               onClick={() => handleReject(user.id)}
                               disabled={actionLoading === user.id}
                               className="px-3 py-1 bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white rounded transition text-xs font-medium"
@@ -214,6 +218,7 @@ function AdminUsersPage() {
                         )}
                         {user.status === "rejected" && (
                           <button
+                            type="button"
                             onClick={() => handleApprove(user.id)}
                             disabled={actionLoading === user.id}
                             className="px-3 py-1 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white rounded transition text-xs font-medium"

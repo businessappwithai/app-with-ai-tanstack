@@ -121,6 +121,7 @@ function InitPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate({ to: "/projects" })}
               className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
             >
@@ -129,6 +130,7 @@ function InitPage() {
             <h1 className="font-bold text-xl tracking-tight">Project Configuration</h1>
           </div>
           <button
+            type="button"
             onClick={() => navigate({ to: "/projects" })}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
           >
@@ -252,17 +254,17 @@ function InitPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                     Created
-                  </label>
+                  </span>
                   <div className="bg-muted px-4 py-3 rounded-xl border border-border text-sm text-muted-foreground">
                     {formatDate(currentProject.createdAt)}
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                     Modified
-                  </label>
+                  </span>
                   <div className="bg-muted px-4 py-3 rounded-xl border border-border text-sm text-muted-foreground">
                     {formatDate(currentProject.updatedAt)}
                   </div>
@@ -281,9 +283,9 @@ function InitPage() {
             <div className="space-y-5">
               {/* Stack Type */}
               <div>
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                   Stack Type
-                </label>
+                </span>
                 {isNewProject ? (
                   <div className="space-y-2">
                     <label
@@ -317,6 +319,7 @@ function InitPage() {
                       {formData.stackType === "tanstackjs-nestjs" && (
                         <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
                           <svg
+                            aria-hidden="true"
                             className="w-3 h-3 text-white"
                             fill="currentColor"
                             viewBox="0 0 20 20"
@@ -345,9 +348,9 @@ function InitPage() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-1">
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                     Port
-                  </label>
+                  </span>
                   <div className="bg-muted border border-border text-muted-foreground rounded-xl px-4 py-3">
                     {currentProject.port}
                   </div>
@@ -392,6 +395,7 @@ function InitPage() {
           {/* Action Buttons */}
           <div className="flex gap-4 pt-4">
             <button
+              type="button"
               onClick={handleSave}
               disabled={isSaving}
               className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground font-bold py-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -406,6 +410,7 @@ function InitPage() {
               )}
             </button>
             <button
+              type="button"
               onClick={handleContinue}
               className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
               style={{ backgroundColor: "#FF8400" }}

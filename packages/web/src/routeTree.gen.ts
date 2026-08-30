@@ -88,394 +88,394 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const DesignerRoute = DesignerRouteImport.update({
   id: '/designer',
   path: '/designer',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const TestRoute = TestRouteImport.update({
   id: '/test',
   path: '/test',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiCopilotkitRoute = ApiCopilotkitRouteImport.update({
   id: '/api/copilotkit',
   path: '/api/copilotkit',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiDeployRoute = ApiDeployRouteImport.update({
   id: '/api/deploy',
   path: '/api/deploy',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiGenerateRoute = ApiGenerateRouteImport.update({
   id: '/api/generate',
   path: '/api/generate',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiModelContextRoute = ApiModelContextRouteImport.update({
   id: '/api/model-context',
   path: '/api/model-context',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   id: '/projects/',
   path: '/projects/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const AdminMermaidIndexRoute = AdminMermaidIndexRouteImport.update({
   id: '/admin/mermaid/',
   path: '/admin/mermaid/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const AdminRulesIndexRoute = AdminRulesIndexRouteImport.update({
   id: '/admin/rules/',
   path: '/admin/rules/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const AdminRulesNewRoute = AdminRulesNewRouteImport.update({
   id: '/admin/rules/new',
   path: '/admin/rules/new',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const AdminWorkflowsIndexRoute = AdminWorkflowsIndexRouteImport.update({
   id: '/admin/workflows/',
   path: '/admin/workflows/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const AdminWorkflowsWorkflowIdRoute =
   AdminWorkflowsWorkflowIdRouteImport.update({
     id: '/admin/workflows/$workflowId',
     path: '/admin/workflows/$workflowId',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiAiCodeAgentRoute = ApiAiCodeAgentRouteImport.update({
   id: '/api/ai/code-agent',
   path: '/api/ai/code-agent',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAiCodeAgentStreamRoute = ApiAiCodeAgentStreamRouteImport.update({
   id: '/api/ai/code-agent-stream',
   path: '/api/ai/code-agent-stream',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAiConvertRoute = ApiAiConvertRouteImport.update({
   id: '/api/ai/convert',
   path: '/api/ai/convert',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAiConvertStreamRoute = ApiAiConvertStreamRouteImport.update({
   id: '/api/ai/convert-stream',
   path: '/api/ai/convert-stream',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAiRulesStreamRoute = ApiAiRulesStreamRouteImport.update({
   id: '/api/ai/rules-stream',
   path: '/api/ai/rules-stream',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
   id: '/api/auth/login',
   path: '/api/auth/login',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
   id: '/api/auth/logout',
   path: '/api/auth/logout',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
   id: '/api/auth/me',
   path: '/api/auth/me',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAuthRegisterRoute = ApiAuthRegisterRouteImport.update({
   id: '/api/auth/register',
   path: '/api/auth/register',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiCopilotkitSplatRoute = ApiCopilotkitSplatRouteImport.update({
   id: '/$',
   path: '/$',
   getParentRoute: () => ApiCopilotkitRoute,
-} as any)
+})
 const ApiDbGenerateSchemaRoute = ApiDbGenerateSchemaRouteImport.update({
   id: '/api/db/generate-schema',
   path: '/api/db/generate-schema',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiDbReverseEngineerRoute = ApiDbReverseEngineerRouteImport.update({
   id: '/api/db/reverse-engineer',
   path: '/api/db/reverse-engineer',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiEmlValidateRoute = ApiEmlValidateRouteImport.update({
   id: '/api/eml/validate',
   path: '/api/eml/validate',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiMermaidIndexRoute = ApiMermaidIndexRouteImport.update({
   id: '/api/mermaid/',
   path: '/api/mermaid/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiMermaidFilenameRoute = ApiMermaidFilenameRouteImport.update({
   id: '/api/mermaid/$filename',
   path: '/api/mermaid/$filename',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiMermaidParseRoute = ApiMermaidParseRouteImport.update({
   id: '/api/mermaid/parse',
   path: '/api/mermaid/parse',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiModelsExamplesRoute = ApiModelsExamplesRouteImport.update({
   id: '/api/models/examples',
   path: '/api/models/examples',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiProjectsIndexRoute = ApiProjectsIndexRouteImport.update({
   id: '/api/projects/',
   path: '/api/projects/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiRulesIndexRoute = ApiRulesIndexRouteImport.update({
   id: '/api/rules/',
   path: '/api/rules/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiRulesValidateRoute = ApiRulesValidateRouteImport.update({
   id: '/api/rules/validate',
   path: '/api/rules/validate',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiWorkflowsIndexRoute = ApiWorkflowsIndexRouteImport.update({
   id: '/api/workflows/',
   path: '/api/workflows/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ProjectsIdAutomationsRoute = ProjectsIdAutomationsRouteImport.update({
   id: '/projects/$id/automations',
   path: '/projects/$id/automations',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ProjectsIdDeployRoute = ProjectsIdDeployRouteImport.update({
   id: '/projects/$id/deploy',
   path: '/projects/$id/deploy',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ProjectsIdDesignRoute = ProjectsIdDesignRouteImport.update({
   id: '/projects/$id/design',
   path: '/projects/$id/design',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ProjectsIdGenerateRoute = ProjectsIdGenerateRouteImport.update({
   id: '/projects/$id/generate',
   path: '/projects/$id/generate',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ProjectsIdInitRoute = ProjectsIdInitRouteImport.update({
   id: '/projects/$id/init',
   path: '/projects/$id/init',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ProjectsIdLogicRoute = ProjectsIdLogicRouteImport.update({
   id: '/projects/$id/logic',
   path: '/projects/$id/logic',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const AdminRulesEntityRuleIdRoute = AdminRulesEntityRuleIdRouteImport.update({
   id: '/admin/rules/$entity/$ruleId',
   path: '/admin/rules/$entity/$ruleId',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAdminUsersIndexRoute = ApiAdminUsersIndexRouteImport.update({
   id: '/api/admin/users/',
   path: '/api/admin/users/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiProjectsIdIndexRoute = ApiProjectsIdIndexRouteImport.update({
   id: '/api/projects/$id/',
   path: '/api/projects/$id/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiProjectsIdEmlRoute = ApiProjectsIdEmlRouteImport.update({
   id: '/api/projects/$id/eml',
   path: '/api/projects/$id/eml',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiRulesRuleIdIndexRoute = ApiRulesRuleIdIndexRouteImport.update({
   id: '/api/rules/$ruleId/',
   path: '/api/rules/$ruleId/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiWorkflowsWorkflowIdIndexRoute =
   ApiWorkflowsWorkflowIdIndexRouteImport.update({
     id: '/api/workflows/$workflowId/',
     path: '/api/workflows/$workflowId/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiWorkflowsWorkflowIdRetryRoute =
   ApiWorkflowsWorkflowIdRetryRouteImport.update({
     id: '/api/workflows/$workflowId/retry',
     path: '/api/workflows/$workflowId/retry',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiWorkflowsWorkflowIdStatusRoute =
   ApiWorkflowsWorkflowIdStatusRouteImport.update({
     id: '/api/workflows/$workflowId/status',
     path: '/api/workflows/$workflowId/status',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ProjectsIdEnhanceIndexRoute = ProjectsIdEnhanceIndexRouteImport.update({
   id: '/projects/$id/enhance/',
   path: '/projects/$id/enhance/',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ProjectsIdEnhanceServiceNameRoute =
   ProjectsIdEnhanceServiceNameRouteImport.update({
     id: '/projects/$id/enhance/$serviceName',
     path: '/projects/$id/enhance/$serviceName',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiAdminUsersIdApproveRoute = ApiAdminUsersIdApproveRouteImport.update({
   id: '/api/admin/users/$id/approve',
   path: '/api/admin/users/$id/approve',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiAdminUsersIdRejectRoute = ApiAdminUsersIdRejectRouteImport.update({
   id: '/api/admin/users/$id/reject',
   path: '/api/admin/users/$id/reject',
   getParentRoute: () => rootRouteImport,
-} as any)
+})
 const ApiProjectsIdAutomationsIndexRoute =
   ApiProjectsIdAutomationsIndexRouteImport.update({
     id: '/api/projects/$id/automations/',
     path: '/api/projects/$id/automations/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdAutomationsAutomationIdRoute =
   ApiProjectsIdAutomationsAutomationIdRouteImport.update({
     id: '/api/projects/$id/automations/$automationId',
     path: '/api/projects/$id/automations/$automationId',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdDeploymentIndexRoute =
   ApiProjectsIdDeploymentIndexRouteImport.update({
     id: '/api/projects/$id/deployment/',
     path: '/api/projects/$id/deployment/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdEmlDownloadRoute =
   ApiProjectsIdEmlDownloadRouteImport.update({
     id: '/download',
     path: '/download',
     getParentRoute: () => ApiProjectsIdEmlRoute,
-  } as any)
+  })
 const ApiProjectsIdErdVersionsIndexRoute =
   ApiProjectsIdErdVersionsIndexRouteImport.update({
     id: '/api/projects/$id/erd-versions/',
     path: '/api/projects/$id/erd-versions/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdMembersIndexRoute =
   ApiProjectsIdMembersIndexRouteImport.update({
     id: '/api/projects/$id/members/',
     path: '/api/projects/$id/members/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdWorkflowsIndexRoute =
   ApiProjectsIdWorkflowsIndexRouteImport.update({
     id: '/api/projects/$id/workflows/',
     path: '/api/projects/$id/workflows/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdErdVersionsVersionIdRestoreRoute =
   ApiProjectsIdErdVersionsVersionIdRestoreRouteImport.update({
     id: '/api/projects/$id/erd-versions/$versionId/restore',
     path: '/api/projects/$id/erd-versions/$versionId/restore',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdMembersUserIdIndexRoute =
   ApiProjectsIdMembersUserIdIndexRouteImport.update({
     id: '/api/projects/$id/members/$userId/',
     path: '/api/projects/$id/members/$userId/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdWorkflowsServiceNameIndexRoute =
   ApiProjectsIdWorkflowsServiceNameIndexRouteImport.update({
     id: '/api/projects/$id/workflows/$serviceName/',
     path: '/api/projects/$id/workflows/$serviceName/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdWorkflowsServiceNameApplyRoute =
   ApiProjectsIdWorkflowsServiceNameApplyRouteImport.update({
     id: '/api/projects/$id/workflows/$serviceName/apply',
     path: '/api/projects/$id/workflows/$serviceName/apply',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdWorkflowsServiceNameDraftRoute =
   ApiProjectsIdWorkflowsServiceNameDraftRouteImport.update({
     id: '/api/projects/$id/workflows/$serviceName/draft',
     path: '/api/projects/$id/workflows/$serviceName/draft',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdWorkflowsServiceNameGenerateRoute =
   ApiProjectsIdWorkflowsServiceNameGenerateRouteImport.update({
     id: '/api/projects/$id/workflows/$serviceName/generate',
     path: '/api/projects/$id/workflows/$serviceName/generate',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdWorkflowsServiceNameGorulesRoute =
   ApiProjectsIdWorkflowsServiceNameGorulesRouteImport.update({
     id: '/api/projects/$id/workflows/$serviceName/gorules',
     path: '/api/projects/$id/workflows/$serviceName/gorules',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdWorkflowsServiceNameValidateRoute =
   ApiProjectsIdWorkflowsServiceNameValidateRouteImport.update({
     id: '/api/projects/$id/workflows/$serviceName/validate',
     path: '/api/projects/$id/workflows/$serviceName/validate',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdWorkflowsServiceNameFilesIndexRoute =
   ApiProjectsIdWorkflowsServiceNameFilesIndexRouteImport.update({
     id: '/api/projects/$id/workflows/$serviceName/files/',
     path: '/api/projects/$id/workflows/$serviceName/files/',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 const ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute =
   ApiProjectsIdWorkflowsServiceNameFilesFileNameRouteImport.update({
     id: '/api/projects/$id/workflows/$serviceName/files/$fileName',
     path: '/api/projects/$id/workflows/$serviceName/files/$fileName',
     getParentRoute: () => rootRouteImport,
-  } as any)
+  })
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute

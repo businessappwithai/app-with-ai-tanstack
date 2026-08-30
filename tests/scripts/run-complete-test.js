@@ -61,7 +61,7 @@ function spawnProcess(command, args, cwd, logFile) {
 function killProcess(pid) {
   try {
     process.kill(pid, "SIGTERM");
-  } catch (error) {
+  } catch (_error) {
     // Process already dead
   }
 }

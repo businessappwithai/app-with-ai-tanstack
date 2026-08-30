@@ -146,6 +146,7 @@ export function ShareProjectModal({ projectId, isOpen, onClose }: ShareProjectMo
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Share Project</h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             aria-label="Close"
@@ -172,10 +173,14 @@ export function ShareProjectModal({ projectId, isOpen, onClose }: ShareProjectMo
           className="space-y-4 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700"
         >
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="shareprojectmodal-email-address"
+              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+            >
               Email Address
             </label>
             <input
+              id="shareprojectmodal-email-address"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -186,10 +191,14 @@ export function ShareProjectModal({ projectId, isOpen, onClose }: ShareProjectMo
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="shareprojectmodal-permission"
+              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+            >
               Permission
             </label>
             <select
+              id="shareprojectmodal-permission"
               value={permission}
               onChange={(e) => setPermission(e.target.value as "read_only" | "read_write")}
               disabled={isLoading}
@@ -250,6 +259,7 @@ export function ShareProjectModal({ projectId, isOpen, onClose }: ShareProjectMo
                     </select>
 
                     <button
+                      type="button"
                       onClick={() => handleRemoveMember(member.user_id)}
                       disabled={isLoading}
                       className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
@@ -266,6 +276,7 @@ export function ShareProjectModal({ projectId, isOpen, onClose }: ShareProjectMo
 
         <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
           <button
+            type="button"
             onClick={onClose}
             disabled={isLoading}
             className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-900 dark:text-white font-semibold py-2 px-4 rounded-lg transition-colors"

@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/projects/$id/workflows/$serviceName/f
           let files: string[] = [];
           try {
             files = await readdir(hooksDir);
-          } catch (error) {
+          } catch (_error) {
             return new Response(
               JSON.stringify({
                 success: true,

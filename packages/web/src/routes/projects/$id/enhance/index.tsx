@@ -196,6 +196,7 @@ function EnhancePage() {
             {services.length > 0 ? (
               services.map((service) => (
                 <button
+                  type="button"
                   key={service.name}
                   onClick={() => {
                     console.log("Service clicked:", service.name);
@@ -248,6 +249,7 @@ function EnhancePage() {
                   Generate your project code first to create services
                 </p>
                 <button
+                  type="button"
                   onClick={() =>
                     navigate({ to: "/projects/$id/generate", params: { id: projectId } })
                   }

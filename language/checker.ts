@@ -2447,7 +2447,7 @@ class CheckEngine {
     for (const rule of this.model.rules) {
       if (!rule.entity) {
         this.info("EML506", `Rule "${rule.name}" has no entity binding.`, {
-          hint: "Add  %%rule ${rule.name} on <Entity> event: <hookType>  to bind this rule to an entity lifecycle.",
+          hint: `Add  %%rule ${rule.name} on <Entity> event: <hookType>  to bind this rule to an entity lifecycle.`,
         });
       }
     }

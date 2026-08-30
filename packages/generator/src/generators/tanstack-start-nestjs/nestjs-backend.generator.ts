@@ -117,7 +117,7 @@ function cleanJsonContent(jsonStr: string): string {
     // Parse and reformat to ensure valid JSON
     const parsed = JSON.parse(cleaned);
     return JSON.stringify(parsed, null, 2);
-  } catch (e) {
+  } catch (_e) {
     // If parsing fails, return original but still try to fix obvious issues
     return jsonStr.replace(/,(\s*[}\]])/g, "$1").replace(/(\[\s*),/g, "$1");
   }
@@ -603,7 +603,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
     for (const file of staticAppFiles) {
       try {
         await fs.copyFile(path.join(this.resolvedTemplateDir, file), path.join(outputDir, file));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Static app file not found: ${file}`);
       }
     }
@@ -621,7 +621,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(`${file}.hbs`, context);
         await fs.writeFile(path.join(outputDir, file), content);
-      } catch (e) {
+      } catch (_e) {
         // Template may not exist, skip
       }
     }
@@ -636,7 +636,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/decorators/public.decorator.ts"),
         publicDecoratorContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Public decorator template not found");
     }
 
@@ -649,7 +649,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/decorators/roles.decorator.ts"),
         rolesDecoratorContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Roles decorator template not found");
     }
 
@@ -662,7 +662,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/decorators/current-user.decorator.ts"),
         currentUserDecoratorContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Current user decorator template not found");
     }
 
@@ -675,7 +675,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/guards/jwt-auth.guard.ts"),
         jwtGuardContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("JWT auth guard template not found");
     }
 
@@ -688,7 +688,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/guards/session-auth.guard.ts"),
         sessionAuthGuardContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Session auth guard template not found");
     }
 
@@ -701,7 +701,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/guards/roles.guard.ts"),
         rolesGuardContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Roles guard template not found");
     }
 
@@ -718,7 +718,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/guards/entity-access.guard.ts"),
         entityAccessGuardContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Entity access guard template not found");
     }
 
@@ -732,7 +732,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/guards/dictionary-write.guard.ts"),
         dictionaryWriteGuardContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Dictionary write guard template not found");
     }
 
@@ -746,7 +746,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/auth.controller.ts"),
         authControllerContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth controller template not found");
     }
 
@@ -759,7 +759,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         path.join(outputDir, "src/modules/auth/auth.module.ts"),
         authModuleContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth module template not found");
     }
 
@@ -767,7 +767,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
     try {
       const betterAuthContent = await this.renderTemplate("src/lib/better-auth.ts.hbs", context);
       await fs.writeFile(path.join(outputDir, "src/lib/better-auth.ts"), betterAuthContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Better-auth lib template not found");
     }
 
@@ -783,7 +783,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(tpl, context);
         await fs.writeFile(path.join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Hook template not found: ${tpl}`);
       }
     }
@@ -792,7 +792,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
     try {
       const triggerConfigContent = await this.renderTemplate("trigger.config.ts.hbs", context);
       await fs.writeFile(path.join(outputDir, "trigger.config.ts"), triggerConfigContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Trigger.dev config template not found");
     }
 
@@ -802,7 +802,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       try {
         const taskContent = await this.renderTemplate(`src/trigger/${task}.task.ts.hbs`, context);
         await fs.writeFile(path.join(outputDir, `src/trigger/${task}.task.ts`), taskContent);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Trigger task template not found: ${task}`);
       }
     }
@@ -827,7 +827,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(tpl, context);
         await fs.writeFile(path.join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Job queue template not found: ${tpl}`);
       }
     }
@@ -851,7 +851,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(tpl, context);
         await fs.writeFile(path.join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Rules template not found: ${tpl}`);
       }
     }
@@ -876,7 +876,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(tpl, context);
         await fs.writeFile(path.join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Workflow template not found: ${tpl}`);
       }
     }
@@ -1861,7 +1861,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `  }`,
       `  for (const t of TRANSITIONS) {`,
       `    await db`,
-      `      .insertInto('sys_workflow_transitions' as any)`,
+      `      .insertInto('sys_workflow_transitions')`,
       `      .values({`,
       `        table_name: t.tableName,`,
       `        status_field: t.statusField,`,
@@ -1869,12 +1869,12 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `        to_state: t.toState,`,
       `        transition_name: t.transitionName || null,`,
       `        is_active: true,`,
-      `      } as any)`,
+      `      })`,
       `      .onConflict((oc) =>`,
       `        oc.constraint('sys_workflow_transitions_unique').doUpdateSet({`,
       `          transition_name: t.transitionName || null,`,
       `          is_active: true,`,
-      `        } as any)`,
+      `        })`,
       `      )`,
       `      .execute();`,
       `  }`,
@@ -1896,7 +1896,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     try {
       const tsconfigContent = await this.renderTemplate("tsconfig.json.hbs", context);
       await fs.writeFile(path.join(outputDir, "tsconfig.json"), tsconfigContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom tsconfig template not found, keeping NestJS default");
     }
 
@@ -1904,7 +1904,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     try {
       const nestCliContent = await this.renderTemplate("nest-cli.json.hbs", context);
       await fs.writeFile(path.join(outputDir, "nest-cli.json"), nestCliContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("nest-cli.json template not found, keeping NestJS default");
     }
 
@@ -1912,7 +1912,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     try {
       const prettierContent = await this.renderTemplate(".prettierrc.hbs", context);
       await fs.writeFile(path.join(outputDir, ".prettierrc"), prettierContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn(".prettierrc template not found, skipping");
     }
 
@@ -1936,7 +1936,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     for (const file of staticConfigFiles) {
       try {
         await fs.copyFile(path.join(this.resolvedTemplateDir, file), path.join(outputDir, file));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Static config file not found: ${file}`);
       }
     }
@@ -1945,7 +1945,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     try {
       const dockerfileContent = await this.renderTemplate("Dockerfile.hbs", context);
       await fs.writeFile(path.join(outputDir, "Dockerfile"), dockerfileContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Dockerfile template not found, skipping");
     }
 
@@ -1978,7 +1978,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     try {
       const biomeContent = await this.renderTemplate("biome.json.hbs", context);
       await fs.writeFile(path.join(outputDir, "biome.json"), biomeContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom Biome config template not found, using defaults");
     }
 
@@ -2009,7 +2009,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         path.join(outputDir, "src/database/database.service.ts"),
         dbServiceContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Database service template not found");
     }
 
@@ -2023,7 +2023,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         path.join(outputDir, "src/database/database.service.decorator.ts"),
         dbServiceDecoratorContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Database service decorator template not found");
     }
   }
@@ -2063,7 +2063,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       try {
         const content = await this.renderTemplate(tpl, context);
         await fs.writeFile(path.join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Auth test template not found: ${tpl}`);
       }
     }
@@ -2075,7 +2075,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         context
       );
       await fs.writeFile(path.join(outputDir, "test/rules-engine.test.ts"), rulesEngineTestContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Rules engine test template not found");
     }
 
@@ -2089,7 +2089,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         path.join(outputDir, "test/rules-workflow-trigger.test.ts"),
         triggerWorkflowTestContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Trigger-workflow test template not found");
     }
 
@@ -2103,7 +2103,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         path.join(outputDir, "test/modules/jobs/job-queue.service.test.ts"),
         jobQueueTestContent
       );
-    } catch (e) {
+    } catch (_e) {
       console.warn("Job queue test template not found");
     }
 
@@ -2123,7 +2123,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       try {
         const content = await this.renderTemplate(tpl, context);
         await fs.writeFile(path.join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Behaviour test template not found: ${tpl}`);
       }
     }
@@ -2139,7 +2139,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       try {
         const content = await this.renderTemplate(tpl, context);
         await fs.writeFile(path.join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Trigger test template not found: ${tpl}`);
       }
     }

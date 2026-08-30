@@ -171,7 +171,7 @@ export const Route = createFileRoute("/api/projects/")({
               owner_user_id: user.id,
               created_at: now,
               updated_at: now,
-            } as any)
+            })
             .execute();
 
           // Persist a model supplied at creation as version 1. It used to be
@@ -199,20 +199,20 @@ export const Route = createFileRoute("/api/projects/")({
 
           const project = dbProject
             ? {
-                id: (dbProject as any).id,
-                name: (dbProject as any).name,
-                description: (dbProject as any).description,
-                icon: (dbProject as any).icon,
-                iconColor: (dbProject as any).icon_color,
-                createdAt: (dbProject as any).created_at,
-                updatedAt: (dbProject as any).updated_at,
-                status: (dbProject as any).status,
-                isDeleted: (dbProject as any).is_deleted,
-                ownerId: (dbProject as any).owner_user_id,
-                stackType: (dbProject as any).stack_type,
-                port: (dbProject as any).port,
-                databaseUrl: (dbProject as any).database_url,
-                generatedPath: (dbProject as any).generated_path,
+                id: dbProject.id,
+                name: dbProject.name,
+                description: dbProject.description,
+                icon: dbProject.icon,
+                iconColor: dbProject.icon_color,
+                createdAt: dbProject.created_at,
+                updatedAt: dbProject.updated_at,
+                status: dbProject.status,
+                isDeleted: dbProject.is_deleted,
+                ownerId: dbProject.owner_user_id,
+                stackType: dbProject.stack_type,
+                port: dbProject.port,
+                databaseUrl: dbProject.database_url,
+                generatedPath: dbProject.generated_path,
                 erdCode: typeof erdCode === "string" && erdCode.trim() ? erdCode : "",
               }
             : null;

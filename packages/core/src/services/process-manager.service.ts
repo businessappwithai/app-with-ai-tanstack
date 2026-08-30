@@ -45,7 +45,7 @@ export class ProcessManagerService {
       }
 
       return null;
-    } catch (error) {
+    } catch (_error) {
       // No process found on this port (lsof returns empty when nothing is listening)
       return null;
     }

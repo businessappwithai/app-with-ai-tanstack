@@ -56,18 +56,18 @@ export async function getCurrentUser(request: Request): Promise<AuthUsersTable |
   const now = new Date().toISOString();
 
   const session = await db
-    .selectFrom("auth_sessions" as any)
+    .selectFrom("auth_sessions")
     .selectAll()
-    .where("token" as any, "=", token)
-    .where("expiresAt" as any, ">", now)
+    .where("token", "=", token)
+    .where("expiresAt", ">", now)
     .executeTakeFirst();
 
   if (!session) return null;
 
   const user = await db
-    .selectFrom("auth_users" as any)
+    .selectFrom("auth_users")
     .selectAll()
-    .where("id" as any, "=", (session as any).userId)
+    .where("id", "=", session.userId)
     .executeTakeFirst();
 
   return (user as AuthUsersTable | undefined) ?? null;

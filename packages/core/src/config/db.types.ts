@@ -1,34 +1,50 @@
+import type { ColumnType } from "kysely";
+
+/**
+ * A column the database fills in when an insert omits it (it has a DEFAULT).
+ * Present on select, optional on insert.
+ */
+type Defaulted<T> = ColumnType<T, T | undefined, T>;
+
+/**
+ * A nullable column with no default. Optional on insert; null when unset.
+ *
+ * Declaring these as a plain `T | null` is what made Kysely demand every one of
+ * them on every insert, which is why call sites reached for `as any` instead.
+ */
+type Nullable<T> = ColumnType<T | null, T | null | undefined, T | null>;
+
 /** Kysely table interfaces — shared by db.config and database.service */
 
 export interface ProjectsTable {
   id: string;
   name: string;
-  description: string | null;
-  icon: string;
-  icon_color: string;
-  status: string;
-  is_deleted: boolean;
-  stack_type: string;
-  stack_version: string;
-  port: number;
-  base_url: string | null;
-  database_url: string | null;
-  database_type: string;
-  database_schema: string | null;
-  environment_variables: string | null;
-  secrets: string | null;
-  generated_path: string | null;
-  output_directory: string | null;
-  build_config: string | null;
-  is_typescript: boolean;
-  is_tailwind: boolean;
-  deployment_status: string | null;
-  deployment_url: string | null;
-  uptime: string | null;
-  owner_user_id: string | null;
-  target_db_connection: string | null;
-  created_at: string;
-  updated_at: string;
+  description: Nullable<string>;
+  icon: Defaulted<string>;
+  icon_color: Defaulted<string>;
+  status: Defaulted<string>;
+  is_deleted: Defaulted<boolean>;
+  stack_type: Defaulted<string>;
+  stack_version: Defaulted<string>;
+  port: Defaulted<number>;
+  base_url: Nullable<string>;
+  database_url: Nullable<string>;
+  database_type: Defaulted<string>;
+  database_schema: Nullable<string>;
+  environment_variables: Nullable<string>;
+  secrets: Nullable<string>;
+  generated_path: Nullable<string>;
+  output_directory: Nullable<string>;
+  build_config: Nullable<string>;
+  is_typescript: Defaulted<boolean>;
+  is_tailwind: Defaulted<boolean>;
+  deployment_status: Nullable<string>;
+  deployment_url: Nullable<string>;
+  uptime: Nullable<string>;
+  owner_user_id: Nullable<string>;
+  target_db_connection: Nullable<string>;
+  created_at: Defaulted<string>;
+  updated_at: Defaulted<string>;
 }
 
 export interface ProjectMembersTable {
@@ -176,6 +192,8 @@ export interface AuthUsersTable {
   emailVerified: boolean;
   status: string;
   role: string;
+  /** Added by runMigrations(); bcrypt hash, null for OAuth-only accounts. */
+  passwordHash: Nullable<string>;
   createdAt: string;
   updatedAt: string;
 }

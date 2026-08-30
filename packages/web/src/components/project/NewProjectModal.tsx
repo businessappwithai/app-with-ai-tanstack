@@ -49,6 +49,7 @@ export function NewProjectModal({ isOpen, onClose, onCreateProject }: NewProject
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Project</h2>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 hover:bg-muted rounded-lg transition-colors"
             disabled={isSubmitting}
@@ -101,9 +102,9 @@ export function NewProjectModal({ isOpen, onClose, onCreateProject }: NewProject
 
           {/* Stack Type */}
           <div>
-            <label className="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2 block">
+            <span className="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2 block">
               Stack Type <span className="text-red-500">*</span>
-            </label>
+            </span>
             <div className="flex items-center p-4 border-2 border-primary bg-primary/5 rounded-xl">
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 dark:text-white">
@@ -114,7 +115,12 @@ export function NewProjectModal({ isOpen, onClose, onCreateProject }: NewProject
                 </p>
               </div>
               <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
-                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  aria-hidden="true"
+                  className="w-3 h-3 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"

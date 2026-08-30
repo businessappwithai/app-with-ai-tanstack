@@ -32,19 +32,19 @@ function makeAPIRouteObject(path, methods) {
       this._to = this._fullPath;
     },
     // Additional Route interface methods TanStack Router may call
-    addChildren(children) {
+    addChildren(_children) {
       return this;
     },
-    _addFileChildren(children) {
+    _addFileChildren(_children) {
       return this;
     },
     _addFileTypes() {
       return this;
     },
-    updateLoader(opts) {
+    updateLoader(_opts) {
       return this;
     },
-    lazy(fn) {
+    lazy(_fn) {
       return this;
     },
     get id() {
@@ -130,5 +130,4 @@ export const defaultAPIRoutesHandler =
     return handler({ request, params: match.params });
   };
 
-export const defaultAPIFileRouteHandler = async ({ request }) =>
-  new Response("Not found", { status: 404 });
+export const defaultAPIFileRouteHandler = async () => new Response("Not found", { status: 404 });

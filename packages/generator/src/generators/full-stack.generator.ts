@@ -463,7 +463,7 @@ tests/.e2e-seed-manifest.json
             }
           }
         }
-      } catch (e) {
+      } catch (_e) {
         // Workflows may not exist yet
       }
 
@@ -488,7 +488,7 @@ tests/.e2e-seed-manifest.json
             }
           }
         }
-      } catch (e) {
+      } catch (_e) {
         // Workflows may not exist yet
       }
     }
@@ -671,7 +671,7 @@ MIT
       console.log(
         '   Tip: Run "bun run lint:fix" in backend/frontend directories to auto-fix issues'
       );
-    } catch (error) {
+    } catch (_error) {
       console.warn("  ⚠️  Linting could not be completed (dependencies not installed?)");
       console.log('   Tip: Run "bun install" first, then run linting manually');
     }

@@ -767,6 +767,7 @@ function ServiceWorkflowPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <button
+                type="button"
                 onClick={() => navigate({ to: "/projects/$id/enhance", params: { id: projectId } })}
                 className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
@@ -801,6 +802,7 @@ function ServiceWorkflowPage() {
 
               <div className="flex items-center gap-2 border-l border-border pl-3">
                 <button
+                  type="button"
                   onClick={handleValidate}
                   disabled={selectedHooks.length === 0 || isValidating}
                   className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -820,6 +822,7 @@ function ServiceWorkflowPage() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={handleSave}
                   disabled={workflowState !== "validated" || isSaving}
                   className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -838,6 +841,7 @@ function ServiceWorkflowPage() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={handleGenerate}
                   disabled={workflowState !== "saved" || isGenerating}
                   className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -858,6 +862,7 @@ function ServiceWorkflowPage() {
 
               {workflowState === "generated" && (
                 <button
+                  type="button"
                   onClick={handleContinue}
                   className="flex items-center gap-2 px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
                 >
@@ -893,6 +898,7 @@ function ServiceWorkflowPage() {
           <div className="max-w-[1800px] mx-auto px-6">
             <div className="flex gap-6">
               <button
+                type="button"
                 onClick={() => setActiveTab("hooks")}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors \${
                   activeTab === "hooks"
@@ -905,6 +911,7 @@ function ServiceWorkflowPage() {
                 Hooks
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("workflows")}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors \${
                   activeTab === "workflows"
@@ -935,6 +942,7 @@ function ServiceWorkflowPage() {
                       Available Hooks
                     </h3>
                     <button
+                      type="button"
                       onClick={() => setShowHooksList(!showHooksList)}
                       className="text-xs text-muted-foreground hover:text-foreground"
                     >
@@ -956,6 +964,7 @@ function ServiceWorkflowPage() {
                                 const isActive = selectedHooks.some((h) => h.type === hook.type);
                                 return (
                                   <button
+                                    type="button"
                                     key={hook.type}
                                     onClick={() => !isActive && handleAddHook(hook.type)}
                                     disabled={isActive}
@@ -1019,6 +1028,7 @@ function ServiceWorkflowPage() {
                                 </div>
                               </div>
                               <button
+                                type="button"
                                 onClick={() => handleRemoveHook(index)}
                                 className="p-1 hover:bg-red-100 dark:hover:bg-red-950/30 rounded transition-colors flex-shrink-0 ml-2"
                               >
@@ -1077,6 +1087,7 @@ function ServiceWorkflowPage() {
             <div className="space-y-2">
               {generatedFiles.map((file, index) => (
                 <button
+                  type="button"
                   key={index}
                   onClick={() => setSelectedFileIndex(index)}
                   className={`w-full text-left p-3 rounded-lg transition-colors \${
@@ -1109,6 +1120,7 @@ function ServiceWorkflowPage() {
               </h3>
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => {
                     if (generatedFiles[selectedFileIndex]) {
                       handleSaveFile(selectedFileIndex);
@@ -1120,6 +1132,7 @@ function ServiceWorkflowPage() {
                   Save File
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     if (generatedFiles[selectedFileIndex]) {
                       handleDownloadFile(generatedFiles[selectedFileIndex]);
@@ -1131,6 +1144,7 @@ function ServiceWorkflowPage() {
                   Download
                 </button>
                 <button
+                  type="button"
                   onClick={() => setShowGeneratedCode(false)}
                   className="flex items-center gap-2 px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-lg transition-colors"
                 >

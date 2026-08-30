@@ -130,10 +130,14 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
     <div className="space-y-4">
       {/* Task Input */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-slate-900 dark:text-white">
+        <label
+          htmlFor="codeagentpanel-field"
+          className="block text-sm font-medium text-slate-900 dark:text-white"
+        >
           What code would you like to generate?
         </label>
         <textarea
+          id="codeagentpanel-field"
           placeholder="e.g., Generate a complete TanStack Start application with user authentication, or Create database migrations for the ERD"
           value={task}
           onChange={(e) => setTask(e.target.value)}
@@ -144,10 +148,14 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
 
       {/* Stack Selection */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-slate-900 dark:text-white">
+        <label
+          htmlFor="codeagentpanel-target-stack"
+          className="block text-sm font-medium text-slate-900 dark:text-white"
+        >
           Target Stack
         </label>
         <select
+          id="codeagentpanel-target-stack"
           value={stack}
           onChange={(e) => setStack(e.target.value as "tanstack-start-nestjs")}
           className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500"
@@ -158,9 +166,9 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
 
       {/* Options */}
       <div className="space-y-3">
-        <label className="block text-sm font-medium text-slate-900 dark:text-white">
+        <span className="block text-sm font-medium text-slate-900 dark:text-white">
           Generation Options
-        </label>
+        </span>
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -218,9 +226,9 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
       {result && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-green-600 dark:text-green-400">
+            <span className="text-sm font-medium text-green-600 dark:text-green-400">
               Code Generated Successfully!
-            </label>
+            </span>
             {result.usage && (
               <span className="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded">
                 {result.usage.completionTokens} tokens
@@ -236,6 +244,7 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
       {/* Action Buttons */}
       <div className="flex items-center gap-2">
         <button
+          type="button"
           onClick={handleGenerateCode}
           disabled={!task.trim() || isProcessing}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -253,6 +262,7 @@ export function CodeAgentPanel({ erdCode }: CodeAgentPanelProps) {
           )}
         </button>
         <button
+          type="button"
           onClick={() => {
             setTask("");
             setStatus(null);

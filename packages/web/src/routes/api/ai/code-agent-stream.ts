@@ -45,7 +45,7 @@ export const Route = createFileRoute("/api/ai/code-agent-stream")({
                 );
 
                 controller.close();
-              } catch (error) {
+              } catch (_error) {
                 controller.enqueue(
                   encoder.encode(`data: ${JSON.stringify({ error: "Code generation failed" })}\n\n`)
                 );

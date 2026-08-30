@@ -8,7 +8,6 @@
  */
 
 import {
-  camelCase as coreCamel,
   kebabCase as coreKebab,
   pascalCase as corePascal,
   snakeCase as coreSnake,

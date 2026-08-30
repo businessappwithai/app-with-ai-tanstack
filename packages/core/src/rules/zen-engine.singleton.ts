@@ -41,6 +41,9 @@ export interface EvaluationOptions {
  *
  * @see https://github.com/gorules/zen
  */
+// The class encapsulates the private static instance and init flag that make it a
+// singleton; see the doc comment above.
+// biome-ignore lint/complexity/noStaticOnlyClass: deliberate singleton.
 class ZenEngineSingleton {
   private static instance: ZenEngine | null = null;
   private static initialized = false;

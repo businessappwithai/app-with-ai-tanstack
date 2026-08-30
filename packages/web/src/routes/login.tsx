@@ -122,6 +122,7 @@ function LoginPage() {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => {
                 setRegistrationStatus("idle");
                 setTab("login");
@@ -143,6 +144,7 @@ function LoginPage() {
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 w-full">
           <div className="flex justify-center mb-6">
             <svg
+              aria-hidden="true"
               className="w-12 h-12 text-orange-500"
               viewBox="0 0 24 24"
               fill="none"
@@ -161,6 +163,7 @@ function LoginPage() {
 
           <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-700">
             <button
+              type="button"
               onClick={() => {
                 setTab("login");
                 setError("");
@@ -175,6 +178,7 @@ function LoginPage() {
               Sign In
             </button>
             <button
+              type="button"
               onClick={() => {
                 setTab("register");
                 setError("");
@@ -199,10 +203,14 @@ function LoginPage() {
           <form onSubmit={tab === "login" ? handleLogin : handleRegister} className="space-y-4">
             {tab === "register" && (
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+                <label
+                  htmlFor="login-full-name"
+                  className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white"
+                >
                   Full Name
                 </label>
                 <input
+                  id="login-full-name"
                   type="text"
                   required
                   value={name}
@@ -214,10 +222,14 @@ function LoginPage() {
             )}
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+              <label
+                htmlFor="login-email"
+                className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white"
+              >
                 Email
               </label>
               <input
+                id="login-email"
                 type="email"
                 required
                 value={email}
@@ -228,10 +240,14 @@ function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+              <label
+                htmlFor="login-password"
+                className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white"
+              >
                 Password
               </label>
               <input
+                id="login-password"
                 type="password"
                 required
                 value={password}

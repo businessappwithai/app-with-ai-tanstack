@@ -1798,6 +1798,9 @@ program
           process.stdout.write("  waiting for postgres... ");
           for (let i = 0; i < 30; i++) {
             const check = await ssh.execCommand(
+              // ${DB_USER:-app} is shell parameter expansion, evaluated on the remote
+              // host by docker compose — not a JS template placeholder.
+              // biome-ignore lint/suspicious/noTemplateCurlyInString: shell expansion.
               "docker compose exec -T postgres pg_isready -U ${DB_USER:-app} 2>/dev/null",
               { cwd: remoteProjectDir }
             );

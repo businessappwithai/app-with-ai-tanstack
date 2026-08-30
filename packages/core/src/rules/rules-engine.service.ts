@@ -171,10 +171,10 @@ export class RulesEngineService implements IRulesEngineService {
     const row = await this.db
       .selectFrom("sys_rule_definitions" as any)
       .selectAll()
-      .where("entity_name" as any, "=", entityName)
-      .where("trigger" as any, "=", operation)
-      .where("active" as any, "=", true)
-      .orderBy("priority" as any, "asc")
+      .where("entity_name", "=", entityName)
+      .where("trigger", "=", operation)
+      .where("active", "=", true)
+      .orderBy("priority", "asc")
       .executeTakeFirst();
 
     if (!row) {
@@ -222,7 +222,7 @@ export class RulesEngineService implements IRulesEngineService {
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
         version: 1,
-      } as any)
+      })
       .returningAll()
       .executeTakeFirst();
 
@@ -248,7 +248,7 @@ export class RulesEngineService implements IRulesEngineService {
     const current = await this.db
       .selectFrom("sys_rule_definitions" as any)
       .selectAll()
-      .where("id" as any, "=", ruleId)
+      .where("id", "=", ruleId)
       .executeTakeFirst();
 
     if (!current) {
@@ -260,9 +260,9 @@ export class RulesEngineService implements IRulesEngineService {
       .set({
         decision_model: jdmContent,
         updated_at: new Date().toISOString(),
-        version: ((current as any).version || 0) + 1,
-      } as any)
-      .where("id" as any, "=", ruleId)
+        version: (current.version || 0) + 1,
+      })
+      .where("id", "=", ruleId)
       .returningAll()
       .executeTakeFirst();
 
@@ -271,9 +271,9 @@ export class RulesEngineService implements IRulesEngineService {
     }
 
     // Invalidate cache for this entity/operation
-    ruleCache.invalidate((row as any).entity_name, (row as any).trigger);
+    ruleCache.invalidate(row.entity_name, row.trigger);
 
-    return this.mapRowToDefinition(row as any);
+    return this.mapRowToDefinition(row);
   }
 
   /**
@@ -320,8 +320,8 @@ export class RulesEngineService implements IRulesEngineService {
     let selectQuery = this.db.selectFrom("sys_rule_definitions" as any).selectAll();
 
     if (entityName) {
-      countQuery = countQuery.where("entity_name" as any, "=", entityName);
-      selectQuery = selectQuery.where("entity_name" as any, "=", entityName);
+      countQuery = countQuery.where("entity_name", "=", entityName);
+      selectQuery = selectQuery.where("entity_name", "=", entityName);
     }
 
     // Get total count
@@ -330,7 +330,7 @@ export class RulesEngineService implements IRulesEngineService {
 
     // Get paginated results
     const rows = await selectQuery
-      .orderBy("created_at" as any, "desc")
+      .orderBy("created_at", "desc")
       .limit(limit)
       .offset(offset)
       .execute();

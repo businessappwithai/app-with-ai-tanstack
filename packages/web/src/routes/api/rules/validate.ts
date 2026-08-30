@@ -88,7 +88,7 @@ export const Route = createFileRoute("/api/rules/validate")({
           // Validate JSON structure
           try {
             JSON.stringify(jdm);
-          } catch (error) {
+          } catch (_error) {
             errors.push("Invalid JSON structure");
           }
 

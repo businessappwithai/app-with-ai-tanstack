@@ -91,6 +91,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <div className="flex gap-3 justify-center mt-6">
               <button
+                type="button"
                 onClick={this.handleReset}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
               >
@@ -98,6 +99,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 Try Again
               </button>
               <button
+                type="button"
                 onClick={() => (window.location.href = "/")}
                 className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors"
               >

@@ -15,6 +15,9 @@ export interface CliExecutorOptions {
   timeout?: number;
 }
 
+// A named utility namespace callers import as CliExecutor.executeSync; splitting it
+// into free functions would churn every call site for no behavioural gain.
+// biome-ignore lint/complexity/noStaticOnlyClass: deliberate utility namespace.
 export class CliExecutor {
   /**
    * Execute a CLI command synchronously
@@ -155,7 +158,7 @@ export class CliExecutor {
   static async removeDirectory(dirPath: string): Promise<void> {
     try {
       await fs.rm(dirPath, { recursive: true, force: true });
-    } catch (error) {
+    } catch (_error) {
       console.warn(`Warning: Could not remove directory ${dirPath}`);
     }
   }
@@ -166,7 +169,7 @@ export class CliExecutor {
   static async copyDirectory(src: string, dest: string): Promise<void> {
     try {
       await fs.cp(src, dest, { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to copy directory from ${src} to ${dest}`);
     }
   }

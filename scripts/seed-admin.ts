@@ -19,9 +19,9 @@ async function seedAdmin() {
     const db = getDatabase();
 
     const user = await db
-      .selectFrom("auth_users" as any)
+      .selectFrom("auth_users")
       .selectAll()
-      .where("email" as any, "=", email)
+      .where("email", "=", email)
       .executeTakeFirst();
 
     if (!user) {
@@ -30,9 +30,9 @@ async function seedAdmin() {
     }
 
     await db
-      .updateTable("auth_users" as any)
+      .updateTable("auth_users")
       .set({ status: "approved", role: "admin" })
-      .where("id" as any, "=", (user as any).id)
+      .where("id", "=", user.id)
       .execute();
 
     console.log(`✅ Successfully promoted user to admin: ${email}`);

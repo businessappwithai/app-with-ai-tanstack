@@ -124,9 +124,9 @@ export class AuthService implements IAuthService {
 
     // Set user status to pending and role to user
     await this.db
-      .updateTable("auth_users" as any)
+      .updateTable("auth_users")
       .set({ status: "pending", role: "user" })
-      .where("id" as any, "=", userId)
+      .where("id", "=", userId)
       .execute();
 
     return {
@@ -203,7 +203,7 @@ export class AuthService implements IAuthService {
     const roleRecord = await this.db
       .selectFrom("ad_role" as any)
       .selectAll()
-      .where("name" as any, "=", role)
+      .where("name", "=", role)
       .executeTakeFirst();
 
     if (!roleRecord) {
@@ -214,7 +214,7 @@ export class AuthService implements IAuthService {
     const existing = await this.db
       .selectFrom("ad_user_roles" as any)
       .selectAll()
-      .where("ad_user_id" as any, "=", userId)
+      .where("ad_user_id", "=", userId)
       .where("ad_role_id" as any, "=", (roleRecord as any).ad_role_id)
       .executeTakeFirst();
 
@@ -241,7 +241,7 @@ export class AuthService implements IAuthService {
     const roleRecord = await this.db
       .selectFrom("ad_role" as any)
       .selectAll()
-      .where("name" as any, "=", role)
+      .where("name", "=", role)
       .executeTakeFirst();
 
     if (!roleRecord) {
@@ -251,7 +251,7 @@ export class AuthService implements IAuthService {
     // Remove role
     await this.db
       .deleteFrom("ad_user_roles" as any)
-      .where("ad_user_id" as any, "=", userId)
+      .where("ad_user_id", "=", userId)
       .where("ad_role_id" as any, "=", (roleRecord as any).ad_role_id)
       .execute();
   }
@@ -263,8 +263,8 @@ export class AuthService implements IAuthService {
     const roles = await this.db
       .selectFrom("ad_user_roles as ur" as any)
       .innerJoin("ad_role as r", (eb) => eb.on("ur.ad_role_id" as any, "=", "r.ad_role_id" as any))
-      .where("ur.ad_user_id" as any, "=", userId)
-      .select("r.name" as any)
+      .where("ur.ad_user_id", "=", userId)
+      .select("r.name")
       .execute();
 
     return roles.map((r: any) => r.name as UserRole);

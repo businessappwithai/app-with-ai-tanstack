@@ -26,7 +26,7 @@ async function checkProjectAccess(
     return { allowed: false, reason: "Project not found" };
   }
 
-  if ((project as any).owner_user_id === userId) {
+  if (project.owner_user_id === userId) {
     return { allowed: true };
   }
 
@@ -41,7 +41,7 @@ async function checkProjectAccess(
     return { allowed: false, reason: "Access denied" };
   }
 
-  if (requiredPermission === "read_write" && (membership as any).permission !== "read_write") {
+  if (requiredPermission === "read_write" && membership.permission !== "read_write") {
     return { allowed: false, reason: "Insufficient permissions" };
   }
 
@@ -188,7 +188,7 @@ export const Route = createFileRoute("/api/projects/$id/")({
 
           const project = {
             ...toProjectResponse(dbProject as Record<string, any>),
-            erdCode: (currentVersion as any)?.mermaid_code ?? "",
+            erdCode: currentVersion?.mermaid_code ?? "",
           };
 
           return new Response(JSON.stringify({ project }), {

@@ -1416,6 +1416,8 @@ var appwithai_language_default = {
     },
     autoFixable: {
       EML001: "Missing %%meta name - inserts one derived from the first entity.",
+      EML103: "Column is added by the generator anyway - deletes the declared line.",
+      EML112: "Duplicate attribute - deletes the later line, keeping the stronger constraints.",
       EML114: "Foreign key not ending in _id - appends the suffix.",
       EML117: "Entity has no primary key - prepends `string id PK`.",
       EML421: "State workflow has no initial transition - inserts `[*] --> <firstState>`.",
@@ -3463,7 +3465,7 @@ class CheckEngine {
     for (const rule of this.model.rules) {
       if (!rule.entity) {
         this.info("EML506", `Rule "${rule.name}" has no entity binding.`, {
-          hint: "Add  %%rule ${rule.name} on <Entity> event: <hookType>  to bind this rule to an entity lifecycle."
+          hint: `Add  %%rule ${rule.name} on <Entity> event: <hookType>  to bind this rule to an entity lifecycle.`
         });
       }
     }

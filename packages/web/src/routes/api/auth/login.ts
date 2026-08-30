@@ -27,9 +27,9 @@ export const Route = createFileRoute("/api/auth/login")({
           const db = getDatabase();
 
           const user = await db
-            .selectFrom("auth_users" as any)
+            .selectFrom("auth_users")
             .selectAll()
-            .where("email" as any, "=", email)
+            .where("email", "=", email)
             .executeTakeFirst();
 
           if (!user) {
@@ -39,8 +39,8 @@ export const Route = createFileRoute("/api/auth/login")({
             });
           }
 
-          const status = (user as any).status || "approved";
-          const role = (user as any).role || "user";
+          const status = user.status || "approved";
+          const role = user.role || "user";
 
           if (status === "pending") {
             return new Response(
@@ -71,7 +71,7 @@ export const Route = createFileRoute("/api/auth/login")({
 
           // Verify password
           const passwordHash = await hashPassword(password);
-          const storedPasswordHash = (user as any).passwordHash;
+          const storedPasswordHash = user.passwordHash;
 
           if (!storedPasswordHash) {
             return new Response(JSON.stringify({ error: "Invalid email or password" }), {
@@ -93,23 +93,23 @@ export const Route = createFileRoute("/api/auth/login")({
           const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
           await db
-            .insertInto("auth_sessions" as any)
+            .insertInto("auth_sessions")
             .values({
               id: sessionId,
-              userId: (user as any).id,
+              userId: user.id,
               token: sessionToken,
               expiresAt,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
-            } as any)
+            })
             .execute();
 
           return new Response(
             JSON.stringify({
               user: {
-                id: (user as any).id,
-                email: (user as any).email,
-                name: (user as any).name,
+                id: user.id,
+                email: user.email,
+                name: user.name,
                 role,
                 status,
               },

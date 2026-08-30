@@ -1240,6 +1240,7 @@ function DesignPage() {
                 <div>
                   <div className="flex items-center gap-3">
                     <button
+                      type="button"
                       onClick={() => setShowEntityList(!showEntityList)}
                       className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
                         showEntityList
@@ -1257,6 +1258,7 @@ function DesignPage() {
                       )}
                     </button>
                     <button
+                      type="button"
                       onClick={() => setShowVersions(!showVersions)}
                       className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
                         showVersions
@@ -1281,6 +1283,7 @@ function DesignPage() {
                       )}
                     </button>
                     <button
+                      type="button"
                       onClick={() => setShowFlowView(!showFlowView)}
                       className={`flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors ${
                         showFlowView
@@ -1293,6 +1296,7 @@ function DesignPage() {
                       {showFlowView ? "Mermaid View" : "Flow View"}
                     </button>
                     <button
+                      type="button"
                       onClick={() => setShowDbModal(true)}
                       className="flex items-center gap-2 px-4 py-2 font-medium rounded-xl transition-colors bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
                       title="Database operations"
@@ -1301,6 +1305,7 @@ function DesignPage() {
                       DB Ops
                     </button>
                     <button
+                      type="button"
                       onClick={handleValidate}
                       disabled={isValidating}
                       className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
@@ -1309,6 +1314,7 @@ function DesignPage() {
                       {isValidating ? "Validating..." : "Validate"}
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleSave(false)}
                       disabled={isSaving}
                       className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors disabled:opacity-50"
@@ -1317,6 +1323,7 @@ function DesignPage() {
                       {isSaving ? "Saving..." : "Save Draft"}
                     </button>
                     <button
+                      type="button"
                       onClick={handleOpenImportModal}
                       title="Import .mmd file or load from library"
                       className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
@@ -1325,6 +1332,7 @@ function DesignPage() {
                       Import
                     </button>
                     <button
+                      type="button"
                       onClick={handleExportMrd}
                       title="Download as .mmd file"
                       className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground font-medium rounded-xl transition-colors"
@@ -1333,6 +1341,7 @@ function DesignPage() {
                       Export
                     </button>
                     <button
+                      type="button"
                       onClick={handleGenerate}
                       className="flex items-center gap-2 px-6 py-2 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
                       style={{ backgroundColor: "#FF8400" }}
@@ -1391,6 +1400,7 @@ function DesignPage() {
                     <h3 className="font-semibold text-foreground">Entity Browser</h3>
                   </div>
                   <button
+                    type="button"
                     onClick={() => setShowEntityList(false)}
                     className="p-1.5 hover:bg-secondary rounded-lg transition-colors"
                   >
@@ -1454,6 +1464,7 @@ function DesignPage() {
                   <h3 className="font-semibold text-foreground">Version History</h3>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setShowVersions(false)}
                   className="p-1.5 hover:bg-muted rounded-lg transition-colors"
                 >
@@ -1496,6 +1507,7 @@ function DesignPage() {
                     className="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
+                    type="button"
                     onClick={() => handleSave(true)}
                     disabled={!commitMessage.trim() || isSaving}
                     className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1522,6 +1534,7 @@ function DesignPage() {
                     {versions.map((version) => (
                       <div key={version.id} className="version-item">
                         <button
+                          type="button"
                           onClick={() => toggleVersionExpanded(version.id)}
                           className={`w-full p-4 flex items-start gap-3 text-left transition-colors ${
                             version.is_current
@@ -1557,6 +1570,7 @@ function DesignPage() {
                           </div>
                           {!version.is_current && (
                             <button
+                              type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleRestoreVersion(version.id);
@@ -1593,6 +1607,7 @@ function DesignPage() {
                                 )}
                               <div className="pt-2 border-t border-slate-200 dark:border-slate-800 mt-2">
                                 <button
+                                  type="button"
                                   onClick={() => setErdCode(version.mermaid_code)}
                                   className="text-blue-600 hover:text-blue-700 font-medium"
                                 >
@@ -1731,6 +1746,7 @@ function DesignPage() {
                 {!isFullscreen && (
                   <>
                     <button
+                      type="button"
                       onClick={handleZoomOut}
                       className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
                       title="Zoom Out"
@@ -1741,6 +1757,7 @@ function DesignPage() {
                       {zoom}%
                     </span>
                     <button
+                      type="button"
                       onClick={handleZoomIn}
                       className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
                       title="Zoom In"
@@ -1748,6 +1765,7 @@ function DesignPage() {
                       <ZoomIn className="w-4 h-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={handleZoomReset}
                       className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
                       title="Fit to Screen"
@@ -1757,6 +1775,7 @@ function DesignPage() {
                   </>
                 )}
                 <button
+                  type="button"
                   onClick={() => setIsFullscreen(!isFullscreen)}
                   className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
                   title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
@@ -1817,6 +1836,7 @@ function DesignPage() {
                   />
                 </div>
                 <button
+                  type="button"
                   onClick={handleAiSubmit}
                   disabled={isAiLoading || isAutoRetrying || !aiInput.trim()}
                   className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/25 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1921,6 +1941,7 @@ function DesignPage() {
 
                   {aiStepsLog.length > 0 && (
                     <button
+                      type="button"
                       onClick={() => setShowAiDetails(!showAiDetails)}
                       className="mt-2 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                     >
@@ -1943,6 +1964,7 @@ function DesignPage() {
               {previousSteps.length > 0 && (
                 <div className="mt-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
                   <button
+                    type="button"
                     onClick={() => setShowPreviousSteps(!showPreviousSteps)}
                     className="w-full flex items-center justify-between px-3 py-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                   >
@@ -2021,6 +2043,7 @@ function DesignPage() {
                       </span>
                       {showAiDetails && (
                         <button
+                          type="button"
                           onClick={() => setShowAiDetails(false)}
                           className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
                         >
@@ -2084,12 +2107,14 @@ function DesignPage() {
 
               <div className="flex items-center gap-2 mt-3 flex-wrap">
                 <button
+                  type="button"
                   onClick={() => setAiInput("Create a blog with users, posts, comments, and tags")}
                   className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
                 >
                   Blog Example
                 </button>
                 <button
+                  type="button"
                   onClick={() =>
                     setAiInput("E-commerce system with products, orders, and customers")
                   }
@@ -2098,12 +2123,14 @@ function DesignPage() {
                   E-commerce Example
                 </button>
                 <button
+                  type="button"
                   onClick={() => setAiInput("Project management with tasks, teams, and milestones")}
                   className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 rounded-lg transition-colors"
                 >
                   Project Management
                 </button>
                 <button
+                  type="button"
                   onClick={() =>
                     setAiInput(
                       "Hospital management with patients, doctors, appointments, and medical records"
@@ -2119,6 +2146,7 @@ function DesignPage() {
         )}
 
         <button
+          type="button"
           className="fixed bottom-6 right-6 w-14 h-14 text-white rounded-full shadow-lg shadow-primary/50 flex items-center justify-center transition-all active:scale-95 z-40"
           style={{ backgroundColor: "#FF8400" }}
         >
@@ -2167,6 +2195,7 @@ function DesignPage() {
                 <h2 className="text-lg font-semibold">Import ERD</h2>
               </div>
               <button
+                type="button"
                 onClick={() => setShowImportModal(false)}
                 className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Close"
@@ -2178,6 +2207,7 @@ function DesignPage() {
             {/* Tabs */}
             <div className="flex border-b border-border">
               <button
+                type="button"
                 onClick={() => setImportTab("local")}
                 className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
                   importTab === "local"
@@ -2189,6 +2219,7 @@ function DesignPage() {
                 Upload File
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setImportTab("library");
                   handleLoadLibraryFiles();
@@ -2222,6 +2253,7 @@ function DesignPage() {
                     definition.
                   </p>
                   <button
+                    type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="w-full flex flex-col items-center gap-3 px-6 py-10 border-2 border-dashed border-border hover:border-primary/50 hover:bg-primary/5 rounded-xl transition-colors cursor-pointer"
                   >
@@ -2239,6 +2271,7 @@ function DesignPage() {
                       <div className="grid grid-cols-2 gap-2">
                         {examples.map((ex) => (
                           <button
+                            type="button"
                             key={ex.name}
                             onClick={() => {
                               setErdCode(ex.content);
@@ -2277,6 +2310,7 @@ function DesignPage() {
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {libraryFiles.map((file) => (
                         <button
+                          type="button"
                           key={file.filename}
                           onClick={() => handleLoadFromLibrary(file.content)}
                           className="w-full flex items-center gap-3 px-4 py-3 bg-secondary hover:bg-secondary/80 rounded-xl transition-colors text-left"

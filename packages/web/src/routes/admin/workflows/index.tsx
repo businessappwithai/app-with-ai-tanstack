@@ -188,6 +188,7 @@ function WorkflowMonitorPage() {
                 </p>
               </div>
               <button
+                type="button"
                 onClick={fetchWorkflows}
                 className="flex items-center gap-2 px-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#FF8400] hover:border-[#FF8400] transition-all duration-200 font-medium shadow-md hover:shadow-lg"
                 title="Refresh (Ctrl+R)"
@@ -210,10 +211,14 @@ function WorkflowMonitorPage() {
               </h2>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">
+                  <label
+                    htmlFor="index-status"
+                    className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block"
+                  >
                     Status
                   </label>
                   <select
+                    id="index-status"
                     className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
                     value={filter.status || ""}
                     onChange={(e) => setFilter({ ...filter, status: e.target.value || undefined })}
@@ -226,10 +231,14 @@ function WorkflowMonitorPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">
+                  <label
+                    htmlFor="index-entity-2"
+                    className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 block"
+                  >
                     Entity
                   </label>
                   <select
+                    id="index-entity-2"
                     className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#FF8400] focus:ring-offset-1 dark:focus:ring-offset-slate-950 transition-all"
                     value={filter.entity || ""}
                     onChange={(e) => setFilter({ ...filter, entity: e.target.value || undefined })}
@@ -319,6 +328,7 @@ function WorkflowMonitorPage() {
                   <div className="flex gap-2 mb-3">
                     {selectedWorkflow.status === "error" && (
                       <button
+                        type="button"
                         onClick={() => retryWorkflow(selectedWorkflow.id)}
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-[#FF8400] rounded-lg text-[#FF8400] text-sm hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-all duration-200 font-medium"
                       >
@@ -331,6 +341,7 @@ function WorkflowMonitorPage() {
                   {/* Tab Navigation (AD-Style) */}
                   <div className="flex gap-1 border-t border-slate-200 dark:border-slate-800 pt-3">
                     <button
+                      type="button"
                       onClick={() => setActiveTab("overview")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "overview"
@@ -341,6 +352,7 @@ function WorkflowMonitorPage() {
                       Overview
                     </button>
                     <button
+                      type="button"
                       onClick={() => setActiveTab("steps")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "steps"
@@ -351,6 +363,7 @@ function WorkflowMonitorPage() {
                       Steps ({steps.length})
                     </button>
                     <button
+                      type="button"
                       onClick={() => setActiveTab("logs")}
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                         activeTab === "logs"
@@ -369,9 +382,9 @@ function WorkflowMonitorPage() {
                     <div className="space-y-4 max-w-2xl">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
                             Status
-                          </label>
+                          </span>
                           <div
                             className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${getStatusBadgeColor(selectedWorkflow.status)}`}
                           >
@@ -379,10 +392,14 @@ function WorkflowMonitorPage() {
                           </div>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          <label
+                            htmlFor="index-entity"
+                            className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1"
+                          >
                             Entity
                           </label>
                           <input
+                            id="index-entity"
                             type="text"
                             defaultValue={selectedWorkflow.entity_name}
                             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm"
@@ -391,10 +408,14 @@ function WorkflowMonitorPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                        <label
+                          htmlFor="index-entity-id"
+                          className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1"
+                        >
                           Entity ID
                         </label>
                         <input
+                          id="index-entity-id"
                           type="text"
                           defaultValue={selectedWorkflow.entity_id}
                           className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm font-mono"
@@ -403,10 +424,14 @@ function WorkflowMonitorPage() {
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          <label
+                            htmlFor="index-started"
+                            className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1"
+                          >
                             Started
                           </label>
                           <input
+                            id="index-started"
                             type="text"
                             defaultValue={new Date(selectedWorkflow.created_at).toLocaleString()}
                             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm"
@@ -414,10 +439,14 @@ function WorkflowMonitorPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          <label
+                            htmlFor="index-updated"
+                            className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1"
+                          >
                             Updated
                           </label>
                           <input
+                            id="index-updated"
                             type="text"
                             defaultValue={new Date(selectedWorkflow.updated_at).toLocaleString()}
                             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm"
@@ -427,10 +456,14 @@ function WorkflowMonitorPage() {
                       </div>
                       {selectedWorkflow.retry_count > 0 && (
                         <div>
-                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1">
+                          <label
+                            htmlFor="index-retries"
+                            className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1"
+                          >
                             Retries
                           </label>
                           <input
+                            id="index-retries"
                             type="text"
                             defaultValue={selectedWorkflow.retry_count}
                             className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm"

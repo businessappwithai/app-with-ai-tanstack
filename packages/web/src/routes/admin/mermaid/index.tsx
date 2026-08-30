@@ -116,6 +116,7 @@ function MermaidLibraryPage() {
               Rules Admin
             </Link>
             <button
+              type="button"
               onClick={fetchFiles}
               className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground rounded-xl text-sm transition-colors"
             >
@@ -131,6 +132,7 @@ function MermaidLibraryPage() {
           <span className="text-sm text-muted-foreground">Filter by type:</span>
           {(["", "erd", "rules"] as const).map((t) => (
             <button
+              type="button"
               key={t}
               onClick={() => setTypeFilter(t)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
@@ -227,6 +229,7 @@ function MermaidLibraryPage() {
 
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
+                    type="button"
                     onClick={() => handleDownload(file)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground rounded-lg text-sm transition-colors"
                     title="Download file"
@@ -235,6 +238,7 @@ function MermaidLibraryPage() {
                     Download
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDelete(file)}
                     disabled={deletingFile === file.filename}
                     className="p-2 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 text-muted-foreground rounded-lg transition-colors disabled:opacity-50"

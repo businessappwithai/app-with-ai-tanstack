@@ -35,7 +35,7 @@ export async function createTempDir(prefix: string = "generator-test"): Promise<
 export async function cleanupTempDir(tempDir: string): Promise<void> {
   try {
     await fs.rm(tempDir, { recursive: true, force: true });
-  } catch (error) {
+  } catch (_error) {
     // Ignore cleanup errors
   }
 }

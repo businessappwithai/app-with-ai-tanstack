@@ -45,9 +45,9 @@ export const Route = createFileRoute("/api/auth/register")({
 
           // Check if user already exists
           const existingUser = await db
-            .selectFrom("auth_users" as any)
+            .selectFrom("auth_users")
             .selectAll()
-            .where("email" as any, "=", email)
+            .where("email", "=", email)
             .executeTakeFirst();
 
           if (existingUser) {
@@ -63,7 +63,7 @@ export const Route = createFileRoute("/api/auth/register")({
           const passwordHash = await hashPassword(password);
 
           await db
-            .insertInto("auth_users" as any)
+            .insertInto("auth_users")
             .values({
               id: userId,
               email,
@@ -74,7 +74,7 @@ export const Route = createFileRoute("/api/auth/register")({
               role: "user",
               createdAt: now,
               updatedAt: now,
-            } as any)
+            })
             .execute();
 
           return new Response(

@@ -66,7 +66,7 @@ export class ApiClient {
             const newToken = await this.refreshToken();
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
             return this.client(originalRequest);
-          } catch (refreshError) {
+          } catch (_refreshError) {
             // Token refresh failed - clear tokens and redirect to login
             this.clearTokens();
             if (typeof window !== "undefined") {

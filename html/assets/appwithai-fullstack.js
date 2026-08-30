@@ -7221,6 +7221,8 @@ var appwithai_language_default = {
     },
     autoFixable: {
       EML001: "Missing %%meta name - inserts one derived from the first entity.",
+      EML103: "Column is added by the generator anyway - deletes the declared line.",
+      EML112: "Duplicate attribute - deletes the later line, keeping the stronger constraints.",
       EML114: "Foreign key not ending in _id - appends the suffix.",
       EML117: "Entity has no primary key - prepends `string id PK`.",
       EML421: "State workflow has no initial transition - inserts `[*] --> <firstState>`.",
@@ -13146,14 +13148,14 @@ ${stderr}`);
   static async removeDirectory(dirPath) {
     try {
       await rm(dirPath, { recursive: true, force: true });
-    } catch (error) {
+    } catch (_error) {
       console.warn(`Warning: Could not remove directory ${dirPath}`);
     }
   }
   static async copyDirectory(src, dest) {
     try {
       await undefined(src, dest, { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to copy directory from ${src} to ${dest}`);
     }
   }
@@ -14582,7 +14584,7 @@ function cleanJsonContent(jsonStr) {
     cleaned = cleaned.replace(/(\{\s*),/g, "$1");
     const parsed = JSON.parse(cleaned);
     return JSON.stringify(parsed, null, 2);
-  } catch (e) {
+  } catch (_e) {
     return jsonStr.replace(/,(\s*[}\]])/g, "$1").replace(/(\[\s*),/g, "$1");
   }
 }
@@ -14869,7 +14871,7 @@ class NestJsBackendGenerator extends BaseGenerator {
     for (const file of staticAppFiles) {
       try {
         await copyFile(join(this.resolvedTemplateDir, file), join(outputDir, file));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Static app file not found: ${file}`);
       }
     }
@@ -14884,72 +14886,72 @@ class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(`${file}.hbs`, context);
         await writeFile(join(outputDir, file), content);
-      } catch (e) {}
+      } catch (_e) {}
     }
     try {
       const publicDecoratorContent = await this.renderTemplate("src/modules/auth/decorators/public.decorator.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/decorators/public.decorator.ts"), publicDecoratorContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Public decorator template not found");
     }
     try {
       const rolesDecoratorContent = await this.renderTemplate("src/modules/auth/decorators/roles.decorator.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/decorators/roles.decorator.ts"), rolesDecoratorContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Roles decorator template not found");
     }
     try {
       const currentUserDecoratorContent = await this.renderTemplate("src/modules/auth/decorators/current-user.decorator.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/decorators/current-user.decorator.ts"), currentUserDecoratorContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Current user decorator template not found");
     }
     try {
       const jwtGuardContent = await this.renderTemplate("src/modules/auth/guards/jwt-auth.guard.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/guards/jwt-auth.guard.ts"), jwtGuardContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("JWT auth guard template not found");
     }
     try {
       const sessionAuthGuardContent = await this.renderTemplate("src/modules/auth/guards/session-auth.guard.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/guards/session-auth.guard.ts"), sessionAuthGuardContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Session auth guard template not found");
     }
     try {
       const rolesGuardContent = await this.renderTemplate("src/modules/auth/guards/roles.guard.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/guards/roles.guard.ts"), rolesGuardContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Roles guard template not found");
     }
     try {
       const entityAccessGuardContent = await this.renderTemplate("src/modules/auth/guards/entity-access.guard.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/guards/entity-access.guard.ts"), entityAccessGuardContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Entity access guard template not found");
     }
     try {
       const dictionaryWriteGuardContent = await this.renderTemplate("src/modules/auth/guards/dictionary-write.guard.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/guards/dictionary-write.guard.ts"), dictionaryWriteGuardContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Dictionary write guard template not found");
     }
     try {
       const authControllerContent = await this.renderTemplate("src/modules/auth/auth.controller.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/auth.controller.ts"), authControllerContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth controller template not found");
     }
     try {
       const authModuleContent = await this.renderTemplate("src/modules/auth/auth.module.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/auth.module.ts"), authModuleContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth module template not found");
     }
     try {
       const betterAuthContent = await this.renderTemplate("src/lib/better-auth.ts.hbs", context);
       await writeFile(join(outputDir, "src/lib/better-auth.ts"), betterAuthContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Better-auth lib template not found");
     }
     const hookFiles = [
@@ -14962,14 +14964,14 @@ class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(tpl, context);
         await writeFile(join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Hook template not found: ${tpl}`);
       }
     }
     try {
       const triggerConfigContent = await this.renderTemplate("trigger.config.ts.hbs", context);
       await writeFile(join(outputDir, "trigger.config.ts"), triggerConfigContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Trigger.dev config template not found");
     }
     const triggerTasks = ["email", "report", "sync", "entity-lifecycle-workflow"];
@@ -14977,7 +14979,7 @@ class NestJsBackendGenerator extends BaseGenerator {
       try {
         const taskContent = await this.renderTemplate(`src/trigger/${task}.task.ts.hbs`, context);
         await writeFile(join(outputDir, `src/trigger/${task}.task.ts`), taskContent);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Trigger task template not found: ${task}`);
       }
     }
@@ -14999,7 +15001,7 @@ class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(tpl, context);
         await writeFile(join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Job queue template not found: ${tpl}`);
       }
     }
@@ -15020,7 +15022,7 @@ class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(tpl, context);
         await writeFile(join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Rules template not found: ${tpl}`);
       }
     }
@@ -15042,7 +15044,7 @@ class NestJsBackendGenerator extends BaseGenerator {
       try {
         const content = await this.renderTemplate(tpl, context);
         await writeFile(join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Workflow template not found: ${tpl}`);
       }
     }
@@ -15734,7 +15736,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `  }`,
       `  for (const t of TRANSITIONS) {`,
       `    await db`,
-      `      .insertInto('sys_workflow_transitions' as any)`,
+      `      .insertInto('sys_workflow_transitions')`,
       `      .values({`,
       `        table_name: t.tableName,`,
       `        status_field: t.statusField,`,
@@ -15742,12 +15744,12 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `        to_state: t.toState,`,
       `        transition_name: t.transitionName || null,`,
       `        is_active: true,`,
-      `      } as any)`,
+      `      })`,
       `      .onConflict((oc) =>`,
       `        oc.constraint('sys_workflow_transitions_unique').doUpdateSet({`,
       `          transition_name: t.transitionName || null,`,
       `          is_active: true,`,
-      `        } as any)`,
+      `        })`,
       `      )`,
       `      .execute();`,
       `  }`,
@@ -15761,19 +15763,19 @@ export async function seed(db: Kysely<any>): Promise<void> {
     try {
       const tsconfigContent = await this.renderTemplate("tsconfig.json.hbs", context);
       await writeFile(join(outputDir, "tsconfig.json"), tsconfigContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom tsconfig template not found, keeping NestJS default");
     }
     try {
       const nestCliContent = await this.renderTemplate("nest-cli.json.hbs", context);
       await writeFile(join(outputDir, "nest-cli.json"), nestCliContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("nest-cli.json template not found, keeping NestJS default");
     }
     try {
       const prettierContent = await this.renderTemplate(".prettierrc.hbs", context);
       await writeFile(join(outputDir, ".prettierrc"), prettierContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn(".prettierrc template not found, skipping");
     }
     try {
@@ -15793,14 +15795,14 @@ export async function seed(db: Kysely<any>): Promise<void> {
     for (const file of staticConfigFiles) {
       try {
         await copyFile(join(this.resolvedTemplateDir, file), join(outputDir, file));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Static config file not found: ${file}`);
       }
     }
     try {
       const dockerfileContent = await this.renderTemplate("Dockerfile.hbs", context);
       await writeFile(join(outputDir, "Dockerfile"), dockerfileContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Dockerfile template not found, skipping");
     }
     const migrateContent = await this.renderTemplate("src/migrate.ts.hbs", context);
@@ -15819,7 +15821,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     try {
       const biomeContent = await this.renderTemplate("biome.json.hbs", context);
       await writeFile(join(outputDir, "biome.json"), biomeContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom Biome config template not found, using defaults");
     }
     const dbModuleContent = await this.renderTemplate("src/database/database.module.ts.hbs", context);
@@ -15829,13 +15831,13 @@ export async function seed(db: Kysely<any>): Promise<void> {
     try {
       const dbServiceContent = await this.renderTemplate("src/database/database.service.ts.hbs", context);
       await writeFile(join(outputDir, "src/database/database.service.ts"), dbServiceContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Database service template not found");
     }
     try {
       const dbServiceDecoratorContent = await this.renderTemplate("src/database/database.service.decorator.ts.hbs", context);
       await writeFile(join(outputDir, "src/database/database.service.decorator.ts"), dbServiceDecoratorContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Database service decorator template not found");
     }
   }
@@ -15864,26 +15866,26 @@ export async function seed(db: Kysely<any>): Promise<void> {
       try {
         const content = await this.renderTemplate(tpl, context);
         await writeFile(join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Auth test template not found: ${tpl}`);
       }
     }
     try {
       const rulesEngineTestContent = await this.renderTemplate("test/rules-engine.test.ts.hbs", context);
       await writeFile(join(outputDir, "test/rules-engine.test.ts"), rulesEngineTestContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Rules engine test template not found");
     }
     try {
       const triggerWorkflowTestContent = await this.renderTemplate("test/rules-workflow-trigger.test.ts.hbs", context);
       await writeFile(join(outputDir, "test/rules-workflow-trigger.test.ts"), triggerWorkflowTestContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Trigger-workflow test template not found");
     }
     try {
       const jobQueueTestContent = await this.renderTemplate("test/modules/jobs/job-queue.service.test.ts.hbs", context);
       await writeFile(join(outputDir, "test/modules/jobs/job-queue.service.test.ts"), jobQueueTestContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Job queue test template not found");
     }
     const behaviourTestFiles = [
@@ -15897,7 +15899,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       try {
         const content = await this.renderTemplate(tpl, context);
         await writeFile(join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Behaviour test template not found: ${tpl}`);
       }
     }
@@ -15910,7 +15912,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       try {
         const content = await this.renderTemplate(tpl, context);
         await writeFile(join(outputDir, out), content);
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Trigger test template not found: ${tpl}`);
       }
     }
@@ -16196,7 +16198,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const adminLayoutContent = await this.component("src/routes/admin.tsx");
       await writeFile(join(outputDir, "src/routes/admin.tsx"), adminLayoutContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin layout route template not found");
     }
     const providersContent = await this.component("src/providers/index.tsx");
@@ -16210,14 +16212,14 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const file of providerFiles) {
       try {
         await copyFile(join(templateDir, file), join(outputDir, file));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Provider file not found: ${file}`);
       }
     }
     await mkdir(join(outputDir, "src/contexts"), { recursive: true });
     try {
       await copyFile(join(templateDir, "src/contexts/auth-context.tsx"), join(outputDir, "src/contexts/auth-context.tsx"));
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth context file not found");
     }
     const stylesContent = await this.component("src/styles/globals.css");
@@ -16225,51 +16227,51 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const loginPageContent = await this.component("src/routes/auth/login.tsx");
       await writeFile(join(outputDir, "src/routes/auth/login.tsx"), loginPageContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Login page template not found");
     }
     try {
       await copyFile(join(templateDir, "src/lib/auth.ts"), join(outputDir, "src/lib/auth.ts"));
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth lib file not found");
     }
     try {
       const apiEntry = await this.renderTemplate("src/api.ts.hbs", context);
       await writeFile(join(outputDir, "src/api.ts"), apiEntry);
-    } catch (e) {
+    } catch (_e) {
       console.warn("API entry template not found");
     }
     try {
       const apiProxy = await this.component("src/lib/api-proxy.ts");
       await writeFile(join(outputDir, "src/lib/api-proxy.ts"), apiProxy);
-    } catch (e) {
+    } catch (_e) {
       console.warn("API proxy lib template not found");
     }
     try {
       const copilotRuntime = await this.component("src/lib/copilot-runtime.ts");
       await writeFile(join(outputDir, "src/lib/copilot-runtime.ts"), copilotRuntime);
-    } catch (e) {
+    } catch (_e) {
       console.warn("CopilotKit runtime lib template not found");
     }
     try {
       await mkdir(join(outputDir, "src/routes/api"), { recursive: true });
       const apiProxyContent = await this.renderTemplate("src/routes/api/$.ts.hbs", context);
       await writeFile(join(outputDir, "src/routes/api/$.ts"), apiProxyContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("API proxy route template not found");
     }
     try {
       await mkdir(join(outputDir, "src/routes/api/auth"), { recursive: true });
       const authProxyContent = await this.renderTemplate("src/routes/api/auth/$.ts.hbs", context);
       await writeFile(join(outputDir, "src/routes/api/auth/$.ts"), authProxyContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Auth proxy route template not found");
     }
     try {
       await mkdir(join(outputDir, "src/routes/api/copilotkit"), { recursive: true });
       const copilotRuntime = await this.renderTemplate("src/routes/api/copilotkit/$.ts.hbs", context);
       await writeFile(join(outputDir, "src/routes/api/copilotkit/$.ts"), copilotRuntime);
-    } catch (e) {
+    } catch (_e) {
       console.warn("CopilotKit runtime route template not found");
     }
   }
@@ -16305,7 +16307,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const file of i18nFiles) {
       try {
         await copyFile(join(templateDir, file), join(outputDir, file));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`i18n file not found: ${file}`);
       }
     }
@@ -16316,7 +16318,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const modelAssistant = await this.component("src/hooks/useModelAssistant.ts");
       await writeFile(join(outputDir, "src/hooks/useModelAssistant.ts"), modelAssistant);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Model assistant hook template not found");
     }
     try {
@@ -16352,13 +16354,13 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const component of uiComponents) {
       try {
         await copyFile(join(templateDir, `src/components/ui/${component}.tsx`), join(outputDir, `src/components/ui/${component}.tsx`));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`UI component not found: ${component}`);
       }
     }
     try {
       await copyFile(join(templateDir, "src/lib/utils.ts"), join(outputDir, "src/lib/utils.ts"));
-    } catch (e) {
+    } catch (_e) {
       console.warn("Utils file not found");
     }
     await mkdir(join(outputDir, "src/components/layout"), { recursive: true });
@@ -16370,7 +16372,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const component of staticLayoutComponents) {
       try {
         await copyFile(join(templateDir, component), join(outputDir, component));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Layout component not found: ${component}`);
       }
     }
@@ -16574,7 +16576,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const component of staticComponents) {
       try {
         await copyFile(join(templateDir, component.src), join(outputDir, component.dest));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Static component not found: ${component.src}`);
       }
     }
@@ -16582,7 +16584,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const routeFile of dynamicRoutes) {
       try {
         await copyFile(join(templateDir, "src/routes", routeFile), join(outputDir, "src/routes", routeFile));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Dynamic route not found: ${routeFile}`);
       }
     }
@@ -16633,7 +16635,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     for (const page of staticAdminPages) {
       try {
         await copyFile(join(templateDir, "src/routes/admin", page), join(adminDir, page));
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Static admin page not found: ${page}`);
       }
     }
@@ -16642,48 +16644,48 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const rulesContent = await this.renderTemplate("src/routes/admin/rules.tsx.hbs", context);
       await writeFile(join(adminDir, "rules.tsx"), rulesContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin rules page template not found");
     }
     try {
       const categoriesContent = await this.component("src/routes/admin/categories.tsx");
       await writeFile(join(adminDir, "categories.tsx"), categoriesContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin categories page template not found");
     }
     try {
       const automationsContent = await this.renderTemplate("src/routes/admin/automations.tsx.hbs", context);
       await writeFile(join(adminDir, "automations.tsx"), automationsContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin automations page template not found");
     }
     try {
       const workflowsContent = await this.component("src/routes/admin/workflows.tsx");
       await writeFile(join(adminDir, "workflows.tsx"), workflowsContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin workflows page template not found");
     }
     try {
       await copyFile(join(templateDir, "src/routes/admin/audit.tsx"), join(adminDir, "audit.tsx"));
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin audit page not found");
     }
     try {
       const reportsContent = await this.component("src/routes/admin/reports.tsx");
       await writeFile(join(adminDir, "reports.tsx"), reportsContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin reports page template not found");
     }
     try {
       const usersContent = await this.component("src/routes/admin/users.tsx");
       await writeFile(join(adminDir, "users.tsx"), usersContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin users page template not found");
     }
     try {
       const rolesContent = await this.component("src/routes/admin/roles.tsx");
       await writeFile(join(adminDir, "roles.tsx"), rolesContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Admin roles page template not found");
     }
     const adminSubdirs = [
@@ -16712,7 +16714,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
           await mkdir(dirname(dest), { recursive: true });
           await copyFile(src, dest);
         }
-      } catch (e) {
+      } catch (_e) {
         console.warn(`Admin route template not found: ${subdir.src}`);
       }
     }
@@ -16744,30 +16746,30 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     try {
       const tanStackConfigContent = await this.renderTemplate("app.config.ts.hbs", context);
       await writeFile(join(outputDir, "app.config.ts"), tanStackConfigContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom app.config.ts template not found, keeping TanStack Start default");
     }
     try {
       const tailwindContent = await this.component("tailwind.config.js");
       await writeFile(join(outputDir, "tailwind.config.js"), tailwindContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom tailwind config template not found, keeping TanStack Start default");
     }
     try {
       await copyFile(join(templateDir, "postcss.config.js"), join(outputDir, "postcss.config.js"));
-    } catch (e) {
+    } catch (_e) {
       console.warn("postcss.config.js template not found");
     }
     try {
       const tsconfigContent = await this.renderTemplate("tsconfig.json.hbs", context);
       await writeFile(join(outputDir, "tsconfig.json"), tsconfigContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom tsconfig template not found, keeping TanStack Start default");
     }
     try {
       const biomeContent = await this.renderTemplate("biome.json.hbs", context);
       await writeFile(join(outputDir, "biome.json"), biomeContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Custom Biome config template not found, using defaults");
     }
     const envLocalContent = `VITE_API_URL=
@@ -16785,7 +16787,7 @@ PORT=${context.config.frontendPort}
     try {
       const dockerfileContent = await this.renderTemplate("Dockerfile.hbs", context);
       await writeFile(join(outputDir, "Dockerfile"), dockerfileContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Frontend Dockerfile template not found, skipping");
     }
   }
@@ -16797,7 +16799,7 @@ PORT=${context.config.frontendPort}
       await writeFile(join(outputDir, "test/components.test.tsx"), componentsTestContent);
       const vitestContent = await this.renderTemplate("vitest.config.ts.hbs", context);
       await writeFile(join(outputDir, "vitest.config.ts"), vitestContent);
-    } catch (e) {
+    } catch (_e) {
       console.warn("Unit test templates not found, skipping unit test generation");
     }
   }
@@ -17287,7 +17289,7 @@ tests/.e2e-seed-manifest.json
             }
           }
         }
-      } catch (e) {}
+      } catch (_e) {}
       try {
         const backendWorkflowsSource = join(templatesDir, "tanstack-start-nestjs/backend/.github/workflows");
         if (await this.directoryExists(backendWorkflowsSource)) {
@@ -17304,7 +17306,7 @@ tests/.e2e-seed-manifest.json
             }
           }
         }
-      } catch (e) {}
+      } catch (_e) {}
     }
   }
   async directoryExists(dir) {
@@ -17449,7 +17451,7 @@ MIT
       console.log(`
 ✨ Linting checks completed!`);
       console.log('   Tip: Run "bun run lint:fix" in backend/frontend directories to auto-fix issues');
-    } catch (error) {
+    } catch (_error) {
       console.warn("  ⚠️  Linting could not be completed (dependencies not installed?)");
       console.log('   Tip: Run "bun install" first, then run linting manually');
     }
@@ -20875,7 +20877,7 @@ class CheckEngine {
     for (const rule2 of this.model.rules) {
       if (!rule2.entity) {
         this.info("EML506", `Rule "${rule2.name}" has no entity binding.`, {
-          hint: "Add  %%rule ${rule.name} on <Entity> event: <hookType>  to bind this rule to an entity lifecycle."
+          hint: `Add  %%rule ${rule2.name} on <Entity> event: <hookType>  to bind this rule to an entity lifecycle.`
         });
       }
     }

@@ -63,7 +63,7 @@ async function spawnProcess(command: string, args: string[], cwd: string, logFil
 function killProcess(pid: number) {
   try {
     process.kill(pid, "SIGTERM");
-  } catch (error) {
+  } catch (_error) {
     // Process already dead
   }
 }
