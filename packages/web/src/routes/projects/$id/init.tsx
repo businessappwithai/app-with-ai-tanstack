@@ -319,6 +319,7 @@ function InitPage() {
                       {formData.stackType === "tanstackjs-nestjs" && (
                         <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
                           <svg
+                            aria-hidden="true"
                             className="w-3 h-3 text-white"
                             fill="currentColor"
                             viewBox="0 0 20 20"

@@ -144,6 +144,7 @@ function LoginPage() {
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 w-full">
           <div className="flex justify-center mb-6">
             <svg
+              aria-hidden="true"
               className="w-12 h-12 text-orange-500"
               viewBox="0 0 24 24"
               fill="none"

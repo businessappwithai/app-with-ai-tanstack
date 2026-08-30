@@ -494,6 +494,7 @@ function ProjectsPage() {
                   <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4 pb-4 border-b border-border">
                     <div className="flex items-center gap-1.5">
                       <svg
+                        aria-hidden="true"
                         className="w-4 h-4"
                         fill="none"
                         stroke="currentColor"
@@ -508,6 +509,7 @@ function ProjectsPage() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <svg
+                        aria-hidden="true"
                         className="w-4 h-4"
                         fill="none"
                         stroke="currentColor"
