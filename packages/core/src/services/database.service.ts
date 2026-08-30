@@ -19,12 +19,9 @@ async function insertAndReturn<T>(
   table: keyof Database,
   values: Record<string, any>
 ): Promise<T> {
-  await db
-    .insertInto(table as any)
-    .values(values)
-    .execute();
+  await db.insertInto(table).values(values).execute();
   return db
-    .selectFrom(table as any)
+    .selectFrom(table)
     .selectAll()
     .where("id", "=", values.id)
     .executeTakeFirstOrThrow() as Promise<T>;
@@ -36,13 +33,9 @@ async function updateAndReturn<T>(
   id: string,
   values: Record<string, any>
 ): Promise<T> {
-  await db
-    .updateTable(table as any)
-    .set(values)
-    .where("id", "=", id)
-    .execute();
+  await db.updateTable(table).set(values).where("id", "=", id).execute();
   return db
-    .selectFrom(table as any)
+    .selectFrom(table)
     .selectAll()
     .where("id", "=", id)
     .executeTakeFirstOrThrow() as Promise<T>;
@@ -478,10 +471,10 @@ export const projectDb = {
 
     return {
       ...project,
-      erdCode: (currentErdVersion as any)?.mermaid_code,
+      erdCode: currentErdVersion?.mermaid_code,
       erdVersions,
-      parsedSchema: (currentErdVersion as any)?.parsed_schema
-        ? JSON.parse((currentErdVersion as any).parsed_schema)
+      parsedSchema: currentErdVersion?.parsed_schema
+        ? JSON.parse(currentErdVersion.parsed_schema)
         : undefined,
       workflows,
       entities,
@@ -490,24 +483,22 @@ export const projectDb = {
       // the project and does not always write history. Preferring history
       // unconditionally reported "not generated yet" for a project whose files
       // were sitting on disk, which is what the deploy step refused to build.
-      generatedPath: (latestGeneration as any)?.generated_path ?? dbProject.generated_path,
-      fileManifest: (latestGeneration as any)?.file_manifest
-        ? JSON.parse((latestGeneration as any).file_manifest)
+      generatedPath: latestGeneration?.generated_path ?? dbProject.generated_path,
+      fileManifest: latestGeneration?.file_manifest
+        ? JSON.parse(latestGeneration.file_manifest)
         : undefined,
-      generationStatus: (latestGeneration as any)?.status,
-      generationOptions: (latestGeneration as any)?.generation_options
-        ? JSON.parse((latestGeneration as any).generation_options)
+      generationStatus: latestGeneration?.status,
+      generationOptions: latestGeneration?.generation_options
+        ? JSON.parse(latestGeneration.generation_options)
         : undefined,
-      deploymentStatus: (deployment as any)?.status,
-      deploymentUrl: (deployment as any)?.deployment_url,
-      uptime: (deployment as any)?.uptime,
-      deploymentEnvironment: (deployment as any)?.environment,
-      environmentVariables: (dbProject as any).environment_variables
-        ? JSON.parse((dbProject as any).environment_variables)
+      deploymentStatus: deployment?.status,
+      deploymentUrl: deployment?.deployment_url,
+      uptime: deployment?.uptime,
+      deploymentEnvironment: deployment?.environment,
+      environmentVariables: dbProject.environment_variables
+        ? JSON.parse(dbProject.environment_variables)
         : {},
-      buildConfig: (dbProject as any).build_config
-        ? JSON.parse((dbProject as any).build_config)
-        : {},
+      buildConfig: dbProject.build_config ? JSON.parse(dbProject.build_config) : {},
     };
   },
 
@@ -613,11 +604,7 @@ export const projectDb = {
   },
 
   async softDelete(id: string) {
-    await getDb()
-      .updateTable("projects")
-      .set({ is_deleted: true as any })
-      .where("id", "=", id)
-      .execute();
+    await getDb().updateTable("projects").set({ is_deleted: true }).where("id", "=", id).execute();
   },
 
   async delete(id: string) {
@@ -642,7 +629,7 @@ export const erdVersionDb = {
       .selectFrom("erd_versions")
       .selectAll()
       .where("project_id", "=", projectId)
-      .where("is_current", "=", true as any)
+      .where("is_current", "=", true)
       .executeTakeFirst();
   },
 
@@ -670,12 +657,12 @@ export const erdVersionDb = {
       .where("project_id", "=", data.project_id)
       .orderBy("version_number", "desc")
       .executeTakeFirst();
-    const versionNumber = ((last as any)?.version_number || 0) + 1;
+    const versionNumber = (last?.version_number || 0) + 1;
 
     if (data.is_current) {
       await db
         .updateTable("erd_versions")
-        .set({ is_current: false as any })
+        .set({ is_current: false })
         .where("project_id", "=", data.project_id)
         .execute();
     }
@@ -713,12 +700,12 @@ export const erdVersionDb = {
     if (!version) return null;
     await db
       .updateTable("erd_versions")
-      .set({ is_current: false as any })
-      .where("project_id", "=", (version as any).project_id)
+      .set({ is_current: false })
+      .where("project_id", "=", version.project_id)
       .execute();
     await db
       .updateTable("erd_versions")
-      .set({ is_current: true as any })
+      .set({ is_current: true })
       .where("id", "=", versionId)
       .execute();
     return db.selectFrom("erd_versions").selectAll().where("id", "=", versionId).executeTakeFirst();
@@ -830,10 +817,8 @@ export const hookWorkflowDb = {
     if (!workflow) return null;
     return {
       ...workflow,
-      hook_definitions: (workflow as any).hook_definitions
-        ? JSON.parse((workflow as any).hook_definitions)
-        : [],
-      is_draft: Boolean((workflow as any).is_draft),
+      hook_definitions: workflow.hook_definitions ? JSON.parse(workflow.hook_definitions) : [],
+      is_draft: Boolean(workflow.is_draft),
     };
   },
 
@@ -877,7 +862,7 @@ export const hookWorkflowDb = {
     };
 
     if (existing) {
-      const row = await updateAndReturn<any>(db, "workflows", (existing as any).id, workflowData);
+      const row = await updateAndReturn<any>(db, "workflows", existing.id, workflowData);
       return { ...row, hook_definitions: data.hooks, is_draft: data.isDraft };
     } else {
       const id = `wf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -932,11 +917,11 @@ export const hookWorkflowDb = {
     const db = getDb();
     const workflow = await this.getByService(data.projectId, data.serviceName);
     if (!workflow) throw new Error(`Workflow not found for service ${data.serviceName}`);
-    const defs = (workflow as any).hook_definitions || [];
+    const defs = workflow.hook_definitions || [];
     const idx = defs.findIndex((h: any) => h.type === data.hookType);
     if (idx === -1) throw new Error(`Hook of type ${data.hookType} not found`);
     defs[idx].goRules = data.rules;
-    const row = await updateAndReturn<any>(db, "workflows", (workflow as any).id, {
+    const row = await updateAndReturn<any>(db, "workflows", workflow.id, {
       hook_definitions: JSON.stringify(defs),
       updated_at: new Date().toISOString(),
     });
@@ -951,14 +936,14 @@ export const hookWorkflowDb = {
   }) {
     const workflow = await this.getByService(data.projectId, data.serviceName);
     if (!workflow) return null;
-    const defs = (workflow as any).hook_definitions || [];
+    const defs = workflow.hook_definitions || [];
     const hook = defs.find((h: any) => h.type === data.hookType);
     if (!hook) return null;
     return {
       workflowId: data.workflowId,
       hookType: data.hookType,
       rules: hook.goRules || null,
-      updatedAt: (workflow as any).updated_at,
+      updatedAt: workflow.updated_at,
     };
   },
 };
@@ -1137,18 +1122,18 @@ export const deploymentDb = {
       u.deployment_config = JSON.stringify(data.deployment_config);
 
     if (existing) {
-      if (data.status === "running" && (existing as any).status !== "running") {
+      if (data.status === "running" && existing.status !== "running") {
         u.started_at = new Date().toISOString();
-        u.restart_count = ((existing as any).restart_count || 0) + 1;
-      } else if (data.status === "stopped" && (existing as any).status === "running") {
+        u.restart_count = (existing.restart_count || 0) + 1;
+      } else if (data.status === "stopped" && existing.status === "running") {
         u.stopped_at = new Date().toISOString();
-        if ((existing as any).started_at) {
+        if (existing.started_at) {
           u.uptime_seconds = Math.floor(
-            (Date.now() - new Date((existing as any).started_at).getTime()) / 1000
+            (Date.now() - new Date(existing.started_at).getTime()) / 1000
           );
         }
       }
-      return updateAndReturn(db, "deployments", (existing as any).id, u);
+      return updateAndReturn(db, "deployments", existing.id, u);
     } else {
       const id = `dep_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       if (data.status === "running") u.started_at = new Date().toISOString();
@@ -1253,7 +1238,7 @@ export const entityDb = {
     };
 
     if (existing) {
-      return updateAndReturn(db, "entities", (existing as any).id, vals);
+      return updateAndReturn(db, "entities", existing.id, vals);
     } else {
       const id = `ent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       return insertAndReturn(db, "entities", { id, ...vals, created_at: new Date().toISOString() });
@@ -1275,15 +1260,15 @@ export const settingsDb = {
       .where("key", "=", key)
       .executeTakeFirst();
     if (!setting) return null;
-    switch ((setting as any).type) {
+    switch (setting.type) {
       case "number":
-        return Number((setting as any).value);
+        return Number(setting.value);
       case "boolean":
-        return (setting as any).value === "true";
+        return setting.value === "true";
       case "json":
-        return JSON.parse((setting as any).value || "{}");
+        return JSON.parse(setting.value || "{}");
       default:
-        return (setting as any).value;
+        return setting.value;
     }
   },
 
@@ -1310,7 +1295,7 @@ export const settingsDb = {
           type,
           description,
           updated_at: new Date().toISOString(),
-        } as any)
+        })
         .execute();
     }
   },
@@ -1341,13 +1326,13 @@ export const rulesDb = {
     const row = await db.selectFrom("rules").selectAll().where("id", "=", id).executeTakeFirst();
     if (!row) return null;
     return {
-      id: (row as any).id,
-      entityName: (row as any).entity_name,
-      ruleName: (row as any).rule_name,
-      operation: (row as any).operation,
-      jdmContent: JSON.parse((row as any).jdm_content),
-      createdAt: (row as any).created_at,
-      updatedAt: (row as any).updated_at,
+      id: row.id,
+      entityName: row.entity_name,
+      ruleName: row.rule_name,
+      operation: row.operation,
+      jdmContent: JSON.parse(row.jdm_content),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
     };
   },
 
@@ -1370,7 +1355,7 @@ export const rulesDb = {
         jdm_content: JSON.stringify(data.jdmContent),
         created_at: now,
         updated_at: now,
-      } as any)
+      })
       .execute();
     return this.findById(data.id);
   },

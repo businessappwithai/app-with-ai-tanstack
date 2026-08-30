@@ -32,7 +32,7 @@ async function seedAdmin() {
     await db
       .updateTable("auth_users")
       .set({ status: "approved", role: "admin" })
-      .where("id", "=", (user as any).id)
+      .where("id", "=", user.id)
       .execute();
 
     console.log(`✅ Successfully promoted user to admin: ${email}`);

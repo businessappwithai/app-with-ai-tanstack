@@ -142,7 +142,7 @@ function WorkflowDetailPage() {
             </div>
             <div className="flex items-center gap-2">
               {getStatusIcon(workflow.status)}
-              <Badge variant={getStatusColor(workflow.status) as any}>{workflow.status}</Badge>
+              <Badge variant={getStatusColor(workflow.status)}>{workflow.status}</Badge>
             </div>
           </div>
         </CardHeader>

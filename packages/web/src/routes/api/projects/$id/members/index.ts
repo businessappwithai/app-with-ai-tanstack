@@ -41,7 +41,7 @@ export const Route = createFileRoute("/api/projects/$id/members/")({
             });
           }
 
-          if ((project as any).owner_user_id !== user.id) {
+          if (project.owner_user_id !== user.id) {
             return new Response(JSON.stringify({ error: "Only owner can view members" }), {
               status: 403,
               headers: { "Content-Type": "application/json" },
@@ -105,7 +105,7 @@ export const Route = createFileRoute("/api/projects/$id/members/")({
             });
           }
 
-          if ((project as any).owner_user_id !== user.id) {
+          if (project.owner_user_id !== user.id) {
             return new Response(JSON.stringify({ error: "Only owner can add members" }), {
               status: 403,
               headers: { "Content-Type": "application/json" },
@@ -138,7 +138,7 @@ export const Route = createFileRoute("/api/projects/$id/members/")({
             });
           }
 
-          if ((targetUser as any).id === user.id) {
+          if (targetUser.id === user.id) {
             return new Response(JSON.stringify({ error: "Cannot share with yourself" }), {
               status: 400,
               headers: { "Content-Type": "application/json" },
@@ -149,7 +149,7 @@ export const Route = createFileRoute("/api/projects/$id/members/")({
             .selectFrom("project_members")
             .selectAll()
             .where("project_id", "=", projectId)
-            .where("user_id", "=", (targetUser as any).id)
+            .where("user_id", "=", targetUser.id)
             .executeTakeFirst();
 
           if (existingMember) {
@@ -167,10 +167,10 @@ export const Route = createFileRoute("/api/projects/$id/members/")({
             .values({
               id: memberId,
               project_id: projectId,
-              user_id: (targetUser as any).id,
+              user_id: targetUser.id,
               permission,
               created_at: now,
-            } as any)
+            })
             .execute();
 
           const member = await db

@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/auth/me")({
             .where("token", "=", token)
             .executeTakeFirst();
 
-          if (!session || new Date((session as any).expiresAt) < new Date()) {
+          if (!session || new Date(session.expiresAt) < new Date()) {
             return new Response(JSON.stringify({ user: null }), {
               status: 401,
               headers: { "Content-Type": "application/json" },
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api/auth/me")({
           const user = await db
             .selectFrom("auth_users")
             .select(["id", "email", "name", "status", "role"])
-            .where("id", "=", (session as any).userId)
+            .where("id", "=", session.userId)
             .executeTakeFirst();
 
           if (!user) {
@@ -46,11 +46,11 @@ export const Route = createFileRoute("/api/auth/me")({
           return new Response(
             JSON.stringify({
               user: {
-                id: (user as any).id,
-                email: (user as any).email,
-                name: (user as any).name,
-                status: (user as any).status || "approved",
-                role: (user as any).role || "user",
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                status: user.status || "approved",
+                role: user.role || "user",
               },
             }),
             {

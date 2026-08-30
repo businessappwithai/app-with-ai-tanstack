@@ -222,7 +222,7 @@ export class RulesEngineService implements IRulesEngineService {
         created_at: now.toISOString(),
         updated_at: now.toISOString(),
         version: 1,
-      } as any)
+      })
       .returningAll()
       .executeTakeFirst();
 
@@ -260,8 +260,8 @@ export class RulesEngineService implements IRulesEngineService {
       .set({
         decision_model: jdmContent,
         updated_at: new Date().toISOString(),
-        version: ((current as any).version || 0) + 1,
-      } as any)
+        version: (current.version || 0) + 1,
+      })
       .where("id", "=", ruleId)
       .returningAll()
       .executeTakeFirst();
@@ -271,9 +271,9 @@ export class RulesEngineService implements IRulesEngineService {
     }
 
     // Invalidate cache for this entity/operation
-    ruleCache.invalidate((row as any).entity_name, (row as any).trigger);
+    ruleCache.invalidate(row.entity_name, row.trigger);
 
-    return this.mapRowToDefinition(row as any);
+    return this.mapRowToDefinition(row);
   }
 
   /**

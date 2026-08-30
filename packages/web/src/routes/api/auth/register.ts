@@ -74,7 +74,7 @@ export const Route = createFileRoute("/api/auth/register")({
               role: "user",
               createdAt: now,
               updatedAt: now,
-            } as any)
+            })
             .execute();
 
           return new Response(

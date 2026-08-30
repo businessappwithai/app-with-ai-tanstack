@@ -40,7 +40,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
           emailVerified: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-        } as any)
+        })
         .returningAll()
         .executeTakeFirst();
       return newUser as AuthUser;
@@ -70,7 +70,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
         .set({
           ...data,
           updatedAt: new Date(),
-        } as any)
+        })
         .where("id", "=", id)
         .returningAll()
         .executeTakeFirst();
@@ -92,7 +92,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
           expiresAt: session.expiresAt,
           createdAt: new Date(),
           updatedAt: new Date(),
-        } as any)
+        })
         .returningAll()
         .executeTakeFirst();
       return newSession as AuthSession;
@@ -113,7 +113,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
         .set({
           ...data,
           updatedAt: new Date(),
-        } as any)
+        })
         .where("token", "=", token)
         .returningAll()
         .executeTakeFirst();
@@ -126,11 +126,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
 
     // Account operations (for OAuth)
     createAccount: async (account: any) => {
-      return await db
-        .insertInto("auth_accounts")
-        .values(account as any)
-        .returningAll()
-        .executeTakeFirst();
+      return await db.insertInto("auth_accounts").values(account).returningAll().executeTakeFirst();
     },
 
     getAccount: async (userId: any, provider: any) => {
@@ -154,7 +150,7 @@ export function createKyselyAdapter(db: Kysely<any>): any {
     createVerificationToken: async (token: any) => {
       return await db
         .insertInto("auth_verification_tokens")
-        .values(token as any)
+        .values(token)
         .returningAll()
         .executeTakeFirst();
     },

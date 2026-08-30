@@ -32,10 +32,10 @@ export const Route = createFileRoute("/api/admin/users/")({
           const currentUser = await db
             .selectFrom("auth_users")
             .selectAll()
-            .where("id", "=", (session as any).userId)
+            .where("id", "=", session.userId)
             .executeTakeFirst();
 
-          if (!currentUser || (currentUser as any).role !== "admin") {
+          if (!currentUser || currentUser.role !== "admin") {
             return new Response(JSON.stringify({ error: "Forbidden" }), {
               status: 403,
               headers: { "Content-Type": "application/json" },

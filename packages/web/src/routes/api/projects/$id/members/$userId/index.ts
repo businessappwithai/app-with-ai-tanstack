@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/projects/$id/members/$userId/")({
             });
           }
 
-          if ((project as any).owner_user_id !== user.id) {
+          if (project.owner_user_id !== user.id) {
             return new Response(JSON.stringify({ error: "Only owner can modify members" }), {
               status: 403,
               headers: { "Content-Type": "application/json" },
@@ -139,7 +139,7 @@ export const Route = createFileRoute("/api/projects/$id/members/$userId/")({
             });
           }
 
-          if ((project as any).owner_user_id !== user.id) {
+          if (project.owner_user_id !== user.id) {
             return new Response(JSON.stringify({ error: "Only owner can remove members" }), {
               status: 403,
               headers: { "Content-Type": "application/json" },

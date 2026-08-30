@@ -34,7 +34,7 @@ async function seedAdminAccount() {
       await db
         .updateTable("auth_users")
         .set({ status: "approved", role: "admin" })
-        .where("id", "=", (existingUser as any).id)
+        .where("id", "=", existingUser.id)
         .execute();
 
       console.log(`✅ Admin account ready!`);
@@ -48,7 +48,7 @@ async function seedAdminAccount() {
     // Create new admin user
     const userId = crypto.randomUUID();
     const now = new Date().toISOString();
-    const passwordHash = (await hashPassword(password)) as any;
+    const passwordHash = await hashPassword(password);
 
     // Insert user with password
     await db
@@ -63,7 +63,7 @@ async function seedAdminAccount() {
         role: "admin",
         createdAt: now,
         updatedAt: now,
-      } as any)
+      })
       .execute();
 
     console.log(`✅ Admin account created successfully!`);
