@@ -303,6 +303,7 @@ function SagaField({
           : CHOICES[field];
 
   return (
+    // biome-ignore lint/a11y/noLabelWithoutControl: the select/input is nested in the label, behind a conditional.
     <label className="mb-3.5 block">
       <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
         {label}

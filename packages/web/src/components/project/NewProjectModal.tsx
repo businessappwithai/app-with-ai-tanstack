@@ -102,9 +102,9 @@ export function NewProjectModal({ isOpen, onClose, onCreateProject }: NewProject
 
           {/* Stack Type */}
           <div>
-            <label className="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2 block">
+            <span className="text-xs font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-2 block">
               Stack Type <span className="text-red-500">*</span>
-            </label>
+            </span>
             <div className="flex items-center p-4 border-2 border-primary bg-primary/5 rounded-xl">
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 dark:text-white">

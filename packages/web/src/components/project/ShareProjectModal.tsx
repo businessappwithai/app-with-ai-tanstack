@@ -173,10 +173,14 @@ export function ShareProjectModal({ projectId, isOpen, onClose }: ShareProjectMo
           className="space-y-4 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700"
         >
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="shareprojectmodal-email-address"
+              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+            >
               Email Address
             </label>
             <input
+              id="shareprojectmodal-email-address"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -187,10 +191,14 @@ export function ShareProjectModal({ projectId, isOpen, onClose }: ShareProjectMo
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="shareprojectmodal-permission"
+              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+            >
               Permission
             </label>
             <select
+              id="shareprojectmodal-permission"
               value={permission}
               onChange={(e) => setPermission(e.target.value as "read_only" | "read_write")}
               disabled={isLoading}

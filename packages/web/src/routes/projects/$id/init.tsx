@@ -254,17 +254,17 @@ function InitPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                     Created
-                  </label>
+                  </span>
                   <div className="bg-muted px-4 py-3 rounded-xl border border-border text-sm text-muted-foreground">
                     {formatDate(currentProject.createdAt)}
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                     Modified
-                  </label>
+                  </span>
                   <div className="bg-muted px-4 py-3 rounded-xl border border-border text-sm text-muted-foreground">
                     {formatDate(currentProject.updatedAt)}
                   </div>
@@ -283,9 +283,9 @@ function InitPage() {
             <div className="space-y-5">
               {/* Stack Type */}
               <div>
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                   Stack Type
-                </label>
+                </span>
                 {isNewProject ? (
                   <div className="space-y-2">
                     <label
@@ -348,9 +348,9 @@ function InitPage() {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-1">
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
                     Port
-                  </label>
+                  </span>
                   <div className="bg-muted border border-border text-muted-foreground rounded-xl px-4 py-3">
                     {currentProject.port}
                   </div>

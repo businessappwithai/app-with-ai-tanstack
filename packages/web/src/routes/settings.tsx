@@ -578,10 +578,14 @@ function SettingsPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                <label
+                  htmlFor="settings-display-name"
+                  className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block"
+                >
                   Display Name
                 </label>
                 <input
+                  id="settings-display-name"
                   type="text"
                   value={profile.name}
                   onChange={(e) => setProfile({ ...profile, name: e.target.value })}
@@ -589,10 +593,14 @@ function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                <label
+                  htmlFor="settings-email"
+                  className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block"
+                >
                   Email
                 </label>
                 <input
+                  id="settings-email"
                   type="email"
                   value={profile.email}
                   onChange={(e) => setProfile({ ...profile, email: e.target.value })}
@@ -609,9 +617,9 @@ function SettingsPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 block">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 block">
                   Theme
-                </label>
+                </span>
                 <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"

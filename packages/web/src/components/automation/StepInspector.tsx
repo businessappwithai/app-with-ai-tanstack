@@ -168,6 +168,7 @@ function Field({
   // it the selects announce as "combobox" with no name at all, which is the
   // difference between a usable panel and an unusable one on a screen reader.
   return (
+    // biome-ignore lint/a11y/noLabelWithoutControl: the control is the `children` this wrapper renders inside the label.
     <label className="mb-3.5 block">
       <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
         {label}

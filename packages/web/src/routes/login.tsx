@@ -203,10 +203,14 @@ function LoginPage() {
           <form onSubmit={tab === "login" ? handleLogin : handleRegister} className="space-y-4">
             {tab === "register" && (
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+                <label
+                  htmlFor="login-full-name"
+                  className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white"
+                >
                   Full Name
                 </label>
                 <input
+                  id="login-full-name"
                   type="text"
                   required
                   value={name}
@@ -218,10 +222,14 @@ function LoginPage() {
             )}
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+              <label
+                htmlFor="login-email"
+                className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white"
+              >
                 Email
               </label>
               <input
+                id="login-email"
                 type="email"
                 required
                 value={email}
@@ -232,10 +240,14 @@ function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white">
+              <label
+                htmlFor="login-password"
+                className="block text-sm font-semibold mb-2 text-gray-900 dark:text-white"
+              >
                 Password
               </label>
               <input
+                id="login-password"
                 type="password"
                 required
                 value={password}

@@ -40,7 +40,6 @@ const compileOne = (table: EditorTable, name = "enterpriseDiscountCap") => {
       event: "beforeUpdate",
       priority: 100,
       flowchart: asEditorFlowchart(table),
-      // biome-ignore lint/suspicious/noExplicitAny: EmlRuleSection carries extra fields the compiler ignores.
     },
   ]);
   if (!rule) throw new Error("rule did not compile");
@@ -156,7 +155,6 @@ describe("rules authored in the decision-table editor", () => {
           "    B -->|Yes| C[Set rating hot]",
           "    B -->|No| D[Set rating cold]",
         ].join("\n"),
-        // biome-ignore lint/suspicious/noExplicitAny: as above.
       },
     ]);
     const graph = JSON.parse(rule!.jdmContent) as JdmGraph;

@@ -232,6 +232,7 @@ export function SagaStepEditor({ flow, entityNames, onChange }: SagaStepEditorPr
 
               <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
                 {visibleFields(step).map((key) => (
+                  // biome-ignore lint/a11y/noLabelWithoutControl: the control is nested in the label, behind a per-field conditional.
                   <label key={key} className="block">
                     <span className="mb-1 block text-[11px] font-medium">
                       {SAGA_FIELD_LABELS[key] ?? key}
