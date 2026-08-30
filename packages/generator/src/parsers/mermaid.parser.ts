@@ -269,9 +269,7 @@ export class MermaidParser {
       const parent = entities.find((candidate) => candidate.name === parentName);
       if (!child || !parent) continue;
 
-      const snake = parent.name
-        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-        .toLowerCase();
+      const snake = parent.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
       const link =
         child.attributes.find((a) => a.isForeignKey && a.name === `${snake}_id`) ??
         child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`));

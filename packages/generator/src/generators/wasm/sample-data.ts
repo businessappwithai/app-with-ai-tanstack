@@ -361,7 +361,9 @@ function buildFkOverrides(
     );
 
     const parents = relationships
-      .filter((relationship) => relationship.targetEntity.toLowerCase() === entity.name.toLowerCase())
+      .filter(
+        (relationship) => relationship.targetEntity.toLowerCase() === entity.name.toLowerCase()
+      )
       .map((relationship) => byName.get(relationship.sourceEntity.toLowerCase()))
       .filter((name): name is string => !!name);
 
