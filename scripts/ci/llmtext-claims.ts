@@ -19,9 +19,15 @@
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { AUTO_FIXABLE_CODES } from "../../language/checker";
+import definition from "../../language/appwithai-language.json";
 
 /* The checker exports a Set; every assertion below wants a stable ordering. */
 const autoFixable = [...AUTO_FIXABLE_CODES].sort();
+
+/* Directive name + status, straight from the definition JSON. Both documents
+   name that file as the authority, so it is what their tables are held to. */
+const directives = (definition.directives.reserved as Array<{ keyword: string; status: string }>)
+  .map((entry) => ({ name: entry.keyword.replace(/^%%/, ""), status: entry.status }));
 
 const ROOT = resolve(import.meta.dir, "../..");
 const checkerSource = readFileSync(join(ROOT, "language/checker.ts"), "utf-8");
@@ -79,6 +85,31 @@ for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
       dangling.length ? ` (dangling: ${dangling.join(", ")})` : ""
     }`
   );
+
+  /* Directive status, against `language/appwithai-language.json` — the file both
+     documents name as the authority. This is the check that was missing: §11
+     rule 2 claimed %%entity was "validated but not compiled" while the same
+     document's own §3.2 table said compiled, and a reader who believed rule 2
+     would conclude %%entity help: was inert. It is not: it becomes
+     sys_table.description and the whole of the generated manual's prose. */
+  for (const entry of directives) {
+    const row = new RegExp(`^\\| \`%%${entry.name}\` \\|[^\n]*$`, "m").exec(doc);
+    held(
+      row !== null && new RegExp(`\\b${entry.status}\\b`).test(row[0]),
+      `${name}: the status table calls %%${entry.name} ${entry.status}${
+        row ? "" : " (no row found)"
+      }`
+    );
+    /* A compiled directive must never be described as inert in prose. */
+    if (entry.status === "compiled") {
+      held(
+        !new RegExp(
+          `%%${entry.name}\`?,? (and )?[^.]{0,60}are validated but not compiled`
+        ).test(prose),
+        `${name}: prose does not call the compiled %%${entry.name} "validated but not compiled"`
+      );
+    }
+  }
 
   /* The published route has to be offered, or a model without this checkout
      concludes the checker is unreachable — the failure this text exists for. */
