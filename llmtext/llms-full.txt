@@ -201,7 +201,7 @@ it. **reserved** = documented, renderer-safe, inert.
 | `%%loop` | `%%loop <id> while: <f> <op> <v> max: <n>` | compiled | `workflows/steps.ts` |
 | `%%workflow` | `%%workflow <Name> entity: <E> kind: <hook\|state\|saga>` | compiled | `generator/src/workflows/index.ts` |
 | `%%rbac` | `%%rbac <roleExpr> on <E>.<op>` | compiled | `generator/src/rbac/index.ts` |
-| `%%entity` | `%%entity <E> <k>: <v>` | compiled *(`help:`/`description:`)*, validated otherwise | `mermaid.parser.ts` · `language/checker.ts` |
+| `%%entity` | `%%entity <E> <k>: <v>` | compiled *(`help:`/`description:`, `parent:`)*, validated otherwise | `mermaid.parser.ts` · `language/checker.ts` |
 | `%%rule` | `%%rule <name> on <E> event: <hook> priority: <n>` | validated | `language/checker.ts` |
 | `%%trigger` | `%%trigger <source> -> <handler> on <E>` | validated | `language/checker.ts` |
 
@@ -1590,9 +1590,12 @@ The user should be able to take that one file straight to `appwithai generate`.
 
 1. **Resolve which application** — the modelling tool (:3000) or the generated
    app (:4000/4001)? Most ambiguity in questions about "the app" is this.
-2. **Check a directive's `status` before promising behaviour.** `%%entity`,
-   `%%rule` and `%%trigger` are validated but not compiled — they will not
-   change a generated application.
+2. **Check a directive's `status` before promising behaviour.** `%%rule` and
+   `%%trigger` are validated but not compiled — they will not change a
+   generated application. `%%entity` is **compiled** for `help:`/`description:`
+   and for `parent:`, validated otherwise, so its help text is never inert: it
+   becomes `sys_table.description` and the whole of the manual's prose (§5.3,
+   §5.6).
 3. **A rule that must act needs `%%action`** — the node-graph form cannot.
 4. **Never hard-code a model string or base URL.** Import from
    `packages/ai/src/config.ts`.
