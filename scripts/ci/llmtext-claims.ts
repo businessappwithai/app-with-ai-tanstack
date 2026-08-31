@@ -18,16 +18,17 @@
 
 import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { AUTO_FIXABLE_CODES } from "../../language/checker";
 import definition from "../../language/appwithai-language.json";
+import { AUTO_FIXABLE_CODES } from "../../language/checker";
 
 /* The checker exports a Set; every assertion below wants a stable ordering. */
 const autoFixable = [...AUTO_FIXABLE_CODES].sort();
 
 /* Directive name + status, straight from the definition JSON. Both documents
    name that file as the authority, so it is what their tables are held to. */
-const directives = (definition.directives.reserved as Array<{ keyword: string; status: string }>)
-  .map((entry) => ({ name: entry.keyword.replace(/^%%/, ""), status: entry.status }));
+const directives = (
+  definition.directives.reserved as Array<{ keyword: string; status: string }>
+).map((entry) => ({ name: entry.keyword.replace(/^%%/, ""), status: entry.status }));
 
 const ROOT = resolve(import.meta.dir, "../..");
 const checkerSource = readFileSync(join(ROOT, "language/checker.ts"), "utf-8");
@@ -103,9 +104,9 @@ for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
     /* A compiled directive must never be described as inert in prose. */
     if (entry.status === "compiled") {
       held(
-        !new RegExp(
-          `%%${entry.name}\`?,? (and )?[^.]{0,60}are validated but not compiled`
-        ).test(prose),
+        !new RegExp(`%%${entry.name}\`?,? (and )?[^.]{0,60}are validated but not compiled`).test(
+          prose
+        ),
         `${name}: prose does not call the compiled %%${entry.name} "validated but not compiled"`
       );
     }
