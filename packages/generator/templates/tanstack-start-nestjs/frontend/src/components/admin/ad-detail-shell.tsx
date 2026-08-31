@@ -24,6 +24,7 @@ import {
 } from "./ad-window-configs";
 import { DocStatusBadge } from "./doc-status-badge";
 import { helpTableNameFromEndpoint, WindowHelpDialog } from "./window-help-dialog";
+import { format } from "date-fns";
 
 type AnyRecord = Record<string, unknown>;
 
@@ -200,9 +201,17 @@ function SummaryFieldValue({ field, record }: { field: FieldMetadata; record: An
 
   if (typeof value === "boolean") return <span>{value ? "Yes" : "No"}</span>;
 
-  if (field.sys_reference_id === 15 || field.sys_reference_id === 16) {
+  // dd/MM/yyyy everywhere, as in the grid and the record form — not
+  // `toLocaleDateString`, which follows the runtime's locale and so disagreed
+  // with the screen the reader just came from.
+  if (field.sys_reference_id === 15) {
     const d = new Date(String(value));
-    if (!isNaN(d.getTime())) return <span>{d.toLocaleDateString()}</span>;
+    if (!isNaN(d.getTime())) return <span>{format(d, "dd/MM/yyyy")}</span>;
+  }
+
+  if (field.sys_reference_id === 16) {
+    const d = new Date(String(value));
+    if (!isNaN(d.getTime())) return <span>{format(d, "dd/MM/yyyy HH:mm:ss")}</span>;
   }
 
   if (field.sys_reference_id === 18 || field.sys_reference_id === 19) {

@@ -31,6 +31,7 @@ import { getFieldTypeColor, getFieldTypeLabel, validateFormData } from "@/lib/fi
 import { getFieldLabel } from "@/lib/i18n-fields";
 import { useTranslations } from "@/lib/translations";
 import { cn, referenceLabel } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface DynamicFormProps {
   tableName: string;
@@ -430,15 +431,20 @@ function FieldRenderer({
             if (currentValue === null || currentValue === undefined || currentValue === "")
               return "—";
             if (typeof currentValue === "boolean") return currentValue ? "Yes" : "No";
+            // Same formats the grid uses (see components/tables/dynamic-table.tsx).
+            // `toLocaleDateString` rendered 15 January 2000 as "1/15/2000" here
+            // and "15/01/2000" one screen earlier, because it follows whichever
+            // locale the runtime happens to hold — which also differs between
+            // the SSR pass and the browser.
             if (field.sys_reference_id === 15) {
               // DATE — show date only, no time component
               const d = new Date(String(currentValue));
-              return isNaN(d.getTime()) ? String(currentValue) : d.toLocaleDateString();
+              return isNaN(d.getTime()) ? String(currentValue) : format(d, "dd/MM/yyyy");
             }
             if (field.sys_reference_id === 16) {
               // DATETIME — show date and time
               const d = new Date(String(currentValue));
-              return isNaN(d.getTime()) ? String(currentValue) : d.toLocaleString();
+              return isNaN(d.getTime()) ? String(currentValue) : format(d, "dd/MM/yyyy HH:mm:ss");
             }
             if (field.options && field.options.length > 0) {
               // Enum — look up the label so "female" shows as "Female"
