@@ -467,7 +467,7 @@ export class MermaidParser {
       sourceEntity: sourceEntity!,
       targetEntity: targetEntity!,
       cardinality,
-      foreignKey: this.generateForeignKey(targetEntity!, cardinality),
+      foreignKey: this.generateForeignKey(sourceEntity!, targetEntity!, cardinality),
     };
   }
 
@@ -600,11 +600,28 @@ export class MermaidParser {
    * Generate foreign key name based on relationship
    * Removes bus_ prefix if present to match actual database schema
    */
+  /**
+   * The foreign key column a relationship is carried by.
+   *
+   * The column lives on the *many* side and is named after the entity it points
+   * at — the *one* side. This used to be derived from the target regardless of
+   * direction, so `ClassOffering ||--o{ ClassSession` reported
+   * `class_session_id`: a column named after the table it sits on, which is not
+   * a foreign key name and is not what the model declares
+   * (`class_offering_id`). `inspect` printed it verbatim, and
+   * `generators/wasm/model-bundle.ts` had to carry a workaround that guesses
+   * the parent-derived name first and treats this value as a fallback.
+   *
+   * A many-to-many has no such column at all; the target-derived name is kept
+   * there as the least surprising placeholder.
+   */
   private generateForeignKey(
+    sourceEntity: string,
     targetEntity: string,
-    _cardinality: Relationship["cardinality"]
+    cardinality: Relationship["cardinality"]
   ): string {
-    const snakeName = this.toSnakeCase(targetEntity);
+    const referenced = cardinality === "oneToMany" ? sourceEntity : targetEntity;
+    const snakeName = this.toSnakeCase(referenced);
     // Remove bus_ prefix if present to match actual database schema
     const cleanName = snakeName.replace(/^bus_/, "");
     return `${cleanName}_id`;
