@@ -571,21 +571,32 @@ function FieldRenderer({
             );
 
           case REFERENCE_TYPE.YES_NO:
+            // The required marker and the error block are here rather than in
+            // `labelBlock` because this control lays its own label out beside
+            // the box. Leaving them off made a mandatory boolean the one field
+            // that could fail validation and say nothing about it.
             return (
-              <div className="flex items-center gap-3 pt-6">
-                <Checkbox
-                  id={field.column_name}
-                  checked={(currentValue as boolean) || false}
-                  onCheckedChange={(checked) => fieldApi.handleChange(checked)}
-                  disabled={isReadOnly}
-                  className={cn(field.is_mandatory && "border-primary/50")}
-                />
-                <div className="flex items-center gap-2">
-                  <Label htmlFor={field.column_name} className="text-sm">
-                    {fieldLabel}
-                  </Label>
-                  <FieldTypeBadge field={field} />
+              <div className="pt-6">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id={field.column_name}
+                    checked={(currentValue as boolean) || false}
+                    onCheckedChange={(checked) => fieldApi.handleChange(checked)}
+                    disabled={isReadOnly}
+                    className={cn(field.is_mandatory && "border-primary/50")}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Label
+                      htmlFor={field.column_name}
+                      className={cn("text-sm", error && "text-destructive")}
+                    >
+                      {fieldLabel}
+                      {field.is_mandatory && <span className="text-red-500 ml-0.5">*</span>}
+                    </Label>
+                    <FieldTypeBadge field={field} />
+                  </div>
                 </div>
+                {errorBlock}
               </div>
             );
 
@@ -862,6 +873,28 @@ export function DynamicForm({
       });
     }
   }, [initialData]);
+
+  /*
+   * A drawn checkbox has an answer.
+   *
+   * A Yes/No field starts undefined, and the control renders `undefined` as
+   * unticked — so the form showed an answered "No" that the validator counted
+   * as unanswered, and a create was refused with "Please fix the validation
+   * errors" and nothing beside any field. Every entity in the dance-studio
+   * model with a mandatory boolean — Room, Instructor, Member — could not be
+   * created from the interface at all, though the API accepted the same
+   * payload. Seed the value the control is already showing.
+   */
+  useEffect(() => {
+    if (mode !== "create" || !fields) return;
+    for (const field of fields) {
+      if (field.sys_reference_id !== REFERENCE_TYPE.YES_NO) continue;
+      if (!field.is_displayed || field.column_name === parentField) continue;
+      if (form.getFieldValue(field.column_name as never) === undefined) {
+        form.setFieldValue(field.column_name as never, false as never);
+      }
+    }
+  }, [fields, mode, parentField]);
 
   const isLoading = externalFields ? false : fieldsLoading;
 
