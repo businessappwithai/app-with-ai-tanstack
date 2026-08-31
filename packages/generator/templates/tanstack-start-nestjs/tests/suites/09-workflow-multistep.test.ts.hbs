@@ -55,12 +55,27 @@ const suiteId = `ms${Date.now().toString(36).slice(-5)}`;
  * Wide enough to hold the suite's marker strings — a `varchar(8)` column would
  * truncate them and turn every assertion into a mystery.
  */
+/**
+ * Columns the generated business rules constrain by *format*, which a marker
+ * string cannot satisfy.
+ *
+ * Generation writes a decision-table row for any column named `email` —
+ * `!contains(email, "@")` → prevent, see
+ * backend/src/modules/rules/jdm/entity.jdm.json — so stamping `ms1a2b3-source`
+ * into it is refused 400 before the workflow chain ever starts. On a model
+ * whose first long string column is an email (Instructor, Member, …) that made
+ * this suite unrunnable, and the failure pointed at the workflow rather than at
+ * the column the suite had chosen.
+ */
+const FORMAT_CONSTRAINED_COLUMNS = new Set(["email"]);
+
 function stampableFields(entity: EntityMeta): FieldMeta[] {
   return entity.fields.filter(
     (field) =>
       !field.isForeignKey &&
       !field.name.endsWith("_id") &&
       field.name !== "id" &&
+      !FORMAT_CONSTRAINED_COLUMNS.has(field.name) &&
       (field.type === "string" || field.type === "text") &&
       (field.maxLength === undefined || field.maxLength >= 24)
   );
