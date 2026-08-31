@@ -49,7 +49,7 @@ function handler(method: string) {
   }
 }
 
-export const Route = createAPIFileRoute('/api/$')({
+const methods = {
   GET: handler('GET'),
   HEAD: handler('HEAD'),
   POST: handler('POST'),
@@ -57,19 +57,26 @@ export const Route = createAPIFileRoute('/api/$')({
   PATCH: handler('PATCH'),
   DELETE: handler('DELETE'),
   OPTIONS: handler('OPTIONS'),
-})
+}
 
-// Both names, on purpose, and `Route` is the one holding the call.
+export const APIRoute = createAPIFileRoute('/api/$')(methods)
+
+// Both names, on purpose, and each holds its own call.
 //
 // The router registers an API route file by its `APIRoute` export and ignores
 // anything else, so a file exporting only `Route` is silently absent — and an
 // absent API route answers with the HTML of a missing page rather than a 404
 // anyone would recognise as a routing problem. That is why both exist.
 //
-// Which of the two is the alias is not a style choice. The route generator
-// parses these files and requires the `Route` export to be initialised by a
-// call expression directly; assigning it from a local const failed that check
-// with `expected "Route" export to be initialized by a CallExpression`, and
-// a failed generate leaves no src/routeTree.gen.ts — which every route file
-// imports, so a freshly generated frontend did not typecheck at all.
-export const APIRoute = Route
+// Neither may be an alias of the other. vinxi imports this file as
+// `?pick=APIRoute`, and its tree-shake pass deletes every *other* exported
+// declarator outright rather than inlining it — so `export const APIRoute =
+// Route` left the picked module referring to a `Route` that had just been
+// removed, and every /api/* request answered 500 with
+// `ReferenceError: Route is not defined`. The route generator, for its part,
+// requires the `Route` export to be initialised by a call expression directly
+// (`expected "Route" export to be initialized by a CallExpression`), and a
+// failed generate leaves no src/routeTree.gen.ts. Two calls over one shared
+// `methods` object satisfy both: each export stands alone, and `methods` is
+// not exported, so the pick keeps it.
+export const Route = createAPIFileRoute('/api/$')(methods)
