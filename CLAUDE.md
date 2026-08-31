@@ -68,6 +68,20 @@ bun --filter @appwithai/web test -- path/to/file.spec.ts
 bunx playwright test tests/e2e/specific.e2e.spec.ts
 ```
 
+### Run `bun install` first — both failure modes are silent
+
+In a tree with no `node_modules`, the two commands you would reach for to check
+your work lie to you, in opposite directions:
+
+| Command | What it does with no `node_modules` |
+|---|---|
+| `bunx biome check .` | Resolves **`biome@0.3.3`** — an unrelated legacy package, not `@biomejs/biome` — and exits **0 having checked nothing**. Indistinguishable from a clean lint |
+| `bun run type-check` | Reports **thousands of phantom errors**: every `node:` builtin and `process` is unresolvable. Indistinguishable from a broken repository |
+
+Both have been mistaken for real results, and each wasted a CI cycle. `bun
+install` fixes both. If you cannot install, pin the linter explicitly —
+`bunx @biomejs/biome@2.5.6 check .` — and do not trust `type-check` at all.
+
 ### Known-broken scripts
 - `bun run migrate` — file doesn't exist; real migrations: `runMigrations()` from `@appwithai/core/services`
 - Root `vitest.config.ts` — references missing `./test/setup.ts`; use `bun run test`
