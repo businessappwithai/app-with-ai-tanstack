@@ -943,5 +943,22 @@ export class TemplateLoader {
         return humanized ? `${humanized} ${i + 1}` : `Sample ${i + 1}`;
       }
     );
+
+    // A seed value for a column the model bound to a %%enum.
+    //
+    // `seedValue` is keyed on the column *name*, so every column called
+    // `status` was seeded "Active" / "Pending" / "In Progress" / "Completed"
+    // whatever the model declared — and a `%%enum MemberStatus: active,
+    // lapsed, suspended` column then held four values none of which the
+    // dictionary offers, the dropdown cannot select, and no state machine has
+    // an edge out of. The declared values are on the attribute already; this
+    // cycles through them so the sample rows cover the enum rather than
+    // contradict it.
+    Handlebars.registerHelper("enumSeedValue", (values: unknown, index: number) => {
+      const list = Array.isArray(values) ? values.filter((v): v is string => typeof v === "string") : [];
+      if (list.length === 0) return "";
+      const i = typeof index === "number" ? index : 0;
+      return list[((i % list.length) + list.length) % list.length];
+    });
   }
 }
