@@ -21281,6 +21281,7 @@ var TEMPLATE_ROOT = "/templates";
 var OUTPUT_ROOT = "/app";
 async function generateFullStack(options) {
   const report = options.onProgress ?? (() => {});
+  const withOverlay = options.overlay !== false;
   reset();
   seed(options.templates, TEMPLATE_ROOT);
   report("check", "Checking the model");
@@ -21307,14 +21308,20 @@ async function generateFullStack(options) {
     databaseType: "postgresql",
     port: DEFAULT_BACKEND_PORT,
     frontendPort: DEFAULT_FRONTEND_PORT,
-    manifest: { input: ["model.eml.mmd"], packageManager: "npm" }
+    manifest: {
+      input: ["model.eml.mmd"],
+      packageManager: withOverlay ? "npm" : "bun"
+    }
   });
-  report("overlay", "Replacing the database driver and the runtime");
-  const overlay = await applyWasmOverlay({
-    outputDir: OUTPUT_ROOT,
-    dataDir: "./pgdata",
-    log: (message) => report("overlay", message)
-  });
+  let overlay = { added: [], rewritten: [], debunned: [] };
+  if (withOverlay) {
+    report("overlay", "Replacing the database driver and the runtime");
+    overlay = await applyWasmOverlay({
+      outputDir: OUTPUT_ROOT,
+      dataDir: "./pgdata",
+      log: (message) => report("overlay", message)
+    });
+  }
   const files2 = snapshot(OUTPUT_ROOT);
   report("done", `${Object.keys(files2).length} files`);
   return {

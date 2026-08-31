@@ -54,6 +54,19 @@ export interface FullStackOptions {
   adminPassword?: string;
   /** Called as each phase begins, for a page that wants to show progress. */
   onProgress?: (phase: string, detail?: string) => void;
+  /**
+   * Apply the WASM overlay: `pg` swapped for WebAssembly Postgres, `bun` for
+   * `node`, and the database pointed at a directory instead of a server.
+   *
+   * Defaults to `true`, because a WebContainer is what this module was written
+   * for and it has neither a database server nor bun. Pass `false` to get what
+   * `appwithai generate` writes — the real `pg` driver against a real
+   * PostgreSQL, and bun as the runtime. That is what a reader who unzips the
+   * application and runs `docker compose up --build` needs: compose starts a
+   * PostgreSQL for them, and an overlaid backend would quietly ignore it and
+   * open a PGlite directory instead.
+   */
+  overlay?: boolean;
 }
 
 export interface FullStackResult {
@@ -61,7 +74,10 @@ export interface FullStackResult {
   files: Record<string, string>;
   /** What the checker made of the model, after the fixer had its turn. */
   review: ModelReview;
-  /** What the overlay added and rewrote — the proof it stayed small. */
+  /**
+   * What the overlay added and rewrote — the proof it stayed small. All three
+   * lists are empty when `overlay: false` was asked for, since nothing ran.
+   */
   overlay: { added: string[]; rewritten: string[]; debunned: string[] };
   summary: {
     project: string;
@@ -74,7 +90,8 @@ export interface FullStackResult {
 }
 
 /**
- * Compile a model into the real stack, with the WASM overlay applied.
+ * Compile a model into the real stack, with the WASM overlay applied unless
+ * `overlay: false` says otherwise.
  *
  * Async because the pipeline is: it writes four hundred files, and in a tab that
  * is four hundred Map insertions rather than four hundred syscalls, so it
@@ -82,6 +99,7 @@ export interface FullStackResult {
  */
 export async function generateFullStack(options: FullStackOptions): Promise<FullStackResult> {
   const report = options.onProgress ?? (() => {});
+  const withOverlay = options.overlay !== false;
 
   // Two applications generated in one tab must not see each other's files, and
   // the second would otherwise inherit every file the first wrote.
@@ -119,15 +137,25 @@ export async function generateFullStack(options: FullStackOptions): Promise<Full
     frontendPort: DEFAULT_FRONTEND_PORT,
     // Installing and migrating is the CLI's step, not the pipeline's — which is
     // exactly right here, since the WebContainer does both afterwards.
-    manifest: { input: ["model.eml.mmd"], packageManager: "npm" },
+    //
+    // The manifest records which package manager the application expects. The
+    // overlay's build installs with npm; without it the Dockerfile and every
+    // script use bun, which is what `appwithai generate` records too.
+    manifest: {
+      input: ["model.eml.mmd"],
+      packageManager: withOverlay ? "npm" : "bun",
+    },
   });
 
-  report("overlay", "Replacing the database driver and the runtime");
-  const overlay = await applyWasmOverlay({
-    outputDir: OUTPUT_ROOT,
-    dataDir: "./pgdata",
-    log: (message) => report("overlay", message),
-  });
+  let overlay = { added: [] as string[], rewritten: [] as string[], debunned: [] as string[] };
+  if (withOverlay) {
+    report("overlay", "Replacing the database driver and the runtime");
+    overlay = await applyWasmOverlay({
+      outputDir: OUTPUT_ROOT,
+      dataDir: "./pgdata",
+      log: (message) => report("overlay", message),
+    });
+  }
 
   const files = memfs.snapshot(OUTPUT_ROOT);
   report("done", `${Object.keys(files).length} files`);
