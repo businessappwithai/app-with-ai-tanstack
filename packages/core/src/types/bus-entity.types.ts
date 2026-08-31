@@ -317,6 +317,27 @@ export function isForeignKeyColumnName(columnName: string): boolean {
 }
 
 /**
+ * The stem a column's label is built from.
+ *
+ * A Table Direct column stores a uuid and *shows* the referenced record — so
+ * "Class Session Id" over a column reading "Ballet, Studio 2" names the wrong
+ * thing. Strip the `_id` suffix so the label names the record, which is what
+ * the reader sees in it.
+ *
+ * Only for a resolved foreign key: the primary key stays "Id", and a `_by`
+ * column keeps its suffix because "Created By" is the label and "Created" is
+ * not.
+ */
+function foreignKeyLabelStem(attr: EntityAttribute, entityPrimaryKey?: string): string {
+  const isTableDirect =
+    attributeReferenceId(attr, entityPrimaryKey) === ReferenceType.TABLE_DIRECT;
+  if (isTableDirect && attr.name.endsWith("_id") && !attr.name.endsWith("_by_id")) {
+    return attr.name.slice(0, -"_id".length);
+  }
+  return attr.name;
+}
+
+/**
  * Converts an EntityAttribute to BusEntityAttribute
  */
 export function attributeToBusAttribute(
@@ -327,7 +348,7 @@ export function attributeToBusAttribute(
   return {
     ...attr,
     columnName: attr.name,
-    displayName: formatDisplayName(attr.name),
+    displayName: formatDisplayName(foreignKeyLabelStem(attr, entityPrimaryKey)),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
     // Set across the whole list by `withIdentifiers`; one attribute on its own
