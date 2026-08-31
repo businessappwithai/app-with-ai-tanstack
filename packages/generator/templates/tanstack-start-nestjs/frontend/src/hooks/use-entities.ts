@@ -47,6 +47,14 @@ export interface FieldMetadata {
   is_displayed: boolean;
   is_displayed_grid: boolean;
   is_read_only: boolean;
+  /**
+   * The dictionary's display value (§3.7) — the columns that name a record,
+   * and whether this one is the key. `use-bus-entity-level` picks the record
+   * title from these; the API omitted them, so the title fell through to the
+   * uuid on every entity whose identifier is not literally called `name`.
+   */
+  is_identifier?: boolean;
+  is_key?: boolean;
   col_span?: number;
   row_span?: number;
   field_group_id?: string;

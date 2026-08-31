@@ -129,14 +129,11 @@ export function useBusEntityLevel(entityName: string) {
   // A reference identifier is skipped: on a join entity the identifiers are the
   // foreign keys to the records it joins, and those hold uuids. Displaying and
   // searching by one is worse than the fallback, which at least reads as words.
-  const NAME_FALLBACKS = ["name", "title", "first_name", "description", "type"];
+  const NAME_FALLBACKS = ["name", "full_name", "title", "first_name", "code", "description", "type"];
   const nameField =
     formFields
-      .filter(
-        (f) =>
-          (f as any).is_identifier && !(f as any).is_key && !(f as any).ref_table_name
-      )
-      .sort((a, b) => Number((a as any).seq_no ?? 0) - Number((b as any).seq_no ?? 0))[0]
+      .filter((f) => f.is_identifier && !f.is_key && !f.ref_table_name)
+      .sort((a, b) => Number(a.seq_no ?? 0) - Number(b.seq_no ?? 0))[0]
       ?.column_name ??
     NAME_FALLBACKS.find((candidate) => formFields.some((f) => f.column_name === candidate)) ??
     "name";
