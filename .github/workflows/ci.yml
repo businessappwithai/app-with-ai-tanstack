@@ -93,6 +93,14 @@ jobs:
       - name: The published checker and fixer agree with the CLI
         run: bun run test:language-tools
 
+      # llmtext/ is what a language model reads instead of this repository. Its
+      # claims about the checker are prose, so they rot in the one direction
+      # nobody notices: a renamed diagnostic, a repair that stopped being
+      # automatic, a moved section. The reader gets no error, just a confident
+      # wrong answer.
+      - name: The llmtext specifications still describe the real checker
+        run: bun run test:llmtext
+
   generated-wasm-app:
     name: Generate a browser application and run its backend
     runs-on: ubuntu-latest

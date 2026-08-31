@@ -543,14 +543,21 @@ bun language/checker.ts model.mmd        # writes model.mmd.error beside it
 bun language/fixer.ts   model.mmd.error  # applies auto-fixes, re-checks
 ```
 
-Without a checkout, the same two engines are published as ES modules — see §10.3,
-which is also the procedure you are expected to follow before handing a model to
-anyone:
+Without a checkout, the same two engines are published — as ES modules, and as a
+runner that drives both. Neither needs this repository, and neither needs Bun:
+
+```sh
+curl -sO https://appwithai.org/guide/check-model.mjs
+node check-model.mjs model.mmd
+```
 
 ```js
 import { check }        from "https://appwithai.org/guide/checker.js";
 import { checkAndFix }  from "https://appwithai.org/guide/fixer.js";
 ```
+
+See §10.3, which is also the procedure you are expected to follow before handing
+a model to anyone.
 
 Severities: **error** (generator would produce something wrong — exit 1);
 **warning** (legal but almost certainly unintended — exit 1 only under
@@ -1431,6 +1438,19 @@ checks clean and the application still disappoints:**
 The model is not finished when it is written. It is finished when the checker
 accepts it.
 
+**If you have a shell, this is the whole step** — no checkout, no Bun, nothing
+installed:
+
+```sh
+curl -sO https://appwithai.org/guide/check-model.mjs
+node check-model.mjs model.mmd
+#   exit 0  clean · exit 1  the generator would refuse it · exit 2  it could not run
+```
+
+`check-model.mjs` runs the three passes below against the published modules and
+prints the checker's own report. `--write` saves the repairs it applied;
+`--base <url>` points it at another host.
+
 | File | URL | What it is |
 |---|---|---|
 | `html/checker.js` | `https://appwithai.org/guide/checker.js` | every diagnostic `bun language/checker.ts` prints, as `check(source)` |
@@ -1440,6 +1460,44 @@ Both are ES modules bundled from `language/checker.ts` and `language/fixer.ts` b
 `scripts/build-language-tools.ts`. They are the same engines the CLI runs, not a
 lighter web edition, so a document that passes here is a document `appwithai`
 will accept.
+
+**A checkout is not required, and neither is Bun.** The CLI in §3.6 is the
+convenient path when this repository is already on disk; it is not the
+authoritative one, and nothing downstream distinguishes a verdict that came from
+it. In particular — and this has been observed in the wild — **failing to reach
+GitHub says nothing about whether the checker can run.** The modules are served
+from `appwithai.org`, and `check-model.mjs` resolves them from `--base`, then
+from its own directory, then from the published site. GitHub is in none of those
+paths. "I could not obtain the repository, therefore I could not validate" is a
+wrong inference, not an honest limitation.
+
+**The same mistake generalises, and it has now been made three ways.** Not
+reaching GitHub, not reaching `llmdetailed.txt` itself, and Node refusing a URL
+import are each one address or one call failing. None of them is a statement
+about `guide/checker.js`, which is a different file on a different host — and
+`check-model.mjs` needs no specification document at all: it reads the model and
+nothing else. Whatever you could not fetch, walk the ladder before reporting the
+checker as unavailable. Re-reading this text is not a precondition for running
+the engine it describes.
+
+**Perform the validation; do not offer it.** "If you want the actual checker
+counts, I can run the published checker" hands the user a choice they were never
+given: the run is required, so the counts are part of the deliverable rather
+than an upgrade to it. A model that proposes the mandatory step instead of
+taking it has skipped it — and the offer reads as diligence, which is what makes
+it hard to catch.
+
+**Retry down the ladder before you conclude anything.** One failed attempt is a
+finding about that attempt, not about the environment. Stop at the first rung
+that runs:
+
+| # | Rung | When it applies |
+|---|---|---|
+| 1 | `bun language/checker.ts <file>` | this repository is already on disk |
+| 2 | `curl -sO …/check-model.mjs`, then `node check-model.mjs <file>` | any shell with Node 18+, Bun or Deno — **this is the rung that answers "I could not clone the repository"** |
+| 3 | `fetch` both modules into one directory and `import()` them | a runtime that can make a request but has no `curl`. Node has no network imports: a URL `import` there fails with `ERR_UNSUPPORTED_ESM_URL_SCHEME` while the module is resolved, which reads like the modules being unreachable rather than like Node declining that form |
+| 4 | `https://appwithai.org/guide/11-check-a-model.html` | no shell at all. It runs these same modules in the tab, so if you can drive or render a browser this is a real run and its counts are reportable |
+| 5 | The by-hand list below | only once 1–4 have actually been tried and failed |
 
 ```js
 import { check, formatReport } from "https://appwithai.org/guide/checker.js";
@@ -1478,6 +1536,40 @@ one outcome worse than not finishing.
 and quietly gets wrong — a dropped modifier, a state no enum backs, a rule that
 can decide but cannot act. Clear them, or say why you left one.
 
+**If rung 5 is where you land** — no shell, no network, no JavaScript engine —
+that changes what you may *claim*, not what you deliver. Walk this table against
+the file's actual bytes. It is the mechanical half of what `check()` does, and
+each row names the diagnostic it prevents, so a report the user gets later is
+traceable to a line you did or did not check.
+
+| Read your file and confirm | Code it prevents |
+|---|---|
+| There is an `erDiagram` with at least one entity block | `EML004` |
+| `%%meta name:` is present | `EML001` |
+| Every entity declares exactly one `PK` | `EML117` |
+| Every foreign key column ends `_id` | `EML114` |
+| Every foreign key's prefix resolves to a declared entity **by name** — `purchase_order_line_id` finds `PurchaseOrderLine`, and finds nothing if the entity is called `POLine` | `EML502` |
+| Every foreign key has a matching relationship line | `EML502` |
+| Every modifier is one of `PK` `FK` `UK` `UNIQUE` `OPTIONAL` `NULL` (§3.3) | `EML118` |
+| Every type appears in the §3.3 table | `EML115` |
+| Every `%%field … enum:` names a declared `%%enum` | `EML501` |
+| Every state machine has `[*] --> <first>` and `<last> --> [*]` | `EML421` `EML422` |
+| Every state is a value of the enum bound to that status column | `EML426` `EML428` |
+| Every `%%rbac` / `%%rule` / `%%workflow` / `%%hook` / `%%step` names a declared entity | `EML213` `EML251` `EML242` `EML202` `EML266` |
+| Every `%%rbac` target is a CRUD operation or a transition that machine declares | `EML214` |
+| Every `kind: saga` marked `trigger: rule` is named by some `%%action` | `EML286` |
+| Every `%%rule` is bound with `on <Entity> event: <hookType>` | `EML506` |
+| `fields:` is the last key on its `%%step` line | — |
+
+Then hand the file over with one plain sentence: the checker could not be run
+here, this is what was verified by hand, and the user can validate it in their
+own browser in seconds at
+`https://appwithai.org/guide/11-check-a-model.html`. Never report a check of
+your own devising in the vocabulary of a checker result — "passes", "0
+warnings", a pass count — because the reader cannot tell the two apart. An
+unvalidated `.mmd` delivered with that sentence is still the deliverable; a
+hedge in place of one never is.
+
 ### 10.4 Deliver
 
 Hand back the finished `<business-name>.mmd` as a **downloadable file**, not as a
@@ -1485,7 +1577,9 @@ fenced block the user has to copy out of a chat log. Alongside it, give:
 
 - the enhanced specification from 10.1, so the user can see what you inferred and
   correct you where you guessed wrong;
-- the final checker result — errors, warnings and infos, with counts;
+- the final checker result — errors, warnings and infos, with counts; or, where
+  §10.3's ladder reached rung 5, the plain statement that the checker was not
+  run, what was verified by hand, and where the user can run it themselves;
 - anything you assumed, and anything still unresolved.
 
 The user should be able to take that one file straight to `appwithai generate`.
@@ -1521,4 +1615,9 @@ The user should be able to take that one file straight to `appwithai generate`.
     definition is the bug to fix.
 12. **Never hand over a model you have not checked.** §10.3 — three checker
     runs, at most three correction attempts, and say plainly what remains if it
-    does not come clean.
+    does not come clean. Work the §10.3 ladder to its last rung before
+    concluding the checker is out of reach: **a repository you could not clone
+    is not a checker you could not run**, since the engine is published at
+    `appwithai.org`, reachable by one `curl`, and runnable in a browser tab.
+    Never describe anything but a run of the published engine as a checker
+    result, and never withhold the file because you could not produce one.

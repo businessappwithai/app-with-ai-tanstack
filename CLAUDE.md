@@ -60,6 +60,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build:wasm-runtime` | Re-inline `templates/wasm/**` after editing |
 | `bun run build:wasm-browser` | Rebuild `html/assets/appwithai-wasm.js` |
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
+| `bun run test:llmtext` | Hold `llmtext/*.txt` to what the checker actually does |
 
 **Run a single test:**
 ```bash
@@ -343,6 +344,7 @@ The suites deliberately leave their rows behind, so **a re-run against a populat
 | `language/composer.ts` | ⭐ The only writer of complete EML documents |
 | `llmtext/llms-full.txt` | ⭐ The spec written for language models |
 | `llmtext/llmdetailed.txt` | The same spec, §10 replaced by the interactive authoring walkthrough |
+| `scripts/ci/llmtext-claims.ts` | ⭐ Holds both of the above to the real checker — run by CI |
 
 ---
 
