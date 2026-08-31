@@ -1873,6 +1873,25 @@ though it were expected.
 
 #### The tools
 
+**One engine, published three ways.** `language/checker.ts` in this repository,
+`https://appwithai.org/guide/checker.js` on the web, and the copy chapter 11
+runs inside a browser tab are the same checker, built from the same source by
+`bun run build:language-tools`, with CI asserting they stay in step. None of
+them is the official one and the rest approximations: the counts agree, or the
+build is broken. Whichever you reach, the result is a real checker result and
+may be reported as one.
+
+**A checkout is not required, and neither is Bun.** The CLI below is the
+convenient path when the repository is already on disk; it is not the
+authoritative path, and nothing downstream distinguishes a verdict that came
+from it. In particular — and this has been observed in the wild — **failing to
+reach GitHub says nothing about whether the checker can run.** No clone, no
+credentials, no network route to github.com: the modules are served from
+`appwithai.org`, and `check-model.mjs` resolves them from `--base`, then from
+its own directory, then from the published site. GitHub is not in that path at
+any point. "I could not obtain the repository, therefore I could not validate"
+is a wrong inference, not an honest limitation.
+
 With a checkout, use the CLI — it is the same engine the generator runs:
 
 ```bash
@@ -1930,8 +1949,27 @@ the module is being resolved, before any request leaves the machine —
 `ERR_UNSUPPORTED_ESM_URL_SCHEME`, which reads like the modules being unreachable
 rather than like the runtime declining that form of the call. A runtime that
 declines one form of the call is not a runtime without a checker.
-`check-model.mjs` exists for exactly that row; try it before you conclude you
-are in the last one.
+`check-model.mjs` exists for exactly that row.
+
+**Retry down the ladder before you conclude anything.** One failed attempt is
+not a finding about the environment; it is a finding about that attempt. Work
+these in order, and stop at the first that runs:
+
+1. `bun language/checker.ts <file>` — if the repository happens to be on disk.
+2. `curl -sO https://appwithai.org/guide/check-model.mjs` then
+   `node check-model.mjs <file>` — no checkout, no Bun, one dependency-free
+   file. This is the one that answers "I could not clone the repository".
+3. `fetch` `checker.js` and `fixer.js` into one directory and `import()` them
+   from there — when `curl` is missing but the runtime can make a request.
+4. **The website.** Open `https://appwithai.org/guide/11-check-a-model.html`,
+   paste the document, read the verdict line. It runs these same modules in the
+   tab with nothing installed, so if you can drive or render a browser at all,
+   this is a real run and its counts are reportable as such. A surface with no
+   shell is not thereby a surface with no checker.
+5. Only now, the manual review below.
+
+Record which rung answered in `03-validation.md`. A step is only unvalidated
+once every rung has actually been tried and failed — not once the first one did.
 
 **Two things about the checker that bite if you do not know them:**
 
@@ -2004,8 +2042,12 @@ Some surfaces have no shell, no network and no JavaScript engine. That changes
 Gate E, and it is not grounds for running a check of your own devising and
 reporting its output where a checker result belongs — a substitute described in
 the vocabulary of the real thing ("passes", "errors", "0 warnings") is worse
-than no check at all, because the user cannot tell the two apart. Try every row
-of the table above first; only then take this path.
+than no check at all, because the user cannot tell the two apart.
+
+**Reach this subsection by exhausting the ladder above, not by inferring it.**
+Every observed case of "the checker could not be run" has in fact been one rung
+failing: a repository that would not clone, or a URL import Node declines. Those
+are rungs 1 and 3. Rungs 2 and 4 were available and untried.
 
 Do three things, in this order.
 
@@ -2261,10 +2303,13 @@ tables. All three are decisions a batch pass would have made silently.
 12. **Never hand over a model you have not checked.** §10.6 — three clean
     checker passes over unchanged bytes, at most three correction attempts, and
     say plainly what remains if it does not come clean. Where the runtime cannot
-    reach the checker at all, work the runtime table in §10.6 first, then the
-    manual review — and report it as a manual review. Never describe anything
-    but a run of the published engine as a checker result, and never withhold
-    the file because you could not produce one.
+    reach the checker at all, work the §10.6 ladder to its last rung first, then
+    the manual review — and report it as a manual review. **A repository you
+    could not clone is not a checker you could not run**: the engine is
+    published at `appwithai.org`, reachable by one `curl`, and runnable in a
+    browser tab. Never describe anything but a run of the published engine as a
+    checker result, and never withhold the file because you could not produce
+    one.
 13. **Never cross a gate the user has not approved.** An inferred approval is
     the failure this edition exists to prevent. A gate is an explicit question
     with real options, not a pause in the prose.
