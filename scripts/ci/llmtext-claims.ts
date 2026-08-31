@@ -69,12 +69,10 @@ for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
   );
 
   /* A cross-reference that resolves nowhere sends a reader nowhere. */
-  const headings = new Set(
-    [...doc.matchAll(/^#{2,4} (\d+(?:\.\d+)*)[. ]/gm)].map((m) => m[1])
+  const headings = new Set([...doc.matchAll(/^#{2,4} (\d+(?:\.\d+)*)[. ]/gm)].map((m) => m[1]));
+  const dangling = [...new Set([...doc.matchAll(/§(\d+\.\d+)/g)].map((m) => m[1]))].filter(
+    (ref) => !headings.has(ref)
   );
-  const dangling = [
-    ...new Set([...doc.matchAll(/§(\d+\.\d+)/g)].map((m) => m[1])),
-  ].filter((ref) => !headings.has(ref));
   held(
     dangling.length === 0,
     `${name}: every §N.N cross-reference resolves${
