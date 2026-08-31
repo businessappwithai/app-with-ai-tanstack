@@ -99,6 +99,11 @@ export async function seed(db: Kysely<any>): Promise<void> {
       {{/unless}}
       {{/each}}
       version: 1,
+      // Inserted straight into the table, so the promotion that would normally
+      // set this never runs and the column keeps its 'draft' default — which
+      // put a DRAFT badge on the header of every sample record in the
+      // application, on data that is complete. These rows are final.
+      doc_status: 'final',
       created_at: now,
       updated_at: now,
       deleted_at: null,
