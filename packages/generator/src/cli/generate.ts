@@ -24,6 +24,7 @@ import { generateApplication, readModelSources } from "../pipeline";
 import { compileRbac } from "../rbac";
 import { compileRules } from "../rules";
 import { compileSagaWorkflows, compileWorkflows } from "../workflows";
+import { runLintingChecks } from "../utils/lint-check.js";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
 const resolvePath = (p: string) =>
@@ -670,6 +671,18 @@ program
           packageManager: options.packageManager,
           quiet,
         });
+
+        // After the install, not before it. Run inside the generator it had no
+        // node_modules to find biome in, so it failed on every generation and
+        // said "linting found issues" about code it had never read.
+        if (!quiet) {
+          console.log("\n🔍 Running linting checks...");
+          await runLintingChecks(outputDir, {
+            skipBackend: !!options.skipBackend,
+            skipFrontend: !!options.skipFrontend,
+            packageManager: options.packageManager,
+          });
+        }
       }
 
       // ── Run E2E tests ───────────────────────────────────────────────────
@@ -710,7 +723,7 @@ program
           console.log(`   cd ${outputDir} && ${pm} run dev\n`);
           // Matches the bootstrap defaults in backend/src/main.ts
           // (ADMIN_EMAIL / ADMIN_PASSWORD override them).
-          console.log("   Default admin:  admin@admin.com / admin\n");
+          console.log("   Default admin:  admin@admin.com / admin123\n");
         }
         if (options.tests !== false) {
           console.log(`   E2E tests:      cd ${outputDir} && ${pm} run test:e2e`);
