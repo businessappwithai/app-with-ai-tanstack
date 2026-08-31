@@ -77,7 +77,69 @@ export class SysService {
   // SYS_TABLE
   // ============================================================
 
-  async findAllTables(options: PaginationOptions & { search?: string } = {}, filters: Record<string, any> = {}) {
+  /**
+   * The `bus_` tables a caller may read, or `null` for "everything".
+   *
+   * `%%rbac … .read` decides which entities a role's application is made of.
+   * `EntityAccessGuard` already refuses a read the caller's roles do not
+   * permit, but a navigation full of entries that answer 403 is a worse
+   * application than a shorter one: the reader cannot tell a permission from a
+   * bug. Only `bus_` tables are ever narrowed — the dictionary's own `sys_`
+   * tables are what the administrative screens are made of, and no `%%rbac`
+   * directive names them.
+   *
+   * A failed lookup means "no rules", matching `EntityAccessGuard`'s fail-open
+   * on a database that predates the migration.
+   */
+  private async readableBusTables(
+    user?: { isMaster?: boolean; roles?: string[]; sysRoles?: string[]; role?: string },
+  ): Promise<{ restricted: Set<string>; allowed: Set<string> } | null> {
+    if (!user || user.isMaster === true) return null;
+
+    const held = new Set<string>();
+    for (const value of [...(user.sysRoles ?? []), ...(user.roles ?? [])]) {
+      if (typeof value === 'string' && value) held.add(value.toLowerCase());
+    }
+    if (typeof user.role === 'string' && user.role) held.add(user.role.toLowerCase());
+
+    let rows: Array<{ table_name: string; role_name: string }>;
+    try {
+      rows = (await this.db.kysely
+        .selectFrom('sys_operation_access')
+        .select(['table_name', 'role_name'])
+        .where('operation', '=', 'read')
+        .where('is_active', '=', true)
+        .execute()) as Array<{ table_name: string; role_name: string }>;
+    } catch {
+      return null;
+    }
+    if (rows.length === 0) return null;
+
+    return {
+      restricted: new Set(rows.map((row) => row.table_name)),
+      allowed: new Set(
+        rows
+          .filter((row) => held.has(String(row.role_name).toLowerCase()))
+          .map((row) => row.table_name),
+      ),
+    };
+  }
+
+  /** A table is visible unless a %%rbac read rule names it and excludes the caller. */
+  private visibleToScope(
+    tableName: string,
+    scope: { restricted: Set<string>; allowed: Set<string> } | null,
+  ): boolean {
+    if (!scope) return true;
+    if (!String(tableName).startsWith('bus_')) return true;
+    return !scope.restricted.has(tableName) || scope.allowed.has(tableName);
+  }
+
+  async findAllTables(
+    options: PaginationOptions & { search?: string } = {},
+    filters: Record<string, any> = {},
+    user?: { isMaster?: boolean; roles?: string[]; sysRoles?: string[]; role?: string },
+  ) {
     const { page = 1, limit = 100, search, prefix } = options;
     const offset = (page - 1) * limit;
 
@@ -87,12 +149,16 @@ export class SysService {
     if (search) query = query.where('name', 'like', `%${search}%`);
     if (Object.keys(filters).length > 0) query = this.applyFilters(query, filters);
 
-    const [data, countRow] = await Promise.all([
-      query.orderBy('name').limit(Number(limit)).offset(Number(offset)).execute(),
-      query.clearSelect().select((eb) => eb.fn.countAll().as('count')).executeTakeFirst(),
-    ]);
+    const scope = await this.readableBusTables(user);
 
-    return { data, meta: { total: Number(countRow?.count ?? 0), page, pageSize: limit } };
+    // Paginated after the scope filter, not before it, so a caller who may read
+    // three of nine entities gets three rows rather than whatever survives the
+    // first page.
+    const all = await query.orderBy('name').execute();
+    const visible = all.filter((row: any) => this.visibleToScope(String(row.table_name), scope));
+    const data = visible.slice(Number(offset), Number(offset) + Number(limit));
+
+    return { data, meta: { total: visible.length, page, pageSize: limit } };
   }
 
   async findAllDatabaseTables(options: PaginationOptions & { search?: string } = {}) {

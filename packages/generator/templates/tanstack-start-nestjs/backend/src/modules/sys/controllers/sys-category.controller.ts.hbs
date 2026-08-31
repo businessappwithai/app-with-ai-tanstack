@@ -9,6 +9,7 @@
 
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { SessionAuthGuard } from '../../auth/guards/session-auth.guard';
 import {
   type CreateCategoryDto,
@@ -29,8 +30,10 @@ export class SysCategoryController {
   @ApiOperation({
     summary: 'Categories with their entities attached, ordered by category name',
   })
-  async findAllWithEntities() {
-    return this.service.findAllWithEntities();
+  async findAllWithEntities(@CurrentUser() user: CurrentUser) {
+    // Scoped to the caller: this is where the dashboard's navigation comes
+    // from, and a role's application is the set of entities it may read.
+    return this.service.findAllWithEntities(user as never);
   }
 
   @Get()
