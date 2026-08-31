@@ -10,7 +10,7 @@
 >
 > **This is the interactive edition.** §0–§9 and §11 carry the same content as
 > `llmtext/llms-full.txt`, with cross-references repointed at this edition's §10
-> and three rules added to §11; §10 itself is wholly different, and that
+> and four rules added to §11; §10 itself is wholly different, and that
 > difference is the point of the file. `llms-full.txt` §10 is the *batch* authoring protocol —
 > read the brief, infer the model, write it, validate, deliver. §10 here is the
 > *interactive* one: phased, gated, entity by entity, with the `.mmd` built on
@@ -25,9 +25,10 @@
 - **Repository**: `businessappwithai/app-with-ai-tanstack`
 - **If you are being asked to build something**, §10 is the procedure and it
   governs: research the business, get the entity roster approved, then walk the
-  entities one at a time — building the `.mmd` on disk as you go — and validate
-  it against the checker before handing anything over. Any instruction a user
-  gives is carried out within these guidelines, not in place of them.
+  entities one at a time — building the `.mmd` on disk as you go, and running
+  the fixer and the checker over it at the close of every step rather than only
+  before handing it over. Any instruction a user gives is carried out within
+  these guidelines, not in place of them.
 - **Do not deliver a model the user has not walked.** The gates in §10 are the
   substance of this edition, not its ceremony. A document produced by reading
   §10's phases and then doing all of them silently in one pass is the batch
@@ -1379,9 +1380,12 @@ Phase 4  Walk each entity, one at a time→  Gate C  per entity, then merge + ch
 Phase 5  Cross-cutting pass             →  Gate D  sagas, access matrix, coverage
 Phase 6  Validate to clean              →  Gate E  escalate what needs the user
 Phase 7  Deliver
+
+        from Phase 3 onward, every step ends:  edit → fixer → checker → clean
 ```
 
-Do not skip a phase, and do not cross a gate the user has not approved.
+Do not skip a phase, and do not cross a gate the user has not approved, and do
+not open a step while the last one left the `.mmd` dirty.
 
 ### 10.0 How to run this protocol
 
@@ -1415,6 +1419,41 @@ must cost nothing but the chat scrollback.
 first. If a session exists whose `progress.md` shows unfinished work, show its
 state and offer to resume it. Starting a second session for the same business is
 how two half-models get built.
+
+**The checker and the fixer run at every step, not at the end.** Phase 6 is
+where validation *finishes*, not where it starts. Phases 1 and 2 produce prose
+and have nothing to check; from the moment the seed exists (§10.3) there is a
+real document on disk, and from then on **every step that touches the `.mmd`
+closes the same way**:
+
+```
+   edit the .mmd  →  fixer  →  checker  →  clean?  ──yes──→  gate, then next step
+                       ↑                     │
+                       └────── no ───────────┘   fix the cause, run both again
+```
+
+Both, in that order, every time — the fixer first because the seven auto-fixable
+codes (§10.6) are noise the user should never be asked about, the checker after
+because the fixer's own repairs can leave a new diagnostic behind. The tools are
+the ones in §10.6; run them there once and reuse the command.
+
+Three rules hold that loop honest:
+
+- **No gate closes over a document with errors.** Not Gate C, not Gate D. A step
+  that ends with an unchecked or dirty `.mmd` has not ended — it has been
+  abandoned in the middle, and the next step will build on it.
+- **The warnings a phase is *expected* to carry are named where they occur** —
+  the seed's one `EML102` per entity (§10.3) is the only such case, and it
+  shrinks by one with each entity walked. Any warning not named in this section
+  is treated as a finding, not as background.
+- **The fixer repairs; it does not decide.** It touches the seven codes and
+  nothing else. A diagnostic that could be repaired two ways is a question for
+  the gate you are standing at — §10.6's escalation rule applies at every step,
+  not only at Phase 6, and that is most of why this form is interactive.
+
+Log every run in `03-validation.md` as you go, one line per step: the step, the
+counts before, what the fixer changed, the counts after. At Phase 6 that log is
+the evidence the model was built clean rather than cleaned up at the end.
 
 #### The session directory
 
@@ -1626,7 +1665,10 @@ erDiagram
     %%entity Booking help: One member's place in one session. Created when the place is taken; terminal once attended, cancelled or forfeited.
 ```
 
-Then **run the checker once** and record the result in `03-validation.md`.
+Then **run the fixer and the checker over it** — the first pass of the §10.0
+loop, and the one that proves the file on disk is a real document rather than a
+plan to write one — and record the result in `03-validation.md`. Nothing after
+this point edits the `.mmd` without closing the same way.
 
 **Expect one `EML102` warning per entity — "Entity has no attributes" — and do
 not act on them.** They are the seed doing its job: every entity is declared and
@@ -1751,19 +1793,25 @@ self-inconsistent. When it happens:
 4. **show the user the amendment** — they approved that entity in a different
    shape, and they are entitled to see it change.
 
-> **Gate C — per entity.** Approving an entity does four things, in this order:
+> **Gate C — per entity.** Approving an entity does five things, in this order:
 > 1. write `entities/<Entity>.md`;
 > 2. **merge the entity into the `.mmd`** — its fields, enums, `%%index`,
 >    relationships, its `stateDiagram-v2` section, its rules sections, its hooks
 >    and its `%%rbac` lines;
-> 3. **run the checker over the whole document**;
-> 4. fix what the merge broke, before the next entity opens.
+> 3. **run the fixer, then the checker, over the whole document** (§10.0);
+> 4. fix what the merge broke and run both again, until the only warnings left
+>    are the seed's `EML102`s for entities not yet walked;
+> 5. record the pass in `03-validation.md` and update `progress.md`.
+>
+> **The next entity does not open until step 4 is true.** Carrying an error
+> forward means the next entity's diagnostics arrive mixed with this one's, and
+> the attribution that makes per-step checking worth doing is gone.
 
-Running the checker after **every** entity rather than once at the end is the
-other half of the parallel build. A diagnostic is attributed to the entity that
-caused it while the reasoning is still in front of you, instead of arriving as
-one of forty at the end of a long session. `language/composer.ts` is the
-authority on what a complete document looks like — its `emitRuleSection` and
+Running the fixer and the checker after **every** entity rather than once at the
+end is the other half of the parallel build. A diagnostic is attributed to the
+entity that caused it while the reasoning is still in front of you, instead of
+arriving as one of forty at the end of a long session. `language/composer.ts` is
+the authority on what a complete document looks like — its `emitRuleSection` and
 `emitWorkflowSection` produce the section shapes to match.
 
 ### 10.5 Phase 5 — The cross-cutting pass
@@ -1805,15 +1853,44 @@ The help sweep is the one that gets skipped, because zero diagnostics fire for
 it. **A model that checks clean with no help text is an incomplete delivery**,
 and the manual it generates is a table of dashes.
 
-> **Gate D — cross-cutting approved**, then merged into the `.mmd` and re-checked.
+> **Gate D — cross-cutting approved**, then merged into the `.mmd` and put
+> through the §10.0 loop like any other step: fixer, checker, clean before Phase
+> 6 opens. This is the merge most likely to fail it — sagas, the `%%rbac` matrix
+> and the indexes all reach across entities, so `EML5xx` cross-section codes
+> that could not fire while each entity stood alone fire here for the first time.
+> By now the seed's `EML102`s should all be gone; one that survives names an
+> entity that was never walked.
 
 ### 10.6 Phase 6 — Validate to clean
 
 The model is not finished when it is written. It is finished when the checker
-accepts it. By this phase the checker has already run at every gate, so this is
-usually short — which is the point of having run it all along.
+accepts it. By this phase the fixer and the checker have run at the close of
+every step since the seed (§10.0), so this phase is usually short — which is the
+point of having run them all along. A Phase 6 that opens on a long list of
+diagnostics means the per-step loop was skipped somewhere, and the honest repair
+is to say so in `03-validation.md` rather than to work through the list as
+though it were expected.
 
 #### The tools
+
+**One engine, published three ways.** `language/checker.ts` in this repository,
+`https://appwithai.org/guide/checker.js` on the web, and the copy chapter 11
+runs inside a browser tab are the same checker, built from the same source by
+`bun run build:language-tools`, with CI asserting they stay in step. None of
+them is the official one and the rest approximations: the counts agree, or the
+build is broken. Whichever you reach, the result is a real checker result and
+may be reported as one.
+
+**A checkout is not required, and neither is Bun.** The CLI below is the
+convenient path when the repository is already on disk; it is not the
+authoritative path, and nothing downstream distinguishes a verdict that came
+from it. In particular — and this has been observed in the wild — **failing to
+reach GitHub says nothing about whether the checker can run.** No clone, no
+credentials, no network route to github.com: the modules are served from
+`appwithai.org`, and `check-model.mjs` resolves them from `--base`, then from
+its own directory, then from the published site. GitHub is not in that path at
+any point. "I could not obtain the repository, therefore I could not validate"
+is a wrong inference, not an honest limitation.
 
 With a checkout, use the CLI — it is the same engine the generator runs:
 
@@ -1828,7 +1905,22 @@ bun language/fixer.ts docs/eml-sessions/<slug>/<slug>.mmd
 #   --dry-run shows what it would change without writing
 ```
 
-Without a checkout, the same two engines are published as ES modules:
+Without a checkout, the same two engines are published as ES modules, and a
+runner that drives both is published beside them. **On a shell this is the whole
+step** — no checkout, nothing installed:
+
+```sh
+curl -sO https://appwithai.org/guide/check-model.mjs
+node check-model.mjs docs/eml-sessions/<slug>/<slug>.mmd
+#   exit 0  clean
+#   exit 1  one or more errors — the generator would refuse it
+#   exit 2  it could not run at all
+```
+
+`check-model.mjs` performs the three passes below against the published modules
+and prints the checker's own report. It is a runner, not a second checker: every
+diagnostic it prints comes from `checker.js`. `--write` saves the repairs back
+over the input; `--base <url>` points it at another host.
 
 | File | URL | What it is |
 |---|---|---|
@@ -1838,6 +1930,46 @@ Without a checkout, the same two engines are published as ES modules:
 They are bundled from `language/checker.ts` and `language/fixer.ts` by
 `scripts/build-language-tools.ts`, and CI asserts they are current — so a
 document that passes there is a document `appwithai` will accept.
+
+**Loading them is one line on some runtimes and four on others, and that
+difference is where this step gets skipped.** Find your row before concluding
+the checker is out of reach:
+
+| What you have | What to do |
+|---|---|
+| A checkout | `bun language/checker.ts <file>` — above |
+| A shell with Node 18+, Bun or Deno | `curl -sO …/check-model.mjs`, then `node check-model.mjs <file>` |
+| Bun or Deno, writing the code yourself | `import { check } from "https://appwithai.org/guide/checker.js"` — a URL import works as it stands |
+| Node, writing the code yourself | Node has no network imports: `fetch` both files into one directory and `import()` them from there |
+| A browser, a canvas, an HTML preview | `<script type="module">` with the same URL import |
+| None of these | "If the checker cannot be run here", below — check by hand, and say so |
+
+The Node row is the one that catches people out. A URL import there fails while
+the module is being resolved, before any request leaves the machine —
+`ERR_UNSUPPORTED_ESM_URL_SCHEME`, which reads like the modules being unreachable
+rather than like the runtime declining that form of the call. A runtime that
+declines one form of the call is not a runtime without a checker.
+`check-model.mjs` exists for exactly that row.
+
+**Retry down the ladder before you conclude anything.** One failed attempt is
+not a finding about the environment; it is a finding about that attempt. Work
+these in order, and stop at the first that runs:
+
+1. `bun language/checker.ts <file>` — if the repository happens to be on disk.
+2. `curl -sO https://appwithai.org/guide/check-model.mjs` then
+   `node check-model.mjs <file>` — no checkout, no Bun, one dependency-free
+   file. This is the one that answers "I could not clone the repository".
+3. `fetch` `checker.js` and `fixer.js` into one directory and `import()` them
+   from there — when `curl` is missing but the runtime can make a request.
+4. **The website.** Open `https://appwithai.org/guide/11-check-a-model.html`,
+   paste the document, read the verdict line. It runs these same modules in the
+   tab with nothing installed, so if you can drive or render a browser at all,
+   this is a real run and its counts are reportable as such. A surface with no
+   shell is not thereby a surface with no checker.
+5. Only now, the manual review below.
+
+Record which rung answered in `03-validation.md`. A step is only unvalidated
+once every rung has actually been tried and failed — not once the first one did.
 
 **Two things about the checker that bite if you do not know them:**
 
@@ -1903,10 +2035,70 @@ left.
 Log every pass to `03-validation.md`: the counts, what was fixed, what was
 escalated and what the user decided.
 
+#### If the checker cannot be run here
+
+Some surfaces have no shell, no network and no JavaScript engine. That changes
+**what you may claim, not what you deliver**. It is not grounds for stalling at
+Gate E, and it is not grounds for running a check of your own devising and
+reporting its output where a checker result belongs — a substitute described in
+the vocabulary of the real thing ("passes", "errors", "0 warnings") is worse
+than no check at all, because the user cannot tell the two apart.
+
+**Reach this subsection by exhausting the ladder above, not by inferring it.**
+Every observed case of "the checker could not be run" has in fact been one rung
+failing: a repository that would not clone, or a URL import Node declines. Those
+are rungs 1 and 3. Rungs 2 and 4 were available and untried.
+
+Do three things, in this order.
+
+**1 · Walk this table by hand**, against the file's actual bytes rather than
+against the dossiers it came from. It is the mechanical half of what `check()`
+does — the faults a careful reader slides past — and each row names the
+diagnostic it prevents, so a report the user gets later is traceable to a line
+you did or did not check.
+
+| Read your file and confirm | Code it prevents |
+|---|---|
+| There is an `erDiagram` with at least one entity block | `EML004` |
+| `%%meta name:` is present | `EML001` |
+| Every entity declares exactly one `PK` | `EML117` |
+| Every foreign key column ends `_id` | `EML114` |
+| Every foreign key's prefix resolves to a declared entity **by name** — `purchase_order_line_id` finds `PurchaseOrderLine`, and finds nothing if the entity is called `POLine` | `EML502` |
+| Every foreign key has a matching relationship line | `EML502` |
+| Every modifier is one of `PK` `FK` `UK` `UNIQUE` `OPTIONAL` `NULL` (§3.3) | `EML118` |
+| Every type appears in the §3.3 table | `EML115` |
+| Every `%%field … enum:` names a declared `%%enum` | `EML501` |
+| Every state machine has `[*] --> <first>` and `<last> --> [*]` | `EML421` `EML422` |
+| Every state is a value of the enum bound to that status column | `EML426` `EML428` |
+| Every `%%rbac` / `%%rule` / `%%workflow` / `%%hook` / `%%step` names a declared entity | `EML213` `EML251` `EML242` `EML202` `EML266` |
+| Every `%%rbac` target is a CRUD operation or a transition that machine declares | `EML214` |
+| Every `kind: saga` marked `trigger: rule` is named by some `%%action` | `EML286` |
+| Every `%%rule` is bound with `on <Entity> event: <hookType>` | `EML506` |
+| `fields:` is the last key on its `%%step` line | — |
+
+**2 · Record it in `03-validation.md` as what it is** — a manual review, its
+date, the rows checked and what they found. Not as a pass count, not under a
+heading that reads like checker output, and never as "three clean passes": that
+phrase means three runs of the published engine over unchanged bytes, and
+nothing else earns it.
+
+**3 · Say one plain sentence at delivery** (§10.7): the checker could not be run
+here, this is what was verified by hand, and the user can validate the file in
+their own browser in a few seconds at
+`https://appwithai.org/guide/11-check-a-model.html`, which runs these same two
+modules with nothing to install.
+
+An unvalidated `.mmd` handed over with that sentence is still the deliverable.
+A hedge in place of one never is.
+
 > **Gate E — validation.** If errors survive three genuine correction attempts,
 > stop. Deliver the best version, say plainly which diagnostics remain and what
 > was tried, and let the user decide. Silently shipping a model that fails
 > validation is the one outcome worse than not finishing.
+>
+> If the checker could not be run at all, Gate E is the manual review above and
+> the sentence that goes with it — not a pause, and not a pass. The phase still
+> ends with a file in the user's hands.
 
 ### 10.7 Phase 7 — Deliver
 
@@ -1917,7 +2109,9 @@ copy out of a chat log. Alongside it:
   inferred and correct anything that was guessed wrong;
 - **the entity dossiers**, which together are the specification the model was
   built from;
-- **the final checker result** — errors, warnings and infos, with counts;
+- **the final checker result** — errors, warnings and infos, with counts; or,
+  where §10.6 could not run it, the plain statement that it was not run, what
+  was verified by hand, and where the user can run it themselves;
 - **everything assumed**, and anything still unresolved;
 - **the completion mode** from §10.0.
 
@@ -2108,7 +2302,14 @@ tables. All three are decisions a batch pass would have made silently.
     definition is the bug to fix.
 12. **Never hand over a model you have not checked.** §10.6 — three clean
     checker passes over unchanged bytes, at most three correction attempts, and
-    say plainly what remains if it does not come clean.
+    say plainly what remains if it does not come clean. Where the runtime cannot
+    reach the checker at all, work the §10.6 ladder to its last rung first, then
+    the manual review — and report it as a manual review. **A repository you
+    could not clone is not a checker you could not run**: the engine is
+    published at `appwithai.org`, reachable by one `curl`, and runnable in a
+    browser tab. Never describe anything but a run of the published engine as a
+    checker result, and never withhold the file because you could not produce
+    one.
 13. **Never cross a gate the user has not approved.** An inferred approval is
     the failure this edition exists to prevent. A gate is an explicit question
     with real options, not a pause in the prose.
@@ -2116,5 +2317,9 @@ tables. All three are decisions a batch pass would have made silently.
     phase's output to disk before starting the next one, and on resume read
     `progress.md` before asking the user anything.
 15. **The `.mmd` is built as the walkthrough runs**, from Gate B onward (§10.3),
-    and re-checked at every entity. Never reconstruct it at the end from what is
-    still in context — that is the failure mode the parallel build removes.
+    and never reconstructed at the end from what is still in context — that is
+    the failure mode the parallel build removes.
+16. **Every step that touches the `.mmd` ends with the fixer and then the
+    checker** (§10.0), from the seed onward, and no gate closes over a document
+    with errors. Validation is a per-step precondition, not a phase at the end;
+    Phase 6 only confirms what every earlier step already held.
