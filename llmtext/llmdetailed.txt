@@ -1892,6 +1892,22 @@ its own directory, then from the published site. GitHub is not in that path at
 any point. "I could not obtain the repository, therefore I could not validate"
 is a wrong inference, not an honest limitation.
 
+**The same mistake generalises, and it has now been made three ways.** Not
+reaching GitHub, not reaching `llmdetailed.txt` itself, and Node refusing a URL
+import are each one address or one call failing. None of them is a statement
+about `guide/checker.js`, which is a different file on a different host — and
+`check-model.mjs` needs no specification document at all: it reads the model and
+nothing else. Whatever you could not fetch, walk the ladder before reporting the
+checker as unavailable. Re-reading this text is not a precondition for running
+the engine it describes.
+
+**Perform the validation; do not offer it.** "If you want the actual checker
+counts, I can run the published checker" hands the user a choice they were never
+given: the run is required, so the counts are part of the deliverable rather
+than an upgrade to it. A model that proposes the mandatory step instead of
+taking it has skipped it — and the offer reads as diligence, which is what makes
+it hard to catch.
+
 With a checkout, use the CLI — it is the same engine the generator runs:
 
 ```bash

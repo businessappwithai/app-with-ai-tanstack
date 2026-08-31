@@ -52,7 +52,8 @@
     "build:stack-templates": "bun scripts/build-stack-templates.ts",
     "build:fullstack-browser": "bun scripts/build-fullstack-browser.ts",
     "build:language-tools": "bun scripts/build-language-tools.ts",
-    "test:language-tools": "bun scripts/ci/language-tools-smoke.ts"
+    "test:language-tools": "bun scripts/ci/language-tools-smoke.ts",
+    "test:llmtext": "bun scripts/ci/llmtext-claims.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.6",
