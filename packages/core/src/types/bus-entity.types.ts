@@ -329,8 +329,7 @@ export function isForeignKeyColumnName(columnName: string): boolean {
  * not.
  */
 function foreignKeyLabelStem(attr: EntityAttribute, entityPrimaryKey?: string): string {
-  const isTableDirect =
-    attributeReferenceId(attr, entityPrimaryKey) === ReferenceType.TABLE_DIRECT;
+  const isTableDirect = attributeReferenceId(attr, entityPrimaryKey) === ReferenceType.TABLE_DIRECT;
   if (isTableDirect && attr.name.endsWith("_id") && !attr.name.endsWith("_by_id")) {
     return attr.name.slice(0, -"_id".length);
   }

@@ -2079,7 +2079,7 @@ class MermaidParser {
       sourceEntity,
       targetEntity,
       cardinality,
-      foreignKey: this.generateForeignKey(targetEntity, cardinality)
+      foreignKey: this.generateForeignKey(sourceEntity, targetEntity, cardinality)
     };
   }
   parseAttribute(line) {
@@ -2150,8 +2150,9 @@ class MermaidParser {
   normalizeRelationshipName(name) {
     return name.trim().replace(/\s+/g, "_").toLowerCase();
   }
-  generateForeignKey(targetEntity, _cardinality) {
-    const snakeName = this.toSnakeCase(targetEntity);
+  generateForeignKey(sourceEntity, targetEntity, cardinality) {
+    const referenced = cardinality === "oneToMany" ? sourceEntity : targetEntity;
+    const snakeName = this.toSnakeCase(referenced);
     const cleanName = snakeName.replace(/^bus_/, "");
     return `${cleanName}_id`;
   }
@@ -18326,11 +18327,18 @@ function attributeReferenceId(attr, entityPrimaryKey) {
 function isForeignKeyColumnName2(columnName) {
   return columnName.endsWith("_id") || columnName.endsWith("_by");
 }
+function foreignKeyLabelStem(attr, entityPrimaryKey) {
+  const isTableDirect = attributeReferenceId(attr, entityPrimaryKey) === ReferenceType.TABLE_DIRECT;
+  if (isTableDirect && attr.name.endsWith("_id") && !attr.name.endsWith("_by_id")) {
+    return attr.name.slice(0, -"_id".length);
+  }
+  return attr.name;
+}
 function attributeToBusAttribute(attr, index, entityPrimaryKey) {
   return {
     ...attr,
     columnName: attr.name,
-    displayName: formatDisplayName(attr.name),
+    displayName: formatDisplayName(foreignKeyLabelStem(attr, entityPrimaryKey)),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
     isIdentifier: false

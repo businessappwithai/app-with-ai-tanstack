@@ -436,23 +436,12 @@ var init_language = __esm(() => {
 });
 
 // builtin-stub:node:child_process
-var exports_node_child_process = {};
-__export(exports_node_child_process, {
-  default: () => node_child_process_default,
-  exec: () => exec,
-  execSync: () => execSync,
-  spawn: () => spawn,
-  spawnSync: () => spawnSync
-});
 var refuse = () => {
   throw new Error("no subprocesses in the browser");
-}, spawn, spawnSync, exec, execSync, node_child_process_default;
+}, spawn, execSync;
 var init_node_child_process = __esm(() => {
   spawn = refuse;
-  spawnSync = refuse;
-  exec = refuse;
   execSync = refuse;
-  node_child_process_default = { spawn, spawnSync, exec, execSync };
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/utils.js
@@ -12412,11 +12401,18 @@ function attributeReferenceId(attr, entityPrimaryKey) {
 function isForeignKeyColumnName(columnName) {
   return columnName.endsWith("_id") || columnName.endsWith("_by");
 }
+function foreignKeyLabelStem(attr, entityPrimaryKey) {
+  const isTableDirect = attributeReferenceId(attr, entityPrimaryKey) === ReferenceType.TABLE_DIRECT;
+  if (isTableDirect && attr.name.endsWith("_id") && !attr.name.endsWith("_by_id")) {
+    return attr.name.slice(0, -"_id".length);
+  }
+  return attr.name;
+}
 function attributeToBusAttribute(attr, index, entityPrimaryKey) {
   return {
     ...attr,
     columnName: attr.name,
-    displayName: formatDisplayName(attr.name),
+    displayName: formatDisplayName(foreignKeyLabelStem(attr, entityPrimaryKey)),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
     isIdentifier: false
@@ -14512,6 +14508,30 @@ class TemplateLoader {
         return `${entityName} ${i + 1}`;
       const humanized = (fieldName ?? "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).trim();
       return humanized ? `${humanized} ${i + 1}` : `Sample ${i + 1}`;
+    });
+    import_handlebars.default.registerHelper("seedNumber", (fieldName, index) => {
+      const n = (fieldName ?? "").toLowerCase();
+      const i = typeof index === "number" ? index : 0;
+      if (n === "capacity" || n === "max_students" || n === "seats")
+        return 20 + i * 5;
+      if (n.startsWith("credits") || n.endsWith("_credits"))
+        return 10 + i * 5;
+      if (n.endsWith("_count") || n === "quantity" || n === "qty")
+        return 1 + i;
+      if (n === "duration_minutes" || n.endsWith("_minutes"))
+        return 45 + i * 15;
+      if (n === "position" || n === "queue_position" || n === "seq_no" || n === "sequence")
+        return i + 1;
+      if (n === "year" || n === "academic_year")
+        return 2024 + i;
+      return i;
+    });
+    import_handlebars.default.registerHelper("enumSeedValue", (values, index) => {
+      const list = Array.isArray(values) ? values.filter((v) => typeof v === "string") : [];
+      if (list.length === 0)
+        return "";
+      const i = typeof index === "number" ? index : 0;
+      return list[(i % list.length + list.length) % list.length];
     });
   }
 }
@@ -17046,9 +17066,6 @@ class FullStackGenerator {
     if (this.options.aiNlAddon && this.options.aiNlAddon !== "none") {
       console.log(`   AI NL Add-on: ${this.options.aiNlAddon} (${this.options.aiNlProvider || "anthropic"})`);
     }
-    console.log(`
-\uD83D\uDD0D Running mandatory linting checks...`);
-    await this.runLintingChecks(outputDir);
   }
   async generateTanStackStartNestjs(entities, relationships, outputDir) {
     const backendDir = join(outputDir, "backend");
@@ -17416,45 +17433,6 @@ Field ordering is controlled by:
 
 MIT
 `;
-  }
-  async runLintingChecks(outputDir) {
-    const { execFileSync } = (init_node_child_process(), __toCommonJS(exports_node_child_process));
-    const runLint = (command, args, cwd) => {
-      try {
-        execFileSync(command, args, { cwd, stdio: "pipe", timeout: 60000 });
-        return true;
-      } catch (_error) {
-        return false;
-      }
-    };
-    try {
-      if (!this.options.skipBackend) {
-        console.log(`
-  \uD83D\uDCCB Linting NestJS backend...`);
-        const backendLintPassed = runLint("npm", ["run", "lint"], join(outputDir, "backend"));
-        if (backendLintPassed) {
-          console.log("  ✅ Backend linting passed");
-        } else {
-          console.warn('  ⚠️  Backend linting found issues (run "cd backend && bun run lint:fix" to auto-fix)');
-        }
-      }
-      if (!this.options.skipFrontend) {
-        console.log(`
-  \uD83D\uDCCB Linting TanStack Start frontend...`);
-        const frontendLintPassed = runLint("npm", ["run", "lint"], join(outputDir, "frontend"));
-        if (frontendLintPassed) {
-          console.log("  ✅ Frontend linting passed");
-        } else {
-          console.warn('  ⚠️  Frontend linting found issues (run "cd frontend && bun run lint:fix" to auto-fix)');
-        }
-      }
-      console.log(`
-✨ Linting checks completed!`);
-      console.log('   Tip: Run "bun run lint:fix" in backend/frontend directories to auto-fix issues');
-    } catch (_error) {
-      console.warn("  ⚠️  Linting could not be completed (dependencies not installed?)");
-      console.log('   Tip: Run "bun install" first, then run linting manually');
-    }
   }
   getStackDescription() {
     return "tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)";
@@ -18297,7 +18275,7 @@ class MermaidParser {
       sourceEntity,
       targetEntity,
       cardinality,
-      foreignKey: this.generateForeignKey(targetEntity, cardinality)
+      foreignKey: this.generateForeignKey(sourceEntity, targetEntity, cardinality)
     };
   }
   parseAttribute(line) {
@@ -18368,8 +18346,9 @@ class MermaidParser {
   normalizeRelationshipName(name) {
     return name.trim().replace(/\s+/g, "_").toLowerCase();
   }
-  generateForeignKey(targetEntity, _cardinality) {
-    const snakeName = this.toSnakeCase(targetEntity);
+  generateForeignKey(sourceEntity, targetEntity, cardinality) {
+    const referenced = cardinality === "oneToMany" ? sourceEntity : targetEntity;
+    const snakeName = this.toSnakeCase(referenced);
     const cleanName = snakeName.replace(/^bus_/, "");
     return `${cleanName}_id`;
   }

@@ -977,7 +977,9 @@ export class TemplateLoader {
     // cycles through them so the sample rows cover the enum rather than
     // contradict it.
     Handlebars.registerHelper("enumSeedValue", (values: unknown, index: number) => {
-      const list = Array.isArray(values) ? values.filter((v): v is string => typeof v === "string") : [];
+      const list = Array.isArray(values)
+        ? values.filter((v): v is string => typeof v === "string")
+        : [];
       if (list.length === 0) return "";
       const i = typeof index === "number" ? index : 0;
       return list[((i % list.length) + list.length) % list.length];

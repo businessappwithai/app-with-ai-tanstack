@@ -23,8 +23,8 @@ import { MermaidParser } from "../parsers/mermaid.parser";
 import { generateApplication, readModelSources } from "../pipeline";
 import { compileRbac } from "../rbac";
 import { compileRules } from "../rules";
-import { compileSagaWorkflows, compileWorkflows } from "../workflows";
 import { runLintingChecks } from "../utils/lint-check.js";
+import { compileSagaWorkflows, compileWorkflows } from "../workflows";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
 const resolvePath = (p: string) =>
