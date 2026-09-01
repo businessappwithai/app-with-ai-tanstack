@@ -1926,7 +1926,12 @@ class CheckEngine {
     const props: Record<string, string> = {};
     const trimmed = rest.trim();
     if (!trimmed) return props;
-    for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:)/)) {
+    // The `(?!\/\/)` is what keeps a URL whole: `url: https://host/path` would
+    // otherwise split at `https:`, leaving `url` empty and `https` an unknown
+    // property, so every REST step failed EML262 for a url it plainly had.
+    // Kept identical in packages/generator/src/workflows/steps.ts (PROP_SPLIT)
+    // and packages/web/src/lib/automation/model.ts, which parse the same line.
+    for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:(?!\/\/))/)) {
       const at = chunk.indexOf(":");
       if (at <= 0) continue;
       const key = chunk.slice(0, at).trim();
