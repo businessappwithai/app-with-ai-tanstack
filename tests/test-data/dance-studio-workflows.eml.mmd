@@ -568,7 +568,7 @@ flowchart TD
     %%step D Formula target: withFee source: levelCredits operation: add operand: 1
     %%step F Formula target: netCredits source: withFee operation: subtract operand: 1
     %%step G Formula target: perTermCredits source: netCredits operation: divide operand: 2
-    %%step H UpdateEntity entity: ClassPack targetField: class_pack_id field: credits_remaining source: perTermCredits
+    %%step H UpdateEntity entity: ClassPack targetSource: class_pack_id field: credits_remaining source: perTermCredits
 
 %% ---- 20 workflow — CreateEntity publishing a row the next step writes ------
 %%meta name: Pack Payment Provisioning
@@ -581,7 +581,7 @@ flowchart TD
     D --> F([Provisioned])
 
     %%step B Formula target: deskReference operation: set value: DESK-PENDING
-    %%step C CreateEntity entity: Payment as: provisionedPaymentId fields: {"class_pack_id":"id","amount":0,"method":"cash"}
+    %%step C CreateEntity entity: Payment as: provisionedPaymentId fields: {"class_pack_id":"id","amount":0,"method":"cash","received_at":"purchased_on"}
     %%step D UpdateEntity entity: Payment targetSource: provisionedPaymentId field: reference source: deskReference
 
 %% ---- 21 workflow — DeleteEntity, soft and hard, on a DELETE trigger --------
