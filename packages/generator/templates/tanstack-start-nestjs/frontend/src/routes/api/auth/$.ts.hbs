@@ -32,7 +32,7 @@ function noSession(): Response {
 // written inline into the route, so TypeScript types them from the route's own
 // signature — which is exact, and which an explicit `Record<string, string>`
 // contradicted.
-export const Route = createAPIFileRoute('/api/auth/$')({
+const handlers = {
   GET: async ({ request, params }) => {
     const path = params._splat ?? ''
     try {
@@ -49,19 +49,27 @@ export const Route = createAPIFileRoute('/api/auth/$')({
       return apiUnavailable(error, 'POST', `auth/${path}`)
     }
   },
-})
+}
 
-// Both names, on purpose, and `Route` is the one holding the call.
+// Both names, on purpose, and both hold their own call.
 //
 // The router registers an API route file by its `APIRoute` export and ignores
 // anything else, so a file exporting only `Route` is silently absent — and an
 // absent API route answers with the HTML of a missing page rather than a 404
 // anyone would recognise as a routing problem. That is why both exist.
 //
-// Which of the two is the alias is not a style choice. The route generator
-// parses these files and requires the `Route` export to be initialised by a
-// call expression directly; assigning it from a local const failed that check
-// with `expected "Route" export to be initialized by a CallExpression`, and
-// a failed generate leaves no src/routeTree.gen.ts — which every route file
-// imports, so a freshly generated frontend did not typecheck at all.
-export const APIRoute = Route
+// Neither may be an alias of the other, and that is the part that is easy to
+// get wrong. The route generator parses these files and requires the `Route`
+// export to be initialised by a call expression directly (assigning it from a
+// local const fails with `expected "Route" export to be initialized by a
+// CallExpression`). Meanwhile the dev server imports this file as
+// `?pick=APIRoute`, which strips every other export — so an `APIRoute` written
+// as `= Route` is left pointing at a binding that is no longer there, and the
+// route throws `ReferenceError: Route is not defined` on import. Every /api
+// call then answers 500, including sign-in, which makes the application
+// unusable in a browser while the backend is perfectly healthy.
+//
+// Two calls over one shared, non-exported handlers object satisfies both: each
+// export is a direct CallExpression, and neither reads the other.
+export const Route = createAPIFileRoute('/api/auth/$')(handlers)
+export const APIRoute = createAPIFileRoute('/api/auth/$')(handlers)
