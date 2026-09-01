@@ -24,7 +24,8 @@ import {
   serializeAutomation,
   validateAutomation,
 } from '@/lib/automation/model';
-import { type DecisionTable, emptyDecisionTable } from '@/lib/workflow/bpmn-model';
+import { asDecisionTable } from '@/lib/automation/rule-content';
+import type { DecisionTable } from '@/lib/workflow/bpmn-model';
 
 export const Route = createFileRoute('/admin/automations')({
   component: AutomationsPage,
@@ -396,25 +397,4 @@ function AutomationsPage() {
       </div>
     </div>
   );
-}
-
-/**
- * Accept whatever the rules endpoint stored.
- *
- * A rule saved as a JDM graph rather than a table opens as an empty table
- * instead of a guessed conversion — visibly empty beats silently wrong.
- */
-function asDecisionTable(content: unknown): DecisionTable {
-  if (content && typeof content === 'object') {
-    const c = content as Partial<DecisionTable>;
-    if (Array.isArray(c.inputs) && Array.isArray(c.outputs) && Array.isArray(c.rules)) {
-      return {
-        hitPolicy: c.hitPolicy === 'collect' ? 'collect' : 'first',
-        inputs: c.inputs,
-        outputs: c.outputs,
-        rules: c.rules,
-      };
-    }
-  }
-  return emptyDecisionTable();
 }
