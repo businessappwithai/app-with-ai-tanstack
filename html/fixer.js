@@ -790,6 +790,7 @@ var appwithai_language_default = {
       directive: "%%step <nodeId> <stepType> <key>: <value> ...",
       propertyForm: "Space-separated `key: value` pairs. A value runs to the next `<key>:` token or the end of the line, so it may contain spaces. `fields` is JSON and must be the last key on the line.",
       variables: "Steps share a context: the triggering record's columns, plus every variable a previous step published. CreateEntity publishes the new row's id under `as`; Formula publishes under `target`. A later step reads one by naming it in `source` or `targetSource`. This is what lets a workflow reach a row it created earlier.",
+      loopMembership: "`in: <loopId>` joins a step to a %%loop declared in the same section. It is read off every step type alike, before the type is consulted at all, so it belongs to no single contract below and is deliberately absent from their `optional` lists. A reader validating step properties must treat it as known for every type — see automations.loops and the %%loop directive.",
       types: [
         {
           name: "UpdateEntity",
@@ -2938,7 +2939,8 @@ class CheckEngine {
           ...contract.required ?? [],
           ...contract.optional ?? [],
           ...(contract.oneOf ?? []).flat(),
-          ...typeName === "Formula" ? ["source", "operand", "value"] : []
+          ...typeName === "Formula" ? ["source", "operand", "value"] : [],
+          "in"
         ]);
         for (const key of Object.keys(props)) {
           if (!known.has(key)) {
@@ -3124,7 +3126,7 @@ class CheckEngine {
     const trimmed = rest.trim();
     if (!trimmed)
       return props;
-    for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:)/)) {
+    for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:(?!\/\/))/)) {
       const at = chunk.indexOf(":");
       if (at <= 0)
         continue;
@@ -3875,9 +3877,9 @@ globalThis.EMLFixer = {
   LANGUAGE_VERSION
 };
 export {
-  AUTO_FIXABLE,
-  LANGUAGE_VERSION,
-  applyFixes,
+  fix,
   checkAndFix,
-  fix
+  applyFixes,
+  LANGUAGE_VERSION,
+  AUTO_FIXABLE
 };

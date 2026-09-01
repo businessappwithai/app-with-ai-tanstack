@@ -1624,11 +1624,19 @@ class CheckEngine {
 
         // EML268: a misspelt key is silently ignored by the executor, so the
         // step runs without the property the author thought they had set.
+        // `in` is not part of any step's contract because it belongs to none of
+        // them: it is loop membership, which the saga compiler reads off every
+        // step type alike (steps.ts reads `step.props.in` before it looks at the
+        // type at all). Leaving it out of the contracts made a correctly
+        // authored %%loop unauthorable — every member step drew EML268, and the
+        // hint listed the properties it could use without mentioning the one it
+        // was already using correctly.
         const known = new Set([
           ...(contract.required ?? []),
           ...(contract.optional ?? []),
           ...(contract.oneOf ?? []).flat(),
           ...(typeName === "Formula" ? ["source", "operand", "value"] : []),
+          "in",
         ]);
         for (const key of Object.keys(props)) {
           if (!known.has(key)) {

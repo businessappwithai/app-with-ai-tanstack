@@ -71,9 +71,7 @@ describe("parseStepProps", () => {
     expect(parseStepProps("method: POST url: http://localhost:4001/notify").url).toBe(
       "http://localhost:4001/notify"
     );
-    const withBody = parseStepProps(
-      'url: https://host/p method: POST bodyTemplate: {"a":"{{b}}"}'
-    );
+    const withBody = parseStepProps('url: https://host/p method: POST bodyTemplate: {"a":"{{b}}"}');
     expect(withBody.url).toBe("https://host/p");
     expect(JSON.parse(withBody.bodyTemplate!)).toEqual({ a: "{{b}}" });
   });
