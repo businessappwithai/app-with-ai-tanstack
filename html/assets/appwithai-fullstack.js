@@ -6595,6 +6595,7 @@ var appwithai_language_default = {
       directive: "%%step <nodeId> <stepType> <key>: <value> ...",
       propertyForm: "Space-separated `key: value` pairs. A value runs to the next `<key>:` token or the end of the line, so it may contain spaces. `fields` is JSON and must be the last key on the line.",
       variables: "Steps share a context: the triggering record's columns, plus every variable a previous step published. CreateEntity publishes the new row's id under `as`; Formula publishes under `target`. A later step reads one by naming it in `source` or `targetSource`. This is what lets a workflow reach a row it created earlier.",
+      loopMembership: "`in: <loopId>` joins a step to a %%loop declared in the same section. It is read off every step type alike, before the type is consulted at all, so it belongs to no single contract below and is deliberately absent from their `optional` lists. A reader validating step properties must treat it as known for every type — see automations.loops and the %%loop directive.",
       types: [
         {
           name: "UpdateEntity",
@@ -12739,7 +12740,8 @@ var HOOK_CONTRACTS = {
     summary: "Runs on every create and update. Throw to reject the write."
   }
 };
-var DIRECTIVE = /%%hook\s+(\w+)\s+([A-Za-z_]\w*)\s+on\s+([A-Za-z_]\w*)\s*(\[[^\]]*\])?/;
+var DIRECTIVE = /^%%+hook\s+(\w+)\s+([A-Za-z_]\w*)\s+on\s+([A-Za-z_]\w*)\s*(\[[^\]]*\])?/;
+var DIRECTIVE_LINE = /^%%+hook\b/;
 function parseFields(bracket) {
   if (!bracket)
     return;
@@ -12761,7 +12763,7 @@ function compileHooks(source, knownEntities = [], onWarn = () => {}) {
   for (const rawLine of (source ?? "").split(`
 `)) {
     const line = rawLine.trim();
-    if (!line.includes("%%hook"))
+    if (!DIRECTIVE_LINE.test(line))
       continue;
     const match = line.match(DIRECTIVE);
     if (!match) {
@@ -13304,7 +13306,7 @@ function sagaPropsFromAutomation(type, props) {
   }
   return out;
 }
-var PROP_SPLIT = /\s+(?=[A-Za-z_]\w*:)/;
+var PROP_SPLIT = /\s+(?=[A-Za-z_]\w*:(?!\/\/))/;
 function parseStepProps(rest) {
   const props = {};
   const trimmed = rest.trim();
@@ -14435,7 +14437,7 @@ class TemplateLoader {
       }
       return `\`test_${index}\``;
     });
-    import_handlebars.default.registerHelper("seedValue", (fieldName, index, entityDisplayName) => {
+    import_handlebars.default.registerHelper("seedValue", (fieldName, index, entityDisplayName, enumValues) => {
       const n = (fieldName ?? "").toLowerCase();
       const i = typeof index === "number" ? index : 0;
       const FIRST_NAMES = [
@@ -14464,6 +14466,9 @@ class TemplateLoader {
       ];
       const pick = (arr) => arr[i % arr.length];
       const entityName = typeof entityDisplayName === "string" ? entityDisplayName.trim() : "";
+      const declared = Array.isArray(enumValues) ? enumValues.map((value) => String(value).trim()).filter(Boolean) : [];
+      if (declared.length > 0)
+        return pick(declared);
       if (n === "first_name")
         return pick(FIRST_NAMES);
       if (n === "last_name")
@@ -18604,16 +18609,26 @@ function buildEditorDecisionTable(ruleName, table) {
     ]
   };
 }
+var RUNTIME_ACTION = {
+  "validation-error": "prevent"
+};
+function transformDataCell(action) {
+  const field = (action.props.field ?? "").trim();
+  if (action.type !== "transform" || !field)
+    return zenLiteral("");
+  return zenLiteral(JSON.stringify({ [field]: action.props.value ?? "" }));
+}
 function buildActionDecisionTable(ruleName, actions) {
   const cells = [
-    (action) => zenLiteral(action.type),
+    (action) => zenLiteral(RUNTIME_ACTION[action.type] ?? action.type),
     (action) => zenLiteral(action.props.message ?? `${ruleName}: ${action.name}`),
     () => zenLiteral(ruleName),
     (action) => zenLiteral(action.props.workflow ?? ""),
     (action) => zenLiteral(action.props.field ?? ""),
     (action) => zenLiteral(action.props.value ?? ""),
     (action) => zenLiteral(action.props.targetEntity ?? ""),
-    (action) => zenLiteral(action.props.linkField ?? "")
+    (action) => zenLiteral(action.props.linkField ?? ""),
+    transformDataCell
   ];
   const rows = actions.map((action) => {
     const row = {
@@ -18643,7 +18658,8 @@ function buildActionDecisionTable(ruleName, actions) {
             { id: "o5", name: "Field", field: "field" },
             { id: "o6", name: "Value", field: "value" },
             { id: "o7", name: "Target Entity", field: "targetEntity" },
-            { id: "o8", name: "Link Field", field: "linkField" }
+            { id: "o8", name: "Link Field", field: "linkField" },
+            { id: "o9", name: "Transform Data", field: "transformData" }
           ],
           rules: rows
         }
@@ -20350,7 +20366,8 @@ class CheckEngine {
           ...contract.required ?? [],
           ...contract.optional ?? [],
           ...(contract.oneOf ?? []).flat(),
-          ...typeName === "Formula" ? ["source", "operand", "value"] : []
+          ...typeName === "Formula" ? ["source", "operand", "value"] : [],
+          "in"
         ]);
         for (const key of Object.keys(props)) {
           if (!known.has(key)) {
@@ -20536,7 +20553,7 @@ class CheckEngine {
     const trimmed = rest.trim();
     if (!trimmed)
       return props;
-    for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:)/)) {
+    for (const chunk of trimmed.split(/\s+(?=[A-Za-z_]\w*:(?!\/\/))/)) {
       const at = chunk.indexOf(":");
       if (at <= 0)
         continue;
