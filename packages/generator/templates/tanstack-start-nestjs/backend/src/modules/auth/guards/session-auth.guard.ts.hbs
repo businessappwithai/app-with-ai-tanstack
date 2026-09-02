@@ -13,6 +13,7 @@ import { Reflector } from '@nestjs/core';
 import { getAuth } from '../../../lib/better-auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { DatabaseService } from '../../../database/database.service';
+import { setRequestContext } from '../../../common/logging/logger.service';
 
 @Injectable()
 export class SessionAuthGuard implements CanActivate {
@@ -43,6 +44,11 @@ export class SessionAuthGuard implements CanActivate {
 
       // Attach base user from Better Auth
       request.user = { ...session.user };
+
+      // Every line logged for the rest of this request now says who caused it,
+      // without the rules engine or the entity service having to be handed a
+      // user they have no other use for.
+      setRequestContext({ userId: (session.user as any)?.sys_user_id ?? (session.user as any)?.id ?? null });
       request.session = session;
 
       // Enrich with sys_roles when sysUserId is set

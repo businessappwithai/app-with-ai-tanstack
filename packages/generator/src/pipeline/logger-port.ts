@@ -32,3 +32,21 @@ export const NO_LOG: PipelineLogger = {
     /* intentionally silent — see above */
   },
 };
+
+/**
+ * The logger a command-line run should use.
+ *
+ * A CLI's stdout is its report to the person watching it, and interleaving
+ * newline-delimited JSON through a progress display makes both harder to read.
+ * The server path (`/api/generate`) has no such reader and always logs.
+ *
+ * So a terminal run is silent unless the operator asks: setting `LOG_LEVEL`
+ * (the same variable that controls everything else) opts in. That keeps one
+ * switch for logging rather than a CLI flag that means the same thing.
+ */
+export function cliLogger<T extends PipelineLogger>(
+  real: T,
+  env: NodeJS.ProcessEnv = process.env
+): PipelineLogger {
+  return env.LOG_LEVEL ? real : NO_LOG;
+}

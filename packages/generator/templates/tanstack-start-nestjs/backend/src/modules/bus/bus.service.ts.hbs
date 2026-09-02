@@ -18,6 +18,7 @@ import { RulesService } from '../rules/rules.service';
 import { PromotionDispatcher } from './promotion-dispatcher.service';
 import type { PromotionResult } from './entity-promotion.service';
 import { WorkflowService } from '../workflow/workflow.service';
+import { getLogger } from '../../common/logging/logger.service';
 
 export interface FieldMetadata {
   sys_field_id: string;
@@ -200,6 +201,13 @@ export class BusService {
     const promotion = await this.promotionDispatcher.dispatch(tableName, result.id, 'create', result);
 
     this.logger.log(`create: entity=${entity}, id=${result?.id}, doc_status=${promotion.docStatus}`);
+    // `userId` and `requestId` come from the request context the auth guard
+    // filled in — this service has no user in scope and should not pretend to.
+    getLogger('entity').event('entity.created', {
+      entity,
+      recordId: result?.id ?? null,
+      docStatus: promotion.docStatus,
+    });
     return this.withPromotion(tableName, result.id, result, promotion);
   }
 
@@ -276,6 +284,14 @@ export class BusService {
     const promotion = await this.promotionDispatcher.dispatch(tableName, id, 'update', result);
 
     this.logger.log(`update: entity=${entity}, id=${id}, doc_status=${promotion.docStatus}`);
+    getLogger('entity').event('entity.updated', {
+      entity,
+      recordId: id,
+      // The keys the caller actually sent, never their values: this is business
+      // data, and a log collector is the wrong place for it.
+      changedFields: Object.keys(data ?? {}),
+      docStatus: promotion.docStatus,
+    });
     return this.withPromotion(tableName, id, result, promotion);
   }
 
@@ -331,6 +347,8 @@ export class BusService {
 
     const promotion = await this.promotionDispatcher.dispatch(tableName, id, 'delete', current);
     await executeAfterDeleteHooks(entity, promotion.promoted);
+
+    getLogger('entity').event('entity.deleted', { entity, recordId: id });
 
     return promotion;
   }

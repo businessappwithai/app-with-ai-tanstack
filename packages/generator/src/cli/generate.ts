@@ -22,6 +22,7 @@ import { compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
 import { generateApplication, readModelSources } from "../pipeline";
+import { cliLogger } from "../pipeline/logger-port";
 import { compileRbac } from "../rbac";
 import { compileRules } from "../rules";
 import { compileSagaWorkflows, compileWorkflows } from "../workflows";
@@ -621,7 +622,7 @@ program
         // The pipeline takes its logger rather than importing one, because the
         // same code is bundled for a browser tab where Pino cannot run. A Node
         // CLI is the case that can, so it passes the real one.
-        logger: getLogger("pipeline"),
+        logger: cliLogger(getLogger("pipeline")),
         // Passed even though the model is already parsed: the pipeline ships
         // the document into the generated application, and the compiled code
         // does not record what it was asked to do. `ruleSources` is the same

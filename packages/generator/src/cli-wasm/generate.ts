@@ -31,6 +31,7 @@ import { DEFAULT_BACKEND_PORT, DEFAULT_FRONTEND_PORT } from "../generators/ports
 import { DEFAULT_PGLITE_URL, generateWasmApp, type WasmGeneratedApp } from "../generators/wasm";
 import { applyWasmOverlay } from "../generators/wasm/overlay";
 import { generateApplication, readModelSources } from "../pipeline/generate-application";
+import { cliLogger } from "../pipeline/logger-port";
 import { parseModel } from "../pipeline/parse-model";
 import { formatIssue, type ModelReview, reviewModel } from "../pipeline/review-model";
 
@@ -249,7 +250,7 @@ program
       // the scripts, and leaves every generated source file alone.
       say("  Generating the NestJS backend and TanStack Start front end");
       await generateApplication({
-        logger: getLogger("pipeline"),
+        logger: cliLogger(getLogger("pipeline")),
         sources,
         model: parsed,
         projectName: options.name,
@@ -445,7 +446,7 @@ function reviewSources(
     review: reviewModel(source, { autoFix }),
   }));
 
-  const log = getLogger("pipeline");
+  const log = cliLogger(getLogger("pipeline"));
 
   let errors = 0;
   for (const { label, review } of reviews) {

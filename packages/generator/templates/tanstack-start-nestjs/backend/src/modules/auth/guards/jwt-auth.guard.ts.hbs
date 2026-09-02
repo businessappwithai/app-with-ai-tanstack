@@ -10,6 +10,7 @@ import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Injec
 import { Reflector } from '@nestjs/core';
 import { getAuth } from '../../../lib/better-auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { setRequestContext } from '../../../common/logging/logger.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -41,6 +42,7 @@ export class JwtAuthGuard implements CanActivate {
 
       // Attach user and session to request
       request.user = session.user;
+      setRequestContext({ userId: (session.user as any)?.sys_user_id ?? (session.user as any)?.id ?? null });
       request.session = session;
 
       return true;
