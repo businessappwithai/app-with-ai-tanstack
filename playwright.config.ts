@@ -49,11 +49,9 @@ export const AUTH_REGISTER_MAX_PER_MINUTE = Number(process.env.AUTH_REGISTER_MAX
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  // `*.e2e.spec.ts` only. The `*.e2e-test.ts` files under `legacy/` target the
-  // OpenUI5 stack the generator no longer emits, or a generated application on
-  // a port nothing starts — see `tests/e2e/legacy/README.md`.
+  // `wasm/` has its own config and its own server, so it is not part of this run.
   testMatch: ["**/*.e2e.spec.ts"],
-  testIgnore: ["**/node_modules/**", "**/wasm/**", "**/legacy/**"],
+  testIgnore: ["**/node_modules/**", "**/wasm/**"],
 
   // Sequential. These tests share one database and one signed-in session, and
   // ordering is part of what they assert.

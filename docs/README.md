@@ -49,10 +49,6 @@ This project uses **gstack** - a collection of AI-powered development skills for
 **Setup gstack** (one-time setup per developer):
 
 ```bash
-# Quick setup script
-./scripts/setup-gstack.sh
-
-# Or manual installation
 git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup
 ```
 

@@ -1,6 +1,0 @@
-[INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/../node_modules/.bun/next@14.2.35+79b72764d5c79805/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js:38559
-[LOG] Toggling f-p-email form: {before: Object, after: Object} @ webpack-internal:///(app-pages-browser)/./src/components/admin/field-layout-editor.tsx:145
-[LOG] Updated fields: [Object, Object, Object, Object, Object, Object] @ webpack-internal:///(app-pages-browser)/./src/components/admin/field-layout-editor.tsx:162
-[LOG] Toggling f-p-email form: {before: Object, after: Object} @ webpack-internal:///(app-pages-browser)/./src/components/admin/field-layout-editor.tsx:145
-[LOG] Updated fields: [Object, Object, Object, Object, Object, Object] @ webpack-internal:///(app-pages-browser)/./src/components/admin/field-layout-editor.tsx:162
-[LOG] Saving field updates: [Object] @ webpack-internal:///(app-pages-browser)/./src/components/admin/field-layout-editor.tsx:175

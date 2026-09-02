@@ -136,10 +136,15 @@ and nothing rebuilt on a warm tree. Editing `packages/core` mid-session still
 needs `bun run build:core`.
 
 ### Known-broken scripts
-- `bun run migrate` — file doesn't exist; real migrations: `runMigrations()` from `@appwithai/core/services`
-- Root `vitest.config.ts` — references missing `./test/setup.ts`; use `bun run test`
-- `packages/web` lint uses eslint (not a dep) — lint with Biome from root
-- `test:app`, `test:e2e`, `test:generator`, `test:complete` — reference non-existent files
+All of the entries that used to be here have been **removed** rather than
+documented: `migrate`, `test:app`, `test:e2e`, `test:generator`, `test:complete`
+and `setup:gstack` pointed at files that do not exist, the root
+`vitest.config.ts` referenced a missing `./test/setup.ts`, and `packages/web`'s
+`lint` ran eslint, which is not a dependency anywhere (it runs Biome now). A
+script that has never worked is worse than no script: it costs every new reader
+the time to find out.
+
+One remains, and it is not ours to fix here:
 - `bun run build && bun run start` — the **production server does not work**.
   With a reachable `DATABASE_URL` it loads `@ag-ui/mcp-apps-middleware`, which
   `require()`s the ESM-only `eventsource` through the MCP SDK; Bun refuses, and
@@ -458,9 +463,13 @@ Two things to know before adding to it:
 - **Every test shares one IP**, so the suite runs the server with
   `AUTH_LOGIN_MAX_PER_MINUTE` / `AUTH_REGISTER_MAX_PER_MINUTE` raised. Both
   default to their production values (10 and 3) everywhere else.
-- **`tests/e2e/legacy/` is excluded.** Those files target the OpenUI5 stack the
-  generator no longer emits, or a generated app on a port nothing starts. See
-  the README there for what is worth porting out of them.
+- **The sharing cases are not covered yet.** `02` covers owner, signed-in
+  stranger and anonymous caller. A project shared read-only should be visible to
+  the member and refuse their writes; a read-write share should accept them;
+  removing a share should revoke access. The spec that once aimed at this
+  (`project-permissions.e2e.spec.ts`) never ran — it called `test.browserContext`,
+  which is not a Playwright API — and was removed with the rest of the legacy
+  suite. Worth writing properly against `/api/projects/:id/members`.
 
 ### Template testing
 **Type-checking this repo says nothing about whether a generated app compiles** — templates are `.hbs` until rendered. Changing a template means generating an app and building it, not just `bun run type-check`.
