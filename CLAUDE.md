@@ -58,7 +58,8 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run wasm generate -i <model> -o <dir>` | Generate NestJS/TanStack on WASM Postgres |
 | `bun run wasm generate … --standalone` | Self-contained browser app |
 | `bun run build:wasm-runtime` | Re-inline `templates/wasm/**` after editing |
-| `bun run build:wasm-browser` | Rebuild `html/assets/appwithai-wasm.js` |
+| `bun run build:wasm-browser` | Rebuild `html/assets/appwithai-wasm.js` + `html/wasm-app/sw.js` |
+| `bun run build:fullstack-browser` | Rebuild `html/assets/appwithai-fullstack.js` |
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
 | `bun run test:llmtext` | Hold `llmtext/*.txt` to what the checker actually does |
 
@@ -81,6 +82,50 @@ your work lie to you, in opposite directions:
 Both have been mistaken for real results, and each wasted a CI cycle. `bun
 install` fixes both. If you cannot install, pin the linter explicitly —
 `bunx @biomejs/biome@2.5.6 check .` — and do not trust `type-check` at all.
+
+### The committed build artifacts, and why CI is the only judge of them
+
+Seven files are built from sources and committed, and CI rebuilds each one and
+compares byte for byte. Editing a source without rebuilding fails the
+`Type-check, lint and unit tests` job — after type-check, lint and the unit
+tests have all passed, which is a long way to walk to find out.
+
+| Rebuild with | Artifact | Stale when you edit |
+|---|---|---|
+| `build:wasm-runtime` | `runtime-assets.generated.ts`, `overlay-assets.generated.ts` | `templates/wasm/**`, `templates/wasm-overlay/**` |
+| `build:wasm-browser` | `html/assets/appwithai-wasm.js`, `html/wasm-app/sw.js` | the standalone generator, or the service worker |
+| `build:fullstack-browser` | `html/assets/appwithai-fullstack.js` | **anything the real pipeline reaches** — `packages/generator/src/{rules,hooks,workflows,templates,parsers,rbac}/**` included |
+| `build:language-tools` | `html/checker.js`, `html/fixer.js` | `language/**` |
+
+`build:fullstack-browser` is the one that catches people out: it inlines the
+whole NestJS + TanStack pipeline over a memory filesystem, so a change anywhere
+under `packages/generator/src` can stale it even when nothing browser-facing was
+touched.
+
+**The two kinds are not equally portable.** `runtime-assets.generated.ts`,
+`overlay-assets.generated.ts` and `sw.js` are verbatim copies — byte-identical
+anywhere. The `.js` bundles come from `Bun.build`, whose output depends on the
+bun version **and the platform**: the full-stack bundle is 807407 bytes built on
+macOS and 807697 on Linux, same bun 1.4.0, same frozen lockfile. CI builds with
+the `BUN_VERSION` pinned in `.github/workflows/ci.yml` on `linux-x64`, so
+rebuilding a bundle anywhere else commits bytes CI will reject.
+
+Run `--check` before pushing, and read what it says — it compares your runtime
+and platform against CI's and tells you which case you are in rather than just
+"out of date":
+
+```bash
+bun run build:wasm-runtime -- --check
+bun run build:fullstack-browser --check
+bun run build:wasm-browser -- --check
+bun run build:language-tools --check
+```
+
+Two traps worth knowing. The job's steps **fail fast**, so the first stale
+artifact hides the rest — run all four locally or you will fix one per CI cycle.
+And if `--check` reports your runtime differs from CI's, do not rebuild locally:
+build where CI builds, e.g.
+`docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.0 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
 
 ### Known-broken scripts
 - `bun run migrate` — file doesn't exist; real migrations: `runMigrations()` from `@appwithai/core/services`
