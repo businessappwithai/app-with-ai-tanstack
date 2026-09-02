@@ -274,6 +274,71 @@ Rules:
 
 ---
 
+## Logging
+
+**`packages/core/src/logging/log-spec.json` is the single source of truth.** Levels,
+channels, messages and redaction are declared there; a call site names an event
+and the spec decides the rest.
+
+```ts
+import { getLogger } from "@appwithai/core/logging";
+getLogger("pipeline").event("pipeline.generation.completed", { project, files, durationMs });
+```
+
+Never write a level and a sentence at a call site. Naming the event keeps one
+line per event in the catalogue, makes it greppable, and lets a test assert a
+failure was reported without knowing its wording. Adding a log line means adding
+an entry to the spec first.
+
+| Rule | Why |
+|---|---|
+| Channels declare the level of their **least severe event** | Resolution takes the *quieter* of channel and environment, so no channel can be louder than its environment permits |
+| `LOG_LEVEL` / `LOG_LEVEL_<CHANNEL>` override both | One subsystem turned up at 3am without a redeploy |
+| stdout only, `sync: false` in production | Whatever runs the process collects it; a syscall per line is not free |
+| An unknown event id is reported at `warn`, not dropped | A typo must not become silence |
+| Never log a request body, a query string, or a field's value | Business data and credentials. `changedFields` logs the *keys* |
+
+Two checks hold it together, both in `packages/core/src/logging/__tests__/`:
+`logger.test.ts` reads the JSON actually written rather than spying on Pino, and
+`spec-conformance.test.ts` asserts every `.event(…)` in the tree names a declared
+id **and** that the spec declares nothing that nothing emits.
+
+### The pipeline takes a logger; it does not import one
+
+`build:fullstack-browser` bundles the pipeline for a browser tab, where Pino
+cannot run. So `generate-application.ts` depends on the one-method
+`PipelineLogger` port (`pipeline/logger-port.ts`) that `ChannelLogger` satisfies
+structurally: Node passes the real logger, the browser passes `NO_LOG`. **Never
+import `@appwithai/core/logging` from anything the browser bundle reaches** —
+`bun run build:fullstack-browser` then fails, and `grep pino html/assets/appwithai-fullstack.js`
+must stay at zero.
+
+A CLI run is silent unless `LOG_LEVEL` is set (`cliLogger`): a terminal's stdout
+is its report to the person watching, and interleaving JSON through it helps
+nobody. The `/api/generate` path always logs.
+
+### The generated application
+
+Ships its own copy, derived from the canonical spec by
+`packages/generator/src/logging/generated-spec.ts` — **not** a template, so the
+two cannot drift. Channels not marked `generated` are filtered out.
+
+- `backend/src/common/logging/logger.service.ts` — Pino, the Nest `LoggerService`
+  adapter, `installHttpLogging`, `installProcessLogging`, and the
+  `AsyncLocalStorage` request context.
+- The spec is **read off disk**, and `nest-cli.json` copies it into `dist/src/`
+  as a build asset. An imported JSON would be inlined and the deployed file
+  would be decorative.
+- **HTTP logging is a Fastify `onResponse` hook, never a Nest interceptor.**
+  Interceptors run after guards, so an interceptor sees no 401 or 403 and none
+  of the better-auth routes. This is the mistake to not make twice.
+- The exception filter stashes its exception on the request (`__logError`) for
+  that hook — the hook sees every response, the filter sees the error.
+- `requestId` and `userId` come from the request context, so a service never
+  takes a user it has no other use for.
+
+---
+
 ## Database
 
 PostgreSQL via Kysely. **One connection site:** `packages/core/src/config/db.config.ts`.
@@ -326,6 +391,9 @@ if (limited) return limited;
 **Web (client must use `VITE_`):** `VITE_APP_URL` (:3000), `VITE_API_URL`, `VITE_MASTRA_URL` (:4111)
 
 **Security:** `SESSION_SECRET`, `JWT_SECRET`, `DB_ENCRYPTION_KEY` (base64, 32 bytes)
+
+**Logging:** `LOG_LEVEL`, `LOG_LEVEL_<CHANNEL>` (e.g. `LOG_LEVEL_DB`), `LOG_PRETTY`,
+`LOG_SYNC`, `LOG_NAME`, `DB_SLOW_QUERY_MS` (500), `HTTP_SLOW_REQUEST_MS` (1000)
 
 **Mastra:** `MASTRA_DATABASE_URL` (default `file:./appwithai-mastra.db`), `MASTRA_PORT` (4111)
 
@@ -382,6 +450,11 @@ The suites deliberately leave their rows behind, so **a re-run against a populat
 | File | Purpose |
 |------|---------|
 | `packages/ai/src/config.ts` | ⭐ Central AI model + embedding config |
+| `packages/core/src/logging/log-spec.json` | ⭐ The log specification, stated once |
+| `packages/core/src/logging/logger.ts` | Pino, configured entirely from the spec |
+| `packages/generator/src/pipeline/logger-port.ts` | ⭐ Why the pipeline never imports a logger |
+| `packages/generator/src/logging/generated-spec.ts` | ⭐ The generated app's spec, derived not duplicated |
+| `.../backend/src/common/logging/logger.service.ts.hbs` | ⭐ The generated app's logger + HTTP hook |
 | `packages/core/src/config/db.config.ts` | ⭐ Sole DB connection site |
 | `packages/core/src/hooks/hook-executor.ts` | `globalHookExecutor` |
 | `packages/core/src/rules/rules-engine.service.ts` | GoRules evaluation |
@@ -444,6 +517,16 @@ Add once in `GenerationSettings` in `generate-application.ts`. Do NOT add at cal
 2. Update grammar, spec docs, parsers, composer, rag
 3. Add diagnostic to all three places if auto-fixable
 4. Run `bun run type-check:language`
+
+### Add a log event
+1. Declare it in `packages/core/src/logging/log-spec.json` — id, channel, level,
+   message, fields. A channel must declare the level of its least severe event
+2. Emit it with `getLogger(channel).event(id, fields)`; never a bare level and a
+   sentence
+3. If the generated application should emit it too, the channel's `surfaces`
+   must include `generated` — and the call site is a `.hbs` template
+4. `bun run test` — `spec-conformance.test.ts` fails on an undeclared id *and*
+   on a declared event nothing emits
 
 ### Add a core subpath export
 1. Create `packages/core/src/<dir>/index.ts`
