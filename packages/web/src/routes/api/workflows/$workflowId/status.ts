@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 export const Route = createFileRoute("/api/workflows/$workflowId/status")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
+        const caller = await requireUser(request, `workflow-run:${params.workflowId}`);
+        if (caller.response) return caller.response;
+
         try {
           const workflowId = params.workflowId as string;
 

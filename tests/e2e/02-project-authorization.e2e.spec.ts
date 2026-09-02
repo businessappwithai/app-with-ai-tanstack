@@ -9,66 +9,65 @@
  * the owner.
  *
  * A route added later without the check fails here rather than in a report
- * somebody writes afterwards.
+ * somebody writes afterwards. That is not hypothetical twice over: the list's
+ * first run found three endpoints serving unauthenticated callers, and adding
+ * `/workflows` to it later found two more. The list is the weak part of this
+ * design — a route absent from it is not tested — so it is worth extending
+ * whenever a project-scoped route is added.
  */
 
 import { type APIRequestContext, expect, test } from "@playwright/test";
 
-import { createProject, SAMPLE_EML, signIn, signInAsAdmin, unique } from "./helpers";
+import {
+  adminContext,
+  anonymousContext,
+  createProject,
+  createUserSession,
+  SAMPLE_EML,
+  type UserSession,
+} from "./helpers";
 
 /**
  * The project-scoped surface, as paths relative to a project id.
  *
  * Read-only verbs only. A test that asserts authorization by attempting a
  * destructive write on every endpoint would, the day one of them stopped
- * enforcing it, do the damage it was written to detect.
+ * enforcing it, do the damage it was written to detect. The writes that are
+ * exercised below are named individually, against a project created for them.
  */
 const PROJECT_ROUTES = [
   "",
   "/eml",
+  "/eml/download",
   "/erd-versions",
   "/members",
   "/automations",
   "/deployment",
+  "/workflows",
 ] as const;
 
-/** A second, approved account — the "signed-in stranger". */
-async function createApprovedUser(
-  adminRequest: APIRequestContext,
-  request: APIRequestContext
-): Promise<{ email: string; password: string }> {
-  const email = `${unique("e2e-stranger")}@example.com`;
-  const password = "TestPassword123!";
-
-  const registration = await request.post("/api/auth/register", {
-    data: { email, password, name: "Stranger" },
-    failOnStatusCode: false,
-  });
-  expect(registration.status(), "registering the stranger failed").toBe(202);
-
-  const list = await adminRequest.get("/api/admin/users");
-  expect(list.status()).toBe(200);
-  const { users } = (await list.json()) as { users: Array<{ id: string; email: string }> };
-  const created = users.find((user) => user.email === email);
-  expect(created, "the registered account did not appear in the admin list").toBeTruthy();
-
-  const approval = await adminRequest.post(`/api/admin/users/${created?.id}/approve`, {
-    failOnStatusCode: false,
-  });
-  expect(approval.status(), "approving the stranger failed").toBeLessThan(300);
-
-  return { email, password };
-}
-
 test.describe("a project belongs to somebody", () => {
-  test("every project route refuses an unauthenticated caller", async ({ playwright, request }) => {
-    await signInAsAdmin(request);
-    const projectId = await createProject(request);
+  let admin: APIRequestContext;
+  let owner: UserSession;
+  let stranger: UserSession;
+
+  test.beforeAll(async ({ playwright }) => {
+    admin = await adminContext(playwright);
+    owner = await createUserSession(playwright, admin, "e2e-project-owner");
+    stranger = await createUserSession(playwright, admin, "e2e-stranger");
+  });
+
+  test.afterAll(async () => {
+    await owner.request.dispose();
+    await stranger.request.dispose();
+    await admin.dispose();
+  });
+
+  test("every project route refuses an unauthenticated caller", async ({ playwright }) => {
+    const projectId = await createProject(owner.request);
 
     // A context with no cookie jar at all — not merely a signed-out one.
-    const anonymous = await playwright.request.newContext({
-      baseURL: test.info().project.use.baseURL,
-    });
+    const anonymous = await anonymousContext(playwright);
 
     const allowed: string[] = [];
     for (const route of PROJECT_ROUTES) {
@@ -85,58 +84,48 @@ test.describe("a project belongs to somebody", () => {
     expect(allowed, "these project routes served an unauthenticated caller").toEqual([]);
   });
 
-  test("every project route refuses a signed-in stranger", async ({ playwright, request }) => {
-    await signInAsAdmin(request);
-    const projectId = await createProject(request);
-
-    const stranger = await playwright.request.newContext({
-      baseURL: test.info().project.use.baseURL,
-    });
-    const { email, password } = await createApprovedUser(request, stranger);
-    const signedIn = await signIn(stranger, email, password);
-    expect(signedIn.status, "the stranger could not sign in").toBe(200);
+  test("every project route refuses a signed-in stranger", async () => {
+    const projectId = await createProject(owner.request);
 
     const allowed: string[] = [];
     for (const route of PROJECT_ROUTES) {
       const path = `/api/projects/${projectId}${route}`;
-      const response = await stranger.get(path, { failOnStatusCode: false });
+      const response = await stranger.request.get(path, { failOnStatusCode: false });
       if (response.status() < 400) allowed.push(`${path} -> ${response.status()}`);
     }
-    await stranger.dispose();
 
     expect(allowed, "these project routes served a signed-in user who is not a member").toEqual([]);
   });
 
-  test("the owner reaches their own project", async ({ request }) => {
-    await signInAsAdmin(request);
-    const projectId = await createProject(request);
+  test("the owner reaches their own project", async () => {
+    const projectId = await createProject(owner.request);
 
     // The counterweight to the two tests above: a suite that only asserts
     // refusals passes just as happily when the endpoints are broken for
     // everybody.
-    const response = await request.get(`/api/projects/${projectId}`);
-    expect(response.status()).toBe(200);
-    expect(await response.json()).toMatchObject({ project: { id: projectId } });
+    const refused: string[] = [];
+    for (const route of PROJECT_ROUTES) {
+      const path = `/api/projects/${projectId}${route}`;
+      const response = await owner.request.get(path, { failOnStatusCode: false });
+      // 409 is a legitimate answer for the owner on a project with no model
+      // yet — the download route says so rather than inventing an empty file.
+      if (response.status() >= 400 && response.status() !== 409) {
+        refused.push(`${path} -> ${response.status()}`);
+      }
+    }
+
+    expect(refused, "these project routes refused the project's own owner").toEqual([]);
   });
 
-  test("does not confirm that another owner's project id exists", async ({
-    playwright,
-    request,
-  }) => {
-    await signInAsAdmin(request);
-    const realId = await createProject(request);
+  test("does not confirm that another owner's project id exists", async () => {
+    const realId = await createProject(owner.request);
 
-    const stranger = await playwright.request.newContext({
-      baseURL: test.info().project.use.baseURL,
-    });
-    const { email, password } = await createApprovedUser(request, stranger);
-    await signIn(stranger, email, password);
-
-    const real = await stranger.get(`/api/projects/${realId}`, { failOnStatusCode: false });
-    const invented = await stranger.get(`/api/projects/proj_does_not_exist`, {
+    const real = await stranger.request.get(`/api/projects/${realId}`, {
       failOnStatusCode: false,
     });
-    await stranger.dispose();
+    const invented = await stranger.request.get(`/api/projects/proj_does_not_exist`, {
+      failOnStatusCode: false,
+    });
 
     // Same answer for "exists but not yours" and "does not exist". A 403 on one
     // and a 404 on the other is a directory of every project id in the system.
@@ -145,32 +134,88 @@ test.describe("a project belongs to somebody", () => {
 });
 
 test.describe("writing to a project", () => {
-  test("a stranger cannot save an ERD over someone else's project", async ({
-    playwright,
-    request,
-  }) => {
-    await signInAsAdmin(request);
-    const projectId = await createProject(request);
+  let admin: APIRequestContext;
+  let owner: UserSession;
+  let stranger: UserSession;
 
-    const stranger = await playwright.request.newContext({
-      baseURL: test.info().project.use.baseURL,
-    });
-    const { email, password } = await createApprovedUser(request, stranger);
-    await signIn(stranger, email, password);
+  test.beforeAll(async ({ playwright }) => {
+    admin = await adminContext(playwright);
+    owner = await createUserSession(playwright, admin, "e2e-write-owner");
+    stranger = await createUserSession(playwright, admin, "e2e-write-stranger");
+  });
 
-    const response = await stranger.put(`/api/projects/${projectId}/eml`, {
-      data: { content: SAMPLE_EML },
+  test.afterAll(async () => {
+    await owner.request.dispose();
+    await stranger.request.dispose();
+    await admin.dispose();
+  });
+
+  test("a stranger cannot save an ERD over someone else's project", async () => {
+    const projectId = await createProject(owner.request);
+
+    const response = await stranger.request.post(`/api/projects/${projectId}/erd-versions`, {
+      data: { mermaidCode: SAMPLE_EML },
       failOnStatusCode: false,
     });
-    await stranger.dispose();
 
     expect(response.status()).toBeGreaterThanOrEqual(400);
 
-    // And the owner's model is untouched.
-    const owned = await request.get(`/api/projects/${projectId}/eml`, { failOnStatusCode: false });
-    if (owned.status() === 200) {
-      const body = await owned.text();
-      expect(body).not.toContain("Customer ||--o{ Order");
-    }
+    // And the owner's model is untouched — still none at all.
+    const owned = await owner.request.get(`/api/projects/${projectId}/eml`, {
+      failOnStatusCode: false,
+    });
+    expect(owned.status()).toBe(200);
+    expect(((await owned.json()) as { eml: string }).eml).toBe("");
+  });
+
+  test("a stranger cannot write a workflow into someone else's project", async () => {
+    const projectId = await createProject(owner.request);
+
+    // The route that had no check at all. A workflow written here is compiled
+    // into the generated application, so an unguarded POST is not a nuisance —
+    // it is somebody else's code running in a stack the owner ships.
+    const response = await stranger.request.post(`/api/projects/${projectId}/workflows`, {
+      data: {
+        name: "injected",
+        serviceName: "Order",
+        mermaidCode: "flowchart TD\n  a[Injected] --> b[Step]",
+      },
+      failOnStatusCode: false,
+    });
+    expect(response.status()).toBeGreaterThanOrEqual(400);
+
+    const owned = await owner.request.get(`/api/projects/${projectId}/workflows`, {
+      failOnStatusCode: false,
+    });
+    expect(owned.status()).toBe(200);
+    expect(((await owned.json()) as { workflows: unknown[] }).workflows).toEqual([]);
+  });
+
+  test("a stranger cannot start a generation run on someone else's project", async () => {
+    const projectId = await createProject(owner.request);
+
+    // Generation reads the model, spawns a process and records its result on
+    // the project row. The refusal has to be an HTTP status: this endpoint
+    // answers as a stream, and an "error" frame inside a 200 would mean the
+    // work had already been done.
+    const response = await stranger.request.post("/api/generate", {
+      data: { projectId },
+      failOnStatusCode: false,
+    });
+
+    expect(response.status()).toBeGreaterThanOrEqual(400);
+    expect(response.headers()["content-type"] ?? "").not.toContain("text/event-stream");
+  });
+
+  test("a stranger cannot start a deployment of someone else's project", async () => {
+    const projectId = await createProject(owner.request);
+
+    const response = await stranger.request.post("/api/deploy", {
+      data: { projectId },
+      failOnStatusCode: false,
+    });
+
+    expect(response.status()).toBeGreaterThanOrEqual(400);
+    expect(response.headers()["content-type"] ?? "").not.toContain("text/event-stream");
   });
 });

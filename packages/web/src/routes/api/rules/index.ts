@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 let _dbReady = false;
 async function ensureDb() {
@@ -14,6 +15,9 @@ export const Route = createFileRoute("/api/rules/")({
     handlers: {
       GET: async ({ request }) => {
         await ensureDb();
+        const caller = await requireUser(request, "rules");
+        if (caller.response) return caller.response;
+
         try {
           const { rulesDb } = await import("@appwithai/core/services");
           const url = new URL(request.url);
@@ -50,6 +54,9 @@ export const Route = createFileRoute("/api/rules/")({
 
       POST: async ({ request }) => {
         await ensureDb();
+        const caller = await requireUser(request, "rules", "write");
+        if (caller.response) return caller.response;
+
         try {
           const { rulesDb } = await import("@appwithai/core/services");
           const body = await request.json();

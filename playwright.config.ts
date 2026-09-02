@@ -39,7 +39,16 @@ import { defineConfig, devices } from "@playwright/test";
  */
 
 const PORT = Number(process.env.E2E_PORT ?? 3000);
-const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
+
+/**
+ * Where the suite points.
+ *
+ * Exported because the specs build their own request contexts — a signed-in
+ * stranger, a read-only member, an anonymous caller — and a context created
+ * without a base URL sends its requests nowhere. Reading it from here rather
+ * than from `test.info()` means a helper can create one outside a test body.
+ */
+export const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
 
 /** The sign-in limit the suite runs the server with. See `webServer.env`. */
 export const AUTH_LOGIN_MAX_PER_MINUTE = Number(process.env.AUTH_LOGIN_MAX_PER_MINUTE ?? 60);

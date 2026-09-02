@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 export const Route = createFileRoute("/api/workflows/")({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        const caller = await requireUser(request, "workflow-runs");
+        if (caller.response) return caller.response;
+
         try {
           const { getDatabase } = await import("@appwithai/core/services");
           const url = new URL(request.url);

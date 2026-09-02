@@ -12,7 +12,9 @@ export const Route = createFileRoute("/api/projects/$id/erd-versions/$versionId/
           const { erdVersionDb } = await import("@appwithai/core/services");
           const versionId = params.versionId as string;
 
-          const version = await erdVersionDb.setCurrentVersion(versionId);
+          // Scoped to the project in the URL, not resolved by version id alone:
+          // the id says which version, the path says whose.
+          const version = await erdVersionDb.setCurrentVersion(versionId, params.id as string);
 
           if (!version) {
             return new Response(JSON.stringify({ error: "Version not found" }), {
@@ -41,7 +43,13 @@ export const Route = createFileRoute("/api/projects/$id/erd-versions/$versionId/
           const { erdVersionDb } = await import("@appwithai/core/services");
           const versionId = params.versionId as string;
 
-          await erdVersionDb.delete(versionId);
+          const removed = await erdVersionDb.delete(versionId, params.id as string);
+          if (!removed) {
+            return new Response(JSON.stringify({ error: "Version not found" }), {
+              status: 404,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
 
           return new Response(JSON.stringify({ success: true }), {
             headers: { "Content-Type": "application/json" },
