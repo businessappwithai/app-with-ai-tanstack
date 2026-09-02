@@ -1567,6 +1567,8 @@ function parseDirective(line, n, model) {
     case "hook": {
       const m = rest.match(/^(\w+)\s+(\w+)\s+on\s+(\w+)\s*(\[[^\]]*\])?/);
       if (!m) {
+        if (/^\w+\s+on\s+\w+\s*$/.test(rest))
+          return;
         model.diagnostics.push({
           severity: "error",
           code: "EML201",
@@ -2040,6 +2042,50 @@ var MANAGED_COLUMN_NAMES = new Set([
   "deleted_at",
   "deleted_by"
 ]);
+var AUTOMATION_WORKFLOW = /^%%workflow\s+name:\s*\S/;
+var AUTO_TYPE_DIRECTIVE = /^%%step\s+([A-Za-z_]\w*)\s+type:\s*([A-Za-z]\w*)\s*(.*)$/;
+var AUTO_PROP_DIRECTIVE = /^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z_]\w*):\s*(.*)$/;
+function sagaPropsFromAutomation(type, props) {
+  const out = { ...props };
+  const ref = (value) => value?.trim().match(/^\{\{\s*([^}]+?)\s*\}\}$/)?.[1] ?? null;
+  const move = (from, to) => {
+    const value = out[from];
+    if (value !== undefined && out[to] === undefined)
+      out[to] = value;
+    delete out[from];
+  };
+  if (type === "Decision") {
+    move("ruleTable", "rule");
+    move("table", "decisionTable");
+    delete out.inputs;
+  } else if (type === "CreateEntity") {
+    move("values", "fields");
+  } else if (type === "UpdateEntity" || type === "DeleteEntity") {
+    const target = ref(out.target);
+    if (target) {
+      out.targetSource = out.targetSource ?? target;
+      delete out.target;
+    } else
+      move("target", "targetField");
+    const value = ref(out.value);
+    if (value) {
+      out.source = out.source ?? value;
+      delete out.value;
+    }
+  } else if (type === "Formula") {
+    move("as", "target");
+    const left = ref(out.left);
+    if (left)
+      out.source = out.source ?? left;
+    else if (out.left !== undefined)
+      out.value = out.value ?? out.left;
+    delete out.left;
+    move("right", "operand");
+  } else if (type === "REST") {
+    move("body", "bodyTemplate");
+  }
+  return out;
+}
 var PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -2118,6 +2164,7 @@ class CheckEngine {
     this.checkIndexDirectives();
     this.checkEntityDirectives();
     this.checkHooks();
+    this.checkAutomationTriggers();
     this.checkGuards();
     this.checkRbac();
     this.checkTriggers();
@@ -2772,15 +2819,38 @@ class CheckEngine {
       }
     }
   }
+  checkAutomationTriggers() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%hook\b/)) {
+      const m = text.trim().match(/^%%hook\s+(\w+)\s+on\s+(\w+)\s*$/);
+      if (!m)
+        continue;
+      const [event, entity] = caps(m, 2);
+      if (!this.validHookTypes.has(event)) {
+        this.error("EML205", `Automation trigger uses unknown event "${event}".`, {
+          line: lineNo,
+          hint: `Valid events: ${[...this.validHookTypes].join(", ")}.`
+        });
+      }
+      if (!entityNames.has(entity)) {
+        this.warn("EML206", `Automation trigger references undeclared entity "${entity}".`, {
+          line: lineNo,
+          hint: `Declare "${entity}" in the erDiagram section.`
+        });
+      }
+    }
+  }
   checkWorkflowDirectives() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
     const workflowLines = this.src.findAll(/^%%workflow\b/);
     for (const { lineNo, text } of workflowLines) {
+      if (AUTOMATION_WORKFLOW.test(text.trim()))
+        continue;
       const m = text.trim().match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
       if (!m) {
         this.error("EML240", `Invalid %%workflow syntax: "${text.trim()}"`, {
           line: lineNo,
-          hint: "Syntax: %%workflow <name> entity: <Entity> kind: <hook|state|saga>"
+          hint: "Syntax: %%workflow <name> entity: <Entity> kind: <hook|state|saga>, or %%workflow name: <name> for an automation"
         });
         continue;
       }
@@ -2878,16 +2948,7 @@ class CheckEngine {
       for (const attribute of trigger?.attributes ?? [])
         published.add(attribute.name);
       const bound = new Set;
-      for (const { lineNo, text } of section.steps) {
-        const match = text.trim().match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
-        if (!match) {
-          this.error("EML260", `Invalid %%step syntax: "${text.trim()}"`, {
-            line: lineNo,
-            hint: "Syntax: %%step <nodeId> <StepType> <key>: <value> ..."
-          });
-          continue;
-        }
-        const [, nodeId, typeName, rest] = match;
+      for (const { lineNo, nodeId, typeName, props, automation } of this.stepEntries(section.steps)) {
         const contract = stepTypes.get(typeName);
         if (!contract) {
           this.error("EML261", `%%step on node ${nodeId} has unknown type "${typeName}".`, {
@@ -2896,7 +2957,7 @@ class CheckEngine {
           });
           continue;
         }
-        if (bound.has(nodeId)) {
+        if (!automation && bound.has(nodeId)) {
           this.error("EML270", `Node "${nodeId}" has more than one %%step.`, {
             line: lineNo,
             hint: "Only the first binding runs. Give the second step its own node."
@@ -2910,7 +2971,6 @@ class CheckEngine {
             hint: `Add a node "${nodeId}" to the flowchart, or bind the step to an existing one.`
           });
         }
-        const props = this.parseStepProps(rest ?? "");
         const has = (key) => (props[key] ?? "").trim().length > 0;
         const missing2 = [];
         for (const key of contract.required ?? []) {
@@ -2939,7 +2999,8 @@ class CheckEngine {
           ...contract.optional ?? [],
           ...(contract.oneOf ?? []).flat(),
           ...typeName === "Formula" ? ["source", "operand", "value"] : [],
-          "in"
+          "in",
+          ...automation ? ["as"] : []
         ]);
         for (const key of Object.keys(props)) {
           if (!known.has(key)) {
@@ -3029,13 +3090,82 @@ class CheckEngine {
     for (const { lineNo, text } of this.src.findAll(/^\s*%%step\b/)) {
       if (this.sagaStepLines.has(lineNo))
         continue;
-      this.warn("EML269", `%%step is only read inside a "kind: saga" workflow: "${text.trim()}"`, {
+      this.warn("EML269", `%%step is only read inside a saga or automation workflow: "${text.trim()}"`, {
         line: lineNo,
-        hint: "Move it into a %%workflow ... kind: saga section, or delete it."
+        hint: "Move it into a %%workflow ... kind: saga or %%workflow name: ... section, or delete it."
       });
     }
   }
   sagaStepLines = new Set;
+  stepEntries(steps) {
+    const order = [];
+    const auto = new Map;
+    const entryFor = (nodeId, lineNo, text) => {
+      const existing = auto.get(nodeId);
+      if (existing)
+        return existing;
+      const created = {
+        lineNo,
+        text,
+        nodeId,
+        typeName: "",
+        props: {},
+        automation: true
+      };
+      auto.set(nodeId, created);
+      order.push(created);
+      return created;
+    };
+    for (const { lineNo, text } of steps) {
+      const line = text.trim();
+      const typeLine = line.match(AUTO_TYPE_DIRECTIVE);
+      if (typeLine) {
+        const [, nodeId2 = "", typeName2 = "", rest2 = ""] = typeLine;
+        const entry = entryFor(nodeId2, lineNo, text);
+        entry.typeName = typeName2;
+        entry.lineNo = lineNo;
+        entry.text = text;
+        Object.assign(entry.props, this.parseStepProps(rest2));
+        continue;
+      }
+      const propLine = line.match(AUTO_PROP_DIRECTIVE);
+      if (propLine && propLine[2] !== "type") {
+        const [, nodeId2 = "", key = "", value = ""] = propLine;
+        entryFor(nodeId2, lineNo, text).props[key] = value.trim();
+        continue;
+      }
+      const match = line.match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
+      if (!match) {
+        this.error("EML260", `Invalid %%step syntax: "${line}"`, {
+          line: lineNo,
+          hint: "Syntax: %%step <nodeId> <StepType> <key>: <value> ..., or %%step <nodeId> type: <StepType> for an automation"
+        });
+        continue;
+      }
+      const [, nodeId = "", typeName = "", rest = ""] = match;
+      order.push({
+        lineNo,
+        text,
+        nodeId,
+        typeName,
+        props: this.parseStepProps(rest),
+        automation: false
+      });
+    }
+    for (const entry of order) {
+      if (!entry.automation)
+        continue;
+      if (!entry.typeName) {
+        this.error("EML274", `%%step node "${entry.nodeId}" has no "type:" line.`, {
+          line: entry.lineNo,
+          hint: `Add %%step ${entry.nodeId} type: <StepType>. Without it the step compiles as a Formula.`
+        });
+        continue;
+      }
+      entry.props = sagaPropsFromAutomation(entry.typeName, entry.props);
+    }
+    return order.filter((entry) => entry.typeName);
+  }
   sagaSections() {
     const sections = [];
     let current = null;
@@ -3044,6 +3174,13 @@ class CheckEngine {
     const all = this.src.findAll(/.*/);
     for (const { lineNo, text } of all) {
       const trimmed = text.trim();
+      const automation = trimmed.match(/^%%workflow\s+name:\s*(.+?)\s*$/);
+      if (automation) {
+        if (current)
+          sections.push(current);
+        current = { name: automation[1], entity: "", nodeIds: new Set, steps: [] };
+        continue;
+      }
       const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
       if (workflow) {
         if (current)
@@ -3059,6 +3196,11 @@ class CheckEngine {
       }
       if (!current)
         continue;
+      const trigger = trimmed.match(/^%%hook\s+\w+\s+on\s+(\w+)\s*$/);
+      if (trigger && !current.entity) {
+        current.entity = trigger[1];
+        continue;
+      }
       if (trimmed.startsWith("%%step")) {
         current.steps.push({ lineNo, text });
         this.sagaStepLines.add(lineNo);

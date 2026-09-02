@@ -174,6 +174,86 @@ export const MANAGED_COLUMN_NAMES = new Set([
   "deleted_by",
 ]);
 
+/* -------------------------------------------------------------------------- */
+/*  The automation dialect                                                     */
+/*                                                                             */
+/*  A constrained profile of the saga form, and the shape the automation        */
+/*  builder in every running application writes. It differs in three ways: the  */
+/*  workflow is named with `%%workflow name:`, the entity comes from `%%hook`,   */
+/*  and a step is spread over several lines with its type behind a `type:` key. */
+/*                                                                             */
+/*  These mirror packages/generator/src/workflows/steps.ts, which does the same  */
+/*  translation for the compiler. They are duplicated rather than imported       */
+/*  because language/ is bundled standalone into html/checker.js and cannot      */
+/*  reach into packages/ — the same reason PROP_SPLIT exists three times. If      */
+/*  one changes, change the others: a checker and a compiler that disagree       */
+/*  about a directive is worse than either being wrong alone.                    */
+/* -------------------------------------------------------------------------- */
+
+/** `%%workflow name: <name>` — an automation, whose entity comes from %%hook. */
+const AUTOMATION_WORKFLOW = /^%%workflow\s+name:\s*\S/;
+
+/** `%%step <nodeId> type: <StepType> [as: <name>]` — the type line. */
+const AUTO_TYPE_DIRECTIVE = /^%%step\s+([A-Za-z_]\w*)\s+type:\s*([A-Za-z]\w*)\s*(.*)$/;
+
+/** `%%step <nodeId> <key>: <value>` — one property of an automation step. */
+const AUTO_PROP_DIRECTIVE = /^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z_]\w*):\s*(.*)$/;
+
+/**
+ * Rewrite automation property names as the saga names the contracts are written
+ * in, so every check downstream sees one vocabulary.
+ *
+ * Mirrors `sagaPropsFromAutomation` in packages/generator/src/workflows/steps.ts.
+ * `{{name}}` is how an automation references an earlier step's result; a saga
+ * spells the same thing as a bare `source:`/`targetSource:`, so the braces are
+ * unwrapped rather than checked as a literal value.
+ */
+function sagaPropsFromAutomation(
+  type: string,
+  props: Record<string, string>
+): Record<string, string> {
+  const out: Record<string, string> = { ...props };
+  /** `{{x}}` -> `x`, anything else -> null. */
+  const ref = (value?: string): string | null =>
+    value?.trim().match(/^\{\{\s*([^}]+?)\s*\}\}$/)?.[1] ?? null;
+  const move = (from: string, to: string) => {
+    const value = out[from];
+    if (value !== undefined && out[to] === undefined) out[to] = value;
+    delete out[from];
+  };
+
+  if (type === "Decision") {
+    move("ruleTable", "rule");
+    move("table", "decisionTable");
+    delete out.inputs;
+  } else if (type === "CreateEntity") {
+    move("values", "fields");
+  } else if (type === "UpdateEntity" || type === "DeleteEntity") {
+    const target = ref(out.target);
+    if (target) {
+      out.targetSource = out.targetSource ?? target;
+      delete out.target;
+    } else move("target", "targetField");
+
+    const value = ref(out.value);
+    if (value) {
+      out.source = out.source ?? value;
+      delete out.value;
+    }
+  } else if (type === "Formula") {
+    move("as", "target");
+    const left = ref(out.left);
+    if (left) out.source = out.source ?? left;
+    else if (out.left !== undefined) out.value = out.value ?? out.left;
+    delete out.left;
+    move("right", "operand");
+  } else if (type === "REST") {
+    move("body", "bodyTemplate");
+  }
+
+  return out;
+}
+
 const PERSON_ROLE_COLUMN_NAMES = new Set([
   "assigned_to",
   "author_id",
@@ -311,6 +391,7 @@ class CheckEngine {
     this.checkIndexDirectives();
     this.checkEntityDirectives();
     this.checkHooks();
+    this.checkAutomationTriggers();
     this.checkGuards();
     this.checkRbac();
     this.checkTriggers();
@@ -1365,16 +1446,60 @@ class CheckEngine {
   // EML240-EML249: %%workflow directive checks
   // -------------------------------------------------------------------------
 
+  /**
+   * Validate the two-token `%%hook <event> on <Entity>` — an automation's
+   * trigger.
+   *
+   * The parser leaves this form alone (it names no handler, so it is not a
+   * handler binding and never joins `model.hooks`), which means nothing checked
+   * it at all. An automation whose trigger names an event the services never
+   * fire is an automation that silently never runs, so it is worth two checks
+   * of its own rather than the silence it had.
+   */
+  private checkAutomationTriggers(): void {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%hook\b/)) {
+      const m = text.trim().match(/^%%hook\s+(\w+)\s+on\s+(\w+)\s*$/);
+      if (!m) continue; // the three-token handler form; checkHooks has it
+      const [event, entity] = caps(m, 2);
+
+      // EML205: the event has to be one the generated services actually fire.
+      if (!this.validHookTypes.has(event)) {
+        this.error("EML205", `Automation trigger uses unknown event "${event}".`, {
+          line: lineNo,
+          hint: `Valid events: ${[...this.validHookTypes].join(", ")}.`,
+        });
+      }
+
+      // EML206: the entity has to exist, or the automation binds to nothing.
+      if (!entityNames.has(entity)) {
+        this.warn("EML206", `Automation trigger references undeclared entity "${entity}".`, {
+          line: lineNo,
+          hint: `Declare "${entity}" in the erDiagram section.`,
+        });
+      }
+    }
+  }
+
   private checkWorkflowDirectives(): void {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
     const workflowLines = this.src.findAll(/^%%workflow\b/);
 
     for (const { lineNo, text } of workflowLines) {
+      // `%%workflow name: <name>` — the automation form. It carries only the
+      // name and takes its entity from the accompanying `%%hook` line, which is
+      // why there is nothing else on it to check here. This is what
+      // `serializeAutomation()` writes for every automation built in a running
+      // application; reading it as the positional form and reporting EML240 is
+      // what stopped any of them validating.
+      if (AUTOMATION_WORKFLOW.test(text.trim())) continue;
+
       const m = text.trim().match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
       if (!m) {
         this.error("EML240", `Invalid %%workflow syntax: "${text.trim()}"`, {
           line: lineNo,
-          hint: "Syntax: %%workflow <name> entity: <Entity> kind: <hook|state|saga>",
+          hint: "Syntax: %%workflow <name> entity: <Entity> kind: <hook|state|saga>, or %%workflow name: <name> for an automation",
         });
         continue;
       }
@@ -1552,17 +1677,9 @@ class CheckEngine {
 
       const bound = new Set<string>();
 
-      for (const { lineNo, text } of section.steps) {
-        const match = text.trim().match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
-        if (!match) {
-          this.error("EML260", `Invalid %%step syntax: "${text.trim()}"`, {
-            line: lineNo,
-            hint: "Syntax: %%step <nodeId> <StepType> <key>: <value> ...",
-          });
-          continue;
-        }
-
-        const [, nodeId, typeName, rest] = match as unknown as [string, string, string, string];
+      for (const { lineNo, nodeId, typeName, props, automation } of this.stepEntries(
+        section.steps
+      )) {
         const contract = stepTypes.get(typeName);
 
         // EML261: the step type has to be one the executor knows.
@@ -1576,7 +1693,11 @@ class CheckEngine {
 
         // EML270: the compiler keeps the first binding, so the second is dead
         // text that reads as though it were doing something.
-        if (bound.has(nodeId)) {
+        //
+        // Only the positional form can trip this. The automation dialect spreads
+        // one step over several lines that share a node id on purpose, and those
+        // are already folded into a single entry by stepEntries().
+        if (!automation && bound.has(nodeId)) {
           this.error("EML270", `Node "${nodeId}" has more than one %%step.`, {
             line: lineNo,
             hint: "Only the first binding runs. Give the second step its own node.",
@@ -1594,7 +1715,6 @@ class CheckEngine {
           });
         }
 
-        const props = this.parseStepProps(rest ?? "");
         const has = (key: string) => (props[key] ?? "").trim().length > 0;
 
         // EML262: properties the step cannot run without.
@@ -1637,6 +1757,13 @@ class CheckEngine {
           ...(contract.oneOf ?? []).flat(),
           ...(typeName === "Formula" ? ["source", "operand", "value"] : []),
           "in",
+          // `as` names a step's result so later steps can read it, and the
+          // builder writes it on every step type that produces one — not just
+          // the Formula whose `as` the translation above renames to `target`.
+          // So it is known wherever the automation dialect declared the step,
+          // for the same reason `in` is: it belongs to the dialect, not to any
+          // one contract.
+          ...(automation ? ["as"] : []),
         ]);
         for (const key of Object.keys(props)) {
           if (!known.has(key)) {
@@ -1776,13 +1903,17 @@ class CheckEngine {
       }
     }
 
-    // EML269: a %%step outside a saga does nothing at all.
+    // EML269: a %%step outside a section that carries steps does nothing at all.
     for (const { lineNo, text } of this.src.findAll(/^\s*%%step\b/)) {
       if (this.sagaStepLines.has(lineNo)) continue;
-      this.warn("EML269", `%%step is only read inside a "kind: saga" workflow: "${text.trim()}"`, {
-        line: lineNo,
-        hint: "Move it into a %%workflow ... kind: saga section, or delete it.",
-      });
+      this.warn(
+        "EML269",
+        `%%step is only read inside a saga or automation workflow: "${text.trim()}"`,
+        {
+          line: lineNo,
+          hint: "Move it into a %%workflow ... kind: saga or %%workflow name: ... section, or delete it.",
+        }
+      );
     }
   }
 
@@ -1790,11 +1921,132 @@ class CheckEngine {
   private sagaStepLines = new Set<number>();
 
   /**
-   * Split the document into its `kind: saga` sections.
+   * One entry per step, whichever dialect declared it.
    *
-   * Sections run from a `%%workflow ... kind: saga` directive to the next
-   * `%%workflow`/`%%rule` directive, which mirrors how the composer's extractor
-   * carves the document up.
+   * The positional form is one line per step. The automation dialect spreads a
+   * step over several lines sharing a node id — a `type:` line and one line per
+   * property — so those are folded together here and their property names
+   * translated into saga vocabulary. Everything downstream then sees one shape
+   * and needs no knowledge that a second dialect exists, which is the same
+   * arrangement the compiler makes in workflows/steps.ts.
+   *
+   * The automation patterns are tried first, deliberately: the positional
+   * pattern matches `%%step s1 type: UpdateEntity` too, and reads `type` as the
+   * step type — which is exactly the EML261 that made every saga built in the
+   * application fail to validate.
+   */
+  private stepEntries(steps: Array<{ lineNo: number; text: string }>): Array<{
+    lineNo: number;
+    text: string;
+    nodeId: string;
+    typeName: string;
+    props: Record<string, string>;
+    automation: boolean;
+  }> {
+    type Entry = {
+      lineNo: number;
+      text: string;
+      nodeId: string;
+      typeName: string;
+      props: Record<string, string>;
+      automation: boolean;
+    };
+
+    const order: Entry[] = [];
+    const auto = new Map<string, Entry>();
+    /** The node's entry, created on whichever of its lines arrives first. */
+    const entryFor = (nodeId: string, lineNo: number, text: string): Entry => {
+      const existing = auto.get(nodeId);
+      if (existing) return existing;
+      const created: Entry = {
+        lineNo,
+        text,
+        nodeId,
+        typeName: "",
+        props: {},
+        automation: true,
+      };
+      auto.set(nodeId, created);
+      order.push(created);
+      return created;
+    };
+
+    for (const { lineNo, text } of steps) {
+      const line = text.trim();
+
+      const typeLine = line.match(AUTO_TYPE_DIRECTIVE);
+      if (typeLine) {
+        const [, nodeId = "", typeName = "", rest = ""] = typeLine;
+        const entry = entryFor(nodeId, lineNo, text);
+        entry.typeName = typeName;
+        // Report against the `type:` line: it is the one naming the step, and
+        // a property line may well have come first.
+        entry.lineNo = lineNo;
+        entry.text = text;
+        Object.assign(entry.props, this.parseStepProps(rest));
+        continue;
+      }
+
+      const propLine = line.match(AUTO_PROP_DIRECTIVE);
+      if (propLine && propLine[2] !== "type") {
+        const [, nodeId = "", key = "", value = ""] = propLine;
+        entryFor(nodeId, lineNo, text).props[key] = value.trim();
+        continue;
+      }
+
+      const match = line.match(/^%%step\s+([A-Za-z_]\w*)\s+([A-Za-z]\w*)\s*(.*)$/);
+      if (!match) {
+        this.error("EML260", `Invalid %%step syntax: "${line}"`, {
+          line: lineNo,
+          hint: "Syntax: %%step <nodeId> <StepType> <key>: <value> ..., or %%step <nodeId> type: <StepType> for an automation",
+        });
+        continue;
+      }
+      const [, nodeId = "", typeName = "", rest = ""] = match;
+      order.push({
+        lineNo,
+        text,
+        nodeId,
+        typeName,
+        props: this.parseStepProps(rest),
+        automation: false,
+      });
+    }
+
+    for (const entry of order) {
+      if (!entry.automation) continue;
+
+      // EML274: property lines with no `type:` line to say what they configure.
+      // The compiler treats such a node as a Formula and runs it; saying so is
+      // better than letting a step the author never named do something.
+      if (!entry.typeName) {
+        this.error("EML274", `%%step node "${entry.nodeId}" has no "type:" line.`, {
+          line: entry.lineNo,
+          hint: `Add %%step ${entry.nodeId} type: <StepType>. Without it the step compiles as a Formula.`,
+        });
+        continue;
+      }
+      entry.props = sagaPropsFromAutomation(entry.typeName, entry.props);
+    }
+
+    return order.filter((entry) => entry.typeName);
+  }
+
+  /**
+   * Split the document into the sections that may carry `%%step`.
+   *
+   * Two headers open one. `%%workflow … kind: saga` is the positional form, and
+   * `%%workflow name: <name>` is an automation — which takes its entity from the
+   * `%%hook <event> on <Entity>` line that follows, because the automation
+   * envelope puts it there rather than on the workflow directive.
+   *
+   * Both are included because a step written in the automation dialect turns up
+   * under either header: the builder writes `%%step s1 type: Formula` even when
+   * it emits the positional saga line above it, so reading the dialect only in
+   * automation sections would still have failed every saga built in the app.
+   *
+   * Sections run to the next `%%workflow`/`%%rule` directive, which mirrors how
+   * the composer's extractor carves the document up.
    */
   private sagaSections(): Array<{
     name: string;
@@ -1824,6 +2076,14 @@ class CheckEngine {
     for (const { lineNo, text } of all) {
       const trimmed = text.trim();
 
+      const automation = trimmed.match(/^%%workflow\s+name:\s*(.+?)\s*$/);
+      if (automation) {
+        if (current) sections.push(current);
+        // The entity is unknown until the %%hook line below it arrives.
+        current = { name: automation[1]!, entity: "", nodeIds: new Set<string>(), steps: [] };
+        continue;
+      }
+
       const workflow = trimmed.match(/^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*(\w+)/);
       if (workflow) {
         if (current) sections.push(current);
@@ -1839,6 +2099,13 @@ class CheckEngine {
         continue;
       }
       if (!current) continue;
+
+      // The automation envelope carries the entity here, not on %%workflow.
+      const trigger = trimmed.match(/^%%hook\s+\w+\s+on\s+(\w+)\s*$/);
+      if (trigger && !current.entity) {
+        current.entity = trigger[1]!;
+        continue;
+      }
 
       if (trimmed.startsWith("%%step")) {
         current.steps.push({ lineNo, text });
