@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun --filter @appwithai/web dev",
+    "dev": "bun scripts/ensure-packages-built.ts && bun --filter @appwithai/web dev",
     "dev:mastra": "bun --filter @appwithai/ai dev",
     "build": "bun run lint && bun run build:core && bun run build:generator && bun run build:ai && bun run build:web",
     "build:core": "bun --filter @appwithai/core build",
