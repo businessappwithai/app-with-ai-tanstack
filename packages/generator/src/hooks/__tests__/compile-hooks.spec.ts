@@ -16,6 +16,32 @@ describe("compileHooks", () => {
     expect(hooks[0]?.field).toBeUndefined();
   });
 
+  // Regression: ISSUE-003 — the scan matched `%%hook` anywhere in a line, so a
+  // plain `%%` comment that merely mentioned a hook compiled into a real one:
+  // a handler module and a registered lifecycle binding nobody declared, with
+  // no warning. The shipped example models all carry prose headers like this.
+  // Found by /qa on 2026-09-01
+  // Report: .gstack/qa-reports/qa-report-dance-studio-qa-2026-09-01.md
+  it("does not read a directive out of the middle of a prose comment", () => {
+    const warnings: string[] = [];
+    const source = `
+%% Passwords are hashed on the way in. See %%hook beforeCreate hashPassword on Compound
+%% for how that is wired; the registry never stores a plaintext one.
+%% Every %%hook lifecycle event is exercised somewhere in this model.
+`;
+    expect(compileHooks(source, ENTITIES, (m) => warnings.push(m))).toEqual([]);
+    expect(warnings).toEqual([]);
+  });
+
+  it("still reads a directive indented, or with the doubled %% older diagrams wrote", () => {
+    expect(
+      compileHooks("      %%hook afterCreate indexForSearch on Compound", ENTITIES)
+    ).toHaveLength(1);
+    expect(compileHooks("%%%%hook afterCreate indexForSearch on Compound", ENTITIES)).toHaveLength(
+      1
+    );
+  });
+
   it("reads the field a directive scopes to", () => {
     const hooks = compileHooks(
       "%%hook customValidate validateSmiles on Compound[field: smiles]",

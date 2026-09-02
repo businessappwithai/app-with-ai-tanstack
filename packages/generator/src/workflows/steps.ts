@@ -234,8 +234,15 @@ export function sagaPropsFromAutomation(
   return out;
 }
 
-/** `key:` starts a new property; everything up to the next one is the value. */
-const PROP_SPLIT = /\s+(?=[A-Za-z_]\w*:)/;
+/**
+ * `key:` starts a new property; everything up to the next one is the value.
+ *
+ * The `(?!\/\/)` is what keeps a URL whole: `url: https://host/path` would
+ * otherwise split at `https:`, so a REST step compiled with no url at all and
+ * the executor called `undefined`. Kept identical in language/checker.ts
+ * (parseStepProps) and packages/web/src/lib/automation/model.ts.
+ */
+const PROP_SPLIT = /\s+(?=[A-Za-z_]\w*:(?!\/\/))/;
 
 export function parseStepProps(rest: string): Record<string, string> {
   const props: Record<string, string> = {};

@@ -240,6 +240,41 @@ export function buildEditorDecisionTable(ruleName: string, table: EditorDecision
 }
 
 /**
+ * EML's action names, in the vocabulary the generated runtime reads.
+ *
+ * The runtime's action union (RuleAction['type'] in rules-engine.service.ts) is
+ * the one the in-app rule editor already writes, and it is what decides what a
+ * matched row *does*: `validate()` rejects a write on `prevent`, and
+ * `executeMatchedActions()` acts on the SIDE_EFFECTING_ACTIONS list. EML spells
+ * the same intent `validation-error`, which is in neither, so a compiled
+ * `validation-error` row matched, was handed to both readers, and was dropped by
+ * each in turn — a rule that refuses a write let every write through, silently.
+ *
+ * `transform` and `trigger-workflow` are already the runtime's own names.
+ */
+const RUNTIME_ACTION: Record<string, string> = {
+  "validation-error": "prevent",
+};
+
+/**
+ * A transform's target, as the runtime wants it.
+ *
+ * EML writes `field:` and `value:` as two properties; the runtime reads one
+ * `transformData` object of column → value (a JSON string is accepted and
+ * parsed). Emitting only the two separate columns left every transform with no
+ * transformData, and the executor logged "has no transformData — skipping" for a
+ * rule the author had written correctly.
+ *
+ * The `field`/`value` columns stay beside it: the decision-table editor shows
+ * them, and dropping them would empty that view for every model-authored rule.
+ */
+function transformDataCell(action: CompiledRuleAction): string {
+  const field = (action.props.field ?? "").trim();
+  if (action.type !== "transform" || !field) return zenLiteral("");
+  return zenLiteral(JSON.stringify({ [field]: action.props.value ?? "" }));
+}
+
+/**
  * A GoRules decision table, one row per `%%action`.
  *
  * The node-graph form a rules flowchart compiles to carries no outputs, so the
@@ -250,6 +285,11 @@ export function buildEditorDecisionTable(ruleName: string, table: EditorDecision
  *
  * `hitPolicy: "collect"` because several rows may match one write — a rule that
  * escalates *and* stamps a field is ordinary.
+ *
+ * The `action` cell and a transform's payload are translated into the runtime's
+ * own vocabulary rather than written in EML's — see RUNTIME_ACTION and the
+ * `transformData` column below. Emitting the EML spelling made two of the three
+ * shipped action types silently inert.
  */
 export function buildActionDecisionTable(
   ruleName: string,
@@ -260,7 +300,7 @@ export function buildActionDecisionTable(
   // a missing cell — not a row with an empty field — so an omitted column made
   // the whole rule silently evaluate to nothing.
   const cells = [
-    (action: CompiledRuleAction) => zenLiteral(action.type),
+    (action: CompiledRuleAction) => zenLiteral(RUNTIME_ACTION[action.type] ?? action.type),
     (action: CompiledRuleAction) =>
       zenLiteral(action.props.message ?? `${ruleName}: ${action.name}`),
     () => zenLiteral(ruleName),
@@ -269,6 +309,7 @@ export function buildActionDecisionTable(
     (action: CompiledRuleAction) => zenLiteral(action.props.value ?? ""),
     (action: CompiledRuleAction) => zenLiteral(action.props.targetEntity ?? ""),
     (action: CompiledRuleAction) => zenLiteral(action.props.linkField ?? ""),
+    transformDataCell,
   ];
 
   const rows = actions.map((action) => {
@@ -301,6 +342,7 @@ export function buildActionDecisionTable(
             { id: "o6", name: "Value", field: "value" },
             { id: "o7", name: "Target Entity", field: "targetEntity" },
             { id: "o8", name: "Link Field", field: "linkField" },
+            { id: "o9", name: "Transform Data", field: "transformData" },
           ],
           rules: rows,
         },
