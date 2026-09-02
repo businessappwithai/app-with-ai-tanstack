@@ -84,10 +84,17 @@ function show(value: unknown): string {
   }
 }
 
-function fail(actual: unknown, matcher: string, expected?: unknown, negated = false): never {
+function fail(
+  actual: unknown,
+  matcher: string,
+  expected?: unknown,
+  negated = false,
+  message?: string
+): never {
   const not = negated ? "not " : "";
   const tail = expected === undefined ? "" : ` ${show(expected)}`;
-  throw new Error(`expected ${show(actual)} ${not}${matcher}${tail}`);
+  const because = message ? `${message}: ` : "";
+  throw new Error(`${because}expected ${show(actual)} ${not}${matcher}${tail}`);
 }
 
 /** Structural equality, deep enough for JSON the API returned. */
@@ -113,12 +120,12 @@ function lengthOf(value: unknown): number | null {
   return null;
 }
 
-function build(actual: unknown, negated: boolean) {
+function build(actual: unknown, negated: boolean, message?: string) {
   const check = (ok: boolean, matcher: string, expected?: unknown) => {
-    if (ok === negated) fail(actual, matcher, expected, negated);
+    if (ok === negated) fail(actual, matcher, expected, negated, message);
   };
   const asNumber = (matcher: string): number => {
-    if (typeof actual !== "number") fail(actual, `be a number to ${matcher}`);
+    if (typeof actual !== "number") fail(actual, `be a number to ${matcher}`, undefined, false, message);
     return actual;
   };
 
@@ -162,6 +169,14 @@ function build(actual: unknown, negated: boolean) {
   };
 }
 
-export function expect(actual: unknown) {
-  return { ...build(actual, false), not: build(actual, true) };
+/**
+ * `expect(value)`, optionally with a sentence saying what was being asserted.
+ *
+ * The message is the difference between "expected false to be true" — which
+ * names neither the entity nor the property — and a line a reader can act on
+ * without opening the suite. The signature matches the one every other runner
+ * uses, so a case moved here from Vitest or Playwright keeps its message.
+ */
+export function expect(actual: unknown, message?: string) {
+  return { ...build(actual, false, message), not: build(actual, true, message) };
 }

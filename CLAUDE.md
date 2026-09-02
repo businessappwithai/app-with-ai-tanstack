@@ -502,12 +502,40 @@ const access = await requireProjectAccess(request, params.id, "read_write");
 if ("response" in access) return access.response;  // 401 / 403 / 404
 ```
 
+### Routes that are not about one project
+`requireProjectAccess` has no answer for the rules store, the workflow-run log,
+or the admin read models — and those were left with no check at all, so an
+anonymous request could list every business rule in the installation, rewrite
+one, or delete it. A rule decides whether a write is refused, so that is control
+over what the application permits, not a listing of metadata.
+
+```typescript
+import { requireUser } from "@/lib/require-user";
+const caller = await requireUser(request, "rules", "write");
+if (caller.response) return caller.response;      // 401
+```
+
+### A streaming route settles access before the stream opens
+`/api/generate` and `/api/deploy` answer as server-sent events. A refusal
+written as an SSE frame arrives inside a 200 — by which point the caller has
+already been given the generation, or the `docker build`. Read the body, resolve
+the project, `requireProjectAccess`, and only then construct the stream.
+
 ### Rate limiting
 ```typescript
 const { AUTH_LOGIN_LIMIT, enforceRateLimit } = await import("@/lib/rate-limit");
 const limited = enforceRateLimit(request, "auth:login", AUTH_LOGIN_LIMIT);
 if (limited) return limited;
 ```
+
+### An id in the path names the thing; the path names whose it is
+`erd_versions` is reached as `/api/projects/:id/erd-versions/:versionId/...`,
+and the handler resolved the version by id alone. The access check passed —
+against the project in the URL — and the write then landed on whichever project
+the *version* belonged to: a caller with write access to one project could roll
+back, or permanently delete, another project's history. Scope the lookup to the
+project as well as the id, in the service rather than the route, so a caller of
+the service cannot forget.
 
 ---
 
@@ -604,20 +632,28 @@ suite signs in as.
 | File | What it holds the app to |
 |---|---|
 | `01-auth` | Sign-in, sessions, sign-out, registration-needs-approval. Asserts the same answer for a wrong password and an unknown address — a different one is an account-enumeration oracle |
-| `02-project-authorization` | Enumerates the project-scoped routes and drives each as nobody, a signed-in stranger, and the owner. **Found three endpoints serving unauthenticated callers on its first run** |
+| `02-project-authorization` | Enumerates the project-scoped routes and drives each as nobody, a signed-in stranger, and the owner. **Found three endpoints serving unauthenticated callers on its first run**, and two more when `/workflows` was added to the list |
+| `03-projects` | The container: create, list, read, rename, delete; the fields a client may not set; search that does not reach another owner's projects |
+| `04-model-and-versions` | Validate a document, save it, keep every save as a version, restore one, download it back. Also asserts the fixtures themselves pass `language/checker` |
+| `05-automations` | The builder's own serialiser over HTTP: stored byte for byte, parsed back to the same automation, accepted by the checker |
+| `06-rules-and-workflow-runs` | The decision-table store and the run log — including that neither answers a caller with no session |
+| `07-sharing` | Read-only, read-write, upgraded and revoked shares. Every case is a pair: what the permission allows, and what it does not |
+| `08-generation` | The wizard's generate step, asserted on what landed on disk rather than on what the stream said |
 | `09-rate-limiting` | Runs last, deliberately: the limiter is a fixed window per IP, and exhausting it mid-suite left every later spec failing with an unrelated 429 |
 
-Two things to know before adding to it:
+Three things to know before adding to it:
+- **Nothing runs as the administrator except the approval of new accounts.** The
+  project routes refuse a caller whose role is `admin` outright ("Admins cannot
+  modify projects"), so a spec that drove them as the bootstrap account would be
+  asserting against 403s of its own making. `createUserSession` in `helpers.ts`
+  registers, approves and signs in an ordinary account with its own cookie jar.
 - **Every test shares one IP**, so the suite runs the server with
   `AUTH_LOGIN_MAX_PER_MINUTE` / `AUTH_REGISTER_MAX_PER_MINUTE` raised. Both
   default to their production values (10 and 3) everywhere else.
-- **The sharing cases are not covered yet.** `02` covers owner, signed-in
-  stranger and anonymous caller. A project shared read-only should be visible to
-  the member and refuse their writes; a read-write share should accept them;
-  removing a share should revoke access. The spec that once aimed at this
-  (`project-permissions.e2e.spec.ts`) never ran — it called `test.browserContext`,
-  which is not a Playwright API — and was removed with the rest of the legacy
-  suite. Worth writing properly against `/api/projects/:id/members`.
+- **`02`'s route list is the weak part of the design.** A project-scoped route
+  absent from `PROJECT_ROUTES` is not tested at all, which is exactly how
+  `/api/projects/:id/workflows` came to serve both verbs to anybody. Add to it
+  when you add a route.
 
 ### Template testing
 **Type-checking this repo says nothing about whether a generated app compiles** — templates are `.hbs` until rendered. Changing a template means generating an app and building it, not just `bun run type-check`.
@@ -626,6 +662,23 @@ Two things to know before adding to it:
 Every generated application gets a `tests/` project driving its HTTP API — run it with `appwithai generate … --run-tests`, or `bun run test:e2e` inside the output. Suites are ordered by filename prefix: health, auth, dictionary (`02`, `02b` layout, `02c` references), CRUD per entity (`03`), bulk seed (`04`), rules per entity (`05`), workflows (`06`–`09`), benchmark and budgets (`10`, `11`).
 
 `harness/model.ts` carries the model's own `%%enum` values and state-machine edges into the suites. Assert against **that**, not against the dictionary the same generator wrote — otherwise a suite only proves the application is self-consistent, and passes just as happily when the generator dropped something.
+
+**What a per-entity suite asserts, and what it deliberately does not.** The CRUD
+file drives behaviour rather than status codes: the sort is checked for
+monotonicity on a *numeric* column (text ordering belongs to the database's
+collation, and asserting it with a JavaScript comparator tests the comparator),
+the filter is checked in both directions, pagination is checked for overlap, and
+the replace is built from the record as it stands with one field changed —
+because a payload invented by the factory has to satisfy the model's own rules
+and state machine to be accepted, and a refusal there is the model working.
+
+Three constraints are worth knowing before adding cases:
+
+| Constraint | Why the obvious test is wrong |
+|---|---|
+| A record's state column | The factory invents a status like any other value; on an entity with a state machine that is a move the model may never have drawn, and the guard refuses it — correctly |
+| The model's own `%%action` rules | A generated payload can trip one (a discount over 40 percent, in `crm`). Marker-value rules in `05-rules` exist so a refusal can only have come from the rule under test |
+| Referential integrity | The migration emits a foreign-key constraint for a declared `oneToMany` relationship **and nothing else**, so a column the ERD marks `FK` but draws no line for — a `manager_id` resolved to `bus_user` by naming convention — is a reference the dictionary describes and the schema does not enforce. `constrainedForeignKey()` picks a column where the constraint exists |
 
 The suites deliberately leave their rows behind, so **a re-run against a populated database is the normal case**. Unique values are salted with a per-run token (`E2E_RUN_TOKEN`, printed by the runner) folded into any caller-supplied salt; replacing it rather than folding into it makes every insert of the second run collide.
 
@@ -670,6 +723,7 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 | `tests/test-data/dance-studio-workflows.eml.mmd` | The model carrying all 25 behaviour constructs |
 | `.github/workflows/ci.yml` | ⭐ The four jobs that gate a PR |
 | `packages/web/src/lib/project-access.ts` | ⭐ Project authorization |
+| `packages/web/src/lib/require-user.ts` | ⭐ The same shape, for routes that are not about one project |
 | `packages/web/vite.config.ts` | Vite config, root-.env loading, start-api-routes shim |
 | `language/appwithai-language.json` | ⭐ EML canonical definition |
 | `language/composer.ts` | ⭐ The only writer of complete EML documents |
@@ -683,8 +737,12 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 
 ### Add an API route
 1. Create `packages/web/src/routes/api/…` with `createFileRoute` + `server.handlers`
-2. Call `requireProjectAccess` if route touches a project
+2. Call `requireProjectAccess` if the route touches a project, `requireUser` if
+   it does not — an unguarded route is the default, not the exception
 3. Lazy-import server-only deps inside the handler
+4. If it is project-scoped, add it to `PROJECT_ROUTES` in
+   `tests/e2e/02-project-authorization.e2e.spec.ts`; that list is the only thing
+   that notices a route nobody guarded
 
 ### Add a wizard step
 1. Add to `ProjectStep`, `STEP_ORDER`, `STEP_LABELS`, `STEP_ROUTES` in `packages/web/src/types/project.ts`

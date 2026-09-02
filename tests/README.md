@@ -31,10 +31,19 @@ It needs PostgreSQL and the bootstrap administrator: `bun run seed:admin`.
 |---|---|
 | `01-auth` | Sign-in, sessions, sign-out, approval-gated registration |
 | `02-project-authorization` | Every project-scoped route, driven as nobody, a signed-in stranger, and the owner |
+| `03-projects` | Creating, listing, reading, renaming and deleting a project, and the fields a client may not set |
+| `04-model-and-versions` | Validating a document, saving it, its version history, restoring, downloading |
+| `05-automations` | The automation builder's serialiser over HTTP, round-tripped and handed to the language checker |
+| `06-rules-and-workflow-runs` | The decision-table store and the workflow-run log |
+| `07-sharing` | Read-only, read-write, upgraded and revoked shares |
+| `08-generation` | The generate step, asserted on the files it wrote |
 | `09-rate-limiting` | Runs last, because exhausting the limiter mid-suite breaks everything after it |
 
-Two things to know before adding to it:
+Three things to know before adding to it:
 
+- **Nothing but account approval runs as the administrator.** The project routes
+  refuse a caller whose role is `admin`, so specs drive an ordinary approved
+  account — `createUserSession` in `helpers.ts` makes one, with its own jar.
 - **Every test shares one IP.** The suite runs the server with
   `AUTH_LOGIN_MAX_PER_MINUTE` and `AUTH_REGISTER_MAX_PER_MINUTE` raised; both
   default to their production values (10 and 3) everywhere else.
@@ -58,7 +67,7 @@ those files could run: they drove servers nothing starts, on ports nothing
 serves, against stacks that no longer exist. They were removed rather than
 left to look like coverage.
 
-One thing worth rebuilding from them: **sharing**. `02-project-authorization`
-covers owner, stranger and anonymous caller, but not a project shared read-only
-(visible, writes refused), a read-write share (writes accepted), or a revoked
-share. That belongs against `/api/projects/:id/members`.
+The one thing worth rebuilding from them was **sharing**, and `07-sharing` is
+it: a read-only share (visible, writes refused), a read-write share (writes
+accepted), an upgrade, and a revocation — driven against
+`/api/projects/:id/members`.
