@@ -61,7 +61,10 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build:wasm-browser` | Rebuild `html/assets/appwithai-wasm.js` + `html/wasm-app/sw.js` |
 | `bun run build:fullstack-browser` | Rebuild `html/assets/appwithai-fullstack.js` |
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
+| `bun run test:language-tools` | The published `checker.js`/`fixer.js` still agree with the CLI |
 | `bun run test:llmtext` | Hold `llmtext/*.txt` to what the checker actually does |
+| `bun run vendor:pglite` | Put PGlite beside `html/` (the wasm E2E job needs it) |
+| `bun run build:stack-templates` | Put the stack templates beside `run-real-stack.html` |
 
 **Run a single test:**
 ```bash
@@ -137,6 +140,26 @@ build where CI builds, e.g.
 - `language/**` → `bun run type-check:language`
 - Templates (`packages/generator/templates/**`) → generate an app and build it
 
+### What CI runs, and what each job is there to catch
+
+`.github/workflows/ci.yml` runs four jobs on every pull request. Only the first
+is reproducible from a plain `bun run` — the other three generate an application
+and then use it, which is the whole point: type-checking *this* repository says
+nothing about whether a generated one compiles.
+
+| Job | What it does that nothing else does |
+|---|---|
+| **Type-check, lint and unit tests** | Also the four `--check` artifact comparisons, `test:language-tools` and `test:llmtext`. Lint is `--diagnostic-level=error` only — the tree carries several hundred pre-existing style warnings |
+| **Generate a browser application and run its backend** | Generates the stack twice (with and without the overlay) and diffs; asserts the overlay's exact footprint; asserts **no `bun`/`bunx` survives** in any generated `package.json`; migrates and seeds on WebAssembly Postgres with no Postgres on the runner |
+| **Drive the browser stack in Chromium** | The only job that *opens* the result — Service Worker, Node-API shim, worker host |
+| **Generate an application and build it** | Builds the generated backend **and** frontend, type-checks the generated `tests/`, then runs that suite against real Postgres (pgvector) with `node run.ts --no-server` |
+
+Two details of the last job worth copying locally when reproducing a failure: it
+generates from `examples/drug-discovery.eml.mmd` with `--records-per-entity 25`,
+and it runs the suite via the generator's own `run.ts`, never `bun test` — the
+suites are ordered and stateful, and running them in one parallel process makes
+failures move around between runs.
+
 ---
 
 ## Tech Stack
@@ -209,9 +232,48 @@ Adding a new subdir to core requires an `exports` entry **and** a `bun build` st
 
 **Adding a migration to generated backend:** write template under `templates/tanstack-start-nestjs/backend/src/migrations/`, then **add its slug to the `scaffold` array** in `generateMigrations` in `nestjs-backend.generator.ts` — nothing scans that directory. A template that is not in that array is simply never run, and the seeds that need its tables fail. Verify with `bun run db:setup`.
 
+### Every directive parser anchors at `^%%`
+
+A `%%` line is either a directive or prose, and the language promises prose is
+inert. A parser that searches for `%%hook` *anywhere* in a line compiled a
+comment that merely mentioned a hook into a real one. Match `^%%<keyword>` —
+`hooks/index.ts` allows a run of them (`^%%+hook`) because older generated
+flowcharts emitted `%%%%hook`, but it is still an anchor. `rules/index.ts` and
+`workflows/steps.ts` do the same for `%%action` and `%%step`; a new parser that
+does not will silently compile documentation.
+
+### EML's vocabulary is not the runtime's — the generator translates
+
+`%%action` names an intent in EML's words; the generated rules engine reads its
+own union (`RuleAction["type"]` in `rules-engine.service.ts`), which is the
+vocabulary the in-app rule editor already writes. Where the two differ,
+`packages/generator/src/rules/index.ts` is what converts — a row written in the
+wrong vocabulary still *matches*, is handed to both readers, and is dropped by
+each, so the failure is silent rather than an error:
+
+| EML writes | Runtime reads | Why the gap matters |
+|---|---|---|
+| `validation-error` | `prevent` | `validate()` rejects on `prevent`; an untranslated row let every write through |
+| `transform field: … value: …` | one `transformData` object | The executor skips a transform that arrives with none (`field`/`value` are kept beside it for the table editor to display) |
+| `trigger-workflow` | `trigger-workflow` | Already matches — which is why sagas fired while the rules around them did not |
+
+When adding an action type, change both ends and the translation, and assert the
+compiled row against the runtime's union — not against the compiler's own output.
+
+### Seeds honour the model's `%%enum`
+
+The `seedValue` helper in `packages/generator/src/templates/loader.ts` takes the
+column's declared enum values and, when there are any, picks from **those**
+before any of its generic guesses. Without it the seeder wrote its own words
+("Active", "Pending") into every `status` column: the rows contradicted the
+application's own dictionary, every state machine was dead on them because the
+guard finds no edge out of a state the model never declared, and every rule
+keyed on a real status value never fired. A generated application could not
+demonstrate the workflows it was generated from.
+
 ### State machines
 
-`%%workflow … kind: state` compiles to rows in `sys_workflow_transitions`, seeded by `05b_workflow_transitions.ts`. `entity-access.guard.ts` reads them and refuses a status write with no matching edge — **for every caller, master role included**: an edge the diagram never drew is not a permission an administrator lacks, it is a move that does not exist. Who may cross an edge is the separate question, answered from `sys_transition_access` (`%%guard`), and *that* one the master role does bypass. Keep the two apart; merging them is how topology enforcement came to run only on edges that happened to carry a role rule.
+`%%workflow … kind: state` compiles to rows in `sys_workflow_transitions`, seeded by `05b_workflow_transitions.ts`. `entity-access.guard.ts` reads them and refuses a status write with no matching edge — **for every caller, master role included**: an edge the diagram never drew is not a permission an administrator lacks, it is a move that does not exist. Who may cross an edge is the separate question, answered from `sys_transition_access` — compiled from `%%rbac` by `packages/generator/src/rbac/index.ts`, **not** from `%%guard`, which now means only an automation condition — and *that* one the master role does bypass. Keep the two apart; merging them is how topology enforcement came to run only on edges that happened to carry a role rule.
 
 `GET /api/workflows/transitions?table=&from=` exposes the edges, so a screen can offer only the moves that exist.
 
@@ -233,6 +295,29 @@ Step vocabulary lives in `packages/web/src/types/project.ts` (`ProjectStep`, `ST
 
 **No Vinxi** — `vite.config.ts` shims `@tanstack/start-api-routes` with `src/lib/start-api-routes-compat.js`. Also loads the root `.env` via `loadEnv` (Vite runs with cwd `packages/web`).
 
+### The automation builder — the second reader of the same directives
+
+`packages/web/src/lib/automation/model.ts` reads and writes a subset of EML
+directly, and it is not the generator. An automation is one sentence — a
+trigger, a flat list of conditions that must all pass, an ordered list of steps
+— and it round-trips through the same mermaid flowchart with `%%` directives the
+generator's parsers read, so an automation saved before the builder existed
+still opens and anything saved in it still runs.
+
+Four directives therefore have two forms and two consumers. Change one and check
+the other:
+
+| Directive | Generator form | Automation form |
+|---|---|---|
+| `%%hook` | `%%hook <type> <handler> on <Entity>` → a lifecycle handler module | `%%hook <type> on <Entity>` (no handler) → the automation's trigger |
+| `%%workflow` | `%%workflow <name> entity: … kind: …` | `%%workflow name: <name>`, entity taken from the `%%hook` line |
+| `%%guard` | *nothing* — the RBAC sense it used to carry is `%%rbac` now | `%%guard <field> <op> <json>` → an automation condition |
+| `%%loop` | saga compiler | repeat-while, bounded by the author's `max:`, no nesting |
+
+Whatever the builder can write, `language/checker.ts` must accept — a checker
+that rejects the application's own output discredits both. That pairing is held
+by `packages/web/src/lib/automation/__tests__/checker-accepts-automations.test.ts`.
+
 ### AI package (packages/ai/)
 
 Mastra instance (`src/mastra/index.ts`) registers `codeAgent` only. The four agents in `src/agents/*` are used directly by the converter and ERD workflow — not on the Mastra instance. RAG uses one pgvector HNSW index (`model_context`) keyed by `projectId`; spec chunks use `SPEC_PROJECT_ID = "__eml_spec__"`.
@@ -240,6 +325,10 @@ Mastra instance (`src/mastra/index.ts`) registers `codeAgent` only. The four age
 ---
 
 ## TanStack Start API Routes
+
+This section is about **`packages/web`**, the modelling tool. The generated
+frontend's `/api` proxy routes are a different convention on an older TanStack
+version — see below — and must not be "fixed" to match this one.
 
 Use `createFileRoute` + `server.handlers`. **NOT** `createAPIFileRoute` (deprecated).
 
@@ -271,6 +360,38 @@ Rules:
 - Never edit `routeTree.gen.ts` by hand
 
 **Env vars:** Client components use `import.meta.env.VITE_*`; server handlers use `process.env.*`.
+
+### The generated app's `/api` proxy routes export the same call twice
+
+Three templates — `frontend/src/routes/api/{$,auth/$,copilotkit/$}.ts.hbs` — proxy
+the browser to the NestJS backend, and each ends with two exports built from one
+shared, **non-exported** `handlers` object:
+
+```ts
+const handlers = { GET: handler("GET"), /* … */ }
+
+export const Route = createAPIFileRoute("/api/$")(handlers)
+export const APIRoute = createAPIFileRoute("/api/$")(handlers)
+```
+
+Neither may be an alias of the other, and both must exist. Two readers want
+opposite things:
+
+- The **route-tree generator** requires `Route` to be initialised by a call
+  expression directly. Assign it from a local const and the generate fails with
+  `expected "Route" export to be initialized by a CallExpression`, leaving no
+  `routeTree.gen.ts` — which every route file imports, so the frontend does not
+  type-check at all.
+- The **dev server** imports the file as `?pick=APIRoute`, which strips every
+  other export. An `APIRoute` written as `= Route` then points at a binding that
+  is gone and throws `ReferenceError: Route is not defined` at import — every
+  `/api` call answers 500, sign-in included, while the backend is perfectly
+  healthy and answering the same request with 200.
+
+The router also registers an API route file by its `APIRoute` export alone, so a
+file exporting only `Route` is silently absent and answers with the HTML of a
+missing page rather than a recognisable 404. Held by
+`packages/generator/src/templates/__tests__/api-route-exports.test.ts`.
 
 ---
 
@@ -345,7 +466,19 @@ The checker always writes the `.error` file — revert it unless the verdict cha
 **The fifteen directives** (`%%` comments Mermaid ignores):
 - structure: `%%meta`, `%%entity`, `%%field`, `%%enum`, `%%index`, `%%category`
 - behaviour: `%%rule`, `%%workflow`, `%%step`, `%%loop`, `%%trigger`, `%%action`, `%%hook`
-- access: `%%rbac`, `%%guard`
+- access: `%%rbac`
+- automation condition: `%%guard`
+
+`%%guard` is the one that moved. It used to mean a role restriction; that sense
+is `%%rbac` now, and `%%guard` means only an automation's condition
+(`%%guard <field> <op> <json>`). A reader meeting the old RBAC shape under this
+keyword skips it rather than reading `role:admin` as a condition on a field
+called `role`.
+
+Each directive's `status` in `appwithai-language.json` says whether it is
+`compiled` (something reads it and emits code) or only `validated` (the checker
+knows it; nothing generates from it yet) — check that before assuming a
+directive has an effect. `%%rule` and `%%trigger` are `validated`.
 
 **When changing language semantics:** edit `appwithai-language.json` first, then spec docs, grammar, parser, composer, rag. If adding a diagnostic, add its code to `AUTO_FIXABLE_CODES` in `checker.ts`, the fixer's dispatch table, and `diagnostics.autoFixable` in the JSON — all three.
 
@@ -356,7 +489,22 @@ The checker always writes the `.error` file — revert it unless the verdict cha
 ## Testing
 
 ### Unit tests
-Effective config: `packages/web/vitest.config.ts` (covers core, generator, ai too).
+Effective config: `packages/web/vitest.config.ts`. Its `include` reaches into
+`../core`, `../generator` and `../ai` — and **nowhere else**. `language/**` has
+no unit tests and is not covered by `bun run test`; what holds it is
+`bun run type-check:language`, `bun run test:language-tools` (the published
+`checker.js`/`fixer.js` still agree with the CLI) and `bun run test:llmtext`.
+
+Regression tests for generator behaviour live beside the code they cover, as
+`src/**/__tests__/*.{test,spec}.ts`, and each is named for the thing that broke:
+`rules/__tests__/action-vocabulary`, `hooks/__tests__/compile-hooks`,
+`workflows/__tests__/compile-sagas`, `templates/__tests__/api-route-exports`,
+`templates/__tests__/seed-enum-values`.
+
+`tests/test-data/dance-studio-workflows.eml.mmd` is the fixture that carries all
+25 behaviour constructs in one model — reach for it when changing a parser,
+compiler or the checker, because it is the only document that exercises the
+whole behaviour surface at once.
 
 ### E2E tests
 - `testDir: ./tests/e2e`, Chromium only, base URL `http://localhost:5000`, `workers: 1`
@@ -373,7 +521,9 @@ Every generated application gets a `tests/` project driving its HTTP API — run
 The suites deliberately leave their rows behind, so **a re-run against a populated database is the normal case**. Unique values are salted with a per-run token (`E2E_RUN_TOKEN`, printed by the runner) folded into any caller-supplied salt; replacing it rather than folding into it makes every insert of the second run collide.
 
 ### WASM E2E
-`tests/e2e/wasm/` has its own Playwright config (serves `html/` not the modelling tool).
+`tests/e2e/wasm/` has its own Playwright config (serves `html/` not the modelling
+tool). It needs two things placed beside the page first, both generated rather
+than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 
 ---
 
@@ -389,6 +539,10 @@ The suites deliberately leave their rows behind, so **a re-run against a populat
 | `packages/generator/src/pipeline/generate-application.ts` | ⭐ The one generation path |
 | `packages/generator/src/pipeline/parse-model.ts` | ⭐ Model → parsed model; pure (no node:fs) |
 | `packages/generator/src/rbac/roles.ts` | ⭐ `%%rbac` → roles + per-entity visibility; read by both stacks |
+| `packages/generator/src/rules/index.ts` | ⭐ `%%action` → decision-table rows, in the *runtime's* vocabulary |
+| `packages/generator/src/hooks/index.ts` | `%%hook` → lifecycle handler modules (anchored at `^%%`) |
+| `packages/generator/src/workflows/steps.ts` | `%%step` / `%%loop` → executable saga steps |
+| `packages/generator/src/templates/loader.ts` | Handlebars helpers, incl. the enum-aware `seedValue` |
 | `packages/generator/src/manual/index.ts` | ⭐ Parsed model → `manual.html`; both stacks write it |
 | `packages/generator/src/generators/ports.ts` | Generated-app default ports (4000/4001) |
 | `packages/generator/src/generators/wasm/overlay.ts` | ⭐ What the WASM overlay may change — CI asserts footprint |
@@ -397,6 +551,10 @@ The suites deliberately leave their rows behind, so **a re-run against a populat
 | `.../backend/src/modules/auth/guards/entity-access.guard.ts.hbs` | ⭐ Topology first, then role access |
 | `.../backend/src/modules/bus/bus.service.ts.hbs` | ⭐ `getEntityMetadata` — column → control |
 | `packages/web/src/types/project.ts` | ⭐ Wizard step vocabulary |
+| `packages/web/src/lib/automation/model.ts` | ⭐ The automation builder — second reader/writer of EML |
+| `.../frontend/src/routes/api/$.ts.hbs` | ⭐ `Route` **and** `APIRoute`, two calls, neither an alias |
+| `tests/test-data/dance-studio-workflows.eml.mmd` | The model carrying all 25 behaviour constructs |
+| `.github/workflows/ci.yml` | ⭐ The four jobs that gate a PR |
 | `packages/web/src/lib/project-access.ts` | ⭐ Project authorization |
 | `packages/web/vite.config.ts` | Vite config, root-.env loading, start-api-routes shim |
 | `language/appwithai-language.json` | ⭐ EML canonical definition |
@@ -427,6 +585,23 @@ Add once in `GenerationSettings` in `generate-application.ts`. Do NOT add at cal
 3. Generate and test: `bun run wasm generate -i language/examples/crm.eml.mmd -o /tmp/x --standalone --force`
 4. `bun run test:wasm` before pushing
 
+### Add or change a `%%action` type
+1. `packages/generator/src/rules/index.ts` — compile the row, translating to the
+   runtime's `RuleAction["type"]` vocabulary (not EML's)
+2. Check the generated `rules-engine.service.ts` reads it: `validate()` for a
+   refusal, `SIDE_EFFECTING_ACTIONS` for a side effect
+3. Assert the compiled row against the runtime's union in
+   `src/rules/__tests__/action-vocabulary.test.ts` — never against the
+   compiler's own output
+4. `language/appwithai-language.json` if the EML spelling changes
+
+### Add a directive parser
+1. Anchor the pattern at `^%%+<keyword>\b` — never a bare `.includes()`, or
+   prose that mentions the directive compiles into a real one
+2. Check whether `packages/web/src/lib/automation/model.ts` reads the same
+   keyword; four of them have two forms and two consumers
+3. Add a case to `checker-accepts-automations.test.ts` if the builder can write it
+
 ### Change what `%%rbac` enforces
 1. `packages/generator/src/rbac/roles.ts` (roles + visibility)
 2. `packages/generator/src/rbac/index.ts` (compiler)
@@ -444,6 +619,13 @@ Add once in `GenerationSettings` in `generate-application.ts`. Do NOT add at cal
 2. Update grammar, spec docs, parsers, composer, rag
 3. Add diagnostic to all three places if auto-fixable
 4. Run `bun run type-check:language`
+
+### Touch a generated `/api` proxy route template
+1. Keep both `Route` and `APIRoute`, each its own `createAPIFileRoute(...)` call
+   over one shared non-exported `handlers` object — neither may alias the other
+2. Regenerate an application and **sign in through a browser**; a 500 on
+   `/api/auth/sign-in/email` with a healthy backend is this bug
+3. `templates/__tests__/api-route-exports.test.ts` covers the export shape
 
 ### Add a core subpath export
 1. Create `packages/core/src/<dir>/index.ts`
