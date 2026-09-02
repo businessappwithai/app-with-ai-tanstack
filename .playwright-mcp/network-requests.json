@@ -1,2 +1,0 @@
-[GET] http://localhost:3000/api/bus/bus_p_a_t_i_e_n_t/fields/form => [200] OK
-[GET] http://localhost:3000/api/bus/bus_p_a_t_i_e_n_t/pat-001 => [200] OK

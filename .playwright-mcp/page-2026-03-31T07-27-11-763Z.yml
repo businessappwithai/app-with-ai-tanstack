@@ -1,5 +1,0 @@
-- generic [active]:
-  - main
-  - region "Notifications alt+T"
-  - region "Notifications alt+T"
-  - alert [ref=e1]

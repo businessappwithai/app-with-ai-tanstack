@@ -12822,6 +12822,494 @@ function hooksByEntity(hooks) {
     list.sort((a, b) => a.order - b.order);
   return grouped;
 }
+// packages/core/src/logging/log-spec.json
+var log_spec_default = {
+  $schema: "./log-spec.schema.json",
+  specVersion: "1.0.0",
+  description: "The log specification — the single source of truth for what this system logs, at what level, on which channel, and with which fields. Both this repository and every generated application read this shape. A call site names an event id; the level, the channel, the message and the required fields come from here, so changing what is logged is a change to this file rather than a sweep through the code.",
+  levels: {
+    fatal: 60,
+    error: 50,
+    warn: 40,
+    info: 30,
+    debug: 20,
+    trace: 10
+  },
+  environments: {
+    production: {
+      level: "info",
+      pretty: false
+    },
+    staging: {
+      level: "info",
+      pretty: false
+    },
+    development: {
+      level: "debug",
+      pretty: true
+    },
+    test: {
+      level: "silent",
+      pretty: false
+    }
+  },
+  transport: {
+    destination: "stdout",
+    rationale: "The application writes structured JSON to stdout and nothing else — no files, no rotation, no network. Whatever runs the process (Docker, Kubernetes, systemd, a log shipper) is what collects and ships it. A process that manages its own log files has to be configured twice, fills a disk nobody is watching, and blocks the event loop doing it.",
+    asyncOnProduction: true
+  },
+  redact: {
+    censor: "[redacted]",
+    paths: [
+      "password",
+      "passwordHash",
+      "password_hash",
+      "currentPassword",
+      "newPassword",
+      "token",
+      "accessToken",
+      "refreshToken",
+      "sessionToken",
+      "apiKey",
+      "api_key",
+      "secret",
+      "clientSecret",
+      "privateKey",
+      "authorization",
+      "cookie",
+      "setCookie",
+      "req.headers.authorization",
+      "req.headers.cookie",
+      "res.headers['set-cookie']",
+      "body.password",
+      "body.token",
+      "*.password",
+      "*.token",
+      "*.secret"
+    ],
+    rationale: "Redaction is declared once, here, rather than remembered at each call site. A credential reaches stdout exactly once before it is in a log aggregator forever, so the default is to censor by key name anywhere in the object rather than to trust every caller to strip it."
+  },
+  channels: [
+    {
+      name: "http",
+      description: "Inbound HTTP request lifecycle — one completion line per request, plus failures.",
+      level: "info",
+      surfaces: ["generator", "generated"]
+    },
+    {
+      name: "auth",
+      description: "Authentication and authorization outcomes: sign-in, sign-out, denial, rate limiting.",
+      level: "info",
+      surfaces: ["generator", "generated"]
+    },
+    {
+      name: "db",
+      description: "Database connection lifecycle, migrations and query failures. Individual successful queries are trace.",
+      level: "info",
+      surfaces: ["generator", "generated"]
+    },
+    {
+      name: "pipeline",
+      description: "The code-generation pipeline: parse, compile, emit, verify.",
+      level: "info",
+      surfaces: ["generator"]
+    },
+    {
+      name: "ai",
+      description: "Model calls, embeddings and retrieval. Prompts and completions are never logged at info.",
+      level: "debug",
+      surfaces: ["generator"]
+    },
+    {
+      name: "rules",
+      description: "Business-rule evaluation and the actions a matched rule performed.",
+      level: "debug",
+      surfaces: ["generated"]
+    },
+    {
+      name: "workflow",
+      description: "State-machine transitions and saga execution, including refusals.",
+      level: "debug",
+      surfaces: ["generated"]
+    },
+    {
+      name: "hooks",
+      description: "Entity lifecycle hook execution.",
+      level: "debug",
+      surfaces: ["generated"]
+    },
+    {
+      name: "entity",
+      description: "Business-entity reads and writes in a generated application.",
+      level: "info",
+      surfaces: ["generated"]
+    },
+    {
+      name: "app",
+      description: "Process lifecycle: startup, readiness, configuration, shutdown.",
+      level: "info",
+      surfaces: ["generator", "generated"]
+    }
+  ],
+  events: [
+    {
+      id: "app.starting",
+      channel: "app",
+      level: "info",
+      message: "Application starting",
+      fields: ["name", "version", "env", "nodeVersion"]
+    },
+    {
+      id: "app.started",
+      channel: "app",
+      level: "info",
+      message: "Application listening",
+      fields: ["url", "port", "env"]
+    },
+    {
+      id: "app.config.missing",
+      channel: "app",
+      level: "warn",
+      message: "Optional configuration is absent; the feature it enables is off",
+      fields: ["key", "feature"]
+    },
+    {
+      id: "app.config.invalid",
+      channel: "app",
+      level: "error",
+      message: "Configuration is present but unusable",
+      fields: ["key", "reason"]
+    },
+    {
+      id: "app.shutdown",
+      channel: "app",
+      level: "info",
+      message: "Application shutting down",
+      fields: ["signal", "uptimeMs"]
+    },
+    {
+      id: "app.uncaught",
+      channel: "app",
+      level: "fatal",
+      message: "Unhandled error reached the top of the process",
+      fields: ["err"]
+    },
+    {
+      id: "http.request.completed",
+      channel: "http",
+      level: "info",
+      message: "Request completed",
+      fields: ["method", "path", "status", "durationMs", "requestId"]
+    },
+    {
+      id: "http.request.client_error",
+      channel: "http",
+      level: "warn",
+      message: "Request rejected",
+      fields: ["method", "path", "status", "durationMs", "requestId", "reason"]
+    },
+    {
+      id: "http.request.failed",
+      channel: "http",
+      level: "error",
+      message: "Request failed",
+      fields: ["method", "path", "status", "durationMs", "requestId", "err"]
+    },
+    {
+      id: "http.request.slow",
+      channel: "http",
+      level: "warn",
+      message: "Request exceeded its latency budget",
+      fields: ["method", "path", "durationMs", "budgetMs", "requestId"]
+    },
+    {
+      id: "auth.signin.succeeded",
+      channel: "auth",
+      level: "info",
+      message: "Sign-in succeeded",
+      fields: ["email", "userId", "ip"]
+    },
+    {
+      id: "auth.signin.failed",
+      channel: "auth",
+      level: "warn",
+      message: "Sign-in failed",
+      fields: ["email", "ip", "reason"]
+    },
+    {
+      id: "auth.signout",
+      channel: "auth",
+      level: "info",
+      message: "Sign-out",
+      fields: ["userId"]
+    },
+    {
+      id: "auth.signout.failed",
+      channel: "auth",
+      level: "error",
+      message: "Sign-out could not reach the session store; the token may still be valid",
+      fields: ["userId", "err"]
+    },
+    {
+      id: "auth.access.denied",
+      channel: "auth",
+      level: "warn",
+      message: "Access denied",
+      fields: ["userId", "resource", "operation", "requiredRoles"]
+    },
+    {
+      id: "auth.ratelimit.exceeded",
+      channel: "auth",
+      level: "warn",
+      message: "Rate limit exceeded",
+      fields: ["bucket", "ip", "limit", "windowMs"]
+    },
+    {
+      id: "db.connected",
+      channel: "db",
+      level: "info",
+      message: "Database connection established",
+      fields: ["host", "database", "poolMax"]
+    },
+    {
+      id: "db.connection.failed",
+      channel: "db",
+      level: "error",
+      message: "Database connection failed",
+      fields: ["host", "database", "err"]
+    },
+    {
+      id: "db.query.failed",
+      channel: "db",
+      level: "error",
+      message: "Query failed",
+      fields: ["operation", "table", "err"]
+    },
+    {
+      id: "db.query.slow",
+      channel: "db",
+      level: "warn",
+      message: "Query exceeded its latency budget",
+      fields: ["operation", "table", "durationMs", "budgetMs"]
+    },
+    {
+      id: "db.migration.applied",
+      channel: "db",
+      level: "info",
+      message: "Migration applied",
+      fields: ["name", "durationMs"]
+    },
+    {
+      id: "db.migration.failed",
+      channel: "db",
+      level: "error",
+      message: "Migration failed",
+      fields: ["name", "err"]
+    },
+    {
+      id: "pipeline.generation.started",
+      channel: "pipeline",
+      level: "info",
+      message: "Generation started",
+      fields: ["project", "stack", "input", "output"]
+    },
+    {
+      id: "pipeline.model.parsed",
+      channel: "pipeline",
+      level: "info",
+      message: "Model parsed",
+      fields: ["entities", "rules", "workflows", "sagas", "hooks", "enums"]
+    },
+    {
+      id: "pipeline.model.warning",
+      channel: "pipeline",
+      level: "warn",
+      message: "The model parsed, but something in it will not do what its author expects",
+      fields: ["code", "detail", "line"]
+    },
+    {
+      id: "pipeline.files.written",
+      channel: "pipeline",
+      level: "info",
+      message: "Files written",
+      fields: ["count", "output", "durationMs"]
+    },
+    {
+      id: "pipeline.generation.completed",
+      channel: "pipeline",
+      level: "info",
+      message: "Generation completed",
+      fields: ["project", "files", "durationMs"]
+    },
+    {
+      id: "pipeline.generation.failed",
+      channel: "pipeline",
+      level: "error",
+      message: "Generation failed",
+      fields: ["project", "stage", "err"]
+    },
+    {
+      id: "pipeline.artifact.write_failed",
+      channel: "pipeline",
+      level: "warn",
+      message: "A non-essential generated artifact could not be written",
+      fields: ["artifact", "err"]
+    },
+    {
+      id: "ai.request.started",
+      channel: "ai",
+      level: "debug",
+      message: "Model request started",
+      fields: ["model", "operation"]
+    },
+    {
+      id: "ai.request.completed",
+      channel: "ai",
+      level: "info",
+      message: "Model request completed",
+      fields: ["model", "operation", "durationMs", "promptTokens", "completionTokens"]
+    },
+    {
+      id: "ai.request.failed",
+      channel: "ai",
+      level: "error",
+      message: "Model request failed",
+      fields: ["model", "operation", "durationMs", "err"]
+    },
+    {
+      id: "ai.retrieval.completed",
+      channel: "ai",
+      level: "debug",
+      message: "Retrieval completed",
+      fields: ["index", "projectId", "matches", "durationMs"]
+    },
+    {
+      id: "rules.evaluated",
+      channel: "rules",
+      level: "debug",
+      message: "Rule set evaluated",
+      fields: ["entity", "event", "matched", "durationMs"]
+    },
+    {
+      id: "rules.action.performed",
+      channel: "rules",
+      level: "info",
+      message: "Rule action performed",
+      fields: ["entity", "rule", "action"]
+    },
+    {
+      id: "rules.write.prevented",
+      channel: "rules",
+      level: "warn",
+      message: "A rule refused the write",
+      fields: ["entity", "rule", "reason"]
+    },
+    {
+      id: "rules.evaluation.failed",
+      channel: "rules",
+      level: "error",
+      message: "Rule evaluation failed",
+      fields: ["entity", "rule", "err"]
+    },
+    {
+      id: "workflow.transition.applied",
+      channel: "workflow",
+      level: "info",
+      message: "State transition applied",
+      fields: ["entity", "recordId", "from", "to", "userId"]
+    },
+    {
+      id: "workflow.transition.refused",
+      channel: "workflow",
+      level: "warn",
+      message: "State transition refused",
+      fields: ["entity", "recordId", "from", "to", "reason"]
+    },
+    {
+      id: "workflow.step.completed",
+      channel: "workflow",
+      level: "debug",
+      message: "Workflow step completed",
+      fields: ["workflow", "step", "type", "durationMs"]
+    },
+    {
+      id: "workflow.step.failed",
+      channel: "workflow",
+      level: "error",
+      message: "Workflow step failed",
+      fields: ["workflow", "step", "type", "err"]
+    },
+    {
+      id: "workflow.loop.exhausted",
+      channel: "workflow",
+      level: "warn",
+      message: "A loop hit its declared maximum without its condition going false",
+      fields: ["workflow", "loop", "max"]
+    },
+    {
+      id: "hooks.executed",
+      channel: "hooks",
+      level: "debug",
+      message: "Lifecycle hook executed",
+      fields: ["entity", "event", "handler", "durationMs"]
+    },
+    {
+      id: "hooks.failed",
+      channel: "hooks",
+      level: "error",
+      message: "Lifecycle hook failed",
+      fields: ["entity", "event", "handler", "err"]
+    },
+    {
+      id: "entity.created",
+      channel: "entity",
+      level: "info",
+      message: "Record created",
+      fields: ["entity", "recordId", "userId"]
+    },
+    {
+      id: "entity.updated",
+      channel: "entity",
+      level: "info",
+      message: "Record updated",
+      fields: ["entity", "recordId", "userId", "changedFields"]
+    },
+    {
+      id: "entity.deleted",
+      channel: "entity",
+      level: "info",
+      message: "Record deleted",
+      fields: ["entity", "recordId", "userId"]
+    },
+    {
+      id: "entity.validation.failed",
+      channel: "entity",
+      level: "warn",
+      message: "Record rejected by validation",
+      fields: ["entity", "field", "reason"]
+    }
+  ]
+};
+
+// packages/generator/src/logging/generated-spec.ts
+var SURFACE = "generated";
+function generatedLogSpec() {
+  const spec = log_spec_default;
+  const channels = spec.channels.filter((channel) => channel.surfaces.includes(SURFACE));
+  const kept = new Set(channels.map((channel) => channel.name));
+  const shipped = {
+    specVersion: spec.specVersion,
+    description: "The log specification for this application. Levels, channels, messages and " + "redaction are declared here; the code names an event id and this file decides " + "the rest. Generated from the APPWITHAI canonical specification — edit it to " + "change what this application logs.",
+    levels: spec.levels,
+    environments: spec.environments,
+    transport: spec.transport,
+    redact: spec.redact,
+    channels: channels.map(({ surfaces: _surfaces, ...channel }) => channel),
+    events: spec.events.filter((event) => kept.has(event.channel))
+  };
+  return `${JSON.stringify(shipped, null, 2)}
+`;
+}
 
 // packages/generator/src/rbac/index.ts
 var RBAC_OPERATIONS = ["create", "read", "update", "delete"];
@@ -14884,15 +15372,20 @@ class NestJsBackendGenerator extends BaseGenerator {
       "src/common/decorators/etag.decorator.ts",
       "src/common/filters/http-exception.filter.ts",
       "src/common/guards/etag.guard.ts",
+      "src/common/interceptors/logging.interceptor.ts",
       "src/common/interceptors/transform.interceptor.ts",
+      "src/common/logging/logger.service.ts",
       "src/common/pipes/zod-validation.pipe.ts"
     ];
     for (const file of commonFiles) {
       try {
         const content = await this.renderTemplate(`${file}.hbs`, context);
+        await mkdir(dirname(join(outputDir, file)), { recursive: true });
         await writeFile(join(outputDir, file), content);
       } catch (_e) {}
     }
+    await mkdir(join(outputDir, "src/common/logging"), { recursive: true });
+    await writeFile(join(outputDir, "src/common/logging/log-spec.json"), generatedLogSpec());
     try {
       const publicDecoratorContent = await this.renderTemplate("src/modules/auth/decorators/public.decorator.ts.hbs", context);
       await writeFile(join(outputDir, "src/modules/auth/decorators/public.decorator.ts"), publicDecoratorContent);
@@ -17940,6 +18433,11 @@ ${processSection}
 `;
 }
 
+// packages/generator/src/pipeline/logger-port.ts
+var NO_LOG = {
+  event() {}
+};
+
 // packages/generator/src/parsers/category.parser.ts
 function slugifyCategory(name) {
   return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 50);
@@ -18791,7 +19289,7 @@ function buildGeneratorOptions(model, settings) {
     compiledRbac: model.rbac
   };
 }
-async function writeManifest(outputDir, model, settings, extras = {}) {
+async function writeManifest(outputDir, model, settings, extras = {}, log = NO_LOG) {
   const port = settings.port ?? GENERATION_DEFAULTS.port;
   try {
     await writeFile(join(outputDir, ".appwithai.json"), JSON.stringify({
@@ -18817,21 +19315,71 @@ async function writeManifest(outputDir, model, settings, extras = {}) {
       packageManager: extras.packageManager,
       generatedAt: new Date().toISOString()
     }, null, 2));
-  } catch {}
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: ".appwithai.json", err });
+  }
+}
+async function countFiles(directory) {
+  let total = 0;
+  try {
+    const entries = await readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name === "node_modules" || entry.name === ".git")
+        continue;
+      total += entry.isDirectory() ? await countFiles(join(directory, entry.name)) : 1;
+    }
+  } catch {
+    return total;
+  }
+  return total;
 }
 async function generateApplication(options) {
-  const model = options.model ?? parseModel(options.sources);
-  await mkdir(options.outputDir, { recursive: true });
-  const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
-  await generator.generate(model.entities, model.relationships);
-  await writeModelSource(options.outputDir, options.sources);
-  await writeManual(options.outputDir, model, options);
-  if (options.writeManifestFile !== false) {
-    await writeManifest(options.outputDir, model, options, options.manifest ?? {});
+  const log = options.logger ?? NO_LOG;
+  const startedAt = Date.now();
+  log.event("pipeline.generation.started", {
+    project: options.projectName,
+    stack: options.stackOption ?? GENERATION_DEFAULTS.stackOption,
+    input: Array.isArray(options.sources) ? `${options.sources.length} sources` : "1 source",
+    output: options.outputDir
+  });
+  let stage = "parse";
+  try {
+    const model = options.model ?? parseModel(options.sources);
+    log.event("pipeline.model.parsed", {
+      entities: model.entities.length,
+      rules: model.rules.length,
+      workflows: model.workflows.length,
+      sagas: model.sagas.length,
+      hooks: model.hooks.length,
+      enums: model.enums.length
+    });
+    stage = "emit";
+    await mkdir(options.outputDir, { recursive: true });
+    const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
+    await generator.generate(model.entities, model.relationships);
+    log.event("pipeline.files.written", {
+      count: await countFiles(options.outputDir),
+      output: options.outputDir,
+      durationMs: Date.now() - startedAt
+    });
+    stage = "artifacts";
+    await writeModelSource(options.outputDir, options.sources, log);
+    await writeManual(options.outputDir, model, options, log);
+    if (options.writeManifestFile !== false) {
+      await writeManifest(options.outputDir, model, options, options.manifest ?? {}, log);
+    }
+    log.event("pipeline.generation.completed", {
+      project: options.projectName,
+      files: await countFiles(options.outputDir),
+      durationMs: Date.now() - startedAt
+    });
+    return model;
+  } catch (err) {
+    log.event("pipeline.generation.failed", { project: options.projectName, stage, err });
+    throw err;
   }
-  return model;
 }
-async function writeManual(outputDir, model, options) {
+async function writeManual(outputDir, model, options, log = NO_LOG) {
   try {
     const directory = join(outputDir, "frontend", "public");
     await mkdir(directory, { recursive: true });
@@ -18841,9 +19389,11 @@ async function writeManual(outputDir, model, options) {
       description: options.projectDescription ?? GENERATION_DEFAULTS.projectDescription,
       stack: "nestjs"
     }), "utf-8");
-  } catch {}
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: "manual.html", err });
+  }
 }
-async function writeModelSource(outputDir, sources) {
+async function writeModelSource(outputDir, sources, log = NO_LOG) {
   const document = (Array.isArray(sources) ? sources : [sources]).filter(Boolean).join(`
 
 `);
@@ -18852,7 +19402,9 @@ async function writeModelSource(outputDir, sources) {
   try {
     await mkdir(join(outputDir, "model"), { recursive: true });
     await writeFile(join(outputDir, "model", "model.eml.mmd"), document, "utf-8");
-  } catch {}
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: "model/model.eml.mmd", err });
+  }
 }
 
 // language/checker.ts

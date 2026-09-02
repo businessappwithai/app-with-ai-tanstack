@@ -26,6 +26,7 @@ import {
   compileSagaWorkflows,
   compileWorkflows,
 } from "../workflows";
+import type { PipelineLogger } from "./logger-port";
 
 /** Everything a model contributes to generation. */
 export interface ParsedModel {
@@ -65,6 +66,12 @@ export interface GenerationSettings {
   skipTests?: boolean;
   skipCliScaffold?: boolean;
   recordsPerEntity?: number;
+  /**
+   * Where the pipeline reports what it did. Injected rather than imported —
+   * this same code runs in a browser tab, where the real logger cannot. See
+   * `logger-port.ts`. Omitted means silence, never `console`.
+   */
+  logger?: PipelineLogger;
 }
 
 /**

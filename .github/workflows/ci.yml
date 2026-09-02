@@ -267,6 +267,71 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  modelling-tool-e2e:
+    name: Drive the modelling tool
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    # The tool's own end-to-end suite. It had never run: `baseURL` pointed at
+    # :5000 while the runner script started a server on :3000, and no job
+    # invoked it either way. The first execution after that was fixed found
+    # three project endpoints serving unauthenticated callers.
+    services:
+      postgres:
+        image: pgvector/pgvector:pg18
+        env:
+          POSTGRES_DB: appwithai
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://app:app@127.0.0.1:5432/appwithai
+      SESSION_SECRET: ci-session-secret-ci-session-secret
+      JWT_SECRET: ci-jwt-secret-ci-jwt-secret-key
+      E2E_PORT: "3000"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+
+      # Creates the schema and the bootstrap administrator the suite signs in
+      # as. Its credentials are fixed on purpose — that is what a bootstrap
+      # account is — so the suite does not have to register and approve one.
+      - name: Migrate and seed the administrator
+        run: bun run seed:admin
+
+      # Playwright starts the server itself (see playwright.config.ts) and stops
+      # it afterwards, so there is no background process to leak between steps.
+      - name: Run the modelling tool's E2E suite
+        run: bunx playwright test
+
+      - name: Keep what the run saw
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: modelling-tool-e2e
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
   generated-app:
     name: Generate an application and build it
     runs-on: ubuntu-latest

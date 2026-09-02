@@ -26,6 +26,7 @@ import {
   type Relationship,
 } from "@appwithai/core/types";
 import { type CompiledHook, HOOK_CONTRACTS, hooksByEntity } from "../../hooks";
+import { generatedLogSpec } from "../../logging/generated-spec";
 import type { EntityCategory } from "../../parsers/category.parser";
 import { type CompiledRbac, hasRbacRules, rbacRoleNames } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
@@ -613,18 +614,32 @@ export class NestJsBackendGenerator extends BaseGenerator {
       "src/common/decorators/etag.decorator.ts",
       "src/common/filters/http-exception.filter.ts",
       "src/common/guards/etag.guard.ts",
+      "src/common/interceptors/logging.interceptor.ts",
       "src/common/interceptors/transform.interceptor.ts",
+      "src/common/logging/logger.service.ts",
       "src/common/pipes/zod-validation.pipe.ts",
     ];
 
     for (const file of commonFiles) {
       try {
         const content = await this.renderTemplate(`${file}.hbs`, context);
+        await fs.mkdir(path.dirname(path.join(outputDir, file)), { recursive: true });
         await fs.writeFile(path.join(outputDir, file), content);
       } catch (_e) {
         // Template may not exist, skip
       }
     }
+
+    // The log specification the application runs on, derived from the
+    // generator's canonical one rather than kept as a second copy under
+    // templates/ — see packages/generator/src/logging/generated-spec.ts. It is
+    // written directly rather than rendered, because it is data and Handlebars
+    // has nothing to substitute into it.
+    await fs.mkdir(path.join(outputDir, "src/common/logging"), { recursive: true });
+    await fs.writeFile(
+      path.join(outputDir, "src/common/logging/log-spec.json"),
+      generatedLogSpec()
+    );
 
     // Auth module decorators and guards (in module path for BetterAuth integration)
     try {

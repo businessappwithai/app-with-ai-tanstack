@@ -194,17 +194,16 @@ Both failures are minor timeout issues:
    - TestLogger, TestBrowser, TestResult classes
    - Configuration management
 
-### Scripts
+### Running them
 
-- `scripts/run-e2e-with-server.sh` - Auto-start/stop dev server for tests
+`bun run test:e2e:server` (or `bunx playwright test` — the same thing).
+Playwright starts the server itself and stops it afterwards; there is no script
+to run first.
 
-### Configuration
-
-Updated `package.json` with new test scripts:
-- `test:e2e` - Run comprehensive E2E tests
-- `test:generator` - Run generator E2E tests
-- `test:complete` - Run all E2E tests
-- `test:e2e:server` - Run tests with auto-start server
+`scripts/tests/run-e2e-with-server.sh` used to do that job and was removed: it
+had `set -e` above a `$?` check, so both its teardown and its failure branch
+were unreachable. `test:e2e`, `test:generator` and `test:complete` were removed
+with it — all three pointed at files that did not exist.
 
 ### Generated Screenshots
 

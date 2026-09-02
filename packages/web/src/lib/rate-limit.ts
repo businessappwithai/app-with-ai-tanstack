@@ -13,6 +13,8 @@
  *   RATE_LIMIT_MAX_REQUESTS max requests per window (default 100)
  */
 
+import { getLogger } from "@appwithai/core/logging";
+
 export interface RateLimitOptions {
   /** Window length in milliseconds. */
   windowMs: number;
@@ -145,9 +147,21 @@ export function enforceRateLimit(
   scope: string,
   options: RateLimitOptions
 ): Response | null {
-  const result = checkRateLimit(`${scope}:${getClientIp(request)}`, options);
+  const ip = getClientIp(request);
+  const result = checkRateLimit(`${scope}:${ip}`, options);
 
   if (result.allowed) return null;
+
+  // The refusal is the interesting half. A limiter that silently returns 429 is
+  // indistinguishable, from outside, from an endpoint that is merely slow — and
+  // a run of these on one bucket is what credential stuffing looks like before
+  // anyone notices it any other way.
+  getLogger("auth").event("auth.ratelimit.exceeded", {
+    bucket: scope,
+    ip,
+    limit: options.max,
+    windowMs: options.windowMs,
+  });
 
   return new Response(
     JSON.stringify({
@@ -166,8 +180,28 @@ export function enforceRateLimit(
 }
 
 /**
- * Limits for the authentication endpoints, per TODOS.md item 2:
- * 10 sign-in attempts per minute per IP, 3 registrations per minute per IP.
+ * Limits for the authentication endpoints: 10 sign-in attempts per minute per
+ * IP, 3 registrations per minute per IP.
+ *
+ * Overridable by environment, and defaulting to the values they have always
+ * had. A limit that can only be changed by editing and redeploying is one that
+ * gets loosened permanently the first time it inconveniences someone — and an
+ * office behind a single NAT address is one shared bucket, so the right number
+ * is not the same everywhere. An unparsable or non-positive value is ignored
+ * rather than obeyed: a typo in configuration must not be a way to turn the
+ * limiter off.
  */
-export const AUTH_LOGIN_LIMIT: RateLimitOptions = { windowMs: 60_000, max: 10 };
-export const AUTH_REGISTER_LIMIT: RateLimitOptions = { windowMs: 60_000, max: 3 };
+function limitFromEnv(key: string, fallback: number): number {
+  const raw = Number(process.env[key]);
+  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : fallback;
+}
+
+export const AUTH_LOGIN_LIMIT: RateLimitOptions = {
+  windowMs: 60_000,
+  max: limitFromEnv("AUTH_LOGIN_MAX_PER_MINUTE", 10),
+};
+
+export const AUTH_REGISTER_LIMIT: RateLimitOptions = {
+  windowMs: 60_000,
+  max: limitFromEnv("AUTH_REGISTER_MAX_PER_MINUTE", 3),
+};

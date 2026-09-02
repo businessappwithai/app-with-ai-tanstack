@@ -1,9 +1,16 @@
+import { getLogger } from "@appwithai/core/logging";
 import { createFileRoute } from "@tanstack/react-router";
+import { withRequestLogging } from "@/lib/request-logging";
 
 export const Route = createFileRoute("/api/auth/login")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: withRequestLogging("/api/auth/login", async ({ request }) => {
+        const log = getLogger("auth");
+        const clientIp =
+          request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+          request.headers.get("x-real-ip") ??
+          null;
         const { AUTH_LOGIN_LIMIT, enforceRateLimit } = await import("@/lib/rate-limit");
 
         // Brute-force protection: 10 attempts per minute per IP.
@@ -33,6 +40,7 @@ export const Route = createFileRoute("/api/auth/login")({
             .executeTakeFirst();
 
           if (!user) {
+            log.event("auth.signin.failed", { email, ip: clientIp, reason: "no-such-account" });
             return new Response(JSON.stringify({ error: "Invalid email or password" }), {
               status: 401,
               headers: { "Content-Type": "application/json" },
@@ -43,6 +51,7 @@ export const Route = createFileRoute("/api/auth/login")({
           const role = user.role || "user";
 
           if (status === "pending") {
+            log.event("auth.signin.failed", { email, ip: clientIp, reason: "pending-approval" });
             return new Response(
               JSON.stringify({
                 error: "PENDING_APPROVAL",
@@ -57,6 +66,7 @@ export const Route = createFileRoute("/api/auth/login")({
           }
 
           if (status === "rejected") {
+            log.event("auth.signin.failed", { email, ip: clientIp, reason: "account-rejected" });
             return new Response(
               JSON.stringify({
                 error: "ACCOUNT_REJECTED",
@@ -74,6 +84,7 @@ export const Route = createFileRoute("/api/auth/login")({
           const storedPasswordHash = user.passwordHash;
 
           if (!storedPasswordHash) {
+            log.event("auth.signin.failed", { email, ip: clientIp, reason: "no-credential-set" });
             return new Response(JSON.stringify({ error: "Invalid email or password" }), {
               status: 401,
               headers: { "Content-Type": "application/json" },
@@ -81,6 +92,7 @@ export const Route = createFileRoute("/api/auth/login")({
           }
 
           if (passwordHash !== storedPasswordHash) {
+            log.event("auth.signin.failed", { email, ip: clientIp, reason: "bad-password" });
             return new Response(JSON.stringify({ error: "Invalid email or password" }), {
               status: 401,
               headers: { "Content-Type": "application/json" },
@@ -104,6 +116,8 @@ export const Route = createFileRoute("/api/auth/login")({
             })
             .execute();
 
+          log.event("auth.signin.succeeded", { email, userId: user.id, ip: clientIp });
+
           return new Response(
             JSON.stringify({
               user: {
@@ -123,14 +137,19 @@ export const Route = createFileRoute("/api/auth/login")({
             }
           );
         } catch (error) {
-          console.error("[Login Error]", error);
+          log.event("auth.signin.failed", {
+            email: null,
+            ip: clientIp,
+            reason: "sign-in raised",
+            err: error,
+          });
           const message = error instanceof Error ? error.message : "Login failed";
           return new Response(JSON.stringify({ error: message }), {
             status: 500,
             headers: { "Content-Type": "application/json" },
           });
         }
-      },
+      }),
     },
   },
 });

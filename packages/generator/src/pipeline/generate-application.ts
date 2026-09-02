@@ -19,6 +19,7 @@ import {
   type FullStackGeneratorOptions,
 } from "../generators/full-stack.generator";
 import { renderManual } from "../manual";
+import { NO_LOG, type PipelineLogger } from "./logger-port";
 import {
   GENERATION_DEFAULTS,
   type GenerationSettings,
@@ -34,8 +35,10 @@ import {
 export {
   GENERATION_DEFAULTS,
   type GenerationSettings,
+  NO_LOG,
   normalizeDatabaseType,
   type ParsedModel,
+  type PipelineLogger,
   parseModel,
 };
 
@@ -119,7 +122,8 @@ export async function writeManifest(
   outputDir: string,
   model: ParsedModel,
   settings: GenerationSettings,
-  extras: ManifestExtras = {}
+  extras: ManifestExtras = {},
+  log: PipelineLogger = NO_LOG
 ): Promise<void> {
   const port = settings.port ?? GENERATION_DEFAULTS.port;
   try {
@@ -161,9 +165,43 @@ export async function writeManifest(
         2
       )
     );
-  } catch {
-    // non-fatal — a missing manifest does not invalidate the generated app
+  } catch (err) {
+    // Non-fatal — a missing manifest does not invalidate the generated app —
+    // but the manifest is what tooling reads back to know how this application
+    // was generated, so its absence should be explainable.
+    log.event("pipeline.artifact.write_failed", { artifact: ".appwithai.json", err });
   }
+}
+
+/**
+ * How many files the run put on disk.
+ *
+ * Walked rather than counted as they are written: the generators call
+ * `fs.writeFile` from a hundred and thirty-seven places and threading a counter
+ * through all of them would be a far larger change than the number is worth.
+ * The walk uses the same `fs` the pipeline already imports, which in a browser
+ * tab is the memory filesystem, so this reports the same number there.
+ *
+ * Never throws. A count is a log field, and no log field is worth failing a
+ * generation run that has already succeeded.
+ */
+async function countFiles(directory: string): Promise<number> {
+  let total = 0;
+  try {
+    const entries = (await fs.readdir(directory, { withFileTypes: true })) as Array<{
+      name: string;
+      isDirectory: () => boolean;
+    }>;
+    for (const entry of entries) {
+      // node_modules is not this run's output, and on a populated directory it
+      // is most of what a walk would find.
+      if (entry.name === "node_modules" || entry.name === ".git") continue;
+      total += entry.isDirectory() ? await countFiles(path.join(directory, entry.name)) : 1;
+    }
+  } catch {
+    return total;
+  }
+  return total;
 }
 
 export interface GenerateApplicationOptions extends GenerationSettings {
@@ -183,21 +221,62 @@ export interface GenerateApplicationOptions extends GenerationSettings {
 export async function generateApplication(
   options: GenerateApplicationOptions
 ): Promise<ParsedModel> {
-  const model = options.model ?? parseModel(options.sources);
+  const log = options.logger ?? NO_LOG;
+  const startedAt = Date.now();
 
-  await fs.mkdir(options.outputDir, { recursive: true });
+  log.event("pipeline.generation.started", {
+    project: options.projectName,
+    stack: options.stackOption ?? GENERATION_DEFAULTS.stackOption,
+    input: Array.isArray(options.sources) ? `${options.sources.length} sources` : "1 source",
+    output: options.outputDir,
+  });
 
-  const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
-  await generator.generate(model.entities, model.relationships);
+  // Each stage names itself so a failure says which one stopped, rather than
+  // leaving a stack trace as the only clue to how far the run got.
+  let stage = "parse";
+  try {
+    const model = options.model ?? parseModel(options.sources);
 
-  await writeModelSource(options.outputDir, options.sources);
-  await writeManual(options.outputDir, model, options);
+    log.event("pipeline.model.parsed", {
+      entities: model.entities.length,
+      rules: model.rules.length,
+      workflows: model.workflows.length,
+      sagas: model.sagas.length,
+      hooks: model.hooks.length,
+      enums: model.enums.length,
+    });
 
-  if (options.writeManifestFile !== false) {
-    await writeManifest(options.outputDir, model, options, options.manifest ?? {});
+    stage = "emit";
+    await fs.mkdir(options.outputDir, { recursive: true });
+
+    const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
+    await generator.generate(model.entities, model.relationships);
+
+    log.event("pipeline.files.written", {
+      count: await countFiles(options.outputDir),
+      output: options.outputDir,
+      durationMs: Date.now() - startedAt,
+    });
+
+    stage = "artifacts";
+    await writeModelSource(options.outputDir, options.sources, log);
+    await writeManual(options.outputDir, model, options, log);
+
+    if (options.writeManifestFile !== false) {
+      await writeManifest(options.outputDir, model, options, options.manifest ?? {}, log);
+    }
+
+    log.event("pipeline.generation.completed", {
+      project: options.projectName,
+      files: await countFiles(options.outputDir),
+      durationMs: Date.now() - startedAt,
+    });
+
+    return model;
+  } catch (err) {
+    log.event("pipeline.generation.failed", { project: options.projectName, stage, err });
+    throw err;
   }
-
-  return model;
 }
 
 /**
@@ -215,7 +294,8 @@ export async function generateApplication(
 async function writeManual(
   outputDir: string,
   model: ParsedModel,
-  options: GenerateApplicationOptions
+  options: GenerateApplicationOptions,
+  log: PipelineLogger = NO_LOG
 ): Promise<void> {
   try {
     const directory = path.join(outputDir, "frontend", "public");
@@ -230,8 +310,11 @@ async function writeManual(
       }),
       "utf-8"
     );
-  } catch {
-    // non-fatal — an application without its manual still runs
+  } catch (err) {
+    // Non-fatal — an application without its manual still runs — but no longer
+    // silent. This ran for a year as a bare `catch {}`, so a manual that failed
+    // to render was indistinguishable from one nobody opened.
+    log.event("pipeline.artifact.write_failed", { artifact: "manual.html", err });
   }
 }
 
@@ -249,7 +332,8 @@ async function writeManual(
  */
 export async function writeModelSource(
   outputDir: string,
-  sources: string | string[]
+  sources: string | string[],
+  log: PipelineLogger = NO_LOG
 ): Promise<void> {
   const document = (Array.isArray(sources) ? sources : [sources]).filter(Boolean).join("\n\n");
   if (!document.trim()) return;
@@ -257,7 +341,11 @@ export async function writeModelSource(
   try {
     await fs.mkdir(path.join(outputDir, "model"), { recursive: true });
     await fs.writeFile(path.join(outputDir, "model", "model.eml.mmd"), document, "utf-8");
-  } catch {
+  } catch (err) {
     // Non-fatal, exactly like the manifest: the application runs without it.
+    // Worth a line, though — this is the only copy of the model that ships with
+    // the application, and losing it is how a generated app stops being
+    // regenerable from its own directory.
+    log.event("pipeline.artifact.write_failed", { artifact: "model/model.eml.mmd", err });
   }
 }

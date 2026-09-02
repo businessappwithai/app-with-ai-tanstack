@@ -130,11 +130,29 @@ And if `--check` reports your runtime differs from CI's, do not rebuild locally:
 build where CI builds, e.g.
 `docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.0 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
 
+### `bun run dev` builds the workspace packages first
+`packages/web` imports `@appwithai/core`, `@appwithai/generator` and
+`@appwithai/ai` by bare specifier, and their `exports` point at `dist/`. On a
+tree that has never been built those do not exist, so `dev` runs
+`scripts/ensure-packages-built.ts` first. It builds only what is missing — 26ms
+and nothing rebuilt on a warm tree. Editing `packages/core` mid-session still
+needs `bun run build:core`.
+
 ### Known-broken scripts
-- `bun run migrate` — file doesn't exist; real migrations: `runMigrations()` from `@appwithai/core/services`
-- Root `vitest.config.ts` — references missing `./test/setup.ts`; use `bun run test`
-- `packages/web` lint uses eslint (not a dep) — lint with Biome from root
-- `test:app`, `test:e2e`, `test:generator`, `test:complete` — reference non-existent files
+All of the entries that used to be here have been **removed** rather than
+documented: `migrate`, `test:app`, `test:e2e`, `test:generator`, `test:complete`
+and `setup:gstack` pointed at files that do not exist, the root
+`vitest.config.ts` referenced a missing `./test/setup.ts`, and `packages/web`'s
+`lint` ran eslint, which is not a dependency anywhere (it runs Biome now). A
+script that has never worked is worse than no script: it costs every new reader
+the time to find out.
+
+One remains, and it is not ours to fix here:
+- `bun run build && bun run start` — the **production server does not work**.
+  With a reachable `DATABASE_URL` it loads `@ag-ui/mcp-apps-middleware`, which
+  `require()`s the ESM-only `eventsource` through the MCP SDK; Bun refuses, and
+  the server answers 204 to everything including `/api/health`. Predates this
+  work and reproduces on `main`. It is why the E2E suite drives `bun run dev`
 
 ### What `type-check` does NOT cover
 - `language/**` → `bun run type-check:language`
@@ -395,6 +413,71 @@ missing page rather than a recognisable 404. Held by
 
 ---
 
+## Logging
+
+**`packages/core/src/logging/log-spec.json` is the single source of truth.** Levels,
+channels, messages and redaction are declared there; a call site names an event
+and the spec decides the rest.
+
+```ts
+import { getLogger } from "@appwithai/core/logging";
+getLogger("pipeline").event("pipeline.generation.completed", { project, files, durationMs });
+```
+
+Never write a level and a sentence at a call site. Naming the event keeps one
+line per event in the catalogue, makes it greppable, and lets a test assert a
+failure was reported without knowing its wording. Adding a log line means adding
+an entry to the spec first.
+
+| Rule | Why |
+|---|---|
+| Channels declare the level of their **least severe event** | Resolution takes the *quieter* of channel and environment, so no channel can be louder than its environment permits |
+| `LOG_LEVEL` / `LOG_LEVEL_<CHANNEL>` override both | One subsystem turned up at 3am without a redeploy |
+| stdout only, `sync: false` in production | Whatever runs the process collects it; a syscall per line is not free |
+| An unknown event id is reported at `warn`, not dropped | A typo must not become silence |
+| Never log a request body, a query string, or a field's value | Business data and credentials. `changedFields` logs the *keys* |
+
+Two checks hold it together, both in `packages/core/src/logging/__tests__/`:
+`logger.test.ts` reads the JSON actually written rather than spying on Pino, and
+`spec-conformance.test.ts` asserts every `.event(…)` in the tree names a declared
+id **and** that the spec declares nothing that nothing emits.
+
+### The pipeline takes a logger; it does not import one
+
+`build:fullstack-browser` bundles the pipeline for a browser tab, where Pino
+cannot run. So `generate-application.ts` depends on the one-method
+`PipelineLogger` port (`pipeline/logger-port.ts`) that `ChannelLogger` satisfies
+structurally: Node passes the real logger, the browser passes `NO_LOG`. **Never
+import `@appwithai/core/logging` from anything the browser bundle reaches** —
+`bun run build:fullstack-browser` then fails, and `grep pino html/assets/appwithai-fullstack.js`
+must stay at zero.
+
+A CLI run is silent unless `LOG_LEVEL` is set (`cliLogger`): a terminal's stdout
+is its report to the person watching, and interleaving JSON through it helps
+nobody. The `/api/generate` path always logs.
+
+### The generated application
+
+Ships its own copy, derived from the canonical spec by
+`packages/generator/src/logging/generated-spec.ts` — **not** a template, so the
+two cannot drift. Channels not marked `generated` are filtered out.
+
+- `backend/src/common/logging/logger.service.ts` — Pino, the Nest `LoggerService`
+  adapter, `installHttpLogging`, `installProcessLogging`, and the
+  `AsyncLocalStorage` request context.
+- The spec is **read off disk**, and `nest-cli.json` copies it into `dist/src/`
+  as a build asset. An imported JSON would be inlined and the deployed file
+  would be decorative.
+- **HTTP logging is a Fastify `onResponse` hook, never a Nest interceptor.**
+  Interceptors run after guards, so an interceptor sees no 401 or 403 and none
+  of the better-auth routes. This is the mistake to not make twice.
+- The exception filter stashes its exception on the request (`__logError`) for
+  that hook — the hook sees every response, the filter sees the error.
+- `requestId` and `userId` come from the request context, so a service never
+  takes a user it has no other use for.
+
+---
+
 ## Database
 
 PostgreSQL via Kysely. **One connection site:** `packages/core/src/config/db.config.ts`.
@@ -447,6 +530,9 @@ if (limited) return limited;
 **Web (client must use `VITE_`):** `VITE_APP_URL` (:3000), `VITE_API_URL`, `VITE_MASTRA_URL` (:4111)
 
 **Security:** `SESSION_SECRET`, `JWT_SECRET`, `DB_ENCRYPTION_KEY` (base64, 32 bytes)
+
+**Logging:** `LOG_LEVEL`, `LOG_LEVEL_<CHANNEL>` (e.g. `LOG_LEVEL_DB`), `LOG_PRETTY`,
+`LOG_SYNC`, `LOG_NAME`, `DB_SLOW_QUERY_MS` (500), `HTTP_SLOW_REQUEST_MS` (1000)
 
 **Mastra:** `MASTRA_DATABASE_URL` (default `file:./appwithai-mastra.db`), `MASTRA_PORT` (4111)
 
@@ -506,9 +592,32 @@ Regression tests for generator behaviour live beside the code they cover, as
 compiler or the checker, because it is the only document that exercises the
 whole behaviour surface at once.
 
-### E2E tests
-- `testDir: ./tests/e2e`, Chromium only, base URL `http://localhost:5000`, `workers: 1`
-- **Port mismatch**: `bun run dev` → :3000; Playwright → :5000. Use `bun run test:e2e:server`.
+### The modelling tool's E2E suite
+`bunx playwright test` (or `bun run test:e2e:server` — same thing now). Playwright
+starts the server itself and stops it; there is no script to run first and no
+port to line up. One value, `E2E_PORT`, feeds both the base URL and the server.
+
+CI runs it as **Drive the modelling tool**, against a pgvector service, after
+`bun run seed:admin` creates the schema and the bootstrap administrator the
+suite signs in as.
+
+| File | What it holds the app to |
+|---|---|
+| `01-auth` | Sign-in, sessions, sign-out, registration-needs-approval. Asserts the same answer for a wrong password and an unknown address — a different one is an account-enumeration oracle |
+| `02-project-authorization` | Enumerates the project-scoped routes and drives each as nobody, a signed-in stranger, and the owner. **Found three endpoints serving unauthenticated callers on its first run** |
+| `09-rate-limiting` | Runs last, deliberately: the limiter is a fixed window per IP, and exhausting it mid-suite left every later spec failing with an unrelated 429 |
+
+Two things to know before adding to it:
+- **Every test shares one IP**, so the suite runs the server with
+  `AUTH_LOGIN_MAX_PER_MINUTE` / `AUTH_REGISTER_MAX_PER_MINUTE` raised. Both
+  default to their production values (10 and 3) everywhere else.
+- **The sharing cases are not covered yet.** `02` covers owner, signed-in
+  stranger and anonymous caller. A project shared read-only should be visible to
+  the member and refuse their writes; a read-write share should accept them;
+  removing a share should revoke access. The spec that once aimed at this
+  (`project-permissions.e2e.spec.ts`) never ran — it called `test.browserContext`,
+  which is not a Playwright API — and was removed with the rest of the legacy
+  suite. Worth writing properly against `/api/projects/:id/members`.
 
 ### Template testing
 **Type-checking this repo says nothing about whether a generated app compiles** — templates are `.hbs` until rendered. Changing a template means generating an app and building it, not just `bun run type-check`.
@@ -532,6 +641,11 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 | File | Purpose |
 |------|---------|
 | `packages/ai/src/config.ts` | ⭐ Central AI model + embedding config |
+| `packages/core/src/logging/log-spec.json` | ⭐ The log specification, stated once |
+| `packages/core/src/logging/logger.ts` | Pino, configured entirely from the spec |
+| `packages/generator/src/pipeline/logger-port.ts` | ⭐ Why the pipeline never imports a logger |
+| `packages/generator/src/logging/generated-spec.ts` | ⭐ The generated app's spec, derived not duplicated |
+| `.../backend/src/common/logging/logger.service.ts.hbs` | ⭐ The generated app's logger + HTTP hook |
 | `packages/core/src/config/db.config.ts` | ⭐ Sole DB connection site |
 | `packages/core/src/hooks/hook-executor.ts` | `globalHookExecutor` |
 | `packages/core/src/rules/rules-engine.service.ts` | GoRules evaluation |
@@ -626,6 +740,16 @@ Add once in `GenerationSettings` in `generate-application.ts`. Do NOT add at cal
 2. Regenerate an application and **sign in through a browser**; a 500 on
    `/api/auth/sign-in/email` with a healthy backend is this bug
 3. `templates/__tests__/api-route-exports.test.ts` covers the export shape
+
+### Add a log event
+1. Declare it in `packages/core/src/logging/log-spec.json` — id, channel, level,
+   message, fields. A channel must declare the level of its least severe event
+2. Emit it with `getLogger(channel).event(id, fields)`; never a bare level and a
+   sentence
+3. If the generated application should emit it too, the channel's `surfaces`
+   must include `generated` — and the call site is a `.hbs` template
+4. `bun run test` — `spec-conformance.test.ts` fails on an undeclared id *and*
+   on a declared event nothing emits
 
 ### Add a core subpath export
 1. Create `packages/core/src/<dir>/index.ts`

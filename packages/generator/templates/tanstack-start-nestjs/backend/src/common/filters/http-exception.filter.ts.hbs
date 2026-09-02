@@ -164,30 +164,21 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<FastifyReply>();
     const request = ctx.getRequest<FastifyRequest>();
 
-    // Log comprehensive request information for debugging
-    this.logger.error(`[${methodName}] ========== EXCEPTION ==========`);
-    this.logger.error(`[${methodName}] Request Method: ${request.method}`);
-    this.logger.error(`[${methodName}] Request URL: ${request.url}`);
-    this.logger.error(`[${methodName}] Request ID: ${request.id}`);
-    this.logger.error(`[${methodName}] Query Params: ${JSON.stringify(request.query)}`);
-    this.logger.error(`[${methodName}] Route Params: ${JSON.stringify(request.params)}`);
-    this.logger.error(`[${methodName}] Headers: ${JSON.stringify(this.sanitizeHeaders(request.headers))}`);
-    this.logger.error(`[${methodName}] User Agent: ${(request.headers as any)['user-agent'] || 'Unknown'}`);
-    this.logger.error(`[${methodName}] Client IP: ${(request.headers as any)['x-forwarded-for'] || (request.headers as any)['x-real-ip'] || request.ip || 'Unknown'}`);
+    // Handed to the `onResponse` hook in common/logging, which is the one place
+    // that sees every response — including the ones a guard rejected before any
+    // of this ran. That hook writes the single `http.request.*` line for this
+    // request; the error is stashed here because this is the one place that
+    // sees *it*.
+    (request as any).__logError = exception;
 
-    // Log request body if present (excluding file uploads)
-    if ((request as any).body && !request.url.includes('/upload') && request.method !== 'GET') {
-      try {
-        const bodyStr = JSON.stringify((request as any).body);
-        if (bodyStr.length < 2000) {
-          this.logger.error(`[${methodName}] Request Body: ${bodyStr}`);
-        } else {
-          this.logger.error(`[${methodName}] Request Body: ${bodyStr.substring(0, 2000)}... (truncated)`);
-        }
-      } catch (e) {
-        this.logger.error(`[${methodName}] Request Body: [Unable to stringify]`);
-      }
-    }
+    // This method used to write about twenty `error` lines per exception,
+    // including the entire request body. Two things were wrong with that. A
+    // routine 401 produced a wall of red for a non-event, so the lines that
+    // mattered were unfindable. And the body of a POST is business data — on a
+    // sign-up or a password change it is a credential — which is now going to a
+    // log collector and staying there. The structured line the hook writes,
+    // plus the one below, say everything those twenty did except the parts that
+    // should never have been logged.
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal server error';
@@ -199,10 +190,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      this.logger.error(`[${methodName}] Exception Type: HttpException`);
-      this.logger.error(`[${methodName}] HTTP Status: ${status}`);
-      this.logger.error(`[${methodName}] Exception Response:`, exceptionResponse);
-
       if (typeof exceptionResponse === 'string') {
         message = exceptionResponse;
       } else if (typeof exceptionResponse === 'object') {
@@ -212,24 +199,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         details = responseObj.details;
         errors = responseObj.errors;
 
-        // Log all keys from response object for debugging
-        this.logger.error(`[${methodName}] Response Object Keys: ${Object.keys(responseObj).join(', ')}`);
-
-        // If message is an array (validation errors), log each error
-        if (Array.isArray(message)) {
-          this.logger.error(`[${methodName}] Validation Errors (${message.length}):`);
-          message.forEach((err, idx) => {
-            this.logger.error(`[${methodName}]   [${idx + 1}] ${err}`);
-          });
-        }
-
-        // Log errors array if present
-        if (Array.isArray(errors)) {
-          this.logger.error(`[${methodName}] Field Errors (${errors.length}):`);
-          errors.forEach((err, idx) => {
-            this.logger.error(`[${methodName}]   [${idx + 1}] ${err}`);
-          });
-        }
       }
     } else if (exception instanceof Error) {
       // A constraint violation is the caller's problem, not the server's.
@@ -245,13 +214,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       } else {
         message = exception.message;
       }
-      this.logger.error(`[${methodName}] Exception Type: Error`);
-      this.logger.error(`[${methodName}] Error Name: ${exception.name}`);
-      this.logger.error(`[${methodName}] Error Message: ${exception.message}`);
-      this.logger.error(`[${methodName}] Error Stack:`, exception.stack);
-    } else {
-      this.logger.error(`[${methodName}] Exception Type: Unknown`);
-      this.logger.error(`[${methodName}] Exception:`, exception);
     }
 
     const errorResponse: ErrorResponse = {
@@ -265,28 +227,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
       ...(errors && { errors }),
     };
 
-    this.logger.error(`[${methodName}] Response Status: ${status}`);
-    this.logger.error(`[${methodName}] Response Message: ${message}`);
-    this.logger.error(`[${methodName}] Response Error: ${error}`);
-    if (details) {
-      this.logger.error(`[${methodName}] Response Details: ${JSON.stringify(details)}`);
-    }
-    this.logger.error(`[${methodName}] ========== END EXCEPTION ==========`);
-
-    // Additional logging based on status code severity
+    // A 5xx is the server's fault and gets a stack; a 4xx is the caller's and
+    // gets a line. Both are also covered by the `http.request.*` event the
+    // response hook writes — this one carries the message the caller was given,
+    // which is what someone reading a support ticket is holding.
     if (status >= 500) {
       this.logger.error(
-        `[${methodName}] Server Error - ${request.method} ${request.url} - ${status}: ${message}`,
+        `${request.method} ${request.url} → ${status}: ${message}`,
         exception instanceof Error ? exception.stack : undefined,
       );
-    } else if (status >= 400) {
-      this.logger.warn(
-        `[${methodName}] Client Error - ${request.method} ${request.url} - ${status}: ${message}`,
-      );
     } else {
-      this.logger.log(
-        `[${methodName}] Other Error - ${request.method} ${request.url} - ${status}: ${message}`,
-      );
+      this.logger.warn(`${request.method} ${request.url} → ${status}: ${message}`);
     }
 
     response.status(status).send(errorResponse);

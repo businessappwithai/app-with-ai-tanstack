@@ -1161,10 +1161,16 @@ to rebuild" — the failure message says which case it is and what to do. Drop t
 reason; building elsewhere produces a third variant that looks right locally and
 is byte-wrong for CI.
 
-**Known-broken**, do not recommend: `bun run migrate` (points at a missing
-file); root `vitest.config.ts` (missing setup file — `packages/web`'s config is
-the one that runs); `packages/web`'s `lint` script (declares eslint, not a
-dependency); root `test:app`/`test:e2e`/`test:generator`/`test:complete`.
+**Known-broken**, do not recommend: `bun run build && bun run start`. With a
+reachable `DATABASE_URL` the built server loads `@ag-ui/mcp-apps-middleware`,
+which `require()`s the ESM-only `eventsource` through the MCP SDK; Bun refuses,
+and the server answers 204 to everything including `/api/health`. Use
+`bun run dev`.
+
+The scripts that used to be listed here — `migrate`, `test:app`, `test:e2e`,
+`test:generator`, `test:complete`, the root `vitest.config.ts` and
+`packages/web`'s eslint `lint` — have been removed rather than documented. They
+pointed at files that do not exist.
 
 ### Environment variables
 

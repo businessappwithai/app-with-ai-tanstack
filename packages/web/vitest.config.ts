@@ -26,6 +26,7 @@ export default defineConfig({
       "@appwithai/core/types": path.resolve(__dirname, "../core/src/types"),
       "@appwithai/core/hooks": path.resolve(__dirname, "../core/src/hooks"),
       "@appwithai/core/services": path.resolve(__dirname, "../core/src/services"),
+      "@appwithai/core/logging": path.resolve(__dirname, "../core/src/logging"),
       "@appwithai/generator": path.resolve(__dirname, "../generator/src"),
     },
   },

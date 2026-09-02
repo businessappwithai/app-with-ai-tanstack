@@ -1,3 +1,4 @@
+import { getLogger } from "@appwithai/core/logging";
 import OpenAI from "openai";
 import { AI_API_KEY, AI_BASE_URL, AI_MODEL } from "../config";
 
@@ -388,7 +389,10 @@ erDiagram
  * existing diagram rather than start from scratch.
  */
 export async function analyzeDomainWithOpenAI(description: string, currentErdCode: string = "") {
-  console.log("[Local AI Analysis] Starting analysis with", AI_MODEL, "at", AI_BASE_URL);
+  const log = getLogger("ai");
+  const startedAt = Date.now();
+
+  log.event("ai.request.started", { model: AI_MODEL, operation: "analyze-domain" });
 
   const openai = makeLocalClient();
 
@@ -430,8 +434,6 @@ Response format:
   "summary": "Brief analysis summary"
 }`;
 
-  console.log("[Local AI Analysis] Calling API...");
-
   try {
     const response = await openai.chat.completions.create({
       model: AI_MODEL,
@@ -449,8 +451,6 @@ ${description}${existingContext}`,
       max_tokens: 4000,
     });
 
-    console.log("[OpenAI Analysis] Got response, parsing...");
-
     const content = response.choices[0]?.message?.content;
     if (!content) {
       throw new Error("Empty response from OpenAI");
@@ -458,9 +458,19 @@ ${description}${existingContext}`,
 
     const parsed = JSON.parse(content);
 
-    console.log(
-      `[OpenAI Analysis] Extracted ${parsed.entities?.length || 0} entities, ${parsed.relationships?.length || 0} relationships`
-    );
+    // Token counts are the field worth having here: they are what a bill and a
+    // context-window failure are both measured in, and nothing else records
+    // them. The prompt and the completion are deliberately not logged — this
+    // runs over user domain descriptions.
+    log.event("ai.request.completed", {
+      model: AI_MODEL,
+      operation: "analyze-domain",
+      durationMs: Date.now() - startedAt,
+      promptTokens: response.usage?.prompt_tokens ?? null,
+      completionTokens: response.usage?.completion_tokens ?? null,
+      entities: parsed.entities?.length ?? 0,
+      relationships: parsed.relationships?.length ?? 0,
+    });
 
     return {
       entities: parsed.entities || [],
@@ -468,11 +478,16 @@ ${description}${existingContext}`,
       summary: parsed.summary || "",
     };
   } catch (error) {
-    console.error("[OpenAI Analysis] API error:", error);
-    if (error instanceof Error) {
-      console.error("[OpenAI Analysis] Error message:", error.message);
-      console.error("[OpenAI Analysis] Error stack:", error.stack);
-    }
+    // One line with the error object rather than three with its pieces: Pino's
+    // standard error serializer already writes the message, the type and the
+    // stack as fields, and three `console.error` calls could interleave with
+    // another request's under any concurrency at all.
+    log.event("ai.request.failed", {
+      model: AI_MODEL,
+      operation: "analyze-domain",
+      durationMs: Date.now() - startedAt,
+      err: error,
+    });
     throw error;
   }
 }
