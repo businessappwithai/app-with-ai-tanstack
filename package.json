@@ -33,7 +33,7 @@
     "test:e2e:all": "bun test test/full-app-test.ts && bun test test/comprehensive-e2e.test.ts",
     "test:generator": "bun test test/generator-e2e.test.ts",
     "test:complete": "bun test test/run-all-e2e.test.ts",
-    "test:e2e:server": "./scripts/tests/run-e2e-with-server.sh",
+    "test:e2e:server": "playwright test",
     "test:playwright": "playwright test",
     "test:playwright:ui": "playwright test --ui",
     "test:playwright:debug": "playwright test --debug",

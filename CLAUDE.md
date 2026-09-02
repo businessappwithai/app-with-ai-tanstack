@@ -127,11 +127,24 @@ And if `--check` reports your runtime differs from CI's, do not rebuild locally:
 build where CI builds, e.g.
 `docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.0 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
 
+### `bun run dev` builds the workspace packages first
+`packages/web` imports `@appwithai/core`, `@appwithai/generator` and
+`@appwithai/ai` by bare specifier, and their `exports` point at `dist/`. On a
+tree that has never been built those do not exist, so `dev` runs
+`scripts/ensure-packages-built.ts` first. It builds only what is missing — 26ms
+and nothing rebuilt on a warm tree. Editing `packages/core` mid-session still
+needs `bun run build:core`.
+
 ### Known-broken scripts
 - `bun run migrate` — file doesn't exist; real migrations: `runMigrations()` from `@appwithai/core/services`
 - Root `vitest.config.ts` — references missing `./test/setup.ts`; use `bun run test`
 - `packages/web` lint uses eslint (not a dep) — lint with Biome from root
 - `test:app`, `test:e2e`, `test:generator`, `test:complete` — reference non-existent files
+- `bun run build && bun run start` — the **production server does not work**.
+  With a reachable `DATABASE_URL` it loads `@ag-ui/mcp-apps-middleware`, which
+  `require()`s the ESM-only `eventsource` through the MCP SDK; Bun refuses, and
+  the server answers 204 to everything including `/api/health`. Predates this
+  work and reproduces on `main`. It is why the E2E suite drives `bun run dev`
 
 ### What `type-check` does NOT cover
 - `language/**` → `bun run type-check:language`
@@ -426,9 +439,28 @@ The checker always writes the `.error` file — revert it unless the verdict cha
 ### Unit tests
 Effective config: `packages/web/vitest.config.ts` (covers core, generator, ai too).
 
-### E2E tests
-- `testDir: ./tests/e2e`, Chromium only, base URL `http://localhost:5000`, `workers: 1`
-- **Port mismatch**: `bun run dev` → :3000; Playwright → :5000. Use `bun run test:e2e:server`.
+### The modelling tool's E2E suite
+`bunx playwright test` (or `bun run test:e2e:server` — same thing now). Playwright
+starts the server itself and stops it; there is no script to run first and no
+port to line up. One value, `E2E_PORT`, feeds both the base URL and the server.
+
+CI runs it as **Drive the modelling tool**, against a pgvector service, after
+`bun run seed:admin` creates the schema and the bootstrap administrator the
+suite signs in as.
+
+| File | What it holds the app to |
+|---|---|
+| `01-auth` | Sign-in, sessions, sign-out, registration-needs-approval. Asserts the same answer for a wrong password and an unknown address — a different one is an account-enumeration oracle |
+| `02-project-authorization` | Enumerates the project-scoped routes and drives each as nobody, a signed-in stranger, and the owner. **Found three endpoints serving unauthenticated callers on its first run** |
+| `09-rate-limiting` | Runs last, deliberately: the limiter is a fixed window per IP, and exhausting it mid-suite left every later spec failing with an unrelated 429 |
+
+Two things to know before adding to it:
+- **Every test shares one IP**, so the suite runs the server with
+  `AUTH_LOGIN_MAX_PER_MINUTE` / `AUTH_REGISTER_MAX_PER_MINUTE` raised. Both
+  default to their production values (10 and 3) everywhere else.
+- **`tests/e2e/legacy/` is excluded.** Those files target the OpenUI5 stack the
+  generator no longer emits, or a generated app on a port nothing starts. See
+  the README there for what is worth porting out of them.
 
 ### Template testing
 **Type-checking this repo says nothing about whether a generated app compiles** — templates are `.hbs` until rendered. Changing a template means generating an app and building it, not just `bun run type-check`.
