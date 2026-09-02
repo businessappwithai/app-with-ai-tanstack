@@ -69,13 +69,17 @@ interface MigrationFailure {
 /**
  * Record a migration step that did not apply.
  *
- * Every one of these was a bare `catch {}` commented "already exists". That
- * comment describes a case the code already handles a better way — each step
- * uses `ifNotExists()` or `IF NOT EXISTS` — so anything actually reaching this
- * handler is something else: a permission the role does not have, a type that
- * does not exist, a connection that went away mid-run. All of it applied
- * silently, and the first sign was a query failing against a column that was
- * never added.
+ * Every one of these was a bare `catch {}` commented "already exists". Once the
+ * failures were actually reported, five of them turned out to be exactly that:
+ * `alterTable().addColumn()` emits no `IF NOT EXISTS`, so those steps threw on
+ * every restart of a database that already had the column. They now ask for
+ * `ifNotExists()` like every other step, which is what the comment had always
+ * claimed was true.
+ *
+ * So anything reaching this handler now is something else: a permission the role
+ * does not have, a type that does not exist, a connection that went away
+ * mid-run. All of it used to apply silently, and the first sign was a query
+ * failing against a column that was never added.
  *
  * Collected rather than thrown, because the run should still attempt the
  * remaining steps: a database missing one column is more recoverable than one
@@ -371,7 +375,7 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
   try {
     await db.schema
       .alterTable("auth_users")
-      .addColumn("status", "varchar(32)", (col) => col.defaultTo("approved"))
+      .addColumn("status", "varchar(32)", (col) => col.defaultTo("approved").ifNotExists())
       .execute();
   } catch (err) {
     noteMigrationFailure(failures, "add column auth_users.status", err);
@@ -380,20 +384,26 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
   try {
     await db.schema
       .alterTable("auth_users")
-      .addColumn("role", "varchar(64)", (col) => col.defaultTo("user"))
+      .addColumn("role", "varchar(64)", (col) => col.defaultTo("user").ifNotExists())
       .execute();
   } catch (err) {
     noteMigrationFailure(failures, "add column auth_users.role", err);
   }
 
   try {
-    await db.schema.alterTable("auth_users").addColumn("passwordHash", "text").execute();
+    await db.schema
+      .alterTable("auth_users")
+      .addColumn("passwordHash", "text", (col) => col.ifNotExists())
+      .execute();
   } catch (err) {
     noteMigrationFailure(failures, "add column auth_users.passwordHash", err);
   }
 
   try {
-    await db.schema.alterTable("projects").addColumn("owner_user_id", "varchar(128)").execute();
+    await db.schema
+      .alterTable("projects")
+      .addColumn("owner_user_id", "varchar(128)", (col) => col.ifNotExists())
+      .execute();
   } catch (err) {
     noteMigrationFailure(failures, "add column projects.owner_user_id", err);
   }
@@ -413,7 +423,7 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
   }
 
   try {
-    await sql`ALTER TABLE projects ADD COLUMN target_db_connection TEXT`.execute(db);
+    await sql`ALTER TABLE projects ADD COLUMN IF NOT EXISTS target_db_connection TEXT`.execute(db);
   } catch (err) {
     noteMigrationFailure(failures, "add column projects.target_db_connection", err);
   }
