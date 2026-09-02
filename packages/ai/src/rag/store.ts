@@ -12,6 +12,7 @@
  * trip.
  */
 
+import { getLogger } from "@appwithai/core/logging";
 import { AI_EMBEDDING_DIMENSIONS } from "../config";
 import type { Embedder } from "./embedder";
 import { remoteEmbedder } from "./embedder";
@@ -152,6 +153,8 @@ export async function retrieve(
   options: { topK?: number; kinds?: string[]; embed?: Embedder } = {}
 ): Promise<RetrievedChunk[]> {
   const { topK = 8, kinds, embed = remoteEmbedder } = options;
+  const log = getLogger("ai");
+  const startedAt = Date.now();
 
   const [queryVector] = await embed([query]);
   if (!queryVector) return [];
@@ -170,6 +173,16 @@ export async function retrieve(
       // The store's filter type enumerates every operator combination; this
       // shape is one of them, but not one TypeScript can narrow to from here.
       filter: filter as never,
+    });
+
+    // The query text is not logged — it is whatever the user typed at the
+    // assistant. How many chunks came back and how long it took is what says
+    // whether retrieval is working.
+    log.event("ai.retrieval.completed", {
+      index: MODEL_CONTEXT_INDEX,
+      projectId,
+      matches: results.length,
+      durationMs: Date.now() - startedAt,
     });
 
     return results.map((result) => ({

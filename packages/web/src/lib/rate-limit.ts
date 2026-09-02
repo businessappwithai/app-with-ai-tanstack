@@ -13,6 +13,8 @@
  *   RATE_LIMIT_MAX_REQUESTS max requests per window (default 100)
  */
 
+import { getLogger } from "@appwithai/core/logging";
+
 export interface RateLimitOptions {
   /** Window length in milliseconds. */
   windowMs: number;
@@ -145,9 +147,21 @@ export function enforceRateLimit(
   scope: string,
   options: RateLimitOptions
 ): Response | null {
-  const result = checkRateLimit(`${scope}:${getClientIp(request)}`, options);
+  const ip = getClientIp(request);
+  const result = checkRateLimit(`${scope}:${ip}`, options);
 
   if (result.allowed) return null;
+
+  // The refusal is the interesting half. A limiter that silently returns 429 is
+  // indistinguishable, from outside, from an endpoint that is merely slow — and
+  // a run of these on one bucket is what credential stuffing looks like before
+  // anyone notices it any other way.
+  getLogger("auth").event("auth.ratelimit.exceeded", {
+    bucket: scope,
+    ip,
+    limit: options.max,
+    windowMs: options.windowMs,
+  });
 
   return new Response(
     JSON.stringify({

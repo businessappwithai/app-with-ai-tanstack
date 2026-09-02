@@ -13,6 +13,7 @@
  * routes ended up open while `/api/projects/$id` was closed.
  */
 
+import { getLogger } from "@appwithai/core/logging";
 import { getCurrentUser } from "@/lib/auth-server";
 
 export type ProjectPermission = "read" | "read_write";
@@ -57,8 +58,18 @@ export async function requireProjectAccess(
   projectId: string,
   permission: ProjectPermission = "read"
 ): Promise<ProjectAccess> {
+  const log = getLogger("auth");
+
   const user = await getCurrentUser(request);
-  if (!user) return { response: json({ error: "Unauthorized" }, 401) };
+  if (!user) {
+    log.event("auth.access.denied", {
+      userId: null,
+      resource: `project:${projectId}`,
+      operation: permission,
+      requiredRoles: ["authenticated"],
+    });
+    return { response: json({ error: "Unauthorized" }, 401) };
+  }
 
   const { getDatabase } = await import("@appwithai/core/services");
   const db = getDatabase();
@@ -69,7 +80,16 @@ export async function requireProjectAccess(
     .where("id", "=", projectId)
     .executeTakeFirst();
 
-  if (!project) return { response: json({ error: "Project not found" }, 404) };
+  if (!project) {
+    log.event("auth.access.denied", {
+      userId: user.id,
+      resource: `project:${projectId}`,
+      operation: permission,
+      requiredRoles: ["member"],
+      reason: "no-such-project",
+    });
+    return { response: json({ error: "Project not found" }, 404) };
+  }
   if (project.owner_user_id === user.id) return { user: { id: user.id } };
 
   const membership = await db
@@ -79,9 +99,27 @@ export async function requireProjectAccess(
     .where("user_id", "=", user.id)
     .executeTakeFirst();
 
-  if (!membership) return { response: json({ error: "Project not found" }, 404) };
+  if (!membership) {
+    // Answered as 404 on the wire so an id is not confirmed to a stranger, but
+    // it is a denial, and the log is the one place that may say so plainly.
+    log.event("auth.access.denied", {
+      userId: user.id,
+      resource: `project:${projectId}`,
+      operation: permission,
+      requiredRoles: ["member"],
+      reason: "not-a-member",
+    });
+    return { response: json({ error: "Project not found" }, 404) };
+  }
 
   if (permission === "read_write" && membership.permission !== "read_write") {
+    log.event("auth.access.denied", {
+      userId: user.id,
+      resource: `project:${projectId}`,
+      operation: permission,
+      requiredRoles: ["read_write"],
+      reason: "read-only-membership",
+    });
     return { response: json({ error: "Insufficient permissions" }, 403) };
   }
 

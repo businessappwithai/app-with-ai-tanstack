@@ -25,6 +25,7 @@ import * as fs from "node:fs/promises";
 import { createServer } from "node:http";
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { getLogger } from "@appwithai/core/logging";
 import { Command } from "commander";
 import { DEFAULT_BACKEND_PORT, DEFAULT_FRONTEND_PORT } from "../generators/ports";
 import { DEFAULT_PGLITE_URL, generateWasmApp, type WasmGeneratedApp } from "../generators/wasm";
@@ -248,6 +249,7 @@ program
       // the scripts, and leaves every generated source file alone.
       say("  Generating the NestJS backend and TanStack Start front end");
       await generateApplication({
+        logger: getLogger("pipeline"),
         sources,
         model: parsed,
         projectName: options.name,
@@ -443,10 +445,27 @@ function reviewSources(
     review: reviewModel(source, { autoFix }),
   }));
 
+  const log = getLogger("pipeline");
+
   let errors = 0;
   for (const { label, review } of reviews) {
     errors += review.counts.errors;
     const applied = review.fixes.filter((fix) => fix.applied);
+
+    // The terminal output below is for whoever is watching the run. This is for
+    // whoever reads the logs afterwards and wants to know why an application
+    // generated a month ago behaves the way it does — a warning the operator
+    // scrolled past is the usual answer, and until now it existed only in a
+    // terminal that has since been closed.
+    for (const issue of review.issues) {
+      if (issue.severity !== "warning") continue;
+      log.event("pipeline.model.warning", {
+        code: issue.code,
+        detail: issue.message,
+        line: issue.line ?? null,
+        model: label,
+      });
+    }
 
     if (!review.issues.length && !applied.length) continue;
 

@@ -11,6 +11,7 @@ import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import * as readline from "node:readline";
+import { getLogger } from "@appwithai/core/logging";
 import type { Entity, EntityEnum, Relationship } from "@appwithai/core/types";
 import { Command } from "commander";
 import { extractRuleSections } from "../eml";
@@ -617,6 +618,10 @@ program
       // the web app's /api/generate route also calls — that is what keeps a
       // model generating the same application from either entry point.
       await generateApplication({
+        // The pipeline takes its logger rather than importing one, because the
+        // same code is bundled for a browser tab where Pino cannot run. A Node
+        // CLI is the case that can, so it passes the real one.
+        logger: getLogger("pipeline"),
         // Passed even though the model is already parsed: the pipeline ships
         // the document into the generated application, and the compiled code
         // does not record what it was asked to do. `ruleSources` is the same

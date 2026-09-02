@@ -8,6 +8,7 @@
 
 import { type Kysely, sql } from "kysely";
 import { type Database, destroyDb, getDb } from "../config/db.config.js";
+import { getLogger } from "../logging/index.js";
 
 // Re-export types consumed by other packages
 export type { Database };
@@ -59,7 +60,36 @@ export async function runMigrations(): Promise<void> {
   await _runMigrationsImpl(db);
 }
 
+/** One swallowed migration step, kept until the whole run can be reported. */
+interface MigrationFailure {
+  step: string;
+  err: unknown;
+}
+
+/**
+ * Record a migration step that did not apply.
+ *
+ * Every one of these was a bare `catch {}` commented "already exists". That
+ * comment describes a case the code already handles a better way — each step
+ * uses `ifNotExists()` or `IF NOT EXISTS` — so anything actually reaching this
+ * handler is something else: a permission the role does not have, a type that
+ * does not exist, a connection that went away mid-run. All of it applied
+ * silently, and the first sign was a query failing against a column that was
+ * never added.
+ *
+ * Collected rather than thrown, because the run should still attempt the
+ * remaining steps: a database missing one column is more recoverable than one
+ * missing every table after the first failure.
+ */
+function noteMigrationFailure(failures: MigrationFailure[], step: string, err: unknown): void {
+  failures.push({ step, err });
+}
+
 async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
+  const log = getLogger("db");
+  const startedAt = Date.now();
+  const failures: MigrationFailure[] = [];
+
   try {
     await db.schema
       .createTable("projects")
@@ -91,8 +121,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table projects", err);
   }
 
   try {
@@ -118,8 +148,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("change_summary", "text")
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table erd_versions", err);
   }
 
   try {
@@ -149,8 +179,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("generated_hook_code", "text")
       .addColumn("is_draft", "boolean", (col) => col.defaultTo(false))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table workflows", err);
   }
 
   try {
@@ -186,8 +216,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("completed_at", "varchar(64)")
       .addColumn("duration_ms", "integer")
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table generation_history", err);
   }
 
   try {
@@ -218,8 +248,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table deployments", err);
   }
 
   try {
@@ -242,8 +272,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table entities", err);
   }
 
   try {
@@ -256,8 +286,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("description", "text")
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table settings", err);
   }
 
   try {
@@ -272,8 +302,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updated_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table rules", err);
   }
 
   // Auth tables
@@ -289,8 +319,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("createdAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updatedAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table auth_users", err);
   }
 
   try {
@@ -304,8 +334,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("createdAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .addColumn("updatedAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table auth_sessions", err);
   }
 
   try {
@@ -321,8 +351,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("expiresAt", "bigint")
       .addColumn("createdAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table auth_accounts", err);
   }
 
   try {
@@ -334,8 +364,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("expires", "varchar(64)", (col) => col.notNull())
       .addColumn("createdAt", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table auth_verification_tokens", err);
   }
 
   try {
@@ -343,8 +373,8 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .alterTable("auth_users")
       .addColumn("status", "varchar(32)", (col) => col.defaultTo("approved"))
       .execute();
-  } catch {
-    /* column already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "add column auth_users.status", err);
   }
 
   try {
@@ -352,20 +382,20 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .alterTable("auth_users")
       .addColumn("role", "varchar(64)", (col) => col.defaultTo("user"))
       .execute();
-  } catch {
-    /* column already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "add column auth_users.role", err);
   }
 
   try {
     await db.schema.alterTable("auth_users").addColumn("passwordHash", "text").execute();
-  } catch {
-    /* column already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "add column auth_users.passwordHash", err);
   }
 
   try {
     await db.schema.alterTable("projects").addColumn("owner_user_id", "varchar(128)").execute();
-  } catch {
-    /* column already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "add column projects.owner_user_id", err);
   }
 
   try {
@@ -378,15 +408,25 @@ async function _runMigrationsImpl(db: Kysely<Database>): Promise<void> {
       .addColumn("permission", "varchar(32)", (col) => col.notNull().defaultTo("read_only"))
       .addColumn("created_at", "varchar(64)", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
       .execute();
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "create table project_members", err);
   }
 
   try {
     await sql`ALTER TABLE projects ADD COLUMN target_db_connection TEXT`.execute(db);
-  } catch {
-    /* already exists */
+  } catch (err) {
+    noteMigrationFailure(failures, "add column projects.target_db_connection", err);
   }
+
+  for (const failure of failures) {
+    log.event("db.migration.failed", { name: failure.step, err: failure.err });
+  }
+
+  log.event("db.migration.applied", {
+    name: "schema",
+    durationMs: Date.now() - startedAt,
+    failed: failures.length,
+  });
 }
 
 // ─── Transform helpers ─────────────────────────────────────────────────────────
@@ -425,7 +465,11 @@ export const projectDb = {
       const rows = await query.orderBy("updated_at", "desc").execute();
       return (rows as any[]).map(transformProject);
     } catch (err) {
-      console.warn("Database unavailable, returning empty projects list:", (err as Error).message);
+      getLogger("db").event("db.query.failed", {
+        operation: "list",
+        table: "projects",
+        err,
+      });
       return [];
     }
   },
@@ -443,7 +487,11 @@ export const projectDb = {
         .execute();
       return (rows as any[]).map(transformProject);
     } catch (err) {
-      console.warn("Database unavailable, returning empty search results:", (err as Error).message);
+      getLogger("db").event("db.query.failed", {
+        operation: "search",
+        table: "projects",
+        err,
+      });
       return [];
     }
   },

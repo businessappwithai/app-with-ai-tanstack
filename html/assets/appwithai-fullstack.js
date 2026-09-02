@@ -17940,6 +17940,11 @@ ${processSection}
 `;
 }
 
+// packages/generator/src/pipeline/logger-port.ts
+var NO_LOG = {
+  event() {}
+};
+
 // packages/generator/src/parsers/category.parser.ts
 function slugifyCategory(name) {
   return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 50);
@@ -18791,7 +18796,7 @@ function buildGeneratorOptions(model, settings) {
     compiledRbac: model.rbac
   };
 }
-async function writeManifest(outputDir, model, settings, extras = {}) {
+async function writeManifest(outputDir, model, settings, extras = {}, log = NO_LOG) {
   const port = settings.port ?? GENERATION_DEFAULTS.port;
   try {
     await writeFile(join(outputDir, ".appwithai.json"), JSON.stringify({
@@ -18817,21 +18822,71 @@ async function writeManifest(outputDir, model, settings, extras = {}) {
       packageManager: extras.packageManager,
       generatedAt: new Date().toISOString()
     }, null, 2));
-  } catch {}
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: ".appwithai.json", err });
+  }
+}
+async function countFiles(directory) {
+  let total = 0;
+  try {
+    const entries = await readdir(directory, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name === "node_modules" || entry.name === ".git")
+        continue;
+      total += entry.isDirectory() ? await countFiles(join(directory, entry.name)) : 1;
+    }
+  } catch {
+    return total;
+  }
+  return total;
 }
 async function generateApplication(options) {
-  const model = options.model ?? parseModel(options.sources);
-  await mkdir(options.outputDir, { recursive: true });
-  const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
-  await generator.generate(model.entities, model.relationships);
-  await writeModelSource(options.outputDir, options.sources);
-  await writeManual(options.outputDir, model, options);
-  if (options.writeManifestFile !== false) {
-    await writeManifest(options.outputDir, model, options, options.manifest ?? {});
+  const log = options.logger ?? NO_LOG;
+  const startedAt = Date.now();
+  log.event("pipeline.generation.started", {
+    project: options.projectName,
+    stack: options.stackOption ?? GENERATION_DEFAULTS.stackOption,
+    input: Array.isArray(options.sources) ? `${options.sources.length} sources` : "1 source",
+    output: options.outputDir
+  });
+  let stage = "parse";
+  try {
+    const model = options.model ?? parseModel(options.sources);
+    log.event("pipeline.model.parsed", {
+      entities: model.entities.length,
+      rules: model.rules.length,
+      workflows: model.workflows.length,
+      sagas: model.sagas.length,
+      hooks: model.hooks.length,
+      enums: model.enums.length
+    });
+    stage = "emit";
+    await mkdir(options.outputDir, { recursive: true });
+    const generator = new FullStackGenerator(buildGeneratorOptions(model, options));
+    await generator.generate(model.entities, model.relationships);
+    log.event("pipeline.files.written", {
+      count: await countFiles(options.outputDir),
+      output: options.outputDir,
+      durationMs: Date.now() - startedAt
+    });
+    stage = "artifacts";
+    await writeModelSource(options.outputDir, options.sources, log);
+    await writeManual(options.outputDir, model, options, log);
+    if (options.writeManifestFile !== false) {
+      await writeManifest(options.outputDir, model, options, options.manifest ?? {}, log);
+    }
+    log.event("pipeline.generation.completed", {
+      project: options.projectName,
+      files: await countFiles(options.outputDir),
+      durationMs: Date.now() - startedAt
+    });
+    return model;
+  } catch (err) {
+    log.event("pipeline.generation.failed", { project: options.projectName, stage, err });
+    throw err;
   }
-  return model;
 }
-async function writeManual(outputDir, model, options) {
+async function writeManual(outputDir, model, options, log = NO_LOG) {
   try {
     const directory = join(outputDir, "frontend", "public");
     await mkdir(directory, { recursive: true });
@@ -18841,9 +18896,11 @@ async function writeManual(outputDir, model, options) {
       description: options.projectDescription ?? GENERATION_DEFAULTS.projectDescription,
       stack: "nestjs"
     }), "utf-8");
-  } catch {}
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: "manual.html", err });
+  }
 }
-async function writeModelSource(outputDir, sources) {
+async function writeModelSource(outputDir, sources, log = NO_LOG) {
   const document = (Array.isArray(sources) ? sources : [sources]).filter(Boolean).join(`
 
 `);
@@ -18852,7 +18909,9 @@ async function writeModelSource(outputDir, sources) {
   try {
     await mkdir(join(outputDir, "model"), { recursive: true });
     await writeFile(join(outputDir, "model", "model.eml.mmd"), document, "utf-8");
-  } catch {}
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: "model/model.eml.mmd", err });
+  }
 }
 
 // language/checker.ts

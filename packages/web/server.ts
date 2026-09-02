@@ -18,7 +18,39 @@
 
 import { existsSync } from "node:fs";
 import { join, normalize } from "node:path";
+import { getLogger, installProcessLogging } from "@appwithai/core/logging";
 import { file } from "bun";
+
+const log = getLogger("app");
+
+// Registered before anything can fail. An exception escaping an async boundary
+// used to take this process down with whatever Bun printed and nothing else;
+// now the reason is a `fatal` line with the error serialized, and SIGTERM —
+// which is how every orchestrator asks a container to stop — is recorded rather
+// than silent.
+installProcessLogging();
+
+log.event("app.starting", {
+  name: "appwithai-generator",
+  version: process.env.npm_package_version ?? "unknown",
+  env: process.env.NODE_ENV ?? "development",
+  nodeVersion: process.version,
+});
+
+/**
+ * Configuration that is optional, and what is off without it.
+ *
+ * Reported at boot rather than at first use. A feature that is quietly absent
+ * because a variable was never set is the single most common deployment
+ * mistake, and it usually presents as "the button does nothing".
+ */
+for (const [key, feature] of [
+  ["DATABASE_URL", "project persistence"],
+  ["VITE_MASTRA_URL", "the AI assistant"],
+  ["SESSION_SECRET", "signed sessions"],
+] as const) {
+  if (!process.env[key]) log.event("app.config.missing", { key, feature });
+}
 
 const handler = (await import("./dist/server/server.js")) as {
   default: { fetch: (request: Request) => Promise<Response> };
@@ -67,10 +99,21 @@ const server = Bun.serve({
     } catch (error) {
       // A handler that throws would otherwise take the whole server down and
       // leave the container in a crash loop with no useful log line.
-      console.error(`[server] ${request.method} ${pathname} failed:`, error);
+      log.event("http.request.failed", {
+        method: request.method,
+        path: pathname,
+        status: 500,
+        durationMs: null,
+        requestId: request.headers.get("x-request-id"),
+        err: error,
+      });
       return new Response("Internal Server Error", { status: 500 });
     }
   },
 });
 
-console.log(`APPWITHAI generator listening on http://localhost:${server.port}`);
+log.event("app.started", {
+  url: `http://localhost:${server.port}`,
+  port: server.port,
+  env: process.env.NODE_ENV ?? "development",
+});
