@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import OpenAI from "openai";
 import { convertToJdm } from "@/lib/jdm-converter";
 import { parseMermaidFlowchart } from "@/lib/mermaid-flowchart-parser";
+import { requireUser } from "@/lib/require-user";
 
 const localAI = new OpenAI({
   apiKey: process.env.LOCAL_AI_API_KEY ?? "local",
@@ -94,6 +95,9 @@ export const Route = createFileRoute("/api/ai/rules-stream")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const caller = await requireUser(request, "ai:rules", "write");
+        if (caller.response) return caller.response;
+
         const encoder = new TextEncoder();
 
         try {

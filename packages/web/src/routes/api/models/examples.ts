@@ -16,6 +16,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 /** Directories searched, in order. Missing ones are skipped, not an error. */
 function searchPaths(): string[] {
@@ -114,6 +115,9 @@ export const Route = createFileRoute("/api/models/examples")({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        const caller = await requireUser(request, "models:examples", "read");
+        if (caller.response) return caller.response;
+
         const json = (body: unknown, status = 200): Response =>
           new Response(JSON.stringify(body), {
             status,

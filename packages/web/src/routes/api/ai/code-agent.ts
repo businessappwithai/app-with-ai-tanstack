@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 interface CodeAgentRequest {
   task: string;
@@ -15,6 +16,9 @@ export const Route = createFileRoute("/api/ai/code-agent")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const caller = await requireUser(request, "ai:code-agent", "write");
+        if (caller.response) return caller.response;
+
         try {
           const body: CodeAgentRequest = await request.json();
           const { task, erdCode, stack, options } = body;
