@@ -204,7 +204,7 @@ it. **reserved** = documented, renderer-safe, inert.
 
 | Directive | Form | Status | Compiled by |
 |---|---|---|---|
-| `%%meta` | `%%meta <key>: <value>` | compiled | `language/composer.ts` |
+| `%%meta` | `%%meta <key>: <value>` (keys: `name`, `kind`, `version`, `entity`, `stack`, `description`) | compiled | `language/composer.ts` |
 | `%%hook` | `%%hook <type> <handler> on <E>` · `%%hook <type> on <E>` | compiled | `generator/src/hooks/index.ts` |
 | `%%step` | `%%step <nodeId> <stepType> <k>: <v> …` | compiled | `generator/src/workflows/steps.ts` |
 | `%%action` | `%%action <name> <type> when: <expr> …` | compiled | `generator/src/rules/index.ts` |
@@ -255,8 +255,29 @@ but every field on every form is a label with nothing behind it.
 - **Nobody adds it later.** The model is the only place it can be written, and
   the moment it is being written is the only moment anyone knows the answer.
 
+**Quality bar:** each entity help must be at least two sentences describing its
+business role, lifecycle, and what distinguishes it from similar-sounding
+entities. Each field help must explain why the value matters, any constraints,
+and business consequences. Examples:
+
+  Bad:  `%%entity Customer help: The customer.`
+  Good: `%%entity Customer help: A person or organisation that buys from us. Created when a lead converts; cannot be deleted while open orders exist.`
+
+  Bad:  `%%field Customer.name help: The name of the customer.`
+  Good: `%%field Customer.name help: Full legal name as it appears on invoicing documents — required for tax reporting.`
+
 The checklist in §10 asks for both, and a delivery missing them is incomplete
 even though the checker returns zero errors.
+
+**`%%meta description:` is mandatory and substantive.** Every model must include
+a `%%meta description:` line that is a multi-sentence summary of what the
+application does: its business domain, the entities it manages, the workflows it
+automates, and the value it provides to its users. This text flows into the
+generated manual's "Application Overview" section, the `APP_DESCRIPTION` row in
+`sys_system` (editable from Admin > System Configuration as a textarea), and the
+admin dashboard header. Example:
+
+  `%%meta description: This application manages the complete drug-discovery pipeline from target identification through clinical trials. It tracks compounds, assays, and their results; automates the stage-gate workflow that moves candidates through discovery, preclinical, and clinical phases; enforces regulatory constraints through business rules; and provides real-time dashboards for portfolio managers to monitor pipeline health and make go/no-go decisions.`
 
 ### 3.2.1 `%%rbac` — access control
 
@@ -799,6 +820,8 @@ data.
 | `sys_category` | dashboard grouping from `%%category` |
 | `sys_report_designs` | one default AnkaReport layout per entity; drives the Print button and Admin → Report Designs (see 5.7) |
 | `sys_session`, `sys_val_rule` | sessions, validation rules |
+| `sys_note` | user notes on records, append-only |
+| `sys_system` | database-backed runtime configuration: AI endpoints, feature toggles, rate limits, logging, CORS, and application identity (`APP_NAME`, `APP_DESCRIPTION`). Fallback chain: DB row (active + non-empty) -> `process.env` -> hardcoded default. Administrators edit it from Admin > System Configuration; `APP_DESCRIPTION` renders as a textarea for a multi-paragraph application summary that appears in the manual and the dashboard header |
 
 **auth tables** — Better Auth.
 
@@ -1194,6 +1217,15 @@ does `CREATE EXTENSION vector`; CI uses `pgvector/pgvector:pg18`.
 
 **Security**: `SESSION_SECRET`, `JWT_SECRET`, `DB_ENCRYPTION_KEY` (base64, 32
 bytes — rotating it invalidates every stored project connection).
+
+**Generated app runtime config**: in a generated application, AI config
+(`AI_BASE_URL`, `AI_API_KEY`, `AI_EMBEDDING_MODEL`, `AI_EMBEDDING_DIMENSIONS`),
+feature toggles (`ELECTRIC_URL`, `IMMUDB_ENABLED`, `AUDIT_READS`,
+`ENABLE_MODEL_CONTEXT`), rate limiting (`THROTTLE_TTL`, `THROTTLE_LIMIT`),
+logging (`LOG_LEVEL`, `LOG_PRETTY`), and CORS (`CORS_ORIGIN`) can also be
+managed from the database via the `sys_system` table, making the `.env` entries
+optional for those settings. Bootstrap variables (`DATABASE_URL`,
+`BETTER_AUTH_SECRET`, `PORT`, `HOST`, `NODE_ENV`) cannot move to the database.
 
 ### CI
 
@@ -1726,10 +1758,13 @@ dropped silently by the parser (§3.3), so `string email UNQIUE` yields a column
 that simply is not unique and renders identically in the diagram. `EML118` warns
 about it now; do not rely on the warning, spell them correctly.
 
-Each field arrives with **`%%field help:` already written to the §5.6 standard**:
-what the field is *for*, naming the business event rather than the data type,
-explaining enum values that carry policy, describing foreign keys in business
-terms. Never a restatement of the field name.
+Each field arrives with **`%%field help:` already written to the §3.2 quality
+bar**: what the field is *for*, naming the business event rather than the data
+type, explaining enum values that carry policy, describing foreign keys in
+business terms. Never a restatement of the field name. "The name of the
+customer" is not help; "Full legal name as it appears on invoicing documents —
+required for tax reporting" is. This text populates the generated manual (§5.6)
+and in-app tooltips — it is not optional filler.
 
 **2 · Enums.** `%%enum` for every coded column, with the values this business
 actually uses — its vocabulary from §10.1.6, not a generic `active/inactive`.
@@ -2043,11 +2078,19 @@ the codes are banded so the band tells you where the fault is —
 and workflows · `EML3xx` rule flowcharts · `EML4xx` workflow sections ·
 `EML5xx` cross-section consistency.
 
-**Fix the cause in the model, not the symptom in the text**, and check again.
-Run until **three consecutive clean passes over unchanged bytes** — not ceremony:
-a repair can uncover a problem the original error was masking, so a single clean
-pass immediately after an edit describes a document that no longer exists. The
-third pass over bytes nothing touched is what makes "clean" mean clean.
+**Iterate until clean — at least 10 cycles.** Run the checker, apply the fixer
+to every diagnostic, re-run the checker. Repeat this cycle **at least 10 times**
+or until the checker reports zero errors and zero warnings — whichever comes
+first. If all diagnostics are resolved before 10 cycles, the loop stops. A
+single pass is never enough — a repair can uncover a problem the original error
+was masking, and the fixer may introduce new issues or unmask errors hidden
+behind earlier ones. Fix the complete file across all iterations, not just the
+first batch of diagnostics. Validation is complete only when the checker's output
+is empty.
+
+If diagnostics persist after all 10 iterations, deliver the best version you
+have, say plainly which diagnostics remain and what you tried, and let the user
+decide.
 
 **Warnings are not noise** (§3.6). Most describe something the generator accepts
 and quietly gets wrong — a dropped modifier, a state no enum backs, a rule that

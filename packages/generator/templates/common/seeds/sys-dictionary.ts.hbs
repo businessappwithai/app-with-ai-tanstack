@@ -795,6 +795,16 @@ export async function seed(db: Kysely<any>): Promise<void> {
         'is the whole of their access. A window with no grant is invisible rather than forbidden, so ' +
         'removing access removes the screen from the dashboard as well.',
     },
+    {
+      name: 'System Configuration',
+      route: '/admin/system-config',
+      help:
+        'Runtime configuration that can be changed without a redeploy. AI endpoints, feature toggles, ' +
+        'rate limits, logging, and CORS are managed here.\n\n' +
+        'Each setting falls back to its environment variable when deactivated or empty, so the .env ' +
+        'file remains the bootstrap mechanism. The application description at the top is a detailed ' +
+        'summary of what this application does — it appears in the manual and the dashboard header.',
+    },
   ];
 
   for (const wd of adminWindowDefs) {
@@ -851,7 +861,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   console.log(`  - ${businessRoleIds.length + 1} roles granted window access`);
   console.log('  - 1 admin user (admin@localhost)');
   console.log('  - 3 field groups');
-  console.log('  - 7 admin windows (Application Dictionary)');
+  console.log('  - 8 admin windows (Application Dictionary)');
   console.log('');
   console.log('NOTE: Field seq_no values are sequential. Administrators can');
   console.log('      reorder fields via the admin interface.');

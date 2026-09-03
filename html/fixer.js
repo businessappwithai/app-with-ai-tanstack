@@ -1128,12 +1128,13 @@ var appwithai_language_default = {
           "language/composer.ts (section classification and round-trip)",
           "packages/generator/src/eml (section extraction via composer)"
         ],
-        purpose: "Document/section metadata: name, kind (erd|rules|workflow), version, entity binding, description, stack.",
+        purpose: "Document/section metadata: name, kind (erd|rules|workflow), version, entity binding, description (application summary seeded into sys_system.APP_DESCRIPTION and the generated manual), stack.",
         examples: [
           "%%meta name: CRM Core",
           "%%meta kind: rules",
           "%%meta entity: Order",
-          "%%meta version: 1.0.0"
+          "%%meta version: 1.0.0",
+          "%%meta description: This application manages customer relationships, sales pipelines, and support tickets for mid-market B2B companies."
         ]
       },
       {
@@ -2124,7 +2125,7 @@ class CheckEngine {
     "parent"
   ]);
   validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
-  validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
+  validMetaKeys = new Set(["name", "kind", "version", "entity", "stack", "description"]);
   validWorkflowKinds = new Set(["hook", "state", "saga"]);
   validTriggerSources = /^(cron:|webhook:|message:)/;
   validRoleExpr = /^role:[A-Za-z][A-Za-z0-9_]*(\|(?:role:)?[A-Za-z][A-Za-z0-9_]*)*$/;

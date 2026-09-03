@@ -9,6 +9,7 @@ import {
   Printer,
   Settings,
   ShieldCheck,
+  SlidersHorizontal,
   Tags,
   X,
 } from "lucide-react";
@@ -61,6 +62,11 @@ const MENU_ITEMS = [
     label: "Report Designs",
     to: "/admin/reports",
     icon: Printer,
+  },
+  {
+    label: "System Configuration",
+    to: "/admin/system-config",
+    icon: SlidersHorizontal,
   },
 ];
 

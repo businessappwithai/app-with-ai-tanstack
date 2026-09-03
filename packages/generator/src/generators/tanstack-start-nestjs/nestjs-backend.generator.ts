@@ -1509,6 +1509,11 @@ export async function executeCustomValidateHooks(
         slug: "add_record_notes",
         template: "src/migrations/014_add_record_notes.ts.hbs",
       },
+      // sys_system — database-backed config (AI, features, rate limits, app identity)
+      {
+        slug: "add_system_config",
+        template: "src/migrations/015_add_system_config.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -1632,6 +1637,16 @@ export async function executeCustomValidateHooks(
     await fs.writeFile(
       path.join(outputDir, "seeds/06_report_designs.ts"),
       reportDesignsSeedContent
+    );
+
+    // Seed system configuration rows into sys_system.
+    const systemConfigContent = await this.renderTemplate(
+      "../../common/seeds/system-config.ts.hbs",
+      context
+    );
+    await fs.writeFile(
+      path.join(outputDir, "seeds/07_system_config.ts"),
+      systemConfigContent
     );
   }
 

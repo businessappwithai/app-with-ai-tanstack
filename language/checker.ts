@@ -323,7 +323,7 @@ class CheckEngine {
     "parent",
   ]);
   private validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
-  private validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
+  private validMetaKeys = new Set(["name", "kind", "version", "entity", "stack", "description"]);
   private validWorkflowKinds = new Set(["hook", "state", "saga"]);
   private validTriggerSources = /^(cron:|webhook:|message:)/;
   // role:name1|name2 or role:name1|role:name2 are both valid per spec

@@ -27,12 +27,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { InjectDatabase } from '../../database/database.service.decorator';
 import { chunkModel, extractEnums, type RagChunk } from './rag';
-
-/** Vector width of the embedding model. Fixed when the column is created. */
-const EMBEDDING_DIMENSIONS = Number(process.env.AI_EMBEDDING_DIMENSIONS ?? 384);
-const EMBEDDING_MODEL = process.env.AI_EMBEDDING_MODEL ?? 'bge-small-en-v1.5';
-const AI_BASE_URL = process.env.AI_BASE_URL ?? 'http://localhost:8000/v1';
-const AI_API_KEY = process.env.AI_API_KEY ?? 'local';
+import { SystemConfigService } from '../sys/services/system-config.service';
 
 export interface RetrievedChunk {
   kind: string;
@@ -46,7 +41,15 @@ export class ModelContextService implements OnModuleInit {
   private readonly logger = new Logger(ModelContextService.name);
   private ready = false;
 
-  constructor(@InjectDatabase() private readonly db: Kysely<any>) {}
+  constructor(
+    @InjectDatabase() private readonly db: Kysely<any>,
+    private readonly config: SystemConfigService,
+  ) {}
+
+  private get EMBEDDING_DIMENSIONS(): number { return this.config.getNumber('AI_EMBEDDING_DIMENSIONS', 384); }
+  private get EMBEDDING_MODEL(): string { return this.config.get('AI_EMBEDDING_MODEL', 'bge-small-en-v1.5'); }
+  private get AI_BASE_URL(): string { return this.config.get('AI_BASE_URL', 'http://localhost:8000/v1'); }
+  private get AI_API_KEY(): string { return this.config.get('AI_API_KEY', 'local'); }
 
   /**
    * Ingest at startup, in the background.
@@ -178,15 +181,15 @@ export class ModelContextService implements OnModuleInit {
   private async embed(texts: string[]): Promise<number[][]> {
     if (!texts.length) return [];
 
-    const response = await fetch(`${AI_BASE_URL}/embeddings`, {
+    const response = await fetch(`${this.AI_BASE_URL}/embeddings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${AI_API_KEY}`,
+        Authorization: `Bearer ${this.AI_API_KEY}`,
       },
       // `encoding_format: float` asked for explicitly: without it a client may
       // negotiate base64 and read the response four values to one.
-      body: JSON.stringify({ model: EMBEDDING_MODEL, input: texts, encoding_format: 'float' }),
+      body: JSON.stringify({ model: this.EMBEDDING_MODEL, input: texts, encoding_format: 'float' }),
     });
 
     if (!response.ok) {
@@ -200,10 +203,10 @@ export class ModelContextService implements OnModuleInit {
     const vectors = ordered.map((item) => item.embedding);
 
     const width = vectors[0]?.length;
-    if (width && width !== EMBEDDING_DIMENSIONS) {
+    if (width && width !== this.EMBEDDING_DIMENSIONS) {
       throw new Error(
-        `Embedding model "${EMBEDDING_MODEL}" returned ${width}-dimension vectors but the ` +
-          `table expects ${EMBEDDING_DIMENSIONS}. Set AI_EMBEDDING_DIMENSIONS=${width} and re-ingest.`
+        `Embedding model "${this.EMBEDDING_MODEL}" returned ${width}-dimension vectors but the ` +
+          `table expects ${this.EMBEDDING_DIMENSIONS}. Set AI_EMBEDDING_DIMENSIONS=${width} and re-ingest.`
       );
     }
     return vectors;
@@ -219,7 +222,7 @@ export class ModelContextService implements OnModuleInit {
         name        text NOT NULL,
         entity      text,
         text        text NOT NULL,
-        embedding   vector(${sql.raw(String(EMBEDDING_DIMENSIONS))}) NOT NULL,
+        embedding   vector(${sql.raw(String(this.EMBEDDING_DIMENSIONS))}) NOT NULL,
         created_at  timestamptz NOT NULL DEFAULT now()
       )
     `.execute(this.db);

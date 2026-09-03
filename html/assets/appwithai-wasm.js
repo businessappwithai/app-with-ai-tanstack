@@ -1138,12 +1138,13 @@ var appwithai_language_default = {
           "language/composer.ts (section classification and round-trip)",
           "packages/generator/src/eml (section extraction via composer)"
         ],
-        purpose: "Document/section metadata: name, kind (erd|rules|workflow), version, entity binding, description, stack.",
+        purpose: "Document/section metadata: name, kind (erd|rules|workflow), version, entity binding, description (application summary seeded into sys_system.APP_DESCRIPTION and the generated manual), stack.",
         examples: [
           "%%meta name: CRM Core",
           "%%meta kind: rules",
           "%%meta entity: Order",
-          "%%meta version: 1.0.0"
+          "%%meta version: 1.0.0",
+          "%%meta description: This application manages customer relationships, sales pipelines, and support tickets for mid-market B2B companies."
         ]
       },
       {
@@ -3695,7 +3696,7 @@ class CheckEngine {
     "parent"
   ]);
   validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
-  validMetaKeys = new Set(["name", "kind", "version", "entity", "stack"]);
+  validMetaKeys = new Set(["name", "kind", "version", "entity", "stack", "description"]);
   validWorkflowKinds = new Set(["hook", "state", "saga"]);
   validTriggerSources = /^(cron:|webhook:|message:)/;
   validRoleExpr = /^role:[A-Za-z][A-Za-z0-9_]*(\|(?:role:)?[A-Za-z][A-Za-z0-9_]*)*$/;
@@ -19770,6 +19771,7 @@ tbody tr:last-child td { border-bottom: none; }
 .missing { color: var(--muted); font-style: italic; }
 .unset { color: var(--muted); }
 .detail { margin-top: 5px; font-size: 13px; color: var(--soft); }
+.app-overview { margin: 18px 0; padding: 16px 20px; background: var(--surface); border-left: 4px solid var(--accent); border-radius: 4px; font-size: 15px; line-height: 1.7; }
 ul.plain { margin: 4px 0 12px; padding-left: 20px; }
 .process { border-left: 3px solid var(--border); padding-left: 16px; margin: 18px 0; }
 .back { margin-top: 18px; font-size: 13px; }
@@ -19798,7 +19800,8 @@ ${contents}
 
   <section id="overview">
     <h2>What this application is</h2>
-    <p>${escapeHtml(options.name)} keeps ${model.entities.length} kinds of record${model.entities.length === 1 ? "" : "s"}${model.categories.length ? `, grouped into ${model.categories.length} areas of the business` : ""}. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+${options.description && options.description !== "A generated full-stack application" ? `    <div class="app-overview"><p>${escapeHtml(options.description)}</p></div>
+` : ""}    <p>${escapeHtml(options.name)} keeps ${model.entities.length} kinds of record${model.entities.length === 1 ? "" : "s"}${model.categories.length ? `, grouped into ${model.categories.length} areas of the business` : ""}. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
     <p>This manual is generated from the same description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
 ${model.categories.length ? `    <table>
       <thead><tr><th>Area</th><th>Records</th></tr></thead>
