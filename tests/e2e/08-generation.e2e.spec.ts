@@ -153,6 +153,18 @@ test.describe("generating an application", () => {
       ).toBe(true);
     }
 
+    // The suites that are generated once rather than per entity, including the
+    // one that drives a hundred threads at the application. A generator that
+    // stopped emitting the harness file a suite imports would still finish, and
+    // the failure would surface as an import error inside somebody's run.
+    for (const file of [
+      "suites/12-concurrency.test.ts",
+      "harness/concurrency.ts",
+      "harness/concurrency-worker.ts",
+    ]) {
+      expect(existsSync(join(outputDir, "tests", file)), `${file} was not generated`).toBe(true);
+    }
+
     // And the harness carries the model's own vocabulary rather than reading it
     // back out of the application the same generator wrote.
     const model = readFileSync(join(outputDir, "tests", "harness", "model.ts"), "utf8");

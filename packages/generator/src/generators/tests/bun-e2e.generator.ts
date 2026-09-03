@@ -89,6 +89,11 @@ const HARNESS_FILES = [
   // appends to, and the merge the runner writes a report from.
   "metrics.ts",
   "report.ts",
+  // The worker-thread pool and the script each thread runs. The script is a
+  // module a `new Worker(...)` loads by path, so it is a harness file rather
+  // than a suite: nothing imports it, and a test runner must not collect it.
+  "concurrency.ts",
+  "concurrency-worker.ts",
   "harness.ts",
   "index.ts",
 ];
@@ -114,6 +119,10 @@ const SHARED_SUITES = [
   // Last, so they measure the fullest the tables will be this run.
   "10-benchmark.test.ts",
   "11-performance-budget.test.ts",
+  // Later still: a hundred threads writing at once leave the tables in a state
+  // nothing after them should have to reason about, and the suite deletes what
+  // it created so the volume the benchmarks measured is what they measured.
+  "12-concurrency.test.ts",
 ];
 
 /** Root-level files. */

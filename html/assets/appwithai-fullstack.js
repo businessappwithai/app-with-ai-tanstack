@@ -17335,6 +17335,8 @@ var HARNESS_FILES = [
   "manifest.ts",
   "metrics.ts",
   "report.ts",
+  "concurrency.ts",
+  "concurrency-worker.ts",
   "harness.ts",
   "index.ts"
 ];
@@ -17351,7 +17353,8 @@ var SHARED_SUITES = [
   "08-users-roles.test.ts",
   "09-workflow-multistep.test.ts",
   "10-benchmark.test.ts",
-  "11-performance-budget.test.ts"
+  "11-performance-budget.test.ts",
+  "12-concurrency.test.ts"
 ];
 var ROOT_FILES = ["package.json", "tsconfig.json", "README.md", "run.ts", "cleanup.ts"];
 var EXECUTABLE_FILES = ["run.ts", "cleanup.ts"];

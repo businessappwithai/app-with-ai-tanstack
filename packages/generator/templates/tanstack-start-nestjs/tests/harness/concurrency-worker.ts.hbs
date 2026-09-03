@@ -1,0 +1,183 @@
+/**
+ * One thread of the concurrency run.
+ *
+ * Deliberately self-contained: it signs in with its own cookie jar and speaks
+ * to the API with `fetch` directly rather than through the shared `HttpClient`.
+ * That client retries a 429 and records metrics into the parent's shard file —
+ * both right for the rest of the suite and wrong here, where a throttled
+ * request is a result worth reporting and a hundred threads appending to one
+ * file would interleave.
+ *
+ * It never throws. A thread that dies takes its samples with it, and the
+ * numbers this run exists to produce would be quietly short.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { parentPort, workerData } from "node:worker_threads";
+
+import type { WorkerInput, WorkerReport, WorkerSample } from "./concurrency.ts";
+
+const input = workerData as WorkerInput;
+
+const samples: WorkerSample[] = [];
+const failures: string[] = [];
+
+/** The session cookie, once signed in. */
+let cookie = "";
+
+function url(path: string, absolute = false): string {
+  return `${input.baseUrl}${absolute ? "" : input.apiPrefix}${path}`;
+}
+
+interface Attempt {
+  status: number;
+  ms: number;
+  body: unknown;
+}
+
+async function send(
+  method: string,
+  path: string,
+  body?: unknown,
+  extraHeaders: Record<string, string> = {},
+  absolute = false
+): Promise<Attempt> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Origin: input.origin,
+    ...extraHeaders,
+  };
+  if (cookie) headers.Cookie = cookie;
+
+  const startedAt = performance.now();
+  try {
+    const response = await fetch(url(path, absolute), {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(input.requestTimeoutMs),
+    });
+
+    const raw = await response.text();
+    const setCookie =
+      typeof response.headers.getSetCookie === "function"
+        ? response.headers.getSetCookie()
+        : [response.headers.get("set-cookie")].filter((value): value is string => !!value);
+    for (const entry of setCookie) {
+      const pair = entry.split(";", 1)[0];
+      if (pair) cookie = cookie ? `${cookie}; ${pair}` : pair;
+    }
+
+    let parsed: unknown = null;
+    try {
+      parsed = raw ? JSON.parse(raw) : null;
+    } catch {
+      parsed = raw;
+    }
+
+    return { status: response.status, ms: performance.now() - startedAt, body: parsed };
+  } catch (error) {
+    // A transport failure is not a status, and reporting it as one would hide
+    // it among the refusals. 0 means "never answered".
+    failures.push(
+      `${method} ${path}: ${error instanceof Error ? error.message : String(error)}`
+    );
+    return { status: 0, ms: performance.now() - startedAt, body: null };
+  }
+}
+
+/** Values distinct per thread and per record, so unique columns do not collide. */
+function marker(suffix: string | number): string {
+  return `w${input.worker}-${suffix}-${Date.now().toString(36)}`;
+}
+
+async function run(): Promise<void> {
+  const signIn = await send(
+    "POST",
+    "/api/auth/sign-in/email",
+    { email: input.email, password: input.password },
+    {},
+    true
+  );
+  if (signIn.status >= 300 || !cookie) {
+    failures.push(`sign-in answered ${signIn.status}`);
+    return;
+  }
+
+  const mine: string[] = [];
+
+  // ── the contended row, conditionally ──────────────────────────────────────
+  // First, while every thread still holds the version the row had when the
+  // parent created it. Every thread claims that same version; one may win and
+  // the rest must be told they are stale. Run after the unconditional writes
+  // below it would be a hundred threads claiming a version none of them could
+  // still have, which proves nothing.
+  const conditional = await send(
+    "PATCH",
+    `/bus/${input.entityRoute}/${input.contendedId}`,
+    { [input.textField]: marker("cas") },
+    { "If-Match": `"v${input.contendedVersion}"` }
+  );
+  samples.push({ phase: "conditional", status: conditional.status, ms: conditional.ms });
+
+  // ── inserts ───────────────────────────────────────────────────────────────
+  for (let index = 0; index < input.recordsPerWorker; index++) {
+    const payload: Record<string, unknown> = {
+      ...(input.payloads[index] ?? {}),
+      [input.textField]: marker(index),
+    };
+
+    const attempt = await send("POST", `/bus/${input.entityRoute}`, payload);
+    const id =
+      attempt.body && typeof attempt.body === "object"
+        ? (attempt.body as { id?: string }).id
+        : undefined;
+
+    samples.push({ phase: "insert", status: attempt.status, ms: attempt.ms, id });
+    if (id) mine.push(id);
+  }
+
+  // ── updates, each thread on its own rows ──────────────────────────────────
+  for (const id of mine) {
+    const attempt = await send("PATCH", `/bus/${input.entityRoute}/${id}`, {
+      [input.textField]: marker(`upd-${id.slice(0, 8)}`),
+    });
+    samples.push({ phase: "update", status: attempt.status, ms: attempt.ms });
+  }
+
+  // ── the contended row, unconditionally ────────────────────────────────────
+  // Every thread writes the same record. No `If-Match`, so the application is
+  // free to accept all of them — what must hold is that it accounts for every
+  // write it accepted, which the suite checks against the row's final version.
+  for (let index = 0; index < input.contendedWrites; index++) {
+    const attempt = await send("PATCH", `/bus/${input.entityRoute}/${input.contendedId}`, {
+      [input.textField]: marker(`hot-${index}`),
+    });
+    samples.push({ phase: "contend", status: attempt.status, ms: attempt.ms });
+  }
+
+  // ── deletes, each thread on its own rows ──────────────────────────────────
+  for (const id of mine) {
+    const attempt = await send("DELETE", `/bus/${input.entityRoute}/${id}`);
+
+    // `deleted` rather than the status: a record whose delete workflows could
+    // not run answers 200 and says so in the body, and the row is still there.
+    const applied =
+      !!attempt.body &&
+      typeof attempt.body === "object" &&
+      (attempt.body as { deleted?: unknown }).deleted === true;
+
+    samples.push({ phase: "delete", status: attempt.status, ms: attempt.ms, id, applied });
+  }
+}
+
+run()
+  .catch((error) => {
+    failures.push(error instanceof Error ? error.message : String(error));
+  })
+  .finally(() => {
+    const report: WorkerReport = { worker: input.worker, samples, failures };
+    parentPort?.postMessage(report);
+  });

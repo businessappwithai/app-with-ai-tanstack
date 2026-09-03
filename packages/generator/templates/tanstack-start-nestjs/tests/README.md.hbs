@@ -69,6 +69,8 @@ tests/
 │   ├── factory.ts      # Faker record factory
 │   ├── rules.ts        # JDM builders + rules API
 │   ├── workflows.ts    # Workflow run polling
+│   ├── concurrency.ts  # Worker-thread pool + phase statistics
+│   ├── concurrency-worker.ts  # The script each thread runs
 │   └── harness.ts      # The controller: setup, tracking, teardown
 └── suites/             # One file per functional area
     ├── 00-health.test.ts
@@ -79,7 +81,10 @@ tests/
     ├── 05-rules.<entity>.test.ts    (one per entity)
     ├── 06-rules-workflow.test.ts
     ├── 07-workflow-random.test.ts
-    └── 08-users-roles.test.ts
+    ├── 08-users-roles.test.ts
+    ├── 10-benchmark.test.ts
+    ├── 11-performance-budget.test.ts
+    └── 12-concurrency.test.ts
 ```
 
 Suites run in filename order because they build on each other: the bulk seed
@@ -121,6 +126,38 @@ opts out: its volume data is left behind for the suites that follow.
 | `06-rules-workflow` | `trigger-workflow` actions emitted and workflow runs enqueued, reaching a terminal state |
 | `07-workflow-random` | Randomised creates/updates across random entities with cascade rules; no 5xx, no stuck runs, records stay readable |
 | `08-users-roles` | Seeded roles, faker-registered users at volume, permission scoping, admin-only route enforcement |
+| `10-benchmark` | Read latency at the volume the run built: first page, deep page, count, sort, filter, search |
+| `11-performance-budget` | The same reads against ceilings, so a missing index fails rather than merely being slower |
+| `12-concurrency` | 100 real threads writing to one entity at once — parallel inserts, updates and deletes, a contended row, and an audit of what the data looks like afterwards |
+
+### The concurrency run
+
+`12-concurrency` is the only suite that does not drive the application one
+request at a time. It spawns `node:worker_threads` — a hundred by default, each
+with its own session — and has them insert, update and delete against one
+entity simultaneously, plus contend over a single shared record.
+
+It measures throughput and tail latency, and those land in the run report next
+to the single-threaded numbers. But the assertions are about correctness, which
+is what concurrency actually threatens:
+
+- no 5xx and no request that never answered — a pool that runs dry shows up here
+- the contended record's version accounts for **every** accepted write to it,
+  which is how a lost update is caught: two writers reading the same version and
+  both writing the next one leaves the count short
+- exactly one thread wins a conditional write when all hundred claim the same
+  version — a check-and-set that reads the version without holding it lets
+  several through
+- every row a thread deleted is gone, and every row whose delete was refused
+  because its cascade could not run is still whole
+
+| Knob | Default | |
+|---|---|---|
+| `E2E_CONCURRENCY_WORKERS` | 100 | Threads |
+| `E2E_CONCURRENCY_RECORDS` | 3 | Records each thread inserts, updates and deletes |
+| `E2E_CONCURRENCY_CONTENDED` | 2 | Unconditional writes each thread aims at the shared record |
+| `E2E_CONCURRENCY_ENTITY` | widest entity with no required parents | The table to hammer |
+| `E2E_CONCURRENCY_MIN_OPS` | unset | Throughput floor to assert, when the hardware is known |
 
 ---
 

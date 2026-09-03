@@ -1,0 +1,286 @@
+/**
+ * The concurrency harness — real threads, not a hundred promises.
+ *
+ * Everything else in this suite runs on one event loop, which is fine for
+ * asserting behaviour and useless for asserting behaviour *under load*: a
+ * single loop issues requests concurrently but serialises every response it
+ * has to parse, so the client becomes the bottleneck and the application looks
+ * faster than it is. The interesting failures — a lost update, a deadlock
+ * between two transactions touching the same row, a connection pool that runs
+ * dry, a rule engine that is not safe to enter twice at once — need genuinely
+ * simultaneous writers.
+ *
+ * So this spawns `node:worker_threads`, each with its own session and its own
+ * HTTP client, and each running the same script against one entity. What comes
+ * back is every sample they took: what was attempted, what answered, and how
+ * long it waited.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { Worker } from "node:worker_threads";
+import { fileURLToPath } from "node:url";
+
+import { config } from "./config.ts";
+import {
+  type EntityMeta,
+  entities,
+  firstTextField,
+  foreignKeyFields,
+  writableFields,
+} from "./entities.ts";
+import { record } from "./metrics.ts";
+
+/** One request a worker made. */
+export interface WorkerSample {
+  /** `insert`, `update`, `delete`, `contend`, `conditional`. */
+  phase: string;
+  status: number;
+  ms: number;
+  /** Set on a successful insert, so the parent can verify and clean up. */
+  id?: string;
+  /**
+   * Whether the write the application accepted actually changed anything.
+   *
+   * A delete answers 200 with `deleted: false` when the record's own cascade
+   * could not run — a child row with a not-null reference back, say. That is
+   * the application working, and it is not the same outcome as a delete that
+   * removed the row, so the status alone cannot tell the two apart.
+   */
+  applied?: boolean;
+}
+
+/** What one worker reports when it finishes. */
+export interface WorkerReport {
+  worker: number;
+  samples: WorkerSample[];
+  /** Anything the worker could not attribute to a response. */
+  failures: string[];
+}
+
+export interface ConcurrencyPlan {
+  /** Entity every worker writes to. */
+  entity: EntityMeta;
+  /** How many threads to run. */
+  workers: number;
+  /** Records each worker inserts, updates once, then deletes. */
+  recordsPerWorker: number;
+  /** Unconditional writes each worker aims at the one shared record. */
+  contendedWrites: number;
+  /** The record every worker contends over. */
+  contendedId: string;
+  /** The version that record carried when the plan was built. */
+  contendedVersion: number;
+  /**
+   * One create-payload per record per worker, built by the parent.
+   *
+   * Built here rather than in the threads because the factory is what knows
+   * the model: which columns are required, which are unique and need salting,
+   * which foreign keys have to be satisfied. A worker inventing its own
+   * payload sent `{marker}` and nothing else, and every one of three hundred
+   * inserts was correctly refused for missing required fields — a run that
+   * measured the validator instead of the write path.
+   */
+  payloads: Array<Array<Record<string, unknown>>>;
+  /** The column a worker writes a marker into. */
+  textField: string;
+}
+
+/** What the worker is handed. Plain data — it crosses a thread boundary. */
+export interface WorkerInput {
+  worker: number;
+  baseUrl: string;
+  apiPrefix: string;
+  origin: string;
+  email: string;
+  password: string;
+  entityName: string;
+  entityRoute: string;
+  recordsPerWorker: number;
+  contendedWrites: number;
+  contendedId: string;
+  contendedVersion: number;
+  payloads: Array<Record<string, unknown>>;
+  textField: string;
+  requestTimeoutMs: number;
+}
+
+/**
+ * The entity to hammer.
+ *
+ * One that needs no parent rows, so a hundred threads are writing to the table
+ * under test rather than queueing behind foreign keys that have to exist first;
+ * and one with somewhere to put a marker string, so an update has something to
+ * change. `E2E_CONCURRENCY_ENTITY` overrides it — the interesting table in a
+ * real model is usually the one somebody already has in mind.
+ */
+export function concurrencyEntity(): EntityMeta | null {
+  const requested = process.env.E2E_CONCURRENCY_ENTITY;
+  if (requested) {
+    const named = entities.find(
+      (entity) =>
+        entity.name === requested || entity.tableName === requested || entity.route === requested
+    );
+    if (named) return named;
+  }
+
+  const usable = entities.filter((entity) => firstTextField(entity));
+  const withoutRequiredParents = usable.filter(
+    (entity) => !foreignKeyFields(entity).some((field) => field.required)
+  );
+
+  // Widest row first among the candidates: more columns means more of the write
+  // path — validation, the dictionary, the rules engine — is exercised per
+  // request, which is the point of measuring this one rather than the smallest.
+  const ranked = (withoutRequiredParents.length > 0 ? withoutRequiredParents : usable).sort(
+    (a, b) => writableFields(b).length - writableFields(a).length
+  );
+
+  return ranked[0] ?? entities[0] ?? null;
+}
+
+/** Where the worker script lives, resolved the same way under Node and Bun. */
+function workerPath(): string {
+  return fileURLToPath(new URL("./concurrency-worker.ts", import.meta.url));
+}
+
+/**
+ * Run the plan and collect every worker's report.
+ *
+ * A worker that dies rather than answering is recorded as a failure instead of
+ * being awaited forever: a hung thread is exactly the kind of thing this suite
+ * is here to notice, and a test that hangs reports it worst.
+ */
+export async function runConcurrent(plan: ConcurrencyPlan): Promise<WorkerReport[]> {
+  const script = workerPath();
+
+  const runs = Array.from({ length: plan.workers }, (_unused, index) => {
+    const input: WorkerInput = {
+      worker: index,
+      baseUrl: config.baseUrl,
+      apiPrefix: config.apiPrefix,
+      origin: config.origin,
+      email: config.admin.email,
+      password: config.admin.password,
+      entityName: plan.entity.name,
+      entityRoute: plan.entity.route,
+      recordsPerWorker: plan.recordsPerWorker,
+      contendedWrites: plan.contendedWrites,
+      contendedId: plan.contendedId,
+      contendedVersion: plan.contendedVersion,
+      payloads: plan.payloads[index] ?? [],
+      textField: plan.textField,
+      requestTimeoutMs: config.requestTimeoutMs,
+    };
+
+    return new Promise<WorkerReport>((resolve) => {
+      const worker = new Worker(script, { workerData: input });
+      let reported: WorkerReport | null = null;
+
+      worker.on("message", (message: WorkerReport) => {
+        reported = message;
+      });
+      worker.on("error", (error: Error) => {
+        resolve({ worker: index, samples: [], failures: [`worker error: ${error.message}`] });
+      });
+      worker.on("exit", (code) => {
+        if (reported) return resolve(reported);
+        resolve({
+          worker: index,
+          samples: [],
+          failures: [`worker exited with ${code} before reporting`],
+        });
+      });
+    });
+  });
+
+  return Promise.all(runs);
+}
+
+// ── reading the results ─────────────────────────────────────────────────────
+
+export interface PhaseStats {
+  phase: string;
+  attempts: number;
+  /** 2xx responses. */
+  accepted: number;
+  /** 4xx — a refusal is a legitimate outcome under contention. */
+  refused: number;
+  /** 5xx — never legitimate. */
+  broken: number;
+  p50: number;
+  p95: number;
+  p99: number;
+  max: number;
+  /** Attempts divided by the wall-clock span the phase occupied. */
+  opsPerSecond: number;
+}
+
+function percentile(sorted: number[], fraction: number): number {
+  if (sorted.length === 0) return 0;
+  const index = Math.min(sorted.length - 1, Math.floor(sorted.length * fraction));
+  return Math.round((sorted[index] ?? 0) * 100) / 100;
+}
+
+/** Every sample of one phase, across every worker. */
+export function samplesOf(reports: WorkerReport[], phase: string): WorkerSample[] {
+  return reports.flatMap((report) => report.samples.filter((sample) => sample.phase === phase));
+}
+
+export function statsFor(
+  reports: WorkerReport[],
+  phase: string,
+  elapsedMs: number
+): PhaseStats {
+  const samples = samplesOf(reports, phase);
+  const durations = samples.map((sample) => sample.ms).sort((a, b) => a - b);
+
+  return {
+    phase,
+    attempts: samples.length,
+    accepted: samples.filter((sample) => sample.status >= 200 && sample.status < 300).length,
+    refused: samples.filter((sample) => sample.status >= 400 && sample.status < 500).length,
+    broken: samples.filter((sample) => sample.status >= 500).length,
+    p50: percentile(durations, 0.5),
+    p95: percentile(durations, 0.95),
+    p99: percentile(durations, 0.99),
+    max: Math.round((durations[durations.length - 1] ?? 0) * 100) / 100,
+    // Elapsed, not summed latency: a hundred threads waiting 50ms each in the
+    // same 50ms is a hundred operations per 50ms, not one.
+    opsPerSecond:
+      elapsedMs > 0 ? Math.round((samples.length / (elapsedMs / 1000)) * 100) / 100 : 0,
+  };
+}
+
+/**
+ * Put the phase into the run report alongside everything else.
+ *
+ * The samples are the workers', so they are replayed into the collector here —
+ * a worker thread appending to the parent's shard file would interleave with
+ * the parent and with the other ninety-nine.
+ */
+export function recordPhase(reports: WorkerReport[], phase: string, name: string): void {
+  for (const sample of samplesOf(reports, phase)) {
+    record({ op: `${phase} (concurrent)`, ms: sample.ms, name });
+  }
+}
+
+/** Ids of every record the run successfully created. */
+export function createdIds(reports: WorkerReport[]): string[] {
+  return reports.flatMap((report) =>
+    report.samples
+      .filter((sample) => sample.phase === "insert" && sample.id)
+      .map((sample) => String(sample.id))
+  );
+}
+
+export function formatStats(stats: PhaseStats): string {
+  return (
+    `  ${stats.phase.padEnd(12)} ${String(stats.attempts).padStart(6)} attempts  ` +
+    `${String(stats.accepted).padStart(6)} ok  ${String(stats.refused).padStart(4)} 4xx  ` +
+    `${String(stats.broken).padStart(3)} 5xx  ` +
+    `p50 ${String(stats.p50).padStart(7)}ms  p95 ${String(stats.p95).padStart(7)}ms  ` +
+    `p99 ${String(stats.p99).padStart(7)}ms  ${String(stats.opsPerSecond).padStart(8)}/s`
+  );
+}

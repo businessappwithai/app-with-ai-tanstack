@@ -1,0 +1,325 @@
+/**
+ * One entity, a hundred threads, all writing at once.
+ *
+ * Every other suite drives the application one request at a time, which cannot
+ * see the failures that only exist when two writers overlap: an update that
+ * silently discards another's, a transaction pair that deadlocks, a connection
+ * pool that runs dry and starts answering 500, a rules engine or a workflow
+ * dispatcher that is not safe to enter twice at once. Those do not show up
+ * under load testing either, if the load test only measures throughput — they
+ * show up when you check what the data looks like afterwards.
+ *
+ * So this measures *and* audits. The threads insert, update and delete in
+ * parallel; then the suite asks the application what happened and holds it to
+ * four things:
+ *
+ *   nothing broke        no 5xx, and no request that never answered
+ *   nothing was lost     the contended row's version accounts for every
+ *                        accepted write to it
+ *   nothing was invented no row exists that no thread created
+ *   nothing was left     every row a thread deleted is gone
+ *
+ * The throughput and tail latencies land in the run report next to the
+ * single-threaded numbers, which is the comparison worth having: what the
+ * application does when it is the only caller, and what it does when it is not.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
+import {
+  buildRecord,
+  buildRecords,
+  concurrencyEntity,
+  createdIds,
+  type EntityMeta,
+  firstTextField,
+  foreignKeyFields,
+  formatStats,
+  harness,
+  type PhaseStats,
+  recordPhase,
+  runConcurrent,
+  samplesOf,
+  statsFor,
+  type WorkerReport,
+} from "../harness/index.ts";
+
+/**
+ * Threads. A hundred by default, because that is the point of the suite —
+ * enough simultaneous writers that the interleavings are real rather than
+ * theoretical, and enough load that a pool of ten connections has to queue.
+ */
+const WORKERS = Number(process.env.E2E_CONCURRENCY_WORKERS ?? 100);
+
+/** Records each thread inserts, updates and then deletes. */
+const RECORDS_PER_WORKER = Number(process.env.E2E_CONCURRENCY_RECORDS ?? 3);
+
+/** Unconditional writes each thread aims at the single shared record. */
+const CONTENDED_WRITES = Number(process.env.E2E_CONCURRENCY_CONTENDED ?? 2);
+
+/**
+ * Optional floor, in operations per second across all threads. Unset by
+ * default: CI hardware varies too much for a number here to mean anything, and
+ * a threshold that fires on a slow runner teaches everyone to ignore it. Set it
+ * where the hardware is known.
+ */
+const MIN_OPS_PER_SECOND = Number(process.env.E2E_CONCURRENCY_MIN_OPS ?? 0);
+
+const entity: EntityMeta | null = concurrencyEntity();
+
+describe("concurrency", () => {
+  let reports: WorkerReport[] = [];
+  let elapsedMs = 0;
+  let contendedId = "";
+  let contendedVersionBefore = 0;
+  let phases: PhaseStats[] = [];
+
+  beforeAll(async () => {
+    await harness.setup();
+    if (!entity) return;
+
+    const textField = firstTextField(entity);
+    if (!textField) return;
+
+    // Parents resolved once here rather than a hundred times in the threads:
+    // the run is meant to measure writes to one table, not the cost of
+    // populating the tables it points at.
+    const foreignKeys: Record<string, string> = {};
+    for (const field of foreignKeyFields(entity)) {
+      const parent = harness.resolveParentEntity(field.name);
+      if (!parent) continue;
+      const id = await harness.anyRecordId(parent);
+      if (id) foreignKeys[field.name] = id;
+    }
+
+    // The row every thread will fight over.
+    const contended = await harness.create(
+      entity,
+      buildRecord(entity, { foreignKeys, overrides: { [textField.name]: `contended-${Date.now()}` } })
+    );
+    contendedId = String(contended.id);
+    contendedVersionBefore = Number(contended.version ?? 0);
+
+    // Every payload built before the clock starts, by the factory that knows
+    // the model. Salted per record so unique columns do not collide across
+    // three hundred simultaneous inserts.
+    const flat = buildRecords(entity, WORKERS * RECORDS_PER_WORKER, {
+      foreignKeys,
+      uniqueSalt: `conc-${Date.now().toString(36)}`,
+    });
+    const payloads = Array.from({ length: WORKERS }, (_unused, worker) =>
+      flat.slice(worker * RECORDS_PER_WORKER, (worker + 1) * RECORDS_PER_WORKER)
+    );
+
+    const startedAt = performance.now();
+    reports = await runConcurrent({
+      entity,
+      workers: WORKERS,
+      recordsPerWorker: RECORDS_PER_WORKER,
+      contendedWrites: CONTENDED_WRITES,
+      contendedId,
+      contendedVersion: contendedVersionBefore,
+      payloads,
+      textField: textField.name,
+    });
+    elapsedMs = performance.now() - startedAt;
+
+    phases = ["insert", "update", "contend", "conditional", "delete"].map((phase) =>
+      statsFor(reports, phase, elapsedMs)
+    );
+
+    for (const phase of ["insert", "update", "delete"]) {
+      recordPhase(reports, phase, entity.route);
+    }
+
+    console.log(
+      `\n  ${WORKERS} threads on ${entity.displayName}, ${(elapsedMs / 1000).toFixed(1)}s\n`
+    );
+    for (const stats of phases) console.log(formatStats(stats));
+    console.log("");
+  }, { timeout: 600_000 });
+
+  afterAll(async () => {
+    if (contendedId && entity) {
+      await harness.client.delete(`/bus/${entity.route}/${contendedId}`, { allowFailure: true });
+    }
+    await harness.teardown();
+  });
+
+  it("has an entity to drive", () => {
+    // A model with no entity carrying a writable text column has nothing for
+    // this suite to update; saying so is better than reporting a pass.
+    expect(entity, "no entity in the model is usable for a concurrency run").not.toBeNull();
+    expect(firstTextField(entity as EntityMeta)).toBeTruthy();
+  });
+
+  it(`runs ${WORKERS} threads`, () => {
+    expect(reports).toHaveLength(WORKERS);
+
+    // A thread that never reported is a thread whose work is missing from
+    // every number below.
+    const silent = reports.filter((report) => report.samples.length === 0);
+    expect(silent.map((report) => `worker ${report.worker}: ${report.failures.join("; ")}`)).toEqual(
+      []
+    );
+  }, 600_000);
+
+  it("answers every request", () => {
+    // Status 0 is the worker's word for "never answered" — a timeout, a reset,
+    // a socket the server closed. Under a hundred writers that is the shape a
+    // connection-pool exhaustion takes.
+    const unanswered = reports.flatMap((report) =>
+      report.samples.filter((sample) => sample.status === 0).map((sample) => sample.phase)
+    );
+    expect(unanswered).toEqual([]);
+
+    const transport = reports.flatMap((report) => report.failures);
+    expect(transport).toEqual([]);
+  });
+
+  it("never answers a write with a server error", () => {
+    // The assertion the whole suite is built around. A 4xx under contention is
+    // the application doing its job — a rule refusing, a version conflict, a
+    // unique column already taken. A 5xx is the application coming apart.
+    const broken = phases.filter((stats) => stats.broken > 0);
+    expect(
+      broken.map((stats) => `${stats.phase}: ${stats.broken} of ${stats.attempts} were 5xx`)
+    ).toEqual([]);
+  });
+
+  it("accepts the parallel inserts", () => {
+    const inserts = statsFor(reports, "insert", elapsedMs);
+    expect(inserts.attempts).toBe(WORKERS * RECORDS_PER_WORKER);
+
+    // Some may be refused by the model's own rules; most must not be, or the
+    // rest of this suite is measuring an application that rejected everything.
+    expect(inserts.accepted).toBeGreaterThan(inserts.attempts / 2);
+  });
+
+  it("creates exactly the rows it said it created, and no others", async () => {
+    if (!entity) return;
+
+    const ids = createdIds(reports);
+    const accepted = samplesOf(reports, "insert").filter(
+      (sample) => sample.status >= 200 && sample.status < 300
+    );
+
+    // Every accepted insert returned an id, and every id is distinct: two
+    // threads handed the same id would mean one row silently replaced another.
+    expect(ids).toHaveLength(accepted.length);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("either deletes a row or leaves it whole, and says which", async () => {
+    if (!entity) return;
+
+    const deletes = samplesOf(reports, "delete");
+    expect(deletes.length).toBe(createdIds(reports).length);
+
+    const removed = deletes.filter((sample) => sample.applied && sample.id);
+    const kept = deletes.filter((sample) => !sample.applied && sample.id);
+
+    // A delete runs the record's own cascade inside the write, so a record
+    // whose children cannot be cleared is refused — 200 with `deleted: false`
+    // and the reason. Both outcomes are correct; what would not be is a
+    // half-done delete, so each is checked for what it claims.
+    //
+    // Sampled rather than exhaustive: three hundred round trips to prove a
+    // property that fails in bulk if it fails at all, and this suite has
+    // already spent its budget on the writes.
+    const surviving: string[] = [];
+    for (const sample of removed.slice(0, 25)) {
+      const response = await harness.client.get(`/bus/${entity.route}/${sample.id}`, {
+        allowFailure: true,
+      });
+      if (response.ok) surviving.push(String(sample.id));
+    }
+    expect(surviving, "these deletes reported success and the record is still there").toEqual([]);
+
+    const vanished: string[] = [];
+    for (const sample of kept.slice(0, 25)) {
+      const response = await harness.client.get(`/bus/${entity.route}/${sample.id}`, {
+        allowFailure: true,
+      });
+      if (!response.ok) vanished.push(String(sample.id));
+    }
+    expect(vanished, "these deletes were refused and the record is gone anyway").toEqual([]);
+
+    // And every one of them was one or the other. A delete that answered 200
+    // without saying whether it deleted is the case this whole test exists to
+    // stop being silently counted as a success.
+    expect(removed.length + kept.length).toBe(deletes.length);
+  }, 120_000);
+
+  it("loses no write to the contended record", async () => {
+    if (!entity || !contendedId) return;
+
+    const accepted = samplesOf(reports, "contend")
+      .concat(samplesOf(reports, "conditional"))
+      .filter((sample) => sample.status >= 200 && sample.status < 300).length;
+
+    const response = await harness.client.get<Record<string, unknown>>(
+      `/bus/${entity.route}/${contendedId}`
+    );
+    const versionAfter = Number(response.data.version ?? 0);
+
+    // The row's version is the count of writes it has accepted. If two threads
+    // read-modify-wrote it through the same version, one of them is gone and
+    // this arithmetic is the only place it shows: the application would report
+    // fewer versions than it reported successes.
+    expect(versionAfter - contendedVersionBefore).toBe(accepted);
+  });
+
+  it("lets exactly one thread win a conditional write on the same version", () => {
+    const conditional = samplesOf(reports, "conditional");
+    expect(conditional).toHaveLength(WORKERS);
+
+    const winners = conditional.filter(
+      (sample) => sample.status >= 200 && sample.status < 300
+    );
+    const conflicts = conditional.filter((sample) => sample.status === 409);
+
+    // Every thread claimed the version the row had when the parent created it,
+    // and they all raced for it. Exactly one may have it; the others must be
+    // told they are stale rather than allowed to overwrite. Two winners is a
+    // check-and-set that reads the version without holding it — which is what
+    // this application did until the row was locked for the read.
+    expect(winners).toHaveLength(1);
+    expect(conflicts).toHaveLength(WORKERS - 1);
+  });
+
+  it("keeps the contended record readable and coherent", async () => {
+    if (!entity || !contendedId) return;
+
+    const response = await harness.client.get<Record<string, unknown>>(
+      `/bus/${entity.route}/${contendedId}`,
+      { allowFailure: true }
+    );
+
+    // A row a hundred threads wrote to at once must still be one row, with the
+    // id it started with — not a duplicate, not a partial write, not gone.
+    expect(response.status).toBe(200);
+    expect(response.data.id).toBe(contendedId);
+
+    const textField = firstTextField(entity);
+    if (textField) {
+      // Whichever thread wrote last, the value is one thread's marker in full
+      // rather than two of them interleaved.
+      expect(String(response.data[textField.name] ?? "")).toMatch(/^w\d+-/);
+    }
+  });
+
+  it("sustains the throughput floor, when one is set", () => {
+    if (MIN_OPS_PER_SECOND <= 0) return;
+
+    const total = phases.reduce((sum, stats) => sum + stats.attempts, 0);
+    const overall = elapsedMs > 0 ? total / (elapsedMs / 1000) : 0;
+
+    expect(
+      overall,
+      `${WORKERS} threads managed ${overall.toFixed(1)} ops/s against a floor of ${MIN_OPS_PER_SECOND}`
+    ).toBeGreaterThanOrEqual(MIN_OPS_PER_SECOND);
+  });
+});

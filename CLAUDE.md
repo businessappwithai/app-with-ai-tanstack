@@ -659,7 +659,29 @@ Three things to know before adding to it:
 **Type-checking this repo says nothing about whether a generated app compiles** — templates are `.hbs` until rendered. Changing a template means generating an app and building it, not just `bun run type-check`.
 
 ### The generated app's own suite
-Every generated application gets a `tests/` project driving its HTTP API — run it with `appwithai generate … --run-tests`, or `bun run test:e2e` inside the output. Suites are ordered by filename prefix: health, auth, dictionary (`02`, `02b` layout, `02c` references), CRUD per entity (`03`), bulk seed (`04`), rules per entity (`05`), workflows (`06`–`09`), benchmark and budgets (`10`, `11`).
+Every generated application gets a `tests/` project driving its HTTP API — run it with `appwithai generate … --run-tests`, or `bun run test:e2e` inside the output. Suites are ordered by filename prefix: health, auth, dictionary (`02`, `02b` layout, `02c` references), CRUD per entity (`03`), bulk seed (`04`), rules per entity (`05`), workflows (`06`–`09`), benchmark and budgets (`10`, `11`), concurrency (`12`).
+
+**`12-concurrency` is the only suite that is not one request at a time.** It
+spawns `node:worker_threads` — 100 by default, each with its own session — and
+has them insert, update and delete against one entity simultaneously while
+contending over a single shared row. The throughput and tail latencies land in
+the run report beside the single-threaded ones, but the assertions are about
+correctness, because that is what concurrency threatens:
+
+| It asserts | Because |
+|---|---|
+| No 5xx, and no request that never answered | A connection pool that runs dry answers this way |
+| The contended row's version accounts for every accepted write | Two writers reading the same version and both writing the next one leaves the count short — that is a lost update, and nothing else in the suite can see it |
+| Exactly one thread wins a conditional write when all 100 claim the same version | A check-and-set that reads the version without holding it lets several through |
+| A deleted row is gone; a row whose delete was refused is whole | The delete runs the record's cascade inside the write and answers 200 with `deleted: false` when it cannot — status alone cannot tell the two apart |
+
+It found the second of those: `bus.service.ts`'s update read the row, checked
+`If-Match` against it and wrote `version + 1` **without locking it**, so 200
+accepted writes advanced the version by 48. The read takes `forUpdate()` now,
+which is also what makes the `If-Match` check mean anything.
+
+`E2E_CONCURRENCY_WORKERS`, `_RECORDS`, `_CONTENDED`, `_ENTITY` and `_MIN_OPS`
+tune it; the entity defaults to the widest one with no required parents.
 
 `harness/model.ts` carries the model's own `%%enum` values and state-machine edges into the suites. Assert against **that**, not against the dictionary the same generator wrote — otherwise a suite only proves the application is self-consistent, and passes just as happily when the generator dropped something.
 
