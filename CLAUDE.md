@@ -502,6 +502,15 @@ const access = await requireProjectAccess(request, params.id, "read_write");
 if ("response" in access) return access.response;  // 401 / 403 / 404
 ```
 
+### Three routes are public; every other one is guarded
+`auth/login`, `auth/register` and `health` answer without a session. Everything
+else under `packages/web/src/routes/api` calls `requireProjectAccess` or
+`requireUser` before it does anything — and
+`tests/e2e/02b-unauthenticated-surface.e2e.spec.ts` proves it by reading the
+route directory, working out each file's path and verbs, and driving all of
+them with no session. It keeps no list, so a route added tomorrow is covered
+tomorrow.
+
 ### Routes that are not about one project
 `requireProjectAccess` has no answer for the rules store, the workflow-run log,
 or the admin read models — and those were left with no check at all, so an
@@ -527,6 +536,14 @@ const { AUTH_LOGIN_LIMIT, enforceRateLimit } = await import("@/lib/rate-limit");
 const limited = enforceRateLimit(request, "auth:login", AUTH_LOGIN_LIMIT);
 if (limited) return limited;
 ```
+
+### A listing has no single project to ask about
+`requireProjectAccess` answers "may I touch this project". A route that lists
+across projects — the diagram library's `GET /api/mermaid` with no `projectId` —
+has no such question to ask, and serving the whole table for the client to
+filter is how that endpoint came to hand every project's diagrams to anybody.
+`accessibleProjectIds(userId)` in `project-access.ts` is the other half: the
+ids this caller owns or is a member of.
 
 ### An id in the path names the thing; the path names whose it is
 `erd_versions` is reached as `/api/projects/:id/erd-versions/:versionId/...`,
@@ -633,6 +650,7 @@ suite signs in as.
 |---|---|
 | `01-auth` | Sign-in, sessions, sign-out, registration-needs-approval. Asserts the same answer for a wrong password and an unknown address — a different one is an account-enumeration oracle |
 | `02-project-authorization` | Enumerates the project-scoped routes and drives each as nobody, a signed-in stranger, and the owner. **Found three endpoints serving unauthenticated callers on its first run**, and two more when `/workflows` was added to the list |
+| `02b-unauthenticated-surface` | Every route file, its verbs read off the source, driven with no session. Keeps no list — which is the only version of this check that stays true |
 | `03-projects` | The container: create, list, read, rename, delete; the fields a client may not set; search that does not reach another owner's projects |
 | `04-model-and-versions` | Validate a document, save it, keep every save as a version, restore one, download it back. Also asserts the fixtures themselves pass `language/checker` |
 | `05-automations` | The builder's own serialiser over HTTP: stored byte for byte, parsed back to the same automation, accepted by the checker |
@@ -653,7 +671,9 @@ Three things to know before adding to it:
 - **`02`'s route list is the weak part of the design.** A project-scoped route
   absent from `PROJECT_ROUTES` is not tested at all, which is exactly how
   `/api/projects/:id/workflows` came to serve both verbs to anybody. Add to it
-  when you add a route.
+  when you add a route. `02b` needs no such maintenance, but it only asks
+  whether a route refuses an anonymous caller — `02` is still what says the
+  refusal is the *right* one.
 
 ### Template testing
 **Type-checking this repo says nothing about whether a generated app compiles** — templates are `.hbs` until rendered. Changing a template means generating an app and building it, not just `bun run type-check`.

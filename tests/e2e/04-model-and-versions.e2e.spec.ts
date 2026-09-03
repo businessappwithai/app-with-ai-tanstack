@@ -66,8 +66,24 @@ async function currentModel(request: APIRequestContext, projectId: string): Prom
 }
 
 test.describe("reading a document before it is committed to anything", () => {
-  test("reports what a complete model contains", async ({ request }) => {
-    const summary = await summarise(request, BEHAVIOUR_EML);
+  // Signed in, like every other caller: reading a document is a parse of
+  // whatever was posted, but the parser is not a service this tool offers to
+  // the internet.
+  let admin: APIRequestContext;
+  let reader: UserSession;
+
+  test.beforeAll(async ({ playwright }) => {
+    admin = await adminContext(playwright);
+    reader = await createUserSession(playwright, admin, "e2e-reader");
+  });
+
+  test.afterAll(async () => {
+    await reader.request.dispose();
+    await admin.dispose();
+  });
+
+  test("reports what a complete model contains", async () => {
+    const summary = await summarise(reader.request, BEHAVIOUR_EML);
 
     expect(summary.ok).toBe(true);
     expect(summary.problems).toEqual([]);
@@ -75,19 +91,19 @@ test.describe("reading a document before it is committed to anything", () => {
     expect(summary.relationships).toBeGreaterThanOrEqual(1);
   });
 
-  test("refuses an empty file rather than accepting an empty model", async ({ request }) => {
-    const summary = await summarise(request, "   \n  ");
+  test("refuses an empty file rather than accepting an empty model", async () => {
+    const summary = await summarise(reader.request, "   \n  ");
 
     expect(summary.ok).toBe(false);
     expect(summary.entities).toEqual([]);
     expect(summary.problems.join(" ")).toContain("empty");
   });
 
-  test("refuses prose that is not a model", async ({ request }) => {
+  test("refuses prose that is not a model", async () => {
     // The failure this prevents is silent: a document with nothing the parser
     // recognises used to be accepted, and the design page opened on an empty
     // canvas with no explanation of why.
-    const summary = await summarise(request, "This is a note about our ordering process.\n");
+    const summary = await summarise(reader.request, "This is a note about our ordering process.\n");
 
     expect(summary.ok).toBe(false);
     expect(summary.problems.length).toBeGreaterThan(0);
@@ -108,8 +124,8 @@ test.describe("reading a document before it is committed to anything", () => {
     }
   });
 
-  test("counts the sections a reviewer would count by hand", async ({ request }) => {
-    const summary = await summarise(request, SAMPLE_EML);
+  test("counts the sections a reviewer would count by hand", async () => {
+    const summary = await summarise(reader.request, SAMPLE_EML);
 
     expect(summary.entities).toHaveLength(2);
     expect(summary.relationships).toBe(1);
@@ -381,5 +397,134 @@ test.describe("a project's model", () => {
     // already happened is not a refusal.
     expect(await currentModel(owner.request, projectId)).toBe(BEHAVIOUR_EML);
     expect(await versionsOf(owner.request, projectId)).toHaveLength(1);
+  });
+});
+
+/**
+ * The diagram library — the design step's "save this diagram" store.
+ *
+ * Files on disk rather than rows, each carrying the project it came from. That
+ * field is the whole access story, and until it was checked the library served
+ * every project's diagrams to anybody: the listing took an optional
+ * `projectId` and filtered by it only when the caller chose to pass one, and a
+ * file could be read or deleted by name with no session at all.
+ */
+test.describe("the diagram library", () => {
+  let admin: APIRequestContext;
+  let owner: UserSession;
+  let stranger: UserSession;
+  let projectId: string;
+
+  test.beforeAll(async ({ playwright }) => {
+    admin = await adminContext(playwright);
+    owner = await createUserSession(playwright, admin, "e2e-diagrams");
+    stranger = await createUserSession(playwright, admin, "e2e-diagram-onlooker");
+
+    projectId = await createProject(owner.request, unique("e2e-diagram-project"));
+    await saveModel(owner.request, projectId, SAMPLE_EML);
+  });
+
+  test.afterAll(async () => {
+    await owner.request.dispose();
+    await stranger.request.dispose();
+    await admin.dispose();
+  });
+
+  async function saveDiagram(
+    request: APIRequestContext,
+    project: string,
+    filename: string
+  ): Promise<number> {
+    const response = await request.post("/api/mermaid", {
+      data: {
+        projectId: project,
+        projectName: "E2E",
+        filename,
+        type: "erd",
+        content: SAMPLE_EML,
+      },
+      failOnStatusCode: false,
+    });
+    return response.status();
+  }
+
+  test("saves a diagram, lists it under its project, and reads it back", async () => {
+    const filename = `${unique("diagram")}.mmd`;
+    expect(await saveDiagram(owner.request, projectId, filename)).toBe(201);
+
+    const listing = await owner.request.get(`/api/mermaid?projectId=${projectId}`);
+    expect(listing.status()).toBe(200);
+    const { files } = (await listing.json()) as { files: Array<{ filename: string }> };
+    expect(files.map((file) => file.filename)).toContain(filename);
+
+    const download = await owner.request.get(`/api/mermaid/${encodeURIComponent(filename)}`, {
+      failOnStatusCode: false,
+    });
+    expect(download.status()).toBe(200);
+    expect(await download.text()).toBe(SAMPLE_EML);
+  });
+
+  test("lists only the diagrams of projects the caller can reach", async () => {
+    const filename = `${unique("private-diagram")}.mmd`;
+    expect(await saveDiagram(owner.request, projectId, filename)).toBe(201);
+
+    // No `projectId` on the query — the shape the admin screen uses. It must
+    // still be the caller's own library, not the whole directory.
+    const theirs = await stranger.request.get("/api/mermaid", { failOnStatusCode: false });
+    expect(theirs.status()).toBe(200);
+    const { files } = (await theirs.json()) as { files: Array<{ filename: string }> };
+    expect(files.map((file) => file.filename)).not.toContain(filename);
+
+    const mine = await owner.request.get("/api/mermaid");
+    expect(
+      ((await mine.json()) as { files: Array<{ filename: string }> }).files.map(
+        (file) => file.filename
+      )
+    ).toContain(filename);
+  });
+
+  test("refuses a stranger the file, the listing and the delete", async () => {
+    const filename = `${unique("not-yours")}.mmd`;
+    expect(await saveDiagram(owner.request, projectId, filename)).toBe(201);
+
+    const attempts = [
+      await stranger.request.get(`/api/mermaid?projectId=${projectId}`, {
+        failOnStatusCode: false,
+      }),
+      await stranger.request.get(`/api/mermaid/${encodeURIComponent(filename)}`, {
+        failOnStatusCode: false,
+      }),
+      await stranger.request.delete(`/api/mermaid/${encodeURIComponent(filename)}`, {
+        failOnStatusCode: false,
+      }),
+      await stranger.request.post("/api/mermaid", {
+        data: { projectId, projectName: "E2E", filename, type: "erd", content: "erDiagram" },
+        failOnStatusCode: false,
+      }),
+    ];
+    expect(attempts.filter((response) => response.status() < 400).map((r) => r.status())).toEqual(
+      []
+    );
+
+    // And the file is still exactly what the owner saved — a refused delete
+    // that removed it anyway would look the same from the stranger's side.
+    const download = await owner.request.get(`/api/mermaid/${encodeURIComponent(filename)}`);
+    expect(download.status()).toBe(200);
+    expect(await download.text()).toBe(SAMPLE_EML);
+  });
+
+  test("deletes a diagram the caller may edit", async () => {
+    const filename = `${unique("doomed-diagram")}.mmd`;
+    expect(await saveDiagram(owner.request, projectId, filename)).toBe(201);
+
+    const removed = await owner.request.delete(`/api/mermaid/${encodeURIComponent(filename)}`, {
+      failOnStatusCode: false,
+    });
+    expect(removed.status()).toBe(200);
+
+    const after = await owner.request.get(`/api/mermaid/${encodeURIComponent(filename)}`, {
+      failOnStatusCode: false,
+    });
+    expect(after.status()).toBe(404);
   });
 });

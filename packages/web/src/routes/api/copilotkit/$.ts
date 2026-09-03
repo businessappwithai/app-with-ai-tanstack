@@ -7,11 +7,15 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { copilotError, handleCopilotRequest } from "@/lib/copilot-runtime";
+import { requireUser } from "@/lib/require-user";
 
 export const Route = createFileRoute("/api/copilotkit/$")({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        const caller = await requireUser(request, "copilotkit", "read");
+        if (caller.response) return caller.response;
+
         try {
           return await handleCopilotRequest(request, "/api/copilotkit");
         } catch (error) {
@@ -19,6 +23,9 @@ export const Route = createFileRoute("/api/copilotkit/$")({
         }
       },
       POST: async ({ request }) => {
+        const caller = await requireUser(request, "copilotkit", "write");
+        if (caller.response) return caller.response;
+
         try {
           return await handleCopilotRequest(request, "/api/copilotkit");
         } catch (error) {

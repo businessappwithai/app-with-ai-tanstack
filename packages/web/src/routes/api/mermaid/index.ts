@@ -1,6 +1,18 @@
+/**
+ * The mermaid library — diagrams saved out of the design step, kept as files.
+ *
+ * Every entry carries the project it was saved from, and that is what decides
+ * who may see it. The listing used to serve the whole directory to anybody:
+ * unauthenticated, unscoped, and filtered by `projectId` only when the caller
+ * chose to pass one — so a diagram was readable by anyone who asked for the
+ * list, whichever project it came from.
+ */
+
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createFileRoute } from "@tanstack/react-router";
+import { accessibleProjectIds, requireProjectAccess } from "@/lib/project-access";
+import { requireUser } from "@/lib/require-user";
 
 const MERMAID_DIR = path.join(process.cwd(), "generated-projects", ".mermaid-library");
 
@@ -12,10 +24,19 @@ export const Route = createFileRoute("/api/mermaid/")({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        const url = new URL(request.url);
+        const projectId = url.searchParams.get("projectId");
+
+        // Named a project: the ordinary check. Named none: the caller gets the
+        // projects they can reach and nothing else — an admin screen listing
+        // "everything" is still listing everything *they* may see.
+        const caller = projectId
+          ? await requireProjectAccess(request, projectId)
+          : await requireUser(request, "mermaid-library");
+        if (caller.response) return caller.response;
+
         try {
           await ensureDir();
-          const url = new URL(request.url);
-          const projectId = url.searchParams.get("projectId");
           const type = url.searchParams.get("type");
 
           const entries = await fs.readdir(MERMAID_DIR, { withFileTypes: true });
@@ -38,6 +59,12 @@ export const Route = createFileRoute("/api/mermaid/")({
 
           if (projectId) {
             filtered = filtered.filter((f) => f.projectId === projectId);
+          } else {
+            const reachable = await accessibleProjectIds(caller.user.id);
+            // A file with no project on it belongs to nobody and is shown to
+            // nobody: the alternative is a hole that opens by writing a file
+            // without the field.
+            filtered = filtered.filter((f) => f.projectId && reachable.has(String(f.projectId)));
           }
           if (type) {
             filtered = filtered.filter((f) => f.type === type);
@@ -64,25 +91,31 @@ export const Route = createFileRoute("/api/mermaid/")({
       },
 
       POST: async ({ request }) => {
+        const body = (await request.json().catch(() => ({}))) as {
+          projectId?: string;
+          projectName?: string;
+          filename?: string;
+          type?: "erd" | "rules";
+          content?: string;
+          canonical?: boolean;
+        };
+
+        const { projectId, projectName, filename, type, content, canonical } = body;
+
+        if (!projectId || !filename || !content) {
+          return new Response(
+            JSON.stringify({ error: "projectId, filename, and content are required" }),
+            { status: 400, headers: { "Content-Type": "application/json" } }
+          );
+        }
+
+        // Saving a diagram writes into the project's library, so it takes the
+        // same permission as any other edit of that project.
+        const access = await requireProjectAccess(request, projectId, "read_write");
+        if (access.response) return access.response;
+
         try {
           await ensureDir();
-          const body = (await request.json()) as {
-            projectId: string;
-            projectName: string;
-            filename: string;
-            type: "erd" | "rules";
-            content: string;
-            canonical?: boolean;
-          };
-
-          const { projectId, projectName, filename, type, content, canonical } = body;
-
-          if (!projectId || !filename || !content) {
-            return new Response(
-              JSON.stringify({ error: "projectId, filename, and content are required" }),
-              { status: 400, headers: { "Content-Type": "application/json" } }
-            );
-          }
 
           // If marking as canonical, clear previous canonical entries for this project
           if (canonical === true) {
