@@ -13,6 +13,7 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -35,6 +36,9 @@ export const Route = createFileRoute("/api/eml/validate")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const caller = await requireUser(request, "eml:validate", "read");
+        if (caller.response) return caller.response;
+
         try {
           const body = (await request.json()) as { eml?: string };
           const eml = typeof body.eml === "string" ? body.eml : "";

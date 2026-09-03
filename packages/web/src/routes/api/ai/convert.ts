@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 export const Route = createFileRoute("/api/ai/convert")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const caller = await requireUser(request, "ai:convert", "write");
+        if (caller.response) return caller.response;
+
         try {
           const body = await request.json();
           const { description } = body;

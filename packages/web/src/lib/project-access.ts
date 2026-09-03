@@ -125,3 +125,28 @@ export async function requireProjectAccess(
 
   return { user: { id: user.id } };
 }
+
+/**
+ * Every project id this user may read — the ones they own, plus the ones
+ * shared with them.
+ *
+ * For the handful of endpoints that list across projects rather than serving
+ * one. `requireProjectAccess` answers "may I touch this project"; a listing has
+ * no single project to ask about, and the alternative — serving the whole table
+ * and filtering in the client — is how the mermaid library came to hand every
+ * project's diagrams to anybody who asked.
+ */
+export async function accessibleProjectIds(userId: string): Promise<Set<string>> {
+  const { getDatabase } = await import("@appwithai/core/services");
+  const db = getDatabase();
+
+  const [owned, shared] = await Promise.all([
+    db.selectFrom("projects").select(["id"]).where("owner_user_id", "=", userId).execute(),
+    db.selectFrom("project_members").select(["project_id"]).where("user_id", "=", userId).execute(),
+  ]);
+
+  return new Set([
+    ...owned.map((row) => String(row.id)),
+    ...shared.map((row) => String(row.project_id)),
+  ]);
+}

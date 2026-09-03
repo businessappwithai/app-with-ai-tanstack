@@ -31,8 +31,9 @@ It needs PostgreSQL and the bootstrap administrator: `bun run seed:admin`.
 |---|---|
 | `01-auth` | Sign-in, sessions, sign-out, approval-gated registration |
 | `02-project-authorization` | Every project-scoped route, driven as nobody, a signed-in stranger, and the owner |
+| `02b-unauthenticated-surface` | Every route file in the tree, driven with no session. Reads the directory rather than keeping a list |
 | `03-projects` | Creating, listing, reading, renaming and deleting a project, and the fields a client may not set |
-| `04-model-and-versions` | Validating a document, saving it, its version history, restoring, downloading |
+| `04-model-and-versions` | Validating a document, saving it, its version history, restoring, downloading, and the diagram library |
 | `05-automations` | The automation builder's serialiser over HTTP, round-tripped and handed to the language checker |
 | `06-rules-and-workflow-runs` | The decision-table store and the workflow-run log |
 | `07-sharing` | Read-only, read-write, upgraded and revoked shares |
