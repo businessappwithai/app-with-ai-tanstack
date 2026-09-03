@@ -4,6 +4,11 @@
  * The body carries mermaid rather than the builder's object model, so the
  * stored artifact stays the thing the generator reads and this endpoint never
  * becomes a second source of truth for what an automation is.
+ *
+ * Every verb calls `requireProjectAccess` before it looks the automation up.
+ * Checking that the row belongs to `params.id` is not a permission check: it
+ * establishes which project the automation is in, and says nothing about
+ * whether the caller may see that project.
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -17,8 +22,12 @@ const json = (body: unknown, status = 200) =>
 export const Route = createFileRoute("/api/projects/$id/automations/$automationId")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
         try {
+          const { requireProjectAccess } = await import("@/lib/project-access");
+          const access = await requireProjectAccess(request, params.id, "read");
+          if (access.response) return access.response;
+
           const { workflowDb } = await import("@appwithai/core/services");
           const row = await workflowDb.findById(params.automationId);
 
@@ -45,6 +54,10 @@ export const Route = createFileRoute("/api/projects/$id/automations/$automationI
 
       PUT: async ({ request, params }) => {
         try {
+          const { requireProjectAccess } = await import("@/lib/project-access");
+          const access = await requireProjectAccess(request, params.id, "read_write");
+          if (access.response) return access.response;
+
           const body = (await request.json()) as {
             name?: string;
             entity?: string;
@@ -74,8 +87,12 @@ export const Route = createFileRoute("/api/projects/$id/automations/$automationI
         }
       },
 
-      DELETE: async ({ params }) => {
+      DELETE: async ({ request, params }) => {
         try {
+          const { requireProjectAccess } = await import("@/lib/project-access");
+          const access = await requireProjectAccess(request, params.id, "read_write");
+          if (access.response) return access.response;
+
           const { workflowDb } = await import("@appwithai/core/services");
           const existing = await workflowDb.findById(params.automationId);
           if (!existing || existing.project_id !== params.id) {

@@ -6,6 +6,10 @@
  * not a new artifact — so an automation saved here is picked up by code
  * generation with no further translation, and one written before the builder
  * existed opens in it.
+ *
+ * Both verbs call `requireProjectAccess`. An automation names entities, columns
+ * and the conditions under which a project's data changes; listing them is
+ * reading the project, and creating one is writing to it.
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -58,6 +62,10 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
     handlers: {
       GET: async ({ request, params }) => {
         try {
+          const { requireProjectAccess } = await import("@/lib/project-access");
+          const access = await requireProjectAccess(request, params.id, "read");
+          if (access.response) return access.response;
+
           const { workflowDb } = await import("@appwithai/core/services");
           const rows = await workflowDb.getWorkflows(params.id);
 
@@ -116,6 +124,10 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
 
       POST: async ({ request, params }) => {
         try {
+          const { requireProjectAccess } = await import("@/lib/project-access");
+          const access = await requireProjectAccess(request, params.id, "read_write");
+          if (access.response) return access.response;
+
           const body = (await request.json()) as {
             name?: string;
             entity?: string;
