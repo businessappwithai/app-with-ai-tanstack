@@ -17,21 +17,43 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createFileRoute } from "@tanstack/react-router";
 
-/** Directories searched, in order. Missing ones are skipped, not an error. */
+/**
+ * Directories searched, in order. Missing ones are skipped, not an error.
+ *
+ * The built-in models live at the repo root, but this handler does not run
+ * there: Vite runs the web app with `packages/web` as its working directory, so
+ * `join(cwd, "examples")` names a directory that has never existed and the list
+ * comes back empty with nothing to say why. Each candidate is therefore offered
+ * from the working directory *and* from each of its ancestors — which finds the
+ * root whether the process was started from it, from `packages/web`, or from a
+ * `dist` inside either.
+ */
 function searchPaths(): string[] {
-  const cwd = process.cwd();
   const configured = (process.env.EXAMPLE_MODELS_DIR ?? "")
     .split(":")
     .map((entry) => entry.trim())
     .filter(Boolean);
+
+  const ancestors: string[] = [];
+  let directory = process.cwd();
+  // Four levels covers `packages/web` and a `dist` below it; the loop stops at
+  // the filesystem root on its own, so a shallow cwd is not a special case.
+  for (let depth = 0; depth < 5; depth += 1) {
+    ancestors.push(directory);
+    const parent = path.dirname(directory);
+    if (parent === directory) break;
+    directory = parent;
+  }
 
   return [
     ...configured,
     // `/models` is where the compose file mounts them, and it is read-only
     // there — offering it is safe even when it is somebody else's directory.
     "/models",
-    path.join(cwd, "examples"),
-    path.join(cwd, "language", "examples"),
+    ...ancestors.flatMap((base) => [
+      path.join(base, "examples"),
+      path.join(base, "language", "examples"),
+    ]),
   ];
 }
 
