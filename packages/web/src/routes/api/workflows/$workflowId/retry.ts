@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 export const Route = createFileRoute("/api/workflows/$workflowId/retry")({
   server: {
     handlers: {
-      POST: async ({ params }) => {
+      POST: async ({ request, params }) => {
+        const caller = await requireUser(request, `workflow-run:${params.workflowId}`, "retry");
+        if (caller.response) return caller.response;
+
         try {
           const workflowId = params.workflowId as string;
 

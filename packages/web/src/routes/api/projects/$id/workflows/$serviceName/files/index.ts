@@ -1,13 +1,19 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createFileRoute } from "@tanstack/react-router";
+import { requireProjectAccess } from "@/lib/project-access";
 
 const GENERATED_HOOKS_BASE_PATH = join(process.cwd(), "generated-projects");
 
 export const Route = createFileRoute("/api/projects/$id/workflows/$serviceName/files/")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
+        // The generated hook sources are the project's code. Served without a
+        // check, any caller who could guess a project id could read it.
+        const access = await requireProjectAccess(request, params.id as string);
+        if (access.response) return access.response;
+
         try {
           const projectId = params.id as string;
           const serviceName = params.serviceName as string;

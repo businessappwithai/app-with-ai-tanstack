@@ -748,12 +748,24 @@ export const erdVersionDb = {
     });
   },
 
-  async setCurrentVersion(versionId: string) {
+  /**
+   * Make one version the project's current one.
+   *
+   * `projectId` is required, and the lookup is scoped to it, because a version
+   * id is enough to reach a version but not enough to say whose it is. Resolved
+   * by id alone, this walked out of the project the caller named and rewrote
+   * the history of whichever project the version happened to belong to — a
+   * caller with write access to one project could roll back another. Returns
+   * null when the version is not that project's, which the route reports as a
+   * 404 like any other id it cannot use.
+   */
+  async setCurrentVersion(versionId: string, projectId: string) {
     const db = getDb();
     const version = await db
       .selectFrom("erd_versions")
       .selectAll()
       .where("id", "=", versionId)
+      .where("project_id", "=", projectId)
       .executeTakeFirst();
     if (!version) return null;
     await db
@@ -769,8 +781,22 @@ export const erdVersionDb = {
     return db.selectFrom("erd_versions").selectAll().where("id", "=", versionId).executeTakeFirst();
   },
 
-  async delete(versionId: string) {
-    await getDb().deleteFrom("erd_versions").where("id", "=", versionId).execute();
+  /**
+   * Remove one version from a project's history.
+   *
+   * Scoped to the project for the same reason as `setCurrentVersion`, and it
+   * matters more here: a restore of the wrong project's version can be undone
+   * by restoring the right one, and a delete cannot be undone at all. Reports
+   * whether anything was removed so the route can answer 404 rather than
+   * confirming a deletion that did not happen.
+   */
+  async delete(versionId: string, projectId: string): Promise<boolean> {
+    const result = await getDb()
+      .deleteFrom("erd_versions")
+      .where("id", "=", versionId)
+      .where("project_id", "=", projectId)
+      .executeTakeFirst();
+    return Number(result?.numDeletedRows ?? 0) > 0;
   },
 };
 

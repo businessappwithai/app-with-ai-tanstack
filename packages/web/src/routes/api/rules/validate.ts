@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 export const Route = createFileRoute("/api/rules/validate")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const caller = await requireUser(request, "rules:validate");
+        if (caller.response) return caller.response;
+
         try {
           const body = await request.json();
           const { jdm } = body;

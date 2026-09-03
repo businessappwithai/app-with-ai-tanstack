@@ -76,11 +76,7 @@ import { Route as ApiProjectsIdWorkflowsIndexRouteImport } from './routes/api/pr
 import { Route as ApiProjectsIdErdVersionsVersionIdRestoreRouteImport } from './routes/api/projects/$id/erd-versions/$versionId/restore'
 import { Route as ApiProjectsIdMembersUserIdIndexRouteImport } from './routes/api/projects/$id/members/$userId/index'
 import { Route as ApiProjectsIdWorkflowsServiceNameIndexRouteImport } from './routes/api/projects/$id/workflows/$serviceName/index'
-import { Route as ApiProjectsIdWorkflowsServiceNameApplyRouteImport } from './routes/api/projects/$id/workflows/$serviceName/apply'
-import { Route as ApiProjectsIdWorkflowsServiceNameDraftRouteImport } from './routes/api/projects/$id/workflows/$serviceName/draft'
 import { Route as ApiProjectsIdWorkflowsServiceNameGenerateRouteImport } from './routes/api/projects/$id/workflows/$serviceName/generate'
-import { Route as ApiProjectsIdWorkflowsServiceNameGorulesRouteImport } from './routes/api/projects/$id/workflows/$serviceName/gorules'
-import { Route as ApiProjectsIdWorkflowsServiceNameValidateRouteImport } from './routes/api/projects/$id/workflows/$serviceName/validate'
 import { Route as ApiProjectsIdWorkflowsServiceNameFilesIndexRouteImport } from './routes/api/projects/$id/workflows/$serviceName/files/index'
 import { Route as ApiProjectsIdWorkflowsServiceNameFilesFileNameRouteImport } from './routes/api/projects/$id/workflows/$serviceName/files/$fileName'
 
@@ -434,34 +430,10 @@ const ApiProjectsIdWorkflowsServiceNameIndexRoute =
     path: '/api/projects/$id/workflows/$serviceName/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiProjectsIdWorkflowsServiceNameApplyRoute =
-  ApiProjectsIdWorkflowsServiceNameApplyRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/apply',
-    path: '/api/projects/$id/workflows/$serviceName/apply',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdWorkflowsServiceNameDraftRoute =
-  ApiProjectsIdWorkflowsServiceNameDraftRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/draft',
-    path: '/api/projects/$id/workflows/$serviceName/draft',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiProjectsIdWorkflowsServiceNameGenerateRoute =
   ApiProjectsIdWorkflowsServiceNameGenerateRouteImport.update({
     id: '/api/projects/$id/workflows/$serviceName/generate',
     path: '/api/projects/$id/workflows/$serviceName/generate',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdWorkflowsServiceNameGorulesRoute =
-  ApiProjectsIdWorkflowsServiceNameGorulesRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/gorules',
-    path: '/api/projects/$id/workflows/$serviceName/gorules',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiProjectsIdWorkflowsServiceNameValidateRoute =
-  ApiProjectsIdWorkflowsServiceNameValidateRouteImport.update({
-    id: '/api/projects/$id/workflows/$serviceName/validate',
-    path: '/api/projects/$id/workflows/$serviceName/validate',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiProjectsIdWorkflowsServiceNameFilesIndexRoute =
@@ -543,11 +515,7 @@ export interface FileRoutesByFullPath {
   '/api/projects/$id/members/': typeof ApiProjectsIdMembersIndexRoute
   '/api/projects/$id/workflows/': typeof ApiProjectsIdWorkflowsIndexRoute
   '/api/projects/$id/erd-versions/$versionId/restore': typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute
-  '/api/projects/$id/workflows/$serviceName/apply': typeof ApiProjectsIdWorkflowsServiceNameApplyRoute
-  '/api/projects/$id/workflows/$serviceName/draft': typeof ApiProjectsIdWorkflowsServiceNameDraftRoute
   '/api/projects/$id/workflows/$serviceName/generate': typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute
-  '/api/projects/$id/workflows/$serviceName/gorules': typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute
-  '/api/projects/$id/workflows/$serviceName/validate': typeof ApiProjectsIdWorkflowsServiceNameValidateRoute
   '/api/projects/$id/members/$userId/': typeof ApiProjectsIdMembersUserIdIndexRoute
   '/api/projects/$id/workflows/$serviceName/': typeof ApiProjectsIdWorkflowsServiceNameIndexRoute
   '/api/projects/$id/workflows/$serviceName/files/$fileName': typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute
@@ -619,11 +587,7 @@ export interface FileRoutesByTo {
   '/api/projects/$id/members': typeof ApiProjectsIdMembersIndexRoute
   '/api/projects/$id/workflows': typeof ApiProjectsIdWorkflowsIndexRoute
   '/api/projects/$id/erd-versions/$versionId/restore': typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute
-  '/api/projects/$id/workflows/$serviceName/apply': typeof ApiProjectsIdWorkflowsServiceNameApplyRoute
-  '/api/projects/$id/workflows/$serviceName/draft': typeof ApiProjectsIdWorkflowsServiceNameDraftRoute
   '/api/projects/$id/workflows/$serviceName/generate': typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute
-  '/api/projects/$id/workflows/$serviceName/gorules': typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute
-  '/api/projects/$id/workflows/$serviceName/validate': typeof ApiProjectsIdWorkflowsServiceNameValidateRoute
   '/api/projects/$id/members/$userId': typeof ApiProjectsIdMembersUserIdIndexRoute
   '/api/projects/$id/workflows/$serviceName': typeof ApiProjectsIdWorkflowsServiceNameIndexRoute
   '/api/projects/$id/workflows/$serviceName/files/$fileName': typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute
@@ -696,11 +660,7 @@ export interface FileRoutesById {
   '/api/projects/$id/members/': typeof ApiProjectsIdMembersIndexRoute
   '/api/projects/$id/workflows/': typeof ApiProjectsIdWorkflowsIndexRoute
   '/api/projects/$id/erd-versions/$versionId/restore': typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute
-  '/api/projects/$id/workflows/$serviceName/apply': typeof ApiProjectsIdWorkflowsServiceNameApplyRoute
-  '/api/projects/$id/workflows/$serviceName/draft': typeof ApiProjectsIdWorkflowsServiceNameDraftRoute
   '/api/projects/$id/workflows/$serviceName/generate': typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute
-  '/api/projects/$id/workflows/$serviceName/gorules': typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute
-  '/api/projects/$id/workflows/$serviceName/validate': typeof ApiProjectsIdWorkflowsServiceNameValidateRoute
   '/api/projects/$id/members/$userId/': typeof ApiProjectsIdMembersUserIdIndexRoute
   '/api/projects/$id/workflows/$serviceName/': typeof ApiProjectsIdWorkflowsServiceNameIndexRoute
   '/api/projects/$id/workflows/$serviceName/files/$fileName': typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute
@@ -774,11 +734,7 @@ export interface FileRouteTypes {
     | '/api/projects/$id/members/'
     | '/api/projects/$id/workflows/'
     | '/api/projects/$id/erd-versions/$versionId/restore'
-    | '/api/projects/$id/workflows/$serviceName/apply'
-    | '/api/projects/$id/workflows/$serviceName/draft'
     | '/api/projects/$id/workflows/$serviceName/generate'
-    | '/api/projects/$id/workflows/$serviceName/gorules'
-    | '/api/projects/$id/workflows/$serviceName/validate'
     | '/api/projects/$id/members/$userId/'
     | '/api/projects/$id/workflows/$serviceName/'
     | '/api/projects/$id/workflows/$serviceName/files/$fileName'
@@ -850,11 +806,7 @@ export interface FileRouteTypes {
     | '/api/projects/$id/members'
     | '/api/projects/$id/workflows'
     | '/api/projects/$id/erd-versions/$versionId/restore'
-    | '/api/projects/$id/workflows/$serviceName/apply'
-    | '/api/projects/$id/workflows/$serviceName/draft'
     | '/api/projects/$id/workflows/$serviceName/generate'
-    | '/api/projects/$id/workflows/$serviceName/gorules'
-    | '/api/projects/$id/workflows/$serviceName/validate'
     | '/api/projects/$id/members/$userId'
     | '/api/projects/$id/workflows/$serviceName'
     | '/api/projects/$id/workflows/$serviceName/files/$fileName'
@@ -926,11 +878,7 @@ export interface FileRouteTypes {
     | '/api/projects/$id/members/'
     | '/api/projects/$id/workflows/'
     | '/api/projects/$id/erd-versions/$versionId/restore'
-    | '/api/projects/$id/workflows/$serviceName/apply'
-    | '/api/projects/$id/workflows/$serviceName/draft'
     | '/api/projects/$id/workflows/$serviceName/generate'
-    | '/api/projects/$id/workflows/$serviceName/gorules'
-    | '/api/projects/$id/workflows/$serviceName/validate'
     | '/api/projects/$id/members/$userId/'
     | '/api/projects/$id/workflows/$serviceName/'
     | '/api/projects/$id/workflows/$serviceName/files/$fileName'
@@ -1001,11 +949,7 @@ export interface RootRouteChildren {
   ApiProjectsIdMembersIndexRoute: typeof ApiProjectsIdMembersIndexRoute
   ApiProjectsIdWorkflowsIndexRoute: typeof ApiProjectsIdWorkflowsIndexRoute
   ApiProjectsIdErdVersionsVersionIdRestoreRoute: typeof ApiProjectsIdErdVersionsVersionIdRestoreRoute
-  ApiProjectsIdWorkflowsServiceNameApplyRoute: typeof ApiProjectsIdWorkflowsServiceNameApplyRoute
-  ApiProjectsIdWorkflowsServiceNameDraftRoute: typeof ApiProjectsIdWorkflowsServiceNameDraftRoute
   ApiProjectsIdWorkflowsServiceNameGenerateRoute: typeof ApiProjectsIdWorkflowsServiceNameGenerateRoute
-  ApiProjectsIdWorkflowsServiceNameGorulesRoute: typeof ApiProjectsIdWorkflowsServiceNameGorulesRoute
-  ApiProjectsIdWorkflowsServiceNameValidateRoute: typeof ApiProjectsIdWorkflowsServiceNameValidateRoute
   ApiProjectsIdMembersUserIdIndexRoute: typeof ApiProjectsIdMembersUserIdIndexRoute
   ApiProjectsIdWorkflowsServiceNameIndexRoute: typeof ApiProjectsIdWorkflowsServiceNameIndexRoute
   ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute: typeof ApiProjectsIdWorkflowsServiceNameFilesFileNameRoute
@@ -1483,39 +1427,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/projects/$id/workflows/$serviceName/apply': {
-      id: '/api/projects/$id/workflows/$serviceName/apply'
-      path: '/api/projects/$id/workflows/$serviceName/apply'
-      fullPath: '/api/projects/$id/workflows/$serviceName/apply'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameApplyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/draft': {
-      id: '/api/projects/$id/workflows/$serviceName/draft'
-      path: '/api/projects/$id/workflows/$serviceName/draft'
-      fullPath: '/api/projects/$id/workflows/$serviceName/draft'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameDraftRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/projects/$id/workflows/$serviceName/generate': {
       id: '/api/projects/$id/workflows/$serviceName/generate'
       path: '/api/projects/$id/workflows/$serviceName/generate'
       fullPath: '/api/projects/$id/workflows/$serviceName/generate'
       preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGenerateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/gorules': {
-      id: '/api/projects/$id/workflows/$serviceName/gorules'
-      path: '/api/projects/$id/workflows/$serviceName/gorules'
-      fullPath: '/api/projects/$id/workflows/$serviceName/gorules'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameGorulesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/projects/$id/workflows/$serviceName/validate': {
-      id: '/api/projects/$id/workflows/$serviceName/validate'
-      path: '/api/projects/$id/workflows/$serviceName/validate'
-      fullPath: '/api/projects/$id/workflows/$serviceName/validate'
-      preLoaderRoute: typeof ApiProjectsIdWorkflowsServiceNameValidateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/projects/$id/workflows/$serviceName/files/': {
@@ -1624,16 +1540,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProjectsIdWorkflowsIndexRoute: ApiProjectsIdWorkflowsIndexRoute,
   ApiProjectsIdErdVersionsVersionIdRestoreRoute:
     ApiProjectsIdErdVersionsVersionIdRestoreRoute,
-  ApiProjectsIdWorkflowsServiceNameApplyRoute:
-    ApiProjectsIdWorkflowsServiceNameApplyRoute,
-  ApiProjectsIdWorkflowsServiceNameDraftRoute:
-    ApiProjectsIdWorkflowsServiceNameDraftRoute,
   ApiProjectsIdWorkflowsServiceNameGenerateRoute:
     ApiProjectsIdWorkflowsServiceNameGenerateRoute,
-  ApiProjectsIdWorkflowsServiceNameGorulesRoute:
-    ApiProjectsIdWorkflowsServiceNameGorulesRoute,
-  ApiProjectsIdWorkflowsServiceNameValidateRoute:
-    ApiProjectsIdWorkflowsServiceNameValidateRoute,
   ApiProjectsIdMembersUserIdIndexRoute: ApiProjectsIdMembersUserIdIndexRoute,
   ApiProjectsIdWorkflowsServiceNameIndexRoute:
     ApiProjectsIdWorkflowsServiceNameIndexRoute,

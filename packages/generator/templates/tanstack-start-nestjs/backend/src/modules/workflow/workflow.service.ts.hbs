@@ -14,7 +14,7 @@
  * Project: {{project.name}}
  */
 
-import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, forwardRef } from '@nestjs/common';
 import { Kysely, sql } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
 import { RulesEngine } from '../rules/rules-engine.service';
@@ -34,10 +34,23 @@ export interface WorkflowRunOptions {
 }
 
 export interface WorkflowStatus {
+  /**
+   * Which run this is, and what it was about.
+   *
+   * The status alone answers "did it work" and nothing else: a screen showing
+   * a failed run could not say which record it belonged to without a second
+   * query it had no id for, and a suite reading a run back had no way to tell
+   * it was the one it asked for.
+   */
+  runId: string;
+  workflowName?: string;
+  entityName?: string;
+  entity_id?: string;
+  operation?: string;
   status: 'draft' | 'success' | 'error';
   completedAt?: Date;
   error?: string;
-  mutationsApplied?: Record<string, unknown>;
+  mutationsApplied?: unknown;
   durationMs?: number;
 }
 
@@ -1104,6 +1117,23 @@ export class WorkflowService {
 
   // ── Legacy / monitoring methods ─────────────────────────────────────────────
 
+  /**
+   * A JSON column, whichever shape the driver returned it in.
+   *
+   * PostgreSQL `jsonb` comes back parsed; SQLite returns the text. Anything
+   * else — null, undefined — is absent rather than an error, because a run
+   * that applied nothing is normal.
+   */
+  private parseJsonColumnValue(value: unknown): unknown {
+    if (value === null || value === undefined) return undefined;
+    if (typeof value !== "string") return value;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return undefined;
+    }
+  }
+
   async getStatus(runId: string): Promise<WorkflowStatus> {
     const workflowRun = await this.db
       .selectFrom('sys_workflow_runs')
@@ -1111,15 +1141,26 @@ export class WorkflowService {
       .where('id', '=', runId)
       .executeTakeFirst();
 
-    if (!workflowRun) throw new Error(`Workflow run ${runId} not found`);
+    // NotFoundException rather than a bare Error: an unknown id is a 404, and
+    // a thrown Error becomes a 500 that reads as a broken endpoint.
+    if (!workflowRun) throw new NotFoundException(`Workflow run ${runId} not found`);
 
     return {
+      runId: workflowRun.id as string,
+      workflowName: workflowRun.workflow_name as string | undefined,
+      entityName: workflowRun.entity_name as string | undefined,
+      entity_id: workflowRun.entity_id as string | undefined,
+      operation: workflowRun.operation as string | undefined,
       status: workflowRun.status,
       completedAt: workflowRun.completed_at,
       error: workflowRun.error_details,
-      mutationsApplied: workflowRun.mutations_applied
-        ? JSON.parse(workflowRun.mutations_applied as string)
-        : undefined,
+      // Parsed only when it arrives as text. The column is `jsonb`, and the
+      // PostgreSQL driver hands back an object that is already parsed —
+      // `JSON.parse` on it stringifies to "[object Object]" and throws, so
+      // reading back any run that applied a mutation answered 500. SQLite
+      // returns the same column as a string, which is why the parse is kept
+      // rather than dropped.
+      mutationsApplied: this.parseJsonColumnValue(workflowRun.mutations_applied),
       durationMs: workflowRun.duration_ms,
     };
   }

@@ -18,6 +18,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createFileRoute } from "@tanstack/react-router";
+import { requireProjectAccess } from "@/lib/project-access";
 
 /** Docker tags are lowercase, and separators are limited. */
 function toImageTag(name: string): string {
@@ -58,6 +59,22 @@ export const Route = createFileRoute("/api/deploy")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Read the body and settle access before a single byte of the stream
+        // is written. A refusal has to be an HTTP status: an SSE frame saying
+        // "denied" arrives inside a 200, and the caller has already been given
+        // a build. Unguarded, this route ran `docker build` over somebody
+        // else's generated application for anyone who could name a project id.
+        const { projectId } = (await request.json().catch(() => ({}))) as { projectId?: string };
+        if (!projectId) {
+          return new Response(JSON.stringify({ error: "Missing required field: projectId" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        const access = await requireProjectAccess(request, projectId, "read_write");
+        if (access.response) return access.response;
+
         const encoder = new TextEncoder();
 
         const stream = new ReadableStream({
@@ -94,9 +111,6 @@ export const Route = createFileRoute("/api/deploy")({
             };
 
             try {
-              const { projectId } = (await request.json()) as { projectId?: string };
-              if (!projectId) return fail("Missing required field: projectId");
-
               const { projectDb } = await import("@appwithai/core/services");
               const project = await projectDb.findById(projectId);
               if (!project) return fail("Project not found");

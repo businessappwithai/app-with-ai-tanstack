@@ -355,8 +355,12 @@ test.describe("@cli the generated test suite", () => {
       expect(shim, `the shim has no ${matcher}`).toContain(`${matcher}:`);
     }
 
-    // `.not` inverts all of them, and `sleep` replaces `Bun.sleep`.
-    expect(shim).toContain("not: build(actual, true)");
+    // `.not` inverts all of them, and `sleep` replaces `Bun.sleep`. Matched as
+    // a pattern rather than a literal call: `build` takes the assertion's
+    // optional message too, and an exact-string check breaks on an added
+    // argument while the property it stands for — `.not` is the inverted
+    // build — is untouched.
+    expect(shim).toMatch(/not:\s*build\(actual,\s*true/);
     expect(shim).toContain("export const sleep");
     // The runner itself is Node's, not a reimplementation.
     expect(shim).toContain('from "node:test"');

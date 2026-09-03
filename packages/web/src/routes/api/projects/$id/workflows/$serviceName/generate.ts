@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createFileRoute } from "@tanstack/react-router";
+import { requireProjectAccess } from "@/lib/project-access";
 
 const GENERATED_HOOKS_BASE_PATH = join(process.cwd(), "generated-projects");
 
@@ -79,6 +80,10 @@ export const Route = createFileRoute("/api/projects/$id/workflows/$serviceName/g
   server: {
     handlers: {
       POST: async ({ request, params }) => {
+        // Writes hook sources into the project's generated output.
+        const access = await requireProjectAccess(request, params.id as string, "read_write");
+        if (access.response) return access.response;
+
         try {
           const projectId = params.id as string;
           const serviceName = params.serviceName as string;
@@ -174,7 +179,10 @@ export const Route = createFileRoute("/api/projects/$id/workflows/$serviceName/g
         }
       },
 
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
+        const access = await requireProjectAccess(request, params.id as string);
+        if (access.response) return access.response;
+
         try {
           const serviceName = params.serviceName as string;
           const entityName = (serviceName as string).replace("Service", "");

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 let _dbReady = false;
 async function ensureDb() {
@@ -12,8 +13,11 @@ async function ensureDb() {
 export const Route = createFileRoute("/api/rules/$ruleId/")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
         await ensureDb();
+        const caller = await requireUser(request, `rule:${params.ruleId}`);
+        if (caller.response) return caller.response;
+
         try {
           const { rulesDb } = await import("@appwithai/core/services");
           const rule = await rulesDb.findById(params.ruleId);
@@ -37,6 +41,9 @@ export const Route = createFileRoute("/api/rules/$ruleId/")({
 
       PUT: async ({ request, params }) => {
         await ensureDb();
+        const caller = await requireUser(request, `rule:${params.ruleId}`, "write");
+        if (caller.response) return caller.response;
+
         try {
           const { rulesDb } = await import("@appwithai/core/services");
           const body = await request.json();
@@ -68,8 +75,11 @@ export const Route = createFileRoute("/api/rules/$ruleId/")({
         }
       },
 
-      DELETE: async ({ params }) => {
+      DELETE: async ({ request, params }) => {
         await ensureDb();
+        const caller = await requireUser(request, `rule:${params.ruleId}`, "delete");
+        if (caller.response) return caller.response;
+
         try {
           const { rulesDb } = await import("@appwithai/core/services");
           const existing = await rulesDb.findById(params.ruleId);
