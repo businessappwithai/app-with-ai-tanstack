@@ -181,10 +181,30 @@ await check("a record can be created", async () => {
     // Mandatory list columns need one of their own values, which is what makes
     // this a check of the enum seed as well as of the write path.
     if (field.sys_reference_id >= 1000) {
+      /*
+       * Both spellings, because the two stacks read different ones: the WASM
+       * runtime accepts `referenceId` or `sys_reference_id`, and NestJS only
+       * the second. Sending `referenceId` alone asked NestJS for reference 0,
+       * got an empty list, and fell through to the literal "x" below — which
+       * the API accepted until it began validating enums, so this check had
+       * been passing on a value no enum declares.
+       */
       const values = rowsOf(
-        (await call("GET", `/sys/ref-list?referenceId=${field.sys_reference_id}`)).body
+        (
+          await call(
+            "GET",
+            `/sys/ref-list?sys_reference_id=${field.sys_reference_id}&referenceId=${field.sys_reference_id}`
+          )
+        ).body
       ) as Array<{ value: string }>;
-      record[field.column_name] = values[0]?.value ?? "x";
+      // No fallback. A mandatory list column with no values is a broken enum
+      // seed, which is one of the things this script exists to catch — and
+      // inventing a value here is what hid it.
+      expect(
+        Boolean(values[0]?.value),
+        `no ref-list values for ${field.column_name} (reference ${field.sys_reference_id})`
+      );
+      record[field.column_name] = values[0]!.value;
     } else {
       // A reference column is validated as a UUID. Pointing it at the signed-in
       // administrator is the one id this script is certain exists.
