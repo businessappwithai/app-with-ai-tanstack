@@ -15960,6 +15960,7 @@ export async function executeCustomValidateHooks(
     await writeFile(join(outputDir, "src/modules/bus/bus.controller.ts"), controllerContent);
     const serviceContent = await this.renderTemplate("src/modules/bus/bus.service.ts.hbs", context);
     await writeFile(join(outputDir, "src/modules/bus/bus.service.ts"), serviceContent);
+    await copyFile(join(this.resolvedTemplateDir, "src/modules/bus/window-list-defaults.ts"), join(outputDir, "src/modules/bus/window-list-defaults.ts"));
     for (const name of ["entity-promotion.service", "promotion-dispatcher.service"]) {
       const content = await this.renderTemplate(`src/modules/bus/${name}.ts.hbs`, context);
       await writeFile(join(outputDir, `src/modules/bus/${name}.ts`), content);
@@ -16026,6 +16027,10 @@ export async function executeCustomValidateHooks(
       {
         slug: "add_system_config",
         template: "src/migrations/015_add_system_config.ts.hbs"
+      },
+      {
+        slug: "add_window_list_defaults",
+        template: "src/migrations/016_add_window_list_defaults.ts.hbs"
       }
     ];
     const scaffoldSlugs = new Set(scaffold.map((m) => m.slug));
@@ -16805,6 +16810,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     await writeFile(join(outputDir, "src/lib/app-meta.ts"), appMeta);
     const apiClientContent = await this.component("src/lib/api-client.ts");
     await writeFile(join(outputDir, "src/lib/api-client.ts"), apiClientContent);
+    const csvContent = await this.component("src/lib/csv.ts");
+    await writeFile(join(outputDir, "src/lib/csv.ts"), csvContent);
     try {
       const viteEnv = await this.renderTemplate("src/vite-env.d.ts.hbs", context);
       await writeFile(join(outputDir, "src/vite-env.d.ts"), viteEnv);
@@ -17383,6 +17390,7 @@ var SHARED_SUITES = [
   "15-record-lifecycle.test.ts",
   "16-api-contract.test.ts",
   "17-display-identifier.test.ts",
+  "19-window-list-defaults.test.ts",
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",
   "11-performance-budget.test.ts"

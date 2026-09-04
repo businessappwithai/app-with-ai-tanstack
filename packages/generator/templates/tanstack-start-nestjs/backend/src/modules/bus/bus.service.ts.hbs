@@ -19,6 +19,11 @@ import { PromotionDispatcher } from './promotion-dispatcher.service';
 import type { PromotionResult } from './entity-promotion.service';
 import { WorkflowService } from '../workflow/workflow.service';
 import { getLogger } from '../../common/logging/logger.service';
+import {
+  DEFAULT_ORDER_BY_CLAUSE,
+  parseOrderByClause,
+  parseWhereClause,
+} from './window-list-defaults';
 
 export interface FieldMetadata {
   sys_field_id: string;
@@ -65,6 +70,10 @@ export interface EntityMetadata {
   window?: {
     sys_window_id: string;
     name: string;
+    /** The dictionary's filter for this list. See window-list-defaults.ts. */
+    where_clause?: string | null;
+    /** The dictionary's ordering for this list. Defaults to `updated_at DESC`. */
+    order_by_clause?: string | null;
   };
 }
 
@@ -136,12 +145,121 @@ export class BusService {
     const tableName = this.getTableName(entity);
     await this.verifyEntity(entity);
 
-    const processedOptions = await executeBeforeListHooks(entity, { options, filters });
+    const { options: windowOptions, filters: windowFilters } =
+      await this.applyWindowListDefaults(entity, options, filters);
+
+    const processedOptions = await executeBeforeListHooks(entity, {
+      options: windowOptions,
+      filters: windowFilters,
+    });
     const result = await this.db.findAll(tableName, processedOptions.options, processedOptions.filters);
     await executeAfterListHooks(entity, result.data);
 
     this.logger.log(`findAll: entity=${entity}, returned ${result.data.length} records`);
     return result;
+  }
+
+  /**
+   * Fold the window's declared filter and ordering into a list request.
+   *
+   * The Application Dictionary decides which columns a grid shows and what they
+   * are called; `sys_window.where_clause` and `.order_by_clause` let it decide
+   * which rows and in what order, so a list is configured rather than coded.
+   *
+   * Two rules about precedence, both deliberate:
+   *
+   *  - A caller's own `orderBy` wins. Clicking a column heading has to reorder
+   *    the list, or the window's ordering would make the grid's own sort do
+   *    nothing.
+   *  - The window's filter is a floor, not a default. It is applied on top of
+   *    whatever the caller asked for, and a caller filtering the same column
+   *    keeps their own clause — a window that hides archived rows must not
+   *    become a suggestion just because somebody typed a search.
+   *
+   * With no window, or a window that says nothing, the list falls back to
+   * `updated_at DESC` — most recently modified first, which is the order a
+   * reader opening a list expects and is stable enough to page through.
+   */
+  private async applyWindowListDefaults(
+    entity: string,
+    options: PaginationOptions,
+    filters: Record<string, any>,
+  ): Promise<{ options: PaginationOptions; filters: Record<string, any> }> {
+    let metadata: EntityMetadata;
+    try {
+      metadata = await this.getEntityMetadata(entity);
+    } catch {
+      // A table with no dictionary row still lists; it just gets no defaults.
+      return { options, filters };
+    }
+
+    // The audit columns are on every business table and none of them is in
+    // sys_column, so they have to be named here — otherwise `updated_at DESC`,
+    // the default ordering, would itself be rejected as naming a column that
+    // does not exist. Both clauses see the same set: "changed since" is as
+    // reasonable a filter as it is an ordering.
+    const queryable = new Set([
+      ...metadata.columns.map((column) => column.column_name),
+      'id',
+      'created_at',
+      'updated_at',
+    ]);
+
+    // The declared type of each column, so a filter whose value the column
+    // cannot be compared against is dropped rather than answered with a 400.
+    // `id` is a uuid (reference 13) and the two audit stamps are timestamps
+    // (16); none of the three is in sys_column.
+    const columnTypes = new Map<string, number>([
+      ...metadata.columns.map(
+        (column) => [column.column_name, column.sys_reference_id] as [string, number]
+      ),
+      ['id', 13],
+      ['created_at', 16],
+      ['updated_at', 16],
+    ]);
+
+    const nextOptions: PaginationOptions = { ...options };
+
+    if (!nextOptions.orderBy) {
+      const clause = metadata.window?.order_by_clause?.trim() || DEFAULT_ORDER_BY_CLAUSE;
+      const { terms, warnings } = parseOrderByClause(clause, queryable);
+      for (const warning of warnings) {
+        this.logger.warn(
+          `window order_by_clause on '${entity}': dropped '${warning.clause}' — ${warning.reason}`,
+        );
+      }
+      // PaginationOptions carries one column, so the first term is the one that
+      // reaches the query; the rest are dropped rather than silently reordered.
+      const [first, ...rest] = terms;
+      if (first) {
+        nextOptions.orderBy = first.column;
+        nextOptions.orderDir = first.direction;
+        if (rest.length > 0) {
+          this.logger.warn(
+            `window order_by_clause on '${entity}': only the first term is applied, ignored ${rest
+              .map((t) => t.column)
+              .join(', ')}`,
+          );
+        }
+      } else if (queryable.has('updated_at')) {
+        nextOptions.orderBy = 'updated_at';
+        nextOptions.orderDir = 'desc';
+      }
+    }
+
+    const declared = metadata.window?.where_clause?.trim();
+    if (!declared) return { options: nextOptions, filters };
+
+    const { filters: windowFilters, warnings } = parseWhereClause(declared, queryable, columnTypes);
+    for (const warning of warnings) {
+      this.logger.warn(
+        `window where_clause on '${entity}': dropped '${warning.clause}' — ${warning.reason}`,
+      );
+    }
+
+    // The caller's filters go last, so a column both of them name keeps the
+    // caller's clause rather than being overwritten by the window's.
+    return { options: nextOptions, filters: { ...windowFilters, ...filters } };
   }
 
   async findById(entity: string, id: string): Promise<any> {
@@ -542,7 +660,12 @@ export class BusService {
         };
       }),
       window: window
-        ? { sys_window_id: window.sys_window_id, name: window.name }
+        ? {
+            sys_window_id: window.sys_window_id,
+            name: window.name,
+            where_clause: (window as any).where_clause ?? null,
+            order_by_clause: (window as any).order_by_clause ?? null,
+          }
         : undefined,
     };
 

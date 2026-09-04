@@ -1421,6 +1421,14 @@ export async function executeCustomValidateHooks(
     const serviceContent = await this.renderTemplate("src/modules/bus/bus.service.ts.hbs", context);
     await fs.writeFile(path.join(outputDir, "src/modules/bus/bus.service.ts"), serviceContent);
 
+    // sys_window.where_clause / .order_by_clause, parsed against the entity's
+    // real columns. Plain TypeScript rather than a template — it holds no model
+    // data, and being a real module is what lets it be unit-tested here.
+    await fs.copyFile(
+      path.join(this.resolvedTemplateDir, "src/modules/bus/window-list-defaults.ts"),
+      path.join(outputDir, "src/modules/bus/window-list-defaults.ts")
+    );
+
     // Draft → final promotion pipeline
     for (const name of ["entity-promotion.service", "promotion-dispatcher.service"]) {
       const content = await this.renderTemplate(`src/modules/bus/${name}.ts.hbs`, context);
@@ -1546,6 +1554,13 @@ export async function executeCustomValidateHooks(
       {
         slug: "add_system_config",
         template: "src/migrations/015_add_system_config.ts.hbs",
+      },
+      // sys_window.where_clause / .order_by_clause — which rows a list shows and
+      // in what order, decided in the dictionary. Backfills every existing
+      // window with `updated_at DESC` so a list opens on the most recent change.
+      {
+        slug: "add_window_list_defaults",
+        template: "src/migrations/016_add_window_list_defaults.ts.hbs",
       },
     ];
 

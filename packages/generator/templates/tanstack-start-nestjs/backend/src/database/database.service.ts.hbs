@@ -80,6 +80,14 @@ export class DatabaseService {
           ? (raw as { operator: string; value: unknown })
           : { operator: '=', value: raw };
 
+      // `is null` / `is not null` are the two clauses whose value is *meant*
+      // to be null — a window filtering on `deleted_by=isNull` would otherwise
+      // be dropped here as an empty filter and show every row.
+      if (spec.operator === 'is' || spec.operator === 'is not') {
+        query = query.where(key as any, spec.operator as any, null as any);
+        continue;
+      }
+
       if (spec.value === undefined || spec.value === null || spec.value === '') continue;
 
       if (spec.operator === 'ilike') {

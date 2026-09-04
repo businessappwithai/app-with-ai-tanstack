@@ -138,6 +138,10 @@ const SHARED_SUITES = [
   "15-record-lifecycle.test.ts",
   "16-api-contract.test.ts",
   "17-display-identifier.test.ts",
+  // The dictionary's own say over what a list shows and in what order. It
+  // edits sys_window and puts it back, so it runs before the benchmarks read
+  // the same lists.
+  "19-window-list-defaults.test.ts",
   // Last, so they measure the fullest the tables will be this run.
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",

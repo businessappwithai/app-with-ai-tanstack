@@ -886,6 +886,12 @@ export class SysService {
       .set({ ...data, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
       .where('sys_window_id' as any, '=', id)
       .execute();
+    // The window is part of every entity's cached metadata — its filter and
+    // ordering are read from there on every list — so an edit that does not
+    // invalidate the cache takes effect at the next restart and nowhere else.
+    // deleteWindow already cleared it; this did not.
+    this.invalidateFieldCache();
+    this.busService.clearMetadataCache();
     return this.findWindowById(id);
   }
 

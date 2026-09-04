@@ -178,6 +178,13 @@ export async function up(db: Kysely<any>): Promise<void> {
       window_type VARCHAR(1) NOT NULL DEFAULT 'M',
       is_sales_transaction BOOLEAN NOT NULL DEFAULT false,
       is_default BOOLEAN NOT NULL DEFAULT true,
+      -- Which rows a list shows and in what order. Neither holds SQL: the
+      -- filter is the application's own column=operator:value syntax and the
+      -- order is a column name with an optional ASC or DESC, both parsed and
+      -- validated against sys_column before a query is built. See migration
+      -- 016_add_window_list_defaults, which adds these to an existing database.
+      where_clause TEXT,
+      order_by_clause TEXT DEFAULT 'updated_at DESC',
       entity_type VARCHAR(40) NOT NULL DEFAULT 'U',
       is_active BOOLEAN NOT NULL DEFAULT false,
       created_by VARCHAR(100) NOT NULL,

@@ -500,6 +500,13 @@ export async function seed(db: Kysely<any>): Promise<void> {
     window_type: 'M',
     is_sales_transaction: false,
     is_default: true,
+    // Which rows this window's lists show, and in what order. No filter to
+    // begin with; ordered by most recent change, which is the order a reader
+    // opening a list expects and the one a seeded table needs to be navigable
+    // at all. Both are editable from the Window screen — neither is SQL; see
+    // backend/src/modules/bus/window-list-defaults.ts for the grammars.
+    where_clause: null,
+    order_by_clause: 'updated_at DESC',
     entity_type: 'U',
     is_active: true,
     created_by: createdBy,

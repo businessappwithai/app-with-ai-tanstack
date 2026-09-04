@@ -156,6 +156,20 @@ export const SYS_WINDOW_FORM_FIELDS: FieldMetadata[] = [
   field("window_type", "Window Type", REF.LIST, { seq_no: 40, options: WINDOW_TYPE_OPTIONS }),
   field("is_sales_transaction", "Sales Transaction", REF.YES_NO, { seq_no: 50 }),
   field("is_default", "Default", REF.YES_NO, { seq_no: 60 }),
+  // Which rows every list for this window shows, and in what order. Neither
+  // holds SQL — see backend/src/modules/bus/window-list-defaults.ts for the two
+  // grammars, both parsed against the entity's own columns before a query is
+  // built. Left empty, a list is unfiltered and ordered `updated_at DESC`.
+  field("where_clause", "Filter", REF.STRING, {
+    seq_no: 62,
+    field_length: 500,
+    description: "column=operator:value, comma-separated. e.g. status=equals:active",
+  }),
+  field("order_by_clause", "Order By", REF.STRING, {
+    seq_no: 64,
+    field_length: 255,
+    description: "column ASC|DESC, comma-separated. Defaults to updated_at DESC",
+  }),
   field("is_active", "Active", REF.YES_NO, { seq_no: 70 }),
   field("entity_type", "Entity Type", REF.LIST, {
     seq_no: 80,
@@ -168,6 +182,7 @@ export const SYS_WINDOW_GRID_FIELDS: FieldMetadata[] = [
   field("name", "Name", REF.STRING, { seq_no_grid: 10 }),
   field("description", "Description", REF.STRING, { seq_no_grid: 20 }),
   field("window_type", "Type", REF.STRING, { seq_no_grid: 30 }),
+  field("order_by_clause", "Order By", REF.STRING, { seq_no_grid: 35 }),
   field("is_active", "Active", REF.YES_NO, { seq_no_grid: 40 }),
 ];
 
