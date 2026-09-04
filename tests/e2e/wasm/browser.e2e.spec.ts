@@ -305,6 +305,47 @@ test.describe
       await expect(app(page).locator(".table")).toContainText("E2E Account");
     });
 
+    /**
+     * The grid's CSV download, exercised where it actually runs.
+     *
+     * The rows are fetched rather than read off the screen, cells go through
+     * the same formatter and the same server-resolved labels the table renders
+     * with, and the file leads with a byte order mark so Excel reads it as
+     * UTF-8. The account created above is what the file has to contain — an
+     * export that downloads an empty document would look like working software
+     * from the outside.
+     */
+    test("the grid downloads its rows as CSV", async () => {
+      await app(page).locator(".masthead__name").click();
+      await app(page).locator(".card__name", { hasText: "Account" }).first().click();
+      await expect(app(page).locator(".listbar")).toBeVisible();
+
+      const button = app(page).locator('[data-testid="export-csv"]');
+      await expect(button).toBeVisible();
+      await expect(button).toBeEnabled();
+
+      const [download] = await Promise.all([
+        page.waitForEvent("download", { timeout: 60_000 }),
+        button.click(),
+      ]);
+
+      expect(download.suggestedFilename()).toMatch(/^account-\d{4}-\d{2}-\d{2}\.csv$/);
+
+      const stream = await download.createReadStream();
+      const chunks: Buffer[] = [];
+      for await (const chunk of stream) chunks.push(Buffer.from(chunk));
+      const text = Buffer.concat(chunks).toString("utf8");
+
+      // The BOM, then a header row of the grid's own column names, then the
+      // record. `\r\n` because RFC 4180 says so and because a reader that
+      // splits on it must find whole rows.
+      expect(text.charCodeAt(0)).toBe(0xfeff);
+      const [header, ...rows] = text.slice(1).split("\r\n");
+      expect(header.toLowerCase()).toContain("name");
+      expect(rows.join("\n")).toContain("E2E Account");
+      await shoot(page, "csv-export");
+    });
+
     test("the audit trail recorded the write", async () => {
       // Reached the way a person reaches it: the Application Dictionary group on
       // the dashboard carries an Audit Log card. Navigating the outer page instead

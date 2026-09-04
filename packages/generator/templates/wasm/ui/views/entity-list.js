@@ -14,6 +14,7 @@
  */
 
 import { el, mount, spinner, empty, displayValue, toast } from "../dom.js";
+import { CSV_EXPORT_LIMIT, csvFileName, downloadCsv, toCsv } from "../csv.js";
 import { api, queryString } from "../api.js";
 import { setActions, setHelp } from "../main.js";
 import { recordPanel } from "./entity-form.js";
@@ -197,6 +198,68 @@ export async function entityListView(root, { entity, recordId, navigate }) {
     }
   }
 
+  /**
+   * Download the list as CSV.
+   *
+   * The rows are fetched rather than read off the screen: `page.data` holds one
+   * page and the reader asked for the list, so this asks for the first
+   * CSV_EXPORT_LIMIT rows under the same search and filters the grid is
+   * showing. Cells go through `displayValue` and the server's own `labels` map,
+   * the two things the table itself renders with, so a date, a boolean and a
+   * referenced record read in the file exactly as they read on screen.
+   */
+  async function exportCsv() {
+    if (!loaded) return;
+    const columns = loaded.fields.length
+      ? loaded.fields
+      : entity.attributes
+          .slice(0, 6)
+          .map((attribute) => ({ column_name: attribute.columnName, name: attribute.displayName }));
+    try {
+      const full = await api.get(
+        `/bus/${entity.routeName}${queryString({
+          page: 1,
+          limit: CSV_EXPORT_LIMIT,
+          search: state.search,
+          sort: state.sort,
+          order: state.order,
+          ...searchParams(),
+        })}`
+      );
+
+      const body = (full.data ?? []).map((row) =>
+        columns.map((column) => {
+          const value = row[column.column_name];
+          const label = full.labels?.[column.column_name]?.[value];
+          if (label !== undefined) return String(label);
+          // An em dash is how the table draws an empty cell; a CSV says the
+          // same thing with an empty field, and a literal "—" would import as
+          // data.
+          const shown = displayValue(value, column);
+          return shown === "—" ? "" : shown;
+        })
+      );
+
+      downloadCsv(
+        csvFileName(entity.routeName),
+        toCsv(
+          columns.map((column) => column.name ?? column.column_name),
+          body
+        )
+      );
+
+      if ((full.total ?? 0) > body.length) {
+        toast(
+          `Exported ${body.length} of ${full.total} rows — a download holds at most ` +
+            `${CSV_EXPORT_LIMIT}. Narrow the list to export the rest.`,
+          "info"
+        );
+      }
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  }
+
   function paint() {
     if (!loaded) return;
     const { fields, page } = loaded;
@@ -219,6 +282,17 @@ export async function entityListView(root, { entity, recordId, navigate }) {
       const bar = el(
         "div.listbar",
         el("div.listbar__search", filterInput),
+        el(
+          "button.btn.btn--ghost",
+          {
+            type: "button",
+            onclick: exportCsv,
+            disabled: page.total === 0,
+            title: `Download this list as CSV (at most ${CSV_EXPORT_LIMIT} rows)`,
+            "data-testid": "export-csv",
+          },
+          "CSV"
+        ),
         el(
           "span.listbar__count",
           state.filter
