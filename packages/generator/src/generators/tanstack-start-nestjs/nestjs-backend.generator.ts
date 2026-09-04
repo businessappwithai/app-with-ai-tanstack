@@ -982,6 +982,20 @@ export class NestJsBackendGenerator extends BaseGenerator {
       categoryServiceContent
     );
 
+    // Runtime configuration — the sys_system table behind the System
+    // Configuration page. The template arrived with sys.controller,
+    // sys.module and model-context.service all importing it, but nothing
+    // wrote it, so `nest build` failed on three TS2307s in every generated
+    // application. It is written here beside the other sys services.
+    const systemConfigServiceContent = await this.renderTemplate(
+      "src/modules/sys/services/system-config.service.ts.hbs",
+      context
+    );
+    await fs.writeFile(
+      path.join(outputDir, "src/modules/sys/services/system-config.service.ts"),
+      systemConfigServiceContent
+    );
+
     const categoryControllerContent = await this.renderTemplate(
       "src/modules/sys/controllers/sys-category.controller.ts.hbs",
       context
