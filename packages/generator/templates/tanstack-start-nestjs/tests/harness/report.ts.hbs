@@ -354,25 +354,86 @@ function pad(value: string, width: number): string {
   return value.padStart(width);
 }
 
-/** The per-phase table. */
+/**
+ * The per-phase table.
+ *
+ * The median is printed beside the average, and first, because they answer
+ * different questions and only one of them is about a request a reader made.
+ * An average over a phase with a slow tail describes nobody: a p50 of 4ms and
+ * a mean of 15ms is a fast endpoint with a handful of stalls, and a mean alone
+ * reads as a uniformly slow one. Both, with p95 and p99 after them, say which
+ * shape it is.
+ */
 export function formatSummary(report: RunReport): string {
   const names = Object.keys(report.phases).filter((phase) => report.phases[phase]!.count > 0);
   if (names.length === 0) return "  (nothing recorded)";
 
   const label = Math.max(9, ...names.map((name) => name.length));
   const head =
-    `  ${"phase".padEnd(label)} ${pad("count", 7)} ${pad("avg", 10)} ` +
+    `  ${"phase".padEnd(label)} ${pad("count", 7)} ${pad("p50", 9)} ${pad("avg", 9)} ` +
     `${pad("p95", 9)} ${pad("p99", 9)} ${pad("ops/sec", 9)}`;
 
   const rows = names.map((name) => {
     const phase = report.phases[name]!;
     return (
-      `  ${name.padEnd(label)} ${pad(String(phase.count), 7)} ${pad(`${phase.averageMs}ms`, 10)} ` +
+      `  ${name.padEnd(label)} ${pad(String(phase.count), 7)} ${pad(`${phase.medianMs}ms`, 9)} ` +
+      `${pad(`${phase.averageMs}ms`, 9)} ` +
       `${pad(`${phase.p95Ms}ms`, 9)} ${pad(`${phase.p99Ms}ms`, 9)} ${pad(String(phase.opsPerSec), 9)}`
     );
   });
 
   return [head, ...rows].join("\n");
+}
+
+/**
+ * Writes, broken down by the entity they were made against.
+ *
+ * The per-phase table averages every entity together, which is exactly what
+ * hides the finding: an entity carrying a saga costs several times one that
+ * carries nothing, and a single `insert` row reports the mean of the two as
+ * though it described either. `byName` has held this all along and nothing
+ * printed it.
+ *
+ * Only the phases with more than one entity are shown — a breakdown of one row
+ * is the same row again.
+ */
+export function formatByEntity(report: RunReport): string {
+  const grouped = new Map<string, Array<{ name: string; summary: PhaseSummary }>>();
+
+  for (const [key, entry] of Object.entries(report.byName)) {
+    if (entry.count === 0) continue;
+    // Keys are `${op}:${name}` — see writeReport. Split on the first colon:
+    // a phase name may contain one ("insert (benchmark)" does not, but nothing
+    // stops a suite naming one that does), an entity route never does.
+    const separator = key.indexOf(":");
+    if (separator < 0) continue;
+    const op = key.slice(0, separator);
+    const name = key.slice(separator + 1);
+    if (!name) continue;
+    const rows = grouped.get(op) ?? [];
+    rows.push({ name, summary: entry });
+    grouped.set(op, rows);
+  }
+
+  const sections: string[] = [];
+  for (const [op, rows] of [...grouped].sort(([a], [b]) => a.localeCompare(b))) {
+    if (rows.length < 2) continue;
+    rows.sort((a, b) => b.summary.medianMs - a.summary.medianMs);
+
+    const label = Math.max(9, ...rows.map((row) => row.name.length));
+    const head =
+      `  ${op}\n  ${"".padEnd(label)} ${pad("count", 7)} ${pad("p50", 9)} ` +
+      `${pad("p95", 9)} ${pad("slowest", 9)}`;
+    const body = rows.map(
+      (row) =>
+        `  ${row.name.padEnd(label)} ${pad(String(row.summary.count), 7)} ` +
+        `${pad(`${row.summary.medianMs}ms`, 9)} ${pad(`${row.summary.p95Ms}ms`, 9)} ` +
+        `${pad(`${row.summary.maxMs}ms`, 9)}`
+    );
+    sections.push([head, ...body].join("\n"));
+  }
+
+  return sections.join("\n\n");
 }
 
 /**
