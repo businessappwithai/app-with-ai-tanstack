@@ -150,8 +150,20 @@ describe("record lifecycle", () => {
         const created = (await harness.createWithParents(entity)) as Row | null;
         if (!created?.id) return;
 
+        /*
+         * Ask for this record's rows, not for a page of the entity's.
+         *
+         * The endpoint orders by `timestamp desc`, and this used to read the
+         * newest 50 for the entity type and look for the id among them. On an
+         * entity the bulk seed touched, dozens of rows share a timestamp to the
+         * resolution stored, ties break arbitrarily, and the row written a
+         * moment ago lands outside the first fifty — so the suite failed on
+         * whichever two entities happened to lose the tie, and passed on the
+         * next run. `entity_id` is an indexed column and the filter is
+         * supported; there is no reason to page through anything.
+         */
         const trail = await harness.client.get(
-          `/audit?entity_type=${entity.tableName}&limit=50`,
+          `/audit?entity_type=${entity.tableName}&entity_id=${created.id}&limit=50`,
           { allowFailure: true }
         );
         if (!trail.ok) return;
