@@ -8,11 +8,15 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 export const Route = createFileRoute("/api/db/reverse-engineer")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const caller = await requireUser(request, "db:reverse-engineer", "read");
+        if (caller.response) return caller.response;
+
         const json = (body: unknown, status = 200): Response =>
           new Response(JSON.stringify(body), {
             status,

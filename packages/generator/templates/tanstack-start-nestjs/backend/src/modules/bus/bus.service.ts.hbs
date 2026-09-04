@@ -18,6 +18,7 @@ import { RulesService } from '../rules/rules.service';
 import { PromotionDispatcher } from './promotion-dispatcher.service';
 import type { PromotionResult } from './entity-promotion.service';
 import { WorkflowService } from '../workflow/workflow.service';
+import { getLogger } from '../../common/logging/logger.service';
 
 export interface FieldMetadata {
   sys_field_id: string;
@@ -47,6 +48,10 @@ export interface FieldMetadata {
   ref_label_fields?: string[];
   /** Populated for enum columns: the allowed values from sys_ref_list. */
   options?: { value: string; label: string }[];
+  /** Query param name for cascading filter (e.g. 'filter.country_id') */
+  ref_filter_param?: string;
+  /** Form field whose value feeds the cascading filter (e.g. 'country_id') */
+  ref_filter_source?: string;
 }
 
 export interface EntityMetadata {
@@ -208,6 +213,13 @@ export class BusService {
     const promotion = await this.promotionDispatcher.dispatch(tableName, result.id, 'create', result);
 
     this.logger.log(`create: entity=${entity}, id=${result?.id}, doc_status=${promotion.docStatus}`);
+    // `userId` and `requestId` come from the request context the auth guard
+    // filled in — this service has no user in scope and should not pretend to.
+    getLogger('entity').event('entity.created', {
+      entity,
+      recordId: result?.id ?? null,
+      docStatus: promotion.docStatus,
+    });
     return this.withPromotion(tableName, result.id, result, promotion);
   }
 
@@ -284,6 +296,14 @@ export class BusService {
     const promotion = await this.promotionDispatcher.dispatch(tableName, id, 'update', result);
 
     this.logger.log(`update: entity=${entity}, id=${id}, doc_status=${promotion.docStatus}`);
+    getLogger('entity').event('entity.updated', {
+      entity,
+      recordId: id,
+      // The keys the caller actually sent, never their values: this is business
+      // data, and a log collector is the wrong place for it.
+      changedFields: Object.keys(data ?? {}),
+      docStatus: promotion.docStatus,
+    });
     return this.withPromotion(tableName, id, result, promotion);
   }
 
@@ -339,6 +359,8 @@ export class BusService {
 
     const promotion = await this.promotionDispatcher.dispatch(tableName, id, 'delete', current);
     await executeAfterDeleteHooks(entity, promotion.promoted);
+
+    getLogger('entity').event('entity.deleted', { entity, recordId: id });
 
     return promotion;
   }
@@ -523,6 +545,63 @@ export class BusService {
         ? { sys_window_id: window.sys_window_id, name: window.name }
         : undefined,
     };
+
+    // Detect cascading FK pairs: when a referenced table has a FK column
+    // that also exists in this entity, the child select filters by it.
+    const ownFkColumnNames = new Set(
+      columns
+        .filter((c: any) => c.sys_reference_id === 18 || c.sys_reference_id === 19)
+        .map((c: any) => c.column_name as string),
+    );
+
+    if (refTableNames.length > 0 && ownFkColumnNames.size > 0) {
+      const cascadeMap: Record<string, { ref_filter_param: string; ref_filter_source: string }> = {};
+
+      await Promise.all(refTableNames.map(async (refTable) => {
+        try {
+          const refSysTable = await this.kysely
+            .selectFrom('sys_table')
+            .select('sys_table_id')
+            .where('table_name', '=', refTable)
+            .executeTakeFirst();
+          if (!refSysTable) return;
+
+          const refFkCols = await this.kysely
+            .selectFrom('sys_column')
+            .select('column_name')
+            .where('sys_table_id', '=', refSysTable.sys_table_id)
+            .where('sys_reference_id', 'in', [18, 19])
+            .where('is_active', '=', true)
+            .execute();
+
+          for (const refFkCol of refFkCols) {
+            const fkColName = refFkCol.column_name as string;
+            if (ownFkColumnNames.has(fkColName)) {
+              const childCol = columns.find((c: any) => {
+                const t = this.resolveRefTableName(c.column_name, c.sys_reference_id);
+                return t === refTable;
+              });
+              if (childCol && childCol.column_name !== fkColName) {
+                cascadeMap[childCol.column_name] = {
+                  ref_filter_param: `filter.${fkColName}`,
+                  ref_filter_source: fkColName,
+                };
+              }
+            }
+          }
+        } catch {
+          // Referenced table not in dictionary — skip
+        }
+      }));
+
+      for (const col of metadata.columns) {
+        const cascade = cascadeMap[col.column_name];
+        if (cascade) {
+          col.ref_filter_param = cascade.ref_filter_param;
+          col.ref_filter_source = cascade.ref_filter_source;
+        }
+      }
+    }
 
     this.metadataCache.set(tableName, metadata);
     return metadata;

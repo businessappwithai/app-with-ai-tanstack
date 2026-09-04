@@ -28,6 +28,7 @@ import { DictionaryWriteGuard } from '../auth/guards/dictionary-write.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { SysService } from './sys.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { SystemConfigService } from './services/system-config.service';
 
 function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
   const parsed: Record<string, any> = {};
@@ -71,7 +72,10 @@ function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
 @UseGuards(SessionAuthGuard, RolesGuard, DictionaryWriteGuard)
 @Controller('sys')
 export class SysController {
-  constructor(private readonly sysService: SysService) {}
+  constructor(
+    private readonly sysService: SysService,
+    private readonly systemConfigService: SystemConfigService,
+  ) {}
 
   // ============================================================================
   // Data lifecycle
@@ -574,5 +578,63 @@ export class SysController {
   @ApiOperation({ summary: 'Delete report design for a table (administrators only)' })
   async deleteReportDesign(@Param('tableName') tableName: string) {
     return this.sysService.deleteReportDesign(tableName);
+  }
+
+  // ── System Configuration ───────────────────────────────────────────────
+
+  @Get('app-info')
+  @ApiOperation({ summary: 'Public application identity (name + description)' })
+  async getAppInfo() {
+    return {
+      name: this.systemConfigService.getAppName(),
+      description: this.systemConfigService.getAppDescription(),
+    };
+  }
+
+  @Get('system-config')
+  @Roles('admin')
+  @ApiOperation({ summary: 'List all system configuration rows (administrators only)' })
+  async listSystemConfig() {
+    const rows = await this.systemConfigService.list();
+    return rows.map((row: any) => ({
+      ...row,
+      config_value: row.is_sensitive ? '********' : row.config_value,
+    }));
+  }
+
+  @Patch('system-config/:id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Update a system configuration row (administrators only)' })
+  async updateSystemConfig(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { config_value?: string; is_active?: boolean; description?: string },
+    @Headers('x-user-id') userId?: string,
+  ) {
+    return this.systemConfigService.update(id, body, userId);
+  }
+
+  @Post('system-config')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Create a system configuration row (administrators only)' })
+  async createSystemConfig(
+    @Body() body: {
+      config_key: string;
+      config_value?: string;
+      data_type?: string;
+      category?: string;
+      description?: string;
+      is_sensitive?: boolean;
+    },
+    @Headers('x-user-id') userId?: string,
+  ) {
+    return this.systemConfigService.create(body, userId);
+  }
+
+  @Delete('system-config/:id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Delete a system configuration row (administrators only)' })
+  async deleteSystemConfig(@Param('id', ParseUUIDPipe) id: string) {
+    await this.systemConfigService.remove(id);
+    return { success: true };
   }
 }

@@ -9,6 +9,7 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { requireProjectAccess } from "@/lib/project-access";
 
 /**
  * The entity names and columns the builder's pickers offer.
@@ -57,6 +58,9 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
   server: {
     handlers: {
       GET: async ({ request, params }) => {
+        const access = await requireProjectAccess(request, params.id as string);
+        if (access.response) return access.response;
+
         try {
           const { workflowDb } = await import("@appwithai/core/services");
           const rows = await workflowDb.getWorkflows(params.id);
@@ -115,6 +119,9 @@ export const Route = createFileRoute("/api/projects/$id/automations/")({
       },
 
       POST: async ({ request, params }) => {
+        const access = await requireProjectAccess(request, params.id as string, "read_write");
+        if (access.response) return access.response;
+
         try {
           const body = (await request.json()) as {
             name?: string;

@@ -147,6 +147,16 @@ function parseDirective(line: string, n: number, model: EmlModel): DirectiveResu
     case "hook": {
       const m = rest.match(/^(\w+)\s+(\w+)\s+on\s+(\w+)\s*(\[[^\]]*\])?/);
       if (!m) {
+        // `%%hook <event> on <Entity>` — the two-token form, which names no
+        // handler. It is an automation's trigger, not a handler binding, so it
+        // deliberately does not join model.hooks: every consumer of that list
+        // expects a handler to generate a module for. The checker validates it
+        // from source instead (EML205/EML206).
+        //
+        // Reporting it as malformed here is what made every automation the
+        // builder writes fail validation — `serializeAutomation()` emits this
+        // line on every one of them.
+        if (/^\w+\s+on\s+\w+\s*$/.test(rest)) return;
         model.diagnostics.push({
           severity: "error",
           code: "EML201",

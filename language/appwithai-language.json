@@ -693,6 +693,7 @@
       "directive": "%%step <nodeId> <stepType> <key>: <value> ...",
       "propertyForm": "Space-separated `key: value` pairs. A value runs to the next `<key>:` token or the end of the line, so it may contain spaces. `fields` is JSON and must be the last key on the line.",
       "variables": "Steps share a context: the triggering record's columns, plus every variable a previous step published. CreateEntity publishes the new row's id under `as`; Formula publishes under `target`. A later step reads one by naming it in `source` or `targetSource`. This is what lets a workflow reach a row it created earlier.",
+      "loopMembership": "`in: <loopId>` joins a step to a %%loop declared in the same section. It is read off every step type alike, before the type is consulted at all, so it belongs to no single contract below and is deliberately absent from their `optional` lists. A reader validating step properties must treat it as known for every type — see automations.loops and the %%loop directive.",
       "types": [
         {
           "name": "UpdateEntity",
@@ -1020,12 +1021,13 @@
           "language/composer.ts (section classification and round-trip)",
           "packages/generator/src/eml (section extraction via composer)"
         ],
-        "purpose": "Document/section metadata: name, kind (erd|rules|workflow), version, entity binding, description, stack.",
+        "purpose": "Document/section metadata: name, kind (erd|rules|workflow), version, entity binding, description (application summary seeded into sys_system.APP_DESCRIPTION and the generated manual), stack.",
         "examples": [
           "%%meta name: CRM Core",
           "%%meta kind: rules",
           "%%meta entity: Order",
-          "%%meta version: 1.0.0"
+          "%%meta version: 1.0.0",
+          "%%meta description: This application manages customer relationships, sales pipelines, and support tickets for mid-market B2B companies."
         ]
       },
       {

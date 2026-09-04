@@ -60,6 +60,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { DatabaseService } from '../../../database/database.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { getLogger } from '../../../common/logging/logger.service';
 
 type Operation = 'create' | 'read' | 'update' | 'delete';
 
@@ -156,6 +157,11 @@ export class EntityAccessGuard implements CanActivate {
     const holdsOne = (roles: string[]) => roles.some((role) => heldFolded.has(foldRole(role)));
 
     if (!isMaster && allowedRoles.length > 0 && !holdsOne(allowedRoles)) {
+      getLogger('auth').event('auth.access.denied', {
+        resource: tableName,
+        operation,
+        requiredRoles: allowedRoles,
+      });
       throw new ForbiddenException(
         `Access denied. "${operation}" on "${tableName}" requires one of: ` +
           `${allowedRoles.join(', ')}. Your roles: ${held.join(', ') || 'none'}.`,
@@ -297,6 +303,18 @@ export class EntityAccessGuard implements CanActivate {
       const reachable = fieldEdges
         .filter((edge) => String(edge.from_state) === currentState)
         .map((edge) => String(edge.to_state));
+      // Refused for every caller, the master role included: this is the model's
+      // shape, not an access rule. Logged as such — an operator seeing this
+      // needs to know the edge is missing from the diagram, not that somebody
+      // lacks a role.
+      getLogger('workflow').event('workflow.transition.refused', {
+        entity: tableName,
+        recordId: id,
+        statusField: field,
+        from: currentState,
+        to: targetState,
+        reason: 'no-such-edge',
+      });
       throw new ForbiddenException(
         `Invalid transition: '${tableName}' has no edge from '${currentState}' to ` +
           `'${targetState}'. Valid transitions from '${currentState}': ` +
@@ -334,6 +352,15 @@ export class EntityAccessGuard implements CanActivate {
 
       if (holdsOne(allowed)) return;
 
+      getLogger('workflow').event('workflow.transition.refused', {
+        entity: tableName,
+        recordId: id,
+        statusField: String(rule.status_field),
+        from: String(rule.from_state),
+        to: String(rule.to_state),
+        reason: 'role-not-held',
+        requiredRoles: allowed,
+      });
       throw new ForbiddenException(
         `Access denied. Moving "${tableName}" from "${rule.from_state}" to ` +
           `"${rule.to_state}" ("${rule.transition}") requires one of: ` +

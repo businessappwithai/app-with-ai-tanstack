@@ -148,6 +148,34 @@ export function buildStaticValidationJdm(entity: EntityMeta, fields: FieldMeta[]
 }
 
 /**
+ * A rule that refuses exactly one value in one column, and nothing else.
+ *
+ * The validation set above is useful but shares its ground with the model's own
+ * compiled rules: a negative number may be refused by this suite's rule, by a
+ * `%%action` the model declares, or by both, so a suite cannot tell from a
+ * refusal which one spoke. A marker nothing else has an opinion about can —
+ * which is what makes it possible to assert that deactivating a rule stops it
+ * enforcing, that a CREATE-scoped rule is silent on an update, and that a rule
+ * on one entity says nothing about another.
+ */
+export function buildMarkerRuleJdm(
+  entity: EntityMeta,
+  field: FieldMeta,
+  markers: string[],
+  message: string
+): string {
+  return buildJdm(
+    `${entity.displayName} Marker`,
+    markers.map((marker, index) => ({
+      _id: `${entity.tableName}-${field.name}-marker-${index}`,
+      when: `${field.name} != null and ${field.name} == '${marker}'`,
+      action: "prevent",
+      message,
+    }))
+  );
+}
+
+/**
  * A rule that fires a workflow on write, optionally cascading into another
  * entity. This is what the workflow suite exercises.
  */

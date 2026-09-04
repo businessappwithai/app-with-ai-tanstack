@@ -1,9 +1,0 @@
-- generic [active]:
-  - main
-  - region "Notifications alt+T"
-  - region "Notifications alt+T"
-  - generic [ref=e1]:
-    - img [ref=e3]
-    - button "Open Tanstack query devtools" [ref=e51] [cursor=pointer]:
-      - img [ref=e52]
-  - alert [ref=e100]

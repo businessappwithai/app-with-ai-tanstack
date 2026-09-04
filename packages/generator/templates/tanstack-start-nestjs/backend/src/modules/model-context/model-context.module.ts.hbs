@@ -11,11 +11,12 @@
 
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../database/database.module';
+import { SysModule } from '../sys/sys.module';
 import { ModelContextController } from './model-context.controller';
 import { ModelContextService } from './model-context.service';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, SysModule],
   controllers: [ModelContextController],
   providers: [ModelContextService],
   exports: [ModelContextService],

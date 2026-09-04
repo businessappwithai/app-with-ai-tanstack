@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireProjectAccess } from "@/lib/project-access";
 
 export const Route = createFileRoute("/api/projects/$id/workflows/$serviceName/")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
+        const access = await requireProjectAccess(request, params.id as string);
+        if (access.response) return access.response;
+
         try {
           const { hookWorkflowDb } = await import("@appwithai/core/services");
           const projectId = params.id as string;

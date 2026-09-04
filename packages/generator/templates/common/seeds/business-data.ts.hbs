@@ -11,9 +11,9 @@ import { v4 as uuidv4 } from 'uuid';
 const SAMPLE_COUNT = 4;
 
 /*
- * A column the model bound to a %%enum is seeded from that enum's own values
- * (see `enumSeedValue`), not from the name-keyed vocabulary the other columns
- * use. Anything else puts a value in the column that the dictionary does not
+ * A column the model bound to a %%enum is seeded from that enum's own values —
+ * `seedValue` takes them as its fourth argument and prefers them over the
+ * name-keyed vocabulary it falls back to. Anything else puts a value in the column that the dictionary does not
  * offer, the dropdown cannot select, and — for a status backing a state
  * machine — no declared transition leads out of.
  */
@@ -79,7 +79,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       {{#unless (eq name 'deleted_at')}}
       {{#unless (eq name 'version')}}
       {{#switch (typeToReferenceId type)}}
-        {{#case 10}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{#if enumValues}}{{enumSeedValue enumValues @../index}}{{else}}{{seedValue name @../index ../../displayName}}{{/if}}{{/if}}'{{/if}},{{/case}}
+        {{#case 10}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{seedValue name @../index ../../displayName enumValues}}{{/if}}'{{/if}},{{/case}}
         {{#case 30}}{{name}}: 'test{{@../index}}@example.com',{{/case}}
         {{#case 31}}{{name}}: '555-{{@../index}}101',{{/case}}
         {{#case 11}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}{{seedNumber name @../index}}{{/if}},{{/case}}
@@ -90,7 +90,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         {{#case 20}}{{name}}: {{#if (eq @../index 2)}}false{{else}}true{{/if}},{{/case}}
         {{#case 13}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}uuidv4(){{/if}},{{/case}}
         {{#case 14}}{{name}}: 'Sample {{name}} text {{@../index}}',{{/case}}
-        {{#default}}{{name}}: '{{#if enumValues}}{{enumSeedValue enumValues @../index}}{{else}}{{seedValue name @../index ../../displayName}}{{/if}}',{{/default}}
+        {{#default}}{{name}}: '{{seedValue name @../index ../../displayName enumValues}}',{{/default}}
       {{/switch}}
       {{/unless}}
       {{/unless}}

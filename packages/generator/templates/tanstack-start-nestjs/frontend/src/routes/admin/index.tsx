@@ -14,6 +14,7 @@ import {
   RefreshCw,
   Settings,
   ShieldCheck,
+  SlidersHorizontal,
   Table2,
 } from "lucide-react";
 import { ADSidebar } from "@/components/admin/ad-sidebar";
@@ -136,6 +137,12 @@ function AdminDashboardPage() {
       description: "Design printable document reports for each entity; users get a Print button on their records",
       icon: Printer,
       to: "/admin/reports" as const,
+    },
+    {
+      title: "System Configuration",
+      description: "Runtime settings: AI endpoints, feature toggles, rate limits, and application identity",
+      icon: SlidersHorizontal,
+      to: "/admin/system-config" as const,
     },
   ];
 

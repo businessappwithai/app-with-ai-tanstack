@@ -52,6 +52,37 @@ describe("parseStepProps", () => {
   it("returns nothing for an empty tail rather than an empty-keyed entry", () => {
     expect(parseStepProps("   ")).toEqual({});
   });
+
+  // Regression: ISSUE-001 — a URL scheme was read as the next property key, so
+  // `url: https://host/path` compiled to url "" plus a property called "https".
+  // Every REST step failed EML262 for a url it plainly had, and the model would
+  // not generate at all.
+  // Found by /qa on 2026-09-01
+  // Report: .gstack/qa-reports/qa-report-dance-studio-qa-2026-09-01.md
+  it("does not split a value at a URL scheme", () => {
+    const props = parseStepProps("url: https://receipts.example.com/hooks/x method: POST");
+    expect(props).toEqual({
+      url: "https://receipts.example.com/hooks/x",
+      method: "POST",
+    });
+  });
+
+  it("keeps a URL whole when it is the last key, and when a body follows", () => {
+    expect(parseStepProps("method: POST url: http://localhost:4001/notify").url).toBe(
+      "http://localhost:4001/notify"
+    );
+    const withBody = parseStepProps('url: https://host/p method: POST bodyTemplate: {"a":"{{b}}"}');
+    expect(withBody.url).toBe("https://host/p");
+    expect(JSON.parse(withBody.bodyTemplate!)).toEqual({ a: "{{b}}" });
+  });
+
+  it("still starts a new property at a plain key, URLs aside", () => {
+    expect(parseStepProps("target: t operation: set value: a b c")).toEqual({
+      target: "t",
+      operation: "set",
+      value: "a b c",
+    });
+  });
 });
 
 describe("compileSagas", () => {

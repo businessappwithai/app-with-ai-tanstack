@@ -138,10 +138,16 @@ export interface CompiledHook {
  * `%%hook <type> <handler> on <Entity>[field: a, field: b]`
  *
  * The leading `%%` may be repeated (`%%%%hook`), which older generated
- * flowcharts emitted, so the match is anchored on `%%hook` rather than the
- * start of the line.
+ * flowcharts emitted, so the anchor allows a run of them — but it is still an
+ * anchor. Matching `%%hook` anywhere in the line meant a plain `%%` comment
+ * that merely *mentioned* a hook compiled into a real one: prose is the one
+ * thing the language promises is inert, and every other directive parser in the
+ * generator anchors at `^%%` for exactly this reason.
  */
-const DIRECTIVE = /%%hook\s+(\w+)\s+([A-Za-z_]\w*)\s+on\s+([A-Za-z_]\w*)\s*(\[[^\]]*\])?/;
+const DIRECTIVE = /^%%+hook\s+(\w+)\s+([A-Za-z_]\w*)\s+on\s+([A-Za-z_]\w*)\s*(\[[^\]]*\])?/;
+
+/** Cheap pre-filter, held to the same anchor as DIRECTIVE. */
+const DIRECTIVE_LINE = /^%%+hook\b/;
 
 function parseFields(bracket: string | undefined): string | undefined {
   if (!bracket) return undefined;
@@ -173,7 +179,7 @@ export function compileHooks(
 
   for (const rawLine of (source ?? "").split("\n")) {
     const line = rawLine.trim();
-    if (!line.includes("%%hook")) continue;
+    if (!DIRECTIVE_LINE.test(line)) continue;
 
     const match = line.match(DIRECTIVE);
     if (!match) {

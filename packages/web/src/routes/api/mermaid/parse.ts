@@ -3,11 +3,15 @@
 // No AI involved — pure deterministic parsing.
 
 import { createFileRoute } from "@tanstack/react-router";
+import { requireUser } from "@/lib/require-user";
 
 export const Route = createFileRoute("/api/mermaid/parse")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const caller = await requireUser(request, "mermaid:parse");
+        if (caller.response) return caller.response;
+
         try {
           const { code } = (await request.json()) as { code: string };
 

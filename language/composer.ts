@@ -200,7 +200,7 @@ export function composeEml(document: EmlDocument): string {
     "%%meta kind: erd",
     `%%meta version: ${document.version ?? EML_VERSION}`,
   ];
-  if (document.description) header.push(`%% ${document.description}`);
+  if (document.description) header.push(`%%meta description: ${document.description}`);
   blocks.push(header.join("\n"));
 
   if (document.enums?.length) {

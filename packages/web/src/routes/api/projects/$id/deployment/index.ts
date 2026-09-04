@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireProjectAccess } from "@/lib/project-access";
 
 export const Route = createFileRoute("/api/projects/$id/deployment/")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ request, params }) => {
+        const access = await requireProjectAccess(request, params.id as string);
+        if (access.response) return access.response;
+
         try {
           const { deploymentDb } = await import("@appwithai/core/services");
           const id = params.id as string;
@@ -21,6 +25,9 @@ export const Route = createFileRoute("/api/projects/$id/deployment/")({
       },
 
       POST: async ({ request, params }) => {
+        const access = await requireProjectAccess(request, params.id as string, "read_write");
+        if (access.response) return access.response;
+
         try {
           const { deploymentDb } = await import("@appwithai/core/services");
           const id = params.id as string;
@@ -56,7 +63,10 @@ export const Route = createFileRoute("/api/projects/$id/deployment/")({
         }
       },
 
-      DELETE: async ({ params }) => {
+      DELETE: async ({ request, params }) => {
+        const access = await requireProjectAccess(request, params.id as string, "read_write");
+        if (access.response) return access.response;
+
         try {
           const { deploymentDb } = await import("@appwithai/core/services");
           const id = params.id as string;

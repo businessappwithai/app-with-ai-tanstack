@@ -15,6 +15,7 @@ import { RulesEngine } from './rules-engine.service';
 import type { RuleEvaluationResult } from './rules-engine.service';
 import { readFileSync } from 'fs';
 import { WorkflowService } from '../workflow/workflow.service';
+import { getLogger } from '../../common/logging/logger.service';
 import { join } from 'path';
 
 export interface CreateRuleDto {
@@ -450,7 +451,16 @@ export class RulesService {
     data: Record<string, unknown>,
     action: 'create' | 'update' | 'delete' = 'create',
   ): Promise<{ valid: boolean; errors: string[]; warnings: string[] }> {
+    const startedAt = Date.now();
     const results = await this.evaluate(entityType, data, action);
+    const log = getLogger('rules');
+
+    log.event('rules.evaluated', {
+      entity: entityType,
+      event: action,
+      matched: results.filter((result) => result.matched).length,
+      durationMs: Date.now() - startedAt,
+    });
 
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -464,6 +474,15 @@ export class RulesService {
       for (const ruleAction of result.actions) {
         if (ruleAction.type === 'prevent') {
           const message = ruleAction.config.message as string | undefined;
+          // A refused write is the single most useful line this application
+          // produces: it is what someone means when they say "the system would
+          // not let me save it", and until now it existed only as a message in
+          // an HTTP response nobody kept.
+          log.event('rules.write.prevented', {
+            entity: entityType,
+            rule: result.ruleName,
+            reason: message || 'no message declared',
+          });
           errors.push(message || `Rule violation: ${result.ruleName}`);
         } else if (ruleAction.type === 'validate') {
           const message = ruleAction.config.message as string | undefined;
@@ -572,6 +591,11 @@ export class RulesService {
         throw new Error(`Could not evaluate business rules for ${entityName}: ${err?.message ?? err}`);
       }
       this.logger.warn(`executeMatchedActions: evaluate failed for ${entityName}: ${err?.message}`);
+      getLogger('rules').event('rules.evaluation.failed', {
+        entity: entityName,
+        rule: null,
+        err,
+      });
       return;
     }
 
@@ -662,6 +686,12 @@ export class RulesService {
             );
           }
           this.logger.error(`executeMatchedActions: action "${action.type}" failed for rule "${result.ruleName}": ${err?.message}`);
+          getLogger('rules').event('rules.evaluation.failed', {
+            entity: entityName,
+            rule: result.ruleName,
+            action: action.type,
+            err,
+          });
         }
       }
     }

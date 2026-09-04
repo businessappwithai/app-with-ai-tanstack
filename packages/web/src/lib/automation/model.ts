@@ -1032,7 +1032,11 @@ const SAGA_OPERATION_EVENTS: Record<string, TriggerEvent> = {
  */
 function parseSagaProps(rest: string): Record<string, string> {
   const props: Record<string, string> = {};
-  for (const part of rest.trim().split(/\s+(?=[A-Za-z_]\w*:)/)) {
+  // The `(?!\/\/)` is what keeps a URL whole: `url: https://host/path` would
+  // otherwise split at `https:`, so a REST step opened in the builder with an
+  // empty url. Kept identical in language/checker.ts (parseStepProps) and
+  // packages/generator/src/workflows/steps.ts (PROP_SPLIT).
+  for (const part of rest.trim().split(/\s+(?=[A-Za-z_]\w*:(?!\/\/))/)) {
     const match = part.match(/^([A-Za-z_]\w*):\s*(.*)$/s);
     if (match?.[1]) props[match[1]] = (match[2] ?? "").trim();
   }

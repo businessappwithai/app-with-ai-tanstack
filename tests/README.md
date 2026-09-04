@@ -1,320 +1,74 @@
-# APPWITHAI Testing Guide
+# Tests
 
-## Overview
+Three suites, each with a different subject. They are separate because they need
+different things running, not because they were written at different times.
 
-This directory contains comprehensive test suites for the APPWITHAI application generator, including E2E tests, unit tests, and framework-specific tests.
+| Suite | Subject | Run it |
+|---|---|---|
+| `packages/**/__tests__` | Units of the generator, core, ai and web | `bun run test` |
+| `tests/e2e/*.e2e.spec.ts` | The **modelling tool** over HTTP and in a browser | `bunx playwright test` |
+| `tests/e2e/wasm/` | The browser stack — Service Worker, Node-API shim, worker host | `bun run test:wasm` |
 
-## Quick Start
+A fourth lives outside this directory: every **generated application** gets its
+own `tests/` project driving its HTTP API. Run it with
+`appwithai generate … --run-tests`, or `node run.ts` inside the output. CI runs
+it against a real PostgreSQL, which is the only check that says whether the
+templates render code that actually works.
 
-```bash
-# Run all E2E tests
-bun run test:e2e
+## The modelling tool's suite
 
-# Run with auto-start server
-bun run test:e2e:server
-
-# Run specific test suite
-bun test tests/e2e/comprehensive-all-frameworks.e2e.spec.ts
-```
-
-## Test Structure
-
-```
-tests/
-├── README.md                  # This file
-├── e2e/                       # Main E2E test suite (Playwright)
-│   ├── playwright.config.ts   # Playwright configuration
-│   ├── comprehensive-all-frameworks.e2e.spec.ts  # All frameworks
-│   └── full-stack-e2e.spec.ts # Full stack generation tests
-├── unit-tests/                # Unit tests (Vitest)
-│   ├── setup.test.ts          # Test configuration
-│   └── all-frameworks-comprehensive.spec.ts
-├── test-data/                 # Test ERD files
-│   ├── comprehensive-test.mermaid
-│   ├── simple-crm.mermaid
-│   └── hospital.mermaid
-├── docs/                      # Test documentation
-│   └── ...
-└── archive/                   # Archived test outputs
-```
-
-## Prerequisites
-
-1. **Dependencies**: Install all dependencies
-   ```bash
-   bun install
-   ```
-
-2. **Build Packages**: Build generator and web packages
-   ```bash
-   bun run build:generator
-   bun run build:web
-   ```
-
-3. **Database**: Ensure database directory exists
-   ```bash
-   mkdir -p packages/web/database
-   ```
-
-## Test Suites
-
-### 1. E2E Tests (`e2e/`)
-
-Tests the complete application workflow from project creation to code generation.
-
-#### comprehensive-all-frameworks.e2e.spec.ts
-Tests both stack options:
-- **Option 1**: Modern Web Stack (TanStack Start + NestJS)
-- **Option 2**: Enterprise Stack (OpenUI5 + OData)
-
-**Coverage:**
-- Landing page functionality
-- Project creation workflow
-- ERD designer features
-- Stack selection
-- Code generation
-- Generated application structure validation
-- API endpoint testing
-- Frontend functionality
-
-#### full-stack-e2e.spec.ts
-Tests full application generation and deployment:
-- Complete app generation
-- Build process
-- Runtime validation
-- CRUD operations
-
-### 2. Unit Tests (`unit-tests/`)
-
-Tests individual components and functions.
-
-**Files:**
-- `setup.test.ts` - Test configuration and utilities
-- `all-frameworks-comprehensive.spec.ts` - Framework-specific unit tests
-
-### 3. Generated Application Tests
-
-Generated applications include their own test suites:
-- Frontend component tests
-- Backend CRUD tests
-- E2E navigation tests
-
-## Running Tests
-
-### Run All E2E Tests
+Playwright starts the server and stops it; there is nothing to run first. One
+value, `E2E_PORT`, feeds both the base URL and the server.
 
 ```bash
-# Start dev server first
-bun run dev
-
-# In another terminal
-bun test tests/e2e/comprehensive-all-frameworks.e2e.spec.ts
+bunx playwright test                      # everything
+bunx playwright test tests/e2e/01-auth.e2e.spec.ts
 ```
 
-### Run with Auto-Start Script
+It needs PostgreSQL and the bootstrap administrator: `bun run seed:admin`.
 
-```bash
-bun run test:e2e:server
-```
+| File | Holds the app to |
+|---|---|
+| `01-auth` | Sign-in, sessions, sign-out, approval-gated registration |
+| `02-project-authorization` | Every project-scoped route, driven as nobody, a signed-in stranger, and the owner |
+| `02b-unauthenticated-surface` | Every route file in the tree, driven with no session. Reads the directory rather than keeping a list |
+| `03-projects` | Creating, listing, reading, renaming and deleting a project, and the fields a client may not set |
+| `04-model-and-versions` | Validating a document, saving it, its version history, restoring, downloading, and the diagram library |
+| `05-automations` | The automation builder's serialiser over HTTP, round-tripped and handed to the language checker |
+| `06-rules-and-workflow-runs` | The decision-table store and the workflow-run log |
+| `07-sharing` | Read-only, read-write, upgraded and revoked shares |
+| `08-generation` | The generate step, asserted on the files it wrote |
+| `09-rate-limiting` | Runs last, because exhausting the limiter mid-suite breaks everything after it |
 
-This script:
-1. Stops any existing dev server
-2. Starts the dev server
-3. Waits for it to be ready
-4. Runs the E2E tests
-5. Cleans up by stopping the server
+Three things to know before adding to it:
 
-### Run Specific Test Suite
+- **Nothing but account approval runs as the administrator.** The project routes
+  refuse a caller whose role is `admin`, so specs drive an ordinary approved
+  account — `createUserSession` in `helpers.ts` makes one, with its own jar.
+- **Every test shares one IP.** The suite runs the server with
+  `AUTH_LOGIN_MAX_PER_MINUTE` and `AUTH_REGISTER_MAX_PER_MINUTE` raised; both
+  default to their production values (10 and 3) everywhere else.
+- **Tests leave their rows behind.** There is no teardown, and a re-run against
+  a populated database is the normal case, so anything that has to be unique
+  goes through `unique()` in `helpers.ts`.
 
-```bash
-# Web UI tests
-bun test tests/e2e/comprehensive-all-frameworks.e2e.spec.ts
+## Fixtures
 
-# Full stack tests
-bun test tests/e2e/full-stack-e2e.spec.ts
+`test-data/dance-studio-workflows.eml.mmd` is the model carrying all 25
+behaviour constructs. Reach for it when changing a parser, a compiler or the
+checker — it is the only document that exercises the whole behaviour surface at
+once.
 
-# Unit tests
-bun test tests/unit-tests/all-frameworks-comprehensive.spec.ts
-```
+## What used to be here
 
-### Run in Visual Mode
+A `complete-tests/` directory, a `scripts/` directory of shell runners, and two
+extra Playwright configs, all testing "Option 1 (Next.js + NestJS)" and
+"Option 2 (OData + OpenUI5)". The generator emits one stack now, and none of
+those files could run: they drove servers nothing starts, on ports nothing
+serves, against stacks that no longer exist. They were removed rather than
+left to look like coverage.
 
-Watch the browser execute tests:
-
-```bash
-HEADLESS=false bun test tests/e2e/comprehensive-all-frameworks.e2e.spec.ts
-```
-
-## Test Data
-
-Test ERD files are located in `test-data/`:
-
-| File | Description | Entities |
-|------|-------------|----------|
-| `comprehensive-test.mermaid` | Full-featured test | Customer, Order, Product, OrderLine, Category |
-| `simple-crm.mermaid` | Simple CRM | Customer, Interaction, Ticket |
-| `hospital.mermaid` | Hospital management | Patient, Doctor, Appointment |
-| `blog.mermaid` | Blog platform | User, Post, Comment |
-
-## Supported Framework Types
-
-The generator supports **two main stack options**:
-
-### Option 1: Modern Web Stack
-- **Backend**: NestJS + Fastify + Knex.js
-- **Frontend**: TanStack Start + Shadcn UI + TanStack Query
-- **Database**: PostgreSQL or SQLite
-- **Use Case**: Modern web applications
-
-### Option 2: Enterprise SAP-Style Stack
-- **Backend**: OData V4 Server (jaystack)
-- **Frontend**: OpenUI5 Flexible Column Layout (FCL)
-- **Database**: PostgreSQL or SQLite
-- **Use Case**: SAP-style enterprise applications
-
-## Test Results
-
-### Results Location
-
-After each test run:
-- **Console Output**: Real-time test progress and results
-- **Screenshots**: `tests/e2e/screenshots/` for debugging
-- **Logs**: `tests/e2e/logs/` for detailed logs
-- **Test Results**: `tests/e2e/test-results/` for JSON reports
-
-### Reading Test Results
-
-```bash
-# View latest screenshots
-ls -lt tests/e2e/screenshots/ | head -10
-
-# View test logs
-cat tests/e2e/logs/comprehensive-e2e.log
-
-# View error summary
-cat tests/e2e/logs/comprehensive-e2e-errors.json
-```
-
-## Test Coverage
-
-### Currently Tested Flows
-
-1. **Landing Page**
-   - Page title verification
-   - Main heading presence
-   - Feature cards display
-   - Navigation links
-
-2. **Project Creation**
-   - New Project button
-   - Project form validation
-   - Project save functionality
-
-3. **ERD Designer**
-   - Page elements
-   - Example templates
-   - Manual editing
-   - Validation
-   - Save/Load functionality
-   - Version history
-
-4. **Stack Selection**
-   - Option 1 (Modern Web Stack)
-   - Option 2 (Enterprise SAP-Style Stack)
-
-5. **Code Generation**
-   - Generation for both options
-   - File structure validation
-   - Dependency installation
-   - Build process validation
-
-6. **Generated Applications**
-   - API endpoint testing
-   - Frontend functionality
-   - CRUD operations
-   - Navigation
-
-## Troubleshooting
-
-### Server Not Running
-
-```bash
-# Check if server is running
-curl http://localhost:3000
-
-# Start server
-bun run dev
-```
-
-### Port Already in Use
-
-```bash
-# Kill process on port 3000
-lsof -ti:3000 | xargs kill -9
-
-# Start server
-bun run dev
-```
-
-### Test Timeout
-
-Increase timeout in test file:
-```typescript
-test.setTimeout(60000); // 60 seconds
-```
-
-### Screenshot Issues
-
-Ensure Playwright browsers are installed:
-```bash
-bunx playwright install
-```
-
-## Test Configuration
-
-Playwright configuration is in `tests/e2e/playwright.config.ts`:
-
-```typescript
-export const TEST_CONFIG = {
-  baseURL: 'http://localhost:3000',
-  timeout: 30000,
-  screenshotDir: 'tests/e2e/screenshots',
-  logDir: 'tests/e2e/logs',
-};
-```
-
-## Best Practices
-
-1. **Run tests before committing**: Ensure all tests pass
-2. **Clean up generated apps**: Remove test-generated apps after validation
-3. **Update test data**: Keep test ERD files up to date
-4. **Add tests for new features**: Cover new functionality
-5. **Use descriptive test names**: Make failures easy to understand
-
-## CI/CD Integration
-
-Tests can be integrated into CI/CD pipelines:
-
-```yaml
-# Example GitHub Actions workflow
-- name: Run E2E Tests
-  run: |
-    bun install
-    bun run build:generator
-    bun run build:web
-    bun run dev &
-    bun run test:e2e:server
-```
-
-## Archiving
-
-Old test outputs are archived in `tests/archive/`:
-- `generated-apps/` - Past generated applications
-- `screenshots/` - Historical test screenshots
-- `logs/` - Past test execution logs
-
----
-
-**Version**: 5.1.0
-**Last Updated**: February 2026
-**Test Framework**: Playwright + Vitest
+The one thing worth rebuilding from them was **sharing**, and `07-sharing` is
+it: a read-only share (visible, writes refused), a read-write share (writes
+accepted), an upgrade, and a revocation — driven against
+`/api/projects/:id/members`.

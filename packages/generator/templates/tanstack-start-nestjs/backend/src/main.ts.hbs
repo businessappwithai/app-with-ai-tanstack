@@ -40,6 +40,12 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
 import { AppModule } from './app.module';
+import {
+  AppLoggerService,
+  getLogger,
+  installHttpLogging,
+  installProcessLogging,
+} from './common/logging/logger.service';
 import { initAuth, getAuth } from './lib/better-auth';
 import { AuditService } from './modules/audit/audit.service';
 
@@ -213,6 +219,37 @@ function safeParse(value: string): any {
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
+  const log = getLogger('app');
+
+  // Registered before anything can fail. An exception escaping an async
+  // boundary used to take this process down with whatever the runtime printed
+  // and nothing else; SIGTERM — how every orchestrator asks a container to stop
+  // — was not recorded at all, which makes "why did it restart" unanswerable.
+  installProcessLogging();
+
+  log.event('app.starting', {
+    name: '{{kebabCase project.name}}',
+    version: '{{project.version}}',
+    // `service` on every line carries the same name; this field is here
+    // because a start-up line is where someone looks for it explicitly.
+    env: process.env.NODE_ENV || 'development',
+    nodeVersion: process.version,
+  });
+
+  /**
+   * Configuration that is optional, and the feature that is off without it.
+   *
+   * Reported at boot rather than at first use. A feature quietly absent because
+   * a variable was never set is the most common deployment mistake there is,
+   * and it always presents as "the button does nothing".
+   */
+  for (const [key, feature] of [
+    ['DATABASE_URL', 'the database connection'],
+    ['BETTER_AUTH_SECRET', 'signed sessions'],
+    ['CORS_ORIGIN', 'the browser origin allow-list'],
+  ] as const) {
+    if (!process.env[key]) log.event('app.config.missing', { key, feature });
+  }
 
   // Initialize authentication system
   await initAuth();
@@ -223,7 +260,16 @@ async function bootstrap() {
     new FastifyAdapter({
       logger: process.env.NODE_ENV === 'development',
     }),
+    {
+      // Nest's own output — route mapping, dependency errors, shutdown — goes
+      // through the same Pino pipe as everything else. Without this a
+      // deployment produces two log formats on one file descriptor and no
+      // collector parses both.
+      logger: new AppLoggerService(),
+    },
   );
+
+
 
   // Global prefix for every route, the Electric shape proxy included. It used
   // to be excluded so it sat at /v1/shape, which put it outside the front end's
@@ -252,6 +298,13 @@ async function bootstrap() {
 
   // Mount better-auth HTTP handler at /api/auth/*
   const fastifyInstance = app.getHttpAdapter().getInstance();
+
+  // Registered on Fastify rather than as a Nest interceptor: interceptors run
+  // after guards, so an interceptor never sees a request the auth guard
+  // rejected — which silently excluded every 401 and 403 — nor the better-auth
+  // routes mounted below, which sit outside Nest entirely.
+  installHttpLogging(fastifyInstance);
+
   const auth = getAuth();
 
   // Patch credentials header: @fastify/cors v9 with function-based origin does not reliably
@@ -317,7 +370,14 @@ async function bootstrap() {
 
       reply.send(await webResponse.text());
     } catch (error) {
-      logger.error('Auth handler error:', error);
+      log.event('http.request.failed', {
+        method: request.method,
+        path: '/api/auth/*',
+        status: 500,
+        durationMs: null,
+        requestId: request.headers['x-request-id'] ?? null,
+        err: error,
+      });
       reply.status(500).send({ error: 'Authentication service error' });
     }
   });
@@ -342,14 +402,24 @@ async function bootstrap() {
 
   await app.listen(port, host);
 
-  logger.log(`Application running on: ${await app.getUrl()}`);
-  logger.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  log.event('app.started', {
+    url: await app.getUrl(),
+    port,
+    env: process.env.NODE_ENV || 'development',
+  });
 
   // Ensure the default admin user exists with the correct role
   await ensureAdminUser(logger);
 }
 
 bootstrap().catch((err) => {
-  console.error('Failed to start application:', err);
+  // The logger is the first thing bootstrap installs, so by any realistic
+  // failure it exists. `console.error` stays as the last resort for a failure
+  // early enough that it does not.
+  try {
+    getLogger('app').event('app.uncaught', { err });
+  } catch {
+    console.error('Failed to start application:', err);
+  }
   process.exit(1);
 });

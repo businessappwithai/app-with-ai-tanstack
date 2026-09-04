@@ -138,6 +138,7 @@ function TableReferenceViewValue({ field, id }: { field: FieldMetadata; id: stri
 interface TableReferenceFieldProps {
   field: FieldMetadata;
   fieldApi: any;
+  form: any;
   isDisabled: boolean;
   error: string | undefined;
   parentContext?: Record<string, unknown>;
@@ -146,6 +147,7 @@ interface TableReferenceFieldProps {
 function TableReferenceField({
   field,
   fieldApi,
+  form,
   isDisabled,
   error,
   parentContext,
@@ -158,9 +160,26 @@ function TableReferenceField({
       ? [field.ref_label_field]
       : ["name"];
 
-  // Resolve filtered endpoint: append ref_filter_param=<parentContext[ref_filter_source]> when configured
+  // Subscribe to the parent field's value for cascading selects
+  const formFilterValue = form.useStore((state: any) =>
+    field.ref_filter_source ? state.values[field.ref_filter_source] : undefined,
+  );
   const filterValue =
-    field.ref_filter_source && parentContext ? parentContext[field.ref_filter_source] : undefined;
+    formFilterValue !== undefined
+      ? formFilterValue
+      : field.ref_filter_source && parentContext
+        ? parentContext[field.ref_filter_source]
+        : undefined;
+
+  const prevFilterValue = useRef(filterValue);
+  useEffect(() => {
+    if (prevFilterValue.current !== undefined && prevFilterValue.current !== filterValue) {
+      fieldApi.handleChange("");
+    }
+    prevFilterValue.current = filterValue;
+  }, [filterValue]);
+
+  // Resolve filtered endpoint: append ref_filter_param=<parentContext[ref_filter_source]> when configured
   const customEndpoint = field.ref_endpoint
     ? field.ref_filter_param && filterValue != null
       ? `${field.ref_endpoint}?${field.ref_filter_param}=${encodeURIComponent(String(filterValue))}`
@@ -174,12 +193,17 @@ function TableReferenceField({
     enabled: !!customEndpoint,
   });
 
-  // Standard business table endpoint
+  // Standard business table endpoint — pass cascading filter when configured
+  const entityFilterParams =
+    !customEndpoint && field.ref_filter_param && filterValue != null
+      ? { [field.ref_filter_param]: `equals:${filterValue}` }
+      : undefined;
+
   const { data: records, isLoading: isLoadingRecords } = useEntities<any>(
     referencedTableName || "",
-    undefined,
+    entityFilterParams,
     {
-      enabled: !!referencedTableName && !customEndpoint,
+      enabled: !!referencedTableName && !customEndpoint && (!field.ref_filter_param || filterValue != null),
     }
   );
 
@@ -203,6 +227,7 @@ function TableReferenceField({
   }
 
   const currentValue = fieldApi.state.value;
+  const awaitingParent = !!field.ref_filter_param && filterValue == null;
 
   return isLoading ? (
     <Skeleton className="h-10 w-full" />
@@ -218,13 +243,17 @@ function TableReferenceField({
         fieldApi.handleChange(parsed || raw);
       }}
       onBlur={fieldApi.handleBlur}
-      disabled={isDisabled}
+      disabled={isDisabled || awaitingParent}
       className={cn(
         "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
         error && "border-destructive"
       )}
     >
-      <option value="">Select {field.name}...</option>
+      <option value="">
+        {awaitingParent
+          ? `Select ${field.ref_filter_source?.replace(/_id$/, "").replace(/_/g, " ")} first...`
+          : `Select ${field.name}...`}
+      </option>
       {tableRecords.map((record: any) => {
         const optValue = record[idField];
         const optLabel = referenceLabel(record, labelFields, String(optValue));
@@ -541,6 +570,7 @@ function FieldRenderer({
               <TableReferenceField
                 field={field}
                 fieldApi={fieldApi}
+                form={form}
                 isDisabled={isReadOnly}
                 error={error}
                 parentContext={parentContext}

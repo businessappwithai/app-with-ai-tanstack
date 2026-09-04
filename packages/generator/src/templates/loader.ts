@@ -835,7 +835,12 @@ export class TemplateLoader {
     // Realistic seed value helper for business data seeds
     Handlebars.registerHelper(
       "seedValue",
-      (fieldName: string, index: number, entityDisplayName?: string | Handlebars.HelperOptions) => {
+      (
+        fieldName: string,
+        index: number,
+        entityDisplayName?: string | Handlebars.HelperOptions,
+        enumValues?: string[] | Handlebars.HelperOptions
+      ) => {
         const n = (fieldName ?? "").toLowerCase();
         const i = typeof index === "number" ? index : 0;
         const FIRST_NAMES = [
@@ -869,6 +874,21 @@ export class TemplateLoader {
         // The entity's display name, hoisted above its first use: a bare "name"
         // field reads as "Grade 1", and an identifier column prefixes with it.
         const entityName = typeof entityDisplayName === "string" ? entityDisplayName.trim() : "";
+
+        // A column bound to a %%enum has a declared vocabulary, and it beats
+        // every guess below. Without this the seeder wrote its own generic
+        // words — "Active", "Pending", "In Progress" — into every `status`
+        // column, none of which any of the model's enums declare. Three things
+        // followed: the seeded rows contradicted the application's own
+        // dictionary; every state machine was dead on them, because the guard
+        // looks for an edge out of the state the row is in and there is none
+        // out of "Pending"; and every rule keyed on a real status value never
+        // fired. A generated application could not demonstrate the workflows it
+        // had just been generated from.
+        const declared = Array.isArray(enumValues)
+          ? enumValues.map((value) => String(value).trim()).filter(Boolean)
+          : [];
+        if (declared.length > 0) return pick(declared);
 
         if (n === "first_name") return pick(FIRST_NAMES);
         if (n === "last_name") return pick(LAST_NAMES);
@@ -964,25 +984,6 @@ export class TemplateLoader {
         return i + 1;
       if (n === "year" || n === "academic_year") return 2024 + i;
       return i;
-    });
-
-    // A seed value for a column the model bound to a %%enum.
-    //
-    // `seedValue` is keyed on the column *name*, so every column called
-    // `status` was seeded "Active" / "Pending" / "In Progress" / "Completed"
-    // whatever the model declared — and a `%%enum MemberStatus: active,
-    // lapsed, suspended` column then held four values none of which the
-    // dictionary offers, the dropdown cannot select, and no state machine has
-    // an edge out of. The declared values are on the attribute already; this
-    // cycles through them so the sample rows cover the enum rather than
-    // contradict it.
-    Handlebars.registerHelper("enumSeedValue", (values: unknown, index: number) => {
-      const list = Array.isArray(values)
-        ? values.filter((v): v is string => typeof v === "string")
-        : [];
-      if (list.length === 0) return "";
-      const i = typeof index === "number" ? index : 0;
-      return list[((i % list.length) + list.length) % list.length];
     });
   }
 }

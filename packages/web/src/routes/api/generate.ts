@@ -17,6 +17,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { createFileRoute } from "@tanstack/react-router";
+import { requireProjectAccess } from "@/lib/project-access";
 
 /** Resolve the generator CLI entry point, preferring the built bundle. */
 async function resolveCli(cwd: string): Promise<string | null> {
@@ -43,6 +44,20 @@ export const Route = createFileRoute("/api/generate")({
         const body = await request.json();
         const { projectId, stackType, stackOption, erdCode } = body;
 
+        // Settled before the stream opens, so a refusal is a status rather than
+        // an SSE frame inside a 200. Generation reads the project's model, runs
+        // a process per request and records the result on the project row — all
+        // three were available to any caller who could name a project id.
+        if (!projectId) {
+          return new Response(JSON.stringify({ error: "Missing required field: projectId" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        const access = await requireProjectAccess(request, String(projectId), "read_write");
+        if (access.response) return access.response;
+
         const encoder = new TextEncoder();
 
         const stream = new ReadableStream({
@@ -60,11 +75,6 @@ export const Route = createFileRoute("/api/generate")({
             };
 
             try {
-              if (!projectId) {
-                send({ error: "Missing required field: projectId" });
-                return finish();
-              }
-
               const { projectDb } = await import("@appwithai/core/services");
               const { parseModel } = await import("@appwithai/generator");
 
