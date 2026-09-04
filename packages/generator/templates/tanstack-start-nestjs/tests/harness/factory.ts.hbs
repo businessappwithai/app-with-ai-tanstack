@@ -108,6 +108,8 @@ const BY_NAME: Array<[RegExp, () => unknown]> = [
   [/color|colour/i, () => faker.color.human()],
   [/currency/i, () => faker.finance.currencyCode()],
   [/iban|account_?no/i, () => faker.finance.accountNumber()],
+  // Only reached by a status column the model left unbound — one the model
+  // *did* bind is answered from its own enum, above.
   [/status|state$/i, () => faker.helpers.arrayElement(["active", "pending", "closed", "draft"])],
   [/priority|severity/i, () => faker.helpers.arrayElement(["low", "medium", "high", "critical"])],
   [/gender/i, () => faker.person.sex()],
@@ -192,6 +194,22 @@ function matchesType(value: unknown, type: FieldMeta["type"]): boolean {
 
 /** A value for one field, unique-safe when the column is declared unique. */
 export function fakeValue(field: FieldMeta, uniqueSalt?: string | number): unknown {
+  /*
+   * A column the model bound to a `%%enum` has a closed set of legal values,
+   * and it is the first thing consulted — before the name heuristics, which
+   * would otherwise answer `status` with a vocabulary of their own and write a
+   * value the dictionary does not offer, the control cannot select, and no
+   * state machine has an edge out of.
+   *
+   * Not salted for uniqueness: an enum column that is also unique can hold as
+   * many distinct rows as it has values, and mangling the value to make it
+   * unique would put an illegal one in the column to satisfy a constraint the
+   * model did not intend.
+   */
+  if (field.enumValues && field.enumValues.length > 0) {
+    return faker.helpers.arrayElement(field.enumValues);
+  }
+
   for (const [pattern, generate] of BY_NAME) {
     if (!pattern.test(field.name)) continue;
 
