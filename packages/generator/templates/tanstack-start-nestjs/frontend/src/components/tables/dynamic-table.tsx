@@ -28,6 +28,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Download,
   Search,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -46,6 +47,7 @@ import {
 } from "@/components/ui/table";
 import { type FieldMetadata, useGridFields } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
+import { CSV_EXPORT_LIMIT, csvFileName, downloadCsv, toCsv } from "@/lib/csv";
 import { useTranslations } from "@/lib/translations";
 import { referenceLabel } from "@/lib/utils";
 
@@ -68,6 +70,19 @@ interface DynamicTableProps {
   onView?: (id: string) => void;
   onEdit?: (id: string) => void;
   selectedId?: string;
+  /**
+   * Where the CSV export reads its rows from. Defaults to this grid's own
+   * business entity; the Application Dictionary's grids are served by /sys
+   * endpoints and pass their own.
+   */
+  exportEndpoint?: string;
+  /**
+   * The filters currently applied to the list, in the same shape the parent
+   * passes to its own query (`filter.<column>`: `<operator>:<value>`). The
+   * export sends them too, so the file holds the list on screen rather than
+   * the unfiltered table.
+   */
+  exportParams?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -282,6 +297,8 @@ export function DynamicTable({
   onView,
   onEdit,
   selectedId,
+  exportEndpoint,
+  exportParams,
 }: DynamicTableProps) {
   const { t } = useTranslations();
   const {
@@ -387,6 +404,75 @@ export function DynamicTable({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState<{ id: string; name?: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  /**
+   * Download the list as CSV.
+   *
+   * The rows are fetched rather than read off the screen: `data` holds one page
+   * and the point of the export is the list, so it asks the API for the first
+   * CSV_EXPORT_LIMIT rows under the same filters and ordering the grid is
+   * showing. Cells are rendered through the same formatters and the same
+   * lookup map as the table, so a date, an enum and a referenced record read in
+   * the file exactly as they read on screen — an export of raw uuids and ISO
+   * timestamps would be a different document from the one the reader asked for.
+   */
+  const handleExportCsv = async () => {
+    if (!fields || fields.length === 0) return;
+    setIsExporting(true);
+    try {
+      const endpoint = exportEndpoint ?? `/bus/${tableName}`;
+      const response = await apiClient.get<PaginatedResponse<Record<string, unknown>>>(endpoint, {
+        ...(exportParams ?? {}),
+        page: 1,
+        limit: CSV_EXPORT_LIMIT,
+      });
+      const rows = Array.isArray(response)
+        ? (response as Record<string, unknown>[])
+        : (response?.data ?? []);
+
+      const headers = fields.map((field) => field.name);
+      const body = rows.map((row) =>
+        fields.map((field) => {
+          const value = row[field.column_name];
+          if (value === null || value === undefined) return "";
+
+          const isLookup =
+            field.sys_reference_id === REFERENCE_TYPE.TABLE ||
+            field.sys_reference_id === REFERENCE_TYPE.TABLE_DIRECT;
+          if (isLookup && (field.ref_table_name || field.ref_endpoint)) {
+            const label = lookupMap[lookupKey(field)]?.[String(value)];
+            return label ?? String(value);
+          }
+
+          if (field.options && field.options.length > 0) {
+            const matched = field.options.find((o) => o.value === String(value));
+            if (matched) return matched.label;
+          }
+
+          // A dash is the table's way of drawing an empty cell; a CSV says the
+          // same thing with an empty field, and a literal "-" would import as
+          // data.
+          const formatted = formatCellValue(value, field.sys_reference_id);
+          return formatted === "-" ? "" : formatted;
+        })
+      );
+
+      downloadCsv(csvFileName(tableName), toCsv(headers, body));
+
+      if (totalCount > rows.length) {
+        toast.success(`Exported ${rows.length} of ${totalCount} rows`, {
+          description: `A download holds at most ${CSV_EXPORT_LIMIT} rows. Narrow the list with a filter to export the rest.`,
+        });
+      }
+    } catch (error) {
+      toast.error("Export failed", {
+        description: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Handle delete with confirmation
   const handleDeleteClick = (rowId: string) => {
@@ -532,6 +618,17 @@ export function DynamicTable({
             className="pl-8"
           />
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExportCsv}
+          disabled={isExporting || totalCount === 0}
+          data-testid="export-csv"
+          aria-label="Download this list as CSV"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          {isExporting ? "Exporting..." : "CSV"}
+        </Button>
         {/* Record Count - Moved above table */}
         {totalCount > 0 && (
           <div className="text-sm text-muted-foreground">

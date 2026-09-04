@@ -436,23 +436,12 @@ var init_language = __esm(() => {
 });
 
 // builtin-stub:node:child_process
-var exports_node_child_process = {};
-__export(exports_node_child_process, {
-  default: () => node_child_process_default,
-  exec: () => exec,
-  execSync: () => execSync,
-  spawn: () => spawn,
-  spawnSync: () => spawnSync
-});
 var refuse = () => {
   throw new Error("no subprocesses in the browser");
-}, spawn, spawnSync, exec, execSync, node_child_process_default;
+}, spawn, execSync;
 var init_node_child_process = __esm(() => {
   spawn = refuse;
-  spawnSync = refuse;
-  exec = refuse;
   execSync = refuse;
-  node_child_process_default = { spawn, spawnSync, exec, execSync };
 });
 
 // node_modules/.bun/handlebars@4.7.9/node_modules/handlebars/dist/cjs/handlebars/utils.js
@@ -12414,11 +12403,18 @@ function attributeReferenceId(attr, entityPrimaryKey) {
 function isForeignKeyColumnName(columnName) {
   return columnName.endsWith("_id") || columnName.endsWith("_by");
 }
+function foreignKeyLabelStem(attr, entityPrimaryKey) {
+  const isTableDirect = attributeReferenceId(attr, entityPrimaryKey) === ReferenceType.TABLE_DIRECT;
+  if (isTableDirect && attr.name.endsWith("_id") && !attr.name.endsWith("_by_id")) {
+    return attr.name.slice(0, -"_id".length);
+  }
+  return attr.name;
+}
 function attributeToBusAttribute(attr, index, entityPrimaryKey) {
   return {
     ...attr,
     columnName: attr.name,
-    displayName: formatDisplayName(attr.name),
+    displayName: formatDisplayName(foreignKeyLabelStem(attr, entityPrimaryKey)),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
     isIdentifier: false
@@ -15007,6 +15003,23 @@ class TemplateLoader {
       const humanized = (fieldName ?? "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).trim();
       return humanized ? `${humanized} ${i + 1}` : `Sample ${i + 1}`;
     });
+    import_handlebars.default.registerHelper("seedNumber", (fieldName, index) => {
+      const n = (fieldName ?? "").toLowerCase();
+      const i = typeof index === "number" ? index : 0;
+      if (n === "capacity" || n === "max_students" || n === "seats")
+        return 20 + i * 5;
+      if (n.startsWith("credits") || n.endsWith("_credits"))
+        return 10 + i * 5;
+      if (n.endsWith("_count") || n === "quantity" || n === "qty")
+        return 1 + i;
+      if (n === "duration_minutes" || n.endsWith("_minutes"))
+        return 45 + i * 15;
+      if (n === "position" || n === "queue_position" || n === "seq_no" || n === "sequence")
+        return i + 1;
+      if (n === "year" || n === "academic_year")
+        return 2024 + i;
+      return i;
+    });
   }
 }
 
@@ -15323,7 +15336,7 @@ class NestJsBackendGenerator extends BaseGenerator {
         }
       }
     }
-    const personTable = tableSet.has("bus_user") ? "bus_user" : tableSet.has("bus_staff") ? "bus_staff" : tableSet.has("bus_employee") ? "bus_employee" : "bus_user";
+    const personTable = tableSet.has("bus_user") ? "bus_user" : tableSet.has("bus_staff") ? "bus_staff" : tableSet.has("bus_employee") ? "bus_employee" : null;
     const personRoleColumns = [
       "pi_id",
       "lab_manager_id",
@@ -15337,10 +15350,14 @@ class NestJsBackendGenerator extends BaseGenerator {
       "remediation_owner_id"
     ];
     for (const col of personRoleColumns) {
-      if (!seen.has(col)) {
-        overrides.push({ column: col, table: personTable });
-        seen.add(col);
-      }
+      if (seen.has(col))
+        continue;
+      if (!personTable)
+        continue;
+      if (tableSet.has(`bus_${col.replace(/_id$/, "")}`))
+        continue;
+      overrides.push({ column: col, table: personTable });
+      seen.add(col);
     }
     for (const entity2 of busEntities) {
       const fkAttrs = (entity2.attributes || []).filter((a) => a.isForeignKey);
@@ -15348,7 +15365,7 @@ class NestJsBackendGenerator extends BaseGenerator {
         const col = attr.columnName || attr.name;
         if (seen.has(col))
           continue;
-        if (col.endsWith("_by_id") || col.endsWith("_by")) {
+        if (personTable && (col.endsWith("_by_id") || col.endsWith("_by"))) {
           overrides.push({ column: col, table: personTable });
           seen.add(col);
         }
@@ -15574,6 +15591,8 @@ class NestJsBackendGenerator extends BaseGenerator {
     await mkdir(join(outputDir, "src/modules/sys/services"), { recursive: true });
     const categoryServiceContent = await this.renderTemplate("src/modules/sys/services/sys-category.service.ts.hbs", context);
     await writeFile(join(outputDir, "src/modules/sys/services/sys-category.service.ts"), categoryServiceContent);
+    const systemConfigServiceContent = await this.renderTemplate("src/modules/sys/services/system-config.service.ts.hbs", context);
+    await writeFile(join(outputDir, "src/modules/sys/services/system-config.service.ts"), systemConfigServiceContent);
     const categoryControllerContent = await this.renderTemplate("src/modules/sys/controllers/sys-category.controller.ts.hbs", context);
     await writeFile(join(outputDir, "src/modules/sys/controllers/sys-category.controller.ts"), categoryControllerContent);
   }
@@ -15941,6 +15960,7 @@ export async function executeCustomValidateHooks(
     await writeFile(join(outputDir, "src/modules/bus/bus.controller.ts"), controllerContent);
     const serviceContent = await this.renderTemplate("src/modules/bus/bus.service.ts.hbs", context);
     await writeFile(join(outputDir, "src/modules/bus/bus.service.ts"), serviceContent);
+    await copyFile(join(this.resolvedTemplateDir, "src/modules/bus/window-list-defaults.ts"), join(outputDir, "src/modules/bus/window-list-defaults.ts"));
     for (const name of ["entity-promotion.service", "promotion-dispatcher.service"]) {
       const content = await this.renderTemplate(`src/modules/bus/${name}.ts.hbs`, context);
       await writeFile(join(outputDir, `src/modules/bus/${name}.ts`), content);
@@ -16007,6 +16027,10 @@ export async function executeCustomValidateHooks(
       {
         slug: "add_system_config",
         template: "src/migrations/015_add_system_config.ts.hbs"
+      },
+      {
+        slug: "add_window_list_defaults",
+        template: "src/migrations/016_add_window_list_defaults.ts.hbs"
       }
     ];
     const scaffoldSlugs = new Set(scaffold.map((m) => m.slug));
@@ -16786,6 +16810,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     await writeFile(join(outputDir, "src/lib/app-meta.ts"), appMeta);
     const apiClientContent = await this.component("src/lib/api-client.ts");
     await writeFile(join(outputDir, "src/lib/api-client.ts"), apiClientContent);
+    const csvContent = await this.component("src/lib/csv.ts");
+    await writeFile(join(outputDir, "src/lib/csv.ts"), csvContent);
     try {
       const viteEnv = await this.renderTemplate("src/vite-env.d.ts.hbs", context);
       await writeFile(join(outputDir, "src/vite-env.d.ts"), viteEnv);
@@ -17331,6 +17357,7 @@ function resolveTemplateDir3(subpath) {
 }
 var HARNESS_FILES = [
   "config.ts",
+  "access.ts",
   "http.ts",
   "auth.ts",
   "server.ts",
@@ -17357,7 +17384,15 @@ var SHARED_SUITES = [
   "07-workflow-random.test.ts",
   "08-users-roles.test.ts",
   "09-workflow-multistep.test.ts",
+  "12-access-control.test.ts",
+  "13-enum-integrity.test.ts",
+  "14-validation.test.ts",
+  "15-record-lifecycle.test.ts",
+  "16-api-contract.test.ts",
+  "17-display-identifier.test.ts",
+  "19-window-list-defaults.test.ts",
   "10-benchmark.test.ts",
+  "18-write-benchmark.test.ts",
   "11-performance-budget.test.ts"
 ];
 var ROOT_FILES = ["package.json", "tsconfig.json", "README.md", "run.ts", "cleanup.ts"];
@@ -17400,8 +17435,43 @@ class BunE2ETestGenerator extends BaseGenerator {
       fkOverrides: this.buildFkOverrides(entities, relationships),
       modelEnums: this.options.modelEnums ?? [],
       stateMachines: this.stateMachines(entities),
+      ...this.accessContext(entities),
       now: new Date().toISOString()
     };
+  }
+  accessContext(entities) {
+    const compiled = this.options.compiledRbac;
+    if (!compiled || compiled.operations.length === 0) {
+      return { rbacRules: [], roleAccounts: [] };
+    }
+    const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const derived = deriveAccess(compiled, {
+      projectId,
+      entities: entities.map((entity2) => entity2.originalName || entity2.name),
+      adminEmail: this.options.adminEmail
+    });
+    const byName = new Map(entities.map((entity2) => [
+      String(entity2.originalName || entity2.name).toLowerCase(),
+      entity2
+    ]));
+    const rbacRules = compiled.operations.map((rule2) => {
+      const entity2 = byName.get(rule2.entity.toLowerCase());
+      return {
+        entity: rule2.entity,
+        tableName: rule2.tableName,
+        route: entity2 ? entity2.route || entity2.tableName : rule2.tableName,
+        operation: rule2.operation,
+        roles: rule2.roles
+      };
+    }).filter((rule2) => byName.has(rule2.entity.toLowerCase()));
+    const roleAccounts = derived.users.map((user) => ({
+      email: user.email,
+      name: user.name,
+      roleName: user.roleName,
+      declaredAs: derived.roles.find((role) => role.name === user.roleName)?.declaredAs ?? user.roleName,
+      isAdmin: user.isAdmin === true
+    }));
+    return { rbacRules, roleAccounts };
   }
   buildFkOverrides(busEntities, relationships) {
     const tableSet = new Set(busEntities.map((e) => e.tableName));
@@ -17438,7 +17508,7 @@ class BunE2ETestGenerator extends BaseGenerator {
         }
       }
     }
-    const personTable = tableSet.has("bus_user") ? "bus_user" : tableSet.has("bus_staff") ? "bus_staff" : tableSet.has("bus_employee") ? "bus_employee" : "bus_user";
+    const personTable = tableSet.has("bus_user") ? "bus_user" : tableSet.has("bus_staff") ? "bus_staff" : tableSet.has("bus_employee") ? "bus_employee" : null;
     const personRoleColumns = [
       "pi_id",
       "lab_manager_id",
@@ -17452,10 +17522,14 @@ class BunE2ETestGenerator extends BaseGenerator {
       "remediation_owner_id"
     ];
     for (const col of personRoleColumns) {
-      if (!seen.has(col)) {
-        overrides.push({ column: col, table: personTable });
-        seen.add(col);
-      }
+      if (seen.has(col))
+        continue;
+      if (!personTable)
+        continue;
+      if (tableSet.has(`bus_${col.replace(/_id$/, "")}`))
+        continue;
+      overrides.push({ column: col, table: personTable });
+      seen.add(col);
     }
     for (const entity2 of busEntities) {
       const fkAttrs = (entity2.attributes || []).filter((a) => a.isForeignKey);
@@ -17463,7 +17537,7 @@ class BunE2ETestGenerator extends BaseGenerator {
         const col = attr.columnName || attr.name;
         if (seen.has(col))
           continue;
-        if (col.endsWith("_by_id") || col.endsWith("_by")) {
+        if (personTable && (col.endsWith("_by_id") || col.endsWith("_by"))) {
           overrides.push({ column: col, table: personTable });
           seen.add(col);
         }
@@ -17551,9 +17625,6 @@ class FullStackGenerator {
     if (this.options.aiNlAddon && this.options.aiNlAddon !== "none") {
       console.log(`   AI NL Add-on: ${this.options.aiNlAddon} (${this.options.aiNlProvider || "anthropic"})`);
     }
-    console.log(`
-\uD83D\uDD0D Running mandatory linting checks...`);
-    await this.runLintingChecks(outputDir);
   }
   async generateTanStackStartNestjs(entities, relationships, outputDir) {
     const backendDir = join(outputDir, "backend");
@@ -17616,7 +17687,8 @@ class FullStackGenerator {
         frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         recordsPerEntity: this.options.recordsPerEntity,
         modelEnums: this.options.modelEnums,
-        compiledWorkflows: this.options.compiledWorkflows
+        compiledWorkflows: this.options.compiledWorkflows,
+        compiledRbac: this.options.compiledRbac
       });
       await testGenerator.generate(entities, relationships, outputDir);
     }
@@ -17921,45 +17993,6 @@ Field ordering is controlled by:
 
 MIT
 `;
-  }
-  async runLintingChecks(outputDir) {
-    const { execFileSync } = (init_node_child_process(), __toCommonJS(exports_node_child_process));
-    const runLint = (command, args, cwd) => {
-      try {
-        execFileSync(command, args, { cwd, stdio: "pipe", timeout: 60000 });
-        return true;
-      } catch (_error) {
-        return false;
-      }
-    };
-    try {
-      if (!this.options.skipBackend) {
-        console.log(`
-  \uD83D\uDCCB Linting NestJS backend...`);
-        const backendLintPassed = runLint("npm", ["run", "lint"], join(outputDir, "backend"));
-        if (backendLintPassed) {
-          console.log("  ✅ Backend linting passed");
-        } else {
-          console.warn('  ⚠️  Backend linting found issues (run "cd backend && bun run lint:fix" to auto-fix)');
-        }
-      }
-      if (!this.options.skipFrontend) {
-        console.log(`
-  \uD83D\uDCCB Linting TanStack Start frontend...`);
-        const frontendLintPassed = runLint("npm", ["run", "lint"], join(outputDir, "frontend"));
-        if (frontendLintPassed) {
-          console.log("  ✅ Frontend linting passed");
-        } else {
-          console.warn('  ⚠️  Frontend linting found issues (run "cd frontend && bun run lint:fix" to auto-fix)');
-        }
-      }
-      console.log(`
-✨ Linting checks completed!`);
-      console.log('   Tip: Run "bun run lint:fix" in backend/frontend directories to auto-fix issues');
-    } catch (_error) {
-      console.warn("  ⚠️  Linting could not be completed (dependencies not installed?)");
-      console.log('   Tip: Run "bun install" first, then run linting manually');
-    }
   }
   getStackDescription() {
     return "tanstackjs-nestjs - Modern Web (TanStack Start + NestJS)";
@@ -18809,7 +18842,7 @@ class MermaidParser {
       sourceEntity,
       targetEntity,
       cardinality,
-      foreignKey: this.generateForeignKey(targetEntity, cardinality)
+      foreignKey: this.generateForeignKey(sourceEntity, targetEntity, cardinality)
     };
   }
   parseAttribute(line) {
@@ -18880,8 +18913,9 @@ class MermaidParser {
   normalizeRelationshipName(name) {
     return name.trim().replace(/\s+/g, "_").toLowerCase();
   }
-  generateForeignKey(targetEntity, _cardinality) {
-    const snakeName = this.toSnakeCase(targetEntity);
+  generateForeignKey(sourceEntity, targetEntity, cardinality) {
+    const referenced = cardinality === "oneToMany" ? sourceEntity : targetEntity;
+    const snakeName = this.toSnakeCase(referenced);
     const cleanName = snakeName.replace(/^bus_/, "");
     return `${cleanName}_id`;
   }

@@ -25,6 +25,7 @@ import { generateApplication, readModelSources } from "../pipeline";
 import { cliLogger } from "../pipeline/logger-port";
 import { compileRbac } from "../rbac";
 import { compileRules } from "../rules";
+import { runLintingChecks } from "../utils/lint-check.js";
 import { compileSagaWorkflows, compileWorkflows } from "../workflows";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
@@ -676,6 +677,18 @@ program
           packageManager: options.packageManager,
           quiet,
         });
+
+        // After the install, not before it. Run inside the generator it had no
+        // node_modules to find biome in, so it failed on every generation and
+        // said "linting found issues" about code it had never read.
+        if (!quiet) {
+          console.log("\n🔍 Running linting checks...");
+          await runLintingChecks(outputDir, {
+            skipBackend: !!options.skipBackend,
+            skipFrontend: !!options.skipFrontend,
+            packageManager: options.packageManager,
+          });
+        }
       }
 
       // ── Run E2E tests ───────────────────────────────────────────────────
@@ -716,7 +729,7 @@ program
           console.log(`   cd ${outputDir} && ${pm} run dev\n`);
           // Matches the bootstrap defaults in backend/src/main.ts
           // (ADMIN_EMAIL / ADMIN_PASSWORD override them).
-          console.log("   Default admin:  admin@admin.com / admin\n");
+          console.log("   Default admin:  admin@admin.com / admin123\n");
         }
         if (options.tests !== false) {
           console.log(`   E2E tests:      cd ${outputDir} && ${pm} run test:e2e`);
@@ -1028,14 +1041,20 @@ program
         }
       }
 
-      // Every FK field should reference a real entity
+      // Every FK field should reference a real entity.
+      //
+      // Compared with the underscores removed, because the two sides are
+      // written in different cases by convention: the column is
+      // `class_offering_id` and the entity is `ClassOffering`. Folding case
+      // alone left every multi-word entity in the model looking unresolvable —
+      // five of the nine in the dance-studio example, all of them real.
+      const fold = (name: string) => name.toLowerCase().replace(/_/g, "");
+      const foldedEntityNames = new Set([...entityNames].map(fold));
       for (const e of entities) {
         for (const a of e.attributes) {
           if (a.name.endsWith("_id") && a.name !== "id") {
             const referencedEntity = a.name.replace(/_id$/, "");
-            const exists = [...entityNames].some(
-              (n) => n.toLowerCase() === referencedEntity.toLowerCase()
-            );
+            const exists = foldedEntityNames.has(fold(referencedEntity));
             if (!exists) {
               warnings.push(
                 `Entity "${e.name}": FK column "${a.name}" — no entity named "${referencedEntity}" found`

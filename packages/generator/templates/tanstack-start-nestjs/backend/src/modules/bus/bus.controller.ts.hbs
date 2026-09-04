@@ -8,6 +8,7 @@
  */
 
 import {
+  ConflictException,
   Controller,
   Get,
   Post,
@@ -380,6 +381,7 @@ export class BusController {
   @ApiParam({ name: 'id', description: 'Record UUID' })
   @ApiResponse({ status: 200, description: 'Record deleted, with the workflows that ran' })
   @ApiResponse({ status: 404, description: 'Record not found' })
+  @ApiResponse({ status: 409, description: 'The delete rolled back — the record is unchanged' })
   async delete(
     @Param('entity') entity: string,
     @Param('id', ParseUUIDPipe) id: string,
@@ -397,6 +399,31 @@ export class BusController {
     // record's workflows, and a caller that cannot see whether the cascade ran
     // has no way to tell a completed delete from one that rolled back.
     const promotion = await this.busService.remove(entity, id);
+
+    /*
+     * A delete that did not happen is not a 200.
+     *
+     * The body already said so — `{ deleted: false }` with a message naming the
+     * constraint — and it went out under a success status, so every client that
+     * checks the status and not the body reported the record gone while it was
+     * still there. A DeviationReport with a CAPA pointing at it is the case
+     * that found this: the child's foreign key is NOT NULL, the cascade cannot
+     * blank it, the transaction rolls back correctly, and the caller was told
+     * "OK".
+     *
+     * 409, because the request is well formed and the *state* refuses it —
+     * which is also what tells a client to go and remove the children first.
+     */
+    if (!promotion.promoted) {
+      this.logger.warn(
+        `[${methodName}] Refused - entity: ${entity}, id: ${id}: ${promotion.message ?? 'the delete did not complete'}`,
+      );
+      throw new ConflictException({
+        message: promotion.message ?? `Could not delete ${entity} ${id}`,
+        deleted: false,
+        promotion,
+      });
+    }
 
     this.logger.log(`[${methodName}] Success - entity: ${entity}, id: ${id}`);
     return { deleted: promotion.promoted, promotion };

@@ -51,6 +51,14 @@ const DEEP_PAGE_RATIO = Number(process.env.E2E_BUDGET_DEEP_PAGE_RATIO ?? 12);
  */
 const FILTER_RATIO = Number(process.env.E2E_BUDGET_FILTER_RATIO ?? 15);
 
+/**
+ * How much more a read of one record by its primary key may cost than a whole
+ * page of them. A key lookup served by the index is the cheapest read the
+ * application makes; one that scans costs more than the page it should have
+ * beaten, and that inversion is the same on any machine.
+ */
+const BY_ID_RATIO = Number(process.env.E2E_BUDGET_BY_ID_RATIO ?? 3);
+
 /** Below this many rows the ratios are noise, so they are reported not asserted. */
 const MIN_ROWS_FOR_RATIOS = Number(process.env.E2E_BUDGET_MIN_ROWS ?? 200);
 
@@ -261,6 +269,31 @@ describe("performance budgets", () => {
     const fields = await measure("form fields", () => `/bus/${target!.route}/fields/form`);
     expect(fields.ok).toBe(REPS);
     expect(fields.p95).toBeLessThan(CEILING_MS);
+  });
+
+  it("reads one record by key no slower than a page of them", async () => {
+    if (!target) return;
+
+    const page = await harness.client.get<ListResponse>(
+      `/bus/${target.route}?page=1&limit=${PAGE}`,
+      { allowFailure: true }
+    );
+    const id = page.ok ? (page.data?.data?.[0]?.id as string | undefined) : undefined;
+    if (!id) return;
+
+    const first = await measure("list first page", () => `/bus/${target!.route}?page=1&limit=${PAGE}`);
+    const byId = await measure("read by key", () => `/bus/${target!.route}/${id}`);
+
+    expect(byId.ok).toBe(REPS);
+    expect(byId.p95).toBeLessThan(CEILING_MS);
+
+    // Below the volume where a ratio means anything, the numbers are reported
+    // and not asserted — the same rule the other ratios follow.
+    const total = Number(page.data?.meta?.total ?? 0);
+    if (total < MIN_ROWS_FOR_RATIOS) return;
+    if (first.median <= 0) return;
+
+    expect(byId.median / first.median).toBeLessThan(BY_ID_RATIO);
   });
 
   it("writes a record inside the ceiling", async () => {

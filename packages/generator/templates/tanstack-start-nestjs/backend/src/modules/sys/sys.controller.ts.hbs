@@ -27,6 +27,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { DictionaryWriteGuard } from '../auth/guards/dictionary-write.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { SysService } from './sys.service';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { SystemConfigService } from './services/system-config.service';
 
 function parseFilters(rawFilters: Record<string, any>): Record<string, any> {
@@ -100,6 +101,7 @@ export class SysController {
   @Get('tables')
   @ApiOperation({ summary: 'List all tables' })
   async findAllTables(
+    @CurrentUser() user: CurrentUser,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
@@ -107,7 +109,9 @@ export class SysController {
     @Query() query?: Record<string, any>,
   ) {
     const { page: _p, limit: _l, search: _s, prefix: _pr, ...rawFilters } = query || {};
-    return this.sysService.findAllTables({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100, search, prefix }, parseFilters(rawFilters));
+    // Scoped to the caller — this list is what the dashboard's navigation is
+    // built from when no categories are configured.
+    return this.sysService.findAllTables({ page: page ? (parseInt(page, 10) || 1) : 1, limit: limit ? (parseInt(limit, 10) || 100) : 100, search, prefix }, parseFilters(rawFilters), user as never);
   }
 
   @Get('tables/all')

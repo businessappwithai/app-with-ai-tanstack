@@ -445,11 +445,34 @@ function DashboardPage() {
         {perms?.isMaster && <PurgeBusinessData />}
 
         {/* Empty search */}
-        {!isLoading && !error && groupedEntityCount === 0 && filteredBus.length === 0 && filteredAdmin.length === 0 && (
+        {!isLoading && !error && query && groupedEntityCount === 0 && filteredBus.length === 0 && filteredAdmin.length === 0 && (
           <div className="swiss-card p-12 text-center">
             <Search className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
             <p className="font-semibold">No results for &ldquo;{searchQuery}&rdquo;</p>
             <p className="text-sm text-muted-foreground mt-1">Try a different search term</p>
+          </div>
+        )}
+
+        {/*
+          A role that may read nothing gets told so.
+
+          `%%rbac … .read` decides what a role sees, and the seeded `User`
+          account holds no functional role at all — deliberately, because an
+          account that can reach nothing is what demonstrates that a
+          restriction restricts. Rendered as bare emptiness it reads as a
+          broken build, so it says which of the two it is.
+        */}
+        {!isLoading && !error && !query && groupedEntityCount === 0 && filteredBus.length === 0 && (
+          <div className="swiss-card p-12 text-center">
+            <Database className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
+            <p className="font-semibold">Nothing to show</p>
+            <p className="text-sm text-muted-foreground mt-1 max-w-prose mx-auto">
+              This account holds no role that may read any of this
+              application&rsquo;s entities. That is what the model says rather
+              than a fault: <code>%%rbac</code> grants read access by role, and
+              this one has none. Sign out and pick a role account to see the
+              application it was given.
+            </p>
           </div>
         )}
       </main>

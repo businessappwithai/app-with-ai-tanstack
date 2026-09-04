@@ -545,13 +545,24 @@ export class NestJsBackendGenerator extends BaseGenerator {
       }
     }
 
+    /*
+     * The table a role-named column points at, or null when the model has no
+     * person entity at all.
+     *
+     * It used to fall back to the literal string "bus_user" when none of the
+     * three existed, which aliased `author_id` to a table that is not in the
+     * schema: the lookup had no table to search, the reference degraded to a
+     * box asking for a uuid, and every create that needed the foreign key was
+     * refused. A model with an `Author` entity and no `User` one — the smallest
+     * blog there is — produced an application whose Post could not be written.
+     */
     const personTable = tableSet.has("bus_user")
       ? "bus_user"
       : tableSet.has("bus_staff")
         ? "bus_staff"
         : tableSet.has("bus_employee")
           ? "bus_employee"
-          : "bus_user";
+          : null;
 
     const personRoleColumns = [
       "pi_id",
@@ -565,11 +576,19 @@ export class NestJsBackendGenerator extends BaseGenerator {
       "remediation_owner",
       "remediation_owner_id",
     ];
+    /*
+     * A role-named column is a *guess* — `owner_id` usually means a person —
+     * and it loses to the naming convention. `author_id` in a model that
+     * declares an `Author` entity resolves to `bus_author` by the ordinary
+     * rule, and overriding that with the guess sends the reference somewhere
+     * the model never pointed it.
+     */
     for (const col of personRoleColumns) {
-      if (!seen.has(col)) {
-        overrides.push({ column: col, table: personTable });
-        seen.add(col);
-      }
+      if (seen.has(col)) continue;
+      if (!personTable) continue;
+      if (tableSet.has(`bus_${col.replace(/_id$/, "")}`)) continue;
+      overrides.push({ column: col, table: personTable });
+      seen.add(col);
     }
 
     for (const entity of busEntities) {
@@ -577,7 +596,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       for (const attr of fkAttrs) {
         const col = attr.columnName || attr.name;
         if (seen.has(col)) continue;
-        if (col.endsWith("_by_id") || col.endsWith("_by")) {
+        if (personTable && (col.endsWith("_by_id") || col.endsWith("_by"))) {
           overrides.push({ column: col, table: personTable });
           seen.add(col);
         }
@@ -961,6 +980,20 @@ export class NestJsBackendGenerator extends BaseGenerator {
     await fs.writeFile(
       path.join(outputDir, "src/modules/sys/services/sys-category.service.ts"),
       categoryServiceContent
+    );
+
+    // Runtime configuration — the sys_system table behind the System
+    // Configuration page. The template arrived with sys.controller,
+    // sys.module and model-context.service all importing it, but nothing
+    // wrote it, so `nest build` failed on three TS2307s in every generated
+    // application. It is written here beside the other sys services.
+    const systemConfigServiceContent = await this.renderTemplate(
+      "src/modules/sys/services/system-config.service.ts.hbs",
+      context
+    );
+    await fs.writeFile(
+      path.join(outputDir, "src/modules/sys/services/system-config.service.ts"),
+      systemConfigServiceContent
     );
 
     const categoryControllerContent = await this.renderTemplate(
@@ -1388,6 +1421,14 @@ export async function executeCustomValidateHooks(
     const serviceContent = await this.renderTemplate("src/modules/bus/bus.service.ts.hbs", context);
     await fs.writeFile(path.join(outputDir, "src/modules/bus/bus.service.ts"), serviceContent);
 
+    // sys_window.where_clause / .order_by_clause, parsed against the entity's
+    // real columns. Plain TypeScript rather than a template — it holds no model
+    // data, and being a real module is what lets it be unit-tested here.
+    await fs.copyFile(
+      path.join(this.resolvedTemplateDir, "src/modules/bus/window-list-defaults.ts"),
+      path.join(outputDir, "src/modules/bus/window-list-defaults.ts")
+    );
+
     // Draft → final promotion pipeline
     for (const name of ["entity-promotion.service", "promotion-dispatcher.service"]) {
       const content = await this.renderTemplate(`src/modules/bus/${name}.ts.hbs`, context);
@@ -1513,6 +1554,13 @@ export async function executeCustomValidateHooks(
       {
         slug: "add_system_config",
         template: "src/migrations/015_add_system_config.ts.hbs",
+      },
+      // sys_window.where_clause / .order_by_clause — which rows a list shows and
+      // in what order, decided in the dictionary. Backfills every existing
+      // window with `updated_at DESC` so a list opens on the most recent change.
+      {
+        slug: "add_window_list_defaults",
+        template: "src/migrations/016_add_window_list_defaults.ts.hbs",
       },
     ];
 
@@ -1644,10 +1692,7 @@ export async function executeCustomValidateHooks(
       "../../common/seeds/system-config.ts.hbs",
       context
     );
-    await fs.writeFile(
-      path.join(outputDir, "seeds/07_system_config.ts"),
-      systemConfigContent
-    );
+    await fs.writeFile(path.join(outputDir, "seeds/07_system_config.ts"), systemConfigContent);
   }
 
   /**

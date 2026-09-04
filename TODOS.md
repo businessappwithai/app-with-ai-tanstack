@@ -290,3 +290,67 @@ range, first/previous/next/last, page maths from `meta`, and the previous page
 held on screen while the next loads (without which the in-flight empty state
 tripped the out-of-range clamp and bounced every navigation back to page 1).
 Verified against 545 rows.
+
+---
+
+## Deferred by `/qa` on `claude/qa-gstack-generator-dance-studio-qr619s`, 2026-08-31
+
+Found while QA-ing the CLI and a generated application against
+`language/examples/dance-studio.eml.mmd`. Fourteen issues were fixed in the
+generator on that branch; these eight were not. Full write-up, with evidence, in
+`docs/qa/qa-report-dance-studio-2026-08-31.md`.
+
+1. **`lint` writes, and the generated app does not pass it.** *(medium)*
+   Both generated `package.json`s define `lint` and `lint:fix` identically as
+   `biome lint --write src`, so the lint script mutates the tree and the
+   generated `ci.yml` lint job passes anything biome can auto-fix. Making `lint`
+   read-only is one line; a freshly generated application then fails it with
+   **71 backend and 162 frontend findings** — `useNodejsImportProtocol` (17),
+   `noParameterAssign` (13), `useLiteralKeys` (28), `useTemplate` (35), and the
+   accessibility ones a reader would notice: `useButtonType` (30),
+   `noLabelWithoutControl` (6), `useKeyWithClickEvents` (5). Flip the script and
+   clear the findings together, or every generated repository ships red.
+
+2. **A join entity's display value is two raw uuids.** *(medium)*
+   §3.7 labels a join entity by its first two parents *resolved through their
+   labels*, em-dash joined. The NestJS stack reads the referenced record's
+   identifier columns without resolving them one level further, so
+   `ClassSession` renders as `e70aa920-… · 04aa63ca-…`. The WASM runtime does
+   this correctly; the two implementations have drifted.
+
+3. **A list the caller may not read says "No records found".** *(medium)*
+   `/payment` as an account with no read grant shows an empty grid and "Click +
+   to create a new payment"; the 403 is swallowed. The dashboard no longer links
+   there, but the address still answers misleadingly.
+
+4. **The §3.7 identifier ladder can pick an enum column.** *(low)*
+   `ClassPack` has one FK and no name or code, so "first text column" selects the
+   enum-bound `status` and every pack is labelled "active" or "exhausted".
+   Skipping enum-bound columns in that step is the repair; it changes a ladder
+   `scripts/check-spec.mjs` asserts, so it needs a spec change with it.
+
+5. **`validate` warns on `*_by_id` and role-named foreign keys.** *(low)*
+   Seven warnings each on `crm` and `drug-discovery` (`approved_by_id`,
+   `owner_id`, `manager_id`, `pi_id`). `isForeignKeyColumnName` accepts `_by`
+   and `resolveRefTableName` rejects it; reconcile the two, then decide what the
+   validator should say.
+
+6. **Sample bookings are internally implausible.** *(low)*
+   `booked_at` and `cancelled_at` carry the same timestamp on every row, and
+   `fee_waived` is true on a booking still `held`. The datetime and boolean cases
+   of `business-data.ts.hbs` do not consult the column name the way strings and
+   integers now do.
+
+7. **The dictionary sync logs an error on every page.** *(low)*
+   With `ELECTRIC_URL` unset — the documented default, where the frontend falls
+   back to the HTTP API — `@tanstack/electric-db-collection` throws
+   `TypeError: Failed to construct 'URL': Invalid URL` for `sys_window` and
+   `sys_table`. The fallback works; the console does not say so.
+
+8. **The Query devtools button overlaps "Add note".** *(low)*
+   Dev-only, and its default corner is the corner the record screen puts a
+   button in.
+
+Also recorded, not a defect: `04-bulk-seed` times out at 60s on a 4-core
+container while writing 1000 records across nine entities. It is the suite
+`--run-tests-fast` skips.

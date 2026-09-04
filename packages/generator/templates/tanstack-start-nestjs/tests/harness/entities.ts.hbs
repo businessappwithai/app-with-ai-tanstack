@@ -31,6 +31,16 @@ export interface FieldMeta {
   /** True for *_id columns that point at another bus_ table. */
   isForeignKey: boolean;
   maxLength?: number;
+  /**
+   * The values a `%%enum` binds to this column, in declaration order.
+   *
+   * The factory draws from these rather than inventing a status vocabulary of
+   * its own. Without them it wrote `active` / `pending` / `closed` / `draft`
+   * into every column called `status`, whatever the model declared — so a
+   * suite's own fixtures put values in the database that the dictionary does
+   * not offer and no state machine has an edge out of.
+   */
+  enumValues?: string[];
 }
 
 export interface EntityMeta {
@@ -109,6 +119,9 @@ export const entities: EntityMeta[] = [
 {{#if maxLength}}
         maxLength: {{maxLength}},
 {{/if}}
+{{#if enumValues}}
+        enumValues: [{{#each enumValues}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}],
+{{/if}}
       },
 {{/each}}
     ],
@@ -152,14 +165,34 @@ export function foreignKeyFields(entity: EntityMeta): FieldMeta[] {
  */
 const FORMATTED_TEXT_COLUMNS = /email|url|website|link|phone|mobile|tel|slug|signature|^status$|^doc_status$/i;
 
-/** The first free-text field, used for search and update assertions. */
+/**
+ * The first free-text field, used for search and update assertions.
+ *
+ * A column the model bound to a `%%enum` is never free text, whatever its
+ * declared type: its values are a closed list, and a marker like
+ * `patched-1788484020307` is not one of them. Suites stamp markers into
+ * whatever this returns, so handing them an enum column means every such write
+ * is refused — and, before the API validated enums, meant every such write
+ * *succeeded* and put an illegal value in the column. Excluded outright rather
+ * than ranked below the others: falling back to one is the same mistake made
+ * later.
+ *
+ * An entity whose only text column is enumerated therefore has no free-text
+ * field, and the suites that need one skip. That is a real gap in what can be
+ * asserted about that entity, and a smaller one than writing values its own
+ * dictionary refuses.
+ */
 export function firstTextField(entity: EntityMeta): FieldMeta | undefined {
-  const textish = scalarFields(entity).filter((f) => f.type === "string" || f.type === "text");
+  const textish = scalarFields(entity).filter(
+    (f) =>
+      (f.type === "string" || f.type === "text") &&
+      !(f.enumValues && f.enumValues.length > 0)
+  );
   return (
     textish.find((f) => !FORMATTED_TEXT_COLUMNS.test(f.name)) ??
-    // Every text column is format-constrained — fall back rather than skip the
-    // assertion entirely; the suite tolerates a create failure better than a
-    // silent gap in coverage.
+    // Every remaining text column is format-constrained — fall back rather
+    // than skip the assertion entirely; a create that trips a format rule is a
+    // smaller loss than a silent gap in coverage.
     textish[0]
   );
 }

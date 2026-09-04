@@ -2082,7 +2082,7 @@ class MermaidParser {
       sourceEntity,
       targetEntity,
       cardinality,
-      foreignKey: this.generateForeignKey(targetEntity, cardinality)
+      foreignKey: this.generateForeignKey(sourceEntity, targetEntity, cardinality)
     };
   }
   parseAttribute(line) {
@@ -2153,8 +2153,9 @@ class MermaidParser {
   normalizeRelationshipName(name) {
     return name.trim().replace(/\s+/g, "_").toLowerCase();
   }
-  generateForeignKey(targetEntity, _cardinality) {
-    const snakeName = this.toSnakeCase(targetEntity);
+  generateForeignKey(sourceEntity, targetEntity, cardinality) {
+    const referenced = cardinality === "oneToMany" ? sourceEntity : targetEntity;
+    const snakeName = this.toSnakeCase(referenced);
     const cleanName = snakeName.replace(/^bus_/, "");
     return `${cleanName}_id`;
   }
@@ -11621,6 +11622,90 @@ export function queryString(params) {
   return rendered ? \`?\${rendered}\` : "";
 }
 `,
+  "ui/csv.js": `/**
+ * CSV export for the browser application's grids.
+ *
+ * The same contract as the NestJS stack's \`frontend/src/lib/csv.ts\`, and
+ * deliberately a separate file rather than a shared one: this application is
+ * plain ES modules served from a Service Worker with no build step, and that
+ * one is TypeScript compiled by vinxi. Neither can import the other. What has
+ * to match is the behaviour — the cap, the quoting, the formula defusing and
+ * the byte order mark — so a reader who exports the same model from either
+ * application gets the same file.
+ */
+
+/**
+ * The most rows any one export contains.
+ *
+ * A convenience export, not a data dump: a browser building the whole string in
+ * memory and a server paging an unbounded table are both worth avoiding. The
+ * NestJS stack uses the same number.
+ */
+export const CSV_EXPORT_LIMIT = 500;
+
+/**
+ * One field, quoted the way RFC 4180 asks.
+ *
+ * Quotes are doubled and the field is wrapped whenever it holds a comma, a
+ * quote, a line break or leading/trailing space — an unwrapped newline silently
+ * becomes an extra row, so the file imports as a different table from the one
+ * exported.
+ */
+function escapeField(value) {
+  const needsQuotes = /[",\\r\\n]/.test(value) || value !== value.trim();
+  return needsQuotes ? \`"\${value.replace(/"/g, '""')}"\` : value;
+}
+
+/**
+ * Defuse a field a spreadsheet would treat as a formula.
+ *
+ * Excel, LibreOffice and Sheets all evaluate a cell that opens with \`=\`, \`+\`,
+ * \`-\`, \`@\` or a control character, so a record whose name a user typed as
+ * \`=HYPERLINK(...)\` executes when the file is opened. Numbers are left alone: a
+ * leading \`-\` on something that parses as a number is a minus sign.
+ */
+function defuseFormula(value) {
+  if (value === "") return value;
+  if (!/^[=+\\-@\\t\\r]/.test(value)) return value;
+  if (/^-?\\d+(\\.\\d+)?$/.test(value)) return value;
+  return \`'\${value}\`;
+}
+
+/** A CSV document: one header row, then the rows, CRLF-separated per RFC 4180. */
+export function toCsv(headers, rows) {
+  return [headers, ...rows]
+    .map((cells) => cells.map((cell) => escapeField(defuseFormula(cell ?? ""))).join(","))
+    .join("\\r\\n");
+}
+
+/**
+ * Hand the CSV to the browser as a download.
+ *
+ * The byte order mark is what makes Excel read the file as UTF-8; without it
+ * every non-ASCII name arrives mojibaked.
+ */
+export function downloadCsv(fileName, csv) {
+  const blob = new Blob([\`\uFEFF\${csv}\`], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName.endsWith(".csv") ? fileName : \`\${fileName}.csv\`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+/** \`class-session\` on 2026-09-04 → \`class-session-2026-09-04.csv\`. */
+export function csvFileName(route) {
+  const stem = String(route ?? "")
+    .replace(/^bus_/, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+  return \`\${stem || "export"}-\${new Date().toISOString().slice(0, 10)}.csv\`;
+}
+`,
   "ui/dom.js": `/**
  * A hundred lines instead of a framework.
  *
@@ -13566,6 +13651,7 @@ const title = (value) =>
  */
 
 import { el, mount, spinner, empty, displayValue, toast } from "../dom.js";
+import { CSV_EXPORT_LIMIT, csvFileName, downloadCsv, toCsv } from "../csv.js";
 import { api, queryString } from "../api.js";
 import { setActions, setHelp } from "../main.js";
 import { recordPanel } from "./entity-form.js";
@@ -13749,6 +13835,68 @@ export async function entityListView(root, { entity, recordId, navigate }) {
     }
   }
 
+  /**
+   * Download the list as CSV.
+   *
+   * The rows are fetched rather than read off the screen: \`page.data\` holds one
+   * page and the reader asked for the list, so this asks for the first
+   * CSV_EXPORT_LIMIT rows under the same search and filters the grid is
+   * showing. Cells go through \`displayValue\` and the server's own \`labels\` map,
+   * the two things the table itself renders with, so a date, a boolean and a
+   * referenced record read in the file exactly as they read on screen.
+   */
+  async function exportCsv() {
+    if (!loaded) return;
+    const columns = loaded.fields.length
+      ? loaded.fields
+      : entity.attributes
+          .slice(0, 6)
+          .map((attribute) => ({ column_name: attribute.columnName, name: attribute.displayName }));
+    try {
+      const full = await api.get(
+        \`/bus/\${entity.routeName}\${queryString({
+          page: 1,
+          limit: CSV_EXPORT_LIMIT,
+          search: state.search,
+          sort: state.sort,
+          order: state.order,
+          ...searchParams(),
+        })}\`
+      );
+
+      const body = (full.data ?? []).map((row) =>
+        columns.map((column) => {
+          const value = row[column.column_name];
+          const label = full.labels?.[column.column_name]?.[value];
+          if (label !== undefined) return String(label);
+          // An em dash is how the table draws an empty cell; a CSV says the
+          // same thing with an empty field, and a literal "—" would import as
+          // data.
+          const shown = displayValue(value, column);
+          return shown === "—" ? "" : shown;
+        })
+      );
+
+      downloadCsv(
+        csvFileName(entity.routeName),
+        toCsv(
+          columns.map((column) => column.name ?? column.column_name),
+          body
+        )
+      );
+
+      if ((full.total ?? 0) > body.length) {
+        toast(
+          \`Exported \${body.length} of \${full.total} rows — a download holds at most \` +
+            \`\${CSV_EXPORT_LIMIT}. Narrow the list to export the rest.\`,
+          "info"
+        );
+      }
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  }
+
   function paint() {
     if (!loaded) return;
     const { fields, page } = loaded;
@@ -13771,6 +13919,17 @@ export async function entityListView(root, { entity, recordId, navigate }) {
       const bar = el(
         "div.listbar",
         el("div.listbar__search", filterInput),
+        el(
+          "button.btn.btn--ghost",
+          {
+            type: "button",
+            onclick: exportCsv,
+            disabled: page.total === 0,
+            title: \`Download this list as CSV (at most \${CSV_EXPORT_LIMIT} rows)\`,
+            "data-testid": "export-csv",
+          },
+          "CSV"
+        ),
         el(
           "span.listbar__count",
           state.filter
@@ -14189,7 +14348,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 323844;
+var RUNTIME_BYTES = 329459;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
@@ -18483,11 +18642,18 @@ function attributeReferenceId(attr, entityPrimaryKey) {
 function isForeignKeyColumnName2(columnName) {
   return columnName.endsWith("_id") || columnName.endsWith("_by");
 }
+function foreignKeyLabelStem(attr, entityPrimaryKey) {
+  const isTableDirect = attributeReferenceId(attr, entityPrimaryKey) === ReferenceType.TABLE_DIRECT;
+  if (isTableDirect && attr.name.endsWith("_id") && !attr.name.endsWith("_by_id")) {
+    return attr.name.slice(0, -"_id".length);
+  }
+  return attr.name;
+}
 function attributeToBusAttribute(attr, index, entityPrimaryKey) {
   return {
     ...attr,
     columnName: attr.name,
-    displayName: formatDisplayName(attr.name),
+    displayName: formatDisplayName(foreignKeyLabelStem(attr, entityPrimaryKey)),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
     isIdentifier: false

@@ -138,9 +138,23 @@ export class EntityAccessGuard implements CanActivate {
     const isMaster = user.isMaster === true;
 
     const held = this.rolesOf(user);
-    const heldFolded = new Set(held.map((role) => role.toLowerCase()));
-    const holdsOne = (roles: string[]) =>
-      roles.some((role) => heldFolded.has(role.toLowerCase()));
+    /*
+     * Case *and* separators, because the two sides are written differently by
+     * construction.
+     *
+     * `sys_operation_access.role_name` holds the model's own spelling —
+     * `computational_chemist`, straight out of the `%%rbac` directive — while
+     * `sys_role.name` holds the title-cased one the dictionary displays,
+     * `Computational Chemist`, and that is what the account is granted. Folding
+     * case alone left those two unequal, so every role whose name is more than
+     * one word was enforced as "nobody": the account the seed created for it
+     * was refused its own entities, and only a master role could read them. A
+     * single-word role matched by luck, which is why a model with `manager` and
+     * `member` in it showed nothing wrong.
+     */
+    const foldRole = (role: string) => role.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+    const heldFolded = new Set(held.map(foldRole));
+    const holdsOne = (roles: string[]) => roles.some((role) => heldFolded.has(foldRole(role)));
 
     if (!isMaster && allowedRoles.length > 0 && !holdsOne(allowedRoles)) {
       getLogger('auth').event('auth.access.denied', {

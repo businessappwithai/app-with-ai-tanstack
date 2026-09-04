@@ -80,6 +80,14 @@ export class DatabaseService {
           ? (raw as { operator: string; value: unknown })
           : { operator: '=', value: raw };
 
+      // `is null` / `is not null` are the two clauses whose value is *meant*
+      // to be null — a window filtering on `deleted_by=isNull` would otherwise
+      // be dropped here as an empty filter and show every row.
+      if (spec.operator === 'is' || spec.operator === 'is not') {
+        query = query.where(key as any, spec.operator as any, null as any);
+        continue;
+      }
+
       if (spec.value === undefined || spec.value === null || spec.value === '') continue;
 
       if (spec.operator === 'ilike') {
@@ -97,8 +105,26 @@ export class DatabaseService {
       .executeTakeFirst();
     const total = Number(countResult?.count ?? 0);
 
-    const data = await query
-      .orderBy(orderBy as any, orderDir)
+    /*
+     * The primary key is appended as a tiebreaker, always.
+     *
+     * `created_at` is the default sort and it is not unique: a seed inserts a
+     * whole table in one statement, so every row shares a timestamp to the
+     * microsecond. PostgreSQL is then free to return equal rows in any order it
+     * likes, and it does — which makes LIMIT/OFFSET paging unsound. Page 1 and
+     * page 2 came back sharing a row and between them missed another, so a
+     * reader paging a list silently never saw part of it.
+     *
+     * Ordering by a unique column last makes the sequence total, so a page
+     * boundary falls in the same place every time. Skipped when the caller
+     * already sorted by the key, which would otherwise emit it twice.
+     */
+    const ordered =
+      orderBy === 'id'
+        ? query.orderBy(orderBy as any, orderDir)
+        : query.orderBy(orderBy as any, orderDir).orderBy('id' as any, 'asc');
+
+    const data = await ordered
       .limit(Number(limit))
       .offset(Number(offset))
       .execute();

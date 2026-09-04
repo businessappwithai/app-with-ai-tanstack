@@ -121,9 +121,11 @@ export class FullStackGenerator {
       );
     }
 
-    // Run mandatory linting checks
-    console.log("\n🔍 Running mandatory linting checks...");
-    await this.runLintingChecks(outputDir);
+    // The linting check is NOT run here. It shells out to the generated
+    // package scripts, and at this point nothing is installed — so it reported
+    // "linting found issues" on every generation regardless of the code, which
+    // is a signal that cannot distinguish a missing biome from a real finding.
+    // The CLI runs it after the install step instead; see `runLintingChecks`.
   }
 
   /**
@@ -209,6 +211,9 @@ export class FullStackGenerator {
         // dictionary the same generator wrote.
         modelEnums: this.options.modelEnums,
         compiledWorkflows: this.options.compiledWorkflows,
+        // The access suite drives every %%rbac rule as the role it names, so it
+        // needs both the rules and the addresses the seeds gave those roles.
+        compiledRbac: this.options.compiledRbac,
       });
       await testGenerator.generate(entities, relationships, outputDir);
     }
@@ -620,61 +625,6 @@ Field ordering is controlled by:
 
 MIT
 `;
-  }
-
-  /**
-   * Run mandatory linting checks after generation
-   */
-  private async runLintingChecks(outputDir: string): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { execFileSync } = require("node:child_process") as typeof import("child_process");
-
-    const runLint = (command: string, args: string[], cwd: string): boolean => {
-      try {
-        execFileSync(command, args, { cwd, stdio: "pipe", timeout: 60000 });
-        return true;
-      } catch (_error: unknown) {
-        return false;
-      }
-    };
-
-    try {
-      if (!this.options.skipBackend) {
-        console.log("\n  📋 Linting NestJS backend...");
-        const backendLintPassed = runLint("npm", ["run", "lint"], path.join(outputDir, "backend"));
-        if (backendLintPassed) {
-          console.log("  ✅ Backend linting passed");
-        } else {
-          console.warn(
-            '  ⚠️  Backend linting found issues (run "cd backend && bun run lint:fix" to auto-fix)'
-          );
-        }
-      }
-
-      if (!this.options.skipFrontend) {
-        console.log("\n  📋 Linting TanStack Start frontend...");
-        const frontendLintPassed = runLint(
-          "npm",
-          ["run", "lint"],
-          path.join(outputDir, "frontend")
-        );
-        if (frontendLintPassed) {
-          console.log("  ✅ Frontend linting passed");
-        } else {
-          console.warn(
-            '  ⚠️  Frontend linting found issues (run "cd frontend && bun run lint:fix" to auto-fix)'
-          );
-        }
-      }
-
-      console.log("\n✨ Linting checks completed!");
-      console.log(
-        '   Tip: Run "bun run lint:fix" in backend/frontend directories to auto-fix issues'
-      );
-    } catch (_error) {
-      console.warn("  ⚠️  Linting could not be completed (dependencies not installed?)");
-      console.log('   Tip: Run "bun install" first, then run linting manually');
-    }
   }
 
   /**

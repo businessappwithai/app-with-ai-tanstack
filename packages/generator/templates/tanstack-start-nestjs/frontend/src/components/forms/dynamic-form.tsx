@@ -31,6 +31,7 @@ import { getFieldTypeColor, getFieldTypeLabel, validateFormData } from "@/lib/fi
 import { getFieldLabel } from "@/lib/i18n-fields";
 import { useTranslations } from "@/lib/translations";
 import { cn, referenceLabel } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface DynamicFormProps {
   tableName: string;
@@ -459,15 +460,20 @@ function FieldRenderer({
             if (currentValue === null || currentValue === undefined || currentValue === "")
               return "—";
             if (typeof currentValue === "boolean") return currentValue ? "Yes" : "No";
+            // Same formats the grid uses (see components/tables/dynamic-table.tsx).
+            // `toLocaleDateString` rendered 15 January 2000 as "1/15/2000" here
+            // and "15/01/2000" one screen earlier, because it follows whichever
+            // locale the runtime happens to hold — which also differs between
+            // the SSR pass and the browser.
             if (field.sys_reference_id === 15) {
               // DATE — show date only, no time component
               const d = new Date(String(currentValue));
-              return isNaN(d.getTime()) ? String(currentValue) : d.toLocaleDateString();
+              return isNaN(d.getTime()) ? String(currentValue) : format(d, "dd/MM/yyyy");
             }
             if (field.sys_reference_id === 16) {
               // DATETIME — show date and time
               const d = new Date(String(currentValue));
-              return isNaN(d.getTime()) ? String(currentValue) : d.toLocaleString();
+              return isNaN(d.getTime()) ? String(currentValue) : format(d, "dd/MM/yyyy HH:mm:ss");
             }
             if (field.options && field.options.length > 0) {
               // Enum — look up the label so "female" shows as "Female"
@@ -595,21 +601,32 @@ function FieldRenderer({
             );
 
           case REFERENCE_TYPE.YES_NO:
+            // The required marker and the error block are here rather than in
+            // `labelBlock` because this control lays its own label out beside
+            // the box. Leaving them off made a mandatory boolean the one field
+            // that could fail validation and say nothing about it.
             return (
-              <div className="flex items-center gap-3 pt-6">
-                <Checkbox
-                  id={field.column_name}
-                  checked={(currentValue as boolean) || false}
-                  onCheckedChange={(checked) => fieldApi.handleChange(checked)}
-                  disabled={isReadOnly}
-                  className={cn(field.is_mandatory && "border-primary/50")}
-                />
-                <div className="flex items-center gap-2">
-                  <Label htmlFor={field.column_name} className="text-sm">
-                    {fieldLabel}
-                  </Label>
-                  <FieldTypeBadge field={field} />
+              <div className="pt-6">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id={field.column_name}
+                    checked={(currentValue as boolean) || false}
+                    onCheckedChange={(checked) => fieldApi.handleChange(checked)}
+                    disabled={isReadOnly}
+                    className={cn(field.is_mandatory && "border-primary/50")}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Label
+                      htmlFor={field.column_name}
+                      className={cn("text-sm", error && "text-destructive")}
+                    >
+                      {fieldLabel}
+                      {field.is_mandatory && <span className="text-red-500 ml-0.5">*</span>}
+                    </Label>
+                    <FieldTypeBadge field={field} />
+                  </div>
                 </div>
+                {errorBlock}
               </div>
             );
 
@@ -886,6 +903,28 @@ export function DynamicForm({
       });
     }
   }, [initialData]);
+
+  /*
+   * A drawn checkbox has an answer.
+   *
+   * A Yes/No field starts undefined, and the control renders `undefined` as
+   * unticked — so the form showed an answered "No" that the validator counted
+   * as unanswered, and a create was refused with "Please fix the validation
+   * errors" and nothing beside any field. Every entity in the dance-studio
+   * model with a mandatory boolean — Room, Instructor, Member — could not be
+   * created from the interface at all, though the API accepted the same
+   * payload. Seed the value the control is already showing.
+   */
+  useEffect(() => {
+    if (mode !== "create" || !fields) return;
+    for (const field of fields) {
+      if (field.sys_reference_id !== REFERENCE_TYPE.YES_NO) continue;
+      if (!field.is_displayed || field.column_name === parentField) continue;
+      if (form.getFieldValue(field.column_name as never) === undefined) {
+        form.setFieldValue(field.column_name as never, false as never);
+      }
+    }
+  }, [fields, mode, parentField]);
 
   const isLoading = externalFields ? false : fieldsLoading;
 

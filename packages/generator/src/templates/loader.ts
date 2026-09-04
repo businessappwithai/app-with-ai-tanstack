@@ -963,5 +963,27 @@ export class TemplateLoader {
         return humanized ? `${humanized} ${i + 1}` : `Sample ${i + 1}`;
       }
     );
+
+    // A seed value for a numeric column.
+    //
+    // Integers were seeded with the row index — 0, 1, 2, 3 — so the sample data
+    // contradicted the model it came from: a Room whose help text calls its
+    // capacity "the ceiling a session's bookable places are set from" was
+    // seeded with a capacity of 0, and sessions with four bookings against
+    // them held nobody. Counts and capacities start at a plausible figure and
+    // step; anything unrecognised keeps the old index, which is at least
+    // distinct per row.
+    Handlebars.registerHelper("seedNumber", (fieldName: string, index: number) => {
+      const n = (fieldName ?? "").toLowerCase();
+      const i = typeof index === "number" ? index : 0;
+      if (n === "capacity" || n === "max_students" || n === "seats") return 20 + i * 5;
+      if (n.startsWith("credits") || n.endsWith("_credits")) return 10 + i * 5;
+      if (n.endsWith("_count") || n === "quantity" || n === "qty") return 1 + i;
+      if (n === "duration_minutes" || n.endsWith("_minutes")) return 45 + i * 15;
+      if (n === "position" || n === "queue_position" || n === "seq_no" || n === "sequence")
+        return i + 1;
+      if (n === "year" || n === "academic_year") return 2024 + i;
+      return i;
+    });
   }
 }

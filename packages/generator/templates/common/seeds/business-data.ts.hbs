@@ -10,6 +10,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 const SAMPLE_COUNT = 4;
 
+/*
+ * A column the model bound to a %%enum is seeded from that enum's own values —
+ * `seedValue` takes them as its fourth argument and prefers them over the
+ * name-keyed vocabulary it falls back to. Anything else puts a value in the column that the dictionary does not
+ * offer, the dropdown cannot select, and — for a status backing a state
+ * machine — no declared transition leads out of.
+ */
+
 /**
  * Primary keys are generated up front for every table so foreign key columns
  * can point at rows that actually exist, in either direction, regardless of the
@@ -74,7 +82,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         {{#case 10}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{seedValue name @../index ../../displayName enumValues}}{{/if}}'{{/if}},{{/case}}
         {{#case 30}}{{name}}: 'test{{@../index}}@example.com',{{/case}}
         {{#case 31}}{{name}}: '555-{{@../index}}101',{{/case}}
-        {{#case 11}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}{{@../index}}{{/if}},{{/case}}
+        {{#case 11}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}{{seedNumber name @../index}}{{/if}},{{/case}}
         {{#case 12}}{{name}}: {{@../index}}.50,{{/case}}
         {{! Numeric args, not a string: '200X-0X-15' produced month 00 for the first record, which Postgres rejects. Month is 0-based here, so % 12 is always valid. }}
         {{#case 15}}{{name}}: new Date(2000 + {{@../index}}, {{@../index}} % 12, 15),{{/case}}
@@ -91,6 +99,11 @@ export async function seed(db: Kysely<any>): Promise<void> {
       {{/unless}}
       {{/each}}
       version: 1,
+      // Inserted straight into the table, so the promotion that would normally
+      // set this never runs and the column keeps its 'draft' default — which
+      // put a DRAFT badge on the header of every sample record in the
+      // application, on data that is complete. These rows are final.
+      doc_status: 'final',
       created_at: now,
       updated_at: now,
       deleted_at: null,

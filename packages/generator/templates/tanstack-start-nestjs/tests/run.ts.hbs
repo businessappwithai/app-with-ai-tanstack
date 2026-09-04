@@ -27,7 +27,13 @@ import { fileURLToPath } from "node:url";
 import { readdir, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { config } from "./harness/config.ts";
-import { formatComparison, formatSummary, timestampFor, writeReport } from "./harness/report.ts";
+import {
+  formatByEntity,
+  formatComparison,
+  formatSummary,
+  timestampFor,
+  writeReport,
+} from "./harness/report.ts";
 import { isServerUp, startServer } from "./harness/server.ts";
 
 // Standard `import.meta.url` rather than Bun's `import.meta.dir`.
@@ -242,6 +248,15 @@ async function main(): Promise<void> {
     if (written) {
       console.log(`  Phases — ${written.report.totalWrites} writes, ${recordsPerEntity} records/entity\n`);
       console.log(formatSummary(written.report));
+
+      // Which entity, not just which phase. An `insert` row is the mean of
+      // every entity in the model, and the one carrying a saga is several
+      // times the one carrying nothing.
+      const byEntity = formatByEntity(written.report);
+      if (byEntity) {
+        console.log(`\n  By entity\n`);
+        console.log(byEntity);
+      }
 
       const comparison = formatComparison(written.report);
       if (comparison) {

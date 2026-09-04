@@ -25,6 +25,8 @@ import type {
   Relationship,
 } from "@appwithai/core/types";
 import { entityToBusEntity } from "@appwithai/core/types";
+import type { CompiledRbac } from "../../rbac";
+import { deriveAccess } from "../../rbac/roles";
 import type { CompiledWorkflow } from "../../workflows";
 import { BaseGenerator } from "../base.generator";
 
@@ -68,11 +70,26 @@ export interface BunE2ETestGeneratorOptions {
    * drew are refused.
    */
   compiledWorkflows?: CompiledWorkflow[];
+  /**
+   * What `%%rbac` compiled to, and — through `deriveAccess` — the accounts the
+   * application seeds for the roles it names.
+   *
+   * The access suite needs both halves. The rules say which roles an operation
+   * admits; the accounts are how a test signs in as one of them. Deriving the
+   * addresses in the suite instead would be a second implementation of a
+   * naming convention, and the two would drift the first time it changed.
+   */
+  compiledRbac?: CompiledRbac;
+  /** The administrator address the bootstrap creates. */
+  adminEmail?: string;
 }
 
 /** Static harness files copied verbatim (after Handlebars rendering). */
 const HARNESS_FILES = [
   "config.ts",
+  // The compiled %%rbac rules and the accounts the seeds gave those roles —
+  // what the access suite drives, and what it compares the answers against.
+  "access.ts",
   "http.ts",
   "auth.ts",
   "server.ts",
@@ -111,8 +128,23 @@ const SHARED_SUITES = [
   "07-workflow-random.test.ts",
   "08-users-roles.test.ts",
   "09-workflow-multistep.test.ts",
+  // What the model *declared* about access, enums, naming and the API's
+  // contract — each written against `harness/access.ts` and `harness/model.ts`
+  // rather than against the dictionary the same generator wrote, so a rule the
+  // seed dropped fails a test instead of agreeing with itself.
+  "12-access-control.test.ts",
+  "13-enum-integrity.test.ts",
+  "14-validation.test.ts",
+  "15-record-lifecycle.test.ts",
+  "16-api-contract.test.ts",
+  "17-display-identifier.test.ts",
+  // The dictionary's own say over what a list shows and in what order. It
+  // edits sys_window and puts it back, so it runs before the benchmarks read
+  // the same lists.
+  "19-window-list-defaults.test.ts",
   // Last, so they measure the fullest the tables will be this run.
   "10-benchmark.test.ts",
+  "18-write-benchmark.test.ts",
   "11-performance-budget.test.ts",
 ];
 
@@ -177,8 +209,67 @@ export class BunE2ETestGenerator extends BaseGenerator {
       fkOverrides: this.buildFkOverrides(entities, relationships),
       modelEnums: this.options.modelEnums ?? [],
       stateMachines: this.stateMachines(entities),
+      ...this.accessContext(entities),
       now: new Date().toISOString(),
     };
+  }
+
+  /**
+   * `%%rbac` as the suites see it: the operation rules, and one seeded account
+   * per role.
+   *
+   * Both come from the same `deriveAccess` the seeds use, so a suite that signs
+   * in as `manager@…` is using the address the application actually created.
+   * A model with no `%%rbac` directives yields empty arrays and the access
+   * suite skips itself rather than inventing restrictions to check.
+   */
+  private accessContext(entities: BusEntity[]): Record<string, unknown> {
+    const compiled = this.options.compiledRbac;
+    if (!compiled || compiled.operations.length === 0) {
+      return { rbacRules: [], roleAccounts: [] };
+    }
+
+    const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const derived = deriveAccess(compiled, {
+      projectId,
+      entities: entities.map((entity) => (entity as any).originalName || entity.name),
+      adminEmail: this.options.adminEmail,
+    });
+
+    const byName = new Map(
+      entities.map((entity) => [
+        String((entity as any).originalName || entity.name).toLowerCase(),
+        entity,
+      ])
+    );
+
+    const rbacRules = compiled.operations
+      .map((rule) => {
+        const entity = byName.get(rule.entity.toLowerCase());
+        return {
+          entity: rule.entity,
+          tableName: rule.tableName,
+          // The route a suite calls — `bus_class_session` is the table, but the
+          // API is addressed by the entity's route segment.
+          route: entity ? (entity as any).route || entity.tableName : rule.tableName,
+          operation: rule.operation,
+          roles: rule.roles,
+        };
+      })
+      // An entity the model restricts but does not declare has no route to
+      // drive; the guard still enforces it, but the suite cannot reach it.
+      .filter((rule) => byName.has(rule.entity.toLowerCase()));
+
+    const roleAccounts = derived.users.map((user) => ({
+      email: user.email,
+      name: user.name,
+      roleName: user.roleName,
+      declaredAs:
+        derived.roles.find((role) => role.name === user.roleName)?.declaredAs ?? user.roleName,
+      isAdmin: user.isAdmin === true,
+    }));
+
+    return { rbacRules, roleAccounts };
   }
 
   private buildFkOverrides(
@@ -221,13 +312,24 @@ export class BunE2ETestGenerator extends BaseGenerator {
       }
     }
 
+    /*
+     * The table a role-named column points at, or null when the model has no
+     * person entity at all.
+     *
+     * It used to fall back to the literal string "bus_user" when none of the
+     * three existed, which aliased `author_id` to a table that is not in the
+     * schema: the lookup had no table to search, the reference degraded to a
+     * box asking for a uuid, and every create that needed the foreign key was
+     * refused. A model with an `Author` entity and no `User` one — the smallest
+     * blog there is — produced an application whose Post could not be written.
+     */
     const personTable = tableSet.has("bus_user")
       ? "bus_user"
       : tableSet.has("bus_staff")
         ? "bus_staff"
         : tableSet.has("bus_employee")
           ? "bus_employee"
-          : "bus_user";
+          : null;
 
     const personRoleColumns = [
       "pi_id",
@@ -241,11 +343,19 @@ export class BunE2ETestGenerator extends BaseGenerator {
       "remediation_owner",
       "remediation_owner_id",
     ];
+    /*
+     * A role-named column is a *guess* — `owner_id` usually means a person —
+     * and it loses to the naming convention. `author_id` in a model that
+     * declares an `Author` entity resolves to `bus_author` by the ordinary
+     * rule, and overriding that with the guess sends the reference somewhere
+     * the model never pointed it.
+     */
     for (const col of personRoleColumns) {
-      if (!seen.has(col)) {
-        overrides.push({ column: col, table: personTable });
-        seen.add(col);
-      }
+      if (seen.has(col)) continue;
+      if (!personTable) continue;
+      if (tableSet.has(`bus_${col.replace(/_id$/, "")}`)) continue;
+      overrides.push({ column: col, table: personTable });
+      seen.add(col);
     }
 
     for (const entity of busEntities) {
@@ -253,7 +363,7 @@ export class BunE2ETestGenerator extends BaseGenerator {
       for (const attr of fkAttrs) {
         const col = (attr as any).columnName || attr.name;
         if (seen.has(col)) continue;
-        if (col.endsWith("_by_id") || col.endsWith("_by")) {
+        if (personTable && (col.endsWith("_by_id") || col.endsWith("_by"))) {
           overrides.push({ column: col, table: personTable });
           seen.add(col);
         }
