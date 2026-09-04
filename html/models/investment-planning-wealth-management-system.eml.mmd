@@ -108,7 +108,7 @@ erDiagram
         string address_type
         string line1
         string city
-        string state
+        string state_province
         string postal_code
         string country
         boolean is_primary
@@ -319,12 +319,12 @@ erDiagram
         string advisor_id FK
         string action
         string entity_type
-        string entity_id
+        string entity_ref
         string before_value OPTIONAL
         string after_value OPTIONAL
         string source
         string ip_address OPTIONAL
-        string correlation_id OPTIONAL
+        string correlation_ref OPTIONAL
     }
     FinancialPlan {
         string id PK
@@ -1074,7 +1074,7 @@ erDiagram
 %%field Address.address_type help: Address type for Address.
 %%field Address.line1 help: Line1 for Address.
 %%field Address.city help: City for Address.
-%%field Address.state help: State for Address.
+%%field Address.state_province help: State for Address.
 %%field Address.postal_code help: Postal code for Address.
 %%field Address.country help: Country for Address.
 %%field Address.is_primary help: Is primary for Address.
@@ -1298,12 +1298,12 @@ erDiagram
 %%field AuditEvent.advisor_id help: User id for AuditEvent.
 %%field AuditEvent.action help: Action for AuditEvent.
 %%field AuditEvent.entity_type help: Entity type for AuditEvent.
-%%field AuditEvent.entity_id help: Entity id for AuditEvent.
+%%field AuditEvent.entity_ref help: Entity id for AuditEvent.
 %%field AuditEvent.before_value help: Before value for AuditEvent.
 %%field AuditEvent.after_value help: After value for AuditEvent.
 %%field AuditEvent.source help: Source for AuditEvent.
 %%field AuditEvent.ip_address help: Ip address for AuditEvent.
-%%field AuditEvent.correlation_id help: Correlation id for AuditEvent.
+%%field AuditEvent.correlation_ref help: Correlation id for AuditEvent.
 
 %%entity FinancialPlan help: Versioned household financial plan describing objectives, assumptions, scenarios and funding requirements.
 %%field FinancialPlan.id help: Unique identifier for FinancialPlan.
@@ -1924,6 +1924,8 @@ flowchart TD
     E --> Z
     F --> Z
 
+    %%action refuseUnsuitedRecommendation validation-error when: status == "pending_approval" and suitability_result != "pass" message: Suitability has not passed — a recommendation cannot go for approval until it has
+
 %% ---- Section 2: Business rule — product eligibility ------------------------
 %% A recommended line has to be a product the client may legally be sold, at the
 %% risk band the household was assessed into.
@@ -1940,6 +1942,8 @@ flowchart TD
     E --> Z
     F --> Z
 
+    %%action refuseWithdrawnProduct validation-error when: security_status != "active" message: This product has been withdrawn and cannot be recommended
+
 %% ---- Section 3: Business rule — concentration ------------------------------
 %% Nothing may push one holding past the concentration ceiling the mandate set.
 %%meta name: Concentration Check
@@ -1954,6 +1958,8 @@ flowchart TD
     C --> Z([End: Concentration decided])
     E --> Z
     F --> Z
+
+    %%action refuseConcentrationBreach validation-error when: resulting_weight > 25 and override_reference == null message: This order would take one holding above the 25 percent concentration ceiling — record a dealer override or resize it
 
 %% ---- Section 4: Business rule — allocation deviation -----------------------
 %% How far a portfolio may drift from its model before a rebalance is raised.
@@ -1970,6 +1976,8 @@ flowchart TD
     E --> Z
     F --> Z
 
+    %%action startRebalance trigger-workflow when: deviation_amount >= 5 workflow: Rebalancing message: Allocation has drifted past the tolerance band — raising a rebalance
+
 %% ---- Section 5: Business rule — KYC completeness ---------------------------
 %% No money moves for a client whose identity file is incomplete or expired.
 %%meta name: KYC Completeness
@@ -1985,6 +1993,8 @@ flowchart TD
     E --> Z
     F --> Z
 
+    %%action refuseIncompleteKyc validation-error when: kyc_status != "verified" message: No order may be raised for a client whose KYC is not verified
+
 %% ---- Section 6: Business rule — approval gate ------------------------------
 %% A proposal cannot be produced from a recommendation nobody approved.
 %%meta name: Recommendation Approval Gate
@@ -1999,6 +2009,9 @@ flowchart TD
     C --> Z([End: Approval decided])
     E --> Z
     F --> Z
+
+    %%action refuseUnapprovedProposal validation-error when: approval_reference == null message: A proposal cannot be produced from a recommendation nobody approved
+    %%action refuseSelfApproval validation-error when: approver_id == advisor_id message: The approver of a recommendation may not be its author
 
 %% ---- Section 7: Business rule — transaction eligibility --------------------
 %% Settlement-side gate: the account has to be live and the mandate in force.
@@ -2020,6 +2033,10 @@ flowchart TD
 %% difference is called.
 %%meta name: Commission Reconciliation
 %%meta kind: rules
+
+    %%action refuseInactiveAccount validation-error when: account_status != "active" message: A transaction cannot be booked against an account that is not active
+    %%action refuseMissingMandate validation-error when: mandate_reference == null message: A transaction needs a mandate in force before it can be booked
+
 %%rule commissionReconciliation on CommissionReconciliation event: beforeUpdate priority: 10
 flowchart TD
     A([Start: Statement received]) --> B{difference within tolerance?}
@@ -2031,12 +2048,108 @@ flowchart TD
     E --> Z
     F --> Z
 
+    %%action raiseCommissionException validation-error when: difference_amount != 0 and exception_reference == null message: Expected and received commission differ — record an exception before marking this reconciliation matched
+
+%% ---- Sections 9a-9d: Lifecycle hooks ---------------------------------------
+%% Rules decide and refuse; hooks act on the write itself. Everything below has
+%% to happen however the record is reached — through the API, through an import,
+%% through a saga — so none of it can live in a screen. The flowchart is what a
+%% reader sees and the `%%hook` lines are what the generator compiles into
+%% handler modules; both halves have to say the same thing.
+
+%%meta name: Client Onboarding Hooks
+%%meta kind: workflow
+%%workflow ClientOnboardingHooks entity: Client kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: assignClientNumber]
+    C --> D[customValidate: ensureClientNumberUnique]
+    D --> E[Process Client]
+    E --> F[afterCreate: openComplianceFile]
+    F --> G[beforeList: scopeToOwnHouseholds]
+    G --> H[beforeDelete: blockDeleteWithPortfolio]
+    H --> I[Response]
+
+    %% `beforeList: scopeToOwnHouseholds` is the one that matters most here. An
+    %% advisor may read Client — that is what the %%rbac rule says — but reading
+    %% *every* client is a different permission from reading their own, and RBAC
+    %% has no way to express the difference. The row filter belongs on the query.
+    %%hook beforeCreate assignClientNumber on Client[field: client_number]
+    %%hook customValidate ensureClientNumberUnique on Client[field: client_number]
+    %%hook afterCreate openComplianceFile on Client
+    %%hook beforeList scopeToOwnHouseholds on Client[field: advisor_id]
+    %%hook beforeDelete blockDeleteWithPortfolio on Client
+
+%%meta name: Portfolio Valuation Hooks
+%%meta kind: workflow
+%%workflow PortfolioValuationHooks entity: Holding kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: normalizeQuantityScale]
+    C --> D[Process Holding]
+    D --> E[afterCreate: revalueOnNewHolding]
+    E --> F[afterUpdate: revalueOnHoldingChange]
+    F --> G[afterList: attachUnrealisedGain]
+    G --> H[Response]
+
+    %% A portfolio's value is arithmetic over its holdings, so it is recomputed
+    %% on the write rather than read from a column somebody remembered to
+    %% update. Unrealised gain is attached on the way out instead of stored: it
+    %% moves with the price, and a stored copy is wrong the moment the market
+    %% opens.
+    %%hook beforeCreate normalizeQuantityScale on Holding[field: quantity]
+    %% One handler name per event. Binding the same name to both afterCreate
+    %% and afterUpdate makes the generator keep the first and drop the second,
+    %% so the update path would have had no handler at all.
+    %%hook afterCreate revalueOnNewHolding on Holding[field: portfolio_id]
+    %%hook afterUpdate revalueOnHoldingChange on Holding[field: portfolio_id]
+    %%hook afterList attachUnrealisedGain on Holding
+
+%%meta name: Order Execution Hooks
+%%meta kind: workflow
+%%workflow OrderExecutionHooks entity: Order kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: stampOrderedAt]
+    C --> D[customValidate: ensureDealingDeskOpen]
+    D --> E[Process Order]
+    E --> F[afterUpdate: bookExecutedTransaction]
+    F --> G[beforeDelete: blockDeleteAfterSubmission]
+    G --> H[Response]
+
+    %% An order that reached the exchange is a record of something that
+    %% happened, and deleting it is not a correction — it is a hole in the audit
+    %% trail. Cancel it through the state machine instead; that edge exists.
+    %%hook beforeCreate stampOrderedAt on Order[field: ordered_at]
+    %%hook customValidate ensureDealingDeskOpen on Order
+    %%hook afterUpdate bookExecutedTransaction on Order[field: status]
+    %%hook beforeDelete blockDeleteAfterSubmission on Order
+
+%%meta name: Audit Trail Hooks
+%%meta kind: workflow
+%%workflow AuditTrailHooks entity: AuditEvent kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: stampCorrelationRef]
+    C --> D[Process AuditEvent]
+    D --> E[beforeUpdate: blockAmendment]
+    E --> F[beforeDelete: blockDeletion]
+    F --> G[Response]
+
+    %% The audit trail is append-only, and that has to be enforced where the
+    %% write happens rather than by withholding a button: %%rbac can say who may
+    %% update the table, and the answer here is nobody, including the
+    %% administrator the master role would otherwise let through.
+    %%hook beforeCreate stampCorrelationRef on AuditEvent[field: correlation_ref]
+    %%hook beforeUpdate blockAmendment on AuditEvent
+    %%hook beforeDelete blockDeletion on AuditEvent
+
 %% ---- Section 9: Workflow — prospect lifecycle ------------------------------
 %%meta name: Prospect Lifecycle
 %%meta kind: workflow
 %%workflow ProspectLifecycle entity: Prospect kind: state
 stateDiagram-v2
-    [*]        --> new
+    [*] --> new
     new        --> contacted   : contact
     contacted  --> qualified   : qualify
     contacted  --> lost        : disqualify
@@ -2060,7 +2173,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow ClientLifecycle entity: Client kind: state
 stateDiagram-v2
-    [*]         --> prospect
+    [*] --> prospect
     prospect    --> onboarding  : begin_onboarding
     onboarding  --> pending_kyc : submit_kyc
     pending_kyc --> active      : activate
@@ -2084,7 +2197,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow FinancialPlanLifecycle entity: FinancialPlan kind: state
 stateDiagram-v2
-    [*]        --> draft
+    [*] --> draft
     draft      --> analysis   : run_analysis
     analysis   --> proposed   : propose
     analysis   --> draft      : revise
@@ -2104,7 +2217,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow GoalLifecycle entity: Goal kind: state
 stateDiagram-v2
-    [*]        --> identified
+    [*] --> identified
     identified --> planned   : plan
     identified --> cancelled : drop
     planned    --> funded    : fund
@@ -2123,7 +2236,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow RecommendationLifecycle entity: InvestmentRecommendation kind: state
 stateDiagram-v2
-    [*]               --> draft
+    [*] --> draft
     draft             --> suitability_check : submit
     suitability_check --> pending_approval  : suitability_passed
     suitability_check --> rejected          : suitability_failed
@@ -2149,7 +2262,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow ProposalLifecycle entity: Proposal kind: state
 stateDiagram-v2
-    [*]       --> draft
+    [*] --> draft
     draft     --> presented : present
     presented --> accepted  : accept
     presented --> rejected  : decline
@@ -2167,7 +2280,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow OrderLifecycle entity: Order kind: state
 stateDiagram-v2
-    [*]                 --> draft
+    [*] --> draft
     draft               --> pending_approval   : submit
     draft               --> cancelled          : withdraw
     pending_approval    --> approved           : approve
@@ -2195,7 +2308,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow RebalanceLifecycle entity: RebalanceRecommendation kind: state
 stateDiagram-v2
-    [*]       --> detected
+    [*] --> detected
     detected  --> analysed  : analyse
     analysed  --> proposed  : propose
     proposed  --> approved  : approve
@@ -2215,7 +2328,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow ServiceRequestLifecycle entity: ServiceRequest kind: state
 stateDiagram-v2
-    [*]             --> submitted
+    [*] --> submitted
     submitted       --> assigned       : assign
     submitted       --> rejected       : reject
     assigned        --> processing     : start
@@ -2235,7 +2348,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow ClientReviewLifecycle entity: ClientReview kind: state
 stateDiagram-v2
-    [*]       --> due
+    [*] --> due
     due       --> scheduled : schedule
     scheduled --> conducted : conduct
     scheduled --> due       : postpone
@@ -2253,7 +2366,7 @@ stateDiagram-v2
 %%meta kind: workflow
 %%workflow OnboardingCaseLifecycle entity: OnboardingCase kind: state
 stateDiagram-v2
-    [*]         --> started
+    [*] --> started
     started     --> kyc         : collect_kyc
     started     --> cancelled   : abandon
     kyc         --> suitability : assess_suitability
@@ -2307,7 +2420,7 @@ flowchart TD
 
     %%step B Decision decisionTable: {"hitPolicy":"first","inputs":[{"id":"i1","name":"Accepted","field":"accepted_amount"}],"outputs":[{"id":"o1","name":"OrderType","field":"openingOrderType"},{"id":"o2","name":"OrderAmount","field":"openingOrderAmount"}],"rules":[{"_id":"block","i1":">= 1000000","o1":"'block'","o2":"accepted_amount"},{"_id":"standard","i1":"","o1":"'market'","o2":"accepted_amount"}]}
     %%step C CreateEntity entity: Order as: newOrderId fields: {"client_id":"client_id","order_type":"openingOrderType","amount":"openingOrderAmount","status":"draft"}
-    %%step D CreateEntity entity: AuditEvent as: newAuditEventId fields: {"action":"recommendation_executed","entity_type":"ClientAcceptance","entity_id":"id","source":"saga"}
+    %%step D CreateEntity entity: AuditEvent as: newAuditEventId fields: {"action":"recommendation_executed","entity_type":"ClientAcceptance","entity_ref":"id","source":"saga"}
     %%step E UpdateEntity field: status value: accepted
 
 %% ---- Section 22: Workflow — rebalancing (saga) -----------------------------
@@ -2325,5 +2438,5 @@ flowchart TD
 
     %%step B Decision decisionTable: {"hitPolicy":"first","inputs":[{"id":"i1","name":"Deviation","field":"deviation_amount"}],"outputs":[{"id":"o1","name":"Urgency","field":"rebalanceUrgency"},{"id":"o2","name":"Factor","field":"correctionFactor"}],"rules":[{"_id":"urgent","i1":">= 100000","o1":"'priority'","o2":"1"},{"_id":"routine","i1":"","o1":"'routine'","o2":"0.5"}]}
     %%step C Formula target: correctiveTradeAmount operation: multiply source: deviation_amount operand: correctionFactor
-    %%step D CreateEntity entity: AuditEvent as: newAuditEventId fields: {"action":"rebalance_detected","entity_type":"RebalanceRecommendation","entity_id":"id","source":"saga"}
+    %%step D CreateEntity entity: AuditEvent as: newAuditEventId fields: {"action":"rebalance_detected","entity_type":"RebalanceRecommendation","entity_ref":"id","source":"saga"}
     %%step E UpdateEntity field: status value: analysed

@@ -151,29 +151,41 @@ describe("record lifecycle", () => {
         if (!created?.id) return;
 
         /*
-         * Ask for this record's rows, not for a page of the entity's.
+         * Two things this has to get right, and it got both wrong in turn.
          *
-         * The endpoint orders by `timestamp desc`, and this used to read the
-         * newest 50 for the entity type and look for the id among them. On an
-         * entity the bulk seed touched, dozens of rows share a timestamp to the
-         * resolution stored, ties break arbitrarily, and the row written a
-         * moment ago lands outside the first fifty — so the suite failed on
-         * whichever two entities happened to lose the tie, and passed on the
-         * next run. `entity_id` is an indexed column and the filter is
-         * supported; there is no reason to page through anything.
+         * Ask for *this record's* rows rather than a page of the entity's. The
+         * endpoint orders by `timestamp desc`, and reading the newest 50 for
+         * the entity type meant that on a table the bulk seed had touched —
+         * where dozens of rows share a timestamp at the resolution stored, and
+         * ties break arbitrarily — the row written a moment ago could land
+         * outside the page. `entity_id` is an indexed column and the filter is
+         * supported.
+         *
+         * And poll for it. `AuditInterceptor` calls `auditService.log()` from a
+         * `tap` without awaiting it, deliberately: auditing must not sit on the
+         * response path, where it could slow a write or fail one. So the row is
+         * written *after* the caller already has its 201, and a test that reads
+         * the trail the instant the create returns is racing a write that has
+         * not been issued yet. That is the application behaving correctly, so
+         * it is the test that waits.
          */
-        const trail = await harness.client.get(
-          `/audit?entity_type=${entity.tableName}&entity_id=${created.id}&limit=50`,
-          { allowFailure: true }
-        );
-        if (!trail.ok) return;
+        let found = false;
+        for (let attempt = 0; attempt < 20 && !found; attempt++) {
+          if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 50));
 
-        const entries = rows<{ entity_id?: string; record_id?: string; action?: string }>(
-          trail.data
-        );
-        const found = entries.some(
-          (entry) => entry.entity_id === created.id || entry.record_id === created.id
-        );
+          const trail = await harness.client.get(
+            `/audit?entity_type=${entity.tableName}&entity_id=${created.id}&limit=50`,
+            { allowFailure: true }
+          );
+          if (!trail.ok) return;
+
+          const entries = rows<{ entity_id?: string; record_id?: string; action?: string }>(
+            trail.data
+          );
+          found = entries.some(
+            (entry) => entry.entity_id === created.id || entry.record_id === created.id
+          );
+        }
         expect(found).toBe(true);
       });
 
