@@ -544,13 +544,24 @@ export class NestJsBackendGenerator extends BaseGenerator {
       }
     }
 
+    /*
+     * The table a role-named column points at, or null when the model has no
+     * person entity at all.
+     *
+     * It used to fall back to the literal string "bus_user" when none of the
+     * three existed, which aliased `author_id` to a table that is not in the
+     * schema: the lookup had no table to search, the reference degraded to a
+     * box asking for a uuid, and every create that needed the foreign key was
+     * refused. A model with an `Author` entity and no `User` one — the smallest
+     * blog there is — produced an application whose Post could not be written.
+     */
     const personTable = tableSet.has("bus_user")
       ? "bus_user"
       : tableSet.has("bus_staff")
         ? "bus_staff"
         : tableSet.has("bus_employee")
           ? "bus_employee"
-          : "bus_user";
+          : null;
 
     const personRoleColumns = [
       "pi_id",
@@ -564,11 +575,19 @@ export class NestJsBackendGenerator extends BaseGenerator {
       "remediation_owner",
       "remediation_owner_id",
     ];
+    /*
+     * A role-named column is a *guess* — `owner_id` usually means a person —
+     * and it loses to the naming convention. `author_id` in a model that
+     * declares an `Author` entity resolves to `bus_author` by the ordinary
+     * rule, and overriding that with the guess sends the reference somewhere
+     * the model never pointed it.
+     */
     for (const col of personRoleColumns) {
-      if (!seen.has(col)) {
-        overrides.push({ column: col, table: personTable });
-        seen.add(col);
-      }
+      if (seen.has(col)) continue;
+      if (!personTable) continue;
+      if (tableSet.has(`bus_${col.replace(/_id$/, "")}`)) continue;
+      overrides.push({ column: col, table: personTable });
+      seen.add(col);
     }
 
     for (const entity of busEntities) {
@@ -576,7 +595,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       for (const attr of fkAttrs) {
         const col = attr.columnName || attr.name;
         if (seen.has(col)) continue;
-        if (col.endsWith("_by_id") || col.endsWith("_by")) {
+        if (personTable && (col.endsWith("_by_id") || col.endsWith("_by"))) {
           overrides.push({ column: col, table: personTable });
           seen.add(col);
         }
