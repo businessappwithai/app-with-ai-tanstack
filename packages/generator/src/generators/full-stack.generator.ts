@@ -211,6 +211,9 @@ export class FullStackGenerator {
         // dictionary the same generator wrote.
         modelEnums: this.options.modelEnums,
         compiledWorkflows: this.options.compiledWorkflows,
+        // The access suite drives every %%rbac rule as the role it names, so it
+        // needs both the rules and the addresses the seeds gave those roles.
+        compiledRbac: this.options.compiledRbac,
       });
       await testGenerator.generate(entities, relationships, outputDir);
     }
