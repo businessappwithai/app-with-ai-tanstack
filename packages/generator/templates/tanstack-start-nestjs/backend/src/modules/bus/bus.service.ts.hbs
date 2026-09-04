@@ -572,6 +572,29 @@ export class BusService {
         const typeError = this.validateType(value, column.sys_reference_id, column.name);
         if (typeError) errors.push(typeError);
       }
+
+      /*
+       * A column the model bound to a %%enum holds one of that enum's values,
+       * and nothing else.
+       *
+       * The dictionary already knows them — `options` is what feeds the
+       * dropdown — but nothing was checking a payload against it, so the API
+       * accepted `POST { status: "banana" }` with a 201 and the row landed in
+       * a state the control cannot select and the state machine has no edge out
+       * of. The form never offered it; every other client could send it.
+       *
+       * Empty and null are left to the mandatory check above: "not set" is a
+       * different fault from "set to something that does not exist", and
+       * reporting it twice names one mistake as two.
+       */
+      if (value !== undefined && value !== null && value !== '' && column.options?.length) {
+        const allowed = column.options.map((option) => option.value);
+        if (!allowed.includes(String(value))) {
+          errors.push(
+            `Field '${column.name}' must be one of: ${allowed.join(', ')} (got '${String(value)}')`,
+          );
+        }
+      }
     }
 
     if (errors.length > 0) {
