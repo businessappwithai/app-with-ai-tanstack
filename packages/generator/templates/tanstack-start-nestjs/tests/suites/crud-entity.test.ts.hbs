@@ -540,8 +540,33 @@ describe("{{entity.displayName}} CRUD", () => {
 
     const response = await harness.client.delete<{
       deleted: boolean;
+      message?: string;
       promotion: { operation: string; docStatus: string; ranWorkflows: string[] };
-    }>(`/bus/${entity.route}/${created?.id}`);
+    }>(`/bus/${entity.route}/${created?.id}`, { allowFailure: true });
+
+    // A record another record depends on cannot be deleted, and 409 is the
+    // right answer — the model may declare an `afterCreate` hook that creates a
+    // child pointing back with a NOT NULL foreign key, so this record was born
+    // undeletable. DeviationReport in the drug-discovery example is exactly
+    // that: creating one runs a workflow whose CreateEntity step writes a CAPA.
+    //
+    // What this test is actually for is the delete that *lies*: one that stamps
+    // `deleted_at`, answers 204, and leaves the row and its foreign keys in the
+    // table. Both a real delete and an honest refusal are correct; neither
+    // silently reports success it did not achieve.
+    if (response.status === 409) {
+      // The global exception filter normalises an error into
+      // `{statusCode, message, error, ...}`, so the refusal is read from the
+      // message rather than from a `deleted: false` field.
+      expect(String(response.data.message ?? "")).not.toBe("");
+      // Refused means unchanged: the record is still there to be read.
+      const still = await harness.client.get(`/bus/${entity.route}/${created?.id}`, {
+        allowFailure: true,
+      });
+      expect(still.ok).toBe(true);
+      return;
+    }
+
     expect(response.status).toBe(200);
     expect(response.data.deleted).toBe(true);
     expect(response.data.promotion.operation).toBe("delete");
@@ -561,7 +586,12 @@ describe("{{entity.displayName}} CRUD", () => {
     const created = await harness.createWithParents(entity, { [textField.name]: marker });
     if (!created) return;
 
-    await harness.client.delete(`/bus/${entity.route}/${created.id}`, { allowFailure: true });
+    const deleted = await harness.client.delete(`/bus/${entity.route}/${created.id}`, {
+      allowFailure: true,
+    });
+    // Nothing to assert about a record that is still there on purpose — see the
+    // delete test above for why a 409 is a correct answer.
+    if (deleted.status === 409) return;
 
     // Reachable by id and absent from the list is one bug; gone from the list
     // and still returned by a filter is another. The list is what a screen
