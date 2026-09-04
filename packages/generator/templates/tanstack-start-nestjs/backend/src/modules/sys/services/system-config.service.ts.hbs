@@ -12,6 +12,7 @@
 
 import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { Kysely } from 'kysely';
+import { KYSELY_CONNECTION } from '../../../database/database.constants';
 
 interface CachedConfig {
   value: string;
@@ -23,7 +24,11 @@ interface CachedConfig {
 export class SystemConfigService implements OnModuleInit {
   private cache = new Map<string, CachedConfig>();
 
-  constructor(@Inject('DATABASE_CONNECTION') private readonly db: Kysely<any>) {}
+  // KYSELY_CONNECTION is the token DatabaseModule actually provides; nothing in
+  // the tree has ever provided 'DATABASE_CONNECTION', so injecting that name
+  // failed Nest's dependency resolution at boot and the application did not
+  // start at all.
+  constructor(@Inject(KYSELY_CONNECTION) private readonly db: Kysely<any>) {}
 
   async onModuleInit(): Promise<void> {
     await this.refresh();
