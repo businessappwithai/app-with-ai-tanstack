@@ -96,11 +96,16 @@ export class SysService {
   ): Promise<{ restricted: Set<string>; allowed: Set<string> } | null> {
     if (!user || user.isMaster === true) return null;
 
+    /* Case and separators both — `sys_operation_access` holds the model's
+       spelling (`computational_chemist`) and `sys_role` the displayed one
+       (`Computational Chemist`). Folding case alone makes every multi-word role
+       unequal to itself; see the same rule in EntityAccessGuard. */
+    const foldRole = (role: string) => role.trim().toLowerCase().replace(/[\s\-_]+/g, '');
     const held = new Set<string>();
     for (const value of [...(user.sysRoles ?? []), ...(user.roles ?? [])]) {
-      if (typeof value === 'string' && value) held.add(value.toLowerCase());
+      if (typeof value === 'string' && value) held.add(foldRole(value));
     }
-    if (typeof user.role === 'string' && user.role) held.add(user.role.toLowerCase());
+    if (typeof user.role === 'string' && user.role) held.add(foldRole(user.role));
 
     let rows: Array<{ table_name: string; role_name: string }>;
     try {
@@ -119,7 +124,7 @@ export class SysService {
       restricted: new Set(rows.map((row) => row.table_name)),
       allowed: new Set(
         rows
-          .filter((row) => held.has(String(row.role_name).toLowerCase()))
+          .filter((row) => held.has(foldRole(String(row.role_name))))
           .map((row) => row.table_name),
       ),
     };

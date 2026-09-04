@@ -113,11 +113,16 @@ export class SysCategoryService {
     if (!user) return null;
     if (user.isMaster === true) return null;
 
+    /* Case and separators both — `sys_operation_access` holds the model's
+       spelling (`computational_chemist`) and `sys_role` the displayed one
+       (`Computational Chemist`). Folding case alone makes every multi-word role
+       unequal to itself; see the same rule in EntityAccessGuard. */
+    const foldRole = (role: string) => role.trim().toLowerCase().replace(/[\s\-_]+/g, '');
     const held = new Set<string>();
     for (const value of [...(user.sysRoles ?? []), ...(user.roles ?? [])]) {
-      if (typeof value === 'string' && value) held.add(value.toLowerCase());
+      if (typeof value === 'string' && value) held.add(foldRole(value));
     }
-    if (typeof user.role === 'string' && user.role) held.add(user.role.toLowerCase());
+    if (typeof user.role === 'string' && user.role) held.add(foldRole(user.role));
 
     let rows: Array<{ table_name: string; role_name: string }>;
     try {
@@ -135,7 +140,7 @@ export class SysCategoryService {
 
     const restricted = new Set(rows.map((row) => row.table_name));
     const allowed = new Set(
-      rows.filter((row) => held.has(String(row.role_name).toLowerCase())).map((row) => row.table_name),
+      rows.filter((row) => held.has(foldRole(String(row.role_name)))).map((row) => row.table_name),
     );
 
     // A table no directive names is unrestricted, so it stays visible.
