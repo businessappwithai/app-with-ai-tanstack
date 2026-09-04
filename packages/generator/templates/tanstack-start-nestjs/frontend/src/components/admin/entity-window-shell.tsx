@@ -506,6 +506,10 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
     ),
   };
 
+  // The filters alone, without the paging. The CSV export sends these so the
+  // file holds the list the reader filtered down to, not the whole table.
+  const { page: _exportPage, limit: _exportLimit, ...exportParams } = fetchParams;
+
   const {
     data: recordsData,
     isLoading,
@@ -798,6 +802,8 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
                 pageSize={100}
                 onPageChange={setPage}
                 onRowClick={handleRowSelect}
+                exportEndpoint={`/bus/${tableName}`}
+                exportParams={exportParams}
               />
             </div>
           )

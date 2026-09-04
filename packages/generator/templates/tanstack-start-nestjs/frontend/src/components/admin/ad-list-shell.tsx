@@ -369,6 +369,10 @@ export function ADListShell({
     }
   }
 
+  // Filters without the paging — what the CSV export sends, so the download is
+  // the list on screen rather than the whole table.
+  const { page: _exportPage, limit: _exportLimit, ...exportParams } = fetchParams;
+
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["ad-list", level.endpoint, fetchParams],
     queryFn: () => apiClient.get<PaginatedResponse<AnyRecord>>(level.endpoint, fetchParams),
@@ -578,6 +582,8 @@ export function ADListShell({
                       navigate({ to: buildAdminDetailUrl(parentContext, level, id) as never });
                     }
               }
+              exportEndpoint={level.endpoint}
+              exportParams={exportParams}
             />
           </div>
         )}

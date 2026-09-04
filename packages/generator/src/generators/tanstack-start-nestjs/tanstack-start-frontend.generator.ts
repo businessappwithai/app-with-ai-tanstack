@@ -468,6 +468,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const apiClientContent = await this.component("src/lib/api-client.ts");
     await fs.writeFile(path.join(outputDir, "src/lib/api-client.ts"), apiClientContent);
 
+    // CSV export — every list grid offers its rows as a download.
+    const csvContent = await this.component("src/lib/csv.ts");
+    await fs.writeFile(path.join(outputDir, "src/lib/csv.ts"), csvContent);
+
     // Vite's asset-import suffixes (`?url`, `?raw`), which the compiler cannot
     // resolve on its own — without these the root route fails to typecheck on a
     // freshly generated app over an import that is perfectly correct.
