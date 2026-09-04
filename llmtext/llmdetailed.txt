@@ -2167,6 +2167,17 @@ A hedge in place of one never is.
 
 ### 10.7 Phase 7 — Deliver
 
+**Run §10.6's loop one last time, over the exact bytes you are about to hand
+over.** Editing stops; validation starts again from zero. Check, fix every
+diagnostic, check again — repeat until the report is empty, for as many cycles
+as it takes up to 10. The file that leaves your hands must be the one that came
+out of a checker run reporting **0 errors**: not an earlier draft, not the copy
+that passed Gate E before the last correction, not "clean three edits ago".
+Phase 6 gets the model right; this run proves the delivered bytes are the
+corrected ones. Log it to `03-validation.md` like any other pass. Deliver only
+when that last run is clean, or say plainly which diagnostics survived 10
+cycles.
+
 Hand back `<business-slug>.mmd` as a **file**, not a fenced block the user has to
 copy out of a chat log. Alongside it:
 

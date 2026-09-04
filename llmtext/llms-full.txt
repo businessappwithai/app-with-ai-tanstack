@@ -1621,6 +1621,16 @@ hedge in place of one never is.
 
 ### 10.4 Deliver
 
+**Run the loop one last time, over the exact bytes you are about to hand over.**
+Editing stops; validation starts again from zero. Check, fix every diagnostic,
+check again — repeat until the report is empty, for as many cycles as it takes
+up to 10. The file that leaves your hands must be the one that came out of a
+checker run reporting **0 errors**: not an earlier draft, not the copy you
+validated before the last correction, not "clean three edits ago". This final
+run is separate from §10.3's — §10.3 gets the model right, this one proves the
+delivered bytes are the corrected ones. Deliver only when that last run is
+clean, or say plainly which diagnostics survived 10 cycles.
+
 Hand back the finished `<business-name>.mmd` as a **downloadable file**, not as a
 fenced block the user has to copy out of a chat log. Alongside it, give:
 
