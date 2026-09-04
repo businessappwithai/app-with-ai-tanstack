@@ -14849,7 +14849,7 @@ class NestJsBackendGenerator extends BaseGenerator {
         }
       }
     }
-    const personTable = tableSet.has("bus_user") ? "bus_user" : tableSet.has("bus_staff") ? "bus_staff" : tableSet.has("bus_employee") ? "bus_employee" : "bus_user";
+    const personTable = tableSet.has("bus_user") ? "bus_user" : tableSet.has("bus_staff") ? "bus_staff" : tableSet.has("bus_employee") ? "bus_employee" : null;
     const personRoleColumns = [
       "pi_id",
       "lab_manager_id",
@@ -14863,10 +14863,14 @@ class NestJsBackendGenerator extends BaseGenerator {
       "remediation_owner_id"
     ];
     for (const col of personRoleColumns) {
-      if (!seen.has(col)) {
-        overrides.push({ column: col, table: personTable });
-        seen.add(col);
-      }
+      if (seen.has(col))
+        continue;
+      if (!personTable)
+        continue;
+      if (tableSet.has(`bus_${col.replace(/_id$/, "")}`))
+        continue;
+      overrides.push({ column: col, table: personTable });
+      seen.add(col);
     }
     for (const entity2 of busEntities) {
       const fkAttrs = (entity2.attributes || []).filter((a) => a.isForeignKey);
@@ -14874,7 +14878,7 @@ class NestJsBackendGenerator extends BaseGenerator {
         const col = attr.columnName || attr.name;
         if (seen.has(col))
           continue;
-        if (col.endsWith("_by_id") || col.endsWith("_by")) {
+        if (personTable && (col.endsWith("_by_id") || col.endsWith("_by"))) {
           overrides.push({ column: col, table: personTable });
           seen.add(col);
         }
@@ -16846,6 +16850,7 @@ function resolveTemplateDir3(subpath) {
 }
 var HARNESS_FILES = [
   "config.ts",
+  "access.ts",
   "http.ts",
   "auth.ts",
   "server.ts",
@@ -16872,7 +16877,14 @@ var SHARED_SUITES = [
   "07-workflow-random.test.ts",
   "08-users-roles.test.ts",
   "09-workflow-multistep.test.ts",
+  "12-access-control.test.ts",
+  "13-enum-integrity.test.ts",
+  "14-validation.test.ts",
+  "15-record-lifecycle.test.ts",
+  "16-api-contract.test.ts",
+  "17-display-identifier.test.ts",
   "10-benchmark.test.ts",
+  "18-write-benchmark.test.ts",
   "11-performance-budget.test.ts"
 ];
 var ROOT_FILES = ["package.json", "tsconfig.json", "README.md", "run.ts", "cleanup.ts"];
@@ -16915,8 +16927,43 @@ class BunE2ETestGenerator extends BaseGenerator {
       fkOverrides: this.buildFkOverrides(entities, relationships),
       modelEnums: this.options.modelEnums ?? [],
       stateMachines: this.stateMachines(entities),
+      ...this.accessContext(entities),
       now: new Date().toISOString()
     };
+  }
+  accessContext(entities) {
+    const compiled = this.options.compiledRbac;
+    if (!compiled || compiled.operations.length === 0) {
+      return { rbacRules: [], roleAccounts: [] };
+    }
+    const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const derived = deriveAccess(compiled, {
+      projectId,
+      entities: entities.map((entity2) => entity2.originalName || entity2.name),
+      adminEmail: this.options.adminEmail
+    });
+    const byName = new Map(entities.map((entity2) => [
+      String(entity2.originalName || entity2.name).toLowerCase(),
+      entity2
+    ]));
+    const rbacRules = compiled.operations.map((rule2) => {
+      const entity2 = byName.get(rule2.entity.toLowerCase());
+      return {
+        entity: rule2.entity,
+        tableName: rule2.tableName,
+        route: entity2 ? entity2.route || entity2.tableName : rule2.tableName,
+        operation: rule2.operation,
+        roles: rule2.roles
+      };
+    }).filter((rule2) => byName.has(rule2.entity.toLowerCase()));
+    const roleAccounts = derived.users.map((user) => ({
+      email: user.email,
+      name: user.name,
+      roleName: user.roleName,
+      declaredAs: derived.roles.find((role) => role.name === user.roleName)?.declaredAs ?? user.roleName,
+      isAdmin: user.isAdmin === true
+    }));
+    return { rbacRules, roleAccounts };
   }
   buildFkOverrides(busEntities, relationships) {
     const tableSet = new Set(busEntities.map((e) => e.tableName));
@@ -16953,7 +17000,7 @@ class BunE2ETestGenerator extends BaseGenerator {
         }
       }
     }
-    const personTable = tableSet.has("bus_user") ? "bus_user" : tableSet.has("bus_staff") ? "bus_staff" : tableSet.has("bus_employee") ? "bus_employee" : "bus_user";
+    const personTable = tableSet.has("bus_user") ? "bus_user" : tableSet.has("bus_staff") ? "bus_staff" : tableSet.has("bus_employee") ? "bus_employee" : null;
     const personRoleColumns = [
       "pi_id",
       "lab_manager_id",
@@ -16967,10 +17014,14 @@ class BunE2ETestGenerator extends BaseGenerator {
       "remediation_owner_id"
     ];
     for (const col of personRoleColumns) {
-      if (!seen.has(col)) {
-        overrides.push({ column: col, table: personTable });
-        seen.add(col);
-      }
+      if (seen.has(col))
+        continue;
+      if (!personTable)
+        continue;
+      if (tableSet.has(`bus_${col.replace(/_id$/, "")}`))
+        continue;
+      overrides.push({ column: col, table: personTable });
+      seen.add(col);
     }
     for (const entity2 of busEntities) {
       const fkAttrs = (entity2.attributes || []).filter((a) => a.isForeignKey);
@@ -16978,7 +17029,7 @@ class BunE2ETestGenerator extends BaseGenerator {
         const col = attr.columnName || attr.name;
         if (seen.has(col))
           continue;
-        if (col.endsWith("_by_id") || col.endsWith("_by")) {
+        if (personTable && (col.endsWith("_by_id") || col.endsWith("_by"))) {
           overrides.push({ column: col, table: personTable });
           seen.add(col);
         }
@@ -17128,7 +17179,8 @@ class FullStackGenerator {
         frontendPort: this.options.frontendPort ?? DEFAULT_FRONTEND_PORT,
         recordsPerEntity: this.options.recordsPerEntity,
         modelEnums: this.options.modelEnums,
-        compiledWorkflows: this.options.compiledWorkflows
+        compiledWorkflows: this.options.compiledWorkflows,
+        compiledRbac: this.options.compiledRbac
       });
       await testGenerator.generate(entities, relationships, outputDir);
     }
