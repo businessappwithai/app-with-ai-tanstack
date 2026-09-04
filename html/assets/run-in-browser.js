@@ -38,6 +38,11 @@ const BUILT_IN = {
     label: "drug-discovery.eml.mmd",
     name: "Drug Discovery",
   },
+  investment: {
+    path: "models/investment-planning-wealth-management-system.eml.mmd",
+    label: "investment-planning-wealth-management-system.eml.mmd",
+    name: "Investment Planning and Wealth Management",
+  },
 };
 
 const $ = (id) => document.getElementById(id);
@@ -160,6 +165,7 @@ const build = {
 const choices = [
   [$("choice-crm"), "crm"],
   [$("choice-drug"), "drug"],
+  [$("choice-investment"), "investment"],
   [$("choice-upload"), "upload"],
 ];
 

@@ -109,6 +109,10 @@ COPY --from=build /app/backend/src ./backend/src
 COPY --from=build /app/backend/seeds ./backend/seeds
 COPY --from=build /app/backend/tsconfig.json ./backend/
 
+# The model the application was generated from — the assistant reads it at
+# `../model/model.eml.mmd` relative to the backend.
+COPY --from=build /app/model ./model
+
 # The frontend's Nitro output — server and public assets together.
 COPY --from=build /app/frontend/.output ./frontend/.output
 
@@ -117,7 +121,10 @@ RUN chmod +x ./docker-start.sh
 
 EXPOSE {{project.frontendPort}} {{project.backendPort}}
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
-  CMD wget -qO- "http://localhost:${BACKEND_PORT}/api/me/health" || exit 1
+# `127.0.0.1`, not `localhost`: inside the container `localhost` resolves to
+# `::1` as well, busybox wget tries that first, and the API listens on IPv4
+# only — so the probe reported "connection refused" against a healthy server.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=90s --retries=5 \
+  CMD wget -qO- "http://127.0.0.1:${BACKEND_PORT}/api/me/health" || exit 1
 
 CMD ["./docker-start.sh"]

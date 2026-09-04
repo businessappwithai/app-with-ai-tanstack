@@ -186,10 +186,20 @@ services:
       electric:
         condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:{{project.backendPort}}/api/me/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      # `127.0.0.1`, not `localhost`. Inside the container `localhost` resolves
+      # to both `127.0.0.1` and `::1`, busybox wget tries the IPv6 address
+      # first, and the API listens on IPv4 only — so this check answered
+      # "connection refused" against a perfectly healthy server. The backend
+      # then never became healthy, and the front end, which waits on it, never
+      # started at all: `docker compose up` sat at "container is unhealthy"
+      # while the API answered 200 to anyone who asked from the host.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:{{project.backendPort}}/api/me/health || exit 1"]
+      # Tight enough that a start is not spent waiting for the first probe.
+      # `start_period` keeps the migrations and seeds from counting as failures.
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
 
   frontend:
     image: {{project.id}}-frontend:${IMAGE_TAG:-latest}

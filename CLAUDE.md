@@ -301,6 +301,30 @@ demonstrate the workflows it was generated from.
 
 `--standalone` mode generates a self-contained browser app (model compiled to `model.json` + SQL, no per-entity source). Regular mode generates the full NestJS + TanStack stack (~413 files).
 
+### `docker compose up --build` — the three things that have to hold
+
+The generated project ships two ways to run: `Dockerfile` at the root builds the
+whole application into one image, and `backend/Dockerfile` + `frontend/Dockerfile`
+build the split pair the compose file uses by default. **The default is the
+split pair, so that is the path that has to work** — and each of these three
+broke it in a way that reads like something else:
+
+| What | Why it is not obvious |
+|---|---|
+| **Both service Dockerfiles `COPY . .` before installing** | The root manifest is a workspace root naming `backend`, `frontend` *and* `tests`. Copying the three manifests alone — the usual cache trick — fails with `Workspace not found "tests"`, which reads like a missing file rather than a missing directory. The root Dockerfile already knew this; the service pair did not |
+| **`backend/run-app.sh` runs `bun run migrate` before starting** | Nothing else in the split build does. `docker-start.sh` covers the single image; the `backend` service had no equivalent, so a fresh volume gave a backend that died on `relation "sys_system" does not exist` and compose reported only "container is unhealthy". `migrate` runs the seeds too, and both halves are idempotent |
+| **Every health check probes `127.0.0.1`, never `localhost`** | Inside the container `localhost` resolves to `::1` as well, busybox `wget` tries that first, and the API listens on IPv4 only. The probe answers "connection refused" against a server that returns 200 to the host — the backend never goes healthy, and the front end, which waits on it, never starts |
+
+Two consequences worth knowing. `COPY . .` means **any** file change invalidates
+the install layer, so a rebuild is a full rebuild — that is the price of an
+install that works at all. And both runtime stages copy the pruned
+`node_modules` out of the builder rather than re-installing, for the same
+workspace reason: the runtime stage has no `tests` directory to install against.
+
+Both images also carry `model/model.eml.mmd`. Without it the model-context
+assistant logs `No model/model.eml.mmd shipped with this application` on every
+start and answers nothing.
+
 ### Project wizard flow
 
 ```
