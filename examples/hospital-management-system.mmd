@@ -1,6 +1,7 @@
 %%meta name: Hospital Management System
 %%meta kind: erd
 %%meta version: 1.0.0
+%%meta description: A hospital information system covering the whole of a patient's contact with the hospital. It holds the master patient record and the insurance policies attached to it; departments, wards and beds; the staff who work in them, and the doctors and nurses among them. Around those sits the clinical record: appointments that become encounters, and encounters that carry clinical notes, vital signs, diagnoses and procedures. Orders flow out of an encounter — prescriptions and their items, lab orders and their results, imaging orders and the radiologist's report — and each has a lifecycle of its own that the application enforces rather than describes. An admission takes a bed out of the pool and gives it back on discharge. Billing turns what was done into invoice lines, applies the insurance policy, and settles the balance against payments. Pharmacy and consumable stock is tracked through inventory items, suppliers and stock transactions, and an item that falls to its reorder level raises a replenishment of its own.
 
 %%enum PatientStatus: active, inactive, deceased
 %%enum AppointmentStatus: requested, confirmed, checked_in, completed, cancelled, no_show
@@ -350,6 +351,35 @@ erDiagram
 %%field InventoryItem.status enum: InventoryStatus
 %%field StockTransaction.status enum: StockTransactionStatus
 
+%% Real DDL indexes, not hints. Each one is a query the application actually
+%% makes — a ward board reading beds by ward and status, a doctor's day reading
+%% appointments by doctor and time, a billing screen reading invoices by patient
+%% and status — and on a table with a hundred thousand encounters the difference
+%% is not academic. The `unique` ones back the UK columns above, which is what
+%% makes the customValidate hooks below cheap to enforce.
+%%index Patient(medical_record_number) unique
+%%index Patient(last_name, first_name)
+%%index Staff(employee_number) unique
+%%index Doctor(license_number) unique
+%%index Appointment(doctor_id, scheduled_at)
+%%index Appointment(patient_id, status)
+%%index Encounter(patient_id, started_at)
+%%index Admission(ward_id, status)
+%%index Bed(ward_id, status)
+%%index Prescription(patient_id, prescribed_at)
+%%index PrescriptionItem(prescription_id)
+%%index LabOrder(patient_id, status)
+%%index LabResult(lab_order_id)
+%%index ImagingOrder(patient_id, status)
+%%index ImagingReport(imaging_order_id)
+%%index InsurancePolicy(policy_number) unique
+%%index Invoice(invoice_number) unique
+%%index Invoice(patient_id, status)
+%%index InvoiceLine(invoice_id)
+%%index Payment(invoice_id, status)
+%%index InventoryItem(sku) unique
+%%index StockTransaction(inventory_item_id, transaction_at)
+
 %%entity Patient help: The master patient record containing identity, contact details and the hospital medical record number.
 %%entity Department help: A clinical or operational department that owns staff, wards and scheduled services.
 %%entity Staff help: A hospital employee account used for clinical, operational and administrative work.
@@ -656,6 +686,12 @@ stateDiagram-v2
     %%rbac role:receptionist|doctor on Appointment.complete
     %%rbac role:receptionist on Appointment.cancel
     %%rbac role:receptionist on Appointment.mark_no_show
+    %% Nobody presses these; the clock does. `%%trigger` is validated rather
+    %% than compiled, so it documents the schedule the operator has to provide
+    %% rather than creating it — check the directive's status before promising
+    %% a user that it runs.
+    %%trigger cron:0 7 * * * -> remindTomorrowsAppointments on Appointment
+    %%trigger cron:0 1 * * * -> expireUnconfirmedAppointments on Appointment
 
 %%meta name: Encounter Lifecycle
 %%meta kind: workflow
@@ -750,6 +786,7 @@ stateDiagram-v2
     %%rbac role:billing_clerk|hospital_manager on Invoice.cancel
     %%rbac role:billing_clerk on Invoice.record_partial_payment
     %%rbac role:billing_clerk on Invoice.settle
+    %%trigger cron:0 2 * * * -> flagOverdueInvoices on Invoice
 
 %%meta name: Payment Lifecycle
 %%meta kind: workflow
@@ -775,6 +812,100 @@ stateDiagram-v2
     cancelled --> [*]
     %%rbac role:inventory_manager|pharmacist on StockTransaction.post
     %%rbac role:inventory_manager on StockTransaction.cancel
+    %%trigger cron:0 3 * * 1 -> reconcileStockOnHand on StockTransaction
+
+%% ---- Lifecycle hooks -------------------------------------------------------
+%% Rules decide; hooks act on the write itself. Everything below is something
+%% that has to happen on every path into the record — the API, an import, a
+%% saga — and so cannot live in a screen. The flowchart is what a reader sees
+%% and the `%%hook` lines are what the generator compiles; both halves have to
+%% say the same thing.
+
+%%meta name: Patient Registration
+%%meta kind: workflow
+%%workflow PatientRegistration entity: Patient kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: normalizePatientName]
+    C --> D[customValidate: ensureMedicalRecordNumberUnique]
+    D --> E[Process Patient]
+    E --> F[afterCreate: openPatientTimeline]
+    F --> G[beforeList: scopeToTreatingDepartment]
+    G --> H[beforeDelete: blockDeleteWithClinicalHistory]
+    H --> I[Response]
+
+    %% A patient is never deleted once anything clinical hangs off them — an
+    %% encounter, an invoice, a dispensed prescription. The refusal is here
+    %% rather than in the UI because the record is reachable from the API and
+    %% from an import, and a deleted patient orphans a diagnosis.
+    %%hook beforeCreate normalizePatientName on Patient[field: last_name]
+    %%hook customValidate ensureMedicalRecordNumberUnique on Patient[field: medical_record_number]
+    %%hook afterCreate openPatientTimeline on Patient
+    %%hook beforeList scopeToTreatingDepartment on Patient
+    %%hook beforeDelete blockDeleteWithClinicalHistory on Patient
+
+%%meta name: Bed Occupancy
+%%meta kind: workflow
+%%workflow BedOccupancy entity: Admission kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: ensureBedAvailable]
+    C --> D[Process Admission]
+    D --> E[afterCreate: occupyBed]
+    E --> F[beforeUpdate: stampDischargedAt]
+    F --> G[afterUpdate: releaseBedOnDischarge]
+    G --> H[Response]
+
+    %% Bed status is the one piece of state two records disagree about if
+    %% nobody owns it: `Bed.status` says whether it can be given out, and
+    %% `Admission` is what takes it. These four keep the pair honest — the bed
+    %% is checked before the admission is written, taken when it is, and given
+    %% back the moment a discharge time lands on the row.
+    %%hook beforeCreate ensureBedAvailable on Admission[field: bed_id]
+    %%hook afterCreate occupyBed on Admission[field: bed_id]
+    %%hook beforeUpdate stampDischargedAt on Admission[field: discharged_at]
+    %%hook afterUpdate releaseBedOnDischarge on Admission[field: bed_id]
+
+%%meta name: Prescription Dispensing
+%%meta kind: workflow
+%%workflow PrescriptionDispensing entity: Prescription kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: stampPrescribedAt]
+    C --> D[customValidate: ensurePrescriberIsLicensed]
+    D --> E[Process Prescription]
+    E --> F[afterUpdate: decrementDispensedStock]
+    F --> G[afterList: attachDispensingStatus]
+    G --> H[Response]
+
+    %% Dispensing is where the clinical record and the pharmacy stock meet.
+    %% `decrementDispensedStock` is on afterUpdate rather than afterCreate
+    %% because stock moves when the prescription reaches `dispensed`, not when
+    %% it is written.
+    %%hook beforeCreate stampPrescribedAt on Prescription[field: prescribed_at]
+    %%hook customValidate ensurePrescriberIsLicensed on Prescription[field: doctor_id]
+    %%hook afterUpdate decrementDispensedStock on Prescription
+    %%hook afterList attachDispensingStatus on Prescription
+
+%%meta name: Invoice Calculation
+%%meta kind: workflow
+%%workflow InvoiceCalculation entity: Invoice kind: hook
+flowchart TD
+    A[Client Request] --> B[Validate Request]
+    B --> C[beforeCreate: computeInvoiceTotals]
+    C --> D[customValidate: ensureInvoiceNumberUnique]
+    D --> E[Process Invoice]
+    E --> F[beforeUpdate: recomputeBalanceDue]
+    F --> G[afterList: attachAgeingBucket]
+    G --> H[Response]
+
+    %% Totals are arithmetic over the lines, so they are computed on the write
+    %% and never trusted from the caller: an invoice whose `total` disagrees
+    %% with its own lines is the one defect a billing system may not have.
+    %%hook beforeCreate computeInvoiceTotals on Invoice[field: total]
+    %%hook customValidate ensureInvoiceNumberUnique on Invoice[field: invoice_number]
+    %%hook beforeUpdate recomputeBalanceDue on Invoice[field: balance_due]
+    %%hook afterList attachAgeingBucket on Invoice
 
 %%meta name: Patient Validation
 %%meta kind: rules
