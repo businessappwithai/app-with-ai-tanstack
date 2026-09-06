@@ -54,6 +54,103 @@
   box-sizing: border-box;
 }
 
+/**
+ * The dark palette.
+ *
+ * The host page decides, not the operating system: this site serves one theme
+ * to everybody (`dark-theme.css` sets `color-scheme: dark` outright), so a
+ * viewer that followed `prefers-color-scheme` would render a white diagram on a
+ * near-black page for every reader whose machine is set to light. `is-dark` is
+ * put on the root by `model-viewer.js`, which reads `data-awv-theme` where the
+ * page states one and falls back to the operating system where it does not.
+ *
+ * Only the tokens change. Every rule below this block is written against them,
+ * which is what keeps one stylesheet serving both.
+ */
+.awv-root.is-dark {
+  --awv-bg: #111118;
+  --awv-surface: #17171f;
+  --awv-border: #2a2a36;
+  --awv-border-strong: #3d3d4d;
+  --awv-ink: #e2e8f0;
+  --awv-ink-muted: #9aa3b2;
+  --awv-ink-faint: #6f7889;
+  --awv-primary: #818cf8;
+  --awv-primary-soft: #1e1b3a;
+
+  --awv-start: #34d399;
+  --awv-start-bg: #0d2b22;
+  --awv-decision: #fbbf24;
+  --awv-decision-bg: #2e2413;
+  --awv-action: #38bdf8;
+  --awv-action-bg: #0e2536;
+  --awv-compute: #a78bfa;
+  --awv-compute-bg: #221a3a;
+  --awv-end: #94a3b8;
+  --awv-end-bg: #1e222b;
+
+  --awv-error: #f87171;
+  --awv-warning: #fbbf24;
+  --awv-info: #818cf8;
+
+  --awv-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* The few places a colour is not a token, because it is a tint of one. */
+.awv-root.is-dark .awv-verdict.is-failed,
+.awv-root.is-dark .awv-diagnostic.is-error,
+.awv-root.is-dark .awv-detail-problem,
+.awv-root.is-dark .awv-badge.is-problem {
+  background: #2c1416;
+}
+
+.awv-root.is-dark .awv-verdict.is-ok,
+.awv-root.is-dark .awv-badge.is-uk,
+.awv-root.is-dark .awv-badge.is-fixable {
+  color: #6ee7b7;
+}
+
+.awv-root.is-dark .awv-verdict.is-warned,
+.awv-root.is-dark .awv-enum-value,
+.awv-root.is-dark .awv-action-type,
+.awv-root.is-dark .awv-hook-type,
+.awv-root.is-dark .awv-dt-group.is-input,
+.awv-root.is-dark .awv-rung.is-when .awv-rung-glyph,
+.awv-root.is-dark .awv-rung.is-when .awv-rung-kicker {
+  color: #fcd34d;
+}
+
+.awv-root.is-dark .awv-badge.is-fk {
+  color: #c4b5fd;
+}
+
+.awv-root.is-dark .awv-badge.is-roles,
+.awv-root.is-dark .awv-badge.is-publishes,
+.awv-root.is-dark .awv-badge.is-field,
+.awv-root.is-dark .awv-badge.is-actions,
+.awv-root.is-dark .awv-dt-group.is-output {
+  color: #7dd3fc;
+}
+
+.awv-root.is-dark .awv-step-label,
+.awv-root.is-dark .awv-badge.is-category {
+  color: var(--awv-ink);
+}
+
+.awv-root.is-dark .awv-badge.is-category {
+  background: hsl(var(--awv-entity-hue, 220) 40% 20%);
+}
+
+.awv-root.is-dark .awv-dt-cell.is-output {
+  background: #14202b;
+}
+
+/* The canvas ground: dots on the surface rather than on white. */
+.awv-root.is-dark .awv-canvas {
+  background-image: radial-gradient(circle, var(--awv-border-strong) 1px, transparent 1px);
+}
+
+
 /* ------------------------------------------------------------------ shell */
 
 .awv-shell {

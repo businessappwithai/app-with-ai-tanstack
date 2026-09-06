@@ -47,8 +47,30 @@ export class ModelViewer {
     this.selectedWorkflow = null;
     this.entityFilter = "";
 
+    this.applyTheme();
     this.bindShell();
     this.showEmpty();
+  }
+
+  /**
+   * Light or dark, decided by the host page.
+   *
+   * `data-awv-theme` on the root is the page stating which one it serves, and
+   * it wins: this site is dark for everybody, so following the operating
+   * system there would put a white diagram on a near-black page for every
+   * reader whose machine is set to light. Where the page says nothing, the
+   * operating system decides, and a change to it is followed live.
+   */
+  applyTheme() {
+    const declared = this.root.dataset.awvTheme;
+    if (declared === "dark" || declared === "light") {
+      this.root.classList.toggle("is-dark", declared === "dark");
+      return;
+    }
+    const dark = window.matchMedia("(prefers-color-scheme: dark)");
+    const follow = () => this.root.classList.toggle("is-dark", dark.matches);
+    follow();
+    dark.addEventListener("change", follow);
   }
 
   /* ---------------------------------------------------------------- shell */

@@ -199,10 +199,7 @@ held(
   ),
   "llmdetailed.txt: says the viewers read the model with the generator's own code"
 );
-const viewerEntry = readFileSync(
-  join(ROOT, "packages/generator/src/browser/viewers.ts"),
-  "utf-8"
-);
+const viewerEntry = readFileSync(join(ROOT, "packages/generator/src/browser/viewers.ts"), "utf-8");
 held(
   viewerEntry.includes("checker.entry") && viewerEntry.includes("../viewers"),
   "the viewer bundle really re-exports the published checker and the pipeline's reading"
