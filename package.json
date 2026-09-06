@@ -43,6 +43,7 @@
     "build:stack-templates": "bun scripts/build-stack-templates.ts",
     "build:fullstack-browser": "bun scripts/build-fullstack-browser.ts",
     "build:language-tools": "bun scripts/build-language-tools.ts",
+    "build:viewers": "bun scripts/build-viewers.ts",
     "test:language-tools": "bun scripts/ci/language-tools-smoke.ts",
     "test:llmtext": "bun scripts/ci/llmtext-claims.ts"
   },

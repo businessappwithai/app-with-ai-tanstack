@@ -93,12 +93,20 @@ jobs:
       - name: The published checker and fixer agree with the CLI
         run: bun run test:language-tools
 
-      # llmtext/ is what a language model reads instead of this repository. Its
+      # The viewers draw a model with the parser and compilers this repository
+      # generates applications with. A stale bundle draws yesterday's reading of
+      # the document — an entity that is no longer a child, a step whose
+      # required properties changed — and shows it as fact, which is worse than
+      # showing nothing.
+      - name: The viewer bundle is current
+        run: bun run build:viewers --check
+
+      # website/llmtext/ is what a language model reads instead of this repository. Its
       # claims about the checker are prose, so they rot in the one direction
       # nobody notices: a renamed diagnostic, a repair that stopped being
       # automatic, a moved section. The reader gets no error, just a confident
       # wrong answer.
-      - name: The llmtext specifications still describe the real checker
+      - name: The published specifications still describe the real checker
         run: bun run test:llmtext
 
   generated-wasm-app:

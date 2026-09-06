@@ -61,7 +61,9 @@ app-with-ai-tanstack/
 │   ├── ai/            # Mastra agents, HITL ERD workflow, pgvector retrieval
 │   └── web/           # The modelling tool itself (TanStack Start, :3000)
 ├── database/          # Migrations for the modelling tool's own database
-├── llmtext/           # This file
+├── website/           # What the site publishes from this repository
+│   ├── llmtext/       #   This file, and its companion
+│   └── viewers/       #   The model viewers — appwithai.org/viewers
 ├── html/              # The human guide published at appwithai.org/guide, plus
 │                   #   checker.js and fixer.js — the published validators — and
 │                   #   the pages that run a whole stack in a browser tab
@@ -1377,7 +1379,7 @@ governs. When someone describes a business and asks for a model, an app, or an
 these guidelines* rather than in place of them. Their words set the subject; this
 file sets the form of the answer.
 
-> **An interactive form of this protocol exists.** `llmtext/llmdetailed.txt` is
+> **An interactive form of this protocol exists.** `website/llmtext/llmdetailed.txt` is
 > this file with §10 replaced by a phased, gated walkthrough: research the
 > business and get it approved, get the entity roster approved, then walk the
 > entities one at a time — building the `.mmd` on disk as you go rather than
