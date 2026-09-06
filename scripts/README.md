@@ -38,7 +38,7 @@ platform match CI's, because `Bun.build` output depends on both.
 
 | Script | Asserts |
 |---|---|
-| `llmtext-claims.ts` | `llmtext/*.txt` still describes what the checker really does |
+| `llmtext-claims.ts` | `website/llmtext/*.txt` still describes what the checker really does |
 | `language-tools-smoke.ts` | The published `checker.js`/`fixer.js` agree with the CLI |
 | `wasm-smoke.ts` | A generated WebAssembly-Postgres backend answers over HTTP |
 | `neon-db.ts` | Neon database provisioning for the branch workflows |

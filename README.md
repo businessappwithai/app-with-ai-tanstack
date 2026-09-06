@@ -103,7 +103,7 @@ Every EML document is valid, renderable Mermaid — the generator's semantics ri
 on `%%` comments that renderers ignore, so a model opens in any Mermaid viewer.
 
 `language/appwithai-language.json` is the canonical definition. The full
-specification, written for language models, is `llmtext/llms-full.txt`.
+specification, written for language models, is `website/llmtext/llms-full.txt`.
 
 ### Validating a model
 

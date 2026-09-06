@@ -62,7 +62,8 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build:fullstack-browser` | Rebuild `html/assets/appwithai-fullstack.js` |
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
 | `bun run test:language-tools` | The published `checker.js`/`fixer.js` still agree with the CLI |
-| `bun run test:llmtext` | Hold `llmtext/*.txt` to what the checker actually does |
+| `bun run build:viewers` | Rebuild `website/viewers/eml-model.js` (the model viewers' reader) |
+| `bun run test:llmtext` | Hold `website/llmtext/*.txt` to what the checker actually does, and the viewer claims in them |
 | `bun run vendor:pglite` | Put PGlite beside `html/` (the wasm E2E job needs it) |
 | `bun run build:stack-templates` | Put the stack templates beside `run-real-stack.html` |
 
@@ -88,7 +89,7 @@ install` fixes both. If you cannot install, pin the linter explicitly —
 
 ### The committed build artifacts, and why CI is the only judge of them
 
-Seven files are built from sources and committed, and CI rebuilds each one and
+Eight files are built from sources and committed, and CI rebuilds each one and
 compares byte for byte. Editing a source without rebuilding fails the
 `Type-check, lint and unit tests` job — after type-check, lint and the unit
 tests have all passed, which is a long way to walk to find out.
@@ -99,6 +100,7 @@ tests have all passed, which is a long way to walk to find out.
 | `build:wasm-browser` | `html/assets/appwithai-wasm.js`, `html/wasm-app/sw.js` | the standalone generator, or the service worker |
 | `build:fullstack-browser` | `html/assets/appwithai-fullstack.js` | **anything the real pipeline reaches** — `packages/generator/src/{rules,hooks,workflows,templates,parsers,rbac}/**` included |
 | `build:language-tools` | `html/checker.js`, `html/fixer.js` | `language/**` |
+| `build:viewers` | `website/viewers/eml-model.js` | `language/**`, and the parser, compilers, RBAC and `viewers/` under `packages/generator/src` |
 
 `build:fullstack-browser` is the one that catches people out: it inlines the
 whole NestJS + TanStack pipeline over a memory filesystem, so a change anywhere
@@ -122,10 +124,11 @@ bun run build:wasm-runtime -- --check
 bun run build:fullstack-browser --check
 bun run build:wasm-browser -- --check
 bun run build:language-tools --check
+bun run build:viewers --check
 ```
 
 Two traps worth knowing. The job's steps **fail fast**, so the first stale
-artifact hides the rest — run all four locally or you will fix one per CI cycle.
+artifact hides the rest — run all five locally or you will fix one per CI cycle.
 And if `--check` reports your runtime differs from CI's, do not rebuild locally:
 build where CI builds, e.g.
 `docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.0 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
@@ -224,6 +227,9 @@ app-with-ai-tanstack/
 ├── language/       # EML modeling language + `eml` CLI
 ├── database/       # Migrations (001–010)
 ├── html/           # Static guide + run-in-browser.html + run-real-stack.html
+├── website/        # What businessappwithai.github.io publishes from here
+│   ├── llmtext/    #   llms-full.txt and llmdetailed.txt
+│   └── viewers/    #   The model viewers — served at appwithai.org/viewers
 ├── tests/          # Playwright E2E suites
 └── examples/       # Sample .eml.mmd files
 ```
@@ -771,9 +777,11 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 | `packages/web/vite.config.ts` | Vite config, root-.env loading, start-api-routes shim |
 | `language/appwithai-language.json` | ⭐ EML canonical definition |
 | `language/composer.ts` | ⭐ The only writer of complete EML documents |
-| `llmtext/llms-full.txt` | ⭐ The spec written for language models |
-| `llmtext/llmdetailed.txt` | The same spec, §10 replaced by the interactive authoring walkthrough |
-| `scripts/ci/llmtext-claims.ts` | ⭐ Holds both of the above to the real checker — run by CI |
+| `website/llmtext/llms-full.txt` | ⭐ The spec written for language models |
+| `website/llmtext/llmdetailed.txt` | The same spec, §10 replaced by the interactive authoring walkthrough |
+| `packages/generator/src/viewers/view-model.ts` | ⭐ One reading of a model for the viewers — composed, never re-derived |
+| `website/viewers/` | ⭐ The published model viewers. `eml-model.js` is built; the rest is hand-written |
+| `scripts/ci/llmtext-claims.ts` | ⭐ Holds both specs, and their claims about the viewers, to the real code — run by CI |
 
 ---
 

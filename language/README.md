@@ -192,5 +192,5 @@ See `spec/` for the full reference and `appwithai-language.json` for the
 machine-readable contract.
 
 For the whole system — the generator, its templates, and what a generated
-application contains — see [`../llmtext/llms-full.txt`](../llmtext/llms-full.txt),
+application contains — see [`../website/llmtext/llms-full.txt`](../website/llmtext/llms-full.txt),
 which is the same material written as one context file for language models.

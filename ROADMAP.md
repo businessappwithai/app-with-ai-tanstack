@@ -91,7 +91,7 @@ summarised.
 
 ## 3. Complete product documentation
 
-**Current state.** The twelve-chapter guide builds a CRM. `llmtext/llms-full.txt`
+**Current state.** The twelve-chapter guide builds a CRM. `website/llmtext/llms-full.txt`
 specifies the EML language for language models. Neither documents the product.
 
 **Scope.**
