@@ -1909,6 +1909,27 @@ customer" is not help; "Full legal name as it appears on invoicing documents —
 required for tax reporting" is. This text populates the generated manual (§5.6)
 and in-app tooltips — it is not optional filler.
 
+**Check every column name against the reference convention (§3.3, §5.3) before
+moving on, because a name silently decides a control type.** The generator resolves a
+reference from the column name alone (`foreignKeys` in
+`appwithai-language.json`): a `_by` or `_by_id` suffix resolves to the model's
+person entity, otherwise `<entity>_id` resolves to `bus_<entity>`, and **a name
+that resolves to nothing is stored as a plain string — no lookup, no display
+name, the raw id rendered in every grid and form.** The failure is silent in both
+directions, and all three of these have happened in a real walkthrough:
+
+| Written | Meant | What it did |
+|---|---|---|
+| `verified_by_staff_id FK` | a reference to `Staff` | Resolves to `bus_verified_by_staff`, which does not exist → a raw uuid on every form. `verified_by_id` is the name that works |
+| `head_doctor_id FK` | a reference to `Doctor` | Resolves to `bus_head_doctor` → the same. `doctor_id`, with the word *head* in the help text, is the name that works |
+| `given_by` | an **enum**, not a reference | `EML119`: the `_by` suffix reads as a person reference. Rename the column that is not a reference — `giver_type` |
+
+`EML119` and `EML502` catch some of these and not others: `EML502` fires only
+where the column has no drawn relationship, and a drawn edge gives the *database*
+its constraint without feeding the Application Dictionary, which reads the name.
+So a column can be correctly constrained and still render as a uuid. Read the
+names yourself.
+
 **2 · Enums.** `%%enum` for every coded column, with the values this business
 actually uses — its vocabulary from §10.1.6, not a generic `active/inactive`.
 
@@ -1938,6 +1959,38 @@ State which form each rule takes **in the dossier**, so the user is never
 promised behaviour the shape cannot deliver. This is the single most common
 source of "my rule decides but nothing happens", and the interactive form's job
 is to surface it while the rule is still a sentence.
+
+**And check what each condition reads.** `ruleNodes.actions.whenForm` says a
+`when:` is *"a zen expression over the record being written"*, and the generated
+`bus.service.ts` means it literally: it calls
+`enforceBusinessRules(tableName, data, action)` where `data` is that record and
+nothing else — no parent row, no count of children, no query. An identifier
+naming anything else is **undefined at evaluation, so the comparison is false and
+the rule never fires**: it is seeded into `sys_business_rules`, it appears in the
+admin screen, the viewer draws it, and it refuses nothing. A safety control that
+looks present and is inert is worse than one that was never written.
+
+This is easy to get wrong because the natural sentence crosses rows — *is the
+bed free*, *has a diagnosis been recorded*, *is this more than the invoice
+owes*. The generated service already implies the fix, in the order it runs:
+`executeBeforeCreateHooks` (or `executeBeforeUpdateHooks`) **and then**
+`enforceBusinessRules`, and on an update the rules see `{ ...current, ...changed }`.
+
+> **A handler resolves; the rule decides and acts.**
+
+So for each condition that names an off-row fact, take one of two routes:
+
+- **Make it a column**, written by a `%%hook` that runs first — but only where
+  the column earns its place in the business. *What the invoice still owed before
+  this payment* belongs on a receipt; *the running balance after this movement*
+  belongs on a stock ledger; *the high-alert flag as it stood when prescribed*
+  belongs on the prescription item, for the same reason the invoice line keeps
+  its own price. A boolean invented purely to satisfy a rule is not this.
+- **Move the whole check into the handler** and delete the action. A rule that
+  cannot fire is not a specification, it is a claim.
+
+Say which route each rule took in the dossier. A rule removed for this reason is
+a change the user approved something else for, so it is theirs to see.
 
 **6 · Hooks.** The `%%hook` lifecycle bindings — 13 types, `beforeCreate`
 through `afterDelete`.
@@ -2099,6 +2152,42 @@ about `guide/checker.js`, which is a different file on a different host — and
 nothing else. Whatever you could not fetch, walk the ladder before reporting the
 checker as unavailable. Re-reading this text is not a precondition for running
 the engine it describes.
+
+**The checker is not the whole of validation, and two of its blind spots have
+bitten.** It validates the document; it does not ask whether the document's parts
+can perform each other. Two checks belong in this phase, and both are a dozen
+lines against the same `ViewModel` the viewers draw from
+(`https://appwithai.org/viewers/eml-model.js`, whose `readModel` is the
+generator's own reader):
+
+1. **Every state a saga writes must be a state its machine draws.** A
+   `%%step UpdateEntity` that writes a status with no edge from where the record
+   stands is refused by the generated entity-access guard with a 403 — the rule
+   fires, the write is rejected, and the record it was meant to move sits still.
+   In one walkthrough this found two missing edges: a `consented → planned` the
+   diagram never drew, so withdrawing consent could not take the procedure back;
+   and a `part_paid → part_paid` self-transition, so a *second* partial payment
+   was refused.
+2. **Every identifier a `when:` reads must be a column of the rule's own
+   entity** — see §10.4's rules section for why, and for the repair. Run it over
+   the model, and again over `backend/seeds/04_business_rules.ts` if an
+   application has been generated: the seeded decision tables are what the engine
+   will actually evaluate.
+
+**Run the scorer as well as the checker.** `scripts/check-model.mjs` on the site
+audits the file contract and §10's checklist mechanically, and the two tools
+disagree about a whole class of fault: a column named `national_health_id`
+carries a reference suffix and refers to nothing, which the checker cannot report
+because no `NationalHealth` entity exists to resolve against, and which the
+scorer fails. A model can be 0 errors, 0 warnings and still be wrong in a way
+that reaches every form in the generated application.
+
+**Generate the application if you can.** Phase 6 is where an assumption carried
+through the whole walkthrough gets tested against what the generator writes
+rather than against what the model says. Reading
+`backend/src/modules/hooks/handlers/` tells you the declared hooks are real
+modules; reading `backend/seeds/04_business_rules.ts` tells you what each rule
+will be evaluated against; reading `bus.service.ts` tells you in what order.
 
 **Perform the validation; do not offer it.** "If you want the actual checker
 counts, I can run the published checker" hands the user a choice they were never
