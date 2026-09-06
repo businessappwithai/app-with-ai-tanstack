@@ -52,6 +52,16 @@ is a reference the Application Dictionary will render as a lookup but the schema
 will not enforce. Drawing a line for it as well would make `Department` and
 `Doctor` mutually dependent, which is worse.
 
+**`OPTIONAL` on that column is load-bearing, and the delivered `.mmd` was
+missing it.** This table said optional and the help text said *"Left empty while
+a department is between heads"*, but the entity block declared `string doctor_id
+FK`. `Department`, `Doctor` and `Staff` already form a foreign-key cycle
+(`doctor_id` → `Doctor`, `Doctor.staff_id` → `Staff`, `Staff.department_id` →
+`Department`), and with all three mandatory no insert order satisfies them: the
+browser seeder promotes one member and leaves its key null, which against a NOT
+NULL column cost `Department` every sample row it had. `05-phase6-findings.md`
+§4 has the account.
+
 ## 4 · Lifecycle
 
 **None.** A department is open or closed, and `is_active` carries that. A state

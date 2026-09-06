@@ -22348,6 +22348,7 @@ function buildSampleData(parsed, options) {
       continue;
     const rows = [];
     const generatedIds = [];
+    const claimedFks = new Map;
     for (let row = 0;row < count; row++) {
       const record = {};
       for (const column of full.columns) {
@@ -22368,7 +22369,8 @@ function buildSampleData(parsed, options) {
           personEntity,
           selfIds: generatedIds,
           entityName: full.name,
-          fkOverrides
+          fkOverrides,
+          claimedFks
         });
       }
       rows.push(record);
@@ -22384,6 +22386,16 @@ function valueFor(column, entity2, row, draw, context) {
     const pool = target === context.entityName ? context.selfIds.slice(0, row) : context.ids.get(target ?? "");
     if (!pool || pool.length === 0)
       return null;
+    if (column.unique) {
+      const claimed = context.claimedFks.get(column.columnName) ?? new Set;
+      context.claimedFks.set(column.columnName, claimed);
+      const free = pool.filter((id) => !claimed.has(id));
+      if (free.length === 0)
+        return null;
+      const picked = draw.pick(free);
+      claimed.add(picked);
+      return picked;
+    }
     return draw.pick(pool);
   }
   if (column.enumValues?.length)
