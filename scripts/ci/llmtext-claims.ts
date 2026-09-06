@@ -19,8 +19,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import definition from "../../language/appwithai-language.json";
-import { AUTO_FIXABLE_CODES } from "../../language/checker";
 import { check } from "../../language/browser/checker.entry";
+import { AUTO_FIXABLE_CODES } from "../../language/checker";
 import { parseModel } from "../../packages/generator/src/pipeline/parse-model";
 
 /* The checker exports a Set; every assertion below wants a stable ordering. */
