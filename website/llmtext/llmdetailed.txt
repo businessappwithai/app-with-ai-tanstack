@@ -1280,7 +1280,10 @@ Mirrors the human guide at https://appwithai.org/guide/index.html. Model:
 %%category name: Sales Pipeline; icon: TrendingUp; entities: Opportunity, Product
 %%enum LeadStatus: new, working, nurturing, qualified, converted, disqualified
 erDiagram
-    Lead { string id PK ... }
+    Lead {
+        string id PK
+        ...
+    }
     Campaign ||--o{ Lead : "generates"
 %%field Lead.status enum: LeadStatus
 %%index Lead(owner_id, status)
@@ -1436,9 +1439,20 @@ equivalent in whatever surface you are running on) — one question at a time, w
 real options. A gate presented as prose ("let me know if this looks right") is
 not a gate: it invites a nod, and a nod is not an approval of anything specific.
 
-**One question at a time.** Not a numbered list of eleven questions the user has
-to answer in one message. The point of the walkthrough is that each answer
-informs the next question.
+**One question at a time — where the answer changes the next question.** The
+rule is a test, not a count. Two questions belong in separate turns when the
+first one's answer would change how you ask the second: *who pays for this*
+changes what you go on to ask about billing, so it is asked and answered before
+anything downstream of it. Questions that are genuinely independent — is the
+emergency department in scope, is consent a record — inform nothing in each
+other and may be put together.
+
+What the rule forbids is the numbered list of eleven questions the user has to
+answer in one message, because that is a form rather than a walkthrough and it
+moves the work back onto them. What it does not require is turning four
+independent choices into four round trips, which reads as diligence and is in
+fact a waste of the user's afternoon. If you would ask them in the same breath
+in a meeting, ask them together.
 
 **Propose, do not interrogate.** Every document and every dossier this protocol
 produces is presented **already filled in** from domain knowledge and the
@@ -1456,6 +1470,23 @@ correct; a silent choice between two businesses is neither.
 **The session directory is the state, not the conversation.** Write each phase's
 output to disk *before* starting the next phase. A context compaction mid-session
 must cost nothing but the chat scrollback.
+
+**A gate is a loop, not a verdict.** The user does not approve or reject; they
+look, ask for a change, look again, and approve when they are satisfied. Every
+gate from Phase 3 onward therefore has three arms, and the middle one is the one
+that gets left out:
+
+```
+   present  →  the user looks  →  approve      →  next phase
+                     │                ↑
+                     └──  amend  ──────┘   re-present, re-check, re-show
+```
+
+Offer the middle arm explicitly, every time — *"tell me what to change and I
+will show you again"* — because a user given only approve-or-reject will approve
+something they are not happy with rather than restart a phase. There is no limit
+on how many times a gate loops. A gate crossed on a shrug is the failure this
+protocol exists to prevent, and it costs far less here than at Phase 6.
 
 **Show the model, do not only describe it.** Every gate from Phase 3 onward asks
 the user to approve something they cannot read in `.mmd` source: an entity's
@@ -1483,6 +1514,22 @@ runs, and it reports the same checker verdict as §10.6 — so what it draws is
 what `appwithai generate` will build, and a diagnostic shown there is a real
 diagnostic. It is a picture of the model, never an approval of it: the gates are
 still yours to ask for.
+
+**Hand over the file at every gate, do not merely mention the page.** A reader
+on a chat surface has no access to the `.mmd` on your disk, so "open it in the
+viewer" is an instruction they cannot follow. Attach the current file to the
+message that opens the gate; they load it with **Open a file** and look at the
+version being approved rather than the version two entities ago. Ask once, at
+Gate B, how often they want it — every gate, phase boundaries only, or on
+request — and then keep to that.
+
+**What the viewer catches that the checker cannot.** The checker answers *would
+the generator accept this document*. It does not answer *is this the application
+you meant*, and the two come apart in ways that are invisible in a verdict line:
+an entity the parser silently dropped, a lifecycle whose states no `%%enum`
+declares, a role that turns out to read 0 of 14 entities, a decision table with
+a row that can never match. Each of those is a clean report and a broken
+application. Look at the picture before closing a gate, not only at the counts.
 
 **Resume before you restart.** On invocation, look for `docs/eml-sessions/*/`
 first. If a session exists whose `progress.md` shows unfinished work, show its
@@ -1526,8 +1573,15 @@ the evidence the model was built clean rather than cleaned up at the end.
 
 #### The session directory
 
+**Rooted where the user's work is, not where you happen to be.** In a single
+project that is the repository root; in a workspace holding several, ask which
+one at Gate A rather than picking; where there is no repository at all, any
+directory the user names will do. What matters is that it is one place, it
+survives a compaction, and the user knows where it is — say the absolute path
+once when you create it.
+
 ```
-docs/eml-sessions/<business-slug>/
+<project root>/docs/eml-sessions/<business-slug>/
 ├── progress.md            # phase, gate status, per-entity state — the resume file
 ├── 00-research.md         # Phase 1 output
 ├── 01-entities.md         # Phase 2 roster
@@ -1645,10 +1699,23 @@ Write `00-research.md` covering all eight:
 ```
 
 > **Gate A — research approved.**
-> Walk the `[assumed]` lines first, one `AskUserQuestion` at a time, then the
-> genuine forks. Do not discuss tables, fields or types in this phase — the
-> moment the conversation turns to schema, the business questions stop getting
-> asked. Do not proceed until the user approves the document.
+> Walk the `[assumed]` lines first, then the genuine forks (§10.0's rule on what
+> may share a turn applies). Do not discuss tables, fields or types in this
+> phase — the moment the conversation turns to schema, the business questions
+> stop getting asked. Do not proceed until the user approves the document.
+>
+> **Do not ask them to approve the document itself.** `00-research.md` runs to
+> a couple of hundred lines and nobody reads one to answer a question. Approval
+> is asked against a summary you write for the purpose: *the half-dozen things
+> you inferred that they never said*, in one paragraph, plus the tag counts —
+> "9 stated, 31 inferred, 12 assumed" — because on a one-line brief that
+> histogram is itself the finding. A brief that yields three stated lines and
+> forty assumed ones is not a brief; say so, and expect the gate to loop.
+>
+> **Name the forks as forks.** A question the user cannot tell is consequential
+> gets a shrug. Say what each answer changes — "this decides roughly a third of
+> the roster" — and give a recommendation with its reasoning, so approving the
+> default is an informed act rather than a deferral.
 
 ### 10.2 Phase 2 — Retrieve the entity roster
 
@@ -1719,10 +1786,18 @@ Write `docs/eml-sessions/<slug>/<slug>.mmd` containing:
 %%category name: Scheduling; icon: calendar; entities: ClassOffering, ClassSession
 %%category name: Membership; icon: users; entities: Member, Booking
 erDiagram
-    Member { string id PK }
-    ClassOffering { string id PK }
-    ClassSession { string id PK }
-    Booking { string id PK }
+    Member {
+        string id PK
+    }
+    ClassOffering {
+        string id PK
+    }
+    ClassSession {
+        string id PK
+    }
+    Booking {
+        string id PK
+    }
 
     ClassOffering ||--o{ ClassSession : "scheduled as"
     ClassSession  ||--o{ Booking      : "holds"
@@ -1734,19 +1809,42 @@ erDiagram
     %%entity Booking help: One member's place in one session. Created when the place is taken; terminal once attended, cancelled or forfeited.
 ```
 
+**The brace has to end the line.** Every entity above spans three lines, and
+that is not a formatting preference. `MermaidParser` opens an entity block on
+`^<Name>\s*\{$` — a name, optional space, an opening brace, *end of line*. The
+tempting one-liner
+
+```
+    Member { string id PK }
+```
+
+is read by **neither** the checker nor the generator: the checker reports
+`EML004 Empty document: no entities` and an `EML120`/`EML121` per relationship,
+and `parseModel` returns zero entities. Worse, in a seed that also carries
+`%%category` and `%%entity … help:` lines — which this one does — the checker
+recovers the entity *names* from those directives and the document then reports
+**zero errors with one `EML102` per entity**, which is indistinguishable from a
+correct seed. This example was written that way for a year and read as passing.
+
 Then **run the fixer and the checker over it** — the first pass of the §10.0
 loop, and the one that proves the file on disk is a real document rather than a
 plan to write one — and record the result in `03-validation.md`. Nothing after
 this point edits the `.mmd` without closing the same way.
 
-**Expect one `EML102` warning per entity — "Entity has no attributes" — and do
-not act on them.** They are the seed doing its job: every entity is declared and
-none is detailed yet. Each one disappears as its entity is walked in Phase 4, and
-the count is a free progress bar. What matters at this gate is that the document
-reports **zero errors**, which a correctly written seed does. Do not silence the
-warnings by inventing fields ahead of the walkthrough — those fields would arrive
-without help text, without the user's sight of them, and in the one phase that
-exists to avoid exactly that.
+**Expect a run of `EML125` notes — "No FK attribute found in X for relationship
+to Y" — and do not act on them.** They are the seed doing its job: every
+relationship is drawn and no foreign key column has been declared yet. Each one
+disappears as its entity is walked in Phase 4, and the count is a free progress
+bar. What matters at this gate is that the document reports **zero errors and
+zero warnings**, which a correctly written seed does. Do not silence the notes by
+inventing fields ahead of the walkthrough — those fields would arrive without help
+text, without the user's sight of them, and in the one phase that exists to avoid
+exactly that.
+
+**`EML102` — "Entity has no attributes" — should *not* appear.** Every entity in
+the seed declares `string id PK`, so any `EML102` means an entity block the
+parser did not read, which in practice means the brace did not end its line. It
+is the one diagnostic at this gate that is a fault rather than a progress bar.
 
 `EML148` (a child with no foreign key back to its parent) is the other
 diagnostic that is expected to be absent now and to appear later: it cannot fire

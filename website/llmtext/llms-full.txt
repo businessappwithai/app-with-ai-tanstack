@@ -1270,7 +1270,10 @@ Mirrors the human guide at https://appwithai.org/guide/index.html. Model:
 %%category name: Sales Pipeline; icon: TrendingUp; entities: Opportunity, Product
 %%enum LeadStatus: new, working, nurturing, qualified, converted, disqualified
 erDiagram
-    Lead { string id PK ... }
+    Lead {
+        string id PK
+        ...
+    }
     Campaign ||--o{ Lead : "generates"
 %%field Lead.status enum: LeadStatus
 %%index Lead(owner_id, status)
