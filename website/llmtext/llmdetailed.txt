@@ -1280,7 +1280,10 @@ Mirrors the human guide at https://appwithai.org/guide/index.html. Model:
 %%category name: Sales Pipeline; icon: TrendingUp; entities: Opportunity, Product
 %%enum LeadStatus: new, working, nurturing, qualified, converted, disqualified
 erDiagram
-    Lead { string id PK ... }
+    Lead {
+        string id PK
+        ...
+    }
     Campaign ||--o{ Lead : "generates"
 %%field Lead.status enum: LeadStatus
 %%index Lead(owner_id, status)
@@ -1436,9 +1439,20 @@ equivalent in whatever surface you are running on) — one question at a time, w
 real options. A gate presented as prose ("let me know if this looks right") is
 not a gate: it invites a nod, and a nod is not an approval of anything specific.
 
-**One question at a time.** Not a numbered list of eleven questions the user has
-to answer in one message. The point of the walkthrough is that each answer
-informs the next question.
+**One question at a time — where the answer changes the next question.** The
+rule is a test, not a count. Two questions belong in separate turns when the
+first one's answer would change how you ask the second: *who pays for this*
+changes what you go on to ask about billing, so it is asked and answered before
+anything downstream of it. Questions that are genuinely independent — is the
+emergency department in scope, is consent a record — inform nothing in each
+other and may be put together.
+
+What the rule forbids is the numbered list of eleven questions the user has to
+answer in one message, because that is a form rather than a walkthrough and it
+moves the work back onto them. What it does not require is turning four
+independent choices into four round trips, which reads as diligence and is in
+fact a waste of the user's afternoon. If you would ask them in the same breath
+in a meeting, ask them together.
 
 **Propose, do not interrogate.** Every document and every dossier this protocol
 produces is presented **already filled in** from domain knowledge and the
@@ -1456,6 +1470,23 @@ correct; a silent choice between two businesses is neither.
 **The session directory is the state, not the conversation.** Write each phase's
 output to disk *before* starting the next phase. A context compaction mid-session
 must cost nothing but the chat scrollback.
+
+**A gate is a loop, not a verdict.** The user does not approve or reject; they
+look, ask for a change, look again, and approve when they are satisfied. Every
+gate from Phase 3 onward therefore has three arms, and the middle one is the one
+that gets left out:
+
+```
+   present  →  the user looks  →  approve      →  next phase
+                     │                ↑
+                     └──  amend  ──────┘   re-present, re-check, re-show
+```
+
+Offer the middle arm explicitly, every time — *"tell me what to change and I
+will show you again"* — because a user given only approve-or-reject will approve
+something they are not happy with rather than restart a phase. There is no limit
+on how many times a gate loops. A gate crossed on a shrug is the failure this
+protocol exists to prevent, and it costs far less here than at Phase 6.
 
 **Show the model, do not only describe it.** Every gate from Phase 3 onward asks
 the user to approve something they cannot read in `.mmd` source: an entity's
@@ -1483,6 +1514,22 @@ runs, and it reports the same checker verdict as §10.6 — so what it draws is
 what `appwithai generate` will build, and a diagnostic shown there is a real
 diagnostic. It is a picture of the model, never an approval of it: the gates are
 still yours to ask for.
+
+**Hand over the file at every gate, do not merely mention the page.** A reader
+on a chat surface has no access to the `.mmd` on your disk, so "open it in the
+viewer" is an instruction they cannot follow. Attach the current file to the
+message that opens the gate; they load it with **Open a file** and look at the
+version being approved rather than the version two entities ago. Ask once, at
+Gate B, how often they want it — every gate, phase boundaries only, or on
+request — and then keep to that.
+
+**What the viewer catches that the checker cannot.** The checker answers *would
+the generator accept this document*. It does not answer *is this the application
+you meant*, and the two come apart in ways that are invisible in a verdict line:
+an entity the parser silently dropped, a lifecycle whose states no `%%enum`
+declares, a role that turns out to read 0 of 14 entities, a decision table with
+a row that can never match. Each of those is a clean report and a broken
+application. Look at the picture before closing a gate, not only at the counts.
 
 **Resume before you restart.** On invocation, look for `docs/eml-sessions/*/`
 first. If a session exists whose `progress.md` shows unfinished work, show its
@@ -1526,8 +1573,15 @@ the evidence the model was built clean rather than cleaned up at the end.
 
 #### The session directory
 
+**Rooted where the user's work is, not where you happen to be.** In a single
+project that is the repository root; in a workspace holding several, ask which
+one at Gate A rather than picking; where there is no repository at all, any
+directory the user names will do. What matters is that it is one place, it
+survives a compaction, and the user knows where it is — say the absolute path
+once when you create it.
+
 ```
-docs/eml-sessions/<business-slug>/
+<project root>/docs/eml-sessions/<business-slug>/
 ├── progress.md            # phase, gate status, per-entity state — the resume file
 ├── 00-research.md         # Phase 1 output
 ├── 01-entities.md         # Phase 2 roster
@@ -1645,10 +1699,23 @@ Write `00-research.md` covering all eight:
 ```
 
 > **Gate A — research approved.**
-> Walk the `[assumed]` lines first, one `AskUserQuestion` at a time, then the
-> genuine forks. Do not discuss tables, fields or types in this phase — the
-> moment the conversation turns to schema, the business questions stop getting
-> asked. Do not proceed until the user approves the document.
+> Walk the `[assumed]` lines first, then the genuine forks (§10.0's rule on what
+> may share a turn applies). Do not discuss tables, fields or types in this
+> phase — the moment the conversation turns to schema, the business questions
+> stop getting asked. Do not proceed until the user approves the document.
+>
+> **Do not ask them to approve the document itself.** `00-research.md` runs to
+> a couple of hundred lines and nobody reads one to answer a question. Approval
+> is asked against a summary you write for the purpose: *the half-dozen things
+> you inferred that they never said*, in one paragraph, plus the tag counts —
+> "9 stated, 31 inferred, 12 assumed" — because on a one-line brief that
+> histogram is itself the finding. A brief that yields three stated lines and
+> forty assumed ones is not a brief; say so, and expect the gate to loop.
+>
+> **Name the forks as forks.** A question the user cannot tell is consequential
+> gets a shrug. Say what each answer changes — "this decides roughly a third of
+> the roster" — and give a recommendation with its reasoning, so approving the
+> default is an informed act rather than a deferral.
 
 ### 10.2 Phase 2 — Retrieve the entity roster
 
@@ -1719,10 +1786,18 @@ Write `docs/eml-sessions/<slug>/<slug>.mmd` containing:
 %%category name: Scheduling; icon: calendar; entities: ClassOffering, ClassSession
 %%category name: Membership; icon: users; entities: Member, Booking
 erDiagram
-    Member { string id PK }
-    ClassOffering { string id PK }
-    ClassSession { string id PK }
-    Booking { string id PK }
+    Member {
+        string id PK
+    }
+    ClassOffering {
+        string id PK
+    }
+    ClassSession {
+        string id PK
+    }
+    Booking {
+        string id PK
+    }
 
     ClassOffering ||--o{ ClassSession : "scheduled as"
     ClassSession  ||--o{ Booking      : "holds"
@@ -1734,19 +1809,42 @@ erDiagram
     %%entity Booking help: One member's place in one session. Created when the place is taken; terminal once attended, cancelled or forfeited.
 ```
 
+**The brace has to end the line.** Every entity above spans three lines, and
+that is not a formatting preference. `MermaidParser` opens an entity block on
+`^<Name>\s*\{$` — a name, optional space, an opening brace, *end of line*. The
+tempting one-liner
+
+```
+    Member { string id PK }
+```
+
+is read by **neither** the checker nor the generator: the checker reports
+`EML004 Empty document: no entities` and an `EML120`/`EML121` per relationship,
+and `parseModel` returns zero entities. Worse, in a seed that also carries
+`%%category` and `%%entity … help:` lines — which this one does — the checker
+recovers the entity *names* from those directives and the document then reports
+**zero errors with one `EML102` per entity**, which is indistinguishable from a
+correct seed. This example was written that way for a year and read as passing.
+
 Then **run the fixer and the checker over it** — the first pass of the §10.0
 loop, and the one that proves the file on disk is a real document rather than a
 plan to write one — and record the result in `03-validation.md`. Nothing after
 this point edits the `.mmd` without closing the same way.
 
-**Expect one `EML102` warning per entity — "Entity has no attributes" — and do
-not act on them.** They are the seed doing its job: every entity is declared and
-none is detailed yet. Each one disappears as its entity is walked in Phase 4, and
-the count is a free progress bar. What matters at this gate is that the document
-reports **zero errors**, which a correctly written seed does. Do not silence the
-warnings by inventing fields ahead of the walkthrough — those fields would arrive
-without help text, without the user's sight of them, and in the one phase that
-exists to avoid exactly that.
+**Expect a run of `EML125` notes — "No FK attribute found in X for relationship
+to Y" — and do not act on them.** They are the seed doing its job: every
+relationship is drawn and no foreign key column has been declared yet. Each one
+disappears as its entity is walked in Phase 4, and the count is a free progress
+bar. What matters at this gate is that the document reports **zero errors and
+zero warnings**, which a correctly written seed does. Do not silence the notes by
+inventing fields ahead of the walkthrough — those fields would arrive without help
+text, without the user's sight of them, and in the one phase that exists to avoid
+exactly that.
+
+**`EML102` — "Entity has no attributes" — should *not* appear.** Every entity in
+the seed declares `string id PK`, so any `EML102` means an entity block the
+parser did not read, which in practice means the brace did not end its line. It
+is the one diagnostic at this gate that is a fault rather than a progress bar.
 
 `EML148` (a child with no foreign key back to its parent) is the other
 diagnostic that is expected to be absent now and to appear later: it cannot fire
@@ -1811,6 +1909,27 @@ customer" is not help; "Full legal name as it appears on invoicing documents —
 required for tax reporting" is. This text populates the generated manual (§5.6)
 and in-app tooltips — it is not optional filler.
 
+**Check every column name against the reference convention (§3.3, §5.3) before
+moving on, because a name silently decides a control type.** The generator resolves a
+reference from the column name alone (`foreignKeys` in
+`appwithai-language.json`): a `_by` or `_by_id` suffix resolves to the model's
+person entity, otherwise `<entity>_id` resolves to `bus_<entity>`, and **a name
+that resolves to nothing is stored as a plain string — no lookup, no display
+name, the raw id rendered in every grid and form.** The failure is silent in both
+directions, and all three of these have happened in a real walkthrough:
+
+| Written | Meant | What it did |
+|---|---|---|
+| `verified_by_staff_id FK` | a reference to `Staff` | Resolves to `bus_verified_by_staff`, which does not exist → a raw uuid on every form. `verified_by_id` is the name that works |
+| `head_doctor_id FK` | a reference to `Doctor` | Resolves to `bus_head_doctor` → the same. `doctor_id`, with the word *head* in the help text, is the name that works |
+| `given_by` | an **enum**, not a reference | `EML119`: the `_by` suffix reads as a person reference. Rename the column that is not a reference — `giver_type` |
+
+`EML119` and `EML502` catch some of these and not others: `EML502` fires only
+where the column has no drawn relationship, and a drawn edge gives the *database*
+its constraint without feeding the Application Dictionary, which reads the name.
+So a column can be correctly constrained and still render as a uuid. Read the
+names yourself.
+
 **2 · Enums.** `%%enum` for every coded column, with the values this business
 actually uses — its vocabulary from §10.1.6, not a generic `active/inactive`.
 
@@ -1840,6 +1959,38 @@ State which form each rule takes **in the dossier**, so the user is never
 promised behaviour the shape cannot deliver. This is the single most common
 source of "my rule decides but nothing happens", and the interactive form's job
 is to surface it while the rule is still a sentence.
+
+**And check what each condition reads.** `ruleNodes.actions.whenForm` says a
+`when:` is *"a zen expression over the record being written"*, and the generated
+`bus.service.ts` means it literally: it calls
+`enforceBusinessRules(tableName, data, action)` where `data` is that record and
+nothing else — no parent row, no count of children, no query. An identifier
+naming anything else is **undefined at evaluation, so the comparison is false and
+the rule never fires**: it is seeded into `sys_business_rules`, it appears in the
+admin screen, the viewer draws it, and it refuses nothing. A safety control that
+looks present and is inert is worse than one that was never written.
+
+This is easy to get wrong because the natural sentence crosses rows — *is the
+bed free*, *has a diagnosis been recorded*, *is this more than the invoice
+owes*. The generated service already implies the fix, in the order it runs:
+`executeBeforeCreateHooks` (or `executeBeforeUpdateHooks`) **and then**
+`enforceBusinessRules`, and on an update the rules see `{ ...current, ...changed }`.
+
+> **A handler resolves; the rule decides and acts.**
+
+So for each condition that names an off-row fact, take one of two routes:
+
+- **Make it a column**, written by a `%%hook` that runs first — but only where
+  the column earns its place in the business. *What the invoice still owed before
+  this payment* belongs on a receipt; *the running balance after this movement*
+  belongs on a stock ledger; *the high-alert flag as it stood when prescribed*
+  belongs on the prescription item, for the same reason the invoice line keeps
+  its own price. A boolean invented purely to satisfy a rule is not this.
+- **Move the whole check into the handler** and delete the action. A rule that
+  cannot fire is not a specification, it is a claim.
+
+Say which route each rule took in the dossier. A rule removed for this reason is
+a change the user approved something else for, so it is theirs to see.
 
 **6 · Hooks.** The `%%hook` lifecycle bindings — 13 types, `beforeCreate`
 through `afterDelete`.
@@ -2001,6 +2152,42 @@ about `guide/checker.js`, which is a different file on a different host — and
 nothing else. Whatever you could not fetch, walk the ladder before reporting the
 checker as unavailable. Re-reading this text is not a precondition for running
 the engine it describes.
+
+**The checker is not the whole of validation, and two of its blind spots have
+bitten.** It validates the document; it does not ask whether the document's parts
+can perform each other. Two checks belong in this phase, and both are a dozen
+lines against the same `ViewModel` the viewers draw from
+(`https://appwithai.org/viewers/eml-model.js`, whose `readModel` is the
+generator's own reader):
+
+1. **Every state a saga writes must be a state its machine draws.** A
+   `%%step UpdateEntity` that writes a status with no edge from where the record
+   stands is refused by the generated entity-access guard with a 403 — the rule
+   fires, the write is rejected, and the record it was meant to move sits still.
+   In one walkthrough this found two missing edges: a `consented → planned` the
+   diagram never drew, so withdrawing consent could not take the procedure back;
+   and a `part_paid → part_paid` self-transition, so a *second* partial payment
+   was refused.
+2. **Every identifier a `when:` reads must be a column of the rule's own
+   entity** — see §10.4's rules section for why, and for the repair. Run it over
+   the model, and again over `backend/seeds/04_business_rules.ts` if an
+   application has been generated: the seeded decision tables are what the engine
+   will actually evaluate.
+
+**Run the scorer as well as the checker.** `scripts/check-model.mjs` on the site
+audits the file contract and §10's checklist mechanically, and the two tools
+disagree about a whole class of fault: a column named `national_health_id`
+carries a reference suffix and refers to nothing, which the checker cannot report
+because no `NationalHealth` entity exists to resolve against, and which the
+scorer fails. A model can be 0 errors, 0 warnings and still be wrong in a way
+that reaches every form in the generated application.
+
+**Generate the application if you can.** Phase 6 is where an assumption carried
+through the whole walkthrough gets tested against what the generator writes
+rather than against what the model says. Reading
+`backend/src/modules/hooks/handlers/` tells you the declared hooks are real
+modules; reading `backend/seeds/04_business_rules.ts` tells you what each rule
+will be evaluated against; reading `bus.service.ts` tells you in what order.
 
 **Perform the validation; do not offer it.** "If you want the actual checker
 counts, I can run the published checker" hands the user a choice they were never

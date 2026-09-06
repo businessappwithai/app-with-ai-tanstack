@@ -19,7 +19,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import definition from "../../language/appwithai-language.json";
+import { check } from "../../language/browser/checker.entry";
 import { AUTO_FIXABLE_CODES } from "../../language/checker";
+import { parseModel } from "../../packages/generator/src/pipeline/parse-model";
 
 /* The checker exports a Set; every assertion below wants a stable ordering. */
 const autoFixable = [...AUTO_FIXABLE_CODES].sort();
@@ -134,6 +136,122 @@ for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
     /Perform the validation; do not offer it/i.test(prose),
     `${name}: requires the run rather than offering it`
   );
+}
+
+/* ------------------------------------------------------------------------ */
+/*  The examples are read the same way by both readers                       */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * Every fenced `mermaid` example must parse to the same entities the checker
+ * sees in it.
+ *
+ * The two documents are read by two engines. `checkSource` decides whether a
+ * model is *accepted*; `parseModel` decides what an accepted model *contains*,
+ * and it is the second one that turns into an application. Nothing held them to
+ * each other, and they disagreed about the most-copied example in the file.
+ *
+ * §10.3's seed declared each entity as `Member { string id PK }`. `MermaidParser`
+ * opens an entity block on `^<Name>\s*\{$` — the brace has to end the line — so
+ * it read **zero** entities. The checker did not report that, because the same
+ * seed carries `%%category` and `%%entity … help:` directives it recovers the
+ * names from; it reported zero errors and one `EML102` per entity instead, and
+ * §10.3 told the reader in as many words to expect exactly those warnings and
+ * not to act on them. A model following the protocol produced a document that
+ * checked clean and generated nothing.
+ *
+ * Neither engine alone can catch that. This is the check that can: an example
+ * the checker accepts must contain, to `parseModel`, at least the entities the
+ * checker counted in it.
+ */
+/**
+ * An entity *declaration* as a reader of the document would recognise one —
+ * deliberately looser than the parser's own pattern, which requires the brace to
+ * end the line.
+ *
+ * Matching the parser's pattern here would make this check vacuous in exactly
+ * the case it exists for: a one-line `Member { string id PK }` would be found by
+ * neither the regexp nor `parseModel`, the two would agree on nothing, and the
+ * example would pass. The point is to find what the *document appears to
+ * declare* and hold the parser to it.
+ */
+const ENTITY_BLOCK = /^[ \t]*([A-Z][A-Za-z0-9_]*)[ \t]*\{/gm;
+
+for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
+  const doc = readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
+
+  /* Fenced ```mermaid blocks only. A plain ``` fence is prose about the
+     language — including, deliberately, the one-liner §10.3 now quotes as the
+     form that does not work. */
+  const examples: Array<{ line: number; body: string }> = [];
+  const lines = doc.split("\n");
+  for (let index = 0; index < lines.length; index++) {
+    if (lines[index]?.trim() !== "```mermaid") continue;
+    const start = index + 1;
+    let end = start;
+    while (end < lines.length && lines[end]?.trim() !== "```") end++;
+    examples.push({ line: start + 1, body: lines.slice(start, end).join("\n") });
+    index = end;
+  }
+
+  held(examples.length > 0, `${name}: has fenced mermaid examples to check (${examples.length})`);
+
+  let disagreed = 0;
+  for (const example of examples) {
+    /* Only examples that are whole documents are comparable: a fragment showing
+       one directive has no erDiagram and is not claiming to be a model. */
+    if (!/^\s*erDiagram\s*$/m.test(example.body)) continue;
+
+    const declared = new Set<string>();
+    for (const match of example.body.matchAll(ENTITY_BLOCK)) {
+      if (match[1]) declared.add(match[1]);
+    }
+
+    const parsed = new Set(parseModel(example.body).entities.map((entity) => entity.name));
+    const missing = [...declared].filter((entity) => !parsed.has(entity));
+
+    /* An example that declares entity blocks the parser cannot see is the
+       failure this check exists for. The reverse — the parser finding more than
+       the regexp did — is fine: an entity may be introduced by a directive. */
+    if (missing.length > 0) {
+      disagreed++;
+      console.log(
+        `FAIL ${name}:${example.line}: the parser does not see ${missing.join(", ")} — ` +
+          "an entity block must end its line with `{`"
+      );
+    }
+  }
+
+  held(disagreed === 0, `${name}: every mermaid example parses to the entities it declares`);
+}
+
+/**
+ * The seed the protocol tells a reader to write must itself survive both
+ * readers. Belt and braces over the sweep above, because this one example is
+ * the one every session copies.
+ */
+const seedExample = readFileSync(join(ROOT, "website", "llmtext", "llmdetailed.txt"), "utf-8")
+  .split("```mermaid")
+  .find((block) => block.includes("Acme Dance Studio"))
+  ?.split("```")[0];
+
+if (seedExample) {
+  const seed = parseModel(seedExample);
+  held(
+    seed.entities.length === 4,
+    `llmdetailed.txt §10.3: the seed example parses to its four entities (got ${seed.entities.length})`
+  );
+  held(
+    seed.entities.every((entity) => entity.attributes.some((a) => a.name === "id")),
+    "llmdetailed.txt §10.3: every seed entity carries the id the example writes"
+  );
+  const report = check(seedExample);
+  held(
+    report.counts.errors === 0 && report.counts.warnings === 0,
+    `llmdetailed.txt §10.3: the seed checks clean (${report.counts.errors}e ${report.counts.warnings}w ${report.counts.infos}i)`
+  );
+} else {
+  held(false, "llmdetailed.txt §10.3: the seed example is still findable");
 }
 
 /* ------------------------------------------------------------------------ */
