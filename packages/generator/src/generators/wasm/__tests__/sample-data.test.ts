@@ -119,6 +119,72 @@ describe("sample data", () => {
     expect(new Set(emails).size).toBe(emails.length);
   });
 
+  it("draws a unique foreign key without replacement", () => {
+    /* A `FK UK` column is a one-to-one. Drawn with replacement, two children
+       take the same parent and the second insert dies on the unique index —
+       silently, one row at a time. The hospital model seeded ten doctors over
+       ten staff and got nine rows back, and ten nurses over the same staff got
+       six; the dashboard simply showed the smaller number. */
+    const oneToOne = parseModel([
+      `%%meta name: Unique FK Probe
+%%meta kind: erd
+erDiagram
+    Staff {
+        string id PK
+        string full_name
+    }
+    Doctor {
+        string id PK
+        string staff_id FK UK
+        string specialty
+    }
+    Staff ||--o{ Doctor : "is"
+`,
+    ]);
+    const generated = buildSampleData(oneToOne, { records: 8, seed: "test" });
+    const doctors = generated.bus_doctor as Array<Record<string, unknown>>;
+    const staffIds = doctors.map((row) => row.staff_id);
+
+    expect(doctors).toHaveLength(8);
+    /* Distinct, non-null, and every one a staff row that exists. */
+    expect(new Set(staffIds).size).toBe(staffIds.length);
+    const staff = new Set(
+      (generated.bus_staff as Array<Record<string, unknown>>).map((row) => row.id)
+    );
+    for (const id of staffIds) expect(staff.has(id)).toBe(true);
+  });
+
+  it("leaves a unique foreign key null rather than duplicating a parent", () => {
+    /* Four children over two parents: two of them cannot have a value, and a
+       duplicate would be refused on insert anyway. Null is the honest answer,
+       and it must not be a repeat of one already taken. */
+    const tooFew = parseModel([
+      `%%meta name: Scarce Parent Probe
+%%meta kind: erd
+erDiagram
+    Locker {
+        string id PK
+        string code UK
+    }
+    Tenant {
+        string id PK
+        string name
+        string locker_id FK UK OPTIONAL
+    }
+    Locker ||--o{ Tenant : "assigned_to"
+`,
+    ]);
+    const generated = buildSampleData(tooFew, { records: 4, seed: "test" });
+    const assigned = (generated.bus_tenant as Array<Record<string, unknown>>)
+      .map((row) => row.locker_id)
+      .filter((id) => id !== null);
+
+    expect(assigned.length).toBeLessThanOrEqual(
+      (generated.bus_locker as Array<Record<string, unknown>>).length
+    );
+    expect(new Set(assigned).size).toBe(assigned.length);
+  });
+
   it("never leaves a required column empty", () => {
     for (const order of rows("bus_order")) {
       for (const column of [

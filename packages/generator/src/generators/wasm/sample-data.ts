@@ -548,6 +548,7 @@ export function buildSampleData(parsed: ParsedModel, options: SampleDataOptions)
     if (!full) continue;
     const rows: Array<Record<string, unknown>> = [];
     const generatedIds: string[] = [];
+    const claimedFks = new Map<string, Set<string>>();
 
     for (let row = 0; row < count; row++) {
       const record: Record<string, unknown> = {};
@@ -576,6 +577,7 @@ export function buildSampleData(parsed: ParsedModel, options: SampleDataOptions)
           selfIds: generatedIds,
           entityName: full.name,
           fkOverrides,
+          claimedFks,
         });
       }
       rows.push(record);
@@ -594,6 +596,9 @@ interface ValueContext {
   selfIds: string[];
   entityName: string;
   fkOverrides: Map<string, string>;
+  /** Parent ids a UNIQUE foreign key has already taken, per column. Reset per
+      entity, because uniqueness is a property of one table's column. */
+  claimedFks: Map<string, Set<string>>;
 }
 
 function valueFor(
@@ -616,6 +621,23 @@ function valueFor(
     const pool =
       target === context.entityName ? context.selfIds.slice(0, row) : context.ids.get(target ?? "");
     if (!pool || pool.length === 0) return null;
+    /* A UNIQUE foreign key is a one-to-one, so it has to be drawn *without*
+       replacement. Drawn with it, two children take the same parent, the second
+       insert fails the unique index, and the row is lost without a word — the
+       same silent loss the counter in `emailFor` exists to prevent, and the one
+       every other column type is already guarded against a few branches below.
+       Ten doctors over ten staff came out as nine rows, ten nurses as six. */
+    if (column.unique) {
+      const claimed = context.claimedFks.get(column.columnName) ?? new Set<string>();
+      context.claimedFks.set(column.columnName, claimed);
+      const free = pool.filter((id) => !claimed.has(id));
+      /* Fewer parents than children: the model cannot have a row here, and a
+         duplicate would be dropped on insert anyway. Null says so. */
+      if (free.length === 0) return null;
+      const picked = draw.pick(free);
+      claimed.add(picked);
+      return picked;
+    }
     return draw.pick(pool);
   }
 

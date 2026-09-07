@@ -43,6 +43,19 @@ The third is why the dossiers carry a repair section: the model the user
 approved at four gates is not quite the model that shipped, and the difference
 is theirs to see.
 
+Two more were found afterwards, by *running* the published chapter against the
+delivered model rather than by reading it. Both were invisible on the page
+except as a smaller number:
+
+4. **A mandatory foreign key inside a cycle empties an entity.**
+   `Department.doctor_id` shipped without `OPTIONAL` although this record's own
+   dossier and the field's help text both call it optional, and
+   `Department`/`Doctor`/`Staff` form a cycle no insert order can satisfy. Ten
+   department rows became none. Fixed in the model, in `05-phase6-findings.md` §4.
+5. **A `UNIQUE` foreign key was seeded with replacement.** Ten doctors came back
+   as nine rows, ten nurses as six, silently. Fixed in the generator
+   (`sample-data.ts`), in `05-phase6-findings.md` §5.
+
 ## `checks/`
 
 Four scripts, model-agnostic, written during the walkthrough because the checker

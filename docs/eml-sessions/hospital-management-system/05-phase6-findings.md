@@ -166,6 +166,57 @@ out of `backend/seeds/04_business_rules.ts`:
 
 The one note is `Department.doctor_id`, the deliberate undrawn edge from entity 1.
 
+## 4 · Running the published chapter — one entity had no rows at all
+
+Found later, by driving `guide/run-in-browser.html` against the delivered model
+rather than by reading it: the dashboard showed **`Department · 0`** where every
+other entity showed ten, and the boot log carried ten of
+
+```
+Sample data: bus_department row skipped — null value in column "doctor_id"
+of relation "bus_department" violates not-null constraint
+```
+
+**The model had drifted from its own dossier.** `entities/Department.md` says
+`doctor_id` is *"FK, optional — Optional because a department can be between
+heads"*, and the field's own `%%field … help:` in the `.mmd` says *"Left empty
+while a department is between heads."* The column was declared `string doctor_id
+FK`, with no `OPTIONAL`. Two documents said nullable and the schema said NOT
+NULL; the schema won.
+
+That is only fatal because of a cycle. `Department.doctor_id` → `Doctor`,
+`Doctor.staff_id` → `Staff`, `Staff.department_id` → `Department`, all three
+mandatory — an insert order that satisfies every one of them does not exist, so
+the browser seeder breaks the cycle by emitting one member early and leaving its
+key null. `Department` is the member it promotes, and a null in a NOT NULL
+column took all ten of its rows down. The fix is the one word the dossier
+already asked for: `string doctor_id FK OPTIONAL`. The generator is not at
+fault here — a cycle of mandatory foreign keys is genuinely unsatisfiable, and
+declaring the one key the business says is optional is what breaks it.
+
+**The undrawn edge stays undrawn.** `EML502` still reports `Department.doctor_id`,
+and that note remains what entity 1 says it is: deliberate. Drawing
+`Doctor ||--o{ Department` would silence the note and change nothing about the
+seeding — the cycle, and so the promotion, is the same either way.
+
+## 5 · The same run cost `Doctor` and `Nurse` rows, and that one was the generator
+
+Ten doctors came back as **nine** rows and ten nurses as **six**, with nothing in
+the log to say why. Both entities carry `string staff_id FK UK`, and
+`sample-data.ts` drew every foreign key with `draw.pick(pool)` — with
+replacement. Two children drew the same parent, the second insert died on the
+unique index, and the row was gone silently. It is the failure the same file's
+`emailFor` counter already exists to prevent for addresses, and that the
+`column.unique` branch handles for every other type; the foreign-key branch was
+the one that missed it.
+
+Fixed upstream in `packages/generator/src/generators/wasm/sample-data.ts` — a
+`UNIQUE` foreign key is drawn without replacement, and where the parent table
+has fewer rows than the child needs the column is left null rather than
+duplicated. The NestJS seeder was never affected: it assigns `pool[index %
+pool.length]`, which cannot repeat while the pool is large enough. Held by two
+cases in `__tests__/sample-data.test.ts`.
+
 ## What is still true and unfixed
 
 **Nothing raises `overdue` on a date.** `%%trigger` is `validated` only; the
