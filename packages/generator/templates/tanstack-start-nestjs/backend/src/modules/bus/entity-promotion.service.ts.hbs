@@ -21,6 +21,8 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { sql, type Kysely } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
+import { AuditAction } from '../audit/audit.types';
+import { AuditService } from '../audit/audit.service';
 import { RulesService } from '../rules/rules.service';
 import type { MatchedAction } from '../rules/rules.service';
 import { WorkflowService } from '../workflow/workflow.service';
@@ -31,6 +33,33 @@ import { WorkflowService } from '../workflow/workflow.service';
  * successful delete from a successful save.
  */
 export type DocStatus = 'draft' | 'final' | 'deleted';
+
+/**
+ * Where the promotion has got to.
+ *
+ *   - `completed` — the pipeline ran and `docStatus` is the outcome
+ *   - `queued`    — the save is committed and a Trigger.dev run is finalising
+ *                   it; `docStatus` is `draft` and will change without another
+ *                   request from the caller
+ */
+export type PromotionState = 'completed' | 'queued';
+
+/**
+ * Who caused the write.
+ *
+ * Promotion runs outside the HTTP request that started it — under Trigger.dev,
+ * in a different process entirely — so the audit interceptor cannot see it and
+ * the acting user has to be carried in the payload. These are the same three
+ * identity fields the interceptor writes, so a user's own transactions read
+ * back from `audit_log` as one list regardless of which half wrote the row.
+ */
+export interface PromotionActor {
+  id?: string | null;
+  name?: string | null;
+  email?: string | null;
+  sessionId?: string | null;
+  requestId?: string | null;
+}
 
 export interface PromotionResult {
   entityName: string;
@@ -48,6 +77,10 @@ export interface PromotionResult {
   failedStep?: string;
   error?: string;
   durationMs: number;
+  /** `queued` while a Trigger.dev run still has to finalise the record. */
+  state: PromotionState;
+  /** The Trigger.dev run finalising this record, when there is one. */
+  runId?: string;
 }
 
 @Injectable()
@@ -58,7 +91,89 @@ export class EntityPromotionService {
     @InjectDatabase() private readonly db: Kysely<any>,
     @Inject(forwardRef(() => RulesService)) private readonly rulesService: RulesService,
     @Inject(forwardRef(() => WorkflowService)) private readonly workflowService: WorkflowService,
+    private readonly auditService: AuditService,
   ) {}
+
+  /**
+   * Record that the save transaction committed and the row is a draft.
+   *
+   * Written before the promotion is dispatched, so the trail carries the two
+   * halves in the order they happened even when the second one runs minutes
+   * later in another process — and so a user whose finalisation is still
+   * queued already has a notification saying their save landed.
+   */
+  async recordDraftTransaction(
+    entityName: string,
+    entityId: string,
+    operation: 'create' | 'update' | 'delete',
+    entityData: Record<string, unknown>,
+    actor?: PromotionActor,
+  ): Promise<void> {
+    const tableName = this.resolveTable(entityName);
+    await this.auditService.logAndWait({
+      ...this.actorFields(actor),
+      action: AuditAction.ENTITY_DRAFT,
+      entity_type: tableName,
+      entity_id: entityId,
+      ...this.recordSides(operation, entityData),
+      success: true,
+      error_message: null,
+      changed_fields: [operation],
+    });
+  }
+
+  /**
+   * Where the record goes on a transaction row.
+   *
+   * `before_value` / `after_value` mean what they say elsewhere in the trail,
+   * and a delete has no after. Keeping a deleted row on the `before` side is
+   * also what lets its notification name the record rather than quote its id
+   * back at the user, since by then there is nothing left to look it up in.
+   */
+  private recordSides(
+    operation: 'create' | 'update' | 'delete',
+    entityData: Record<string, unknown>,
+  ) {
+    return operation === 'delete'
+      ? { before_value: entityData, after_value: null }
+      : { before_value: null, after_value: entityData };
+  }
+
+  /** The identity fields every transaction row carries. */
+  private actorFields(actor?: PromotionActor) {
+    return {
+      user_id: actor?.id ?? null,
+      user_name: actor?.name ?? null,
+      user_email: actor?.email ?? null,
+      session_id: actor?.sessionId ?? null,
+      request_id: actor?.requestId ?? null,
+      source: 'SYSTEM' as const,
+    };
+  }
+
+  /**
+   * Record how the second transaction ended.
+   *
+   * `success` is the whole point of the row: it is what tells the user, in
+   * their notification list, whether the record they saved went through or is
+   * sitting as a draft waiting for them.
+   */
+  private async recordFinalizeTransaction(
+    result: PromotionResult,
+    entityData: Record<string, unknown>,
+    actor?: PromotionActor,
+  ): Promise<void> {
+    await this.auditService.logAndWait({
+      ...this.actorFields(actor),
+      action: AuditAction.ENTITY_FINALIZE,
+      entity_type: result.entityName,
+      entity_id: result.entityId,
+      ...this.recordSides(result.operation, entityData),
+      success: result.promoted,
+      error_message: result.promoted ? null : result.message,
+      changed_fields: [result.operation],
+    });
+  }
 
   /**
    * Run the promotion pipeline for one record.
@@ -71,6 +186,7 @@ export class EntityPromotionService {
     entityId: string,
     operation: 'create' | 'update' | 'delete',
     entityData: Record<string, unknown>,
+    actor?: PromotionActor,
   ): Promise<PromotionResult> {
     const startedAt = Date.now();
     const tableName = this.resolveTable(entityName);
@@ -123,12 +239,12 @@ export class EntityPromotionService {
       try {
         await finalise(this.db);
       } catch (err: any) {
-        return this.fail(base, startedAt, finaliseStep, err, entityData);
+        return this.fail(base, startedAt, finaliseStep, err, entityData, actor);
       }
       this.logger.log(
         `${isDelete ? 'Deleted' : 'Promoted'} ${tableName}:${entityId} (no associated rules or workflows)`,
       );
-      return {
+      const result: PromotionResult = {
         ...base,
         docStatus: isDelete ? 'deleted' : 'final',
         promoted: true,
@@ -136,7 +252,10 @@ export class EntityPromotionService {
           ? 'No business rules or workflows are associated with this record, so it was deleted directly.'
           : 'No business rules or workflows are associated with this record, so it was finalised automatically.',
         durationMs: Date.now() - startedAt,
+        state: 'completed',
       };
+      await this.recordFinalizeTransaction(result, entityData, actor);
+      return result;
     }
 
     // ── 3. Something associated → all-or-nothing ─────────────────────────────
@@ -162,7 +281,14 @@ export class EntityPromotionService {
         await finalise(trx);
       });
     } catch (err: any) {
-      return this.fail({ ...base, ranRules: ruleNames, ranWorkflows: workflowNames }, startedAt, failedStep, err, entityData);
+      return this.fail(
+        { ...base, ranRules: ruleNames, ranWorkflows: workflowNames },
+        startedAt,
+        failedStep,
+        err,
+        entityData,
+        actor,
+      );
     }
 
     const summary = [
@@ -175,7 +301,7 @@ export class EntityPromotionService {
     this.logger.log(
       `${isDelete ? 'Deleted' : 'Promoted to final'} ${tableName}:${entityId} after ${summary}`,
     );
-    return {
+    const result: PromotionResult = {
       ...base,
       ranRules: ruleNames,
       ranWorkflows: workflowNames,
@@ -183,7 +309,10 @@ export class EntityPromotionService {
       promoted: true,
       message: `${finalisedMessage} after successfully running ${summary}.`,
       durationMs: Date.now() - startedAt,
+      state: 'completed',
     };
+    await this.recordFinalizeTransaction(result, entityData, actor);
+    return result;
   }
 
   /**
@@ -196,6 +325,7 @@ export class EntityPromotionService {
     entityId: string,
     operation: 'create' | 'update' | 'delete',
     error: string,
+    actor?: PromotionActor,
   ): Promise<PromotionResult> {
     return this.fail(
       {
@@ -209,6 +339,7 @@ export class EntityPromotionService {
       'handing the promotion to the background job runner (Trigger.dev)',
       new Error(error),
       {},
+      actor,
     );
   }
 
@@ -224,6 +355,7 @@ export class EntityPromotionService {
     failedStep: string,
     err: any,
     entityData: Record<string, unknown>,
+    actor?: PromotionActor,
   ): Promise<PromotionResult> {
     const error = err?.message ?? String(err);
     const message = this.buildFailureMessage(base, failedStep, error);
@@ -244,7 +376,7 @@ export class EntityPromotionService {
       );
     }
 
-    return {
+    const result: PromotionResult = {
       ...base,
       // A delete that failed left the row untouched, so report the status it
       // still has rather than claiming it was demoted to a draft.
@@ -254,7 +386,10 @@ export class EntityPromotionService {
       failedStep,
       error,
       durationMs: Date.now() - startedAt,
+      state: 'completed',
     };
+    await this.recordFinalizeTransaction(result, entityData, actor);
+    return result;
   }
 
   /**

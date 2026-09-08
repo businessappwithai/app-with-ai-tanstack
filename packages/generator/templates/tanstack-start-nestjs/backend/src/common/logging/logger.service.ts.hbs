@@ -188,6 +188,26 @@ export type LogFields = Record<string, unknown>;
 export interface RequestContext {
   requestId?: string;
   userId?: string | null;
+  /**
+   * Who the audit trail records for this request.
+   *
+   * Separate from `userId`, which prefers the internal `sys_user_id` because
+   * that is what joins to roles and permissions. The trail is keyed on the
+   * authentication provider's user id — it is what the audit interceptor has
+   * always written and what a user's own notification list is read back by —
+   * and the name and email are carried so a row written by a background
+   * transaction reads the same as one written by an HTTP request.
+   *
+   * It lives here rather than being threaded through every service because the
+   * alternative is handing a user to the entity service, the rules engine and
+   * the promotion pipeline, none of which have any other use for one.
+   */
+  actor?: {
+    id?: string | null;
+    name?: string | null;
+    email?: string | null;
+    sessionId?: string | null;
+  };
 }
 
 const requestStore = new AsyncLocalStorage<RequestContext>();

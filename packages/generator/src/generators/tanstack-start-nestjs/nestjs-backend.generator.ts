@@ -205,6 +205,9 @@ export class NestJsBackendGenerator extends BaseGenerator {
     // Generate audit module (static files)
     await this.generateAuditModule(outputDir);
 
+    // Generate the notifications module (static files) — the bell's backend
+    await this.generateNotificationsModule(outputDir);
+
     // Generate workflow-definitions module (static files)
     await this.generateWorkflowDefinitionsModule(outputDir);
 
@@ -284,6 +287,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       "src/modules/rules/dto",
       "src/modules/rules/jdm",
       "src/modules/audit",
+      "src/modules/notifications",
       "src/modules/workflow",
       "src/modules/workflow-definitions",
       "src/trigger",
@@ -830,8 +834,18 @@ export class NestJsBackendGenerator extends BaseGenerator {
       console.warn("Trigger.dev config template not found");
     }
 
-    // Trigger.dev tasks
-    const triggerTasks = ["email", "report", "sync", "entity-lifecycle-workflow"];
+    // Trigger.dev tasks.
+    //
+    // `entity-promotion` is the one the application itself dispatches on every
+    // write: PromotionDispatcher triggers it by that id, so a build that omits
+    // it turns every save under Trigger.dev into a dispatch failure.
+    const triggerTasks = [
+      "email",
+      "report",
+      "sync",
+      "entity-lifecycle-workflow",
+      "entity-promotion",
+    ];
     for (const task of triggerTasks) {
       try {
         const taskContent = await this.renderTemplate(`src/trigger/${task}.task.ts.hbs`, context);
@@ -839,6 +853,22 @@ export class NestJsBackendGenerator extends BaseGenerator {
       } catch (_e) {
         console.warn(`Trigger task template not found: ${task}`);
       }
+    }
+
+    // The Nest root the promotion task bootstraps. Not a task itself — the
+    // `dirs` glob in trigger.config.ts picks up the whole directory, and a
+    // module file there is imported by the task rather than scanned for one.
+    try {
+      const workerModule = await this.renderTemplate(
+        "src/trigger/promotion-worker.module.ts.hbs",
+        context
+      );
+      await fs.writeFile(
+        path.join(outputDir, "src/trigger/promotion-worker.module.ts"),
+        workerModule
+      );
+    } catch (_e) {
+      console.warn("Promotion worker module template not found");
     }
 
     // Job queue module
@@ -1562,6 +1592,14 @@ export async function executeCustomValidateHooks(
         slug: "add_window_list_defaults",
         template: "src/migrations/016_add_window_list_defaults.ts.hbs",
       },
+      // sys_notification_read — which transaction notifications a user has
+      // already seen. The notifications themselves are read from audit_log;
+      // only the read mark is stored, because "seen" is not a property of an
+      // append-only trail.
+      {
+        slug: "add_notification_reads",
+        template: "src/migrations/017_add_notification_reads.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -2216,6 +2254,39 @@ export async function seed(db: Kysely<any>): Promise<void> {
         await fs.writeFile(path.join(outputDir, out), content);
       } catch (_e) {
         console.warn(`Trigger test template not found: ${tpl}`);
+      }
+    }
+  }
+
+  /**
+   * Copy the notifications module (static — no Handlebars variables).
+   *
+   * It reads `audit_log` and writes only read marks, so nothing in it depends
+   * on the model. Copied rather than rendered for the same reason the audit
+   * module is.
+   */
+  private async generateNotificationsModule(outputDir: string): Promise<void> {
+    const templateDir = path.join(
+      resolveTemplateDir("tanstack-start-nestjs/backend"),
+      "src/modules/notifications"
+    );
+    const notificationsOutputDir = path.join(outputDir, "src/modules/notifications");
+    await fs.mkdir(notificationsOutputDir, { recursive: true });
+
+    const files = [
+      "notifications.controller.ts",
+      "notifications.module.ts",
+      "notifications.service.ts",
+      "notifications.types.ts",
+    ];
+
+    for (const file of files) {
+      try {
+        await fs.copyFile(path.join(templateDir, file), path.join(notificationsOutputDir, file));
+      } catch (e) {
+        console.warn(
+          `Notifications module file not found, skipping: ${file} — ${(e as Error).message}`
+        );
       }
     }
   }

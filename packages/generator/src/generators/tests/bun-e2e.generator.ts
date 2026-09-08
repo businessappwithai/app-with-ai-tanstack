@@ -142,6 +142,11 @@ const SHARED_SUITES = [
   // edits sys_window and puts it back, so it runs before the benchmarks read
   // the same lists.
   "19-window-list-defaults.test.ts",
+  // The bell beside Log out: that a write produces both halves of its
+  // transaction, that the list is the caller's own, newest first, and that a
+  // read notification stays read. Runs after the lifecycle suites because it
+  // asserts against the same promotion pipeline they exercise.
+  "20-transaction-notifications.test.ts",
   // Last, so they measure the fullest the tables will be this run.
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",

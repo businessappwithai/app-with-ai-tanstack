@@ -551,10 +551,21 @@ export function ADDetailShell({
   const hasDynamicFields = !level.formFields || level.formFields.length === 0;
   const { data: entityMeta } = useEntityMetadata(level.id, hasDynamicFields);
 
-  // Fetch report design to know if a Print button should appear
+  // Fetch report design to know if a Print button should appear.
+  //
+  // Designs are stored against the physical table (`bus_account`), which is what
+  // the seed writes and what Admin -> Report Designs edits. `level.id` is the
+  // route slug (`account`, `opportunity-line-item`), so keying the lookup on it
+  // asked for a design that is never stored under that name: the request
+  // answered null for every business entity and the Print button never
+  // appeared on any of them. The endpoint already carries the table, and
+  // `helpTableNameFromEndpoint` is the same reading of it the Help dialog uses.
+  const reportTableName = helpTableNameFromEndpoint(level.endpoint);
   const { data: reportDesign } = useQuery({
-    queryKey: ["report-design", level.id],
-    queryFn: () => apiClient.get<{ layout?: object } | null>(`/sys/report-designs/${level.id}`),
+    queryKey: ["report-design", reportTableName],
+    queryFn: () =>
+      apiClient.get<{ layout?: object } | null>(`/sys/report-designs/${reportTableName}`),
+    enabled: !!reportTableName,
     staleTime: 60_000,
   });
   const summaryFields: FieldMetadata[] = (entityMeta?.columns ?? []).filter(
@@ -833,6 +844,20 @@ export function ADDetailShell({
           layout={reportDesign.layout}
           data={currentRecord}
           entityLabel={level.label}
+          // The dictionary columns, so the printed document resolves a foreign
+          // key to the record's name and a list value to its label — the same
+          // words the form beside it is showing — instead of printing the uuid
+          // and the stored key.
+          //
+          // `level.formFields` first: that is what the form below is drawn
+          // from, and `entityMeta` is deliberately not fetched when a level
+          // supplies its own fields, so reading only it would leave every
+          // business record printing raw ids.
+          fields={
+            (level.formFields?.length
+              ? level.formFields
+              : (entityMeta?.columns ?? [])) as FieldMetadata[]
+          }
         />
       )}
 

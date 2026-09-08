@@ -5,7 +5,7 @@
  */
 
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, LogOut, Search, Settings, User } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useAuth } from "@/contexts/auth-context";
 
 interface HeaderProps {
@@ -65,23 +66,11 @@ export function Header({ className }: HeaderProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
-        {/* Notifications */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute right-1 top-1 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-              </span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[300px]">
-            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <div className="px-2 py-1.5 text-sm text-muted-foreground">No new notifications</div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Notifications — the real list, read from this user's own audit
+            trail. This used to be a bell with a permanent pulsing dot over a
+            hard-coded "No new notifications", which told the user there was
+            something to read and then that there was not. */}
+        <NotificationBell />
 
         {/* User Menu */}
         <DropdownMenu>
