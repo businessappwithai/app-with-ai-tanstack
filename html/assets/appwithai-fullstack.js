@@ -15124,6 +15124,7 @@ class NestJsBackendGenerator extends BaseGenerator {
     await this.generateElectricModule(outputDir, context);
     await this.generateBusEntities(outputDir, context);
     await this.generateAuditModule(outputDir);
+    await this.generateNotificationsModule(outputDir);
     await this.generateWorkflowDefinitionsModule(outputDir);
     await this.generateModelContextModule(outputDir, context);
     await this.generateMigrations(outputDir, context);
@@ -15172,6 +15173,7 @@ class NestJsBackendGenerator extends BaseGenerator {
       "src/modules/rules/dto",
       "src/modules/rules/jdm",
       "src/modules/audit",
+      "src/modules/notifications",
       "src/modules/workflow",
       "src/modules/workflow-definitions",
       "src/trigger",
@@ -15490,7 +15492,13 @@ class NestJsBackendGenerator extends BaseGenerator {
     } catch (_e) {
       console.warn("Trigger.dev config template not found");
     }
-    const triggerTasks = ["email", "report", "sync", "entity-lifecycle-workflow"];
+    const triggerTasks = [
+      "email",
+      "report",
+      "sync",
+      "entity-lifecycle-workflow",
+      "entity-promotion"
+    ];
     for (const task of triggerTasks) {
       try {
         const taskContent = await this.renderTemplate(`src/trigger/${task}.task.ts.hbs`, context);
@@ -15498,6 +15506,12 @@ class NestJsBackendGenerator extends BaseGenerator {
       } catch (_e) {
         console.warn(`Trigger task template not found: ${task}`);
       }
+    }
+    try {
+      const workerModule = await this.renderTemplate("src/trigger/promotion-worker.module.ts.hbs", context);
+      await writeFile(join(outputDir, "src/trigger/promotion-worker.module.ts"), workerModule);
+    } catch (_e) {
+      console.warn("Promotion worker module template not found");
     }
     const jobQueueFiles = [
       {
@@ -16031,6 +16045,10 @@ export async function executeCustomValidateHooks(
       {
         slug: "add_window_list_defaults",
         template: "src/migrations/016_add_window_list_defaults.ts.hbs"
+      },
+      {
+        slug: "add_notification_reads",
+        template: "src/migrations/017_add_notification_reads.ts.hbs"
       }
     ];
     const scaffoldSlugs = new Set(scaffold.map((m) => m.slug));
@@ -16446,6 +16464,24 @@ export async function seed(db: Kysely<any>): Promise<void> {
       }
     }
   }
+  async generateNotificationsModule(outputDir) {
+    const templateDir = join(resolveTemplateDir("tanstack-start-nestjs/backend"), "src/modules/notifications");
+    const notificationsOutputDir = join(outputDir, "src/modules/notifications");
+    await mkdir(notificationsOutputDir, { recursive: true });
+    const files2 = [
+      "notifications.controller.ts",
+      "notifications.module.ts",
+      "notifications.service.ts",
+      "notifications.types.ts"
+    ];
+    for (const file of files2) {
+      try {
+        await copyFile(join(templateDir, file), join(notificationsOutputDir, file));
+      } catch (e) {
+        console.warn(`Notifications module file not found, skipping: ${file} — ${e.message}`);
+      }
+    }
+  }
   async generateAuditModule(outputDir) {
     const auditTemplateDir = join(resolveTemplateDir("tanstack-start-nestjs/backend"), "src/modules/audit");
     const auditOutputDir = join(outputDir, "src/modules/audit");
@@ -16637,6 +16673,7 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/lib/automation",
       "src/components/automation",
       "src/components/reports",
+      "src/components/notifications",
       "test"
     ];
     for (const dir of dirs2) {
@@ -17016,6 +17053,10 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/reports/ReportDesigner.tsx"
       },
       {
+        src: "src/components/notifications/notification-bell.tsx",
+        dest: "src/components/notifications/notification-bell.tsx"
+      },
+      {
         src: "src/components/admin/ad-list-shell.tsx",
         dest: "src/components/admin/ad-list-shell.tsx"
       },
@@ -17391,6 +17432,7 @@ var SHARED_SUITES = [
   "16-api-contract.test.ts",
   "17-display-identifier.test.ts",
   "19-window-list-defaults.test.ts",
+  "20-transaction-notifications.test.ts",
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",
   "11-performance-budget.test.ts"

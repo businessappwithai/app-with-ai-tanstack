@@ -1,27 +1,45 @@
 /**
  * Promotion Dispatcher
  *
- * Decides *how* the promotion pipeline runs. The pipeline itself lives in
- * EntityPromotionService and is identical either way:
+ * A write to a business entity is two transactions, not one.
  *
- *   - Trigger.dev configured  → hand the work to the `entity-promotion` task and
- *                               wait for its result, so promotion survives an API
- *                               restart and gets Trigger.dev's retry policy
- *   - not configured          → run it inline, in-process
+ *   1. The save. `BusService` commits the row in its own transaction with
+ *      `doc_status = 'draft'`, and that transaction is complete before this
+ *      service is called — the user's data is on disk no matter what happens
+ *      next. The draft is recorded in the audit trail here, which is what puts
+ *      it in the user's notification list.
  *
- * The fallback is not a stub. A generated app has to work the moment it is
- * created, before anyone has signed up for Trigger.dev, and the promotion
- * contract (draft → rules+workflows in a transaction → final, or draft plus an
- * explanation) must hold in both modes.
+ *   2. The finalisation. A *separate* transaction runs the record's rules and
+ *      workflows and either marks it `final` or leaves it `draft` carrying the
+ *      reason it could not be finalised. Where Trigger.dev is configured this
+ *      runs as its own durable run, in its own process, on Trigger.dev's retry
+ *      policy — so a restart of the API in between loses nothing, and the save
+ *      does not wait on it.
+ *
+ * Without Trigger.dev credentials the second transaction runs in-process,
+ * before the response. It is the same pipeline, the same separate database
+ * transaction and the same audit records; the only difference is that the
+ * caller waits for it. That path is what a generated application runs on the
+ * day it is created, before anyone has signed up for Trigger.dev, and every
+ * assertion the generated suite makes about promotion holds on it.
  */
 
 import { Injectable, Logger } from '@nestjs/common';
 import { EntityPromotionService } from './entity-promotion.service';
-import type { PromotionResult } from './entity-promotion.service';
+import type { PromotionActor, PromotionResult } from './entity-promotion.service';
 
 /** Trigger.dev only dispatches when it has somewhere to dispatch to. */
 export function isTriggerDevConfigured(): boolean {
   return Boolean(process.env.TRIGGER_SECRET_KEY && process.env.TRIGGER_PROJECT_ID);
+}
+
+/** The payload the `entity-promotion` task in src/trigger receives. */
+export interface EntityPromotionPayload {
+  entityName: string;
+  entityId: string;
+  operation: 'create' | 'update' | 'delete';
+  entityData: Record<string, unknown>;
+  actor?: PromotionActor;
 }
 
 @Injectable()
@@ -35,27 +53,61 @@ export class PromotionDispatcher {
     entityId: string,
     operation: 'create' | 'update' | 'delete',
     entityData: Record<string, unknown>,
+    actor?: PromotionActor,
   ): Promise<PromotionResult> {
+    // The save is committed; say so before anything else can fail. A user whose
+    // finalisation is still queued — or whose queueing itself breaks — has this
+    // row either way, so their notification list never goes silent on a write
+    // that actually landed.
+    await this.promotionService.recordDraftTransaction(
+      entityName,
+      entityId,
+      operation,
+      entityData,
+      actor,
+    );
+
     if (!isTriggerDevConfigured()) {
-      return this.promotionService.promote(entityName, entityId, operation, entityData);
+      return this.promotionService.promote(entityName, entityId, operation, entityData, actor);
     }
 
     try {
       // Imported lazily so an app without Trigger.dev credentials never loads the SDK.
       const { tasks } = await import('@trigger.dev/sdk/v3');
-      const handle = await tasks.triggerAndPoll<any>('entity-promotion', {
+      const payload: EntityPromotionPayload = {
         entityName,
         entityId,
         operation,
         entityData,
-      });
+        actor,
+      };
+      // `trigger`, not `triggerAndPoll`: the finalisation is a second
+      // transaction in a second process, and holding the save's HTTP response
+      // open until it finishes would collapse the two back into one.
+      const handle = await tasks.trigger('entity-promotion', payload);
 
-      if (handle?.output) return handle.output as PromotionResult;
-
-      throw new Error(
-        `Trigger.dev run ${handle?.id ?? '(unknown)'} finished with status ` +
-          `${handle?.status ?? 'unknown'} and returned no result`,
+      this.logger.log(
+        `Queued promotion of ${entityName}:${entityId} (${operation}) as Trigger.dev run ${handle.id}`,
       );
+
+      return {
+        entityName,
+        entityId,
+        operation,
+        // The row on disk right now. The finalising run will change it.
+        docStatus: operation === 'delete' ? 'final' : 'draft',
+        promoted: false,
+        state: 'queued',
+        runId: handle.id,
+        message:
+          operation === 'delete'
+            ? 'The delete has been queued. The record is removed once its workflows have run.'
+            : 'Saved as a draft. Its business rules and workflows are being run in the background; ' +
+              'you will be notified when the record is finalised.',
+        ranRules: [],
+        ranWorkflows: [],
+        durationMs: 0,
+      };
     } catch (err: any) {
       // Falling back would hide a broken Trigger.dev deployment behind green saves,
       // so surface it as a promotion failure: the record stays draft and the user
@@ -66,6 +118,7 @@ export class PromotionDispatcher {
         entityId,
         operation,
         err?.message ?? String(err),
+        actor,
       );
     }
   }

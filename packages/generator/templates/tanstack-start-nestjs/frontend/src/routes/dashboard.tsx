@@ -24,6 +24,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { Icon } from '@/components/ui/icon';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { APP_NAME } from "@/lib/app-meta";
@@ -281,6 +282,9 @@ function DashboardPage() {
                     </div>
                     <span className="text-sm font-medium text-foreground hidden md:inline">{user.name}</span>
                   </div>
+                  {/* Beside Log out, where a user looks for what just
+                      happened to the record they saved. */}
+                  <NotificationBell />
                   <button
                     onClick={handleLogout}
                     className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"

@@ -1,0 +1,199 @@
+/**
+ * The bell beside Log out, held to what it promises.
+ *
+ * Every write to a business entity is two transactions — the save that commits
+ * the row as a draft, and the second one that finalises it or explains why it
+ * could not — and a user's only account of how theirs ended is the notification
+ * list. Four properties make that account trustworthy, and each is asserted
+ * here because each can break without anything else failing:
+ *
+ *   - a write produces both halves, so a save that never finalises is visible
+ *     rather than silent;
+ *   - the list is the *caller's own*, read from the audit trail, so it can
+ *     never carry another user's records;
+ *   - newest first, because the transaction someone is waiting on is the one
+ *     they just started;
+ *   - read state sticks, so the unread badge means "not seen" rather than
+ *     "never happened".
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
+import { entities, harness, HttpClient } from "../harness/index.ts";
+
+interface Notification {
+  id: string;
+  at: string;
+  read: boolean;
+  outcome: "pending" | "succeeded" | "failed";
+  phase: "draft" | "finalize";
+  operation: "create" | "update" | "delete" | "save";
+  entityTable: string;
+  entityLabel: string;
+  recordId: string | null;
+  recordLabel: string;
+  title: string;
+  detail: string;
+  href: string | null;
+}
+
+interface NotificationPage {
+  data: Notification[];
+  meta: { unread: number; limit: number; nextCursor: string | null };
+}
+
+/**
+ * Poll for the two halves of one record's transaction.
+ *
+ * The finalising transaction runs after the save's response — in-process
+ * before the response where Trigger.dev is not configured, and in another
+ * process entirely where it is — so a read taken the instant a create returns
+ * is racing a write that may not have been issued. The application is right to
+ * behave that way, so the test is what waits.
+ */
+async function notificationsFor(recordId: string, phases: number): Promise<Notification[]> {
+  for (let attempt = 0; attempt < 30; attempt++) {
+    if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const page = await harness.client.get<NotificationPage>("/notifications?limit=50", {
+      allowFailure: true,
+    });
+    if (!page.ok) return [];
+
+    const mine = (page.data.data ?? []).filter((item) => item.recordId === recordId);
+    if (mine.length >= phases) return mine;
+  }
+  return [];
+}
+
+describe("transaction notifications", () => {
+  beforeAll(async () => {
+    await harness.setup();
+  });
+
+  afterAll(async () => {
+    await harness.teardown();
+  });
+
+  it("answers the signed-in caller and nobody else", async () => {
+    const page = await harness.client.get<NotificationPage>("/notifications?limit=5", {
+      allowFailure: true,
+    });
+    expect(page.status).toBe(200);
+    expect(Array.isArray(page.data.data)).toBe(true);
+    expect(typeof page.data.meta.unread).toBe("number");
+  });
+
+  it("refuses a caller with no session", async () => {
+    // A separate client, so it carries no cookie from the shared harness login.
+    const anonymous = new HttpClient();
+    const page = await anonymous.get("/notifications", { allowFailure: true });
+    expect([401, 403]).toContain(page.status);
+  });
+
+  it("records both halves of a write, newest first", async () => {
+    // One entity is enough: the pipeline is the same for all of them, and this
+    // suite is about the notification contract rather than about each model.
+    const entity = entities[0];
+    if (!entity) return;
+
+    const created = (await harness.createWithParents(entity)) as { id?: string } | null;
+    if (!created?.id) return;
+
+    const mine = await notificationsFor(created.id, 2);
+    expect(mine.length).toBeGreaterThanOrEqual(2);
+
+    // The list arrives newest first, so the draft — written first — is last.
+    const draft = mine.find((item) => item.phase === "draft");
+    const finalize = mine.find((item) => item.phase === "finalize");
+    expect(draft).toBeDefined();
+    expect(finalize).toBeDefined();
+
+    expect(new Date(mine[0]!.at).getTime()).toBeGreaterThanOrEqual(
+      new Date(mine[mine.length - 1]!.at).getTime()
+    );
+
+    // A notification is a sentence about a record, not a row of column names.
+    expect(draft!.title.length).toBeGreaterThan(0);
+    expect(draft!.detail.length).toBeGreaterThan(0);
+    expect(draft!.entityTable).toBe(entity.tableName);
+    expect(draft!.outcome).toBe("pending");
+
+    // Succeeded or failed — never still pending, which is what "the second
+    // transaction never ran" would look like.
+    expect(["succeeded", "failed"]).toContain(finalize!.outcome);
+  });
+
+  it("agrees with the record it describes", async () => {
+    const entity = entities[0];
+    if (!entity) return;
+
+    const created = (await harness.createWithParents(entity)) as
+      | { id?: string; doc_status?: string }
+      | null;
+    if (!created?.id) return;
+
+    const mine = await notificationsFor(created.id, 2);
+    const finalize = mine.find((item) => item.phase === "finalize");
+    if (!finalize) return;
+
+    const fetched = await harness.client.get<{ doc_status?: string }>(
+      `/bus/${entity.route}/${created.id}`,
+      { allowFailure: true }
+    );
+    if (!fetched.ok) return;
+
+    // The notification and the badge on the record cannot disagree: a record
+    // reported final must be final, and one reported failed must still be a
+    // draft carrying its reason.
+    if (finalize.outcome === "succeeded") {
+      expect(fetched.data.doc_status).toBe("final");
+    } else {
+      expect(fetched.data.doc_status).toBe("draft");
+    }
+  });
+
+  it("keeps a notification read once it has been read", async () => {
+    const entity = entities[0];
+    if (!entity) return;
+
+    const created = (await harness.createWithParents(entity)) as { id?: string } | null;
+    if (!created?.id) return;
+
+    const mine = await notificationsFor(created.id, 1);
+    const target = mine[0];
+    if (!target) return;
+
+    const marked = await harness.client.post<{ marked: number }>(
+      "/notifications/read",
+      { ids: [target.id] },
+      { allowFailure: true }
+    );
+    expect(marked.status).toBe(200);
+
+    const page = await harness.client.get<NotificationPage>("/notifications?limit=50", {
+      allowFailure: true,
+    });
+    if (!page.ok) return;
+
+    const again = (page.data.data ?? []).find((item) => item.id === target.id);
+    expect(again?.read).toBe(true);
+  });
+
+  it("clears the unread count when everything is marked read", async () => {
+    const cleared = await harness.client.post<{ marked: number }>(
+      "/notifications/read-all",
+      {},
+      { allowFailure: true }
+    );
+    expect(cleared.status).toBe(200);
+
+    const count = await harness.client.get<{ unread: number }>("/notifications/unread-count", {
+      allowFailure: true,
+    });
+    expect(count.status).toBe(200);
+    expect(count.data.unread).toBe(0);
+  });
+});

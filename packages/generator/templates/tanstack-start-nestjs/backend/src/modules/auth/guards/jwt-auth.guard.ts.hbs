@@ -42,7 +42,16 @@ export class JwtAuthGuard implements CanActivate {
 
       // Attach user and session to request
       request.user = session.user;
-      setRequestContext({ userId: (session.user as any)?.sys_user_id ?? (session.user as any)?.id ?? null });
+      setRequestContext({
+        userId: (session.user as any)?.sys_user_id ?? (session.user as any)?.id ?? null,
+        // The identity the audit trail is keyed on — see RequestContext.actor.
+        actor: {
+          id: (session.user as any)?.id ?? null,
+          name: (session.user as any)?.name ?? null,
+          email: (session.user as any)?.email ?? null,
+          sessionId: (session as any)?.session?.id ?? null,
+        },
+      });
       request.session = session;
 
       return true;
