@@ -615,7 +615,25 @@ the service cannot forget.
 
 ## EML Language
 
-EML is a Mermaid-based language for ERD + business rules + workflows in one `.eml.mmd` file. `language/appwithai-language.json` is the **single source of truth**.
+EML is a Mermaid-based language for ERD + business rules + workflows in one `.eml.mmd` file. `language/appwithai-language.json` is the **single source of truth** — for this repository. Two other copies exist, and they have drifted:
+
+| Repository | File | Differs from the orchestrator's copy |
+|---|---|---|
+| `app-and-report-with-ai-tanstack` | `common/language/appwithai-language.json` | — it is the one the others are compared against |
+| **this one** | `language/appwithai-language.json` | 90 lines, normalized |
+| `enterprise_reporting_tanstack` | `language/erdwithai-language.json` (older name) | 200 lines, normalized |
+
+**All three declare `"version": "1.2.0"`, so the version string cannot tell you
+which copy you are holding**, and nothing in any repository checks one against
+another — the byte-identical check CI does run is over the duplicated example
+models (`language/examples/` against `html/models/`), which is a different pair
+entirely.
+
+This copy governs this repository: it is what the generator, the checker and CI
+here read, and it is the file to edit when changing what *this* repository does.
+The orchestrator treats its own copy as canonical when the products disagree
+about the language itself, so a change meant to be shared has to be made there
+as well — it will not propagate.
 
 ```bash
 bun language/checker.ts language/examples/crm.eml.mmd   # validates, writes .error file
