@@ -23,6 +23,24 @@ import {
   TOTAL_ENTITIES,
 } from "@/lib/app-meta";
 
+/**
+ * The password field's placeholder mask, built from a code point rather than
+ * written as a literal row of bullets.
+ *
+ * Written literally, it reached the browser as the visible text
+ * `\u2022\u2022...` — an escape that had itself been escaped — so the first page
+ * of every generated application showed eight escape sequences where the mask
+ * should be. It is the only attribute value in these templates that is
+ * *entirely* non-ASCII, and the only one that mangles: `placeholder="Value\u2026"`
+ * a few files over comes through the same bundle as real UTF-8.
+ *
+ * Neither the generator, the subpath overlay, nor Bun's own TSX transform of
+ * this file does it, so it happens inside the generated project's Vite build.
+ * Rather than depend on which step, this leaves no non-ASCII literal and no
+ * escape sequence for anything to act on.
+ */
+const BULLET = String.fromCharCode(0x2022);
+
 export const Route = createFileRoute('/auth/login')({
   component: LoginPage,
 });
@@ -134,7 +152,7 @@ function LoginPage() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={BULLET.repeat(8)}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 bg-background/80 backdrop-blur-sm border-border/60"
