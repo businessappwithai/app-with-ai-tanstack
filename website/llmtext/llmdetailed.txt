@@ -1912,6 +1912,44 @@ the entities that reference them.** Walking `Booking` before `Member` means
 writing help text for `booking.member_id` before anyone has decided what a member
 is.
 
+**Three passes, and the user starts each one.** The eight sections below are not
+one conversation. They are three, and the reader decides when each begins and how
+wide it goes:
+
+| Pass | What it settles | Sections |
+|---|---|---|
+| **1 · Structure** | what the thing *is*, and what it is attached to | Fields, Enums, Relationships |
+| **2 · Behaviour** | what it *does*, and who may make it do that | Lifecycle, Rules, Hooks, Cross-entity effects, Access |
+| **3 · Reports** | what people will want to *know* about it | `%%report` for the roles that read it (§10.5.1) |
+
+Each pass ends at its own gate, and **none of them opens unprompted**. Ask which
+pass to run next and wait for the answer; do not roll from structure into
+behaviour because structure went well, and do not start writing reports for an
+entity whose rules the user has not yet approved. A pass the user did not ask
+for is work they now have to read and correct.
+
+They also choose the *shape* of the walk, and the two are genuinely different
+jobs rather than a matter of taste:
+
+- **Entity at a time** — all three passes on `Member`, then all three on
+  `Booking`. Best when the domain is unfamiliar, because everything about one
+  thing is decided while it is still in mind.
+- **Pass at a time** — structure for every entity, then behaviour for every
+  entity, then reports for every entity. Best when the reader knows the domain,
+  because the whole shape is visible before any behaviour is written on top of
+  it, and a relationship that was wrong is found before ten rules depend on it.
+
+Ask which they want once, at the start of Phase 4, and say what the trade is.
+Then hold to it — switching halfway leaves some entities two passes deep and
+others none, and nothing in the document records which is which.
+
+**Reports can be written per entity here, or in one pass at the end.** §10.5.1 is
+the same work either way: the same four questions, the same walk of the roles,
+and the same rule that more than one role gets reports. Doing it here keeps a
+report beside the rules it depends on; doing it at the end lets a report cross
+entities that were not walked yet. Neither is wrong, and a model that never
+reaches it is missing a third of what the platform can answer.
+
 For each entity, present a **dossier — filled in, not blank** — and let the user
 edit it. Eight sections, all eight every time:
 
@@ -2124,10 +2162,189 @@ seed it. A role reading 0 of 14 entities is a role that signs in to an empty
 application, and that is a Gate D finding rather than something to discover in
 the generated app.
 
+#### 10.5.1 The reporting pass — write the users' questions into the model
+
+Everything above describes what the application *is*. This describes what the
+people using it will want to **know**, and it is written into the same `.mmd`,
+as `%%report` directives.
+
+**Why it belongs in the model at all.** The generated application ships beside a
+reporting platform, and the platform is loaded automatically from the model —
+`common/build/reporting-pack.ts`, in `businessappwithai/app-and-report-with-ai-tanstack`,
+turns the model into saved queries, reports, charts and a dashboard, and the
+seeder writes them in on every start. It derives
+a baseline from structure alone, with no help from you:
+
+| Derived without being asked | From |
+|---|---|
+| a register per entity — what rows exist, newest first | every entity |
+| a breakdown per enum-bound column, as a pie or a bar | `%%field … enum:` |
+| created-per-month, as a line | every entity |
+| a lifecycle report over the declared states, **in the diagram's order, zeroes included** | `%%workflow … kind: state` |
+| totals and averages over numeric columns, grouped by the primary enum | `decimal` / `integer` columns |
+| children per parent, ranked | every `||--o{` |
+| a dashboard of the most connected entities, one tile each | the relationship graph |
+
+That baseline is complete and shallow. It describes the shape of the data and
+**nothing about the business running on it**. Nothing in an ERD says that a
+dispatcher's first question every morning is which jobs have no engineer
+assigned, or that the finance lead only ever wants invoices past due by more
+than thirty days. Those come from Phase 1 — from the research into how the
+business actually runs — and this is where that research is finally written down
+as something executable.
+
+**More than one role, always.** A reporting layer that serves one role is not a
+reporting layer, it is that person's saved query. Every application has at least
+two kinds of people in it — someone who does the work and someone answerable for
+it — and they never want the same screen: the first wants a filtered list they
+act on row by row, the second wants a comparison across people or months. If the
+`%%rbac` matrix names two roles, both get reports. If it names eleven, all
+eleven do.
+
+The count follows the read-list, not a quota. A role that may read three
+entities lands around three reports; one that runs a whole function lands closer
+to eight. What is not acceptable is a role with a read-list and no reports at
+all: that role signs in, sees its records, and has no way to answer a question
+about them without opening a SQL editor — which is the situation this pass
+exists to end.
+
+**The method: walk the roles, not the tables.** You already have the roster —
+every role named on a `%%rbac` line in the cross-cutting pass, each of which gets
+a seeded account. Take them one at a time and answer, in the user's words:
+
+1. **What is the first thing this person opens the application to find out?**
+   That is a report, almost always a filtered list rather than a count.
+2. **What would make them say "that's wrong, someone needs to fix it today"?**
+   That is an exception report: the empty queue, the unassigned work, the record
+   stuck in a state it should have left, the total that does not reconcile.
+3. **What do they get asked for by someone more senior, once a week?**
+   That is usually a chart — a comparison across people, teams, or months.
+4. **What silently rots if nobody looks?** The stale record, the failed job
+   nobody chased, the source that stopped answering. These are the reports that
+   justify the platform, and they are the ones nobody thinks to ask for.
+
+**Write as many reports as the role actually needs to do its job — there is no
+budget here.** One report per role is not a reporting layer, it is a token. A
+sales rep who can see stalled deals but not their own overdue activities,
+unworked leads or pipeline by stage has to leave the application to do the rest
+of the job, and that is the situation the platform exists to end.
+
+**The test is coverage, and it is a question about a person, not a count:** *can
+this role run their part of the business from the reports they can see, without
+opening a SQL editor?* Work it like this, per role:
+
+1. Read the role's `%%rbac` read-list. That is the set of entities they are
+   allowed to reason about, and every one of them is a candidate — a role with
+   seven readable entities and one report is under-served no matter how good
+   that report is.
+2. Put all four questions above to each of those entities, in the role's own
+   terms. Keep whatever produces a real question that a real person asks.
+3. Keep going until you cannot name another question that role would ask. That
+   is the stopping condition — not a number.
+
+In practice a role with a narrow read-list lands around three reports and one
+that runs a whole function lands closer to eight; the reference CRM carries
+thirty-three across eight roles. Treat those as observations, not a target. Ten
+well-grounded reports for a role that needs ten is right; six invented to reach
+an average is worse than three.
+
+Two things do *not* belong here. A rewrite of the derived baseline — if the
+report you are about to write is "count of X grouped by its enum", the pack
+already has it, so go back to the four questions. And a report for a question
+the role genuinely does not ask: say so and move on.
+
+**What this produces, and how it is opened.** The reports are not a screen inside
+the generated application. They are loaded into the reporting platform that runs
+beside it, and the two are separate applications on one origin: the generated
+application at `/app`, the reporting platform at `/report`. `./start.sh` brings
+both up and prints both URLs.
+
+**Open them in two tabs of the same browser and keep both open.** That is the
+arrangement the reports are written for — a question asked in one tab and
+answered against the records visible in the other, on the same data at the same
+moment. Checking a report by reading its SQL is not the same as seeing it return
+the rows the application is showing next to it, and a report that looks right in
+isolation is regularly wrong about the business the moment the two are compared.
+Both tabs share a session, so signing in once is enough.
+
+Until the seeder finishes, `/report` is up but empty; that is the load, not a
+failure.
+
+**The form.**
+
+```
+%%report <name> title: <Title> [entity: <E>] [chart: bar|line|pie|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>
+```
+
+- `sql:` is **always last and takes the rest of the line**, because a query
+  contains spaces and colons and would otherwise be shredded by the key scan.
+- The query runs against the **generated application's** database, so it names
+  `bus_<table>` tables — `bus_account`, `bus_lead` — with the model's own column
+  names. Every table also carries `id`, `created_at`, `updated_at`, `deleted_at`
+  and `version`, whether or not the ERD lists them.
+- **Filter soft deletes**: `WHERE deleted_at IS NULL`. Omitting it is the single
+  most common way one of these reports quietly overstates a number.
+- A foreign key is `VARCHAR` while a primary key is `UUID`, so a join casts:
+  `ON c.account_id = p.id::text`.
+- `help:` is the description the report carries on screen. Write it as *why the
+  question is asked and who asks it*, not as a restatement of the SQL. "Every
+  failed run of a standing report, newest first, with the error. A delivery that
+  fails silently is a report somebody is waiting on and will not chase." — that
+  is the shape.
+- `chart:` needs both `x:` and `y:`, naming **result columns of your own query**
+  (its aliases), not table columns. Without `chart:` the report is a table, which
+  is the right default for anything an operator acts on row by row.
+- Only `SELECT` and `WITH`. The checker refuses anything else (`EML293`): these
+  run unattended, on a schedule, against the live application database.
+
+**Worked, from the CRM.** Three of the roughly thirty this model carries — one
+from a sales manager's set, one from a support lead's, one from an operations
+person's. Each role's full set answers all four questions above; these are the
+"what would make them say that's wrong" one in each case, because it is the
+question most often skipped:
+
+```
+%%report stalled-deals title: Deals with no activity in 14 days entity: Opportunity chart: bar x: owner y: deals help: The sales manager's Monday question. A deal nobody has touched in a fortnight is not a forecast, it is a hope. sql: SELECT u.first_name AS owner, COUNT(*) AS deals FROM bus_opportunity o JOIN bus_user u ON u.id::text = o.owner_id WHERE o.deleted_at IS NULL AND o.stage NOT IN ('closed_won', 'closed_lost') AND o.updated_at < now() - interval '14 days' GROUP BY 1 ORDER BY deals DESC
+
+%%report breaching-cases title: Support cases past first response entity: SupportCase help: What the support lead checks before standup. A case past its first-response target is an SLA breach that is already happening, not one that might. sql: SELECT case_number, subject, priority, created_at FROM bus_support_case WHERE deleted_at IS NULL AND status = 'new' AND created_at < now() - interval '4 hours' ORDER BY created_at
+
+%%report accounts-without-contacts title: Accounts with nobody to call entity: Account help: An account with no contact cannot be sold to or supported. Usually a migration that half-finished, and invisible until someone tries to use it. sql: SELECT a.name AS account, a.account_type FROM bus_account a LEFT JOIN bus_contact c ON c.account_id = a.id::text AND c.deleted_at IS NULL WHERE a.deleted_at IS NULL GROUP BY a.id, a.name, a.account_type HAVING COUNT(c.id) = 0 ORDER BY a.name
+```
+
+Note what none of them are: none is a count of rows in a table, none restates a
+lifecycle the state machine already gives you for free, and each one names the
+person who asks it.
+
+**Where they land.** Authored reports are listed *ahead* of the derived ones and
+take the top tiles of the dashboard, because a question somebody asked for by
+name outranks one inferred from a foreign key. In the running platform each
+becomes a saved query, a report definition, and — where `chart:` is set — a chart
+definition, all owned by the seeded administrator.
+
+**What you cannot check here, and who does.** The checker validates the shape:
+that a query exists, that it reads rather than writes, that a chart names its
+axes, that the `entity:` is one the model declares, that no name is used twice
+(`EML290`–`EML296`). It has no database, so it cannot tell you a column name is
+wrong. `check-reporting-pack.ts`, in that same repository, does: it generates the
+application, applies its migrations to a real PostgreSQL, and executes every
+query in the pack, authored ones included. Run it if you have Docker or a local
+PostgreSQL; otherwise say plainly that the SQL is unverified against a live
+schema.
+
 > **Gate D — cross-cutting approved**, then merged into the `.mmd` and put
 > through the §10.0 loop like any other step: fixer, checker, clean before Phase
-> 6 opens. This is the merge most likely to fail it — sagas, the `%%rbac` matrix
-> and the indexes all reach across entities, so `EML5xx` cross-section codes
+> 6 opens. This is the merge most likely to fail it — sagas, the `%%rbac` matrix,
+> the indexes and the `%%report` queries all reach across entities, so `EML5xx`
+> cross-section codes
+> that could not fire while each entity stood alone fire here for the first time.
+> By now the seed's `EML102`s should all be gone; one that survives names an
+> entity that was never walked.
+
+> **Gate D — cross-cutting approved**, then merged into the `.mmd` and put
+> through the §10.0 loop like any other step: fixer, checker, clean before Phase
+> 6 opens. This is the merge most likely to fail it — sagas, the `%%rbac` matrix,
+> the indexes and the `%%report` queries all reach across entities, so `EML5xx`
+> cross-section codes
 > that could not fire while each entity stood alone fire here for the first time.
 > By now the seed's `EML102`s should all be gone; one that survives names an
 > entity that was never walked.
@@ -2447,6 +2664,28 @@ Phase 6 gets the model right; this run proves the delivered bytes are the
 corrected ones. Log it to `03-validation.md` like any other pass. Deliver only
 when that last run is clean, or say plainly which diagnostics survived 10
 cycles.
+
+**Say how to run it, and that it runs as two applications.** A model with a
+reporting pass produces two things, not one: the generated application and the
+reporting platform loaded from the same `.mmd`. `./start.sh <model>.mmd` brings
+both up on one origin and prints both URLs — the application at `/app`, the
+reports at `/report`.
+
+**Tell the user to open them in two tabs of the same browser**, side by side, and
+to sign in once — the session is shared. That pairing is the point of the
+reporting pass: a question answered in one tab against the records visible in the
+other, on the same data at the same moment. A reader who only ever opens `/app`
+has the reports and does not know it, and a reader who only opens `/report` is
+reading numbers with nothing to check them against.
+
+Two things to say plainly rather than let them be discovered. `/report` is up but
+**empty until the seeder finishes** on a first start — that is the load, not a
+failure. And the browser-only route (the WebAssembly build that runs an
+application in a tab with no server) carries **the generated application alone**:
+the reporting platform is a separate application with its own database and has no
+browser build, so a model's reports are not visible on that route. Reports need
+the `./start.sh` route, and a reader told otherwise will go looking for a tab
+that does not exist.
 
 Hand back `<business-slug>.mmd` as a **file**, not a fenced block the user has to
 copy out of a chat log. Alongside it:
