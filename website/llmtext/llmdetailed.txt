@@ -221,6 +221,26 @@ it. **reserved** = documented, renderer-safe, inert.
 | `%%entity` | `%%entity <E> <k>: <v>` | compiled *(`help:`/`description:`, `parent:`)*, validated otherwise | `mermaid.parser.ts` · `language/checker.ts` |
 | `%%rule` | `%%rule <name> on <E> event: <hook> priority: <n>` | validated | `language/checker.ts` |
 | `%%trigger` | `%%trigger <source> -> <handler> on <E>` | validated | `language/checker.ts` |
+| `%%report` | `%%report <name> title: <T> [entity: <E>] [chart: bar\|line\|pie\|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>` | validated | `language/checker.ts` |
+
+`%%report` is the one directive whose payload is SQL. It declares a question the
+application's *users* ask, as the query that answers it, and the query runs
+against the generated application's own database, so it names `bus_` tables.
+
+**In this repository it is validated and nothing more.** The checker holds it to
+its shape — a query that exists (`EML290`), a name (`EML291`), no duplicate name
+(`EML292`), `SELECT` or `WITH` rather than a write (`EML293`), both axes when a
+chart is asked for (`EML294`), an `entity:` the model declares (`EML295`), a
+known chart type (`EML296`) — and no generator here reads it. It is *compiled*
+in `businessappwithai/app-and-report-with-ai-tanstack`, whose reporting pack
+turns each one into a saved query, a report definition and, where `chart:` is
+set, a chart, seeded ahead of the baseline that repository derives from
+structure alone. A model carrying reports therefore generates the same
+application here that it would without them; what the reports change is what
+the reporting platform beside it already knows how to answer.
+
+`sql:` is always last on the line and takes the rest of it, because a query
+contains spaces and colons and would otherwise be shredded by the key scan.
 
 **Do not tell a user a directive "will do X" without checking its status.** A
 `%%entity Order audited: true` is validated but not compiled: it will not make
