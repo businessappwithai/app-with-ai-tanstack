@@ -1205,6 +1205,28 @@
           "%%workflow OrderFulfillment entity: Order kind: state",
           "%%workflow name: Escalate critical deviations"
         ]
+      },
+      {
+        "keyword": "%%report",
+        "form": "%%report <name> title: <Title> [entity: <Entity>] [chart: bar|line|pie|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>",
+        "status": "validated",
+        "consumedBy": [
+          "language/cli/src/parser.ts -> model.reports",
+          "language/checker.ts (shape only: EML290-EML296)"
+        ],
+        "purpose": "Declare a question the application's users actually ask, as the SQL that answers it. The reporting pack already derives a baseline from structure alone - a register per entity, a breakdown per %%enum-bound column, a lifecycle per state machine, children per oneToMany - and that baseline describes the shape of the data and nothing about the business running on it. Nothing in an ERD says that a dispatcher's first question every morning is which jobs have no engineer assigned. This directive is where that knowledge is written down, so it travels with the model rather than being rebuilt by hand in the reporting tool after every regeneration.",
+        "examples": [
+          "%%report unassigned-jobs title: Jobs with no engineer help: The dispatcher's first question every morning. sql: SELECT reference, scheduled_for FROM bus_job WHERE engineer_id IS NULL AND status = 'scheduled' AND deleted_at IS NULL ORDER BY scheduled_for",
+          "%%report pipeline-by-owner title: Pipeline by owner entity: Opportunity chart: bar x: owner y: total help: What each rep is carrying, for the weekly review. sql: SELECT u.first_name AS owner, SUM(o.amount) AS total FROM bus_opportunity o JOIN bus_user u ON u.id::text = o.owner_id WHERE o.deleted_at IS NULL GROUP BY 1 ORDER BY total DESC"
+        ],
+        "notes": {
+          "sqlIsLast": "`sql:` takes the rest of the line, because a query contains spaces and colons and would otherwise be shredded by the key scan. Every other key is read from the head, ahead of it.",
+          "readOnly": "The checker refuses a query that does not begin with SELECT or WITH (EML293). A report is run unattended, on a schedule, against the application's own database; anything that writes belongs in a rule or a hook.",
+          "chartNeedsAxes": "`chart:` without both `x:` and `y:` is an error (EML294) rather than a silent fall back to a table: a chart that cannot say what it plots renders empty, which reads as no data rather than as a missing declaration.",
+          "namesAreKeys": "The name is the pack key, so a duplicate silently replaces the earlier report. Declared twice is an error (EML292).",
+          "againstWhichSchema": "The query runs against the *generated application's* database, so it names `bus_` tables. It is not checked against a live schema at author time - the checker has no database - but `check-reporting-pack.ts in the orchestrator` executes every query in the pack against a real generated schema in CI.",
+          "whereItIsCompiled": "This repository validates the directive and stops there - no generator here reads model.reports. It is compiled in businessappwithai/app-and-report-with-ai-tanstack, where common/build/reporting-pack.ts turns each one into a saved query, a report definition and, where chart: is set, a chart, all seeded into the reporting platform ahead of the derived baseline."
+        }
       }
     ],
     "statusVocabulary": {

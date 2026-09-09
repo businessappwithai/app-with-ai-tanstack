@@ -398,6 +398,7 @@ class CheckEngine {
     this.checkWorkflowDirectives();
     this.checkStepDirectives();
     this.checkActionDirectives();
+    this.checkReportDirectives();
     this.checkRuleDirectives();
     this.checkRules();
     this.checkWorkflows();
@@ -1328,6 +1329,74 @@ class CheckEngine {
     }
   }
 
+  // EML290-EML299: %%report directive checks
+  // -------------------------------------------------------------------------
+  //
+  // A %%report is the one directive whose payload is executed verbatim against
+  // a database this checker cannot see, so what it can check is the shape: that
+  // the query exists, that it selects something, that a chart names the columns
+  // it plots, and that the entity it claims to be about is one the model
+  // declares. Everything past that is the database's answer, not the language's.
+
+  private checkReportDirectives(): void {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const seen = new Map<string, number>();
+
+    // A malformed line — no sql:, no name, an unknown chart type — is reported
+    // by the parser as EML290/EML291/EML296, with its line. Re-scanning the raw
+    // text here would report each of those twice, which reads as two faults in
+    // one line. What is left is everything that needs the parsed model.
+
+    for (const report of this.model.reports) {
+      const lineNo = this.src.findLine(new RegExp(`%%report\\s+${report.name}\\b`));
+
+      // EML292: a duplicate name silently replaces the earlier report when the
+      // pack is keyed, so the author loses one and is never told which.
+      const previous = seen.get(report.name);
+      if (previous !== undefined) {
+        this.error("EML292", `%%report "${report.name}" is declared more than once.`, {
+          line: lineNo,
+          hint: "Report names are keys. Give the second one its own name.",
+        });
+      }
+      seen.set(report.name, lineNo ?? 0);
+
+      // EML293: the query must actually select something.
+      if (!/^\s*(select|with)\b/i.test(report.sql)) {
+        this.error("EML293", `%%report "${report.name}" does not begin with SELECT or WITH.`, {
+          line: lineNo,
+          hint: "A report reads. Anything that writes belongs in a rule or a hook, not in a report the platform will run on a schedule.",
+        });
+      }
+
+      // EML294: a chart has to say what it plots.
+      if (report.chart && (!report.x || !report.y)) {
+        this.error(
+          "EML294",
+          `%%report "${report.name}" declares chart: ${report.chart} but not both x: and y:.`,
+          {
+            line: lineNo,
+            hint: "A chart needs the two result columns it draws: x: <column> y: <column>. Drop chart: to keep it as a table.",
+          }
+        );
+      }
+
+      // EML295: an entity that does not exist is almost always a typo, and it
+      // silently drops the report out of that entity's group.
+      if (report.entity && !entityNames.has(report.entity)) {
+        this.warn(
+          "EML295",
+          `%%report "${report.name}" names entity "${report.entity}", which this model does not declare.`,
+          {
+            line: lineNo,
+            hint: "entity: is used to group the report with its entity. Correct the name, or drop the key if the report spans several.",
+          }
+        );
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
   // EML220-EML229: %%guard directive checks
   // -------------------------------------------------------------------------
 

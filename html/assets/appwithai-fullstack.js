@@ -7106,6 +7106,28 @@ var appwithai_language_default = {
           "%%workflow OrderFulfillment entity: Order kind: state",
           "%%workflow name: Escalate critical deviations"
         ]
+      },
+      {
+        keyword: "%%report",
+        form: "%%report <name> title: <Title> [entity: <Entity>] [chart: bar|line|pie|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>",
+        status: "validated",
+        consumedBy: [
+          "language/cli/src/parser.ts -> model.reports",
+          "language/checker.ts (shape only: EML290-EML296)"
+        ],
+        purpose: "Declare a question the application's users actually ask, as the SQL that answers it. The reporting pack already derives a baseline from structure alone - a register per entity, a breakdown per %%enum-bound column, a lifecycle per state machine, children per oneToMany - and that baseline describes the shape of the data and nothing about the business running on it. Nothing in an ERD says that a dispatcher's first question every morning is which jobs have no engineer assigned. This directive is where that knowledge is written down, so it travels with the model rather than being rebuilt by hand in the reporting tool after every regeneration.",
+        examples: [
+          "%%report unassigned-jobs title: Jobs with no engineer help: The dispatcher's first question every morning. sql: SELECT reference, scheduled_for FROM bus_job WHERE engineer_id IS NULL AND status = 'scheduled' AND deleted_at IS NULL ORDER BY scheduled_for",
+          "%%report pipeline-by-owner title: Pipeline by owner entity: Opportunity chart: bar x: owner y: total help: What each rep is carrying, for the weekly review. sql: SELECT u.first_name AS owner, SUM(o.amount) AS total FROM bus_opportunity o JOIN bus_user u ON u.id::text = o.owner_id WHERE o.deleted_at IS NULL GROUP BY 1 ORDER BY total DESC"
+        ],
+        notes: {
+          sqlIsLast: "`sql:` takes the rest of the line, because a query contains spaces and colons and would otherwise be shredded by the key scan. Every other key is read from the head, ahead of it.",
+          readOnly: "The checker refuses a query that does not begin with SELECT or WITH (EML293). A report is run unattended, on a schedule, against the application's own database; anything that writes belongs in a rule or a hook.",
+          chartNeedsAxes: "`chart:` without both `x:` and `y:` is an error (EML294) rather than a silent fall back to a table: a chart that cannot say what it plots renders empty, which reads as no data rather than as a missing declaration.",
+          namesAreKeys: "The name is the pack key, so a duplicate silently replaces the earlier report. Declared twice is an error (EML292).",
+          againstWhichSchema: "The query runs against the *generated application's* database, so it names `bus_` tables. It is not checked against a live schema at author time - the checker has no database - but `check-reporting-pack.ts in the orchestrator` executes every query in the pack against a real generated schema in CI.",
+          whereItIsCompiled: "This repository validates the directive and stops there - no generator here reads model.reports. It is compiled in businessappwithai/app-and-report-with-ai-tanstack, where common/build/reporting-pack.ts turns each one into a saved query, a report definition and, where chart: is set, a chart, all seeded into the reporting platform ahead of the derived baseline."
+        }
       }
     ],
     statusVocabulary: {
@@ -19508,6 +19530,7 @@ function emptyModel() {
     enums: [],
     indexes: [],
     rules: [],
+    reports: [],
     workflows: [],
     hooks: [],
     guards: [],
@@ -19548,6 +19571,7 @@ var SECTION_OPENERS = /^(erDiagram|flowchart|graph|stateDiagram-v2|stateDiagram)
 function parseEml(source) {
   const model = emptyModel();
   fieldEnumRefs.length = 0;
+  fieldHelp.length = 0;
   const diags = model.diagnostics;
   const normalized = source.replace(/\r\n/g, `
 `);
@@ -19609,6 +19633,7 @@ function parseEml(source) {
   return model;
 }
 var fieldEnumRefs = [];
+var fieldHelp = [];
 function parseDirective(line, n, model) {
   const body = line.replace(/^%%/, "").trim();
   const { head: keyword, rest } = splitHead(body);
@@ -19670,7 +19695,59 @@ function parseDirective(line, n, model) {
         const [entity2, attr, key, value] = caps(m, 4);
         if (key === "enum")
           fieldEnumRefs.push({ entity: entity2, attr, enumName: value.trim() });
+        else if (key === "help" || key === "description")
+          fieldHelp.push({ entity: entity2, attr, text: value.trim() });
       }
+      return;
+    }
+    case "report": {
+      const split = rest.match(/^(.*?)\bsql:\s*(.+)$/s);
+      if (!split) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML290",
+          message: `%%report has no sql: clause: "${line}"`,
+          line: n
+        });
+        return;
+      }
+      const [head, sql] = caps(split, 2);
+      const nameMatch = head.match(/^([A-Za-z_][\w-]*)\s*/);
+      if (!nameMatch) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML291",
+          message: `%%report has no name: "${line}"`,
+          line: n
+        });
+        return;
+      }
+      const [name] = caps(nameMatch, 1);
+      const keys = head.slice(nameMatch[0].length);
+      const read = (key) => {
+        const m2 = keys.match(new RegExp(`\\b${key}:\\s*(.*?)(?=\\s+(?:title|entity|chart|x|y|help):|$)`, "s"));
+        return m2?.[1]?.trim() || undefined;
+      };
+      const chartRaw = read("chart");
+      const chart = chartRaw === "bar" || chartRaw === "line" || chartRaw === "pie" || chartRaw === "area" ? chartRaw : undefined;
+      if (chartRaw && !chart) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML296",
+          message: `%%report "${name}" has unknown chart type "${chartRaw}".`,
+          line: n
+        });
+      }
+      model.reports.push({
+        name,
+        title: read("title") ?? name.replace(/[_-]+/g, " "),
+        entity: read("entity"),
+        chart,
+        x: read("x"),
+        y: read("y"),
+        help: read("help"),
+        sql: sql.trim()
+      });
       return;
     }
     case "enum": {
@@ -19770,6 +19847,8 @@ function applyEntityMeta(model, name, key, value) {
     e.prefix = value;
   else if (key === "label")
     e.label = value;
+  else if (key === "help" || key === "description")
+    e.help = value;
 }
 function parseErdSection(section, model, diags) {
   let currentEntity = null;
@@ -20059,6 +20138,13 @@ function applyFieldEnumRefs(model) {
       attr.enumRef = ref.enumName;
   }
   fieldEnumRefs.length = 0;
+  for (const h of fieldHelp) {
+    const entity2 = model.entities.find((e) => e.name === h.entity);
+    const attr = entity2?.attributes.find((a) => a.name === h.attr);
+    if (attr)
+      attr.description = h.text;
+  }
+  fieldHelp.length = 0;
 }
 
 // language/checker.ts
@@ -20236,6 +20322,7 @@ class CheckEngine {
     this.checkWorkflowDirectives();
     this.checkStepDirectives();
     this.checkActionDirectives();
+    this.checkReportDirectives();
     this.checkRuleDirectives();
     this.checkRules();
     this.checkWorkflows();
@@ -20814,6 +20901,39 @@ class CheckEngine {
         line: lineNo,
         hint: events.size ? `Use one of create, read, update, delete, * — or a transition of ${entity2}: ${[...events].join(", ")}.` : `Use one of create, read, update, delete, * — ${entity2} declares no state machine to take a transition from.`
       });
+    }
+  }
+  checkReportDirectives() {
+    const entityNames = new Set(this.model.entities.map((e) => e.name));
+    const seen = new Map;
+    for (const report of this.model.reports) {
+      const lineNo = this.src.findLine(new RegExp(`%%report\\s+${report.name}\\b`));
+      const previous = seen.get(report.name);
+      if (previous !== undefined) {
+        this.error("EML292", `%%report "${report.name}" is declared more than once.`, {
+          line: lineNo,
+          hint: "Report names are keys. Give the second one its own name."
+        });
+      }
+      seen.set(report.name, lineNo ?? 0);
+      if (!/^\s*(select|with)\b/i.test(report.sql)) {
+        this.error("EML293", `%%report "${report.name}" does not begin with SELECT or WITH.`, {
+          line: lineNo,
+          hint: "A report reads. Anything that writes belongs in a rule or a hook, not in a report the platform will run on a schedule."
+        });
+      }
+      if (report.chart && (!report.x || !report.y)) {
+        this.error("EML294", `%%report "${report.name}" declares chart: ${report.chart} but not both x: and y:.`, {
+          line: lineNo,
+          hint: "A chart needs the two result columns it draws: x: <column> y: <column>. Drop chart: to keep it as a table."
+        });
+      }
+      if (report.entity && !entityNames.has(report.entity)) {
+        this.warn("EML295", `%%report "${report.name}" names entity "${report.entity}", which this model does not declare.`, {
+          line: lineNo,
+          hint: "entity: is used to group the report with its entity. Correct the name, or drop the key if the report spans several."
+        });
+      }
     }
   }
   checkGuards() {

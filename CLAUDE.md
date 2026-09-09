@@ -642,11 +642,12 @@ bun language/fixer.ts   language/examples/crm.eml.mmd.error
 
 The checker always writes the `.error` file — revert it unless the verdict changed.
 
-**The fifteen directives** (`%%` comments Mermaid ignores):
+**The sixteen directives** (`%%` comments Mermaid ignores):
 - structure: `%%meta`, `%%entity`, `%%field`, `%%enum`, `%%index`, `%%category`
 - behaviour: `%%rule`, `%%workflow`, `%%step`, `%%loop`, `%%trigger`, `%%action`, `%%hook`
 - access: `%%rbac`
 - automation condition: `%%guard`
+- reporting: `%%report`
 
 `%%guard` is the one that moved. It used to mean a role restriction; that sense
 is `%%rbac` now, and `%%guard` means only an automation's condition
@@ -657,7 +658,19 @@ called `role`.
 Each directive's `status` in `appwithai-language.json` says whether it is
 `compiled` (something reads it and emits code) or only `validated` (the checker
 knows it; nothing generates from it yet) — check that before assuming a
-directive has an effect. `%%rule` and `%%trigger` are `validated`.
+directive has an effect. `%%rule`, `%%trigger` and `%%report` are `validated`.
+
+`%%report` is validated *here* and compiled elsewhere, which is the only
+directive with that split. The parser reads it into `model.reports` and the
+checker holds it to its shape — `EML290`-`EML296`: a query that exists and is
+named, a unique name, `SELECT`/`WITH` rather than a write, both axes when a
+chart is asked for, an `entity:` the model declares, a known chart type. No
+generator in this repository reads it. It is compiled in
+`businessappwithai/app-and-report-with-ai-tanstack`, whose `reporting-pack.ts`
+turns each one into a saved query, a report definition and, where `chart:` is
+set, a chart. So a model carrying reports generates the same application here
+that it would without them, and the checker still refuses a malformed one —
+which is the point: the models this repository publishes carry 147 of them.
 
 **When changing language semantics:** edit `appwithai-language.json` first, then spec docs, grammar, parser, composer, rag. If adding a diagnostic, add its code to `AUTO_FIXABLE_CODES` in `checker.ts`, the fixer's dispatch table, and `diagnostics.autoFixable` in the JSON — all three.
 
