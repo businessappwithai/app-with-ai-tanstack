@@ -37,9 +37,30 @@ import type {
  * itself — pointing it at Electric directly would hand clients an unfiltered
  * dictionary.
  */
-export const SHAPE_URL: string =
+const SHAPE_PATH: string =
   import.meta.env.VITE_ELECTRIC_PROXY_URL ||
   `${import.meta.env.VITE_API_URL || '/api'}/v1/shape`;
+
+/**
+ * Absolute, always. The Electric client hands this to `new URL(...)` with no
+ * base, and `new URL("/api/v1/shape")` throws — so a relative default (which is
+ * what the fallback above produces whenever VITE_API_URL is unset) took down
+ * every dictionary sync with `TypeError: Failed to construct 'URL': Invalid
+ * URL`, once per collection, before a single shape request left the browser.
+ *
+ * It fails quietly, too: the collection is marked ready so `.preload()` does
+ * not hang, so the application drops to the HTTP fallback and only the console
+ * says why.
+ *
+ * `new URL(spec, origin)` ignores the origin when `spec` is already absolute,
+ * so an explicitly configured VITE_ELECTRIC_PROXY_URL still wins untouched.
+ * The `window` guard is for SSR, where there is no origin to resolve against
+ * and nothing syncs anyway.
+ */
+export const SHAPE_URL: string =
+  typeof window === 'undefined'
+    ? SHAPE_PATH
+    : new URL(SHAPE_PATH, window.location.origin).toString();
 
 /**
  * Sync is optional. With it switched off the dictionary hooks fall back to the
