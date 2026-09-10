@@ -8703,7 +8703,18 @@ export async function evaluateRules(rules, record, options = {}) {
 
     for (const result of outcome.results) {
       const action = String(result.action || "").toLowerCase();
-      if (action === "reject" || action === "error") {
+      /*
+       * \`prevent\` is the spelling that arrives from a model. The rules compiler
+       * translates EML's \`validation-error\` into the runtime's own vocabulary
+       * (RUNTIME_ACTION in packages/generator/src/rules/index.ts), which is what
+       * the NestJS stack refuses a write on — \`rules.service.ts\` checks
+       * \`ruleAction.type === 'prevent'\`. Recognising only \`reject\` and \`error\`
+       * here let every model-declared refusal through: the rule matched, the row
+       * carried \`prevent\`, and it fell out of this chain into \`notifications\`,
+       * so the write was stored and the caller was told nothing. \`reject\` stays
+       * because the node-graph path and the JDM parse failure above emit it.
+       */
+      if (action === "reject" || action === "error" || action === "prevent") {
         violations.push({ ruleId: result.ruleId || rule.name, ...result });
       } else if (action === "set" && result.field) {
         mutations[result.field] = result.value;
@@ -14468,7 +14479,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 329459;
+var RUNTIME_BYTES = 330220;
 
 // node_modules/.bun/zod@3.25.76/node_modules/zod/v3/external.js
 var exports_external = {};
