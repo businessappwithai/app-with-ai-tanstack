@@ -54,7 +54,18 @@ function fk(column: string, index: number): string | null {
   }
   const parent = `bus_${column.replace(/_id$/, '')}`;
   const pool = ids[parent];
-  return pool && pool.length > 0 ? pool[index % pool.length] : null;
+  if (pool && pool.length > 0) return pool[index % pool.length];
+  // A column naming a person rather than a table — owner_id, manager_id,
+  // assigned_to_id — has no `bus_owner` to resolve against. Point it at the
+  // user pool, the same fallback `_by_id` already uses.
+  if (/^(owner|manager|assignee|assigned_to|rep|agent|supervisor)_id$/.test(column)) {
+    const userPool = ids['bus_user'] || ids['bus_staff'];
+    if (userPool && userPool.length > 0) return userPool[index % userPool.length];
+  }
+  // Nothing to point at. A null reference is honest; a fabricated code like
+  // 'CAM-0001' is not — it matches no row, so every join through it silently
+  // returned nothing while looking like real data.
+  return null;
 }
 
 export async function seed(db: Kysely<any>): Promise<void> {
@@ -79,16 +90,16 @@ export async function seed(db: Kysely<any>): Promise<void> {
       {{#unless (eq name 'deleted_at')}}
       {{#unless (eq name 'version')}}
       {{#switch (typeToReferenceId type)}}
-        {{#case 10}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{seedValue name @../index ../../displayName enumValues}}{{/if}}'{{/if}},{{/case}}
+        {{#case 10}}{{name}}: {{#if (or isForeignKey (endsWith name '_id'))}}fk('{{name}}', {{@../index}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{seedValue name @../index ../../displayName enumValues}}{{/if}}'{{/if}},{{/case}}
         {{#case 30}}{{name}}: 'test{{@../index}}@example.com',{{/case}}
         {{#case 31}}{{name}}: '555-{{@../index}}101',{{/case}}
-        {{#case 11}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}{{seedNumber name @../index}}{{/if}},{{/case}}
+        {{#case 11}}{{name}}: {{#if (or isForeignKey (endsWith name '_id'))}}fk('{{name}}', {{@../index}}){{else}}{{seedNumber name @../index}}{{/if}},{{/case}}
         {{#case 12}}{{name}}: {{@../index}}.50,{{/case}}
         {{! Numeric args, not a string: '200X-0X-15' produced month 00 for the first record, which Postgres rejects. Month is 0-based here, so % 12 is always valid. }}
         {{#case 15}}{{name}}: new Date(2000 + {{@../index}}, {{@../index}} % 12, 15),{{/case}}
         {{#case 16}}{{name}}: new Date(Date.now() + {{@../index}} * 3600000),{{/case}}
         {{#case 20}}{{name}}: {{#if (eq @../index 2)}}false{{else}}true{{/if}},{{/case}}
-        {{#case 13}}{{name}}: {{#if isForeignKey}}fk('{{name}}', {{@../index}}){{else}}uuidv4(){{/if}},{{/case}}
+        {{#case 13}}{{name}}: {{#if (or isForeignKey (endsWith name '_id'))}}fk('{{name}}', {{@../index}}){{else}}uuidv4(){{/if}},{{/case}}
         {{#case 14}}{{name}}: 'Sample {{name}} text {{@../index}}',{{/case}}
         {{#default}}{{name}}: '{{seedValue name @../index ../../displayName enumValues}}',{{/default}}
       {{/switch}}
