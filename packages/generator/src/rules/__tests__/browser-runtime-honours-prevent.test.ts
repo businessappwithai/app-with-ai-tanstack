@@ -46,7 +46,7 @@ describe("the browser runtime honours the runtime action vocabulary", () => {
   it("refuses a write when a validation-error row matches", async () => {
     const outcome = await run(
       [
-        "%%action requireWithdrawalReason validation-error when: status == \"withdrawn\" and withdrawal_reason == null message: A withdrawal needs a reason.",
+        '%%action requireWithdrawalReason validation-error when: status == "withdrawn" and withdrawal_reason == null message: A withdrawal needs a reason.',
       ],
       { status: "withdrawn", withdrawal_reason: null }
     );
@@ -60,7 +60,7 @@ describe("the browser runtime honours the runtime action vocabulary", () => {
   it("lets the write through when the same rule does not match", async () => {
     const outcome = await run(
       [
-        "%%action requireWithdrawalReason validation-error when: status == \"withdrawn\" and withdrawal_reason == null message: A withdrawal needs a reason.",
+        '%%action requireWithdrawalReason validation-error when: status == "withdrawn" and withdrawal_reason == null message: A withdrawal needs a reason.',
       ],
       { status: "withdrawn", withdrawal_reason: "Relocated abroad" }
     );
