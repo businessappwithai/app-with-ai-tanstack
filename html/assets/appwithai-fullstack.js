@@ -14284,7 +14284,7 @@ function snakeCase(str) {
   if (/^[A-Z0-9_]+$/.test(str)) {
     return str.toLowerCase();
   }
-  return str.replace(/([A-Z])/g, "_$1").replace(/[-\s]+/g, "_").toLowerCase().replace(/_{2,}/g, "_").replace(/^_/, "");
+  return str.replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/[-\s]+/g, "_").toLowerCase().replace(/_{2,}/g, "_").replace(/^_/, "");
 }
 function kebabCase(str) {
   if (!str)
@@ -18969,10 +18969,7 @@ class MermaidParser {
     };
   }
   toSnakeCase(str) {
-    if (/^[A-Z0-9_]+$/.test(str)) {
-      return str.toLowerCase();
-    }
-    return str.replace(/([A-Z])/g, "_$1").toLowerCase().replace(/^_/, "");
+    return snakeCase(str);
   }
   normalizeRelationshipName(name) {
     return name.trim().replace(/\s+/g, "_").toLowerCase();
