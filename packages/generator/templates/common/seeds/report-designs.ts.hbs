@@ -1,9 +1,25 @@
 /**
  * Default Report Designs Seed
  *
- * Seeds one default AnkaReport layout per entity into sys_report_designs.
- * The layout renders a two-column (label | value) view of every field.
- * Administrators can open Admin → Report Designs to customise any layout.
+ * Seeds one AnkaReport layout per entity into sys_report_designs, so every
+ * entity has a printable document from the moment the application is created.
+ * Administrators refine any of them in Admin → Report Designs; the detail
+ * screen's Print button renders whatever is stored here.
+ *
+ * The shape below is AnkaReport's own `ILayout`, and every part of it is load
+ * bearing — the renderer reads the layout directly and silently ignores
+ * anything shaped differently:
+ *
+ *   - `width` sets the page element's pixel width. Absent, the renderer writes
+ *     `undefinedpx` and the document collapses to nothing.
+ *   - style properties (`fontSize`, `color`, `fontWeight`, …) are flat on the
+ *     item and inherit from the section and the layout. Nested under a `style`
+ *     object they are read by nobody.
+ *   - `fontSize` is a CSS length, not a number: `11` is not a valid value for
+ *     `element.style.fontSize` and the browser drops the assignment.
+ *   - every section carries a `binding`; the content section's names the array
+ *     in the data that it repeats over, which is what makes one section render
+ *     once per record.
  *
  * Generated: {{now}}
  */
@@ -15,22 +31,50 @@ interface FieldRow {
   field: string;
 }
 
-interface ReportItem {
-  type: string;
+/** AnkaReport's flat style bag — inherited down layout → section → item. */
+interface ReportStyle {
+  color?: string;
+  backgroundColor?: string;
+  textAlign?: 'left' | 'center' | 'right';
+  borderWidth?: number;
+  borderStyle?: string;
+  borderColor?: string;
+  fontFamily?: string;
+  fontSize?: string;
+  fontWeight?: string;
+}
+
+interface ReportItem extends ReportStyle {
+  type: 'text';
+  name: string;
   x: number;
   y: number;
   width: number;
   height: number;
-  text?: string;
+  text: string;
   binding?: string;
-  style?: Record<string, string | number>;
 }
 
-interface ReportLayout {
-  headerSection: { height: number; items: ReportItem[] };
-  contentSection: { height: number; binding: string; items: ReportItem[] };
-  footerSection: { height: number; items: ReportItem[] };
+interface ReportSection extends ReportStyle {
+  height: number;
+  binding: string;
+  items: ReportItem[];
 }
+
+interface ReportLayout extends ReportStyle {
+  width: number;
+  headerSection: ReportSection;
+  contentSection: ReportSection;
+  footerSection: ReportSection;
+}
+
+/** A4 at 96dpi is 794px; 760 leaves a printable margin either side. */
+const PAGE_W = 760;
+const ROW_H = 22;
+const ROW_GAP = 4;
+const LABEL_W = 220;
+const MARGIN_X = 16;
+const VALUE_W = PAGE_W - LABEL_W - MARGIN_X * 2 - 12;
 
 function toLabel(columnName: string): string {
   return columnName
@@ -40,29 +84,85 @@ function toLabel(columnName: string): string {
 }
 
 function buildLayout(entityName: string, fields: FieldRow[]): ReportLayout {
-  const ROW_H = 24;
-  const GAP = 4;
-  const LABEL_W = 180;
-  const VALUE_W = 370;
-  const START_Y = 8;
-  const contentH = Math.max(fields.length * (ROW_H + GAP) + START_Y + 12, 60);
-
+  const startY = 10;
   const items: ReportItem[] = [];
+
   fields.forEach((f, i) => {
-    const y = START_Y + i * (ROW_H + GAP);
-    items.push({ type: 'text', x: 10, y, width: LABEL_W, height: ROW_H, text: `${f.label}:`, style: { fontWeight: 'bold', fontSize: 11, color: '#374151' } });
-    items.push({ type: 'text', x: LABEL_W + 20, y, width: VALUE_W, height: ROW_H, binding: f.field, style: { fontSize: 11, color: '#111827' } });
+    const y = startY + i * (ROW_H + ROW_GAP);
+    items.push({
+      type: 'text',
+      name: `${f.field}_label`,
+      x: MARGIN_X,
+      y,
+      width: LABEL_W,
+      height: ROW_H,
+      text: `${f.label}`,
+      fontSize: '11px',
+      fontWeight: 'bold',
+      color: '#374151',
+    });
+    items.push({
+      type: 'text',
+      name: f.field,
+      x: MARGIN_X + LABEL_W + 12,
+      y,
+      width: VALUE_W,
+      height: ROW_H,
+      text: '',
+      binding: f.field,
+      fontSize: '11px',
+      color: '#111827',
+    });
   });
 
+  const contentHeight = Math.max(startY * 2 + fields.length * (ROW_H + ROW_GAP), 64);
+
   return {
+    width: PAGE_W,
+    fontFamily: 'Helvetica, Arial, sans-serif',
+    fontSize: '11px',
+    color: '#111827',
     headerSection: {
-      height: 56,
-      items: [{ type: 'text', x: 10, y: 14, width: 560, height: 32, text: `${entityName} Report`, style: { fontSize: 20, fontWeight: 'bold', color: '#0f4c75' } }],
+      height: 60,
+      binding: '',
+      items: [
+        {
+          type: 'text',
+          name: 'title',
+          x: MARGIN_X,
+          y: 16,
+          width: PAGE_W - MARGIN_X * 2,
+          height: 30,
+          text: `${entityName}`,
+          fontSize: '20px',
+          fontWeight: 'bold',
+          color: '#0f4c75',
+        },
+      ],
     },
-    contentSection: { height: contentH, binding: 'records', items },
+    contentSection: {
+      height: contentHeight,
+      // The renderer repeats this section once per element of `data.records`.
+      binding: 'records',
+      items,
+    },
     footerSection: {
-      height: 28,
-      items: [{ type: 'text', x: 10, y: 6, width: 560, height: 20, text: 'Generated by APPWITHAI', style: { fontSize: 9, color: '#9ca3af', textAlign: 'center' } }],
+      height: 30,
+      binding: '',
+      items: [
+        {
+          type: 'text',
+          name: 'footer',
+          x: MARGIN_X,
+          y: 8,
+          width: PAGE_W - MARGIN_X * 2,
+          height: 18,
+          text: '{{project.name}}',
+          fontSize: '9px',
+          color: '#9ca3af',
+          textAlign: 'center',
+        },
+      ],
     },
   };
 }

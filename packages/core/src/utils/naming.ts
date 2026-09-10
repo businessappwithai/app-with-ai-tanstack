@@ -31,7 +31,17 @@ export function snakeCase(str: string): string {
   }
   return (
     str
-      .replace(/([A-Z])/g, "_$1")
+      // An acronym is one word, and the boundary is where it *ends*.
+      //
+      // The all-caps guard above only catches a name that is nothing but an
+      // acronym. A name that begins with one — "SIPInstruction",
+      // "FATCADeclaration" — fell through to the per-capital rule below and
+      // came out "s_i_p_instruction", which is the table an application was
+      // then generated with while everything reading the same model called it
+      // "sip_instruction". Split the run before its last capital, which is the
+      // letter that starts the next word.
+      .replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2")
+      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
       .replace(/[-\s]+/g, "_")
       .toLowerCase()
       // A boundary that is both a separator and a capital produced two

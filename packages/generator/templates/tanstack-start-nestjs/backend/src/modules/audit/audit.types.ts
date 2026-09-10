@@ -12,6 +12,17 @@ export const AuditAction = {
   ENTITY_DELETE: "ENTITY_DELETE",
   ENTITY_BULK_CREATE: "ENTITY_BULK_CREATE",
 
+  // Record transactions — the two halves of a write.
+  //
+  // A save commits the row as a draft and stops there; a second transaction,
+  // run by Trigger.dev, executes the record's rules and workflows and either
+  // finalises it or leaves it a draft carrying the reason. Both halves are
+  // recorded here because the second one runs outside any HTTP request, where
+  // the audit interceptor cannot see it — and because the user who saved the
+  // record has no other way to learn how it ended up.
+  ENTITY_DRAFT: "ENTITY_DRAFT",
+  ENTITY_FINALIZE: "ENTITY_FINALIZE",
+
   // System dictionary
   SYS_FIELD_UPDATE: "SYS_FIELD_UPDATE",
   SYS_FIELD_GROUP_CHANGE: "SYS_FIELD_GROUP_CHANGE",
@@ -29,6 +40,19 @@ export const AuditAction = {
 export type AuditActionType = (typeof AuditAction)[keyof typeof AuditAction];
 
 export type AuditSource = "WEB_UI" | "API" | "AGENT" | "SYSTEM";
+
+/**
+ * The actions a user sees in their notification list.
+ *
+ * The notification feed is read from the audit trail and from nowhere else, so
+ * this set is what separates "a transaction of mine" from the rest of the
+ * trail — logins, reads, dictionary edits — which belong on the audit page
+ * rather than in a personal notification list.
+ */
+export const TRANSACTION_ACTIONS: readonly string[] = [
+  "ENTITY_DRAFT",
+  "ENTITY_FINALIZE",
+];
 
 export interface AuditEvent {
   id?: string;

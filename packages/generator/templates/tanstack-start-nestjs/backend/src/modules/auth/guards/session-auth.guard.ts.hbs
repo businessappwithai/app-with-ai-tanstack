@@ -48,7 +48,16 @@ export class SessionAuthGuard implements CanActivate {
       // Every line logged for the rest of this request now says who caused it,
       // without the rules engine or the entity service having to be handed a
       // user they have no other use for.
-      setRequestContext({ userId: (session.user as any)?.sys_user_id ?? (session.user as any)?.id ?? null });
+      setRequestContext({
+        userId: (session.user as any)?.sys_user_id ?? (session.user as any)?.id ?? null,
+        // The identity the audit trail is keyed on — see RequestContext.actor.
+        actor: {
+          id: (session.user as any)?.id ?? null,
+          name: (session.user as any)?.name ?? null,
+          email: (session.user as any)?.email ?? null,
+          sessionId: (session as any)?.session?.id ?? null,
+        },
+      });
       request.session = session;
 
       // Enrich with sys_roles when sysUserId is set

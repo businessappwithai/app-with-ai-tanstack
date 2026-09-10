@@ -65,6 +65,17 @@ export interface EmlEntity {
   softDelete?: boolean;
   prefix?: string;
   label?: string;
+  /**
+   * `%%entity <Name> help:` — what this entity is for, in the author's words.
+   *
+   * The only place a model carries the *reason* an entity exists rather than
+   * its shape, which is why it is the text every downstream description is
+   * built from: the generated manual's prose, and the reporting pack's report
+   * and chart descriptions. A model that leaves it out produces reports named
+   * after tables; one that fills it in produces reports named after the
+   * business.
+   */
+  help?: string;
 }
 
 export interface EmlRelationship {
@@ -174,6 +185,39 @@ export interface EmlMeta {
   [key: string]: string | undefined;
 }
 
+/**
+ * `%%report` — a question the application's users actually ask, written into
+ * the model beside the entities it is asked about.
+ *
+ * The reporting pack derives a baseline from structure alone: a register per
+ * entity, a breakdown per enum, a lifecycle per state machine. That baseline
+ * describes the *shape* of the data and nothing about the business running on
+ * it. Nothing in an ERD says that a sales manager opens the application to see
+ * which deals slipped this quarter, or that a dispatcher needs the jobs with no
+ * engineer assigned — those come from knowing the domain, and this directive is
+ * where that knowledge is written down.
+ *
+ * `sql` is deliberately the author's own, and deliberately last on the line: it
+ * runs against the generated application's database as written.
+ */
+export interface EmlReport {
+  /** Stable identifier, used as the pack key. */
+  name: string;
+  /** What the report is called on screen. */
+  title: string;
+  /** The entity it is mainly about, when it is about one. Used for grouping. */
+  entity?: string;
+  /** Absent means a table; present means a chart of this type as well. */
+  chart?: "bar" | "line" | "pie" | "area";
+  /** Result columns the chart plots. Required when `chart` is set. */
+  x?: string;
+  y?: string;
+  /** Who asks this question and why — shown as the report's description. */
+  help?: string;
+  /** The query, exactly as it will be run. */
+  sql: string;
+}
+
 export interface EmlModel {
   meta: EmlMeta;
   entities: EmlEntity[];
@@ -181,6 +225,7 @@ export interface EmlModel {
   enums: EmlEnum[];
   indexes: EmlIndex[];
   rules: EmlRule[];
+  reports: EmlReport[];
   workflows: EmlWorkflow[];
   hooks: EmlHook[];
   guards: EmlGuard[];
@@ -196,6 +241,7 @@ export function emptyModel(): EmlModel {
     enums: [],
     indexes: [],
     rules: [],
+    reports: [],
     workflows: [],
     hooks: [],
     guards: [],

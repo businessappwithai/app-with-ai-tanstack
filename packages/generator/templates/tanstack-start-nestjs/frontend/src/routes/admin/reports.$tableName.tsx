@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, FileText, Home } from "lucide-react";
+import { FileText, Home } from "lucide-react";
+import { useMemo } from "react";
 import { ADSidebar } from "@/components/admin/ad-sidebar";
 import { ReportDesigner } from "@/components/reports/ReportDesigner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,14 +23,25 @@ interface ColumnMetaResponse {
 function ReportDesignPage() {
   const { tableName } = Route.useParams();
 
+  // `/bus/:entity/meta` is the Application Dictionary reading of a table — the
+  // same one every business screen builds its form from, and it accepts either
+  // the physical name (`bus_account`) or the bare one. The path this used to
+  // call, `/sys/entity-metadata/:table`, is served by nothing: the designer's
+  // data-source tree came back empty for every entity, so no field could be
+  // bound and no report could be designed.
   const { data: meta, isLoading } = useQuery({
-    queryKey: ["sys-columns-for-report", tableName],
-    queryFn: () =>
-      apiClient.get<ColumnMetaResponse>(`/sys/entity-metadata/${tableName}`),
+    queryKey: ["report-designer-columns", tableName],
+    queryFn: () => apiClient.get<ColumnMetaResponse>(`/bus/${tableName}/meta`),
     enabled: !!tableName,
   });
 
-  const columns: string[] = (meta?.columns ?? []).map((c) => c.column_name).filter(Boolean);
+  // Memoised: `ReportDesigner` keys its mount effect on this array, and a fresh
+  // one every render would tear the designer down and rebuild it — losing
+  // whatever the user had just placed on the page.
+  const columns: string[] = useMemo(
+    () => (meta?.columns ?? []).map((c) => c.column_name).filter(Boolean),
+    [meta]
+  );
 
   return (
     <ADSidebar>

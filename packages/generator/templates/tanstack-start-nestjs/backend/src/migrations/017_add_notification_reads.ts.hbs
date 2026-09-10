@@ -1,0 +1,51 @@
+import { Kysely, sql } from 'kysely';
+
+/**
+ * Which of a user's transaction notifications they have already read.
+ *
+ * The notifications themselves are not stored: they are read from `audit_log`,
+ * which is the record of what actually happened and the only place a
+ * transaction is allowed to be reported from. Duplicating them into a second
+ * table would create a version of events that can disagree with the trail.
+ *
+ * What the trail cannot hold is a per-user read mark — it is an immutable log,
+ * and "seen" is not a property of the event. So one row per (user, audit event)
+ * is kept here, written the moment the user opens the notification list. A user
+ * with no rows has read nothing, which is the correct starting state and costs
+ * no backfill.
+ *
+ * `audit_id` is not a foreign key. The audit trail is append-only and is
+ * expected to be archived or pruned on its own retention schedule; a constraint
+ * would make pruning it fail on the read marks instead, and a read mark for an
+ * event that no longer exists is simply never joined.
+ */
+export async function up(db: Kysely<any>): Promise<void> {
+  await sql`
+    CREATE TABLE IF NOT EXISTS sys_notification_read (
+      user_id   VARCHAR(200) NOT NULL,
+      audit_id  UUID         NOT NULL,
+      read_at   TIMESTAMPTZ  NOT NULL DEFAULT now(),
+      PRIMARY KEY (user_id, audit_id)
+    )
+  `.execute(db);
+
+  // The notification list is always "this user's marks", never "this event's".
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_notification_read_user
+      ON sys_notification_read (user_id)
+  `.execute(db);
+
+  // The unread count and the feed both filter the trail by user, action and
+  // recency. Without this they sequential-scan a table that grows with every
+  // write the application has ever served.
+  await sql`
+    CREATE INDEX IF NOT EXISTS idx_audit_user_action_time
+      ON audit_log (user_id, action, timestamp DESC)
+  `.execute(db);
+}
+
+export async function down(db: Kysely<any>): Promise<void> {
+  await sql`DROP INDEX IF EXISTS idx_audit_user_action_time`.execute(db);
+  await sql`DROP INDEX IF EXISTS idx_notification_read_user`.execute(db);
+  await sql`DROP TABLE IF EXISTS sys_notification_read`.execute(db);
+}

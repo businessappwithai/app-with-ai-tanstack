@@ -206,6 +206,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/lib/automation",
       "src/components/automation",
       "src/components/reports",
+      "src/components/notifications",
       "test",
     ];
 
@@ -734,6 +735,13 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/reports/ReportDesigner.tsx",
         dest: "src/components/reports/ReportDesigner.tsx",
+      },
+      {
+        // The bell beside Log out. Both the dashboard header and the shared
+        // layout header import it, so omitting it fails the generated build
+        // rather than quietly shipping an application with no notifications.
+        src: "src/components/notifications/notification-bell.tsx",
+        dest: "src/components/notifications/notification-bell.tsx",
       },
       {
         src: "src/components/admin/ad-list-shell.tsx",

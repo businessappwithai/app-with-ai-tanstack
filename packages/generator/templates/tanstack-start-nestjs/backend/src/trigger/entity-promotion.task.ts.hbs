@@ -1,0 +1,108 @@
+/**
+ * Entity Promotion — Trigger.dev v3 Task
+ *
+ * The second half of every write to a business entity.
+ *
+ * `BusService` commits the row as a draft and returns; this task then opens its
+ * own database transaction, runs the record's business rules and workflows and
+ * either marks the record `final` or leaves it a draft carrying the reason it
+ * could not be finalised. Both outcomes are written to the audit trail against
+ * the user who saved the record, which is what puts them in that user's
+ * notification list.
+ *
+ * The task is idempotent by construction: promoting a record that is already
+ * `final` runs the same pipeline and reaches the same state, so a Trigger.dev
+ * retry after an infrastructure failure cannot half-apply anything. The
+ * pipeline's own side effects are inside the transaction it opens, so a retry
+ * either commits all of them or none.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { logger, task } from '@trigger.dev/sdk/v3';
+import { NestFactory } from '@nestjs/core';
+import type { INestApplicationContext } from '@nestjs/common';
+
+import { EntityPromotionService } from '../modules/bus/entity-promotion.service';
+import type { PromotionActor, PromotionResult } from '../modules/bus/entity-promotion.service';
+import { PromotionWorkerModule } from './promotion-worker.module';
+
+export interface EntityPromotionPayload {
+  entityName: string;
+  entityId: string;
+  operation: 'create' | 'update' | 'delete';
+  entityData: Record<string, unknown>;
+  actor?: PromotionActor;
+}
+
+/**
+ * One Nest context per worker process, built on first use.
+ *
+ * Held as the promise rather than the resolved context so two runs starting at
+ * once share a single bootstrap instead of opening two connection pools.
+ */
+let contextPromise: Promise<INestApplicationContext> | undefined;
+
+async function promotionService(): Promise<EntityPromotionService> {
+  if (!contextPromise) {
+    contextPromise = NestFactory.createApplicationContext(PromotionWorkerModule, {
+      // Trigger.dev captures stdout as run logs; Nest's startup chatter would
+      // bury the pipeline's own reporting in every single run.
+      logger: ['error', 'warn'],
+    }).catch((err) => {
+      // A failed bootstrap must not be cached, or every later run in this
+      // process fails with the first run's error.
+      contextPromise = undefined;
+      throw err;
+    });
+  }
+  const context = await contextPromise;
+  return context.get(EntityPromotionService, { strict: false });
+}
+
+export const entityPromotionTask = task({
+  id: 'entity-promotion',
+  maxDuration: 300,
+  retry: {
+    // A business-rule refusal is not retried — `promote` reports it as a result
+    // rather than throwing. These attempts are for the cases that do throw:
+    // the database being unreachable, or the worker losing its connection.
+    maxAttempts: 3,
+    factor: 2,
+    minTimeoutInMs: 1000,
+    maxTimeoutInMs: 15000,
+  },
+  run: async (payload: EntityPromotionPayload): Promise<PromotionResult> => {
+    const service = await promotionService();
+
+    const result = await service.promote(
+      payload.entityName,
+      payload.entityId,
+      payload.operation,
+      payload.entityData,
+      payload.actor,
+    );
+
+    if (result.promoted) {
+      logger.info('Record finalised', {
+        entity: result.entityName,
+        id: result.entityId,
+        operation: result.operation,
+        rules: result.ranRules,
+        workflows: result.ranWorkflows,
+        durationMs: result.durationMs,
+      });
+    } else {
+      logger.warn('Record left as a draft', {
+        entity: result.entityName,
+        id: result.entityId,
+        operation: result.operation,
+        failedStep: result.failedStep,
+        error: result.error,
+      });
+    }
+
+    return result;
+  },
+});

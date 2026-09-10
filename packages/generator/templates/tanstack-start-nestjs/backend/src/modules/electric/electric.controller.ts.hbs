@@ -187,9 +187,29 @@ export class ElectricController {
       // Electric's own cache headers describe a response computed for one role.
       // Passing them through would let a shared cache hand that response to a
       // different role, so the proxy marks every response private.
+      //
+      // The framing headers go too, and that one is not a nicety. Electric
+      // answers `transfer-encoding: chunked`; `fetch` consumes the chunking and
+      // hands back a decoded buffer, so relaying that header alongside a
+      // fixed-length body produced a response whose framing disagreed with its
+      // bytes. Undici refused it outright (`UND_ERR_HTTP_PARSER`) and the front
+      // end's own `/api` proxy answered the browser 500 — for every dictionary
+      // collection, on every page load, with the upstream's `electric-*`
+      // headers still attached so the failure read like an Electric problem.
+      // `content-encoding` and `content-length` are dropped for the same
+      // reason: `fetch` has already decompressed, and the length it measured is
+      // the compressed one.
+      const FRAMING = new Set([
+        'transfer-encoding',
+        'content-encoding',
+        'content-length',
+        'connection',
+        'keep-alive',
+      ]);
       const headers: Record<string, string> = {};
       upstream.headers.forEach((value, key) => {
-        if (key.toLowerCase() === 'cache-control') return;
+        const name = key.toLowerCase();
+        if (name === 'cache-control' || FRAMING.has(name)) return;
         headers[key] = value;
       });
       headers['cache-control'] = 'private, no-store';

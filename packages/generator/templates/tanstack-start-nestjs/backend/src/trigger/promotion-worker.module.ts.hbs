@@ -1,0 +1,51 @@
+/**
+ * Promotion Worker Module
+ *
+ * The dependency graph the `entity-promotion` task needs, and nothing else.
+ *
+ * A Trigger.dev run executes in its own process — Trigger.dev imports the task
+ * file, not `main.ts`, so there is no Nest application around it and no
+ * database connection, rules engine or workflow service in scope. Bootstrapping
+ * the whole `AppModule` there would drag in the HTTP surface, better-auth, the
+ * Electric proxy and the model-context assistant to run one database
+ * transaction.
+ *
+ * So the worker gets its own root: configuration, the database, and the three
+ * modules the promotion pipeline actually calls into. `BusModule` is imported
+ * rather than re-listing `EntityPromotionService` as a provider, so the task
+ * runs the same wiring the API does and the two cannot drift.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+
+import { DatabaseModule } from '../database/database.module';
+import { AuditModule } from '../modules/audit/audit.module';
+import { BusModule } from '../modules/bus/bus.module';
+import { RulesModule } from '../modules/rules/rules.module';
+import { WorkflowModule } from '../modules/workflow/workflow.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      // Same resolution order as the API: __dirname-relative first, so the
+      // worker reads the same .env regardless of the cwd Trigger.dev gives it.
+      envFilePath: [
+        `${__dirname}/../../.env.local`,
+        `${__dirname}/../../.env`,
+        '.env.local',
+        '.env',
+      ],
+    }),
+    DatabaseModule,
+    AuditModule,
+    RulesModule,
+    WorkflowModule,
+    BusModule,
+  ],
+})
+export class PromotionWorkerModule {}

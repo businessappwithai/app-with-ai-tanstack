@@ -75,32 +75,34 @@ export class AuditService implements OnModuleInit {
     }
   }
 
-  /**
-   * Log an audit event. Non-blocking — failures are logged but do not
-   * throw so they never break the business operation being audited.
-   */
-  async log(event: AuditEvent): Promise<void> {
+  /** Fill in the derived fields every stored event carries. */
+  private prepare(event: AuditEvent): AuditEvent & { id: string; immudb_key: string } {
     const id = randomUUID();
-    const ts = new Date().toISOString();
-    const immudbKey = `audit:${Date.now()}:${id}`;
-
-    const safeEvent = {
+    return {
       ...event,
       id,
-      timestamp: ts,
+      timestamp: new Date().toISOString(),
       before_value: maskSensitive(event.before_value ?? null),
       after_value: maskSensitive(event.after_value ?? null),
       changed_fields: event.changed_fields ?? [],
       success: event.success ?? true,
       source: event.source ?? "WEB_UI",
-      immudb_key: immudbKey,
+      immudb_key: `audit:${Date.now()}:${id}`,
     } as AuditEvent & { id: string; immudb_key: string };
+  }
+
+  /**
+   * Log an audit event. Non-blocking — failures are logged but do not
+   * throw so they never break the business operation being audited.
+   */
+  async log(event: AuditEvent): Promise<void> {
+    const safeEvent = this.prepare(event);
 
     // Fire-and-forget immudb write (non-blocking)
     setImmediate(async () => {
       try {
-        const txId = await this.immudb.verifiedSet(immudbKey, JSON.stringify(safeEvent));
-        const resolvedKey = txId !== immudbKey ? txId : immudbKey;
+        const txId = await this.immudb.verifiedSet(safeEvent.immudb_key, JSON.stringify(safeEvent));
+        const resolvedKey = txId !== safeEvent.immudb_key ? txId : safeEvent.immudb_key;
         await this.insertPostgres({ ...safeEvent, immudb_key: resolvedKey });
       } catch (err) {
         this.logger.error(
@@ -111,6 +113,53 @@ export class AuditService implements OnModuleInit {
         );
       }
     });
+  }
+
+  /**
+   * Log an audit event and wait for it to be stored.
+   *
+   * `log` defers its write to `setImmediate`, which is right inside an HTTP
+   * request — the response should not wait on the trail — and wrong inside a
+   * background task, where the process can be torn down the moment the task
+   * returns and take the pending write with it. The record-transaction events
+   * are the user's only notification that their save finished, so those are
+   * written on this path instead: Postgres first and awaited, then the immudb
+   * proof best-effort behind it.
+   *
+   * Returns the stored row's id so a caller can correlate the two halves of a
+   * transaction. Never throws — a trail that breaks the operation it records is
+   * worse than a gap in the trail.
+   */
+  async logAndWait(event: AuditEvent): Promise<string | null> {
+    const safeEvent = this.prepare(event);
+
+    try {
+      await this.insertPostgres(safeEvent);
+    } catch (err) {
+      this.logger.error(
+        `Audit log write failed: ${err instanceof Error ? err.message : String(err)}`
+      );
+      return null;
+    }
+
+    setImmediate(async () => {
+      try {
+        const txId = await this.immudb.verifiedSet(safeEvent.immudb_key, JSON.stringify(safeEvent));
+        if (txId && txId !== safeEvent.immudb_key) {
+          await this.kysely
+            .updateTable("audit_log" as any)
+            .set({ immudb_key: txId } as any)
+            .where("id" as any, "=", safeEvent.id)
+            .execute();
+        }
+      } catch (err) {
+        this.logger.warn(
+          `immudb proof not written for ${safeEvent.id}: ${err instanceof Error ? err.message : String(err)}`
+        );
+      }
+    });
+
+    return safeEvent.id;
   }
 
   private async insertPostgres(

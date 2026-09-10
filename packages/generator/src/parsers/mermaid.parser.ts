@@ -28,6 +28,7 @@ import type {
   EntityIndex,
   Relationship,
 } from "@appwithai/core/types";
+import { snakeCase } from "@appwithai/core/utils";
 import { getCardinalityKind, getDefaultType, getTypeMap } from "./language-maps";
 
 // Type mapping from Mermaid types to our standard types.
@@ -575,18 +576,17 @@ export class MermaidParser {
    * - CONSTANT_CASE: CONSTANT_CASE → constant_case
    * - snake_case: snake_case → snake_case
    */
+  /**
+   * One snake-caser, in core.
+   *
+   * This was a second implementation, and the two disagreed on a name that
+   * begins with an acronym: `SIPInstruction` became `s_i_p_instruction` here
+   * and `sip_instruction` everywhere that reads the same model, so the
+   * generated application carried tables nothing else could name. A parser that
+   * decides identifiers its own way is a parser that can be wrong on its own.
+   */
   private toSnakeCase(str: string): string {
-    // If string is already snake_case format (contains only uppercase letters, numbers, and underscores)
-    // just convert to lowercase
-    if (/^[A-Z0-9_]+$/.test(str)) {
-      return str.toLowerCase();
-    }
-
-    // Otherwise, convert PascalCase/camelCase to snake_case
-    return str
-      .replace(/([A-Z])/g, "_$1")
-      .toLowerCase()
-      .replace(/^_/, "");
+    return snakeCase(str);
   }
 
   /**

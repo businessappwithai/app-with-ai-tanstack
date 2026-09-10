@@ -49,6 +49,7 @@ const SECTION_OPENERS = /^(erDiagram|flowchart|graph|stateDiagram-v2|stateDiagra
 export function parseEml(source: string): EmlModel {
   const model = emptyModel();
   fieldEnumRefs.length = 0;
+  fieldHelp.length = 0;
   const diags = model.diagnostics;
   const normalized = source.replace(/\r\n/g, "\n");
   const rawLines = normalized.split("\n");
@@ -126,6 +127,13 @@ interface FieldEnumRef {
 }
 const fieldEnumRefs: FieldEnumRef[] = [];
 
+interface FieldHelp {
+  entity: string;
+  attr: string;
+  text: string;
+}
+const fieldHelp: FieldHelp[] = [];
+
 function parseDirective(line: string, n: number, model: EmlModel): DirectiveResult | undefined {
   const body = line.replace(/^%%/, "").trim();
   const { head: keyword, rest } = splitHead(body);
@@ -192,7 +200,70 @@ function parseDirective(line: string, n: number, model: EmlModel): DirectiveResu
       if (m) {
         const [entity, attr, key, value] = caps(m, 4);
         if (key === "enum") fieldEnumRefs.push({ entity, attr, enumName: value.trim() });
+        // The column's own help text. Deferred like the enum bindings above,
+        // because a %%field directive may be read before the ERD block that
+        // declares the column it names.
+        else if (key === "help" || key === "description")
+          fieldHelp.push({ entity, attr, text: value.trim() });
       }
+      return;
+    }
+    case "report": {
+      // `sql:` takes the rest of the line, because SQL contains spaces and
+      // colons and would otherwise be shredded by the key/value scan. Every
+      // other key is read from the head, ahead of it.
+      const split = rest.match(/^(.*?)\bsql:\s*(.+)$/s);
+      if (!split) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML290",
+          message: `%%report has no sql: clause: "${line}"`,
+          line: n,
+        });
+        return;
+      }
+      const [head, sql] = caps(split, 2);
+      const nameMatch = head.match(/^([A-Za-z_][\w-]*)\s*/);
+      if (!nameMatch) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML291",
+          message: `%%report has no name: "${line}"`,
+          line: n,
+        });
+        return;
+      }
+      const [name] = caps(nameMatch, 1);
+      const keys = head.slice(nameMatch[0].length);
+      const read = (key: string): string | undefined => {
+        const m2 = keys.match(
+          new RegExp(`\\b${key}:\\s*(.*?)(?=\\s+(?:title|entity|chart|x|y|help):|$)`, "s")
+        );
+        return m2?.[1]?.trim() || undefined;
+      };
+      const chartRaw = read("chart");
+      const chart =
+        chartRaw === "bar" || chartRaw === "line" || chartRaw === "pie" || chartRaw === "area"
+          ? chartRaw
+          : undefined;
+      if (chartRaw && !chart) {
+        model.diagnostics.push({
+          severity: "error",
+          code: "EML296",
+          message: `%%report "${name}" has unknown chart type "${chartRaw}".`,
+          line: n,
+        });
+      }
+      model.reports.push({
+        name,
+        title: read("title") ?? name.replace(/[_-]+/g, " "),
+        entity: read("entity"),
+        chart,
+        x: read("x"),
+        y: read("y"),
+        help: read("help"),
+        sql: sql.trim(),
+      });
       return;
     }
     case "enum": {
@@ -305,6 +376,9 @@ function applyEntityMeta(model: EmlModel, name: string, key: string, value: stri
   else if (key === "softDelete") e.softDelete = value === "true";
   else if (key === "prefix") e.prefix = value;
   else if (key === "label") e.label = value;
+  // `help:` and `description:` are the same key under two spellings, and both
+  // are compiled rather than decorative — see EmlEntity.help.
+  else if (key === "help" || key === "description") e.help = value;
 }
 
 // ---------------------------------------------------------------------------
@@ -656,4 +730,14 @@ function applyFieldEnumRefs(model: EmlModel): void {
     if (attr) attr.enumRef = ref.enumName;
   }
   fieldEnumRefs.length = 0;
+
+  // `%%field <E>.<c> help:` wins over an inline "description" on the ERD line:
+  // the directive is the later, more deliberate statement of the two, and a
+  // model carrying both means the author wrote the directive to replace it.
+  for (const h of fieldHelp) {
+    const entity = model.entities.find((e) => e.name === h.entity);
+    const attr = entity?.attributes.find((a) => a.name === h.attr);
+    if (attr) attr.description = h.text;
+  }
+  fieldHelp.length = 0;
 }
