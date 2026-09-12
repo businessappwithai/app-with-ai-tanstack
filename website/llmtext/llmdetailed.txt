@@ -476,10 +476,51 @@ already in the ERD, marked `sys_column.is_parent` and stored as
 drop the relationship line: the directive names the parent, the ERD still draws
 the edge.
 
-Two errors police it: `EML147` when the parent is not declared (or an entity
-names itself), `EML148` when the child has no foreign key back — a line item
-with nothing to link on would lose its own window and gain no tab, which is an
-entity that has quietly left the application.
+Four codes police it:
+
+| Code | Severity | Fires when |
+|---|---|---|
+| `EML147` | error | the parent is not declared, or an entity names itself |
+| `EML148` | error | the child has no foreign key back — nothing for the tab to link on |
+| `EML149` | info | an entity is *shaped* like a line item and declares no `parent:` |
+| `EML150` | warning | a declared child is still named in a `%%category` |
+
+`EML147` and `EML148` are errors because a line item with nothing to link on
+loses its own window and gains no tab, which is an entity that has quietly left
+the application.
+
+`EML149` is an **info and never an error**, because the three questions above are
+about the business and not about the document: only you know whether a list of
+these records away from their owner is a screen anyone opens. The checker can
+only say that the shape is there, and it names both the candidate parent and the
+column a tab would link on. It fires on two shapes, each of which also requires
+that foreign key: an entity whose name **begins** with a declared entity's name
+(`InvoiceLine`/`Invoice`, `TeamMember`/`Team`,
+`FinancialPlanAssumption`/`FinancialPlan`), and an entity whose name **ends** in a
+line-item noun — `Line`, `LineItem`, `Item`, `Detail`, `Entry`, `Row` — whose
+foreign key resolves to a declared entity (`RecommendationItem` under
+`InvestmentRecommendation`).
+
+**Answer every `EML149` before you deliver.** Either declare the parent, or
+satisfy yourself that the entity is a thing in its own right and leave it — an
+`EML149` you have walked and rejected is not a fault, and the run still reports
+`OK`. What is not acceptable is not having looked: if nobody decides, the default
+is a dashboard card listing every line ever written and a parent record that does
+not show its own lines.
+
+`EML150` is a warning rather than an error because nothing breaks — but the two
+directives contradict each other. `parent:` takes the child's dashboard card
+away and the category asks for one, so the group counts an entity the reader can
+never open from it. Take the child out of the `entities:` list.
+
+**What the running application does with it.** Both stacks read the same three
+rows and nothing else. Opening a parent record shows one tab per line item below
+the form, each listing only the rows whose `is_parent` column holds that
+record's key, with a live count on the tab and a row click that opens the child.
+The dashboard and the navigation are built from the entities that have a window,
+so the child appears in neither. None of that is decided by a screen — it is
+`sys_tab.tab_level`, `sys_tab.link_column_id` and `sys_column.is_parent`, which
+is why the model's answer and the application's arrangement cannot drift apart.
 
 A child is still a real table with real rules, access control and a form. It is
 only its *placement* that changes. Leave it out of `%%category` — a category
@@ -1769,10 +1810,19 @@ explicitly of every entity and answered in the document:
    "line 1"?
 3. Would deleting the owner make the row meaningless?
 
-Any *yes* to 2 or 3, or *no* to 1, is a child: `%%entity <Child> parent: <Parent>`.
-The noun is usually the tell — a *line*, an *item*, a *detail*, an *entry*.
-Getting this wrong is not cosmetic: a missed child puts a screen on the dashboard
-listing every line ever written, which is a screen nobody opens.
+Any *yes* to 2 or 3, or *no* to 1, is a child: `%%entity <Child> parent: <Parent>`,
+and that child is left out of `%%category` — a category is the dashboard's
+grouping and a child has no card there (`EML150`). The noun is usually the tell —
+a *line*, an *item*, a *detail*, an *entry*. Getting this wrong is not cosmetic:
+a missed child puts a screen on the dashboard listing every line ever written,
+which is a screen nobody opens, and leaves the parent record showing no sign of
+its own lines.
+
+The checker will not decide it for you, but it will not let you skip the
+question either: `EML149` names every entity whose shape says line item and
+whose model says nothing, together with the parent it would link to. Bring that
+list to **Gate B** — it is the cheapest moment to settle it, and the roster is
+where the user's own answer belongs.
 
 Close the document with a **relationship sketch** — every pair that relates, the
 cardinality, and which side carries the foreign key. It does not need to be
@@ -2142,7 +2192,9 @@ checklist and fix what it finds:
 - [ ] every entity has `%%entity <Name> help:`;
 - [ ] **every column** has `%%field <E>.<col> help:` — including `status`, the
       foreign keys and the enums, including the obvious ones;
-- [ ] every child has a parent and a foreign key back to it (`EML148`);
+- [ ] every child has a parent and a foreign key back to it (`EML148`), no child
+      is named in a `%%category` (`EML150`), and every `EML149` candidate has
+      been walked and either declared or deliberately left;
 - [ ] every state in every `stateDiagram-v2` is backed by a declared `%%enum`;
 - [ ] every cross-entity effect from every dossier landed somewhere real — a
       hook, a rule action, or a saga step;
@@ -2726,7 +2778,9 @@ Most entities are one of six shapes, and the shape predicts most of the dossier:
 | **Ledger / balance** | AccountBalance, CreditWallet | No | No | owner FK, balance, as_of, last_movement FK |
 
 The useful reading: an **artefact** without a state machine is nearly always an
-oversight, and a **line item** without `parent:` is nearly always a bug.
+oversight, and a **line item** without `parent:` is nearly always a bug — which
+is what `EML149` is for: it names the candidates it can see, and leaves the
+decision to you.
 
 #### Question banks
 

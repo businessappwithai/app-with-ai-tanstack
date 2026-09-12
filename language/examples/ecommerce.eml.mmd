@@ -82,6 +82,7 @@ erDiagram
     %%index Order(customer_id, status)
     %%index Product(sku) unique
     %%entity Order audited: true
+    %%entity OrderItem parent: Order
 
 %% ---- Section 2: Business rule — pricing & discount -------------------------
 %%meta name: Order Pricing

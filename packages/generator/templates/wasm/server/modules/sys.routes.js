@@ -126,9 +126,19 @@ export function sysRoutes(model) {
 
   router.get("/categories/with-entities", async (_request, { db, user }) => {
     const categories = await db.select("sys_category", { orderBy: "seq_no" });
+    /* A line item — `%%entity <Child> parent: <Parent>` — has no window and no
+       card: it is reached by opening a parent record, and a dashboard listing
+       every invoice line ever written detached from its invoice is the screen
+       the directive exists to prevent. `tab_level` is where the model's answer
+       survives, so the dashboard reads it rather than deciding again. */
     const all = await db.query(
       `SELECT t.table_name, t.name, t.sys_category_id FROM sys_table t
-        WHERE t.entity_type = 'bus' ORDER BY t.name`
+        WHERE t.entity_type = 'bus'
+          AND NOT EXISTS (
+            SELECT 1 FROM sys_tab tab
+             WHERE tab.sys_table_id = t.sys_table_id AND tab.tab_level > 0
+          )
+        ORDER BY t.name`
     );
     const visible = readableTables(user, model);
     const tables = visible ? all.filter((table) => visible.has(table.table_name)) : all;

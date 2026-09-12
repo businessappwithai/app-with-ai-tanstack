@@ -498,7 +498,17 @@ var appwithai_language_default = {
         "Does the row's identity depend on the owner - line 1 of invoice 7, rather than line 1? If so, it is a child.",
         "Would deleting the owner make the row meaningless? If so, it is a child.",
         "A reference is the opposite: Invoice.patient_id points at a Patient who exists, and matters, independently."
-      ]
+      ],
+      whyItMustBeDeclared: "Nothing derives it, and the default is not an error. A model that never writes the directive produces an application in which every line item carries its own dashboard card and its own screen, and no parent record shows its own lines — an invoice whose lines cannot be read from it, beside a card listing every line ever written. EML149 exists to name the candidates, because a silent default is the one thing a checker can still be useful about.",
+      leaveItOutOfCategory: "A %%category is the dashboard's grouping, and a child has no card, so naming a child in one asks for a card the dictionary will not create. Reported as EML150.",
+      detection: {
+        description: "EML149 is an info rather than an error, because whether a list of these records away from their owner is useful to anyone is a question about the business and not about the document. The checker names the candidate parent and the foreign key the tab would link on; the author answers it either way.",
+        shapes: [
+          "The entity's name begins with a declared entity's name and it carries a foreign key to that entity — InvoiceLine/Invoice, OrderItem/Order, TeamMember/Team, FinancialPlanAssumption/FinancialPlan. The longest match wins, so a name that begins with two declared entities belongs to the longer one.",
+          "The entity's name ends in a line-item noun (Line, LineItem, Item, Detail, Entry, Row, singular or plural) and one of its foreign keys resolves to a declared entity — RecommendationItem under InvestmentRecommendation."
+        ],
+        quietOn: "An entity that merely references another. Most foreign keys are references, and neither shape fires on one."
+      }
     },
     checkerCodes: {
       EML103: "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
@@ -506,6 +516,8 @@ var appwithai_language_default = {
       EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
       EML147: "%%entity ... parent: names an entity that is not declared, or the entity names itself.",
       EML148: "%%entity ... parent: is declared but the child has no foreign key back to the parent, so the detail tab has nothing to link on.",
+      EML149: "info — an entity shaped like a line item that declares no parent:. Names the candidate parent and the column a tab would link on. Never an error: identifyingAChild's three questions are about the business, not the document.",
+      EML150: "warning — an entity declared parent: is also named in a %%category. The category asks for a dashboard card the directive has taken away.",
       EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     reportDesigns: {
@@ -1442,7 +1454,7 @@ var appwithai_language_default = {
       "EML001-EML099": "Document level: metadata, emptiness, section structure.",
       "EML100-EML119": "Entities and attributes.",
       "EML120-EML129": "Relationships.",
-      "EML130-EML199": "Directives attached to the ERD: %%enum, %%field, %%entity, %%index.",
+      "EML130-EML199": "Directives attached to the ERD: %%enum, %%field, %%entity, %%index, %%category — including the line-item pair EML149 and EML150.",
       "EML200-EML299": "Hooks, guards, triggers, workflows and rules as declared by directives.",
       "EML300-EML399": "Business-rule flowcharts.",
       "EML400-EML449": "Workflow sections: hook, state and saga.",
@@ -8031,6 +8043,7 @@ class CheckEngine {
     this.checkFieldDirectives();
     this.checkIndexDirectives();
     this.checkEntityDirectives();
+    this.checkLineItems();
     this.checkHooks();
     this.checkAutomationTriggers();
     this.checkGuards();
@@ -8482,16 +8495,95 @@ class CheckEngine {
             hint: "A line item belongs to a different entity. Remove the directive if it has no owner."
           });
         } else if (child) {
-          const snake = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
-          const link = child.attributes.find((attribute) => attribute.isForeignKey && (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`)));
+          const link = this.linkColumnTo(child, parentName);
           if (!link) {
             this.error("EML148", `%%entity ${entityName} parent: ${parentName}, but ${entityName} has no foreign key to it.`, {
               line: lineNo,
-              hint: `Add \`string ${snake}_id FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`
+              hint: `Add \`string ${this.entityToFkName(parentName)} FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`
             });
           }
         }
       }
+    }
+  }
+  declaredParents() {
+    const parents = new Map;
+    for (const { text } of this.src.findAll(/^\s*%%entity\b/)) {
+      const m = text.trim().match(/^%%entity\s+(\w+)\s+parent\s*:\s*(\S+)\s*$/);
+      if (m?.[1] && m[2])
+        parents.set(m[1], m[2]);
+    }
+    return parents;
+  }
+  categorisedEntities() {
+    const named = new Map;
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%category\b/)) {
+      const m = text.match(/entities\s*:\s*([^;]*)/);
+      if (!m?.[1])
+        continue;
+      for (const raw of m[1].split(",")) {
+        const name = raw.trim();
+        if (name && !named.has(name))
+          named.set(name, lineNo);
+      }
+    }
+    return named;
+  }
+  linkColumnTo(entity, parentName) {
+    const snake = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
+    return entity.attributes.find((attribute) => attribute.isForeignKey && (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`)));
+  }
+  checkLineItems() {
+    const parents = this.declaredParents();
+    const categorised = this.categorisedEntities();
+    const declared = new Map(this.model.entities.map((e) => [e.name, e]));
+    for (const [child, parent] of parents) {
+      const line = categorised.get(child);
+      if (line === undefined || !declared.has(child))
+        continue;
+      this.warn("EML150", `"${child}" is a line item of "${parent}" but is named in a %%category.`, {
+        line,
+        hint: `A category lists what the dashboard shows, and a child has no card — it is reached by opening a ${parent}. Remove "${child}" from the entities: list.`
+      });
+    }
+    const LINE_ITEM_NOUNS = /(Line|LineItem|Item|Detail|Entry|Row)s?$/;
+    for (const entity of this.model.entities) {
+      if (parents.has(entity.name))
+        continue;
+      let candidate;
+      for (const other of declared.keys()) {
+        if (other === entity.name || other.length < 3)
+          continue;
+        if (!entity.name.startsWith(other) || entity.name.length <= other.length)
+          continue;
+        if (!this.linkColumnTo(entity, other))
+          continue;
+        if (!candidate || other.length > candidate.length)
+          candidate = other;
+      }
+      if (!candidate && LINE_ITEM_NOUNS.test(entity.name)) {
+        for (const attribute of entity.attributes) {
+          if (!attribute.isForeignKey || attribute.isPrimaryKey)
+            continue;
+          if (!isForeignKeyColumnName(attribute.name))
+            continue;
+          if (isPersonRoleColumn(attribute.name))
+            continue;
+          const target = this.fkToEntityName(attribute.name);
+          const match = [...declared.keys()].find((name) => name !== entity.name && (name === target || name.endsWith(target)));
+          if (match && this.linkColumnTo(entity, match)) {
+            candidate = match;
+            break;
+          }
+        }
+      }
+      if (!candidate)
+        continue;
+      const link = this.linkColumnTo(entity, candidate);
+      this.info("EML149", `"${entity.name}" looks like a line item of "${candidate}" but declares no parent.`, {
+        line: this.src.findLine(new RegExp(`^\\s*${entity.name}\\s*\\{`)),
+        hint: `If a list of every ${entity.name} away from its ${candidate} is not a screen anyone opens, ` + `declare \`%%entity ${entity.name} parent: ${candidate}\` — the dictionary then drops its dashboard ` + `card and gives it a tab inside the ${candidate} window, linked on ${link?.name}. ` + `If it is a thing in its own right, leave it: a reference is the opposite on all three questions (§3.5.1).`
+      });
     }
   }
   checkHooks() {
@@ -14692,9 +14784,19 @@ export function sysRoutes(model) {
 
   router.get("/categories/with-entities", async (_request, { db, user }) => {
     const categories = await db.select("sys_category", { orderBy: "seq_no" });
+    /* A line item — \`%%entity <Child> parent: <Parent>\` — has no window and no
+       card: it is reached by opening a parent record, and a dashboard listing
+       every invoice line ever written detached from its invoice is the screen
+       the directive exists to prevent. \`tab_level\` is where the model's answer
+       survives, so the dashboard reads it rather than deciding again. */
     const all = await db.query(
       \`SELECT t.table_name, t.name, t.sys_category_id FROM sys_table t
-        WHERE t.entity_type = 'bus' ORDER BY t.name\`
+        WHERE t.entity_type = 'bus'
+          AND NOT EXISTS (
+            SELECT 1 FROM sys_tab tab
+             WHERE tab.sys_table_id = t.sys_table_id AND tab.tab_level > 0
+          )
+        ORDER BY t.name\`
     );
     const visible = readableTables(user, model);
     const tables = visible ? all.filter((table) => visible.has(table.table_name)) : all;
@@ -18687,7 +18789,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 330220;
+var RUNTIME_BYTES = 330776;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

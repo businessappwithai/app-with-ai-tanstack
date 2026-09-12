@@ -390,6 +390,7 @@ class CheckEngine {
     this.checkFieldDirectives();
     this.checkIndexDirectives();
     this.checkEntityDirectives();
+    this.checkLineItems();
     this.checkHooks();
     this.checkAutomationTriggers();
     this.checkGuards();
@@ -1117,24 +1118,176 @@ class CheckEngine {
             hint: "A line item belongs to a different entity. Remove the directive if it has no owner.",
           });
         } else if (child) {
-          const snake = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
-          const link = child.attributes.find(
-            (attribute) =>
-              attribute.isForeignKey &&
-              (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`))
-          );
+          /* One resolver for the link column, shared with EML149, so a parent
+             the checker suggests is one it will then accept. Its own snake-caser
+             used to drop the acronym rule — `KYCRecord` came out `kycrecord` —
+             and a model naming `kyc_record_id`, which is the column the
+             generator emits, was told it had no foreign key to its parent. */
+          const link = this.linkColumnTo(child, parentName);
           if (!link) {
             this.error(
               "EML148",
               `%%entity ${entityName} parent: ${parentName}, but ${entityName} has no foreign key to it.`,
               {
                 line: lineNo,
-                hint: `Add \`string ${snake}_id FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`,
+                hint: `Add \`string ${this.entityToFkName(parentName)} FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`,
               }
             );
           }
         }
       }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // EML149-EML150: line items, and where the dictionary puts them
+  // -------------------------------------------------------------------------
+
+  /**
+   * Read `%%entity <Child> parent: <Parent>` off the source.
+   *
+   * The checker's own model carries no `parentEntity` — `checkEntityDirectives`
+   * reads the directive lines directly and so does this — which keeps both
+   * halves of the rule reading the same bytes the author wrote.
+   */
+  private declaredParents(): Map<string, string> {
+    const parents = new Map<string, string>();
+    for (const { text } of this.src.findAll(/^\s*%%entity\b/)) {
+      const m = text.trim().match(/^%%entity\s+(\w+)\s+parent\s*:\s*(\S+)\s*$/);
+      if (m?.[1] && m[2]) parents.set(m[1], m[2]);
+    }
+    return parents;
+  }
+
+  /** Every entity named by a `%%category ... entities:` list, with its line. */
+  private categorisedEntities(): Map<string, number> {
+    const named = new Map<string, number>();
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%category\b/)) {
+      const m = text.match(/entities\s*:\s*([^;]*)/);
+      if (!m?.[1]) continue;
+      for (const raw of m[1].split(",")) {
+        const name = raw.trim();
+        if (name && !named.has(name)) named.set(name, lineNo);
+      }
+    }
+    return named;
+  }
+
+  /**
+   * The foreign key an entity would link to `parentName` on — the same rule
+   * EML148 and `dictionary.generator` use, so a candidate the checker offers is
+   * one the directive would actually be able to link.
+   */
+  private linkColumnTo(entity: EmlEntity, parentName: string): EmlAttribute | undefined {
+    const snake = parentName
+      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+      .replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2")
+      .toLowerCase();
+    return entity.attributes.find(
+      (attribute) =>
+        attribute.isForeignKey &&
+        (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`))
+    );
+  }
+
+  private checkLineItems(): void {
+    const parents = this.declaredParents();
+    const categorised = this.categorisedEntities();
+    const declared = new Map(this.model.entities.map((e) => [e.name, e]));
+
+    /*
+     * EML150: a child named in a %%category.
+     *
+     * A category is the dashboard's grouping, and `parent:` is the directive
+     * that takes a child's dashboard card away. Naming a child in a category
+     * therefore asks for a card that the dictionary will not create: the group
+     * counts an entity the reader can never open from it. Mechanical, and there
+     * is nothing to weigh — the two directives contradict each other.
+     */
+    for (const [child, parent] of parents) {
+      const line = categorised.get(child);
+      if (line === undefined || !declared.has(child)) continue;
+      this.warn(
+        "EML150",
+        `"${child}" is a line item of "${parent}" but is named in a %%category.`,
+        {
+          line,
+          hint: `A category lists what the dashboard shows, and a child has no card — it is reached by opening a ${parent}. Remove "${child}" from the entities: list.`,
+        }
+      );
+    }
+
+    /*
+     * EML149: an entity shaped like a line item that never says so.
+     *
+     * The ERD cannot tell a line item from a reference — `InvoiceLine.invoice_id`
+     * and `Invoice.patient_id` are both a foreign key with a relationship behind
+     * it — so `parent:` is the only place a model can say which it is, and the
+     * cost of never saying it is a dashboard card listing every line ever
+     * written and a parent record that does not show its own lines.
+     *
+     * Nothing here can decide it: whether a list of these records away from
+     * their owner is useful to anyone is a question about the business, not
+     * about the document. So this is an `info` that names the candidate and the
+     * parent it would link to, and the author answers it either way. It is
+     * deliberately narrow — the entity's name has to *begin* with a declared
+     * entity's name (InvoiceLine/Invoice, OrderItem/Order, TeamMember/Team), or
+     * end in one of the line-item nouns, and in both cases it has to carry the
+     * foreign key the tab would link on. An entity that merely references
+     * another stays quiet.
+     */
+    const LINE_ITEM_NOUNS = /(Line|LineItem|Item|Detail|Entry|Row)s?$/;
+
+    for (const entity of this.model.entities) {
+      if (parents.has(entity.name)) continue;
+
+      // Longest match wins: FinancialPlanAssumption belongs to FinancialPlan,
+      // not to whatever shorter entity happens to share its first word.
+      let candidate: string | undefined;
+      for (const other of declared.keys()) {
+        if (other === entity.name || other.length < 3) continue;
+        if (!entity.name.startsWith(other) || entity.name.length <= other.length) continue;
+        if (!this.linkColumnTo(entity, other)) continue;
+        if (!candidate || other.length > candidate.length) candidate = other;
+      }
+
+      /*
+       * The second shape: the noun says line item even though the parent's name
+       * is not a prefix of it — RecommendationItem under InvestmentRecommendation.
+       * Only then, and only through a foreign key that resolves to a declared
+       * entity, so the candidate offered is one `parent:` could link.
+       */
+      if (!candidate && LINE_ITEM_NOUNS.test(entity.name)) {
+        for (const attribute of entity.attributes) {
+          if (!attribute.isForeignKey || attribute.isPrimaryKey) continue;
+          if (!isForeignKeyColumnName(attribute.name)) continue;
+          if (isPersonRoleColumn(attribute.name)) continue;
+          const target = this.fkToEntityName(attribute.name);
+          const match = [...declared.keys()].find(
+            (name) => name !== entity.name && (name === target || name.endsWith(target))
+          );
+          if (match && this.linkColumnTo(entity, match)) {
+            candidate = match;
+            break;
+          }
+        }
+      }
+
+      if (!candidate) continue;
+
+      const link = this.linkColumnTo(entity, candidate);
+      this.info(
+        "EML149",
+        `"${entity.name}" looks like a line item of "${candidate}" but declares no parent.`,
+        {
+          line: this.src.findLine(new RegExp(`^\\s*${entity.name}\\s*\\{`)),
+          hint:
+            `If a list of every ${entity.name} away from its ${candidate} is not a screen anyone opens, ` +
+            `declare \`%%entity ${entity.name} parent: ${candidate}\` — the dictionary then drops its dashboard ` +
+            `card and gives it a tab inside the ${candidate} window, linked on ${link?.name}. ` +
+            `If it is a thing in its own right, leave it: a reference is the opposite on all three questions (§3.5.1).`,
+        }
+      );
     }
   }
 

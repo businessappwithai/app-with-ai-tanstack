@@ -391,7 +391,17 @@
         "Does the row's identity depend on the owner - line 1 of invoice 7, rather than line 1? If so, it is a child.",
         "Would deleting the owner make the row meaningless? If so, it is a child.",
         "A reference is the opposite: Invoice.patient_id points at a Patient who exists, and matters, independently."
-      ]
+      ],
+      "whyItMustBeDeclared": "Nothing derives it, and the default is not an error. A model that never writes the directive produces an application in which every line item carries its own dashboard card and its own screen, and no parent record shows its own lines \u2014 an invoice whose lines cannot be read from it, beside a card listing every line ever written. EML149 exists to name the candidates, because a silent default is the one thing a checker can still be useful about.",
+      "leaveItOutOfCategory": "A %%category is the dashboard's grouping, and a child has no card, so naming a child in one asks for a card the dictionary will not create. Reported as EML150.",
+      "detection": {
+        "description": "EML149 is an info rather than an error, because whether a list of these records away from their owner is useful to anyone is a question about the business and not about the document. The checker names the candidate parent and the foreign key the tab would link on; the author answers it either way.",
+        "shapes": [
+          "The entity's name begins with a declared entity's name and it carries a foreign key to that entity \u2014 InvoiceLine/Invoice, OrderItem/Order, TeamMember/Team, FinancialPlanAssumption/FinancialPlan. The longest match wins, so a name that begins with two declared entities belongs to the longer one.",
+          "The entity's name ends in a line-item noun (Line, LineItem, Item, Detail, Entry, Row, singular or plural) and one of its foreign keys resolves to a declared entity \u2014 RecommendationItem under InvestmentRecommendation."
+        ],
+        "quietOn": "An entity that merely references another. Most foreign keys are references, and neither shape fires on one."
+      }
     },
     "checkerCodes": {
       "EML103": "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
@@ -399,6 +409,8 @@
       "EML146": "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
       "EML147": "%%entity ... parent: names an entity that is not declared, or the entity names itself.",
       "EML148": "%%entity ... parent: is declared but the child has no foreign key back to the parent, so the detail tab has nothing to link on.",
+      "EML149": "info \u2014 an entity shaped like a line item that declares no parent:. Names the candidate parent and the column a tab would link on. Never an error: identifyingAChild's three questions are about the business, not the document.",
+      "EML150": "warning \u2014 an entity declared parent: is also named in a %%category. The category asks for a dashboard card the directive has taken away.",
       "EML500": "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     "reportDesigns": {
@@ -1325,7 +1337,7 @@
       "EML001-EML099": "Document level: metadata, emptiness, section structure.",
       "EML100-EML119": "Entities and attributes.",
       "EML120-EML129": "Relationships.",
-      "EML130-EML199": "Directives attached to the ERD: %%enum, %%field, %%entity, %%index.",
+      "EML130-EML199": "Directives attached to the ERD: %%enum, %%field, %%entity, %%index, %%category \u2014 including the line-item pair EML149 and EML150.",
       "EML200-EML299": "Hooks, guards, triggers, workflows and rules as declared by directives.",
       "EML300-EML399": "Business-rule flowcharts.",
       "EML400-EML449": "Workflow sections: hook, state and saga.",

@@ -6,19 +6,19 @@
 %% Every entity is named by exactly one category. The dashboard is built from
 %% these and nothing else, so an entity left out of all of them is a table with
 %% no way in.
-%%category name: Party and Household; description: Legal identities, the households they belong to and the contact, nominee and mandate records attached to them; icon: Users; color: #6366f1; entities: Party, Person, Organization, Household, HouseholdMember, Client, Address, ContactPoint, Nominee, PowerOfAttorney
-%%category name: Advisor and Organization; description: The firm itself — its units, advisors, teams and the households each advisor is assigned; icon: Building2; color: #0ea5e9; entities: OrganizationUnit, Advisor, AdvisorAssignment, Team, TeamMember
+%%category name: Party and Household; description: Legal identities, the households they belong to and the contact, nominee and mandate records attached to them; icon: Users; color: #6366f1; entities: Party, Person, Organization, Household, Client, PowerOfAttorney
+%%category name: Advisor and Organization; description: The firm itself — its units, advisors, teams and the households each advisor is assigned; icon: Building2; color: #0ea5e9; entities: OrganizationUnit, Advisor, Team
 %%category name: CRM and Onboarding; description: Prospects, the conversations held with them, service requests raised afterwards, and the case that carries a prospect through to an active client; icon: UserPlus; color: #ec4899; entities: Prospect, Interaction, Activity, ServiceRequest, OnboardingCase
-%%category name: Compliance and Identity; description: The regulatory file — KYC, FATCA and CRS declarations, suitability assessments, identity documents, signatures and the audit trail; icon: ShieldCheck; color: #f59e0b; entities: KYCRecord, KYCVerification, FATCADeclaration, CRSDeclaration, SuitabilityAssessment, IdentityDocument, ESignatureRequest, BankAccount, Document, AuditEvent, AdvancedComplianceRecord
-%%category name: Financial Planning; description: The plan itself — assumptions, income, expenses, liabilities, cash flows, goals and the scenarios run against them; icon: Target; color: #14b8a6; entities: FinancialPlan, FinancialPlanAssumption, IncomeSource, Expense, Liability, CashFlow, Goal, GoalFunding, GoalProjection, Scenario, ScenarioAssumption
-%%category name: Risk; description: How much risk a household says it will take, how that was assessed, and how the assessment has changed; icon: Gauge; color: #ef4444; entities: RiskAssessment, RiskProfile, RiskProfileHistory
+%%category name: Compliance and Identity; description: The regulatory file — KYC, FATCA and CRS declarations, suitability assessments, identity documents, signatures and the audit trail; icon: ShieldCheck; color: #f59e0b; entities: KYCRecord, SuitabilityAssessment, ESignatureRequest, BankAccount, Document, AuditEvent, AdvancedComplianceRecord
+%%category name: Financial Planning; description: The plan itself — assumptions, income, expenses, liabilities, cash flows, goals and the scenarios run against them; icon: Target; color: #14b8a6; entities: FinancialPlan, IncomeSource, Expense, Liability, CashFlow, Goal, Scenario
+%%category name: Risk; description: How much risk a household says it will take, how that was assessed, and how the assessment has changed; icon: Gauge; color: #ef4444; entities: RiskAssessment, RiskProfile
 %%category name: Security Master; description: The investable universe — instruments, their types, the houses that manage them and their prices; icon: Library; color: #8b5cf6; entities: Security, SecurityType, MutualFundScheme, AMC, ProductPrice, AssetClass, CorporateAction, Benchmark
-%%category name: Accounts and Portfolio; description: What a client actually owns: accounts, folios, portfolios, holdings, lots and the valuations taken of them; icon: Wallet; color: #06b6d4; entities: InvestmentAccount, Folio, Portfolio, PortfolioAccount, Holding, HoldingLot, PortfolioValuation
-%%category name: Allocation; description: The model portfolios and the per-asset-class targets they set; icon: PieChart; color: #a855f7; entities: AssetAllocationModel, AllocationTarget
+%%category name: Accounts and Portfolio; description: What a client actually owns: accounts, folios, portfolios, holdings, lots and the valuations taken of them; icon: Wallet; color: #06b6d4; entities: InvestmentAccount, Folio, Portfolio, Holding
+%%category name: Allocation; description: The model portfolios and the per-asset-class targets they set; icon: PieChart; color: #a855f7; entities: AssetAllocationModel
 %%category name: Transactions and Execution; description: Orders sent to the dealing desk, the transactions they settle into, and the standing instructions that generate them; icon: ArrowLeftRight; color: #22c55e; entities: InvestmentTransaction, Order, SIPInstruction, STPInstruction, SWPInstruction
-%%category name: Recommendations and Proposals; description: What was advised, whether it was suitable, who approved it, and what the client said; icon: FileSignature; color: #3b82f6; entities: InvestmentRecommendation, RecommendationItem, SuitabilityResult, RecommendationApproval, Proposal, ClientAcceptance
-%%category name: Rebalancing and Performance; description: Drift against the model, the performance measured afterwards, and the review held with the client; icon: TrendingUp; color: #10b981; entities: RebalanceRecommendation, PerformanceSnapshot, PerformanceAttribution, ClientReview
-%%category name: Fees and Revenue; description: What the firm charges, what it is paid, and the reconciliation between the two; icon: Receipt; color: #eab308; entities: FeeSchedule, Commission, CommissionReconciliation, RevenueHierarchy, SubBroker
+%%category name: Recommendations and Proposals; description: What was advised, whether it was suitable, who approved it, and what the client said; icon: FileSignature; color: #3b82f6; entities: InvestmentRecommendation, Proposal
+%%category name: Rebalancing and Performance; description: Drift against the model, the performance measured afterwards, and the review held with the client; icon: TrendingUp; color: #10b981; entities: RebalanceRecommendation, PerformanceSnapshot, ClientReview
+%%category name: Fees and Revenue; description: What the firm charges, what it is paid, and the reconciliation between the two; icon: Receipt; color: #eab308; entities: FeeSchedule, Commission, RevenueHierarchy, SubBroker
 %%category name: Investment Specializations; description: Instrument-specific detail held beside the security master, and the tax consequences of disposing of it; icon: Layers; color: #64748b; entities: Equity, Bond, AIF, PMS, Insurance, RealEstate, TaxLot, CapitalGain, ExternalIntegration
 
 %%enum PartyStatus: active, inactive, deceased, merged
@@ -1046,6 +1046,8 @@ erDiagram
 %%field Household.net_worth help: Net worth for Household.
 
 %%entity HouseholdMember help: Time-bounded association of a Party with a Household.
+
+%%entity HouseholdMember parent: Household
 %%field HouseholdMember.id help: Unique identifier for HouseholdMember.
 %%field HouseholdMember.household_id help: Household id for HouseholdMember.
 %%field HouseholdMember.party_id help: Party id for HouseholdMember.
@@ -1069,6 +1071,8 @@ erDiagram
 %%field Client.fee_model help: Fee model for Client.
 
 %%entity Address help: Address is a business record in the wealth-management platform.
+
+%%entity Address parent: Party
 %%field Address.id help: Unique identifier for Address.
 %%field Address.party_id help: Party id for Address.
 %%field Address.address_type help: Address type for Address.
@@ -1080,6 +1084,8 @@ erDiagram
 %%field Address.is_primary help: Is primary for Address.
 
 %%entity ContactPoint help: ContactPoint is a business record in the wealth-management platform.
+
+%%entity ContactPoint parent: Party
 %%field ContactPoint.id help: Unique identifier for ContactPoint.
 %%field ContactPoint.party_id help: Party id for ContactPoint.
 %%field ContactPoint.contact_type help: Contact type for ContactPoint.
@@ -1088,6 +1094,8 @@ erDiagram
 %%field ContactPoint.verified help: Verified for ContactPoint.
 
 %%entity Nominee help: Nominee is a business record in the wealth-management platform.
+
+%%entity Nominee parent: Client
 %%field Nominee.id help: Unique identifier for Nominee.
 %%field Nominee.client_id help: Client id for Nominee.
 %%field Nominee.party_id help: Nominee party id for Nominee.
@@ -1126,6 +1134,8 @@ erDiagram
 %%field Advisor.status help: Status for Advisor.
 
 %%entity AdvisorAssignment help: AdvisorAssignment is a business record in the wealth-management platform.
+
+%%entity AdvisorAssignment parent: Advisor
 %%field AdvisorAssignment.id help: Unique identifier for AdvisorAssignment.
 %%field AdvisorAssignment.advisor_id help: Advisor id for AdvisorAssignment.
 %%field AdvisorAssignment.household_id help: Household id for AdvisorAssignment.
@@ -1143,6 +1153,8 @@ erDiagram
 %%field Team.status help: Status for Team.
 
 %%entity TeamMember help: TeamMember is a business record in the wealth-management platform.
+
+%%entity TeamMember parent: Team
 %%field TeamMember.id help: Unique identifier for TeamMember.
 %%field TeamMember.team_id help: Team id for TeamMember.
 %%field TeamMember.advisor_id help: Advisor id for TeamMember.
@@ -1214,6 +1226,8 @@ erDiagram
 %%field KYCRecord.expiry_date help: Expiry date for KYCRecord.
 
 %%entity KYCVerification help: KYCVerification is a business record in the wealth-management platform.
+
+%%entity KYCVerification parent: KYCRecord
 %%field KYCVerification.id help: Unique identifier for KYCVerification.
 %%field KYCVerification.kyc_record_id help: Kyc record id for KYCVerification.
 %%field KYCVerification.verification_type help: Verification type for KYCVerification.
@@ -1224,6 +1238,8 @@ erDiagram
 %%field KYCVerification.reference_number help: Reference number for KYCVerification.
 
 %%entity FATCADeclaration help: FATCADeclaration is a business record in the wealth-management platform.
+
+%%entity FATCADeclaration parent: Client
 %%field FATCADeclaration.id help: Unique identifier for FATCADeclaration.
 %%field FATCADeclaration.client_id help: Client id for FATCADeclaration.
 %%field FATCADeclaration.tax_residency help: Tax residency for FATCADeclaration.
@@ -1233,6 +1249,8 @@ erDiagram
 %%field FATCADeclaration.declaration_date help: Declaration date for FATCADeclaration.
 
 %%entity CRSDeclaration help: CRSDeclaration is a business record in the wealth-management platform.
+
+%%entity CRSDeclaration parent: Client
 %%field CRSDeclaration.id help: Unique identifier for CRSDeclaration.
 %%field CRSDeclaration.client_id help: Client id for CRSDeclaration.
 %%field CRSDeclaration.tax_residency help: Tax residency for CRSDeclaration.
@@ -1253,6 +1271,8 @@ erDiagram
 %%field SuitabilityAssessment.advisor_id help: Assessor id for SuitabilityAssessment.
 
 %%entity IdentityDocument help: IdentityDocument is a business record in the wealth-management platform.
+
+%%entity IdentityDocument parent: Party
 %%field IdentityDocument.id help: Unique identifier for IdentityDocument.
 %%field IdentityDocument.party_id help: Party id for IdentityDocument.
 %%field IdentityDocument.document_type help: Document type for IdentityDocument.
@@ -1318,6 +1338,8 @@ erDiagram
 %%field FinancialPlan.base_currency help: Base currency for FinancialPlan.
 
 %%entity FinancialPlanAssumption help: FinancialPlanAssumption is a business record in the wealth-management platform.
+
+%%entity FinancialPlanAssumption parent: FinancialPlan
 %%field FinancialPlanAssumption.id help: Unique identifier for FinancialPlanAssumption.
 %%field FinancialPlanAssumption.financial_plan_id help: Financial plan id for FinancialPlanAssumption.
 %%field FinancialPlanAssumption.assumption_type help: Assumption type for FinancialPlanAssumption.
@@ -1382,6 +1404,8 @@ erDiagram
 %%field Goal.funded_percentage help: Funded percentage for Goal.
 
 %%entity GoalFunding help: GoalFunding is a business record in the wealth-management platform.
+
+%%entity GoalFunding parent: Goal
 %%field GoalFunding.id help: Unique identifier for GoalFunding.
 %%field GoalFunding.goal_id help: Goal id for GoalFunding.
 %%field GoalFunding.security_id help: Security id for GoalFunding.
@@ -1390,6 +1414,8 @@ erDiagram
 %%field GoalFunding.allocated_amount help: Allocated amount for GoalFunding.
 
 %%entity GoalProjection help: GoalProjection is a business record in the wealth-management platform.
+
+%%entity GoalProjection parent: Goal
 %%field GoalProjection.id help: Unique identifier for GoalProjection.
 %%field GoalProjection.goal_id help: Goal id for GoalProjection.
 %%field GoalProjection.scenario_id help: Scenario id for GoalProjection.
@@ -1408,6 +1434,8 @@ erDiagram
 %%field Scenario.description help: Description for Scenario.
 
 %%entity ScenarioAssumption help: ScenarioAssumption is a business record in the wealth-management platform.
+
+%%entity ScenarioAssumption parent: Scenario
 %%field ScenarioAssumption.id help: Unique identifier for ScenarioAssumption.
 %%field ScenarioAssumption.scenario_id help: Scenario id for ScenarioAssumption.
 %%field ScenarioAssumption.assumption_type help: Assumption type for ScenarioAssumption.
@@ -1438,6 +1466,8 @@ erDiagram
 %%field RiskProfile.status help: Status for RiskProfile.
 
 %%entity RiskProfileHistory help: RiskProfileHistory is a business record in the wealth-management platform.
+
+%%entity RiskProfileHistory parent: RiskProfile
 %%field RiskProfileHistory.id help: Unique identifier for RiskProfileHistory.
 %%field RiskProfileHistory.risk_profile_id help: Risk profile id for RiskProfileHistory.
 %%field RiskProfileHistory.risk_score help: Risk score for RiskProfileHistory.
@@ -1530,6 +1560,8 @@ erDiagram
 %%field Portfolio.status help: Status for Portfolio.
 
 %%entity PortfolioAccount help: PortfolioAccount is a business record in the wealth-management platform.
+
+%%entity PortfolioAccount parent: Portfolio
 %%field PortfolioAccount.id help: Unique identifier for PortfolioAccount.
 %%field PortfolioAccount.portfolio_id help: Portfolio id for PortfolioAccount.
 %%field PortfolioAccount.investment_account_id help: Investment account id for PortfolioAccount.
@@ -1548,6 +1580,8 @@ erDiagram
 %%field Holding.weight help: Weight for Holding.
 
 %%entity HoldingLot help: HoldingLot is a business record in the wealth-management platform.
+
+%%entity HoldingLot parent: Holding
 %%field HoldingLot.id help: Unique identifier for HoldingLot.
 %%field HoldingLot.holding_id help: Holding id for HoldingLot.
 %%field HoldingLot.acquisition_date help: Acquisition date for HoldingLot.
@@ -1556,6 +1590,8 @@ erDiagram
 %%field HoldingLot.tax_status help: Tax status for HoldingLot.
 
 %%entity PortfolioValuation help: PortfolioValuation is a business record in the wealth-management platform.
+
+%%entity PortfolioValuation parent: Portfolio
 %%field PortfolioValuation.id help: Unique identifier for PortfolioValuation.
 %%field PortfolioValuation.portfolio_id help: Portfolio id for PortfolioValuation.
 %%field PortfolioValuation.valuation_date help: Valuation date for PortfolioValuation.
@@ -1574,6 +1610,8 @@ erDiagram
 %%field AssetAllocationModel.description help: Description for AssetAllocationModel.
 
 %%entity AllocationTarget help: AllocationTarget is a business record in the wealth-management platform.
+
+%%entity AllocationTarget parent: AssetAllocationModel
 %%field AllocationTarget.id help: Unique identifier for AllocationTarget.
 %%field AllocationTarget.asset_allocation_model_id help: Asset allocation model id for AllocationTarget.
 %%field AllocationTarget.asset_class_id help: Asset class id for AllocationTarget.
@@ -1635,6 +1673,8 @@ erDiagram
 %%field InvestmentRecommendation.suitability_status help: Suitability status for InvestmentRecommendation.
 
 %%entity RecommendationItem help: RecommendationItem is a business record in the wealth-management platform.
+
+%%entity RecommendationItem parent: InvestmentRecommendation
 %%field RecommendationItem.id help: Unique identifier for RecommendationItem.
 %%field RecommendationItem.investment_recommendation_id help: Investment recommendation id for RecommendationItem.
 %%field RecommendationItem.security_id help: Security id for RecommendationItem.
@@ -1644,6 +1684,8 @@ erDiagram
 %%field RecommendationItem.reason help: Reason for RecommendationItem.
 
 %%entity SuitabilityResult help: SuitabilityResult is a business record in the wealth-management platform.
+
+%%entity SuitabilityResult parent: InvestmentRecommendation
 %%field SuitabilityResult.id help: Unique identifier for SuitabilityResult.
 %%field SuitabilityResult.investment_recommendation_id help: Investment recommendation id for SuitabilityResult.
 %%field SuitabilityResult.suitability_assessment_id help: Assessment id for SuitabilityResult.
@@ -1654,6 +1696,8 @@ erDiagram
 %%field SuitabilityResult.evaluated_at help: Evaluated at for SuitabilityResult.
 
 %%entity RecommendationApproval help: RecommendationApproval is a business record in the wealth-management platform.
+
+%%entity RecommendationApproval parent: InvestmentRecommendation
 %%field RecommendationApproval.id help: Unique identifier for RecommendationApproval.
 %%field RecommendationApproval.investment_recommendation_id help: Investment recommendation id for RecommendationApproval.
 %%field RecommendationApproval.advisor_id help: Approver id for RecommendationApproval.
@@ -1673,6 +1717,8 @@ erDiagram
 %%field Proposal.expiry_date help: Expiry date for Proposal.
 
 %%entity ClientAcceptance help: Retained client decision on a proposal.
+
+%%entity ClientAcceptance parent: Proposal
 %%field ClientAcceptance.id help: Unique identifier for ClientAcceptance.
 %%field ClientAcceptance.proposal_id help: Proposal id for ClientAcceptance.
 %%field ClientAcceptance.client_id help: Client id for ClientAcceptance.
@@ -1733,6 +1779,8 @@ erDiagram
 %%field Commission.status help: Status for Commission.
 
 %%entity CommissionReconciliation help: CommissionReconciliation is a business record in the wealth-management platform.
+
+%%entity CommissionReconciliation parent: Commission
 %%field CommissionReconciliation.id help: Unique identifier for CommissionReconciliation.
 %%field CommissionReconciliation.commission_id help: Commission id for CommissionReconciliation.
 %%field CommissionReconciliation.expected_amount help: Expected amount for CommissionReconciliation.
@@ -1843,6 +1891,8 @@ erDiagram
 %%field Benchmark.status help: Status for Benchmark.
 
 %%entity PerformanceAttribution help: PerformanceAttribution is a business record in the wealth-management platform.
+
+%%entity PerformanceAttribution parent: PerformanceSnapshot
 %%field PerformanceAttribution.id help: Unique identifier for PerformanceAttribution.
 %%field PerformanceAttribution.performance_snapshot_id help: Performance snapshot id for PerformanceAttribution.
 %%field PerformanceAttribution.asset_class_id help: Asset class id for PerformanceAttribution.

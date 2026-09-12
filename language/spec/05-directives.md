@@ -17,7 +17,7 @@ a `%%` line beginning with one of them is a directive, never a plain comment:
 
 | | | | | |
 |---|---|---|---|---|
-| `%%meta` *(compiled)* | `%%hook` *(compiled)* | `%%step` *(compiled)* | `%%action` *(compiled)* | `%%entity` *(validated)* |
+| `%%meta` *(compiled)* | `%%hook` *(compiled)* | `%%step` *(compiled)* | `%%action` *(compiled)* | `%%entity` *(compiled)* |
 | `%%field` *(compiled)* | `%%enum` *(compiled)* | `%%category` *(compiled)* | `%%index` *(compiled)* | `%%rule` *(validated)* |
 | `%%guard` *(compiled)* | `%%loop` *(compiled)* | `%%rbac` *(compiled)* | `%%trigger` *(validated)* | `%%workflow` *(compiled)* |
 
@@ -146,7 +146,7 @@ rule evaluate to nothing.
 `when` decides, and its `trigger-workflow` action names the workflow by the name
 its `%%workflow` directive gave it.
 
-## `%%entity` — entity-level metadata *(validated)*
+## `%%entity` — entity-level metadata *(compiled: `help:`/`description:` and `parent:`)*
 
 ```
 %%entity <Name> <key>: <value>
@@ -154,12 +154,13 @@ its `%%workflow` directive gave it.
 
 | Key | Meaning |
 |-----|---------|
-| `prefix` | `bus` \| `sys` table prefix |
-| `audited` | `true` \| `false` — emit audit trail |
-| `softDelete` | `true` \| `false` — use `deleted_at` |
-| `label` | UI display label |
-| `icon` | UI icon name |
-| `help` | Human-readable description — stored in `sys_table.description` and used as the opening paragraph of that entity's section in `manual.html` |
+| `prefix` | `bus` \| `sys` table prefix *(validated)* |
+| `audited` | `true` \| `false` — emit audit trail *(validated)* |
+| `softDelete` | `true` \| `false` — use `deleted_at` *(validated)* |
+| `label` | UI display label *(validated)* |
+| `icon` | UI icon name *(validated)* |
+| `help` | Human-readable description — stored in `sys_table.description` and used as the opening paragraph of that entity's section in `manual.html` *(compiled)* |
+| `parent` | This entity is a **line item** of the one named — see below *(compiled)* |
 
 ```
 %%entity Order audited: true
@@ -168,6 +169,70 @@ its `%%workflow` directive gave it.
 ```
 
 The `help:` value runs to end-of-line. It is the only prose an author controls for an entity; every other part of that section in the manual (fields, relationships, lifecycle, rules, RBAC) is derived automatically from the model structure. An entity with no `help:` gets a placeholder sentence in the manual and nothing in the form — write one for every entity.
+
+### `parent:` — a line item, and where the dictionary puts it
+
+```
+%%entity InvoiceLine parent: Invoice
+```
+
+Some entities have no life away from their owner: an invoice line, an order
+line, a prescription item. **The ERD cannot say so.** `InvoiceLine.invoice_id`
+and `Invoice.patient_id` are both a foreign key with a relationship behind it,
+and nothing in Mermaid distinguishes a line that means nothing without its
+invoice from a patient who means a great deal without one. This directive is the
+only place a model can say which it is.
+
+Decide it with three questions, in this order:
+
+1. Would a list of these records, *away from their owner*, be useful to anyone?
+   A screen of every invoice line ever written is not a screen anyone opens.
+   If no — it is a child.
+2. Does the row's identity depend on the owner? "Line 1 of invoice 7", not
+   "line 1". If yes — it is a child.
+3. Would deleting the owner make the row meaningless? If yes — it is a child.
+
+A reference is the opposite on all three. Most foreign keys are references.
+
+| | Parent | Child |
+|---|---|---|
+| `sys_window` | its own | **none** |
+| Dashboard | a card | **no card — not navigable** |
+| `sys_tab` | `tab_level: 0` | `tab_level: 1`, in the *parent's* window |
+| Reached by | opening the window | opening a parent record |
+
+The tab links on the child's own foreign key back to the parent — the one
+already in the ERD. It is marked `sys_column.is_parent` and stored as
+`sys_tab.link_column_id`. Do not declare a second column for it, and do not drop
+the relationship line: the directive names the parent, the ERD still draws the
+edge.
+
+**Leave a child out of `%%category`.** A category is the dashboard's grouping
+and a child has no card, so naming one there asks for a card the dictionary will
+not create (`EML150`).
+
+A child is still a real table with real rules, access control and a form. Only
+its *placement* changes.
+
+Four codes police it:
+
+| Code | Severity | Fires when |
+|---|---|---|
+| `EML147` | error | the parent is not declared, or an entity names itself |
+| `EML148` | error | the child has no foreign key back — nothing for the tab to link on |
+| `EML149` | info | an entity is *shaped* like a line item and declares no `parent:` |
+| `EML150` | warning | a declared child is named in a `%%category` |
+
+`EML149` is an `info` and never an error, because the three questions above are
+about the business and not about the document — the checker can only name the
+candidate and the column a tab would link on. It fires on two shapes, both of
+which also require the foreign key: an entity whose name *begins* with a
+declared entity's name (`InvoiceLine`/`Invoice`, `TeamMember`/`Team`), and an
+entity whose name *ends* in a line-item noun — `Line`, `LineItem`, `Item`,
+`Detail`, `Entry`, `Row` — with a foreign key resolving to a declared entity
+(`RecommendationItem` under `InvestmentRecommendation`). Answer it either way:
+declare the parent, or leave the entity alone because it is a thing in its own
+right.
 
 ## `%%field` — extended field metadata *(compiled: the `enum:` key only)*
 
@@ -267,6 +332,10 @@ may declare it.
 
 A model that declares no categories gets a single `General` default holding
 every entity, so the directive is optional.
+
+**A line item does not belong in one.** `%%entity <Child> parent: <Parent>`
+takes the child's dashboard card away, so listing it in a category asks for a
+card that will never be created. Reported as `EML150`.
 
 ```
 %%category name: Compound Registry; description: Structures and aliases; icon: FlaskConical; color: #6366f1; entities: Compound, CompoundAlias

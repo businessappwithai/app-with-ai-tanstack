@@ -147,6 +147,36 @@ export class SysCategoryService {
     return { restricted, allowed };
   }
 
+  /**
+   * The tables that are line items of another entity.
+   *
+   * `%%entity <Child> parent: <Parent>` gives the child no window and puts its
+   * tab inside the parent's at `tab_level` 1. The dashboard is a list of places
+   * a reader can navigate to, and a child is not one of them: it is reached by
+   * opening a parent record. Without this the dashboard offered a card reading
+   * "Invoice Lines", which opened a screen listing every line ever written
+   * detached from the invoices that give them meaning — the exact screen the
+   * directive exists to prevent.
+   *
+   * Read off `sys_tab` rather than recomputed, so the dashboard and the detail
+   * screen cannot disagree about which entities are children.
+   */
+  private async lineItemTables(): Promise<Set<string>> {
+    try {
+      const rows = await this.db.kysely
+        .selectFrom('sys_tab')
+        .innerJoin('sys_table', 'sys_table.sys_table_id', 'sys_tab.sys_table_id')
+        .select('sys_table.table_name as table_name')
+        .where('sys_tab.tab_level', '>', 0)
+        .execute();
+      return new Set(rows.map((row: any) => String(row.table_name)));
+    } catch {
+      // A dictionary that has not been seeded yet is not an error here: every
+      // entity is top level until the tabs exist.
+      return new Set();
+    }
+  }
+
   async findAllWithEntities(user?: { isMaster?: boolean; roles?: string[]; sysRoles?: string[]; role?: string }) {
     const [categories, tables] = await Promise.all([
       this.db.kysely
@@ -171,10 +201,14 @@ export class SysCategoryService {
         .execute(),
     ]);
 
-    // Only business entities belong on the dashboard's grouped view.
+    // Only business entities belong on the dashboard's grouped view, and only
+    // the ones a reader can navigate to: a line item is reached through its
+    // parent, never from here.
     const scope = await this.readableTables(user);
+    const lineItems = await this.lineItemTables();
     const businessTables = tables
       .filter((t: any) => String(t.table_name).startsWith('bus_') || t.entity_type === 'U')
+      .filter((t: any) => !lineItems.has(String(t.table_name)))
       .filter(
         (t: any) =>
           !scope || !scope.restricted.has(String(t.table_name)) || scope.allowed.has(String(t.table_name)),

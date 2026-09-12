@@ -461,10 +461,51 @@ already in the ERD, marked `sys_column.is_parent` and stored as
 drop the relationship line: the directive names the parent, the ERD still draws
 the edge.
 
-Two errors police it: `EML147` when the parent is not declared (or an entity
-names itself), `EML148` when the child has no foreign key back — a line item
-with nothing to link on would lose its own window and gain no tab, which is an
-entity that has quietly left the application.
+Four codes police it:
+
+| Code | Severity | Fires when |
+|---|---|---|
+| `EML147` | error | the parent is not declared, or an entity names itself |
+| `EML148` | error | the child has no foreign key back — nothing for the tab to link on |
+| `EML149` | info | an entity is *shaped* like a line item and declares no `parent:` |
+| `EML150` | warning | a declared child is still named in a `%%category` |
+
+`EML147` and `EML148` are errors because a line item with nothing to link on
+loses its own window and gains no tab, which is an entity that has quietly left
+the application.
+
+`EML149` is an **info and never an error**, because the three questions above are
+about the business and not about the document: only you know whether a list of
+these records away from their owner is a screen anyone opens. The checker can
+only say that the shape is there, and it names both the candidate parent and the
+column a tab would link on. It fires on two shapes, each of which also requires
+that foreign key: an entity whose name **begins** with a declared entity's name
+(`InvoiceLine`/`Invoice`, `TeamMember`/`Team`,
+`FinancialPlanAssumption`/`FinancialPlan`), and an entity whose name **ends** in a
+line-item noun — `Line`, `LineItem`, `Item`, `Detail`, `Entry`, `Row` — whose
+foreign key resolves to a declared entity (`RecommendationItem` under
+`InvestmentRecommendation`).
+
+**Answer every `EML149` before you deliver.** Either declare the parent, or
+satisfy yourself that the entity is a thing in its own right and leave it — an
+`EML149` you have walked and rejected is not a fault, and the run still reports
+`OK`. What is not acceptable is not having looked: if nobody decides, the default
+is a dashboard card listing every line ever written and a parent record that does
+not show its own lines.
+
+`EML150` is a warning rather than an error because nothing breaks — but the two
+directives contradict each other. `parent:` takes the child's dashboard card
+away and the category asks for one, so the group counts an entity the reader can
+never open from it. Take the child out of the `entities:` list.
+
+**What the running application does with it.** Both stacks read the same three
+rows and nothing else. Opening a parent record shows one tab per line item below
+the form, each listing only the rows whose `is_parent` column holds that
+record's key, with a live count on the tab and a row click that opens the child.
+The dashboard and the navigation are built from the entities that have a window,
+so the child appears in neither. None of that is decided by a screen — it is
+`sys_tab.tab_level`, `sys_tab.link_column_id` and `sys_column.is_parent`, which
+is why the model's answer and the application's arrangement cannot drift apart.
 
 A child is still a real table with real rules, access control and a form. It is
 only its *placement* that changes. Leave it out of `%%category` — a category
@@ -1497,8 +1538,11 @@ checks clean and the application still disappoints:**
 - **Line items declared as such** (§3.3.1). Go through the entities and ask of
   each: is this a thing in its own right, or part of another thing? Every
   invoice line, order line, prescription item, delivery line and answer-to-a-
-  question gets `%%entity <Child> parent: <Parent>`. Missing it puts a screen on
-  the dashboard listing every line ever written, which is a screen nobody opens.
+  question gets `%%entity <Child> parent: <Parent>`, and is left out of
+  `%%category`. Missing it puts a screen on the dashboard listing every line ever
+  written, which is a screen nobody opens — and leaves the parent record with no
+  sign of its own lines. The checker reports every candidate it can see as
+  `EML149`; walk each one and either declare the parent or decide against it.
 
 ### 10.3 Validate against the published checker — three runs, three repairs
 
