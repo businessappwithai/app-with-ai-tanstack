@@ -432,6 +432,7 @@
       "EML151": "warning \u2014 entity or column help that restates its own name instead of describing it. See helpText.mustBeDomainKnowledge.",
       "EML152": "warning \u2014 an entity with no help text at all.",
       "EML153": "warning \u2014 columns with no help text, reported once per entity.",
+      "EML154": "warning \u2014 a %%category with no `name:` key. category.parser.ts requires one and skips the line without it, so the whole grouping is silently lost and its entities fall into the default General category.",
       "EML500": "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     "reportDesigns": {

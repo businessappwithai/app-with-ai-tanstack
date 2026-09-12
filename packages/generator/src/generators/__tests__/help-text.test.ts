@@ -157,3 +157,36 @@ describe("EML151 — help that restates its own subject", () => {
     expect(report.warnings).toBeGreaterThan(0);
   });
 });
+
+describe("EML154 — a %%category the parser will skip", () => {
+  /*
+   * `category.parser.ts` requires a `name:` key and continues without one, so
+   * the shorthand below declares nothing: the grouping is lost and its entities
+   * fall into the default General category. Nothing reported it, because the
+   * directive is a comment Mermaid ignores and a directive the generator
+   * ignores too — and one published model carried four of them.
+   */
+  const MODEL = `%%meta name: Reporting
+erDiagram
+    DataSource {
+        string id PK
+        string host
+    }
+    %%entity DataSource help: An external database this workspace can query, with its credentials stored encrypted.
+    %%field DataSource.host help: The address the database answers on, reachable from the platform rather than from the analyst's own machine.
+`;
+
+  it("reports the shorthand and offers the line that works", () => {
+    const source = `${MODEL}    %%category Sources: DataSource\n`;
+    const issue = checkSource(source).issues.find((candidate) => candidate.code === "EML154");
+
+    expect(issue?.severity).toBe("warning");
+    expect(issue?.hint).toContain("name: Sources");
+    expect(issue?.hint).toContain("entities: DataSource");
+  });
+
+  it("stays quiet on the documented form", () => {
+    const source = `${MODEL}    %%category name: Sources; entities: DataSource\n`;
+    expect(codes(source)).not.toContain("EML154");
+  });
+});

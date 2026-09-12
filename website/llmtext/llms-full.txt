@@ -198,6 +198,8 @@ it. **reserved** = documented, renderer-safe, inert.
 | `%%field` | `%%field <E>.<attr> <k>: <v>` | compiled *(`enum:` and `help:`)* | `generator/src/parsers/mermaid.parser.ts` |
 | `%%enum` | `%%enum <Name>: a, b, c` | compiled | `mermaid.parser.ts` |
 | `%%category` | `%%category name: X; icon: Y; entities: A, B` | compiled | `generator/src/parsers/category.parser.ts` |
+
+The `name:` key on `%%category` is **required** — a directive without one is skipped entirely and declares no group at all (`EML154`).
 | `%%index` | `%%index <E>(<a>[, <b>]) [unique]` | compiled | `mermaid.parser.ts` → real DDL |
 | `%%guard` | `%%guard <field> <operator> <jsonValue>` | compiled | `web/src/lib/automation/model.ts` |
 | `%%loop` | `%%loop <id> while: <f> <op> <v> max: <n>` | compiled | `workflows/steps.ts` |
@@ -739,6 +741,16 @@ yesterday's runtime while the diff shows today's.
 | `kind: saga` + `%%step` | `workflows/steps.ts` | one `bpmn:serviceTask` per step |
 | `%%rbac` | `rbac/index.ts` | `sys_operation_access` + `sys_transition_access`, enforced by `EntityAccessGuard` |
 | whole document | `language/rag.ts` | retrieval chunks → pgvector `model_context` |
+
+**`%%category` has no shorthand, and `name:` is required.** `%%category Sources:
+DataSource, SchemaEntity` reads perfectly well and declares *nothing*:
+`category.parser.ts` requires a `name:` key and skips the line without one, so
+the grouping is lost and every entity in it falls into the default `General`
+category. The model still checks clean — the directive is a comment Mermaid
+ignores and a directive the generator ignores too. `EML154` is a warning that
+reports it, and it is worth knowing about because the failure looks like a
+dashboard that simply was not grouped.
+
 
 ### 4.3 Templates — 171 Handlebars files, plus two verbatim trees
 

@@ -395,6 +395,7 @@ class CheckEngine {
     this.checkFieldDirectives();
     this.checkIndexDirectives();
     this.checkEntityDirectives();
+    this.checkCategoryDirectives();
     this.checkLineItems();
     this.checkHelpText();
     this.checkHooks();
@@ -1194,6 +1195,39 @@ class CheckEngine {
         attribute.isForeignKey &&
         (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`))
     );
+  }
+
+  /**
+   * EML154: a `%%category` the parser will skip entirely.
+   *
+   * `category.parser.ts` requires a `name:` key and `continue`s without one, so
+   * `%%category Sources: DataSource, SchemaEntity` — which reads perfectly well
+   * — declares nothing at all. The whole grouping is lost, the entities fall
+   * into the default "General" category, and the model checks clean: the
+   * directive is a comment Mermaid ignores and a directive the generator
+   * ignores too. One published model carried four of them.
+   */
+  private checkCategoryDirectives(): void {
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%category\b/)) {
+      const body = text.trim().replace(/^%%\s*category\b\s*/i, "");
+      if (!body) continue;
+
+      const keys = body
+        .split(";")
+        .map((segment) => segment.trim())
+        .filter(Boolean)
+        .map((segment) => segment.slice(0, segment.indexOf(":")).trim().toLowerCase());
+
+      if (!keys.includes("name")) {
+        const shorthand = body.match(/^([^:;]+):\s*(.+)$/);
+        this.warn("EML154", "%%category has no `name:` key, so nothing is declared.", {
+          line: lineNo,
+          hint: shorthand
+            ? `Write it as \`%%category name: ${shorthand[1]?.trim()}; entities: ${shorthand[2]?.trim()}\`. Without \`name:\` the parser skips the line and every entity in it falls into the default General category.`
+            : "Syntax: %%category name: <Name>; description: …; icon: …; entities: <A>, <B>. `name` is the only required key, and a directive without it is dropped.",
+        });
+      }
+    }
   }
 
   private checkLineItems(): void {

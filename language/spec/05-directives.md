@@ -373,6 +373,13 @@ every entity, so the directive is optional.
 takes the child's dashboard card away, so listing it in a category asks for a
 card that will never be created. Reported as `EML150`.
 
+**`name:` is required, and there is no shorthand.** `%%category Sources:
+DataSource, SchemaEntity` reads perfectly well and declares nothing:
+`category.parser.ts` requires a `name:` key and skips the line without one, so
+the grouping is lost and its entities fall into the default `General` category.
+The model still checks clean — the directive is a comment Mermaid ignores and a
+directive the generator ignores too — which is why `EML154` reports it.
+
 ```
 %%category name: Compound Registry; description: Structures and aliases; icon: FlaskConical; color: #6366f1; entities: Compound, CompoundAlias
 %%category name: People and Teams; default: true; entities: User, Team

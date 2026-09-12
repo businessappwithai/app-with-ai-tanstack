@@ -529,6 +529,7 @@ var appwithai_language_default = {
       EML151: "warning — entity or column help that restates its own name instead of describing it. See helpText.mustBeDomainKnowledge.",
       EML152: "warning — an entity with no help text at all.",
       EML153: "warning — columns with no help text, reported once per entity.",
+      EML154: "warning — a %%category with no `name:` key. category.parser.ts requires one and skips the line without it, so the whole grouping is silently lost and its entities fall into the default General category.",
       EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     reportDesigns: {
@@ -2287,6 +2288,7 @@ class CheckEngine {
     this.checkFieldDirectives();
     this.checkIndexDirectives();
     this.checkEntityDirectives();
+    this.checkCategoryDirectives();
     this.checkLineItems();
     this.checkHelpText();
     this.checkHooks();
@@ -2777,6 +2779,21 @@ class CheckEngine {
   linkColumnTo(entity, parentName) {
     const snake = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
     return entity.attributes.find((attribute) => attribute.isForeignKey && (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`)));
+  }
+  checkCategoryDirectives() {
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%category\b/)) {
+      const body = text.trim().replace(/^%%\s*category\b\s*/i, "");
+      if (!body)
+        continue;
+      const keys = body.split(";").map((segment) => segment.trim()).filter(Boolean).map((segment) => segment.slice(0, segment.indexOf(":")).trim().toLowerCase());
+      if (!keys.includes("name")) {
+        const shorthand = body.match(/^([^:;]+):\s*(.+)$/);
+        this.warn("EML154", "%%category has no `name:` key, so nothing is declared.", {
+          line: lineNo,
+          hint: shorthand ? `Write it as \`%%category name: ${shorthand[1]?.trim()}; entities: ${shorthand[2]?.trim()}\`. Without \`name:\` the parser skips the line and every entity in it falls into the default General category.` : "Syntax: %%category name: <Name>; description: …; icon: …; entities: <A>, <B>. `name` is the only required key, and a directive without it is dropped."
+        });
+      }
+    }
   }
   checkLineItems() {
     const parents = this.declaredParents();
