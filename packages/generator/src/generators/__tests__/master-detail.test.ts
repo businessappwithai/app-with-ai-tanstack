@@ -51,10 +51,16 @@ erDiagram
     }
     Customer ||--o{ Invoice : "billed"
     Invoice ||--o{ InvoiceLine : "contains"
-    %%entity Customer help: An organisation the business bills.
-    %%entity Invoice help: A demand for payment issued to a customer.
+    %%entity Customer help: An organisation the business bills. The account outlives every invoice on it, which is why a customer is never deleted while an unpaid one stands.
+    %%field Customer.name help: The trading name to address on correspondence and to print on the invoice. Not necessarily the registered entity.
+    %%entity Invoice help: A demand for payment issued to a customer, and the record the money is chased against. Created when work is signed off, and never edited once issued: a correction is a credit note.
+    %%field Invoice.reference help: The number the customer quotes when paying. It is what a remittance is matched on, so it is issued once and never reused.
+    %%field Invoice.customer_id help: The organisation being billed. It decides which payment terms apply and where the invoice is sent, and it is fixed once the invoice is issued.
     %%entity InvoiceLine parent: Invoice
-    %%entity InvoiceLine help: One charge on an invoice.
+    %%entity InvoiceLine help: One charge on an invoice. A line has no meaning away from its invoice — line 2 of invoice 4417, not line 2 — which is why it is a line item rather than a screen of its own.
+    %%field InvoiceLine.invoice_id help: The invoice this charge belongs to. It is what the invoice's own screen lists the lines by.
+    %%field InvoiceLine.description help: What is being charged for, in the words the customer will read on the document. Specific enough that they can approve it without asking.
+    %%field InvoiceLine.amount help: What this line adds to the invoice, before tax. The invoice total is what these come to, so a line changed after issue changes what is owed.
     %%category name: Billing; entities: Customer, Invoice
 `;
 
@@ -132,6 +138,51 @@ describe("%%entity parent: — the dictionary arrangement", () => {
     const invoiceTab = dictionary.sysTabs.find((tab) => tab._tableRef === invoiceTable?._tempId);
 
     expect(lineTable?.sys_window_id).toBe(invoiceTab?.sys_window_id);
+  });
+
+  it("links a parent whose name begins with an acronym", () => {
+    /*
+     * `KYCRecord` snake-cases to `kyc_record`, which is the column the
+     * migration emits and the name a model writes — but the parser carried its
+     * own snake-caser without the acronym rule, so it looked for `kycrecord_id`,
+     * found nothing, and left the child unlinked. It kept its own window and
+     * gained no tab, and nothing reported it: the checker's EML148 had the same
+     * bug, so the two agreed with each other and both were wrong.
+     */
+    const source = `%%meta name: Onboarding
+erDiagram
+    KYCRecord {
+        string id PK
+        string reference
+    }
+    KYCVerification {
+        string id PK
+        string kyc_record_id FK
+        string outcome
+    }
+    KYCRecord ||--o{ KYCVerification : "evidenced by"
+    %%entity KYCRecord help: The file establishing a client's identity, and the gate on every transaction.
+    %%field KYCRecord.reference help: The registry's own reference for this file, quoted when another intermediary confirms the client is already verified.
+    %%entity KYCVerification parent: KYCRecord
+    %%entity KYCVerification help: One check performed as part of a KYC file — an identity document validated, a sanctions list searched.
+    %%field KYCVerification.kyc_record_id help: The file this check belongs to. Read inside it, where the checks together are the evidence for its status.
+    %%field KYCVerification.outcome help: passed or failed. One failed check holds the whole file, whatever the others say.
+`;
+
+    const { model, dictionary } = dictionaryFor(source);
+    const child = model.entities.find((entity) => entity.name === "KYCVerification");
+    expect(child?.parentEntity).toBe("KYCRecord");
+    expect(child?.parentLinkColumn).toBe("kyc_record_id");
+
+    const childTable = dictionary.sysTables.find(
+      (table) => table.table_name === "bus_kyc_verification"
+    );
+    const childTab = dictionary.sysTabs.find((tab) => tab._tableRef === childTable?._tempId);
+    expect(childTab?.tab_level).toBe(1);
+    expect(childTab?.link_column_id).toBeTruthy();
+
+    // And the checker agrees rather than reporting a key that is plainly there.
+    expect(checkSource(source).issues.map((issue) => issue.code)).not.toContain("EML148");
   });
 
   it("arranges the same way when the child is declared before its parent", () => {

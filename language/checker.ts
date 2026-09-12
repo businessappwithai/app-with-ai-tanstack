@@ -280,6 +280,11 @@ export function isPersonRoleColumn(columnName: string): boolean {
   );
 }
 
+/** A literal for use inside a constructed RegExp. */
+function escapeRe(literal: string): string {
+  return literal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /**
  * Whether a column name is one the generator can resolve to a table at all.
  *
@@ -391,6 +396,7 @@ class CheckEngine {
     this.checkIndexDirectives();
     this.checkEntityDirectives();
     this.checkLineItems();
+    this.checkHelpText();
     this.checkHooks();
     this.checkAutomationTriggers();
     this.checkGuards();
@@ -1288,6 +1294,133 @@ class CheckEngine {
             `If it is a thing in its own right, leave it: a reference is the opposite on all three questions (§3.5.1).`,
         }
       );
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // EML151-EML153: help text, and the two ways a model has none
+  // -------------------------------------------------------------------------
+
+  /** `entity_name` or `column_name` as the words a sentence would use. */
+  private nameAsWords(name: string): string {
+    return name.replace(/[_.]+/g, " ").trim().toLowerCase();
+  }
+
+  /**
+   * Whether a piece of help says nothing the reader could not already see.
+   *
+   * Help is the only explanation a generated application has — it becomes
+   * `sys_table.description` and `sys_column.description`, the hint under the
+   * control, and the whole of the "what it is for" column of the manual. Text
+   * that restates the column's own name fills the field and leaves the reader
+   * with nothing, and it does it invisibly: coverage looks complete, the
+   * checker used to pass, and the manual reads as a list of labels twice.
+   *
+   * Three shapes, all of them templates rather than sentences anyone wrote
+   * about a business. Deliberately narrow — real help that happens to be short
+   * ("The day this offer expires.") is not a restatement and does not fire.
+   */
+  private restatedHelp(subject: string, text: string): string | undefined {
+    const [entity = "", column = ""] = subject.split(".");
+    const body = text.trim().replace(/\.+$/, "").trim().toLowerCase();
+    const own = this.nameAsWords(column || entity);
+    const of = entity.toLowerCase();
+
+    if (/^unique identifier( for \w+)?$/.test(body)) return "restates the key";
+    if (new RegExp(`^(the )?${escapeRe(own)}( for ${escapeRe(of)})?$`).test(body)) {
+      return "is the name again, in prose";
+    }
+    if (new RegExp(`^${escapeRe(of)} is an? [\\w -]*(record|entity|table|object)\\b`).test(body)) {
+      return "is a template sentence, not a description";
+    }
+    return undefined;
+  }
+
+  private checkHelpText(): void {
+    /* The columns the generator adds itself. A model does not describe them —
+       EML103 reports declaring one at all — so they are not counted as missing
+       help. `id` is the exception the set already handles: a declared primary
+       key is the model's own. */
+
+    const entityHelp = new Map<string, { text: string; line: number }>();
+    const fieldHelp = new Map<string, { text: string; line: number }>();
+
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%entity\b/)) {
+      const m = text.trim().match(/^%%entity\s+(\w+)\s+(?:help|description)\s*:\s*(.+)$/);
+      if (m?.[1] && m[2]) entityHelp.set(m[1], { text: m[2], line: lineNo });
+    }
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%field\b/)) {
+      const m = text.trim().match(/^%%field\s+([\w.]+)\s+help\s*:\s*(.+)$/);
+      if (m?.[1] && m[2]) fieldHelp.set(m[1], { text: m[2], line: lineNo });
+    }
+
+    for (const entity of this.model.entities) {
+      const entityLine = this.src.findLine(new RegExp(`^\\s*${entity.name}\\s*\\{`));
+
+      /*
+       * EML152: an entity nobody described.
+       *
+       * `%%entity <Name> help:` is compiled to `sys_table.description` and is
+       * the opening paragraph of that entity's section in the generated manual.
+       * Without it the manual opens on a placeholder, and the only moment
+       * anybody knew what the entity was for has passed.
+       */
+      const help = entityHelp.get(entity.name);
+      if (!help) {
+        this.warn("EML152", `Entity "${entity.name}" has no %%entity help:.`, {
+          line: entityLine,
+          hint: `Add \`%%entity ${entity.name} help: …\` — what this record is for in the business, when one is created, and what distinguishes it from the entities it sounds like. It becomes sys_table.description and opens the entity's section of the manual.`,
+        });
+      } else {
+        const why = this.restatedHelp(entity.name, help.text);
+        if (why) {
+          this.warn("EML151", `%%entity ${entity.name} help: ${why}.`, {
+            line: help.line,
+            hint: `"${help.text.trim().slice(0, 60)}" tells a reader nothing the entity name did not. Say what the business does with these records — the domain knowledge behind the name is the whole reason this line exists.`,
+          });
+        }
+      }
+
+      /*
+       * EML153: the columns nobody described, reported once for the entity.
+       *
+       * One diagnostic per column would bury every other finding on a model
+       * that skipped help entirely — which is the common case, because it is
+       * the most-skipped part of a model. The columns are named instead.
+       */
+      const undocumented = entity.attributes
+        .filter((attribute) => !MANAGED_COLUMN_NAMES.has(attribute.name.toLowerCase()))
+        /* The key is excluded. It is a uuid the generator issues, read-only on
+           every form, and "the record's key" is the only thing anyone could
+           write about it — which is the restatement EML151 exists to refuse. */
+        .filter((attribute) => !attribute.isPrimaryKey)
+        .filter((attribute) => !fieldHelp.has(`${entity.name}.${attribute.name}`))
+        .map((attribute) => attribute.name);
+
+      if (undocumented.length > 0) {
+        const shown = undocumented.slice(0, 6).join(", ");
+        const rest = undocumented.length > 6 ? `, and ${undocumented.length - 6} more` : "";
+        this.warn(
+          "EML153",
+          `${entity.name} has ${undocumented.length} column${undocumented.length === 1 ? "" : "s"} with no %%field help:.`,
+          {
+            line: entityLine,
+            hint: `Add \`%%field ${entity.name}.<column> help: …\` for ${shown}${rest}. Each becomes sys_column.description — the hint under the control and the column's row in the manual — and a column without one prints a dash.`,
+          }
+        );
+      }
+
+      for (const attribute of entity.attributes) {
+        const field = fieldHelp.get(`${entity.name}.${attribute.name}`);
+        if (!field) continue;
+        const why = this.restatedHelp(`${entity.name}.${attribute.name}`, field.text);
+        if (why) {
+          this.warn("EML151", `%%field ${entity.name}.${attribute.name} help: ${why}.`, {
+            line: field.line,
+            hint: `"${field.text.trim().slice(0, 60)}" repeats the column name. Say why the value matters, what is expected in it, and what happens downstream — a reference column should say what the reference is *for*, not that it is one.`,
+          });
+        }
+      }
     }
   }
 

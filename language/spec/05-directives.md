@@ -159,7 +159,7 @@ its `%%workflow` directive gave it.
 | `softDelete` | `true` \| `false` — use `deleted_at` *(validated)* |
 | `label` | UI display label *(validated)* |
 | `icon` | UI icon name *(validated)* |
-| `help` | Human-readable description — stored in `sys_table.description` and used as the opening paragraph of that entity's section in `manual.html` *(compiled)* |
+| `help` | Human-readable description — stored in `sys_table.description` and used as the opening paragraph of that entity's section in `manual.html`. Required on every entity, and it has to be domain knowledge rather than the name again — see below *(compiled)* |
 | `parent` | This entity is a **line item** of the one named — see below *(compiled)* |
 
 ```
@@ -282,6 +282,42 @@ The global sections (all rules, all processes, how the application was built) ar
 also entirely automatic. **The model author's only lever is `%%entity help:` and
 `%%field help:`** — everything else the manual says about the application is
 derived from the model's structure.
+
+### Help is not optional, and it must be domain knowledge
+
+Three codes police it, all warnings:
+
+| Code | Fires when |
+|---|---|
+| `EML152` | an entity carries no `%%entity … help:` at all |
+| `EML153` | an entity has columns with no `%%field … help:` — reported once, naming them |
+| `EML151` | help that restates its own subject rather than describing it |
+
+`EML151` is the one worth dwelling on, because coverage can be complete and the
+help still worthless. A published model once carried 642 field descriptions of
+which 699 lines in total were of this kind:
+
+```
+Bad:   %%field HouseholdMember.household_id help: Household id for HouseholdMember.
+Good:  %%field HouseholdMember.household_id help: The family this membership is in. Listed inside the household's own screen — a membership away from its household is not something anybody looks up.
+
+Bad:   %%entity Address help: Address is a business record in the wealth-management platform.
+Good:  %%entity Address help: A postal address belonging to a party, kept as its own record because a party has several — registered, correspondence, often an overseas one — and because a change of address is a KYC event that has to be evidenced rather than typed over the old one.
+```
+
+The first of each pair passes a coverage check and tells the reader nothing they
+could not already see. **Help is where the business lands in the model**, and it
+is compiled, so the difference between the two reaches every form, every
+dictionary row and every page of the manual.
+
+The three shapes `EML151` reports are `Unique identifier for X`, the column name
+in prose (`Status for Client`), and a template sentence (`X is a business record
+in …`). It is deliberately narrow: real help that happens to be short — *The day
+this offer expires.* — is not a restatement and does not fire.
+
+**The primary key needs no help** and `EML153` does not ask for any: it is a
+generated uuid, read-only on every form, and the only sentence anybody could
+write about it restates its name. Writing one anyway is what `EML151` reports.
 
 ### Authoring guidance for `%%field help:`
 
