@@ -250,7 +250,16 @@ describe("access control — %%rbac, as each role", () => {
           // Scoping too far is the mirror-image bug, and it hides a screen the
           // role is meant to work in — the sort of thing that reads as "the
           // feature is missing" rather than as a permission.
+          //
+          // A line item is the one entity legitimately absent here. `%%entity
+          // <Child> parent: <Parent>` gives it no window and no dashboard card
+          // on purpose: it is reached by opening a parent record, and a card
+          // listing every invoice line ever written is the screen the directive
+          // exists to prevent. `parentEntity` comes from the model rather than
+          // from the dictionary this generator wrote, so this asks the same
+          // question the model answered.
           const missing = entities
+            .filter((entity) => !entity.parentEntity)
             .filter((entity) => modelAllows(account, entity.route, "read"))
             .map((entity) => entity.tableName)
             .filter((tableName) => !offered.has(tableName));
@@ -278,7 +287,7 @@ describe("access control — %%rbac, as each role", () => {
       expect(refused).toEqual([]);
     });
 
-    it.skipIf(!declared)("is offered every entity in the navigation", async () => {
+    it.skipIf(!declared)("is offered every navigable entity in the navigation", async () => {
       const admin = roleAccounts.find((account) => account.isAdmin);
       const client = await clientFor(admin!);
       expect(client).toBeTruthy();
@@ -291,7 +300,13 @@ describe("access control — %%rbac, as each role", () => {
           .flatMap((group) => group.entities ?? [])
           .map((table) => String(table.table_name ?? ""))
       );
-      const missing = entities.map((e) => e.tableName).filter((name) => !offered.has(name));
+      // Line items excluded for the same reason as above: the administrator is
+      // offered every entity that has a window, and a child deliberately has
+      // none. Asserting otherwise would demand the card the directive removes.
+      const missing = entities
+        .filter((entity) => !entity.parentEntity)
+        .map((entity) => entity.tableName)
+        .filter((name) => !offered.has(name));
       expect(missing).toEqual([]);
     });
   });
