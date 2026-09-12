@@ -520,6 +520,10 @@ test.describe("@browser the checker refuses a broken model", () => {
     await page.goto("/run-in-browser.html");
     await page.locator("#choice-upload").click();
 
+    /* Help on the entity and the column, because the corrected half of this
+       fixture has to be a model the checker finds *nothing* to say about:
+       EML152 and EML153 report an entity and columns with none, and the page
+       shows its diagnostics panel for a warning as readily as for an error. */
     const model = (entity: string) =>
       [
         "%%meta name: Bad RBAC",
@@ -529,6 +533,9 @@ test.describe("@browser the checker refuses a broken model", () => {
         "        string id PK",
         "        string name",
         "    }",
+        "",
+        "%%entity Customer help: A person or organisation that buys from us. Created when a lead converts, and never deleted while an unpaid invoice stands against it.",
+        "%%field Customer.name help: The trading name to address on correspondence and to print on an invoice. Not necessarily the registered legal entity.",
         "",
       ].join("\n");
 
@@ -633,6 +640,10 @@ test.describe("@browser assembling the real stack in a tab", () => {
     await page.goto("/run-real-stack.html");
     await page.locator("#choice-upload").click();
 
+    /* Help on the entity and the column, because the corrected half of this
+       fixture has to be a model the checker finds *nothing* to say about:
+       EML152 and EML153 report an entity and columns with none, and the page
+       shows its diagnostics panel for a warning as readily as for an error. */
     const model = (entity: string) =>
       [
         "%%meta name: Bad RBAC",
@@ -642,6 +653,9 @@ test.describe("@browser assembling the real stack in a tab", () => {
         "        string id PK",
         "        string name",
         "    }",
+        "",
+        "%%entity Customer help: A person or organisation that buys from us. Created when a lead converts, and never deleted while an unpaid invoice stands against it.",
+        "%%field Customer.name help: The trading name to address on correspondence and to print on an invoice. Not necessarily the registered legal entity.",
         "",
       ].join("\n");
 

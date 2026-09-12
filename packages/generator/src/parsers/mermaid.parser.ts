@@ -270,7 +270,13 @@ export class MermaidParser {
       const parent = entities.find((candidate) => candidate.name === parentName);
       if (!child || !parent) continue;
 
-      const snake = parent.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+      /* The shared snake-caser, not a local one. Its own copy dropped the
+         acronym rule, so `KYCRecord` came out `kycrecord`: a model declaring
+         `kyc_record_id` — the column the migration actually emits — found no
+         link, and the child silently kept its own window and gained no tab.
+         Nothing reported it, because the parser is what the checker's own
+         EML148 was comparing against. */
+      const snake = snakeCase(parent.name);
       const link =
         child.attributes.find((a) => a.isForeignKey && a.name === `${snake}_id`) ??
         child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`));

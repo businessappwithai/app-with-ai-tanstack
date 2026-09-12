@@ -223,6 +223,36 @@ for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
   }
 
   held(disagreed === 0, `${name}: every mermaid example parses to the entities it declares`);
+
+  /*
+   * And every one of them documents itself.
+   *
+   * These examples are the most-copied part of a specification: a model reading
+   * it will imitate their shape long before it reads the prose about help. An
+   * example without `%%entity help:` and `%%field help:` therefore teaches that
+   * help is optional, however firmly the surrounding paragraphs say otherwise —
+   * which is exactly the habit EML151-EML153 exist to break.
+   */
+  let undocumented = 0;
+  for (const example of examples) {
+    const codes = check(example.body).issues.filter((issue: { code: string }) =>
+      ["EML151", "EML152", "EML153"].includes(issue.code)
+    );
+    if (codes.length > 0) {
+      undocumented++;
+      console.log(
+        `FAIL ${name}:${example.line}: ${codes.length} help diagnostic(s) — ` +
+          codes
+            .slice(0, 3)
+            .map((issue: { code: string; message: string }) => `${issue.code} ${issue.message}`)
+            .join("; ")
+      );
+    }
+  }
+  held(
+    undocumented === 0,
+    `${name}: every mermaid example carries help on its entities and columns`
+  );
 }
 
 /**

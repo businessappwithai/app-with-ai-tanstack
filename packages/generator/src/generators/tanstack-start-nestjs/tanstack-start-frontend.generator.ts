@@ -221,8 +221,18 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
   ): Record<string, unknown> {
     const busEntities = entities.map((entity) => entityToBusEntity(entity));
 
-    // Prepare main entities for sidebar navigation (top-level entities only)
+    /*
+     * The sidebar's shortlist. Two filters, and only one of them is a heuristic:
+     * a line item is excluded because the model said so — `%%entity <Child>
+     * parent: <Parent>` gives it no window and no card, and a navigation entry
+     * would be a third place it is not supposed to appear. The single-word rule
+     * below is the shortlist's own taste and stays a guess.
+     */
+    const lineItems = new Set(
+      entities.filter((entity) => entity.parentEntity).map((entity) => entity.name)
+    );
     const mainEntities = busEntities
+      .filter((e) => !lineItems.has(e.name))
       .filter((e) => !e.tableName.includes("_") || e.tableName.match(/^bus_[a-z]+$/))
       .slice(0, 10) // Limit to top 10 main entities
       .map((entity) => ({

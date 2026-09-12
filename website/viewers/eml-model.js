@@ -482,6 +482,24 @@ var appwithai_language_default = {
       "%%entity <Child> parent: <Parent> makes the child a line item: no window and no dashboard card, a tab inside the parent's window instead. See masterDetail.",
       "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
     ],
+    helpText: {
+      description: "The only explanation a generated application has. `%%entity <Name> help:` becomes sys_table.description and opens that entity's section of manual.html; `%%field <Entity>.<column> help:` becomes sys_column.description, the hint under the control, and the column's row in the manual. There is no second source — no hand-written tooltip, no README beside the form, no designer to ask — so a model that skips it produces an application whose manual is a table of dashes.",
+      required: "On every entity and every column, without exception, including the ones that feel self-evident. The primary key is the one thing that needs none: it is a generated uuid, read-only on every form, and the only sentence anyone could write about it restates its name.",
+      mustBeDomainKnowledge: "Help is where the *business* lands in the model, not where the schema is paraphrased. `Household id for HouseholdMember.` is the column name in a sentence and leaves the reader exactly where they started; `The family this membership is in — listed inside the household's own screen, since a membership away from its household is not something anybody looks up.` is what the field is for. The distinction is not style: help is compiled, so the difference between the two reaches every form, every dictionary row and every page of the manual.",
+      whatToSay: [
+        "An entity: what this record is for in the business, when one comes into existence, what distinguishes it from the entities it sounds like, and what it must not be confused with.",
+        "A column: why the value matters, what is expected in it, what reads it downstream, and what goes wrong when it is wrong.",
+        "A reference column: what the reference is *for* — `the ward this bed stands in`, not `the ward id`.",
+        "An enum-bound column: what each value means to the business, because the dictionary lists the values and nothing else says what choosing one does.",
+        "A lifecycle column: which moves are possible from which state, since the state machine enforces a topology the form cannot show."
+      ],
+      whenToWriteIt: "While the model is being written, and nowhere else. The moment a model is authored is the only moment anybody knows the answers, and no later pass adds them — which is why this is the most-skipped part of a model and the most expensive to skip.",
+      checkerCodes: {
+        EML151: "warning — help that restates its own subject: `Unique identifier for X`, the column name in prose (`Status for Client`), or a template sentence (`Address is a business record in the wealth-management platform`). Deliberately narrow: real help that happens to be short is not a restatement and does not fire.",
+        EML152: "warning — an entity with no `%%entity ... help:` at all.",
+        EML153: "warning — the columns of one entity with no `%%field ... help:`, reported once per entity and naming them. One diagnostic per column would bury every other finding on a model that skipped help entirely, which is the common case."
+      }
+    },
     masterDetail: {
       description: "A line item is an entity with no life away from its owner - an invoice line, an order line, a prescription item. The ERD cannot tell one from an ordinary reference, because InvoiceLine.invoice_id and Invoice.patient_id are both a foreign key with a relationship behind it. The modeller says which it is.",
       directive: "%%entity <Child> parent: <Parent>",
@@ -497,7 +515,17 @@ var appwithai_language_default = {
         "Does the row's identity depend on the owner - line 1 of invoice 7, rather than line 1? If so, it is a child.",
         "Would deleting the owner make the row meaningless? If so, it is a child.",
         "A reference is the opposite: Invoice.patient_id points at a Patient who exists, and matters, independently."
-      ]
+      ],
+      whyItMustBeDeclared: "Nothing derives it, and the default is not an error. A model that never writes the directive produces an application in which every line item carries its own dashboard card and its own screen, and no parent record shows its own lines — an invoice whose lines cannot be read from it, beside a card listing every line ever written. EML149 exists to name the candidates, because a silent default is the one thing a checker can still be useful about.",
+      leaveItOutOfCategory: "A %%category is the dashboard's grouping, and a child has no card, so naming a child in one asks for a card the dictionary will not create. Reported as EML150.",
+      detection: {
+        description: "EML149 is an info rather than an error, because whether a list of these records away from their owner is useful to anyone is a question about the business and not about the document. The checker names the candidate parent and the foreign key the tab would link on; the author answers it either way.",
+        shapes: [
+          "The entity's name begins with a declared entity's name and it carries a foreign key to that entity — InvoiceLine/Invoice, OrderItem/Order, TeamMember/Team, FinancialPlanAssumption/FinancialPlan. The longest match wins, so a name that begins with two declared entities belongs to the longer one.",
+          "The entity's name ends in a line-item noun (Line, LineItem, Item, Detail, Entry, Row, singular or plural) and one of its foreign keys resolves to a declared entity — RecommendationItem under InvestmentRecommendation."
+        ],
+        quietOn: "An entity that merely references another. Most foreign keys are references, and neither shape fires on one."
+      }
     },
     checkerCodes: {
       EML103: "A column the generator already adds (id, version, the audit pair, the soft-delete pair), declared in the model.",
@@ -505,6 +533,12 @@ var appwithai_language_default = {
       EML146: "A status/state/stage column with no %%field enum binding - the dropdown is lost.",
       EML147: "%%entity ... parent: names an entity that is not declared, or the entity names itself.",
       EML148: "%%entity ... parent: is declared but the child has no foreign key back to the parent, so the detail tab has nothing to link on.",
+      EML149: "info — an entity shaped like a line item that declares no parent:. Names the candidate parent and the column a tab would link on. Never an error: identifyingAChild's three questions are about the business, not the document.",
+      EML150: "warning — an entity declared parent: is also named in a %%category. The category asks for a dashboard card the directive has taken away.",
+      EML151: "warning — entity or column help that restates its own name instead of describing it. See helpText.mustBeDomainKnowledge.",
+      EML152: "warning — an entity with no help text at all.",
+      EML153: "warning — columns with no help text, reported once per entity.",
+      EML154: "warning — a %%category with no `name:` key. category.parser.ts requires one and skips the line without it, so the whole grouping is silently lost and its entities fall into the default General category.",
       EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track."
     },
     reportDesigns: {
@@ -1410,7 +1444,7 @@ var appwithai_language_default = {
       core: "erDiagram entities, attributes with PK/FK/UK/OPTIONAL/NULL/UNIQUE, and all 8 relationship cardinalities. Plus the directives the same parse pass reads: %%index (real DDL indexes), %%enum and %%field enum: (bound enums), and %%category (dashboard grouping). Fully compiled.",
       rules: "flowchart decision flows converted to JDM by shape semantics, and %%action directives compiled to a GoRules decision table. Fully compiled.",
       workflows: "%%hook directives in both forms (all 13 hook types), stateDiagram-v2 state machines, and %%workflow kind: saga with its %%step and %%loop directives. All three forms are compiled and seeded; the automation dialect is the same saga machinery authored through the builder.",
-      help: "%%field <Entity>.<column> help: and %%entity <Name> help: (or description:). Both are compiled: the parser hangs the text on the attribute and the entity, the dictionary generator writes it to sys_column.description and sys_table.description, and the generated application shows it under the field and beside the table. It has a second consumer: packages/generator/src/manual/index.ts renders manual.html from the same parsed model, where this text is the entire 'what it is for' column — a field with no help prints a dash there. Write help on every column, not only the ambiguous ones. Fully compiled.",
+      help: "%%field <Entity>.<column> help: and %%entity <Name> help: (or description:). Both are compiled: the parser hangs the text on the attribute and the entity, the dictionary generator writes it to sys_column.description and sys_table.description, and the generated application shows it under the field and beside the table. It has a second consumer: packages/generator/src/manual/index.ts renders manual.html from the same parsed model, where this text is the entire 'what it is for' column — a field with no help prints a dash there. Write help on every entity and every column, and write domain knowledge rather than the name again: EML151, EML152 and EML153 report the three ways a model fails to. See applicationDictionary.helpText. Fully compiled.",
       validated: "%%rule and %%trigger, and the %%entity keys other than help:/description:. No compiler reads these yet, but language/checker.ts enforces their syntax and cross-references, so a malformed one fails validation instead of being silently dropped.",
       reserved: "The %%field keys other than enum: and help:. Renderer-safe and documented, with no reader. Writing one is legal and inert.",
       access: "%%rbac, in both its CRUD and state-transition forms. Compiled to sys_operation_access / sys_transition_access and enforced by the generated EntityAccessGuard."
@@ -1441,7 +1475,7 @@ var appwithai_language_default = {
       "EML001-EML099": "Document level: metadata, emptiness, section structure.",
       "EML100-EML119": "Entities and attributes.",
       "EML120-EML129": "Relationships.",
-      "EML130-EML199": "Directives attached to the ERD: %%enum, %%field, %%entity, %%index.",
+      "EML130-EML199": "Directives attached to the ERD: %%enum, %%field, %%entity, %%index, %%category — including the line-item pair EML149 and EML150.",
       "EML200-EML299": "Hooks, guards, triggers, workflows and rules as declared by directives.",
       "EML300-EML399": "Business-rule flowcharts.",
       "EML400-EML449": "Workflow sections: hook, state and saga.",
@@ -2305,6 +2339,9 @@ var PERSON_ROLE_COLUMN_NAMES = new Set([
 function isPersonRoleColumn(columnName) {
   return columnName.endsWith("_by") || columnName.endsWith("_by_id") || PERSON_ROLE_COLUMN_NAMES.has(columnName);
 }
+function escapeRe(literal) {
+  return literal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 function isForeignKeyColumnName(columnName) {
   return columnName.endsWith("_id") || columnName.endsWith("_by");
 }
@@ -2368,6 +2405,9 @@ class CheckEngine {
     this.checkFieldDirectives();
     this.checkIndexDirectives();
     this.checkEntityDirectives();
+    this.checkCategoryDirectives();
+    this.checkLineItems();
+    this.checkHelpText();
     this.checkHooks();
     this.checkAutomationTriggers();
     this.checkGuards();
@@ -2819,14 +2859,179 @@ class CheckEngine {
             hint: "A line item belongs to a different entity. Remove the directive if it has no owner."
           });
         } else if (child) {
-          const snake = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
-          const link = child.attributes.find((attribute) => attribute.isForeignKey && (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`)));
+          const link = this.linkColumnTo(child, parentName);
           if (!link) {
             this.error("EML148", `%%entity ${entityName} parent: ${parentName}, but ${entityName} has no foreign key to it.`, {
               line: lineNo,
-              hint: `Add \`string ${snake}_id FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`
+              hint: `Add \`string ${this.entityToFkName(parentName)} FK\` to ${entityName}. The tab links its rows to the open ${parentName} on that column.`
             });
           }
+        }
+      }
+    }
+  }
+  declaredParents() {
+    const parents = new Map;
+    for (const { text } of this.src.findAll(/^\s*%%entity\b/)) {
+      const m = text.trim().match(/^%%entity\s+(\w+)\s+parent\s*:\s*(\S+)\s*$/);
+      if (m?.[1] && m[2])
+        parents.set(m[1], m[2]);
+    }
+    return parents;
+  }
+  categorisedEntities() {
+    const named = new Map;
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%category\b/)) {
+      const m = text.match(/entities\s*:\s*([^;]*)/);
+      if (!m?.[1])
+        continue;
+      for (const raw of m[1].split(",")) {
+        const name = raw.trim();
+        if (name && !named.has(name))
+          named.set(name, lineNo);
+      }
+    }
+    return named;
+  }
+  linkColumnTo(entity, parentName) {
+    const snake = parentName.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
+    return entity.attributes.find((attribute) => attribute.isForeignKey && (attribute.name === `${snake}_id` || attribute.name.startsWith(`${snake}_`)));
+  }
+  checkCategoryDirectives() {
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%category\b/)) {
+      const body = text.trim().replace(/^%%\s*category\b\s*/i, "");
+      if (!body)
+        continue;
+      const keys = body.split(";").map((segment) => segment.trim()).filter(Boolean).map((segment) => segment.slice(0, segment.indexOf(":")).trim().toLowerCase());
+      if (!keys.includes("name")) {
+        const shorthand = body.match(/^([^:;]+):\s*(.+)$/);
+        this.warn("EML154", "%%category has no `name:` key, so nothing is declared.", {
+          line: lineNo,
+          hint: shorthand ? `Write it as \`%%category name: ${shorthand[1]?.trim()}; entities: ${shorthand[2]?.trim()}\`. Without \`name:\` the parser skips the line and every entity in it falls into the default General category.` : "Syntax: %%category name: <Name>; description: …; icon: …; entities: <A>, <B>. `name` is the only required key, and a directive without it is dropped."
+        });
+      }
+    }
+  }
+  checkLineItems() {
+    const parents = this.declaredParents();
+    const categorised = this.categorisedEntities();
+    const declared = new Map(this.model.entities.map((e) => [e.name, e]));
+    for (const [child, parent] of parents) {
+      const line = categorised.get(child);
+      if (line === undefined || !declared.has(child))
+        continue;
+      this.warn("EML150", `"${child}" is a line item of "${parent}" but is named in a %%category.`, {
+        line,
+        hint: `A category lists what the dashboard shows, and a child has no card — it is reached by opening a ${parent}. Remove "${child}" from the entities: list.`
+      });
+    }
+    const LINE_ITEM_NOUNS = /(Line|LineItem|Item|Detail|Entry|Row)s?$/;
+    for (const entity of this.model.entities) {
+      if (parents.has(entity.name))
+        continue;
+      let candidate;
+      for (const other of declared.keys()) {
+        if (other === entity.name || other.length < 3)
+          continue;
+        if (!entity.name.startsWith(other) || entity.name.length <= other.length)
+          continue;
+        if (!this.linkColumnTo(entity, other))
+          continue;
+        if (!candidate || other.length > candidate.length)
+          candidate = other;
+      }
+      if (!candidate && LINE_ITEM_NOUNS.test(entity.name)) {
+        for (const attribute of entity.attributes) {
+          if (!attribute.isForeignKey || attribute.isPrimaryKey)
+            continue;
+          if (!isForeignKeyColumnName(attribute.name))
+            continue;
+          if (isPersonRoleColumn(attribute.name))
+            continue;
+          const target = this.fkToEntityName(attribute.name);
+          const match = [...declared.keys()].find((name) => name !== entity.name && (name === target || name.endsWith(target)));
+          if (match && this.linkColumnTo(entity, match)) {
+            candidate = match;
+            break;
+          }
+        }
+      }
+      if (!candidate)
+        continue;
+      const link = this.linkColumnTo(entity, candidate);
+      this.info("EML149", `"${entity.name}" looks like a line item of "${candidate}" but declares no parent.`, {
+        line: this.src.findLine(new RegExp(`^\\s*${entity.name}\\s*\\{`)),
+        hint: `If a list of every ${entity.name} away from its ${candidate} is not a screen anyone opens, ` + `declare \`%%entity ${entity.name} parent: ${candidate}\` — the dictionary then drops its dashboard ` + `card and gives it a tab inside the ${candidate} window, linked on ${link?.name}. ` + `If it is a thing in its own right, leave it: a reference is the opposite on all three questions (§3.5.1).`
+      });
+    }
+  }
+  nameAsWords(name) {
+    return name.replace(/[_.]+/g, " ").trim().toLowerCase();
+  }
+  restatedHelp(subject, text) {
+    const [entity = "", column = ""] = subject.split(".");
+    const body = text.trim().replace(/\.+$/, "").trim().toLowerCase();
+    const own = this.nameAsWords(column || entity);
+    const of = entity.toLowerCase();
+    if (/^unique identifier( for \w+)?$/.test(body))
+      return "restates the key";
+    if (new RegExp(`^(the )?${escapeRe(own)}( for ${escapeRe(of)})?$`).test(body)) {
+      return "is the name again, in prose";
+    }
+    if (new RegExp(`^${escapeRe(of)} is an? [\\w -]*(record|entity|table|object)\\b`).test(body)) {
+      return "is a template sentence, not a description";
+    }
+    return;
+  }
+  checkHelpText() {
+    const entityHelp = new Map;
+    const fieldHelp2 = new Map;
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%entity\b/)) {
+      const m = text.trim().match(/^%%entity\s+(\w+)\s+(?:help|description)\s*:\s*(.+)$/);
+      if (m?.[1] && m[2])
+        entityHelp.set(m[1], { text: m[2], line: lineNo });
+    }
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%field\b/)) {
+      const m = text.trim().match(/^%%field\s+([\w.]+)\s+help\s*:\s*(.+)$/);
+      if (m?.[1] && m[2])
+        fieldHelp2.set(m[1], { text: m[2], line: lineNo });
+    }
+    for (const entity of this.model.entities) {
+      const entityLine = this.src.findLine(new RegExp(`^\\s*${entity.name}\\s*\\{`));
+      const help = entityHelp.get(entity.name);
+      if (!help) {
+        this.warn("EML152", `Entity "${entity.name}" has no %%entity help:.`, {
+          line: entityLine,
+          hint: `Add \`%%entity ${entity.name} help: …\` — what this record is for in the business, when one is created, and what distinguishes it from the entities it sounds like. It becomes sys_table.description and opens the entity's section of the manual.`
+        });
+      } else {
+        const why = this.restatedHelp(entity.name, help.text);
+        if (why) {
+          this.warn("EML151", `%%entity ${entity.name} help: ${why}.`, {
+            line: help.line,
+            hint: `"${help.text.trim().slice(0, 60)}" tells a reader nothing the entity name did not. Say what the business does with these records — the domain knowledge behind the name is the whole reason this line exists.`
+          });
+        }
+      }
+      const undocumented = entity.attributes.filter((attribute) => !MANAGED_COLUMN_NAMES.has(attribute.name.toLowerCase())).filter((attribute) => !attribute.isPrimaryKey).filter((attribute) => !fieldHelp2.has(`${entity.name}.${attribute.name}`)).map((attribute) => attribute.name);
+      if (undocumented.length > 0) {
+        const shown = undocumented.slice(0, 6).join(", ");
+        const rest = undocumented.length > 6 ? `, and ${undocumented.length - 6} more` : "";
+        this.warn("EML153", `${entity.name} has ${undocumented.length} column${undocumented.length === 1 ? "" : "s"} with no %%field help:.`, {
+          line: entityLine,
+          hint: `Add \`%%field ${entity.name}.<column> help: …\` for ${shown}${rest}. Each becomes sys_column.description — the hint under the control and the column's row in the manual — and a column without one prints a dash.`
+        });
+      }
+      for (const attribute of entity.attributes) {
+        const field = fieldHelp2.get(`${entity.name}.${attribute.name}`);
+        if (!field)
+          continue;
+        const why = this.restatedHelp(`${entity.name}.${attribute.name}`, field.text);
+        if (why) {
+          this.warn("EML151", `%%field ${entity.name}.${attribute.name} help: ${why}.`, {
+            line: field.line,
+            hint: `"${field.text.trim().slice(0, 60)}" repeats the column name. Say why the value matters, what is expected in it, and what happens downstream — a reference column should say what the reference is *for*, not that it is one.`
+          });
         }
       }
     }
@@ -8508,7 +8713,7 @@ class MermaidParser {
       const parent = entities.find((candidate) => candidate.name === parentName);
       if (!child || !parent)
         continue;
-      const snake = parent.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+      const snake = snakeCase(parent.name);
       const link = child.attributes.find((a) => a.isForeignKey && a.name === `${snake}_id`) ?? child.attributes.find((a) => a.isForeignKey && a.name.startsWith(`${snake}_`));
       if (!link)
         continue;

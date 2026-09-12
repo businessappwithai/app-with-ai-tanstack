@@ -67,6 +67,21 @@ export interface SysTab {
   sys_table_id: string;
   name: string;
   seq_no: number;
+  /**
+   * 0 for the window's own entity, 1 for a line item of it.
+   *
+   * A model says which with `%%entity <Child> parent: <Parent>`: the child gets
+   * no window of its own and its tab is created inside the parent's, so this is
+   * where the master-detail arrangement survives from the model into the
+   * running application.
+   */
+  tab_level?: number;
+  /**
+   * The child's own foreign key back to the parent — `sys_column.sys_column_id`
+   * of the column marked `is_parent`. It is what the detail list filters on, so
+   * a tab with none has nothing to show.
+   */
+  link_column_id?: string | null;
 }
 
 /**
