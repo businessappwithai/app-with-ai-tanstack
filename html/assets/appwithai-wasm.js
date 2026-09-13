@@ -13165,6 +13165,48 @@ import { hashPassword } from "./lib/auth.js";
 
 const SCHEMA_VERSION = 1;
 
+/**
+ * Seeding, as a fraction of itself.
+ *
+ * It used to report once — "Seeding the dictionary" — and then run silently to
+ * the end. That is fine on a nine-entity model, where the whole of it is a
+ * second. On a ninety-one entity one it is minutes at a single number, and the
+ * host page's progress bar sits still for the entire wait: measured at 83% for
+ * 246 of the 253 seconds a thirty-entity model took to boot. A bar that does
+ * that is reporting the number of steps rather than the progress through them,
+ * which is the thing its own weighting exists to avoid.
+ *
+ * The count is over the work that scales with the model — every dictionary row
+ * and every sample row — because the fixed stages beside them are bounded and
+ * quick. Reporting is throttled to one message per whole percent, so fifteen
+ * hundred inserts do not become fifteen hundred postMessages to the parent.
+ */
+function seedCounter(model, log) {
+  const dictionary = model.dictionary || {};
+  const count = (list) => (list || []).length;
+  const total =
+    count(dictionary.windows) +
+    count(dictionary.tables) +
+    count(dictionary.columns) +
+    count(dictionary.tabs) +
+    count(dictionary.fieldGroups) +
+    count(dictionary.fields) +
+    count(dictionary.references) +
+    count(model.categories) +
+    (model.enums || []).reduce((sum, declared) => sum + 1 + count(declared.values), 0) +
+    Object.values(model.sampleData || {}).reduce((sum, rows) => sum + rows.length, 0);
+
+  let done = 0;
+  let reported = -1;
+  return () => {
+    done += 1;
+    const percent = total > 0 ? Math.floor((done / total) * 100) : 100;
+    if (percent === reported) return;
+    reported = percent;
+    log(\`Seeding — \${done} of \${total}\`);
+  };
+}
+
 export async function migrate(db, model, readAsset, log = () => {}) {
   const already = await db.tableExists("sys_table");
 
@@ -13189,16 +13231,17 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   }
 
   log("Seeding the dictionary");
-  await seedReferences(db, model);
-  await seedCategories(db, model);
-  await seedDictionary(db, model);
+  const tick = seedCounter(model, log);
+  await seedReferences(db, model, tick);
+  await seedCategories(db, model, tick);
+  await seedDictionary(db, model, tick);
   await seedRoles(db, model);
   await seedAdmin(db, model, log);
   await seedRoleUsers(db, model, log);
   await seedRules(db, model);
   await seedWorkflows(db, model);
   await seedAccess(db, model);
-  await seedSampleData(db, model, log);
+  await seedSampleData(db, model, log, tick);
 
   await db.query(
     \`INSERT INTO sys_schema_state (key, value) VALUES ('seeded', $1)
@@ -13209,13 +13252,14 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   return { seeded: true };
 }
 
-async function seedReferences(db, model) {
+async function seedReferences(db, model, tick = () => {}) {
   for (const reference of model.dictionary.references || []) {
     await db.query(
       \`INSERT INTO sys_reference (sys_reference_id, name, description, validation_type)
        VALUES ($1, $2, $3, $4) ON CONFLICT (sys_reference_id) DO NOTHING\`,
       [reference.id, reference.name, reference.description ?? null, reference.validationType ?? "S"]
     );
+    tick();
   }
 
   // \`%%enum\` declarations become list references, which is what turns a modelled
@@ -13226,12 +13270,16 @@ async function seedReferences(db, model) {
        VALUES ($1, $2, $3, 'L') ON CONFLICT (sys_reference_id) DO NOTHING\`,
       [declared.referenceId, declared.name, \`Values declared by %%enum \${declared.name}\`]
     );
+    tick();
     let sequence = 0;
     for (const value of declared.values || []) {
       const exists = await db.one(
         "SELECT sys_ref_list_id FROM sys_ref_list WHERE sys_reference_id = $1 AND value = $2",
         [declared.referenceId, value]
       );
+      // Before the \`continue\`: the lookup is the work whether or not it inserts,
+      // and a tick the count skips is a total the bar can never reach.
+      tick();
       if (exists) continue;
       await db.insert("sys_ref_list", {
         sys_reference_id: declared.referenceId,
@@ -13243,17 +13291,18 @@ async function seedReferences(db, model) {
   }
 }
 
-async function seedCategories(db, model) {
+async function seedCategories(db, model, tick = () => {}) {
   for (const category of model.categories || []) {
     await db.query(
       \`INSERT INTO sys_category (name, description, seq_no) VALUES ($1, $2, $3)
          ON CONFLICT (name) DO NOTHING\`,
       [category.name, category.description ?? null, category.seqNo ?? 0]
     );
+    tick();
   }
 }
 
-async function seedDictionary(db, model) {
+async function seedDictionary(db, model, tick = () => {}) {
   const dictionary = model.dictionary;
 
   for (const window of dictionary.windows || []) {
@@ -13265,6 +13314,7 @@ async function seedDictionary(db, model) {
         window_type: window.windowType ?? "maintain",
       });
     }
+    tick();
   }
 
   for (const table of dictionary.tables || []) {
@@ -13290,6 +13340,7 @@ async function seedDictionary(db, model) {
         categoryId,
       ]
     );
+    tick();
   }
 
   for (const column of dictionary.columns || []) {
@@ -13321,6 +13372,7 @@ async function seedDictionary(db, model) {
         column.seqNo ?? 0,
       ]
     );
+    tick();
   }
 
   for (const tab of dictionary.tabs || []) {
@@ -13356,6 +13408,7 @@ async function seedDictionary(db, model) {
         linkColumnId,
       ]);
     }
+    tick();
   }
 
   for (const group of dictionary.fieldGroups || []) {
@@ -13367,6 +13420,7 @@ async function seedDictionary(db, model) {
     );
     if (exists) continue;
     await db.insert("sys_field_group", { sys_tab_id: tabId, name: group.name, seq_no: group.seqNo ?? 0 });
+    tick();
   }
 
   for (const field of dictionary.fields || []) {
@@ -13413,6 +13467,7 @@ async function seedDictionary(db, model) {
         !!field.isKey,
       ]
     );
+    tick();
   }
 }
 
@@ -13535,7 +13590,7 @@ async function seedRoleUsers(db, model, log) {
  * convenience; an application that refuses to boot because a sample row was
  * rejected would be a worse trade than one that boots with empty tables.
  */
-async function seedSampleData(db, model, log) {
+async function seedSampleData(db, model, log, tick = () => {}) {
   const tables = Object.entries(model.sampleData || {});
   if (tables.length === 0) return;
 
@@ -13555,6 +13610,7 @@ async function seedSampleData(db, model, log) {
       } catch (error) {
         log(\`Sample data: \${table} row skipped — \${error.message}\`);
       }
+      tick();
     }
   }
   log(\`Sample data: \${inserted} record(s) across \${tables.length} table(s)\`);
@@ -18902,7 +18958,7 @@ const initials = (name) =>
     .join("") || "AP";
 `
 });
-var RUNTIME_BYTES = 330776;
+var RUNTIME_BYTES = 332933;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -19241,10 +19297,13 @@ function generateSysFieldGroups(entityName, config = defaultDictionaryConfig) {
   ];
 }
 function formatDisplayName(name) {
-  if (/^[A-Z_]+$|^[a-z_]+$/.test(name)) {
-    return name.replace(/_/g, " ").split(" ").map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
-  }
-  return name.replace(/_/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").split(" ").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  return splitWords(name).map(titleWord).join(" ");
+}
+function splitWords(name) {
+  return name.replace(/[_\s-]+/g, " ").replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2").trim().split(/\s+/).filter(Boolean);
+}
+function titleWord(word) {
+  return /^[A-Z0-9]+$/.test(word) ? word : word.charAt(0).toUpperCase() + word.slice(1);
 }
 function shuffleArray(array) {
   for (let i = array.length - 1;i > 0; i--) {
@@ -19656,7 +19715,7 @@ function referenceIdFor(attribute, isPrimaryKey) {
 }
 var snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase();
 var kebab = (value) => snake(value).replace(/_/g, "-");
-var title = (value) => /^[A-Z0-9_]+$/.test(value) ? value.replace(/_/g, " ") : snake(value).split("_").filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
+var title = formatDisplayName;
 function tableNameFor(entity2) {
   const base = snake(entity2.tableName || entity2.name);
   return base.startsWith("bus_") || base.startsWith("sys_") ? base : `bus_${base}`;
@@ -19974,9 +20033,7 @@ function escapeHtml(value) {
 function slug(value) {
   return String(value).replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
-function title2(value) {
-  return String(value).replace(/([a-z0-9])([A-Z])/g, "$1 $2").split(/[\s_-]+/).filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-}
+var title2 = (value) => formatDisplayName(String(value));
 var REFERENCE_NAMES = {
   [ReferenceType.STRING]: "Text",
   [ReferenceType.INTEGER]: "Whole number",
@@ -20001,15 +20058,19 @@ function controlFor(attribute, referenceId) {
     return "Choice";
   return REFERENCE_NAMES[referenceId] ?? "Text";
 }
-function referenceTarget(column) {
+function referenceTarget(column, declared) {
   const name = column.toLowerCase();
   if (name.endsWith("_by") || name.endsWith("_by_id"))
     return "User";
   if (!name.endsWith("_id"))
     return null;
-  return title2(name.slice(0, -3)).replace(/\s+/g, "");
+  const stem = name.slice(0, -3);
+  return declared.get(stem.replace(/_/g, "")) ?? title2(stem).replace(/\s+/g, "");
 }
-function fieldRows(entity2) {
+function declaredNames(model) {
+  return new Map(model.entities.map((entity2) => [entity2.name.toLowerCase().replace(/_/g, ""), entity2.name]));
+}
+function fieldRows(entity2, declared) {
   const primaryKey = entity2.primaryKey || "id";
   return entity2.attributes.map((attribute) => {
     const isPrimary = attribute.name === primaryKey;
@@ -20030,7 +20091,7 @@ function fieldRows(entity2) {
       detail.push(`One of: ${attribute.enumValues.map((value) => `<code>${escapeHtml(value)}</code>`).join(", ")}`);
     }
     if (attribute.isForeignKey) {
-      const target = referenceTarget(attribute.name);
+      const target = referenceTarget(attribute.name, declared);
       if (target)
         detail.push(`Points at <b>${escapeHtml(title2(target))}</b>`);
     }
@@ -20145,6 +20206,7 @@ function renderManual(model, options) {
       categoryOf.set(name, category.name);
   }
   const entities = [...model.entities].sort((a, b) => a.name.localeCompare(b.name));
+  const declared = declaredNames(model);
   const contents = `
       <nav class="toc" aria-label="Contents">
         <h2>Contents</h2>
@@ -20174,7 +20236,7 @@ ${entity2.attributes.some((attribute) => attribute.description) ? "" : `      <p
 `}      <table>
         <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
         <tbody>
-${fieldRows(entity2)}
+${fieldRows(entity2, declared)}
         </tbody>
       </table>
 ${[
