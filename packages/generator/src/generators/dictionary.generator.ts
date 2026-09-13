@@ -13,6 +13,7 @@ import {
   type BusEntity,
   type BusEntityAttribute,
   type DictionaryGenerationConfig,
+  declaredEntityNames,
   defaultDictionaryConfig,
   type Entity,
   entityToBusEntity,
@@ -122,8 +123,9 @@ export class DictionaryGenerator {
     }> = [];
 
     // Generate dictionary entries for each entity
+    const declared = declaredEntityNames(entities);
     for (const entity of entities) {
-      const busEntity = entityToBusEntity(entity);
+      const busEntity = entityToBusEntity(entity, declared);
       busEntities.push(busEntity);
 
       // Generate bus_ attributes

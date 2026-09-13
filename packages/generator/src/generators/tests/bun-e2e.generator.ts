@@ -24,7 +24,7 @@ import type {
   EntityEnum,
   Relationship,
 } from "@appwithai/core/types";
-import { entityToBusEntity } from "@appwithai/core/types";
+import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import type { CompiledRbac } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
 import type { CompiledWorkflow } from "../../workflows";
@@ -176,7 +176,8 @@ export class BunE2ETestGenerator extends BaseGenerator {
     await fs.mkdir(path.join(testsDir, "harness"), { recursive: true });
     await fs.mkdir(path.join(testsDir, "suites"), { recursive: true });
 
-    const busEntities = entities.map((entity) => entityToBusEntity(entity));
+    const declared = declaredEntityNames(entities);
+    const busEntities = entities.map((entity) => entityToBusEntity(entity, declared));
     const context = this.buildContext(busEntities, relationships);
 
     await this.writeRootFiles(testsDir, context);

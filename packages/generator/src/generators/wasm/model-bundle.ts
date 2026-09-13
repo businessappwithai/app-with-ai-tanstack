@@ -23,7 +23,12 @@
  */
 
 import type { Entity, EntityAttribute, Relationship } from "@appwithai/core/types";
-import { formatDisplayName, ReferenceType } from "@appwithai/core/types";
+import {
+  attributeDisplayName,
+  declaredEntityNames,
+  formatDisplayName,
+  ReferenceType,
+} from "@appwithai/core/types";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { deriveAccess } from "../../rbac/roles";
 import { DictionaryGenerator } from "../dictionary.generator";
@@ -322,6 +327,11 @@ export function buildModelBundle(
     for (const entityName of category.entities) categoryOf.set(entityName, category.name);
   }
 
+  /* A foreign key is labelled by the entity it points at, and only that
+     entity's own name still carries the acronym — the column is lower-case by
+     now. Built once for the whole model rather than per attribute. */
+  const declared = declaredEntityNames(parsed.entities);
+
   const entities = parsed.entities.map((entity) => {
     const table = tableNameFor(entity);
     return {
@@ -339,7 +349,7 @@ export function buildModelBundle(
       attributes: entity.attributes.map((attribute, index) => ({
         name: attribute.name,
         columnName: snake(attribute.name),
-        displayName: title(attribute.name),
+        displayName: attributeDisplayName(attribute, entity.primaryKey, declared),
         type: attribute.type,
         sqlType: sqlType(attribute),
         required: !!attribute.required,

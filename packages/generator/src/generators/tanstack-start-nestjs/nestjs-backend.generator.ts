@@ -19,6 +19,7 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import {
+  declaredEntityNames,
   type Entity,
   type EntityEnum,
   entityToBusEntity,
@@ -316,8 +317,9 @@ export class NestJsBackendGenerator extends BaseGenerator {
      * seed that would not compile. Ordering here costs nothing and removes the
      * dependency on how the author arranged the file.
      */
+    const declared = declaredEntityNames(entities);
     const busEntities = entities
-      .map((entity) => entityToBusEntity(entity))
+      .map((entity) => entityToBusEntity(entity, declared))
       .sort((a, b) => Number(!!a.parentEntity) - Number(!!b.parentEntity));
 
     // Generate dictionary entries using the proper helper function
@@ -2358,7 +2360,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     _allEntities: Entity[],
     opts?: { skipMigration?: boolean }
   ): Promise<void> {
-    const busEntity = entityToBusEntity(entity);
+    const busEntity = entityToBusEntity(entity, declaredEntityNames(_allEntities));
 
     const toSnake = (name: string) =>
       name

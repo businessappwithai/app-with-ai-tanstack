@@ -20,6 +20,7 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import {
+  declaredEntityNames,
   type Entity,
   entityToBusEntity,
   formatDisplayName,
@@ -224,7 +225,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     entities: Entity[],
     relationships: Relationship[]
   ): Record<string, unknown> {
-    const busEntities = entities.map((entity) => entityToBusEntity(entity));
+    const declared = declaredEntityNames(entities);
+    const busEntities = entities.map((entity) => entityToBusEntity(entity, declared));
 
     /*
      * The sidebar's shortlist. Two filters, and only one of them is a heuristic:

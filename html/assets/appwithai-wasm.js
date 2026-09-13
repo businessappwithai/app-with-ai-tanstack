@@ -18974,7 +18974,7 @@ function attributeTypeToReferenceId(type) {
   };
   return typeMapping[type];
 }
-function entityToBusEntity(entity) {
+function entityToBusEntity(entity, declared) {
   const tableName = entity.tableName.startsWith(BUS_TABLE_PREFIX) ? entity.tableName : `${BUS_TABLE_PREFIX}${entity.tableName}`;
   return {
     ...entity,
@@ -18983,7 +18983,7 @@ function entityToBusEntity(entity) {
     displayName: formatDisplayName(entity.name),
     windowOwner: entity.parentEntity ?? entity.name,
     indexes: mergeIndexes(entity),
-    attributes: withIdentifiers(entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey)), entity.primaryKey)
+    attributes: withIdentifiers(entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey, declared)), entity.primaryKey)
   };
 }
 function withIdentifiers(attributes, primaryKey) {
@@ -19055,11 +19055,23 @@ function foreignKeyLabelStem(attr, entityPrimaryKey) {
   }
   return attr.name;
 }
-function attributeToBusAttribute(attr, index, entityPrimaryKey) {
+function declaredEntityNames(entities) {
+  return new Map(entities.map((entity) => [entity.name.toLowerCase().replace(/_/g, ""), entity.name]));
+}
+function attributeDisplayName(attr, entityPrimaryKey, declared) {
+  const stem = foreignKeyLabelStem(attr, entityPrimaryKey);
+  if (stem !== attr.name) {
+    const resolved = declared?.get(stem.toLowerCase().replace(/_/g, ""));
+    if (resolved)
+      return formatDisplayName(resolved);
+  }
+  return formatDisplayName(stem);
+}
+function attributeToBusAttribute(attr, index, entityPrimaryKey, declared) {
   return {
     ...attr,
     columnName: attr.name,
-    displayName: formatDisplayName(foreignKeyLabelStem(attr, entityPrimaryKey)),
+    displayName: attributeDisplayName(attr, entityPrimaryKey, declared),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
     isIdentifier: false
@@ -19472,8 +19484,9 @@ class DictionaryGenerator {
     let fieldGroupCounter = 0;
     const windowByEntity = new Map;
     const childTabs = [];
+    const declared = declaredEntityNames(entities);
     for (const entity2 of entities) {
-      const busEntity = entityToBusEntity(entity2);
+      const busEntity = entityToBusEntity(entity2, declared);
       busEntities.push(busEntity);
       const busAttrs = entity2.attributes.map((attr, index) => attributeToBusAttribute(attr, index));
       busAttributesMap.set(busEntity.tableName, busAttrs);
@@ -19842,6 +19855,7 @@ function buildModelBundle(parsed, project) {
     for (const entityName of category.entities)
       categoryOf.set(entityName, category.name);
   }
+  const declared = declaredEntityNames(parsed.entities);
   const entities = parsed.entities.map((entity2) => {
     const table = tableNameFor(entity2);
     return {
@@ -19857,7 +19871,7 @@ function buildModelBundle(parsed, project) {
       attributes: entity2.attributes.map((attribute, index) => ({
         name: attribute.name,
         columnName: snake(attribute.name),
-        displayName: title(attribute.name),
+        displayName: attributeDisplayName(attribute, entity2.primaryKey, declared),
         type: attribute.type,
         sqlType: sqlType(attribute),
         required: !!attribute.required,
@@ -19899,10 +19913,10 @@ function buildModelBundle(parsed, project) {
       seqNo: (index + 1) * 10,
       entities: category.entities
     })),
-    enums: parsed.enums.map((declared) => ({
-      name: declared.name,
-      referenceId: declared.referenceId,
-      values: declared.values
+    enums: parsed.enums.map((declared2) => ({
+      name: declared2.name,
+      referenceId: declared2.referenceId,
+      values: declared2.values
     })),
     rules: parsed.rules,
     hooks: parsed.hooks,

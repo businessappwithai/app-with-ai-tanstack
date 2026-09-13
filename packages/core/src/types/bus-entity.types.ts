@@ -124,7 +124,7 @@ export interface BusRelationship extends Relationship {
 /**
  * Converts an Entity to a BusEntity with bus_ prefix
  */
-export function entityToBusEntity(entity: Entity): BusEntity {
+export function entityToBusEntity(entity: Entity, declared?: Map<string, string>): BusEntity {
   const tableName = entity.tableName.startsWith(BUS_TABLE_PREFIX)
     ? entity.tableName
     : `${BUS_TABLE_PREFIX}${entity.tableName}`;
@@ -146,7 +146,7 @@ export function entityToBusEntity(entity: Entity): BusEntity {
     indexes: mergeIndexes(entity),
     attributes: withIdentifiers(
       entity.attributes.map((attr, index) =>
-        attributeToBusAttribute(attr, index, entity.primaryKey)
+        attributeToBusAttribute(attr, index, entity.primaryKey, declared)
       ),
       entity.primaryKey
     ),
@@ -337,17 +337,60 @@ function foreignKeyLabelStem(attr: EntityAttribute, entityPrimaryKey?: string): 
 }
 
 /**
+ * Every entity name, keyed by itself with separators and case removed.
+ *
+ * `kyc_record` and `KYCRecord` both squash to `kycrecord`, which is what lets a
+ * column find the entity it points at. Case is the thing being recovered, so it
+ * cannot also be the thing being matched on.
+ */
+export function declaredEntityNames(entities: { name: string }[]): Map<string, string> {
+  return new Map(
+    entities.map((entity) => [entity.name.toLowerCase().replace(/_/g, ""), entity.name])
+  );
+}
+
+/**
+ * The label a column carries on screen.
+ *
+ * A resolved foreign key is labelled by the thing it points at rather than by
+ * the column that points: `kyc_record_id` reads `KYC Record`. Two steps, and
+ * each was missing on one side. The NestJS dictionary stripped the suffix but
+ * had only the column to work from, so the acronym was already gone — `Kyc
+ * Record`. The browser bundle labelled the raw column and kept the suffix too —
+ * `Kyc Record Id`. One model, one column, two different words on screen.
+ *
+ * `declared` is what recovers the case: a column is lower-case by the time it
+ * reaches here, and the entity's own name is the only place the acronym still
+ * exists. Without the map this degrades to what core did before, which is why
+ * it is optional rather than required — a caller that has no entity list is
+ * better off with `Kyc Record` than with a crash.
+ */
+export function attributeDisplayName(
+  attr: EntityAttribute,
+  entityPrimaryKey?: string,
+  declared?: Map<string, string>
+): string {
+  const stem = foreignKeyLabelStem(attr, entityPrimaryKey);
+  if (stem !== attr.name) {
+    const resolved = declared?.get(stem.toLowerCase().replace(/_/g, ""));
+    if (resolved) return formatDisplayName(resolved);
+  }
+  return formatDisplayName(stem);
+}
+
+/**
  * Converts an EntityAttribute to BusEntityAttribute
  */
 export function attributeToBusAttribute(
   attr: EntityAttribute,
   index: number,
-  entityPrimaryKey?: string
+  entityPrimaryKey?: string,
+  declared?: Map<string, string>
 ): BusEntityAttribute {
   return {
     ...attr,
     columnName: attr.name,
-    displayName: formatDisplayName(foreignKeyLabelStem(attr, entityPrimaryKey)),
+    displayName: attributeDisplayName(attr, entityPrimaryKey, declared),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
     // Set across the whole list by `withIdentifiers`; one attribute on its own
