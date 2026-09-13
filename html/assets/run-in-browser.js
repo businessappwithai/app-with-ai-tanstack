@@ -678,10 +678,18 @@ async function run(fresh) {
 /**
  * The sub-steps the application announces while it starts.
  *
- * Booting is sixty per cent of the bar and ten seconds of wall clock, almost all
- * of it Postgres. The application already narrates that on its own boot screen;
- * `boot.js` now posts the same lines to whoever embedded it, so this bar can
- * move through the wait instead of sitting still until the frame paints.
+ * Booting is sixty per cent of the bar, and the marks below are where its
+ * sub-steps fall. The application already narrates them on its own boot screen;
+ * `boot.js` posts the same lines to whoever embedded it, so this bar can move
+ * through the wait instead of sitting still until the frame paints.
+ *
+ * The fractions come from measuring, and they were badly wrong. Opening
+ * Postgres and running the DDL took 6 of the 251 seconds a thirty-entity model
+ * spent booting, and seeding took the other 245 — yet the marks gave the first
+ * two 70% of the bar and seeding a tenth. That ratio is structural rather than
+ * a property of the machine: opening PGlite and running DDL is a fixed cost,
+ * while seeding inserts a row at a time and grows with the model. So seeding
+ * now owns most of the bar.
  *
  * Matching on the status text is a soft coupling, and deliberately so: an
  * unrecognised status still shows in the detail line and simply does not advance
@@ -689,14 +697,33 @@ async function run(fresh) {
  * runtime — buys nothing that a stalled bar does not already communicate.
  */
 const BOOT_MARKS = [
-  [/http layer|service worker/i, 0.15],
-  [/backend worker|node-api/i, 0.3],
-  [/request pipe/i, 0.4],
-  [/postgres/i, 0.55],
-  [/migrat|schema/i, 0.7],
-  [/seed/i, 0.85],
-  [/interface/i, 0.95],
+  [/http layer|service worker/i, 0.05],
+  [/backend worker|node-api/i, 0.1],
+  [/request pipe/i, 0.15],
+  [/postgres/i, 0.25],
+  [/migrat|schema/i, 0.45],
+  [/seed/i, 0.6],
+  [/interface/i, 0.98],
 ];
+
+/**
+ * Seeding, reported as a fraction rather than as a single mark.
+ *
+ * The marks above are milestones, and one of them was hiding almost the whole
+ * wait: `seed` put the bar at 85% and nothing moved it again until the frame
+ * was ready. Measured on the thirty-entity hospital model, that was 246 of the
+ * 253 seconds the boot took — a bar sitting still for 97% of the wait, which is
+ * what the phase weighting exists to prevent. It is not a slow-machine problem;
+ * a faster machine shortens the same frozen stretch.
+ *
+ * `migrate.js` now counts the rows it seeds and says so. This reads that count
+ * and spreads it across the band between the `seed` mark and the one after it,
+ * so the bar moves for the part of the boot that actually takes the time. A
+ * runtime that does not report a count still matches `/seed/i` above and
+ * behaves exactly as before.
+ */
+const SEED_COUNT = /seeding\s*[—-]\s*(\d+)\s+of\s+(\d+)/i;
+const SEED_BAND = [0.6, 0.97];
 
 window.addEventListener("message", (event) => {
   const message = event.data;
@@ -706,6 +733,17 @@ window.addEventListener("message", (event) => {
     const text = message.status ?? message.message ?? "";
     if (message.type === "log") say(`  ${text}`);
     else say(text);
+    const counted = SEED_COUNT.exec(text);
+    if (counted) {
+      const done = Number(counted[1]);
+      const total = Number(counted[2]);
+      if (total > 0) {
+        const [from, to] = SEED_BAND;
+        build.advance(from + (to - from) * Math.min(1, done / total), text);
+        return;
+      }
+    }
+
     for (const [pattern, fraction] of BOOT_MARKS) {
       if (pattern.test(text)) build.advance(fraction, text);
     }
