@@ -150,7 +150,9 @@ function referenceTarget(column: string, declared: Map<string, string>): string 
 
 /** Every entity the model declares, by its name with separators and case removed. */
 function declaredNames(model: ParsedModel): Map<string, string> {
-  return new Map(model.entities.map((entity) => [entity.name.toLowerCase().replace(/_/g, ""), entity.name]));
+  return new Map(
+    model.entities.map((entity) => [entity.name.toLowerCase().replace(/_/g, ""), entity.name])
+  );
 }
 
 /* ------------------------------------------------------------------ sections */
