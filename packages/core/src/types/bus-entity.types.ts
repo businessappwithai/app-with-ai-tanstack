@@ -786,22 +786,37 @@ export function generateSysFieldGroups(
  * Formats a name for display (camelCase/snake_case to Title Case)
  */
 export function formatDisplayName(name: string): string {
-  // If the name is all caps or all lowercase, just capitalize it
-  if (/^[A-Z_]+$|^[a-z_]+$/.test(name)) {
-    return name
-      .replace(/_/g, " ")
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-  }
+  return splitWords(name).map(titleWord).join(" ");
+}
 
-  // For camelCase or mixed case, add space before capital letters
+/**
+ * A name, as the words it is made of.
+ *
+ * Two boundaries, and the second is the one that matters: `fooBar` splits on
+ * the lower-to-upper step, and a run of capitals splits *before its last
+ * letter* when a lowercase follows, because that last capital starts the next
+ * word. `KYCRecord` is `KYC` + `Record`, not `KYCR` + `ecord`.
+ */
+function splitWords(name: string): string[] {
   return name
-    .replace(/_/g, " ")
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    .replace(/[_\s-]+/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+/**
+ * Capitalise a word, unless it is already an acronym.
+ *
+ * A model that declares `KYCRecord` or `CAPA` means the acronym, and lowering
+ * it renames the entity on screen: `Kyc Record`, `Capa`. Nothing downstream
+ * reads these — they are labels — so the failure is silent and permanent, and
+ * a reader comparing the screen to their own model finds the two disagree.
+ */
+function titleWord(word: string): string {
+  return /^[A-Z0-9]+$/.test(word) ? word : word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 /**

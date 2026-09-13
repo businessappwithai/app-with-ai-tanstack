@@ -40,7 +40,7 @@
  */
 
 import type { Entity, EntityAttribute, Relationship } from "@appwithai/core/types";
-import { ReferenceType } from "@appwithai/core/types";
+import { formatDisplayName, ReferenceType } from "@appwithai/core/types";
 import { referenceIdFor, tableNameFor } from "../generators/wasm/model-bundle";
 import type { ParsedModel } from "../pipeline/generate-application";
 import { deriveAccess } from "../rbac/roles";
@@ -85,15 +85,14 @@ function slug(value: string): string {
     .replace(/^-|-$/g, "");
 }
 
-/** `support_case` / `SupportCase` -> `Support Case`. */
-function title(value: string): string {
-  return String(value)
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .split(/[\s_-]+/)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
+/**
+ * `support_case` / `SupportCase` -> `Support Case`, from core.
+ *
+ * This was a third implementation and it lowered acronyms, so the manual told
+ * a reader a column "points at Kyc Record" about an entity its own dictionary
+ * called KYC Record.
+ */
+const title = (value: string): string => formatDisplayName(String(value));
 
 /* ------------------------------------------------------- what a field *is* */
 
@@ -132,16 +131,31 @@ function controlFor(attribute: EntityAttribute, referenceId: number): string {
 }
 
 /** `owner_id` -> `Owner`; the parent a lookup points at. */
-function referenceTarget(column: string): string | null {
+/**
+ * The entity a foreign key points at, as the model spells it.
+ *
+ * `declared` maps a squashed lower-case name to the real one, because the
+ * column cannot be trusted to carry the entity's case: `kyc_record_id`
+ * reconstructs to `KycRecord`, and the model said `KYCRecord`. Rebuilding the
+ * name from the column is what had the manual telling a reader a field
+ * "points at Kyc Record" about an entity its own dictionary called KYC Record.
+ */
+function referenceTarget(column: string, declared: Map<string, string>): string | null {
   const name = column.toLowerCase();
   if (name.endsWith("_by") || name.endsWith("_by_id")) return "User";
   if (!name.endsWith("_id")) return null;
-  return title(name.slice(0, -3)).replace(/\s+/g, "");
+  const stem = name.slice(0, -3);
+  return declared.get(stem.replace(/_/g, "")) ?? title(stem).replace(/\s+/g, "");
+}
+
+/** Every entity the model declares, by its name with separators and case removed. */
+function declaredNames(model: ParsedModel): Map<string, string> {
+  return new Map(model.entities.map((entity) => [entity.name.toLowerCase().replace(/_/g, ""), entity.name]));
 }
 
 /* ------------------------------------------------------------------ sections */
 
-function fieldRows(entity: Entity): string {
+function fieldRows(entity: Entity, declared: Map<string, string>): string {
   const primaryKey = entity.primaryKey || "id";
 
   return entity.attributes
@@ -170,7 +184,7 @@ function fieldRows(entity: Entity): string {
         );
       }
       if (attribute.isForeignKey) {
-        const target = referenceTarget(attribute.name);
+        const target = referenceTarget(attribute.name, declared);
         if (target) detail.push(`Points at <b>${escapeHtml(title(target))}</b>`);
       }
 
@@ -359,6 +373,7 @@ export function renderManual(model: ParsedModel, options: ManualOptions): string
   }
 
   const entities = [...model.entities].sort((a, b) => a.name.localeCompare(b.name));
+  const declared = declaredNames(model);
 
   const contents = `
       <nav class="toc" aria-label="Contents">
@@ -404,7 +419,7 @@ ${
 }      <table>
         <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
         <tbody>
-${fieldRows(entity)}
+${fieldRows(entity, declared)}
         </tbody>
       </table>
 ${[

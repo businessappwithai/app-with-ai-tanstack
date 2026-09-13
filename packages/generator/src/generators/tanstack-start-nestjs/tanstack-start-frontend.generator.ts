@@ -19,7 +19,12 @@
 
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { type Entity, entityToBusEntity, type Relationship } from "@appwithai/core/types";
+import {
+  type Entity,
+  entityToBusEntity,
+  formatDisplayName,
+  type Relationship,
+} from "@appwithai/core/types";
 import { kebabCase } from "@appwithai/core/utils";
 import type { CompiledRbac } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
@@ -917,13 +922,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     context: any,
     outputDir: string
   ): Promise<void> {
-    const displayName =
-      busEntity.displayName ||
-      busEntity.name.charAt(0).toUpperCase() +
-        busEntity.name
-          .slice(1)
-          .toLowerCase()
-          .replace(/_([a-z])/g, (_: string, c: string) => ` ${c.toUpperCase()}`);
+    // The fallback is core's too: this one lowered the rest of the name, so an
+    // entity that ever reached it came out `Kycrecord`.
+    const displayName = busEntity.displayName || formatDisplayName(busEntity.name);
     const entityContext = { ...context, entity: { ...busEntity, displayName } };
     await fs.mkdir(path.join(outputDir, "src/routes"), { recursive: true });
 

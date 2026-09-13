@@ -23,7 +23,7 @@
  */
 
 import type { Entity, EntityAttribute, Relationship } from "@appwithai/core/types";
-import { ReferenceType } from "@appwithai/core/types";
+import { formatDisplayName, ReferenceType } from "@appwithai/core/types";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { deriveAccess } from "../../rbac/roles";
 import { DictionaryGenerator } from "../dictionary.generator";
@@ -131,17 +131,14 @@ const snake = (value: string) =>
 const kebab = (value: string) => snake(value).replace(/_/g, "-");
 
 /**
- * Label case. An all-caps name is left as it is — a model that declares `CAPA`
- * means the acronym, and titling it to `Capa` renames the entity on screen.
+ * Label case, from core so both stacks say the same thing.
+ *
+ * This was a second implementation, and the two disagreed: core left
+ * `KYCRecord` unsplit while this one lowered it to `Kyc Record`, so the same
+ * model named the same entity differently depending on which stack generated
+ * it. Neither was right — the acronym is `KYC`.
  */
-const title = (value: string) =>
-  /^[A-Z0-9_]+$/.test(value)
-    ? value.replace(/_/g, " ")
-    : snake(value)
-        .split("_")
-        .filter(Boolean)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(" ");
+const title = formatDisplayName;
 
 /** `Order` -> `bus_order`, leaving an already-prefixed name alone. */
 export function tableNameFor(entity: Entity): string {

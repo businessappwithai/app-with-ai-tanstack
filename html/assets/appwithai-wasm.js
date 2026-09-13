@@ -19241,10 +19241,13 @@ function generateSysFieldGroups(entityName, config = defaultDictionaryConfig) {
   ];
 }
 function formatDisplayName(name) {
-  if (/^[A-Z_]+$|^[a-z_]+$/.test(name)) {
-    return name.replace(/_/g, " ").split(" ").map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
-  }
-  return name.replace(/_/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").split(" ").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  return splitWords(name).map(titleWord).join(" ");
+}
+function splitWords(name) {
+  return name.replace(/[_\s-]+/g, " ").replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2").trim().split(/\s+/).filter(Boolean);
+}
+function titleWord(word) {
+  return /^[A-Z0-9]+$/.test(word) ? word : word.charAt(0).toUpperCase() + word.slice(1);
 }
 function shuffleArray(array) {
   for (let i = array.length - 1;i > 0; i--) {
@@ -19656,7 +19659,7 @@ function referenceIdFor(attribute, isPrimaryKey) {
 }
 var snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase();
 var kebab = (value) => snake(value).replace(/_/g, "-");
-var title = (value) => /^[A-Z0-9_]+$/.test(value) ? value.replace(/_/g, " ") : snake(value).split("_").filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
+var title = formatDisplayName;
 function tableNameFor(entity2) {
   const base = snake(entity2.tableName || entity2.name);
   return base.startsWith("bus_") || base.startsWith("sys_") ? base : `bus_${base}`;
@@ -19974,9 +19977,7 @@ function escapeHtml(value) {
 function slug(value) {
   return String(value).replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
-function title2(value) {
-  return String(value).replace(/([a-z0-9])([A-Z])/g, "$1 $2").split(/[\s_-]+/).filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-}
+var title2 = (value) => formatDisplayName(String(value));
 var REFERENCE_NAMES = {
   [ReferenceType.STRING]: "Text",
   [ReferenceType.INTEGER]: "Whole number",
@@ -20001,15 +20002,19 @@ function controlFor(attribute, referenceId) {
     return "Choice";
   return REFERENCE_NAMES[referenceId] ?? "Text";
 }
-function referenceTarget(column) {
+function referenceTarget(column, declared) {
   const name = column.toLowerCase();
   if (name.endsWith("_by") || name.endsWith("_by_id"))
     return "User";
   if (!name.endsWith("_id"))
     return null;
-  return title2(name.slice(0, -3)).replace(/\s+/g, "");
+  const stem = name.slice(0, -3);
+  return declared.get(stem.replace(/_/g, "")) ?? title2(stem).replace(/\s+/g, "");
 }
-function fieldRows(entity2) {
+function declaredNames(model) {
+  return new Map(model.entities.map((entity2) => [entity2.name.toLowerCase().replace(/_/g, ""), entity2.name]));
+}
+function fieldRows(entity2, declared) {
   const primaryKey = entity2.primaryKey || "id";
   return entity2.attributes.map((attribute) => {
     const isPrimary = attribute.name === primaryKey;
@@ -20030,7 +20035,7 @@ function fieldRows(entity2) {
       detail.push(`One of: ${attribute.enumValues.map((value) => `<code>${escapeHtml(value)}</code>`).join(", ")}`);
     }
     if (attribute.isForeignKey) {
-      const target = referenceTarget(attribute.name);
+      const target = referenceTarget(attribute.name, declared);
       if (target)
         detail.push(`Points at <b>${escapeHtml(title2(target))}</b>`);
     }
@@ -20145,6 +20150,7 @@ function renderManual(model, options) {
       categoryOf.set(name, category.name);
   }
   const entities = [...model.entities].sort((a, b) => a.name.localeCompare(b.name));
+  const declared = declaredNames(model);
   const contents = `
       <nav class="toc" aria-label="Contents">
         <h2>Contents</h2>
@@ -20174,7 +20180,7 @@ ${entity2.attributes.some((attribute) => attribute.description) ? "" : `      <p
 `}      <table>
         <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
         <tbody>
-${fieldRows(entity2)}
+${fieldRows(entity2, declared)}
         </tbody>
       </table>
 ${[
