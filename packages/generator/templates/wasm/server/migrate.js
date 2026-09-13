@@ -131,6 +131,9 @@ async function seedReferences(db, model, tick = () => {}) {
         "SELECT sys_ref_list_id FROM sys_ref_list WHERE sys_reference_id = $1 AND value = $2",
         [declared.referenceId, value]
       );
+      // Before the `continue`: the lookup is the work whether or not it inserts,
+      // and a tick the count skips is a total the bar can never reach.
+      tick();
       if (exists) continue;
       await db.insert("sys_ref_list", {
         sys_reference_id: declared.referenceId,
