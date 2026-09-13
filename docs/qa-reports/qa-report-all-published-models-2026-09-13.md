@@ -7,7 +7,7 @@
 | **Models** | crm · dance-studio · drug-discovery · education-management-system · hospital-management-system · investment-planning-wealth-management-system |
 | **Repositories** | `businessappwithai.github.io` (fix landed), `app-with-ai-tanstack` (this report) |
 | **Driver** | Chromium through Playwright, plus the real `bun`/`tsc`/`nest`/`vinxi` toolchain |
-| **Defects found** | 1 high (fixed), 1 low (reported, not fixed — see ISSUE-002) |
+| **Defects found** | 3, all fixed: 1 high, 2 low. A fourth — the boot progress bar — was opened as an observation and turned out to be a defect once measured |
 
 ## Method, and two accommodations to state plainly
 
@@ -60,7 +60,7 @@ that fail against the old payload and pass against the new.
 
 ---
 
-## ISSUE-002 — an acronym in an entity name is title-cased on screen · **low** · reported, not fixed
+## ISSUE-002 — an acronym in an entity name is title-cased on screen · **low** · fixed
 
 A model declaring `KYCRecord` gets the table `bus_kyc_record` (correct — that is
 the acronym fix) but the screen label **`Kyc Record`**. Likewise `FATCADeclaration`
@@ -76,17 +76,49 @@ The mixed case falls through to `snake()`, which lowers the acronym, after which
 only the first letter is restored. The same derivation is duplicated across ten
 template files and `packages/core/src/generators/hook-translator/visitor.ts:389`.
 
-**Not fixed here, deliberately.** It is cosmetic rather than a malfunction; the
-change would touch every generated application's UI copy through ten-plus
-duplicated implementations under a parity test; and it carries a real design
-question the author should answer, not QA — `ESignatureRequest` becomes
-`E Signature Request` under the obvious fix, which may not be wanted. The
-proposed change is to split on acronym runs before titling, preserving a run of
-two or more capitals:
+**Deferred at first, then fixed when the author asked for it.** Investigating it
+found the problem was worse than reported: the two stacks did not merely lower
+the acronym, they *disagreed*. Core split only on a lower-to-upper step, so a
+name beginning with an acronym had no boundary to find and came through whole —
+`KYCRecord`. The browser bundle routed through `snakeCase`, which found the
+boundary and lowered the acronym — `Kyc Record`. The manual was a third copy.
+Core also lowered `CAPA` to `Capa`, which is exactly what the browser copy's own
+comment warns against.
 
-```ts
-value.replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2").replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-```
+There is one implementation in core now and the others call it. It splits a run
+of capitals before its last letter when a lowercase follows, and leaves an
+all-capitals word alone. Verified through both stacks: `KYC Record`,
+`FATCA Declaration`, `CRS Declaration`.
+
+## ISSUE-003 — a foreign key was labelled two different ways · **low** · fixed
+
+Found while fixing ISSUE-002. `kyc_record_id` on `KYCVerification` points at
+`KYCRecord`, and the stacks called it two different things, neither of them that:
+the NestJS dictionary stripped the suffix (`Kyc Record`), the browser bundle
+labelled the raw column (`Kyc Record Id`), and the acronym was gone from both
+because a column name is lower-case by the time either sees it.
+
+A foreign key is now labelled by the entity it points at, resolved against the
+names the model declares rather than reconstructed from the column.
+`attributeDisplayName` in core does it and both stacks call it. Verified on the
+wealth-management model column by column: **642 columns in the browser bundle,
+642 in the NestJS dictionary seed, 0 disagreements.**
+
+## ISSUE-004 — the progress bar sat still for 97% of the boot · **medium** · fixed
+
+Opened below as an observation, on the grounds that sandbox CPU could not be
+told from a reader's machine. Measuring showed that was the wrong frame: the
+`seed` mark put the bar at 85% and nothing moved it again until the frame was
+ready — **246 of the 253 seconds** a thirty-entity model took. A faster machine
+shortens the same frozen stretch, so no constant needed estimating; the fix was
+to report progress.
+
+The runtime counts the work that scales with the model and says so; the page
+spreads that count across the band the `seed` mark opens. The marks were also
+weighted backwards — opening Postgres and running the DDL took 6 of those 251
+seconds and owned 70% of the bar. Measured across four runs on the same
+hardware: 246s worst dwell, then 72s, then 57s, then **52s**, with the bar
+moving steadily from 78% to 90% and the counter reaching 1307 of 1320.
 
 ---
 
@@ -136,26 +168,29 @@ produces, as documented.
 
 ---
 
-## An observation that is not a defect
+## What is left, and what genuinely is not a defect
 
-Boot time in the browser scales with seeded rows, from 75s at 90 rows to 491s at
-910. The scaling is proportional, so there is no algorithmic problem. But
-`run-in-browser.js` weights its progress bar around a documented assumption —
-"booting Postgres is ten seconds or more" (line 89) — that does not hold for the
-two largest published models on this hardware, and the bar's own design comment
-says an unweighted bar "would sit at 66% for the entire wait, which is worse than
-no bar".
+**Boot time itself.** It scales with seeded rows, from 75s at 90 rows to 491s at
+910, proportionally — so there is no algorithmic problem, and the absolute
+numbers are this sandbox's CPU rather than a reader's. That part stands. What
+did not stand was the conclusion originally drawn from it: see ISSUE-004. The
+bar sitting still was a property of the *reporting*, not of the machine, and
+measuring rather than reasoning is what separated the two.
 
-**Deliberately not changed.** Sandbox CPU cannot be distinguished from a reader's
-machine here, and tuning a constant against numbers that cannot be validated is
-guesswork dressed as a fix. Worth one measurement on real hardware first.
+**The residual 52s dwell.** The seed counter weights every unit the same, and
+they do not cost the same — a sample row with foreign keys is slower to insert
+than a dictionary row. Left as it is: the count is honest either way, naming a
+real number of rows against a real total, and weighting units by an estimated
+cost would put a guess back into the one number on the page that currently
+contains none.
 
 ---
 
-## Three corrections to this run's own first-pass numbers
+## Corrections to this run's own first-pass numbers
 
-Stated because they were reported before they were checked, and all three were
-the instrument rather than the product:
+Stated because they were reported before they were checked. The first three were
+the instrument rather than the product; the fourth was a judgement call that
+measuring overturned:
 
 | First reported | Cause | Corrected |
 |---|---|---|
@@ -163,4 +198,12 @@ the instrument rather than the product:
 | hospital "0 of 5 parents carded" | capture fired when the login form vanished, before the dictionary query returned | 5/5 |
 | investment "9 entities missing from the dashboard" | label extractor discarded any label ≥60 characters, which is every long entity name | 0 missing, 67/66 reconciled |
 
-No product defect was involved in any of the three.
+No product defect was involved in any of those three.
+
+| First reported | Corrected |
+|---|---|
+| the progress bar's weighting could not be judged without real hardware, so leave it | the bar sat still for 97% of the boot because of *what it reported*, not how fast the machine was. Hardware-independent, measurable here, and fixed — ISSUE-004 |
+
+The lesson of the fourth is the opposite of the first three: those were caution
+about the product that turned out to be the harness, and this was caution about
+the measurement that turned out to be avoidable by measuring more carefully.
