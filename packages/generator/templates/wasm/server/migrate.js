@@ -35,6 +35,24 @@ const SCHEMA_VERSION = 1;
  * quick. Reporting is throttled to one message per whole percent, so fifteen
  * hundred inserts do not become fifteen hundred postMessages to the parent.
  */
+/**
+ * One row per role per rule, and per role per edge per transition.
+ *
+ * Nested, and worth counting exactly rather than approximating by the number of
+ * rules: the thirty-entity hospital model declares 132 access rules over ten
+ * state machines, and the rows they expand to are what the stage actually
+ * inserts.
+ */
+function accessRuleCount(model) {
+  const rbac = model.rbac || {};
+  const operations = (rbac.operations || []).reduce((sum, rule) => sum + (rule.roles || []).length, 0);
+  const transitions = (rbac.transitions || []).reduce(
+    (sum, rule) => sum + (rule.edges || []).length * (rule.roles || []).length,
+    0
+  );
+  return operations + transitions;
+}
+
 function seedCounter(model, log) {
   const dictionary = model.dictionary || {};
   const count = (list) => (list || []).length;
@@ -48,6 +66,11 @@ function seedCounter(model, log) {
     count(dictionary.references) +
     count(model.categories) +
     (model.enums || []).reduce((sum, declared) => sum + 1 + count(declared.values), 0) +
+    count(model.roles) +
+    count(model.users) +
+    count(model.rules) +
+    count(model.workflows) +
+    accessRuleCount(model) +
     Object.values(model.sampleData || {}).reduce((sum, rows) => sum + rows.length, 0);
 
   let done = 0;
@@ -89,12 +112,12 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   await seedReferences(db, model, tick);
   await seedCategories(db, model, tick);
   await seedDictionary(db, model, tick);
-  await seedRoles(db, model);
+  await seedRoles(db, model, tick);
   await seedAdmin(db, model, log);
-  await seedRoleUsers(db, model, log);
-  await seedRules(db, model);
-  await seedWorkflows(db, model);
-  await seedAccess(db, model);
+  await seedRoleUsers(db, model, log, tick);
+  await seedRules(db, model, tick);
+  await seedWorkflows(db, model, tick);
+  await seedAccess(db, model, tick);
   await seedSampleData(db, model, log, tick);
 
   await db.query(
@@ -334,13 +357,14 @@ async function tabIdFor(db, tableName) {
   );
 }
 
-async function seedRoles(db, model) {
+async function seedRoles(db, model, tick = () => {}) {
   for (const role of model.roles || []) {
     await db.query(
       `INSERT INTO sys_role (name, description, is_admin, user_level) VALUES ($1,$2,$3,$4)
          ON CONFLICT (name) DO NOTHING`,
       [role.name, role.description ?? null, !!role.isAdmin, role.userLevel ?? null]
     );
+    tick();
   }
 }
 
@@ -391,7 +415,7 @@ async function seedAdmin(db, model, log) {
  * database in the reader's own browser, and a screen full of accounts each with
  * a different generated secret is a worse trade than one line of log.
  */
-async function seedRoleUsers(db, model, log) {
+async function seedRoleUsers(db, model, log, tick = () => {}) {
   const users = (model.users || []).filter((user) => !user.isAdmin);
   if (users.length === 0) return;
 
@@ -417,6 +441,7 @@ async function seedRoleUsers(db, model, log) {
     const roleId = await db.value("SELECT sys_role_id FROM sys_role WHERE name = $1", [
       user.roleName,
     ]);
+    tick();
     /* A user with no role would sign in and see an application with nothing in
        it, which reads as a broken build rather than as a missing seed. */
     if (!roleId) continue;
@@ -470,11 +495,12 @@ async function seedSampleData(db, model, log, tick = () => {}) {
   log(`Sample data: ${inserted} record(s) across ${tables.length} table(s)`);
 }
 
-async function seedRules(db, model) {
+async function seedRules(db, model, tick = () => {}) {
   for (const rule of model.rules || []) {
     const exists = await db.one("SELECT sys_rule_definition_id FROM sys_rule_definitions WHERE name = $1", [
       rule.name,
     ]);
+    tick();
     if (exists) continue;
     await db.insert("sys_rule_definitions", {
       name: rule.name,
@@ -489,12 +515,13 @@ async function seedRules(db, model) {
   }
 }
 
-async function seedWorkflows(db, model) {
+async function seedWorkflows(db, model, tick = () => {}) {
   for (const workflow of model.workflows || []) {
     const exists = await db.one(
       "SELECT sys_workflow_definition_id FROM sys_workflow_definitions WHERE name = $1",
       [workflow.name]
     );
+    tick();
     if (exists) continue;
     await db.insert("sys_workflow_definitions", {
       name: workflow.name,
@@ -518,7 +545,7 @@ async function seedWorkflows(db, model) {
   }
 }
 
-async function seedAccess(db, model) {
+async function seedAccess(db, model, tick = () => {}) {
   const rbac = model.rbac || { operations: [], transitions: [] };
 
   for (const rule of rbac.operations || []) {
@@ -534,6 +561,7 @@ async function seedAccess(db, model) {
              WHERE table_name=$1::varchar AND operation=$3::varchar AND role_name=$4::varchar)`,
         [rule.tableName, rule.entity, rule.operation, role]
       );
+      tick();
     }
   }
 
@@ -549,6 +577,7 @@ async function seedAccess(db, model) {
                  AND to_state=$5::varchar AND role_name=$6::varchar)`,
           [rule.tableName, rule.entity, rule.transition, edge.from, edge.to, role]
         );
+        tick();
       }
     }
   }

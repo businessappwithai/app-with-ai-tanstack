@@ -7,7 +7,7 @@
 | **Models** | crm · dance-studio · drug-discovery · education-management-system · hospital-management-system · investment-planning-wealth-management-system |
 | **Repositories** | `businessappwithai.github.io` (fix landed), `app-with-ai-tanstack` (this report) |
 | **Driver** | Chromium through Playwright, plus the real `bun`/`tsc`/`nest`/`vinxi` toolchain |
-| **Defects found** | 3, all fixed: 1 high, 2 low. A fourth — the boot progress bar — was opened as an observation and turned out to be a defect once measured |
+| **Defects found** | 5, all fixed: 1 high, 1 medium, 3 low. Two of them were opened as "not a defect" or "not worth fixing" and turned out to be defects once measured |
 
 ## Method, and two accommodations to state plainly
 
@@ -177,12 +177,38 @@ did not stand was the conclusion originally drawn from it: see ISSUE-004. The
 bar sitting still was a property of the *reporting*, not of the machine, and
 measuring rather than reasoning is what separated the two.
 
-**The residual 52s dwell.** The seed counter weights every unit the same, and
-they do not cost the same — a sample row with foreign keys is slower to insert
-than a dictionary row. Left as it is: the count is honest either way, naming a
-real number of rows against a real total, and weighting units by an estimated
-cost would put a guess back into the one number on the page that currently
-contains none.
+**The residual 52s dwell — and the explanation for it, which was wrong.** This
+section said the dwell was uneven cost per unit, "a sample row with foreign keys
+is slower to insert than a dictionary row", and that fixing it would need an
+estimated cost weight. That was inferred, not measured. Plotting the recorded
+samples shows a steady 5-9 units per second throughout and one 40-second dead
+stop — not uneven cost but uncounted work, in the six seed stages that had no
+tick at all. See ISSUE-005. Worst dwell is 16s now, and no estimate went into it.
+
+Nothing is outstanding.
+
+---
+
+## ISSUE-005 — six seed stages were uncounted, and a column's kind was decided twice · **low** · fixed
+
+Both found by auditing a claim rather than a symptom.
+
+`seedAccess` is nested over operations x roles and transitions x edges x roles,
+and the hospital model declares 132 access rules over ten state machines. It ran
+with no tick, along with roles, the administrator, role accounts, rules and
+workflows — the 40-second stop above. Every stage ticks now, and the total counts
+the nested access rows exactly rather than approximating them by rule count.
+
+Separately, `referenceIdFor` in the browser stack carried a rule core lacked:
+failing a `semanticType` alias, read the column's name, so a model writing
+`string email` rather than `email email` still gets an email control. Guarded, so
+`boolean email_opt_out` stays a checkbox. Core had no such rule, so the browser
+application rendered an email input and the NestJS application a plain text box
+over the same column — five columns across the published dance-studio and
+ecommerce models. Section 3.7's claim is that the reference type decides the
+control, so the two applications were promising different things about one model.
+One implementation in core now; checked over **953 real attributes in four
+published models, 0 disagreements**, was 5.
 
 ---
 
@@ -203,6 +229,7 @@ No product defect was involved in any of those three.
 | First reported | Corrected |
 |---|---|
 | the progress bar's weighting could not be judged without real hardware, so leave it | the bar sat still for 97% of the boot because of *what it reported*, not how fast the machine was. Hardware-independent, measurable here, and fixed — ISSUE-004 |
+| the residual dwell was uneven cost per unit, and fixing it would need an estimated weight | it was six uncounted stages. Measuring the rate showed a flat 5-9 units/sec with one dead stop, not a gradient. No weight, no estimate — ISSUE-005 |
 
 The lesson of the fourth is the opposite of the first three: those were caution
 about the product that turned out to be the harness, and this was caution about

@@ -28,6 +28,7 @@ import {
   declaredEntityNames,
   formatDisplayName,
   ReferenceType,
+  referenceFromColumnName,
 } from "@appwithai/core/types";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { deriveAccess } from "../../rbac/roles";
@@ -95,16 +96,11 @@ export function referenceIdFor(attribute: EntityAttribute, isPrimaryKey: boolean
   /* The alias the modeller wrote, kept by the parser because `email`, `url`,
      `phone`, `password` and `color` all normalise to `string`. */
   if (attribute.semanticType) return SEMANTIC_REFERENCE[attribute.semanticType];
-  /* Failing an alias, the name — for the model that wrote `string email`
-     rather than `email email`. Only for a column that could hold an address, a
-     number or a link: `boolean email_opt_out` is a checkbox that happens to
-     have "email" in its name, and giving it the EMAIL reference put an email
-     input in front of a true/false column. */
-  if (attribute.type === "string" || attribute.type === "text") {
-    if (/email/i.test(attribute.name)) return ReferenceType.EMAIL;
-    if (/phone|mobile|tel/i.test(attribute.name)) return ReferenceType.PHONE;
-    if (/url|website|link/i.test(attribute.name)) return ReferenceType.URL;
-  }
+  /* Failing an alias, the name — from core, which had no such rule until this
+     one was moved there. The two disagreed on `string email` for as long as
+     both existed. */
+  const byName = referenceFromColumnName(attribute);
+  if (byName !== undefined) return byName;
 
   switch (attribute.type) {
     case "integer":
