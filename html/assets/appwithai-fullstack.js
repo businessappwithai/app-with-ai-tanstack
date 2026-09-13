@@ -12385,7 +12385,7 @@ function attributeTypeToReferenceId(type) {
   };
   return typeMapping[type];
 }
-function entityToBusEntity(entity) {
+function entityToBusEntity(entity, declared) {
   const tableName = entity.tableName.startsWith(BUS_TABLE_PREFIX) ? entity.tableName : `${BUS_TABLE_PREFIX}${entity.tableName}`;
   return {
     ...entity,
@@ -12394,7 +12394,7 @@ function entityToBusEntity(entity) {
     displayName: formatDisplayName(entity.name),
     windowOwner: entity.parentEntity ?? entity.name,
     indexes: mergeIndexes(entity),
-    attributes: withIdentifiers(entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey)), entity.primaryKey)
+    attributes: withIdentifiers(entity.attributes.map((attr, index) => attributeToBusAttribute(attr, index, entity.primaryKey, declared)), entity.primaryKey)
   };
 }
 function withIdentifiers(attributes, primaryKey) {
@@ -12466,11 +12466,23 @@ function foreignKeyLabelStem(attr, entityPrimaryKey) {
   }
   return attr.name;
 }
-function attributeToBusAttribute(attr, index, entityPrimaryKey) {
+function declaredEntityNames(entities) {
+  return new Map(entities.map((entity) => [entity.name.toLowerCase().replace(/_/g, ""), entity.name]));
+}
+function attributeDisplayName(attr, entityPrimaryKey, declared) {
+  const stem = foreignKeyLabelStem(attr, entityPrimaryKey);
+  if (stem !== attr.name) {
+    const resolved = declared?.get(stem.toLowerCase().replace(/_/g, ""));
+    if (resolved)
+      return formatDisplayName(resolved);
+  }
+  return formatDisplayName(stem);
+}
+function attributeToBusAttribute(attr, index, entityPrimaryKey, declared) {
   return {
     ...attr,
     columnName: attr.name,
-    displayName: formatDisplayName(foreignKeyLabelStem(attr, entityPrimaryKey)),
+    displayName: attributeDisplayName(attr, entityPrimaryKey, declared),
     referenceId: attributeReferenceId(attr, entityPrimaryKey),
     seqNo: (index + 1) * 10,
     isIdentifier: false
@@ -15247,7 +15259,8 @@ class NestJsBackendGenerator extends BaseGenerator {
     }
   }
   prepareContext(entities, relationships) {
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2)).sort((a, b) => Number(!!a.parentEntity) - Number(!!b.parentEntity));
+    const declared = declaredEntityNames(entities);
+    const busEntities = entities.map((entity2) => entityToBusEntity(entity2, declared)).sort((a, b) => Number(!!a.parentEntity) - Number(!!b.parentEntity));
     const dictionaryEntries = entities.map((entity2) => generateEntityDictionary(entity2));
     const sysTables = dictionaryEntries.map((entry) => entry.dictionaryPlaceholders.table);
     const modelEnums = this.options.modelEnums ?? [];
@@ -16563,7 +16576,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     }
   }
   async generateSingleEntity(entity2, relationships, outputDir, _allEntities, opts) {
-    const busEntity = entityToBusEntity(entity2);
+    const busEntity = entityToBusEntity(entity2, declaredEntityNames(_allEntities));
     const toSnake = (name) => name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
     await mkdir(join(outputDir, "src/modules/rules/jdm"), { recursive: true });
     await this.writeEntityJdm(busEntity, outputDir);
@@ -16740,7 +16753,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     }
   }
   prepareContext(entities, relationships) {
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2));
+    const declared = declaredEntityNames(entities);
+    const busEntities = entities.map((entity2) => entityToBusEntity(entity2, declared));
     const lineItems = new Set(entities.filter((entity2) => entity2.parentEntity).map((entity2) => entity2.name));
     const mainEntities = busEntities.filter((e) => !lineItems.has(e.name)).filter((e) => !e.tableName.includes("_") || e.tableName.match(/^bus_[a-z]+$/)).slice(0, 10).map((entity2) => ({
       ...entity2,
@@ -17510,7 +17524,8 @@ class BunE2ETestGenerator extends BaseGenerator {
     const testsDir = node_path_default.join(outputDir, "tests");
     await promises.mkdir(node_path_default.join(testsDir, "harness"), { recursive: true });
     await promises.mkdir(node_path_default.join(testsDir, "suites"), { recursive: true });
-    const busEntities = entities.map((entity2) => entityToBusEntity(entity2));
+    const declared = declaredEntityNames(entities);
+    const busEntities = entities.map((entity2) => entityToBusEntity(entity2, declared));
     const context = this.buildContext(busEntities, relationships);
     await this.writeRootFiles(testsDir, context);
     await this.writeHarness(testsDir, context);
@@ -20468,7 +20483,7 @@ class CheckEngine {
     }
   }
   checkAttributes(entity2, entityLine) {
-    const declaredEntityNames = new Set(this.model.entities.map((e) => e.name));
+    const declaredEntityNames2 = new Set(this.model.entities.map((e) => e.name));
     const seenAttrNames = new Map;
     const lastLineByName = new Map;
     let pkCount = 0;
@@ -20515,7 +20530,7 @@ class CheckEngine {
       }
       if (!attr.isForeignKey && !attr.isPrimaryKey && isForeignKeyColumnName2(attr.name)) {
         const target = this.fkToEntityName(attr.name);
-        if (declaredEntityNames.has(target) && attr.name !== entity2.primaryKey) {
+        if (declaredEntityNames2.has(target) && attr.name !== entity2.primaryKey) {
           this.warn("EML119", `Column "${entity2.name}.${attr.name}" looks like a reference to "${target}" but is not marked FK.`, {
             line: attrLine,
             hint: `Add FK:  ${attr.rawType ?? "string"} ${attr.name} FK. Without it the Application Dictionary records the column as String and the form shows the raw id instead of a "${target}" lookup.`
