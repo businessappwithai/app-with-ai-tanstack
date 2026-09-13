@@ -12454,7 +12454,21 @@ function attributeReferenceId(attr, entityPrimaryKey) {
     return attr.enumReferenceId;
   if (attr.semanticType)
     return SEMANTIC_REFERENCE[attr.semanticType];
+  const byName = referenceFromColumnName(attr);
+  if (byName !== undefined)
+    return byName;
   return attributeTypeToReferenceId(attr.type);
+}
+function referenceFromColumnName(attr) {
+  if (attr.type !== "string" && attr.type !== "text")
+    return;
+  if (/email/i.test(attr.name))
+    return ReferenceType.EMAIL;
+  if (/phone|mobile|tel/i.test(attr.name))
+    return ReferenceType.PHONE;
+  if (/url|website|link/i.test(attr.name))
+    return ReferenceType.URL;
+  return;
 }
 function isForeignKeyColumnName(columnName) {
   return columnName.endsWith("_id") || columnName.endsWith("_by");
@@ -18134,14 +18148,9 @@ function referenceIdFor(attribute, isPrimaryKey) {
   }
   if (attribute.semanticType)
     return SEMANTIC_REFERENCE2[attribute.semanticType];
-  if (attribute.type === "string" || attribute.type === "text") {
-    if (/email/i.test(attribute.name))
-      return ReferenceType.EMAIL;
-    if (/phone|mobile|tel/i.test(attribute.name))
-      return ReferenceType.PHONE;
-    if (/url|website|link/i.test(attribute.name))
-      return ReferenceType.URL;
-  }
+  const byName = referenceFromColumnName(attribute);
+  if (byName !== undefined)
+    return byName;
   switch (attribute.type) {
     case "integer":
       return ReferenceType.INTEGER;

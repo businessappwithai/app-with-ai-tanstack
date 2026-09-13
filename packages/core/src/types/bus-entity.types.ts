@@ -298,7 +298,30 @@ export function attributeReferenceId(attr: EntityAttribute, entityPrimaryKey?: s
   // address rather than a name. Read before the canonical type, which by this
   // point cannot tell them apart.
   if (attr.semanticType) return SEMANTIC_REFERENCE[attr.semanticType];
+  const byName = referenceFromColumnName(attr);
+  if (byName !== undefined) return byName;
   return attributeTypeToReferenceId(attr.type);
+}
+
+/**
+ * Failing an alias, the column's name — for the model that wrote `string email`
+ * rather than `email email`.
+ *
+ * The browser stack has had this since it was written and core did not, so the
+ * same model rendered an email input in one application and a plain text box in
+ * the other. Both read this now.
+ *
+ * Guarded to a column that could plausibly hold an address, a number or a link:
+ * `boolean email_opt_out` is a checkbox that happens to have "email" in its
+ * name, and giving it the EMAIL reference put an email input in front of a
+ * true/false column.
+ */
+export function referenceFromColumnName(attr: EntityAttribute): number | undefined {
+  if (attr.type !== "string" && attr.type !== "text") return undefined;
+  if (/email/i.test(attr.name)) return ReferenceType.EMAIL;
+  if (/phone|mobile|tel/i.test(attr.name)) return ReferenceType.PHONE;
+  if (/url|website|link/i.test(attr.name)) return ReferenceType.URL;
+  return undefined;
 }
 
 /**
