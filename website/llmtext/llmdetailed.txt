@@ -380,6 +380,25 @@ bypasses every rule, which is exactly why an application seeded with only an
 administrator cannot demonstrate its own access control — and why both sign-in
 screens list every account with the number of entities its role can see.
 
+**Deployed beside the reporting platform, the same directive shapes a second set
+of roles — and they are a mirror, not a shared system.** `./start.sh` in
+`app-and-report-with-ai-tanstack` brings the generated application up at `/app`
+and Enterprise Reporting at `/report`, with the application's database already
+attached as a data source. `reporting-pack.ts` derives one *reporting* role per
+declared role, permitted to read exactly the `bus_` tables that role's `read`
+rules admit.
+
+Nothing is shared between them. Separate databases, separate user tables,
+separate sessions, separate sign-in screens — and a role name that means
+different things on each side: in the application it decides what a user may
+**do** to a record, in the reporting platform which tables their queries may
+**read**. The accounts differ on purpose, `sales.manager@<app>.example.com`
+against `sales.manager@<app>.reports.example.com`, so that neither is mistaken
+for the other, and the origin's front door at `/` lists both pairs side by side.
+
+Only `read` rules narrow a reporting role. A restriction on create, update or
+delete means nothing to somebody who cannot write through that product at all.
+
 Two design facts that answer most questions about it:
 
 1. **A rule about anything but `read` does not write `sys_access`.** That is a
