@@ -1,0 +1,42 @@
+/**
+ * SysReport Controller
+ *
+ * The reports the model declared, and running one.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SessionAuthGuard } from '../../auth/guards/session-auth.guard';
+import { SysReportService } from '../services/sys-report.service';
+
+@ApiTags('sys-report')
+@ApiBearerAuth()
+@UseGuards(SessionAuthGuard)
+@Controller('sys/reports')
+export class SysReportController {
+  constructor(private readonly service: SysReportService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'The reports this model declared, in declaration order' })
+  async findAll() {
+    return this.service.findAll();
+  }
+
+  // `:name/run` before `:name` — a static segment declared after a parameter
+  // is shadowed by it.
+  @Get(':name/run')
+  @ApiOperation({ summary: 'Run a report and return its rows' })
+  async run(@Param('name') name: string) {
+    return this.service.run(name);
+  }
+
+  @Get(':name')
+  @ApiOperation({ summary: 'One report, without its query' })
+  async findOne(@Param('name') name: string) {
+    const { sql_text: _sql, ...meta } = await this.service.findByName(name);
+    return meta;
+  }
+}

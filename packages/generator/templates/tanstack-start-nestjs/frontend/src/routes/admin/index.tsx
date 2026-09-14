@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AppWindow,
   ArrowRight,
+  BarChart3,
   Columns,
   Database,
   FileText,
@@ -137,6 +138,13 @@ function AdminDashboardPage() {
       description: "Design printable document reports for each entity; users get a Print button on their records",
       icon: Printer,
       to: "/admin/reports" as const,
+    },
+    {
+      title: "Analysis",
+      description:
+        "The questions this model declared with %%report, answered against this database",
+      icon: BarChart3,
+      to: "/admin/analysis" as const,
     },
     {
       title: "System Configuration",

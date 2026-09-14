@@ -19,6 +19,7 @@ import { loginView } from "./views/login.js";
 import { dashboardView } from "./views/dashboard.js";
 import { entityListView } from "./views/entity-list.js";
 import { dictionaryView, rulesView, processesView, auditView, modelView } from "./views/admin.js";
+import { reportsView } from "./views/reports.js";
 
 const state = {
   user: null,
@@ -166,6 +167,7 @@ async function render() {
       rules: ["Business Rules", rulesView],
       processes: ["Processes", processesView],
       audit: ["Audit Log", auditView],
+      reports: ["Reports", reportsView],
       model: ["The Model", modelView],
     }[section];
 

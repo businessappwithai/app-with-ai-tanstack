@@ -39,13 +39,29 @@ test.afterAll(async () => {
   if (workspace) await rm(workspace, { recursive: true, force: true });
 });
 
-/** Run the CLI, returning its output whether it succeeded or not. */
+/**
+ * Run the CLI, returning its output whether it succeeded or not.
+ *
+ * `FORCE_COLOR` is stripped rather than merely overridden, and that is the whole
+ * subtlety. Playwright sets it in the environment it hands its tests; adding
+ * `NO_COLOR` on top left both set, and bun answers a contradictory pair with
+ *
+ *   Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+ *       at internal:assert/assertion_error (…)
+ *
+ * on stderr — which this helper concatenates into `out`. The frame named
+ * `assertion_error` contains the substring `error`, so "a clean model says
+ * nothing about itself" failed against output the CLI never produced: run the
+ * same command in a terminal and it is silent. The assertion was right and the
+ * harness was lying to it.
+ */
 async function cli(args: string[]): Promise<{ code: number; out: string }> {
+  const { FORCE_COLOR: _forceColor, ...env } = process.env;
   try {
     const { stdout, stderr } = await run("bun", [CLI, ...args], {
       cwd: ROOT,
       maxBuffer: 32 * 1024 * 1024,
-      env: { ...process.env, NO_COLOR: "1" },
+      env: { ...env, NO_COLOR: "1" },
     });
     return { code: 0, out: stdout + stderr };
   } catch (error) {

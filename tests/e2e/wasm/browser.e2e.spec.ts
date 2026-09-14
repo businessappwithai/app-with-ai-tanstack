@@ -383,6 +383,46 @@ test.describe
       await expect(app(page).locator(".source")).toContainText("erDiagram");
     });
 
+    /**
+     * The model's own `%%report` questions, answered in the tab.
+     *
+     * The directive was read by the checker and dropped by the generator, so
+     * the published models' reports produced an application with none. This is
+     * the end of that path: the question is on screen, pressing it runs the
+     * query against the WebAssembly PostgreSQL this test has been writing to,
+     * and rows come back.
+     *
+     * It is also what holds the foreign-key column type. Every one of these
+     * queries joins `parent.id = child.parent_id`, which fails outright while
+     * one side is UUID and the other VARCHAR — 20 of the CRM model's 33
+     * reports did exactly that before the schema was corrected.
+     */
+    test("the model's reports run against the database in the tab", async () => {
+      await app(page).locator(".masthead__name").click();
+      await app(page).locator(".card__name", { hasText: "Reports" }).first().click();
+
+      // Grouped by the entity each report is about, so the headings are entity
+      // names rather than a flat list of thirty-three.
+      const questions = app(page).locator(".report-list .link");
+      // `count()` does not auto-wait, and the list is fetched — asserting on it
+      // without waiting for the first entry reads the spinner and sees zero.
+      await expect(questions.first()).toBeVisible({ timeout: 30_000 });
+      expect(await questions.count()).toBeGreaterThan(20);
+
+      await questions.first().click();
+      const panel = app(page).locator(".report-panel");
+
+      // The title and the help text both come off the directive; the help is
+      // what says who asks the question, and is the part a table cannot show.
+      await expect(panel.locator("h2")).toBeVisible();
+      // "N rows in Nms" — the query ran. A failure renders `.empty` instead,
+      // which is why this asserts the timing line rather than the absence of
+      // an error: a report that returns nothing is still a report that ran.
+      await expect(panel).toContainText(/\d+ rows? in \d+ms/);
+
+      await shoot(page, "reports");
+    });
+
     test("nothing in the console was the page's own fault", async () => {
       expect(problems).toEqual([]);
     });

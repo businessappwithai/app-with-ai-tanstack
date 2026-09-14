@@ -605,3 +605,39 @@ a { color: var(--primary); }
 .note__who { font-weight: 600; color: var(--text); }
 .note__when { margin-left: auto; color: var(--text-faint); font-size: 12px; }
 .note__text { margin: 0; font-size: 13px; color: var(--text); white-space: pre-wrap; }
+
+/* Reports — the questions the model declared with %%report.
+
+   Two columns: the questions on the left, the answer on the right. The list is
+   the navigation, so it stays put while a report runs and re-runs beside it. */
+.report-layout {
+  display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start;
+}
+.report-list section { margin-bottom: 20px; }
+.report-list h3 {
+  margin: 0 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+.report-list ul { list-style: none; margin: 0; padding: 0; }
+.report-list li { margin-bottom: 2px; }
+.report-list .link {
+  display: block; width: 100%; text-align: left; font: inherit; font-size: 13px;
+  padding: 6px 9px; border: 0; border-radius: var(--radius-sm); cursor: pointer;
+  background: transparent; color: var(--text);
+}
+.report-list .link:hover { background: var(--surface-2); }
+.report-list .link.is-active { background: var(--primary-soft, var(--surface-2)); color: var(--primary); font-weight: 600; }
+.report-panel h2 { margin: 0 0 6px; font-size: 18px; font-weight: 600; }
+.report-panel > .muted { margin: 0 0 14px; font-size: 13px; max-width: 68ch; }
+.report-panel .btn { margin-top: 16px; }
+.report-chart-wrap {
+  margin: 0 0 16px; padding: 14px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--surface); color: var(--primary);
+  overflow-x: auto;
+}
+.report-chart { display: block; width: 100%; min-width: 420px; height: auto; }
+.report-chart-wrap .muted { margin: 6px 0 0; font-size: 12px; }
+
+@media (max-width: 860px) {
+  .report-layout { grid-template-columns: 1fr; }
+}

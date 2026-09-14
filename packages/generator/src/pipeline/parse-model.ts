@@ -19,6 +19,7 @@ import { type CompiledHook, compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
 import { type CompiledRbac, compileRbac } from "../rbac";
+import { type CompiledReport, compileReports } from "../reports";
 import { type CompiledRule, compileRules } from "../rules";
 import {
   type CompiledSaga,
@@ -45,6 +46,8 @@ export interface ParsedModel {
   sagas: CompiledSaga[];
   /** Role restrictions declared by `%%rbac`: CRUD operations and state transitions. */
   rbac: CompiledRbac;
+  /** Questions declared by `%%report`, answered against the generated database. */
+  reports: CompiledReport[];
 }
 
 export interface GenerationSettings {
@@ -183,5 +186,27 @@ export function parseModel(sources: string | string[]): ParsedModel {
     warn
   );
 
-  return { entities, relationships, categories, enums, rules, hooks, workflows, sagas, rbac };
+  // `%%report` directives are the questions the model says are worth asking of
+  // the finished application. Compiled here rather than left to the reporting
+  // platform beside it: that platform is a separate product reached through its
+  // own compose file, and neither the browser application nor the zip a reader
+  // downloads can reach it. The entity names resolve each report's `entity:`.
+  const reports = compileReports(
+    joined,
+    entities.map((entity) => entity.name),
+    warn
+  );
+
+  return {
+    entities,
+    relationships,
+    categories,
+    enums,
+    rules,
+    hooks,
+    workflows,
+    sagas,
+    rbac,
+    reports,
+  };
 }

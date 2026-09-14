@@ -658,19 +658,51 @@ called `role`.
 Each directive's `status` in `appwithai-language.json` says whether it is
 `compiled` (something reads it and emits code) or only `validated` (the checker
 knows it; nothing generates from it yet) — check that before assuming a
-directive has an effect. `%%rule`, `%%trigger` and `%%report` are `validated`.
+directive has an effect. `%%rule` and `%%trigger` are `validated`.
 
-`%%report` is validated *here* and compiled elsewhere, which is the only
-directive with that split. The parser reads it into `model.reports` and the
-checker holds it to its shape — `EML290`-`EML296`: a query that exists and is
-named, a unique name, `SELECT`/`WITH` rather than a write, both axes when a
-chart is asked for, an `entity:` the model declares, a known chart type. No
-generator in this repository reads it. It is compiled in
-`businessappwithai/app-and-report-with-ai-tanstack`, whose `reporting-pack.ts`
-turns each one into a saved query, a report definition and, where `chart:` is
-set, a chart. So a model carrying reports generates the same application here
-that it would without them, and the checker still refuses a malformed one —
-which is the point: the models this repository publishes carry 147 of them.
+### `%%report` has two compilers, and they do not replace each other
+
+`packages/generator/src/reports/index.ts` compiles it **here**, into the
+application the generator writes:
+
+| Stack | Where it lands | Where it is read |
+|---|---|---|
+| NestJS | `sys_report`, seeded by `seeds/08_reports.ts`, table from migration `018` | `GET /sys/reports`, `…/:name/run` → **Admin → Analysis** |
+| Browser (`--standalone`) | `model.json`'s `reports` | `/api/reports` → the **Reports** card on the dashboard |
+
+Separately, `app-and-report-with-ai-tanstack`'s `reporting-pack.ts` turns the
+same directive into a saved query, a report definition and a chart for the
+Enterprise Reporting platform. **That platform is composed beside a *deployed*
+application by docker-compose — it is in neither the browser application nor the
+downloadable zip**, which is exactly why this repository compiles the directive
+too rather than leaving 85 published reports answered by nothing.
+
+Three things to keep true when touching it:
+
+- **A report may only read**, refused three times: the checker at authoring time
+  (`EML293`), the compiler before the SQL can reach a seed file or `model.json`,
+  and each runtime before it executes. `sys_report` is an ordinary table and
+  `model.json` an ordinary file; neither reader trusts what it is handed. A
+  trailing semicolon is fine, a second statement behind it is not.
+- **Do not add `::text` to a join.** A foreign key is `UUID` in both stacks —
+  see below. A cast that used to be needed is now the thing that breaks it.
+- The checker still owns the shape: `EML290`-`EML296` — a query that exists and
+  is named, a unique name, `SELECT`/`WITH` rather than a write, both axes when a
+  chart is asked for, an `entity:` the model declares, a known chart type.
+
+### The browser schema types a foreign key the way the NestJS one does
+
+`sqlType` in `generators/wasm/model-bundle.ts` had no `isForeignKey` case, so
+every FK column was `VARCHAR(255)` while every `id` was `UUID` — on the stated
+but untrue grounds that the NestJS stack did the same
+(`bus-tables.migration.ts.hbs` emits `UUID`). Two things followed silently:
+**every foreign-key constraint was skipped** (the emitter only writes one when
+the types match, so the browser application had no referential integrity at
+all — 0 constraints on a 28-relationship model), and any join of
+`parent.id = child.parent_id` failed with `operator does not exist: uuid =
+character varying`. Nothing in the runtime joined two tables until `%%report`
+did, which is how it surfaced. Held by
+`generators/wasm/__tests__/foreign-key-columns.test.ts`.
 
 **When changing language semantics:** edit `appwithai-language.json` first, then spec docs, grammar, parser, composer, rag. If adding a diagnostic, add its code to `AUTO_FIXABLE_CODES` in `checker.ts`, the fixer's dispatch table, and `diagnostics.autoFixable` in the JSON — all three.
 
@@ -691,7 +723,8 @@ Regression tests for generator behaviour live beside the code they cover, as
 `src/**/__tests__/*.{test,spec}.ts`, and each is named for the thing that broke:
 `rules/__tests__/action-vocabulary`, `hooks/__tests__/compile-hooks`,
 `workflows/__tests__/compile-sagas`, `templates/__tests__/api-route-exports`,
-`templates/__tests__/seed-enum-values`.
+`templates/__tests__/seed-enum-values`, `reports/__tests__/compile-reports`,
+`generators/wasm/__tests__/foreign-key-columns`.
 
 `tests/test-data/dance-studio-workflows.eml.mmd` is the fixture that carries all
 25 behaviour constructs in one model — reach for it when changing a parser,
@@ -788,6 +821,7 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 | `packages/generator/src/pipeline/parse-model.ts` | ⭐ Model → parsed model; pure (no node:fs) |
 | `packages/generator/src/rbac/roles.ts` | ⭐ `%%rbac` → roles + per-entity visibility; read by both stacks |
 | `packages/generator/src/rules/index.ts` | ⭐ `%%action` → decision-table rows, in the *runtime's* vocabulary |
+| `packages/generator/src/reports/index.ts` | ⭐ `%%report` → `sys_report` (NestJS) and `model.json` (browser); read-only, refused at compile time |
 | `packages/generator/src/hooks/index.ts` | `%%hook` → lifecycle handler modules (anchored at `^%%`) |
 | `packages/generator/src/workflows/steps.ts` | `%%step` / `%%loop` → executable saga steps |
 | `packages/generator/src/templates/loader.ts` | Handlebars helpers, incl. the enum-aware `seedValue` |
