@@ -1360,23 +1360,25 @@ var appwithai_language_default = {
       {
         keyword: "%%report",
         form: "%%report <name> title: <Title> [entity: <Entity>] [chart: bar|line|pie|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>",
-        status: "validated",
+        status: "compiled",
         consumedBy: [
+          "packages/generator/src/reports/index.ts -> sys_report (NestJS) and model.json reports (browser)",
           "language/cli/src/parser.ts -> model.reports",
           "language/checker.ts (shape only: EML290-EML296)"
         ],
         purpose: "Declare a question the application's users actually ask, as the SQL that answers it. The reporting pack already derives a baseline from structure alone - a register per entity, a breakdown per %%enum-bound column, a lifecycle per state machine, children per oneToMany - and that baseline describes the shape of the data and nothing about the business running on it. Nothing in an ERD says that a dispatcher's first question every morning is which jobs have no engineer assigned. This directive is where that knowledge is written down, so it travels with the model rather than being rebuilt by hand in the reporting tool after every regeneration.",
         examples: [
           "%%report unassigned-jobs title: Jobs with no engineer help: The dispatcher's first question every morning. sql: SELECT reference, scheduled_for FROM bus_job WHERE engineer_id IS NULL AND status = 'scheduled' AND deleted_at IS NULL ORDER BY scheduled_for",
-          "%%report pipeline-by-owner title: Pipeline by owner entity: Opportunity chart: bar x: owner y: total help: What each rep is carrying, for the weekly review. sql: SELECT u.first_name AS owner, SUM(o.amount) AS total FROM bus_opportunity o JOIN bus_user u ON u.id::text = o.owner_id WHERE o.deleted_at IS NULL GROUP BY 1 ORDER BY total DESC"
+          "%%report pipeline-by-owner title: Pipeline by owner entity: Opportunity chart: bar x: owner y: total help: What each rep is carrying, for the weekly review. sql: SELECT u.first_name AS owner, SUM(o.amount) AS total FROM bus_opportunity o JOIN bus_user u ON u.id = o.owner_id WHERE o.deleted_at IS NULL GROUP BY 1 ORDER BY total DESC"
         ],
         notes: {
           sqlIsLast: "`sql:` takes the rest of the line, because a query contains spaces and colons and would otherwise be shredded by the key scan. Every other key is read from the head, ahead of it.",
-          readOnly: "The checker refuses a query that does not begin with SELECT or WITH (EML293). A report is run unattended, on a schedule, against the application's own database; anything that writes belongs in a rule or a hook.",
+          readOnly: "A report may only read, and this is refused three times: by the checker at authoring time (EML293), by the compiler before the query can reach a seed file or model.json, and by each runtime before it executes - because sys_report is an ordinary table and model.json an ordinary file, so neither reader trusts what it is handed. A single trailing semicolon is allowed; a second statement behind it is not. Anything that writes belongs in a rule or a hook.",
+          foreignKeysAreUuid: "A foreign key and a primary key are both UUID, in both stacks, so a join is written plainly: ON c.account_id = p.id. Do not cast. `::text` was needed while the browser stack typed a foreign key as VARCHAR; it does not any more, and PostgreSQL has no implicit cast back, so a cast that is no longer needed is now the thing that breaks the query.",
           chartNeedsAxes: "`chart:` without both `x:` and `y:` is an error (EML294) rather than a silent fall back to a table: a chart that cannot say what it plots renders empty, which reads as no data rather than as a missing declaration.",
           namesAreKeys: "The name is the pack key, so a duplicate silently replaces the earlier report. Declared twice is an error (EML292).",
           againstWhichSchema: "The query runs against the *generated application's* database, so it names `bus_` tables. It is not checked against a live schema at author time - the checker has no database - but `check-reporting-pack.ts in the orchestrator` executes every query in the pack against a real generated schema in CI.",
-          whereItIsCompiled: "This repository validates the directive and stops there - no generator here reads model.reports. It is compiled in businessappwithai/app-and-report-with-ai-tanstack, where common/build/reporting-pack.ts turns each one into a saved query, a report definition and, where chart: is set, a chart, all seeded into the reporting platform ahead of the derived baseline."
+          whereItIsCompiled: "Compiled twice, by two readers, and neither replaces the other. Here, packages/generator/src/reports/index.ts puts each report into the generated application itself: a sys_report row served at /sys/reports and shown under Admin > Analysis in the NestJS stack, and a model.json entry served at /api/reports and shown under Reports in the browser application. Separately, businessappwithai/app-and-report-with-ai-tanstack compiles the same directive with common/build/reporting-pack.ts into a saved query, a report definition and, where chart: is set, a chart, seeded into the Enterprise Reporting platform ahead of the derived baseline. That platform is composed beside a deployed application by docker-compose; it is not in the browser application and not in the downloadable zip."
         }
       }
     ],
@@ -6545,6 +6547,102 @@ function compileRbac(source, knownEntities = [], stateMachines = [], onWarn = ()
   };
 }
 
+// packages/generator/src/reports/index.ts
+var REPORT_CHART_TYPES = ["bar", "line", "pie", "area"];
+var CHART_TYPE_SET = new Set(REPORT_CHART_TYPES);
+var KEYS = ["title", "entity", "chart", "x", "y", "help"];
+var READ_ONLY = /^\s*(?:with|select)\b/i;
+function hasStatementBreak(sql) {
+  const body = sql.replace(/;\s*$/, "");
+  let quote = null;
+  for (let i = 0;i < body.length; i++) {
+    const ch = body[i];
+    if (quote) {
+      if (ch === quote) {
+        if (body[i + 1] === quote)
+          i += 1;
+        else
+          quote = null;
+      }
+      continue;
+    }
+    if (ch === "'" || ch === '"')
+      quote = ch;
+    else if (ch === ";")
+      return true;
+  }
+  return false;
+}
+function parseReportDirective(line) {
+  const directive = line.trim().match(/^%%+report\s+(.+)$/is);
+  if (!directive?.[1])
+    return { error: "not a %%report directive" };
+  const rest = directive[1];
+  const split = rest.match(/^(.*?)\bsql:\s*(.+)$/is);
+  if (!split?.[2])
+    return { error: "has no sql: clause" };
+  const head = split[1] ?? "";
+  const sql = split[2].trim();
+  const nameMatch = head.match(/^([A-Za-z_][\w-]*)\s*/);
+  if (!nameMatch?.[1])
+    return { error: "has no name" };
+  const name = nameMatch[1];
+  const keys = head.slice(nameMatch[0].length);
+  const read = (key) => {
+    const stop = KEYS.join("|");
+    const found = keys.match(new RegExp(`\\b${key}:\\s*(.*?)(?=\\s+(?:${stop}):|$)`, "is"));
+    return found?.[1]?.trim() || undefined;
+  };
+  if (!READ_ONLY.test(sql))
+    return { error: `sql: is not a SELECT or WITH query` };
+  if (hasStatementBreak(sql))
+    return { error: `sql: contains more than one statement` };
+  const chartRaw = read("chart");
+  if (chartRaw && !CHART_TYPE_SET.has(chartRaw)) {
+    return { error: `has unknown chart type "${chartRaw}"` };
+  }
+  const chart = chartRaw;
+  const x = read("x");
+  const y = read("y");
+  if (chart && (!x || !y)) {
+    return { error: `declares chart: ${chart} but not both x: and y:` };
+  }
+  return {
+    name,
+    title: read("title") ?? name.replace(/[_-]+/g, " "),
+    entity: read("entity"),
+    chart,
+    x,
+    y,
+    help: read("help"),
+    sql
+  };
+}
+function compileReports(source, entityNames, warn = () => {}) {
+  const known = new Set(entityNames);
+  const byName = new Map;
+  for (const line of source.split(`
+`)) {
+    if (!/^\s*%%+report\b/i.test(line))
+      continue;
+    const parsed = parseReportDirective(line);
+    if ("error" in parsed) {
+      warn(`%%report ${parsed.error} — skipped: ${line.trim().slice(0, 120)}`);
+      continue;
+    }
+    if (byName.has(parsed.name)) {
+      warn(`%%report "${parsed.name}" is declared more than once — keeping the first`);
+      continue;
+    }
+    if (parsed.entity && !known.has(parsed.entity)) {
+      warn(`%%report "${parsed.name}" names entity "${parsed.entity}", which the model does not declare — ungrouped`);
+      parsed.entity = undefined;
+    }
+    byName.set(parsed.name, parsed);
+  }
+  return [...byName.values()];
+}
+
 // packages/generator/src/rules/flowchart-parser.ts
 function parseNodeDef(id, rest) {
   let m;
@@ -7262,7 +7360,19 @@ function parseModel(sources) {
   const workflows = compileWorkflows(joined, entities.map((entity) => entity.name), warn);
   const sagas = compileSagaWorkflows(joined, entities.map((entity) => entity.name), warn);
   const rbac = compileRbac(joined, entities.map((entity) => entity.name), workflows, warn);
-  return { entities, relationships, categories, enums, rules, hooks, workflows, sagas, rbac };
+  const reports = compileReports(joined, entities.map((entity) => entity.name), warn);
+  return {
+    entities,
+    relationships,
+    categories,
+    enums,
+    rules,
+    hooks,
+    workflows,
+    sagas,
+    rbac,
+    reports
+  };
 }
 
 // language/checker.ts
@@ -11227,6 +11337,7 @@ import { rulesRoutes } from "./modules/rules.routes.js";
 import { workflowRoutes } from "./modules/workflow.routes.js";
 import { auditRoutes } from "./modules/audit.routes.js";
 import { modelRoutes } from "./modules/model.routes.js";
+import { reportsRoutes } from "./modules/reports.routes.js";
 
 const MIME = {
   html: "text/html; charset=utf-8",
@@ -11281,6 +11392,7 @@ export async function createServer(options) {
   api.mount("/rules", rulesRoutes(model));
   api.mount("/workflows", workflowRoutes(model));
   api.mount("/audit", auditRoutes());
+  api.mount("/reports", reportsRoutes(model));
   api.mount("/model", modelRoutes(model, readAsset));
 
   // \`/workflow-definitions\` is what the dictionary screens ask for; keeping the
@@ -14760,6 +14872,130 @@ export function modelRoutes(model, readAsset) {
   return router;
 }
 `,
+  "server/modules/reports.routes.js": `/**
+ * \`/reports\` — the questions the model declared with \`%%report\`.
+ *
+ * Each one is a title, a sentence saying who asks it and why, and the SQL that
+ * answers it. The queries run against this application's own WebAssembly
+ * PostgreSQL, which is the whole reason they can be here at all: the reporting
+ * platform the orchestrator composes beside a deployed application needs a
+ * server, a second database and a seeder, and a browser tab has none of those.
+ * The same directive, read a second way.
+ *
+ * The reports are not a table. They come off \`model.json\` — the model *is* the
+ * definition, and storing a copy in \`sys_\` would only create something that can
+ * disagree with it. Nothing in this runtime edits a report, so nothing needs a
+ * row to edit.
+ */
+
+import { Router } from "../lib/router.js";
+import { badRequest, json, notFound } from "../lib/http.js";
+import { requireUser } from "../lib/guards.js";
+
+/**
+ * The most rows one report returns.
+ *
+ * A model's query is free to have no LIMIT, and most do — the interesting ones
+ * are already narrowed by their WHERE clause. This is a browser tab holding the
+ * whole database in memory, so "every row" is a question that ends the tab
+ * rather than answering anything.
+ */
+const MAX_ROWS = 2000;
+
+/**
+ * A report may only read.
+ *
+ * The generator refuses a non-SELECT at compile time, so this is the second
+ * check rather than the only one — but \`model.json\` is a file in the
+ * application directory, and the runtime should not hand a statement to the
+ * database because a file said to.
+ */
+function assertReadOnly(sql) {
+  const body = String(sql).replace(/;\\s*$/, "");
+  if (!/^\\s*(?:with|select)\\b/i.test(body)) {
+    throw badRequest("A report query must be a SELECT or a WITH query.");
+  }
+  // A semicolon outside quotes is a second statement hiding behind the first.
+  let quote = null;
+  for (let i = 0; i < body.length; i++) {
+    const ch = body[i];
+    if (quote) {
+      if (ch === quote) {
+        if (body[i + 1] === quote) i += 1;
+        else quote = null;
+      }
+      continue;
+    }
+    if (ch === "'" || ch === '"') quote = ch;
+    else if (ch === ";") throw badRequest("A report query must be a single statement.");
+  }
+  return body;
+}
+
+/** What a caller may see: everything except the query itself. */
+function withoutSql(report) {
+  const { sql: _sql, ...meta } = report;
+  return meta;
+}
+
+export function reportsRoutes(model) {
+  const router = new Router();
+  router.use(async (_request, { user }) => {
+    requireUser(user);
+  });
+
+  const reports = Array.isArray(model.reports) ? model.reports : [];
+  const byName = new Map(reports.map((report) => [report.name, report]));
+
+  router.get("/", async () => json(reports.map(withoutSql)));
+
+  router.get("/:name", async (_request, { params }) => {
+    const report = byName.get(params.name);
+    if (!report) throw notFound(\`No report named "\${params.name}"\`);
+    return json(withoutSql(report));
+  });
+
+  router.get("/:name/run", async (_request, { db, params }) => {
+    const report = byName.get(params.name);
+    if (!report) throw notFound(\`No report named "\${params.name}"\`);
+
+    const body = assertReadOnly(report.sql);
+    const started = Date.now();
+
+    // Wrapped rather than appended to: a model's query may end in ORDER BY, a
+    // LIMIT of its own or a comment, and adding to any of those changes what it
+    // means. One row past the cap distinguishes a full page from a truncated
+    // one without counting the whole thing twice.
+    let rows;
+    try {
+      rows = await db.query(
+        \`SELECT * FROM (\${body}) AS report_body LIMIT \${MAX_ROWS + 1}\`
+      );
+    } catch (error) {
+      // The query came out of the model, so this is a defect in the document
+      // rather than in the request. Name the report and quote the database —
+      // an author cannot act on "the report failed".
+      throw badRequest(\`Report "\${report.name}" failed: \${error?.message || String(error)}\`);
+    }
+
+    const truncated = rows.length > MAX_ROWS;
+    if (truncated) rows = rows.slice(0, MAX_ROWS);
+
+    return json({
+      report: withoutSql(report),
+      // Off the first row rather than a driver field list, so the column order
+      // the report's own SELECT declares is the order it renders in.
+      columns: rows.length > 0 ? Object.keys(rows[0]) : [],
+      rows,
+      rowCount: rows.length,
+      truncated,
+      durationMs: Date.now() - started,
+    });
+  });
+
+  return router;
+}
+`,
   "server/modules/rules.routes.js": `/**
  * \`/rules\` — the rules the model declared, and a way to try one.
  *
@@ -15834,6 +16070,42 @@ a { color: var(--primary); }
 .note__who { font-weight: 600; color: var(--text); }
 .note__when { margin-left: auto; color: var(--text-faint); font-size: 12px; }
 .note__text { margin: 0; font-size: 13px; color: var(--text); white-space: pre-wrap; }
+
+/* Reports — the questions the model declared with %%report.
+
+   Two columns: the questions on the left, the answer on the right. The list is
+   the navigation, so it stays put while a report runs and re-runs beside it. */
+.report-layout {
+  display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start;
+}
+.report-list section { margin-bottom: 20px; }
+.report-list h3 {
+  margin: 0 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+.report-list ul { list-style: none; margin: 0; padding: 0; }
+.report-list li { margin-bottom: 2px; }
+.report-list .link {
+  display: block; width: 100%; text-align: left; font: inherit; font-size: 13px;
+  padding: 6px 9px; border: 0; border-radius: var(--radius-sm); cursor: pointer;
+  background: transparent; color: var(--text);
+}
+.report-list .link:hover { background: var(--surface-2); }
+.report-list .link.is-active { background: var(--primary-soft, var(--surface-2)); color: var(--primary); font-weight: 600; }
+.report-panel h2 { margin: 0 0 6px; font-size: 18px; font-weight: 600; }
+.report-panel > .muted { margin: 0 0 14px; font-size: 13px; max-width: 68ch; }
+.report-panel .btn { margin-top: 16px; }
+.report-chart-wrap {
+  margin: 0 0 16px; padding: 14px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--surface); color: var(--primary);
+  overflow-x: auto;
+}
+.report-chart { display: block; width: 100%; min-width: 420px; height: auto; }
+.report-chart-wrap .muted { margin: 6px 0 0; font-size: 12px; }
+
+@media (max-width: 860px) {
+  .report-layout { grid-template-columns: 1fr; }
+}
 `,
   "sw.js": `/**
  * The Service Worker — this application's HTTP layer.
@@ -16464,6 +16736,7 @@ import { loginView } from "./views/login.js";
 import { dashboardView } from "./views/dashboard.js";
 import { entityListView } from "./views/entity-list.js";
 import { dictionaryView, rulesView, processesView, auditView, modelView } from "./views/admin.js";
+import { reportsView } from "./views/reports.js";
 
 const state = {
   user: null,
@@ -16611,6 +16884,7 @@ async function render() {
       rules: ["Business Rules", rulesView],
       processes: ["Processes", processesView],
       audit: ["Audit Log", auditView],
+      reports: ["Reports", reportsView],
       model: ["The Model", modelView],
     }[section];
 
@@ -17293,6 +17567,7 @@ const DICTIONARY = [
   ["Audit Log", "audit", "Every write and sign-in", "▤"],
   ["Business Rules", "rules", "What the model decides", "◇"],
   ["Processes", "processes", "State machines and sagas", "⇄"],
+  ["Reports", "reports", "The questions the model asks", "▥"],
   ["Table and Column", "dictionary", "The Application Dictionary", "▦"],
   ["The Model", "model", "The EML this was built from", "◈"],
 ];
@@ -18985,9 +19260,241 @@ const initials = (name) =>
     .slice(0, 2)
     .map((word) => word[0].toUpperCase())
     .join("") || "AP";
+`,
+  "ui/views/reports.js": `/**
+ * Reports — the questions the model declared with \`%%report\`.
+ *
+ * A separate module from \`admin.js\` because it is not the same shape as the
+ * five screens in there. Those read a table the generator seeded and show it.
+ * This one runs a query on demand, against the business data the reader has
+ * been creating in the tab, and the answer changes as they use the application.
+ *
+ * The queries themselves never come down to the browser. The list is titles,
+ * help text and chart axes; \`/reports/:name/run\` is what holds the SQL.
+ */
+
+import { el, mount, spinner, empty, toast } from "../dom.js";
+import { api } from "../api.js";
+import { setHelp } from "../main.js";
+
+/** Render one SQL scalar as a cell. */
+function cell(value) {
+  if (value === null || value === undefined) return "—";
+  if (value instanceof Date) return value.toLocaleDateString();
+  if (typeof value === "number") return value.toLocaleString();
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}
+
+/**
+ * A chart, as SVG, from the rows the report already returned.
+ *
+ * No charting library: this runtime has no build step and no dependencies, and
+ * the whole drawing is two column names the model chose plotted against each
+ * other. \`pie\` and \`area\` render as bars rather than as nothing — the shape is
+ * a presentation preference and refusing to draw would lose the answer.
+ */
+function chart(result) {
+  const { chart: kind, x, y } = result.report;
+  if (!kind || !x || !y) return null;
+
+  const points = result.rows
+    .map((row) => ({ label: cell(row[x]), value: Number(row[y]) }))
+    .filter((point) => Number.isFinite(point.value))
+    .slice(0, 30);
+  if (points.length === 0) return null;
+
+  const max = Math.max(...points.map((point) => point.value), 0) || 1;
+  const width = 700;
+  const height = 220;
+  const step = width / points.length;
+  const svgns = "http://www.w3.org/2000/svg";
+
+  const svg = document.createElementNS(svgns, "svg");
+  svg.setAttribute("viewBox", \`0 0 \${width} \${height + 34}\`);
+  svg.setAttribute("class", "report-chart");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", \`\${y} by \${x}\`);
+
+  points.forEach((point, index) => {
+    const barHeight = (point.value / max) * (height - 16);
+    if (kind === "line") {
+      if (index === 0) {
+        const line = document.createElementNS(svgns, "polyline");
+        line.setAttribute("fill", "none");
+        line.setAttribute("stroke", "currentColor");
+        line.setAttribute("stroke-width", "2");
+        line.setAttribute(
+          "points",
+          points
+            .map(
+              (p, i) =>
+                \`\${i * step + step / 2},\${height - (p.value / max) * (height - 16)}\`
+            )
+            .join(" ")
+        );
+        svg.appendChild(line);
+      }
+    } else {
+      const rect = document.createElementNS(svgns, "rect");
+      rect.setAttribute("x", String(index * step + step * 0.15));
+      rect.setAttribute("y", String(height - barHeight));
+      rect.setAttribute("width", String(step * 0.7));
+      rect.setAttribute("height", String(barHeight));
+      rect.setAttribute("fill", "currentColor");
+      svg.appendChild(rect);
+    }
+
+    const text = document.createElementNS(svgns, "text");
+    text.setAttribute("x", String(index * step + step / 2));
+    text.setAttribute("y", String(height + 14));
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("font-size", "10");
+    text.setAttribute("opacity", "0.7");
+    text.textContent =
+      point.label.length > 12 ? \`\${point.label.slice(0, 11)}…\` : point.label;
+    svg.appendChild(text);
+  });
+
+  return el("div.report-chart-wrap", svg, el("p.muted", \`\${y} by \${x}\`));
+}
+
+/** The answer to one question, rendered into \`panel\`. */
+async function runReport(panel, name) {
+  mount(panel, spinner("Running"));
+
+  let result;
+  try {
+    result = await api.get(\`/reports/\${encodeURIComponent(name)}/run\`);
+  } catch (error) {
+    // The query came out of the model, so the message names the report and
+    // quotes the database — see reports.routes.js. Show it rather than "failed".
+    return void mount(
+      panel,
+      empty("This report did not run", error.message || String(error))
+    );
+  }
+
+  const parts = [el("h2", result.report.title)];
+  if (result.report.help) parts.push(el("p.muted", result.report.help));
+
+  const drawn = chart(result);
+  if (drawn) parts.push(drawn);
+
+  parts.push(
+    el(
+      "p.muted",
+      \`\${result.rowCount} row\${result.rowCount === 1 ? "" : "s"} in \${result.durationMs}ms\` +
+        (result.truncated ? " — capped; the report returns more" : "")
+    )
+  );
+
+  if (result.rowCount === 0) {
+    parts.push(
+      el("p.muted", "No rows. The question is valid; nothing in the database answers it yet.")
+    );
+  } else {
+    parts.push(
+      el(
+        "div.table-wrap",
+        el(
+          "table",
+          el("thead", el("tr", ...result.columns.map((column) => el("th", column)))),
+          el(
+            "tbody",
+            ...result.rows.map((row) =>
+              el("tr", ...result.columns.map((column) => el("td", cell(row[column]))))
+            )
+          )
+        )
+      )
+    );
+  }
+
+  parts.push(
+    el(
+      "button.btn",
+      {
+        onclick: () => {
+          runReport(panel, name);
+          toast("Re-running", "info");
+        },
+      },
+      "Run again"
+    )
+  );
+
+  mount(panel, ...parts);
+}
+
+export async function reportsView(root) {
+  mount(root, spinner("Loading reports"));
+  setHelp(
+    "Each of these is a question the model's author wrote into the document with %%report, " +
+      "together with the query that answers it. They run against this application's own " +
+      "database, so the answers change as you use it."
+  );
+
+  const reports = await api.get("/reports");
+
+  if (reports.length === 0) {
+    return void mount(
+      root,
+      empty(
+        "This model declares no reports",
+        "Add a %%report directive to the model — a title, the entity it is about, and the SQL that answers it — and regenerate."
+      )
+    );
+  }
+
+  // Grouped by the entity each is about. The ones that name no entity are
+  // cross-cutting rather than unclassified, so they get their own heading at
+  // the end instead of being dropped in with the first group.
+  const groups = new Map();
+  for (const report of reports) {
+    const key = report.entity || "Across the application";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(report);
+  }
+
+  const panel = el("div.report-panel", empty("Choose a question", "Pick one on the left to run it."));
+
+  const list = el(
+    "nav.report-list",
+    ...[...groups.entries()].map(([group, items]) =>
+      el(
+        "section",
+        el("h3", group),
+        el(
+          "ul",
+          ...items.map((report) =>
+            el(
+              "li",
+              el(
+                "button.link",
+                {
+                  onclick: (event) => {
+                    for (const active of list.querySelectorAll(".is-active")) {
+                      active.classList.remove("is-active");
+                    }
+                    event.currentTarget.classList.add("is-active");
+                    runReport(panel, report.name);
+                  },
+                },
+                report.title
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+
+  mount(root, el("div.report-layout", list, panel));
+}
 `
 });
-var RUNTIME_BYTES = 333939;
+var RUNTIME_BYTES = 347766;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -19706,6 +20213,8 @@ class DictionaryGenerator {
 
 // packages/generator/src/generators/wasm/model-bundle.ts
 function sqlType(attribute) {
+  if (attribute.isForeignKey)
+    return "UUID";
   switch (attribute.type) {
     case "integer":
       return "INTEGER";
@@ -19819,11 +20328,10 @@ function buildSchema(entities, relationships) {
   }
   lines.push("-- Relationship columns.");
   lines.push("--");
-  lines.push("-- A constraint is added only when the column and the key it would point at");
-  lines.push("-- are the same type. Models routinely declare a reference as `string pi_id");
-  lines.push("-- FK`, which becomes VARCHAR here exactly as it does in the NestJS stack, and");
-  lines.push("-- Postgres refuses a VARCHAR->UUID foreign key: emitting it anyway would fail");
-  lines.push("-- the whole schema load rather than the one relationship. Every reference");
+  lines.push("-- A column carrying the `FK` modifier is UUID, which is what `id` is and what");
+  lines.push("-- the NestJS migration emits for the same column. The type guard below is");
+  lines.push("-- kept anyway: Postgres refuses a VARCHAR->UUID foreign key, and failing one");
+  lines.push("-- relationship is better than failing the whole schema load. Every reference");
   lines.push("-- column gets an index regardless, since that is what the joins need.");
   lines.push("");
   const byName = new Map(entities.map((entity2) => [entity2.name, entity2]));
@@ -19960,6 +20468,18 @@ function buildModelBundle(parsed, project) {
     hooks: parsed.hooks,
     workflows: parsed.workflows,
     sagas: parsed.sagas,
+    reports: parsed.reports.map((report, index) => ({
+      name: report.name,
+      title: report.title,
+      entity: report.entity ?? null,
+      tableName: report.entity ? entities.find((entity2) => entity2.name === report.entity)?.tableName ?? null : null,
+      chart: report.chart ?? null,
+      x: report.x ?? null,
+      y: report.y ?? null,
+      help: report.help ?? null,
+      sql: report.sql,
+      seqNo: index
+    })),
     rbac: parsed.rbac,
     roles: access.roles,
     users: access.users,

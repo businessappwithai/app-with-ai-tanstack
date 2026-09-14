@@ -25,6 +25,7 @@ import { rulesRoutes } from "./modules/rules.routes.js";
 import { workflowRoutes } from "./modules/workflow.routes.js";
 import { auditRoutes } from "./modules/audit.routes.js";
 import { modelRoutes } from "./modules/model.routes.js";
+import { reportsRoutes } from "./modules/reports.routes.js";
 
 const MIME = {
   html: "text/html; charset=utf-8",
@@ -79,6 +80,7 @@ export async function createServer(options) {
   api.mount("/rules", rulesRoutes(model));
   api.mount("/workflows", workflowRoutes(model));
   api.mount("/audit", auditRoutes());
+  api.mount("/reports", reportsRoutes(model));
   api.mount("/model", modelRoutes(model, readAsset));
 
   // `/workflow-definitions` is what the dictionary screens ask for; keeping the

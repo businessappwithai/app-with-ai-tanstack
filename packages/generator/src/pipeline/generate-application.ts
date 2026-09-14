@@ -105,6 +105,7 @@ export function buildGeneratorOptions(
     compiledWorkflows: model.workflows,
     compiledSagas: model.sagas,
     compiledRbac: model.rbac,
+    compiledReports: model.reports,
   };
 }
 

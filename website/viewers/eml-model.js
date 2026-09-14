@@ -1359,23 +1359,25 @@ var appwithai_language_default = {
       {
         keyword: "%%report",
         form: "%%report <name> title: <Title> [entity: <Entity>] [chart: bar|line|pie|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>",
-        status: "validated",
+        status: "compiled",
         consumedBy: [
+          "packages/generator/src/reports/index.ts -> sys_report (NestJS) and model.json reports (browser)",
           "language/cli/src/parser.ts -> model.reports",
           "language/checker.ts (shape only: EML290-EML296)"
         ],
         purpose: "Declare a question the application's users actually ask, as the SQL that answers it. The reporting pack already derives a baseline from structure alone - a register per entity, a breakdown per %%enum-bound column, a lifecycle per state machine, children per oneToMany - and that baseline describes the shape of the data and nothing about the business running on it. Nothing in an ERD says that a dispatcher's first question every morning is which jobs have no engineer assigned. This directive is where that knowledge is written down, so it travels with the model rather than being rebuilt by hand in the reporting tool after every regeneration.",
         examples: [
           "%%report unassigned-jobs title: Jobs with no engineer help: The dispatcher's first question every morning. sql: SELECT reference, scheduled_for FROM bus_job WHERE engineer_id IS NULL AND status = 'scheduled' AND deleted_at IS NULL ORDER BY scheduled_for",
-          "%%report pipeline-by-owner title: Pipeline by owner entity: Opportunity chart: bar x: owner y: total help: What each rep is carrying, for the weekly review. sql: SELECT u.first_name AS owner, SUM(o.amount) AS total FROM bus_opportunity o JOIN bus_user u ON u.id::text = o.owner_id WHERE o.deleted_at IS NULL GROUP BY 1 ORDER BY total DESC"
+          "%%report pipeline-by-owner title: Pipeline by owner entity: Opportunity chart: bar x: owner y: total help: What each rep is carrying, for the weekly review. sql: SELECT u.first_name AS owner, SUM(o.amount) AS total FROM bus_opportunity o JOIN bus_user u ON u.id = o.owner_id WHERE o.deleted_at IS NULL GROUP BY 1 ORDER BY total DESC"
         ],
         notes: {
           sqlIsLast: "`sql:` takes the rest of the line, because a query contains spaces and colons and would otherwise be shredded by the key scan. Every other key is read from the head, ahead of it.",
-          readOnly: "The checker refuses a query that does not begin with SELECT or WITH (EML293). A report is run unattended, on a schedule, against the application's own database; anything that writes belongs in a rule or a hook.",
+          readOnly: "A report may only read, and this is refused three times: by the checker at authoring time (EML293), by the compiler before the query can reach a seed file or model.json, and by each runtime before it executes - because sys_report is an ordinary table and model.json an ordinary file, so neither reader trusts what it is handed. A single trailing semicolon is allowed; a second statement behind it is not. Anything that writes belongs in a rule or a hook.",
+          foreignKeysAreUuid: "A foreign key and a primary key are both UUID, in both stacks, so a join is written plainly: ON c.account_id = p.id. Do not cast. `::text` was needed while the browser stack typed a foreign key as VARCHAR; it does not any more, and PostgreSQL has no implicit cast back, so a cast that is no longer needed is now the thing that breaks the query.",
           chartNeedsAxes: "`chart:` without both `x:` and `y:` is an error (EML294) rather than a silent fall back to a table: a chart that cannot say what it plots renders empty, which reads as no data rather than as a missing declaration.",
           namesAreKeys: "The name is the pack key, so a duplicate silently replaces the earlier report. Declared twice is an error (EML292).",
           againstWhichSchema: "The query runs against the *generated application's* database, so it names `bus_` tables. It is not checked against a live schema at author time - the checker has no database - but `check-reporting-pack.ts in the orchestrator` executes every query in the pack against a real generated schema in CI.",
-          whereItIsCompiled: "This repository validates the directive and stops there - no generator here reads model.reports. It is compiled in businessappwithai/app-and-report-with-ai-tanstack, where common/build/reporting-pack.ts turns each one into a saved query, a report definition and, where chart: is set, a chart, all seeded into the reporting platform ahead of the derived baseline."
+          whereItIsCompiled: "Compiled twice, by two readers, and neither replaces the other. Here, packages/generator/src/reports/index.ts puts each report into the generated application itself: a sys_report row served at /sys/reports and shown under Admin > Analysis in the NestJS stack, and a model.json entry served at /api/reports and shown under Reports in the browser application. Separately, businessappwithai/app-and-report-with-ai-tanstack compiles the same directive with common/build/reporting-pack.ts into a saved query, a report definition and, where chart: is set, a chart, seeded into the Enterprise Reporting platform ahead of the derived baseline. That platform is composed beside a deployed application by docker-compose; it is not in the browser application and not in the downloadable zip."
         }
       }
     ],
@@ -9021,6 +9023,102 @@ function compileRbac(source, knownEntities = [], stateMachines = [], onWarn = ()
   };
 }
 
+// packages/generator/src/reports/index.ts
+var REPORT_CHART_TYPES = ["bar", "line", "pie", "area"];
+var CHART_TYPE_SET = new Set(REPORT_CHART_TYPES);
+var KEYS = ["title", "entity", "chart", "x", "y", "help"];
+var READ_ONLY = /^\s*(?:with|select)\b/i;
+function hasStatementBreak(sql) {
+  const body = sql.replace(/;\s*$/, "");
+  let quote = null;
+  for (let i = 0;i < body.length; i++) {
+    const ch = body[i];
+    if (quote) {
+      if (ch === quote) {
+        if (body[i + 1] === quote)
+          i += 1;
+        else
+          quote = null;
+      }
+      continue;
+    }
+    if (ch === "'" || ch === '"')
+      quote = ch;
+    else if (ch === ";")
+      return true;
+  }
+  return false;
+}
+function parseReportDirective(line) {
+  const directive = line.trim().match(/^%%+report\s+(.+)$/is);
+  if (!directive?.[1])
+    return { error: "not a %%report directive" };
+  const rest = directive[1];
+  const split = rest.match(/^(.*?)\bsql:\s*(.+)$/is);
+  if (!split?.[2])
+    return { error: "has no sql: clause" };
+  const head = split[1] ?? "";
+  const sql = split[2].trim();
+  const nameMatch = head.match(/^([A-Za-z_][\w-]*)\s*/);
+  if (!nameMatch?.[1])
+    return { error: "has no name" };
+  const name = nameMatch[1];
+  const keys = head.slice(nameMatch[0].length);
+  const read = (key) => {
+    const stop = KEYS.join("|");
+    const found = keys.match(new RegExp(`\\b${key}:\\s*(.*?)(?=\\s+(?:${stop}):|$)`, "is"));
+    return found?.[1]?.trim() || undefined;
+  };
+  if (!READ_ONLY.test(sql))
+    return { error: `sql: is not a SELECT or WITH query` };
+  if (hasStatementBreak(sql))
+    return { error: `sql: contains more than one statement` };
+  const chartRaw = read("chart");
+  if (chartRaw && !CHART_TYPE_SET.has(chartRaw)) {
+    return { error: `has unknown chart type "${chartRaw}"` };
+  }
+  const chart = chartRaw;
+  const x = read("x");
+  const y = read("y");
+  if (chart && (!x || !y)) {
+    return { error: `declares chart: ${chart} but not both x: and y:` };
+  }
+  return {
+    name,
+    title: read("title") ?? name.replace(/[_-]+/g, " "),
+    entity: read("entity"),
+    chart,
+    x,
+    y,
+    help: read("help"),
+    sql
+  };
+}
+function compileReports(source, entityNames, warn = () => {}) {
+  const known = new Set(entityNames);
+  const byName = new Map;
+  for (const line of source.split(`
+`)) {
+    if (!/^\s*%%+report\b/i.test(line))
+      continue;
+    const parsed = parseReportDirective(line);
+    if ("error" in parsed) {
+      warn(`%%report ${parsed.error} — skipped: ${line.trim().slice(0, 120)}`);
+      continue;
+    }
+    if (byName.has(parsed.name)) {
+      warn(`%%report "${parsed.name}" is declared more than once — keeping the first`);
+      continue;
+    }
+    if (parsed.entity && !known.has(parsed.entity)) {
+      warn(`%%report "${parsed.name}" names entity "${parsed.entity}", which the model does not declare — ungrouped`);
+      parsed.entity = undefined;
+    }
+    byName.set(parsed.name, parsed);
+  }
+  return [...byName.values()];
+}
+
 // packages/generator/src/rules/flowchart-parser.ts
 function parseNodeDef(id, rest) {
   let m;
@@ -9793,7 +9891,19 @@ function parseModel(sources) {
   const workflows = compileWorkflows(joined, entities.map((entity) => entity.name), warn);
   const sagas = compileSagaWorkflows(joined, entities.map((entity) => entity.name), warn);
   const rbac = compileRbac(joined, entities.map((entity) => entity.name), workflows, warn);
-  return { entities, relationships, categories, enums, rules, hooks, workflows, sagas, rbac };
+  const reports = compileReports(joined, entities.map((entity) => entity.name), warn);
+  return {
+    entities,
+    relationships,
+    categories,
+    enums,
+    rules,
+    hooks,
+    workflows,
+    sagas,
+    rbac,
+    reports
+  };
 }
 
 // packages/generator/src/rbac/roles.ts

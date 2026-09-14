@@ -24,6 +24,7 @@ import { MermaidParser } from "../parsers/mermaid.parser";
 import { generateApplication, readModelSources } from "../pipeline";
 import { cliLogger } from "../pipeline/logger-port";
 import { compileRbac } from "../rbac";
+import { compileReports } from "../reports";
 import { compileRules } from "../rules";
 import { runLintingChecks } from "../utils/lint-check.js";
 import { compileSagaWorkflows, compileWorkflows } from "../workflows";
@@ -516,6 +517,15 @@ program
         compiledWorkflows,
         warn
       );
+      // `%%report` declares a question and the SQL that answers it. Seeded into
+      // the generated application's own sys_report and served from its reports
+      // screen — the reporting platform in the orchestrator compiles the same
+      // directive separately, and neither reading replaces the other.
+      const compiledReports = compileReports(
+        ruleSources.join("\n"),
+        allEntities.map((entity) => entity.name),
+        warn
+      );
 
       // ── Entity summary ──────────────────────────────────────────────────
       if (!quiet) {
@@ -639,6 +649,7 @@ program
           workflows: compiledWorkflows,
           sagas: compiledSagas,
           rbac: compiledRbac,
+          reports: compiledReports,
         },
         stackOption,
         projectName: options.name,

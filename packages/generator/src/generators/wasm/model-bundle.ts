@@ -52,6 +52,29 @@ export interface WasmModelBundle {
 
 /** Postgres column type for a modelled attribute. */
 export function sqlType(attribute: EntityAttribute): string {
+  /**
+   * A foreign key is a UUID, because every `id` is.
+   *
+   * This used to fall through to the `string` case and become `VARCHAR(255)`,
+   * on the stated grounds that the NestJS stack did the same. It does not:
+   * `common/migrations/bus-tables.migration.ts.hbs` emits `UUID` for every
+   * column carrying the `FK` modifier, and has since the dictionary started
+   * making a reference a Table Direct. The two stacks disagreed about the
+   * schema they generate from one model, and the disagreement was invisible
+   * because nothing in the browser application had ever joined two tables:
+   *
+   *   - every foreign-key constraint was silently skipped, since the guard
+   *     below only emits one when the types match — so the browser application
+   *     had no referential integrity at all, while the NestJS one did;
+   *   - and any query joining `parent.id = child.parent_id` fails outright with
+   *     `operator does not exist: uuid = character varying`. The model's own
+   *     `%%report` queries are exactly that shape, which is how this surfaced.
+   *
+   * The values were always uuids — the seeder writes an id that exists — so
+   * only the declared type was ever wrong.
+   */
+  if (attribute.isForeignKey) return "UUID";
+
   switch (attribute.type) {
     case "integer":
       return "INTEGER";
@@ -223,11 +246,10 @@ function buildSchema(entities: Entity[], relationships: Relationship[]): string 
 
   lines.push("-- Relationship columns.");
   lines.push("--");
-  lines.push("-- A constraint is added only when the column and the key it would point at");
-  lines.push("-- are the same type. Models routinely declare a reference as `string pi_id");
-  lines.push("-- FK`, which becomes VARCHAR here exactly as it does in the NestJS stack, and");
-  lines.push("-- Postgres refuses a VARCHAR->UUID foreign key: emitting it anyway would fail");
-  lines.push("-- the whole schema load rather than the one relationship. Every reference");
+  lines.push("-- A column carrying the `FK` modifier is UUID, which is what `id` is and what");
+  lines.push("-- the NestJS migration emits for the same column. The type guard below is");
+  lines.push("-- kept anyway: Postgres refuses a VARCHAR->UUID foreign key, and failing one");
+  lines.push("-- relationship is better than failing the whole schema load. Every reference");
   lines.push("-- column gets an index regardless, since that is what the joins need.");
   lines.push("");
 
@@ -422,6 +444,24 @@ export function buildModelBundle(
     hooks: parsed.hooks,
     workflows: parsed.workflows,
     sagas: parsed.sagas,
+    /* The model's `%%report` questions, each with the query that answers it.
+       The entity is resolved to a table here, where both names are in hand —
+       the runtime groups the list by table and has no map from one to the
+       other. A report the compiler could not resolve arrives ungrouped. */
+    reports: parsed.reports.map((report, index) => ({
+      name: report.name,
+      title: report.title,
+      entity: report.entity ?? null,
+      tableName: report.entity
+        ? (entities.find((entity) => entity.name === report.entity)?.tableName ?? null)
+        : null,
+      chart: report.chart ?? null,
+      x: report.x ?? null,
+      y: report.y ?? null,
+      help: report.help ?? null,
+      sql: report.sql,
+      seqNo: index,
+    })),
     rbac: parsed.rbac,
     roles: access.roles,
     /* One account per role, seeded with the administrator's password. The

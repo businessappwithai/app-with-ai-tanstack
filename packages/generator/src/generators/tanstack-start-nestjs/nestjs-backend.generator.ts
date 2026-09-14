@@ -31,6 +31,7 @@ import { generatedLogSpec } from "../../logging/generated-spec";
 import type { EntityCategory } from "../../parsers/category.parser";
 import { type CompiledRbac, hasRbacRules, rbacRoleNames } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
+import type { CompiledReport } from "../../reports";
 import type { CompiledRule } from "../../rules";
 import { CliExecutor } from "../../utils/cli-executor";
 import {
@@ -157,6 +158,8 @@ export interface NestJsBackendOptions {
   compiledSagas?: CompiledSaga[];
   /** Role restrictions from `%%rbac` — operations and transitions. */
   compiledRbac?: CompiledRbac;
+  /** Questions from `%%report`, seeded into sys_report and served by /sys/reports. */
+  compiledReports?: CompiledReport[];
 }
 
 export class NestJsBackendGenerator extends BaseGenerator {
@@ -1036,6 +1039,28 @@ export class NestJsBackendGenerator extends BaseGenerator {
       path.join(outputDir, "src/modules/sys/controllers/sys-category.controller.ts"),
       categoryControllerContent
     );
+
+    // The model's `%%report` questions. Written unconditionally, even for a
+    // model that declares none: sys.module imports both files, so omitting them
+    // when the list is empty fails `nest build` with TS2307 rather than
+    // producing an application without reports.
+    const reportServiceContent = await this.renderTemplate(
+      "src/modules/sys/services/sys-report.service.ts.hbs",
+      context
+    );
+    await fs.writeFile(
+      path.join(outputDir, "src/modules/sys/services/sys-report.service.ts"),
+      reportServiceContent
+    );
+
+    const reportControllerContent = await this.renderTemplate(
+      "src/modules/sys/controllers/sys-report.controller.ts.hbs",
+      context
+    );
+    await fs.writeFile(
+      path.join(outputDir, "src/modules/sys/controllers/sys-report.controller.ts"),
+      reportControllerContent
+    );
   }
 
   private async generateElectricModule(outputDir: string, context: any): Promise<void> {
@@ -1602,6 +1627,14 @@ export async function executeCustomValidateHooks(
         slug: "add_notification_reads",
         template: "src/migrations/017_add_notification_reads.ts.hbs",
       },
+      // sys_report — what `%%report` compiles to. Not to be confused with
+      // sys_report_designs (013), which is the per-entity document layout the
+      // Print button renders; this is the model's analytical questions and the
+      // SQL that answers each of them.
+      {
+        slug: "add_reports",
+        template: "src/migrations/018_add_reports.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -1733,6 +1766,13 @@ export async function executeCustomValidateHooks(
       context
     );
     await fs.writeFile(path.join(outputDir, "seeds/07_system_config.ts"), systemConfigContent);
+
+    // Seed the model's own `%%report` questions into sys_report. Last, because
+    // the queries read the business tables every seed before it has filled.
+    await fs.writeFile(
+      path.join(outputDir, "seeds/08_reports.ts"),
+      this.renderReportsSeed(context)
+    );
   }
 
   /**
@@ -1993,6 +2033,98 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `      )`,
       `      .execute();`,
       `  }`,
+      `}`,
+    ].join("\n");
+  }
+
+  /**
+   * Seed the model's `%%report` questions into `sys_report`.
+   *
+   * Each report's `entity:` is resolved to a table here rather than in the
+   * generated application, for the same reason the transitions seed resolves
+   * its status field here: the generator is the only place that holds both the
+   * model's names and the names the schema ended up with. A report naming an
+   * entity the model does not declare has already been ungrouped by the
+   * compiler, so `entity_name` is either resolvable or absent.
+   *
+   * Values go through `JSON.stringify` rather than into a quoted literal. The
+   * SQL is prose from a `.eml.mmd` file and routinely contains apostrophes —
+   * `WHERE c.status = 'active'` is the common case, not the exotic one — and a
+   * single-quoted template would produce a seed file that does not parse.
+   */
+  private renderReportsSeed(context: any): string {
+    const reports = this.options.compiledReports ?? [];
+
+    if (reports.length === 0) {
+      return (
+        `// No %%report directives in this model — sys_report will be empty, and\n` +
+        `// the reports screen says so rather than showing an empty table.\n` +
+        `import type { Kysely } from 'kysely';\n` +
+        `export async function seed(_db: Kysely<any>): Promise<void> {}\n`
+      );
+    }
+
+    // Both spellings, because a `%%report entity:` names the entity as the ERD
+    // block does and the seeds elsewhere key off className.
+    const tableByEntity = new Map<string, string>();
+    for (const entity of context.entities ?? []) {
+      if (entity.name) tableByEntity.set(entity.name, entity.tableName);
+      if (entity.className) tableByEntity.set(entity.className, entity.tableName);
+    }
+
+    const rows = reports.map((report, index) => {
+      const value = {
+        name: report.name,
+        title: report.title,
+        entity_name: report.entity ?? null,
+        table_name: (report.entity && tableByEntity.get(report.entity)) || null,
+        chart: report.chart ?? null,
+        x_axis: report.x ?? null,
+        y_axis: report.y ?? null,
+        help: report.help ?? null,
+        sql_text: report.sql,
+        sort_order: index,
+      };
+      return `  ${JSON.stringify(value)},`;
+    });
+
+    return [
+      `import type { Kysely } from 'kysely';`,
+      ``,
+      `/**`,
+      ` * The questions this model declared with %%report.`,
+      ` *`,
+      ` * Replaced on every seed rather than merged: the model is the source of`,
+      ` * truth for what these say, so a report edited in the database and then`,
+      ` * re-seeded should come back as the model declares it. Reports added in the`,
+      ` * application are not in this list and are left alone.`,
+      ` */`,
+      `const REPORTS = [`,
+      ...rows,
+      `];`,
+      ``,
+      `export async function seed(db: Kysely<any>): Promise<void> {`,
+      `  for (const report of REPORTS) {`,
+      `    await db`,
+      `      .insertInto('sys_report')`,
+      `      .values({ ...report, updated_at: new Date() })`,
+      `      .onConflict((oc) =>`,
+      `        oc.constraint('sys_report_name_unique').doUpdateSet({`,
+      `          title: report.title,`,
+      `          entity_name: report.entity_name,`,
+      `          table_name: report.table_name,`,
+      `          chart: report.chart,`,
+      `          x_axis: report.x_axis,`,
+      `          y_axis: report.y_axis,`,
+      `          help: report.help,`,
+      `          sql_text: report.sql_text,`,
+      `          sort_order: report.sort_order,`,
+      `          updated_at: new Date(),`,
+      `        })`,
+      `      )`,
+      `      .execute();`,
+      `  }`,
+      `  console.log(\`  ✓ \${REPORTS.length} report\${REPORTS.length === 1 ? '' : 's'} seeded\`);`,
       `}`,
     ].join("\n");
   }

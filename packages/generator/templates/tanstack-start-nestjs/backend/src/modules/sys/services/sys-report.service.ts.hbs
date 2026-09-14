@@ -1,0 +1,177 @@
+/**
+ * SysReport Service
+ *
+ * The questions the model declared with `%%report`, and the queries that answer
+ * them. Each row in `sys_report` carries SQL authored in the `.eml.mmd`
+ * document; running one is the only place in this application where stored text
+ * becomes a statement, so most of what follows is about that.
+ *
+ * Not to be confused with the report *designs* service, which renders one
+ * record as a printable document. This is analysis over the whole database.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { sql } from 'kysely';
+import { DatabaseService } from '../../../database/database.service';
+
+export interface SysReportRecord {
+  id: string;
+  name: string;
+  title: string;
+  entity_name: string | null;
+  table_name: string | null;
+  chart: 'bar' | 'line' | 'pie' | 'area' | null;
+  x_axis: string | null;
+  y_axis: string | null;
+  help: string | null;
+  sql_text: string;
+  sort_order: number;
+}
+
+export interface ReportResult {
+  report: Omit<SysReportRecord, 'sql_text'>;
+  columns: string[];
+  rows: Record<string, unknown>[];
+  rowCount: number;
+  truncated: boolean;
+  durationMs: number;
+}
+
+/**
+ * The most rows a report will return.
+ *
+ * A report is a question a person reads, not an export. A model is free to
+ * declare a query with no LIMIT — most of them do, because the interesting ones
+ * are already narrowed by their WHERE clause — and on a seeded database that is
+ * fine. On a real one, "every row of bus_transaction" is a query that ends the
+ * tab rather than answering anything. The cap is applied as an outer LIMIT so
+ * the report's own ordering still decides *which* rows, and the response says
+ * when it bit.
+ */
+const MAX_ROWS = 5000;
+
+/**
+ * A report may only read, checked again here.
+ *
+ * The generator refuses a non-SELECT at compile time, so a statement that is
+ * not a query cannot reach a seed file. This is the second check, and it is not
+ * redundant: `sys_report` is an ordinary table, and anything that can write to
+ * it — a later migration, a restored backup, an administrator with database
+ * access — could otherwise put a statement here that this service would run
+ * with the application's own credentials.
+ */
+function assertReadOnly(text: string): void {
+  const body = text.replace(/;\s*$/, '');
+  if (!/^\s*(?:with|select)\b/i.test(body)) {
+    throw new BadRequestException('A report query must be a SELECT or a WITH query.');
+  }
+  // A semicolon outside quotes means a second statement is hiding behind the
+  // first: `SELECT 1; DROP TABLE bus_account` passes the test above.
+  let quote: string | null = null;
+  for (let i = 0; i < body.length; i++) {
+    const ch = body[i];
+    if (quote) {
+      if (ch === quote) {
+        if (body[i + 1] === quote) i += 1;
+        else quote = null;
+      }
+      continue;
+    }
+    if (ch === "'" || ch === '"') quote = ch;
+    else if (ch === ';') {
+      throw new BadRequestException('A report query must be a single statement.');
+    }
+  }
+}
+
+@Injectable()
+export class SysReportService {
+  constructor(private readonly db: DatabaseService) {}
+
+  /**
+   * Every report, grouped in the order the screen shows them.
+   *
+   * `sql_text` is deliberately not returned. The list feeds a menu; handing the
+   * query to the browser would put the application's schema in front of anyone
+   * who can open the reports page, and nothing on that screen needs it.
+   */
+  async findAll(): Promise<Omit<SysReportRecord, 'sql_text'>[]> {
+    const rows = await this.db.kysely
+      .selectFrom('sys_report' as never)
+      .select([
+        'id',
+        'name',
+        'title',
+        'entity_name',
+        'table_name',
+        'chart',
+        'x_axis',
+        'y_axis',
+        'help',
+        'sort_order',
+      ] as never)
+      .orderBy('sort_order' as never)
+      .execute();
+    return rows as unknown as Omit<SysReportRecord, 'sql_text'>[];
+  }
+
+  /** One report by its declared name, or 404. */
+  async findByName(name: string): Promise<SysReportRecord> {
+    const row = await this.db.kysely
+      .selectFrom('sys_report' as never)
+      .selectAll()
+      .where('name' as never, '=', name as never)
+      .executeTakeFirst();
+    if (!row) throw new NotFoundException(`No report named "${name}".`);
+    return row as unknown as SysReportRecord;
+  }
+
+  /**
+   * Run a report and return its rows.
+   *
+   * The query is wrapped rather than concatenated with a LIMIT: a model's query
+   * may legitimately end in `ORDER BY`, `LIMIT`, a CTE or a comment, and
+   * appending to any of those changes what it means. As a subquery it keeps
+   * whatever it already says and the cap applies outside it.
+   */
+  async run(name: string): Promise<ReportResult> {
+    const report = await this.findByName(name);
+    assertReadOnly(report.sql_text);
+
+    const started = Date.now();
+    // One more than the cap, so a full page can be told from a truncated one
+    // without a second count(*) over the same query.
+    const capped = `SELECT * FROM (${report.sql_text.replace(/;\s*$/, '')}) AS report_body LIMIT ${MAX_ROWS + 1}`;
+
+    let rows: Record<string, unknown>[];
+    try {
+      const result = await sql.raw(capped).execute(this.db.kysely);
+      rows = (result.rows ?? []) as Record<string, unknown>[];
+    } catch (error: any) {
+      // The query came from the model, so a failure here is a defect in the
+      // document rather than in the request. Say which report and what the
+      // database said — an author cannot fix "500 Internal Server Error".
+      throw new BadRequestException(
+        `Report "${report.name}" failed: ${error?.message ?? String(error)}`,
+      );
+    }
+
+    const truncated = rows.length > MAX_ROWS;
+    if (truncated) rows = rows.slice(0, MAX_ROWS);
+
+    const { sql_text: _sql, ...meta } = report;
+    return {
+      report: meta,
+      // Read off the first row rather than the driver's field list, so the
+      // column order a report's SELECT declares is the order it renders in.
+      columns: rows.length > 0 ? Object.keys(rows[0]) : [],
+      rows,
+      rowCount: rows.length,
+      truncated,
+      durationMs: Date.now() - started,
+    };
+  }
+}

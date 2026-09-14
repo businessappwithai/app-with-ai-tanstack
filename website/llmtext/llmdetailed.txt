@@ -223,23 +223,37 @@ The `name:` key on `%%category` is **required** — a directive without one is s
 | `%%entity` | `%%entity <E> <k>: <v>` | compiled *(`help:`/`description:`, `parent:`)*, validated otherwise | `mermaid.parser.ts` · `language/checker.ts` |
 | `%%rule` | `%%rule <name> on <E> event: <hook> priority: <n>` | validated | `language/checker.ts` |
 | `%%trigger` | `%%trigger <source> -> <handler> on <E>` | validated | `language/checker.ts` |
-| `%%report` | `%%report <name> title: <T> [entity: <E>] [chart: bar\|line\|pie\|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>` | validated | `language/checker.ts` |
+| `%%report` | `%%report <name> title: <T> [entity: <E>] [chart: bar\|line\|pie\|area x: <col> y: <col>] [help: <why it is asked>] sql: <query>` | compiled | `generator/src/reports/index.ts` |
 
 `%%report` is the one directive whose payload is SQL. It declares a question the
 application's *users* ask, as the query that answers it, and the query runs
 against the generated application's own database, so it names `bus_` tables.
 
-**In this repository it is validated and nothing more.** The checker holds it to
-its shape — a query that exists (`EML290`), a name (`EML291`), no duplicate name
-(`EML292`), `SELECT` or `WITH` rather than a write (`EML293`), both axes when a
-chart is asked for (`EML294`), an `entity:` the model declares (`EML295`), a
-known chart type (`EML296`) — and no generator here reads it. It is *compiled*
-in `businessappwithai/app-and-report-with-ai-tanstack`, whose reporting pack
-turns each one into a saved query, a report definition and, where `chart:` is
-set, a chart, seeded ahead of the baseline that repository derives from
-structure alone. A model carrying reports therefore generates the same
-application here that it would without them; what the reports change is what
-the reporting platform beside it already knows how to answer.
+The checker holds it to its shape — a query that exists (`EML290`), a name
+(`EML291`), no duplicate name (`EML292`), `SELECT` or `WITH` rather than a write
+(`EML293`), both axes when a chart is asked for (`EML294`), an `entity:` the
+model declares (`EML295`), a known chart type (`EML296`).
+
+**It is then compiled twice, by two readers, and neither replaces the other.**
+
+- **Here**, `generator/src/reports/index.ts` compiles each one into the
+  generated application itself. In the NestJS stack that is a row in
+  `sys_report`, served by `GET /sys/reports` and `…/:name/run`, and shown under
+  **Admin → Analysis**. In the browser application it is an entry in
+  `model.json`, served by `/api/reports`, and shown under **Reports**. Both run
+  the query on demand against the application's own database, so the answers
+  change as the application is used.
+- **In `businessappwithai/app-and-report-with-ai-tanstack`**, whose reporting
+  pack turns each one into a saved query, a report definition and, where
+  `chart:` is set, a chart — seeded into the separate Enterprise Reporting
+  platform, ahead of the baseline that repository derives from structure alone.
+  That platform is composed beside a *deployed* application by docker-compose;
+  it is not in the browser application and not in the zip.
+
+A report is read-only in both: the compiler refuses anything that is not a
+single `SELECT` or `WITH`, and each runtime refuses again before it executes —
+`sys_report` is an ordinary table and `model.json` an ordinary file, so neither
+reader trusts what it is handed.
 
 `sql:` is always last on the line and takes the rest of it, because a query
 contains spaces and colons and would otherwise be shredded by the key scan.
@@ -2449,8 +2463,11 @@ failure.
   and `version`, whether or not the ERD lists them.
 - **Filter soft deletes**: `WHERE deleted_at IS NULL`. Omitting it is the single
   most common way one of these reports quietly overstates a number.
-- A foreign key is `VARCHAR` while a primary key is `UUID`, so a join casts:
-  `ON c.account_id = p.id::text`.
+- A foreign key and a primary key are both `UUID`, in both stacks, so a join is
+  written plainly: `ON c.account_id = p.id`. **Do not cast.** `::text` was
+  needed while the browser stack typed a foreign key as `VARCHAR`; it does not
+  any more, and PostgreSQL has no implicit cast back — a cast that is no longer
+  needed is now the thing that breaks the query.
 - `help:` is the description the report carries on screen. Write it as *why the
   question is asked and who asks it*, not as a restatement of the SQL. "Every
   failed run of a standing report, newest first, with the error. A delivery that
@@ -2469,11 +2486,11 @@ person's. Each role's full set answers all four questions above; these are the
 question most often skipped:
 
 ```
-%%report stalled-deals title: Deals with no activity in 14 days entity: Opportunity chart: bar x: owner y: deals help: The sales manager's Monday question. A deal nobody has touched in a fortnight is not a forecast, it is a hope. sql: SELECT u.first_name AS owner, COUNT(*) AS deals FROM bus_opportunity o JOIN bus_user u ON u.id::text = o.owner_id WHERE o.deleted_at IS NULL AND o.stage NOT IN ('closed_won', 'closed_lost') AND o.updated_at < now() - interval '14 days' GROUP BY 1 ORDER BY deals DESC
+%%report stalled-deals title: Deals with no activity in 14 days entity: Opportunity chart: bar x: owner y: deals help: The sales manager's Monday question. A deal nobody has touched in a fortnight is not a forecast, it is a hope. sql: SELECT u.first_name AS owner, COUNT(*) AS deals FROM bus_opportunity o JOIN bus_user u ON u.id = o.owner_id WHERE o.deleted_at IS NULL AND o.stage NOT IN ('closed_won', 'closed_lost') AND o.updated_at < now() - interval '14 days' GROUP BY 1 ORDER BY deals DESC
 
 %%report breaching-cases title: Support cases past first response entity: SupportCase help: What the support lead checks before standup. A case past its first-response target is an SLA breach that is already happening, not one that might. sql: SELECT case_number, subject, priority, created_at FROM bus_support_case WHERE deleted_at IS NULL AND status = 'new' AND created_at < now() - interval '4 hours' ORDER BY created_at
 
-%%report accounts-without-contacts title: Accounts with nobody to call entity: Account help: An account with no contact cannot be sold to or supported. Usually a migration that half-finished, and invisible until someone tries to use it. sql: SELECT a.name AS account, a.account_type FROM bus_account a LEFT JOIN bus_contact c ON c.account_id = a.id::text AND c.deleted_at IS NULL WHERE a.deleted_at IS NULL GROUP BY a.id, a.name, a.account_type HAVING COUNT(c.id) = 0 ORDER BY a.name
+%%report accounts-without-contacts title: Accounts with nobody to call entity: Account help: An account with no contact cannot be sold to or supported. Usually a migration that half-finished, and invisible until someone tries to use it. sql: SELECT a.name AS account, a.account_type FROM bus_account a LEFT JOIN bus_contact c ON c.account_id = a.id AND c.deleted_at IS NULL WHERE a.deleted_at IS NULL GROUP BY a.id, a.name, a.account_type HAVING COUNT(c.id) = 0 ORDER BY a.name
 ```
 
 Note what none of them are: none is a count of rows in a table, none restates a

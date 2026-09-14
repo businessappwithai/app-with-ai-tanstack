@@ -29,6 +29,7 @@ import {
 import { kebabCase } from "@appwithai/core/utils";
 import type { CompiledRbac } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
+import type { CompiledReport } from "../../reports";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";
@@ -89,6 +90,13 @@ export interface TanStackStartFrontendOptions {
    * access control the model declared invisible in the running application.
    */
   compiledRbac?: CompiledRbac;
+  /**
+   * The model's compiled `%%report`. The screen fetches the list from the API
+   * rather than from here; what this carries is whether there are any at all,
+   * so an application generated from a model declaring none can say so instead
+   * of rendering an empty list that reads like a broken request.
+   */
+  compiledReports?: CompiledReport[];
 }
 
 export class TanStackStartFrontendGenerator extends BaseGenerator {
@@ -1062,6 +1070,18 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       await fs.writeFile(path.join(adminDir, "reports.tsx"), reportsContent);
     } catch (_e) {
       console.warn("Admin reports page template not found");
+    }
+
+    // Analysis — the model's own `%%report` questions. Written whether or not
+    // the model declared any: the admin landing page links to it from a static
+    // list, so omitting the route on an empty model is a type error in the
+    // generated frontend rather than one fewer screen. With no reports it says
+    // the model declares none.
+    try {
+      const analysisContent = await this.component("src/routes/admin/analysis.tsx");
+      await fs.writeFile(path.join(adminDir, "analysis.tsx"), analysisContent);
+    } catch (_e) {
+      console.warn("Admin analysis page template not found");
     }
 
     // Users page (admin/users.tsx)

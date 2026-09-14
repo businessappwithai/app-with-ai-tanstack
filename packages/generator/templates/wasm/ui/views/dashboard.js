@@ -21,6 +21,7 @@ const DICTIONARY = [
   ["Audit Log", "audit", "Every write and sign-in", "▤"],
   ["Business Rules", "rules", "What the model decides", "◇"],
   ["Processes", "processes", "State machines and sagas", "⇄"],
+  ["Reports", "reports", "The questions the model asks", "▥"],
   ["Table and Column", "dictionary", "The Application Dictionary", "▦"],
   ["The Model", "model", "The EML this was built from", "◈"],
 ];

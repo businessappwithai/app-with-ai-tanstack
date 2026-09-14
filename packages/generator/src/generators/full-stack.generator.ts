@@ -14,6 +14,7 @@ import type { Entity, EntityEnum, Relationship } from "@appwithai/core/types";
 import type { CompiledHook } from "../hooks";
 import type { EntityCategory } from "../parsers/category.parser";
 import type { CompiledRbac } from "../rbac";
+import type { CompiledReport } from "../reports";
 import type { CompiledRule } from "../rules";
 import type { CompiledSaga, CompiledWorkflow } from "../workflows";
 import { DEFAULT_FRONTEND_PORT } from "./ports";
@@ -85,6 +86,12 @@ export interface FullStackGeneratorOptions {
    * and state transitions. Seeded and enforced by the generated guard.
    */
   compiledRbac?: CompiledRbac;
+  /**
+   * Questions compiled from the model's `%%report` directives. Seeded into
+   * sys_report and answered by the generated application against its own
+   * database — the reports section a reader opens under Admin.
+   */
+  compiledReports?: CompiledReport[];
   /** Records the bulk-seed suite creates per entity (default 1000). */
   recordsPerEntity?: number;
 }
@@ -164,6 +171,7 @@ export class FullStackGenerator {
       compiledWorkflows: this.options.compiledWorkflows,
       compiledSagas: this.options.compiledSagas,
       compiledRbac: this.options.compiledRbac,
+      compiledReports: this.options.compiledReports,
       ...aiConfig,
       ...this.options.tanstackStartNestjs?.backend,
     };
@@ -188,6 +196,11 @@ export class FullStackGenerator {
         // accounts the backend seed created — from the same derivation, so the
         // two cannot drift into offering an address that does not exist.
         compiledRbac: this.options.compiledRbac,
+        // The reports screen is a front-end route; it needs to know whether the
+        // model declared any, so an application generated from a model with no
+        // `%%report` says the model declared none rather than showing an empty
+        // table that reads like a failed query.
+        compiledReports: this.options.compiledReports,
         ...aiConfig,
         ...this.options.tanstackStartNestjs?.frontend,
       };
