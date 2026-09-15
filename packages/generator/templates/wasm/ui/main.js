@@ -13,7 +13,8 @@
  * a pushState there rewrites the *host* page's URL. A hash cannot.
  */
 
-import { el, mount, toast } from "./dom.js";
+import { el, helpToast, mount, toast } from "./dom.js";
+import { themeControl } from "./theme.js";
 import { api, configure, setToken } from "./api.js";
 import { loginView } from "./views/login.js";
 import { dashboardView } from "./views/dashboard.js";
@@ -39,6 +40,9 @@ const state = {
    * over a rules listing that has nothing to save.
    */
   renderId: 0,
+  /** The current screen's help, and what to call it in the toaster. */
+  helpText: "",
+  helpTitle: "Help",
 };
 
 export async function start({ basePath, project }) {
@@ -191,6 +195,7 @@ async function render() {
   state.actions = {};
   state.renderId += 1;
   state.helpText = "";
+  state.helpTitle = "Help";
 
   try {
     const [, section, ...rest] = route.split("/");
@@ -271,6 +276,9 @@ function ensureShell(root) {
       el("a.masthead__name", { href: "#/", title: "Dashboard" }, state.project.name),
       el("div.masthead__spacer"),
       el("div.masthead__search", search),
+      // Light / dark / system. The attribute lands on <html>, so this one
+      // control changes every screen rather than the masthead.
+      themeControl(),
       el(
         "div.masthead__user",
         el("span.avatar", initials(state.user.name || state.user.email)),
@@ -311,6 +319,7 @@ function ensureShell(root) {
  * application is reached from it and a breadcrumb with one entry is a label.
  */
 function setCrumbs(trail) {
+  state.helpTitle = trail.length ? trail[trail.length - 1].label : "Dashboard";
   const crumbs = document.querySelector(".crumbs");
   if (!crumbs) return;
   mount(
@@ -322,9 +331,27 @@ function setCrumbs(trail) {
         ? el("a", { href: item.href }, item.label)
         : el("span.crumbs__current", item.label),
     ]),
-    state.helpText
-      ? el("button.crumbs__help", { onclick: () => toast(state.helpText, "info") }, "? Help")
-      : null
+    state.helpText ? helpButton() : null
+  );
+}
+
+/**
+ * The `?`. The only control in this application that shows help.
+ *
+ * It opened a `toast(..., "info")` before, which took the text away after four
+ * seconds. Now it opens the help toaster: top right, no timeout, closed by its
+ * own close button.
+ */
+function helpButton() {
+  return el(
+    "button.crumbs__help",
+    {
+      type: "button",
+      title: `Help for ${state.helpTitle}`,
+      "aria-label": `Help for ${state.helpTitle}`,
+      onclick: () => helpToast(`${state.helpTitle} — Help`, state.helpText),
+    },
+    "?"
   );
 }
 
@@ -332,9 +359,7 @@ export function setHelp(text) {
   state.helpText = text;
   const crumbs = document.querySelector(".crumbs");
   if (crumbs && !crumbs.querySelector(".crumbs__help") && text) {
-    crumbs.appendChild(
-      el("button.crumbs__help", { onclick: () => toast(text, "info") }, "? Help")
-    );
+    crumbs.appendChild(helpButton());
   }
 }
 

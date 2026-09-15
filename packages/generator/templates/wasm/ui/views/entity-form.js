@@ -25,7 +25,7 @@
  * permit. Offering a button the server will refuse is worse than offering none.
  */
 
-import { el, mount, spinner, toast, displayValue } from "../dom.js";
+import { el, helpToast, mount, spinner, toast, displayValue } from "../dom.js";
 import { api } from "../api.js";
 import { setActions, childEntitiesOf } from "../main.js";
 
@@ -685,17 +685,47 @@ async function control(field, record, entity, inputs) {
           "button.field__help",
           {
             type: "button",
-            title: `${field.column_name} — ${attribute.type ?? "text"}${
-              attribute.maxLength ? `, up to ${attribute.maxLength} characters` : ""
-            }`,
+            title: `Help for ${field.name}`,
+            "aria-label": `Help for ${field.name}`,
+            onclick: () => helpToast(`${field.name} — Help`, fieldHelpBody(field, attribute)),
           },
           "?"
         )
       ),
-      input,
-      field.description ? el("p.field__note", field.description) : null
+      input
     ),
   ];
+}
+
+/**
+ * What a field's `?` says: the dictionary's own help text, then what the
+ * column actually is.
+ *
+ * Both halves used to be somewhere else. `field.description` — the model's
+ * `%%field … help:` text, and the only prose the dictionary carries about a
+ * column — rendered as a permanent note under the input, so a form with help
+ * on every field was twice as tall as the form. The type and length sat in the
+ * `?` button's `title` attribute, which is a tooltip: it appears on hover, on
+ * a pointer, after a delay, and not at all on a phone.
+ *
+ * One `?`, one panel, both halves.
+ */
+function fieldHelpBody(field, attribute) {
+  const facts = [`Column: ${field.column_name}`, `Type: ${attribute.type ?? "text"}`];
+  if (attribute.maxLength) facts.push(`Up to ${attribute.maxLength} characters`);
+  if (field.is_mandatory) facts.push("Required");
+  if (field.is_read_only) facts.push("Read-only");
+  if (attribute.enumValues?.length) facts.push(`One of: ${attribute.enumValues.join(", ")}`);
+  if (attribute.refTable) facts.push(`References ${attribute.refTable}`);
+
+  return el(
+    "div",
+    field.description ? el("p.field__helptext", field.description) : null,
+    el(
+      "ul.field__helpfacts",
+      facts.map((fact) => el("li", fact))
+    )
+  );
 }
 
 function normalizeForInput(value, type) {

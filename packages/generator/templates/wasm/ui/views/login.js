@@ -18,6 +18,7 @@
 
 import { el, mount, toast } from "../dom.js";
 import { api, setToken } from "../api.js";
+import { themeControl } from "../theme.js";
 
 export async function loginView(root, { project, onSignedIn }) {
   let config = null;
@@ -89,6 +90,11 @@ export async function loginView(root, { project, onSignedIn }) {
     root,
     el(
       "div.login",
+      // The theme is switchable before anyone has signed in. The choice is
+      // stored per browser rather than on the account, so there is nothing to
+      // wait for a session for — and this is the first screen of the
+      // application, a poor one to have no say over.
+      el("div.login__theme", themeControl()),
       el(
         "div.login__panel",
         el("div.login__mark", initials(project.name)),

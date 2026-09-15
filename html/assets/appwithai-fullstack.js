@@ -16845,6 +16845,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/components/automation",
       "src/components/reports",
       "src/components/notifications",
+      "src/components/help",
+      "src/components/theme",
       "test"
     ];
     for (const dir of dirs2) {
@@ -17210,8 +17212,20 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/hooks/use-bus-entity-level.ts"
       },
       {
-        src: "src/components/admin/window-help-dialog.tsx",
-        dest: "src/components/admin/window-help-dialog.tsx"
+        src: "src/components/help/help-toaster.tsx",
+        dest: "src/components/help/help-toaster.tsx"
+      },
+      {
+        src: "src/components/theme/theme-provider.tsx",
+        dest: "src/components/theme/theme-provider.tsx"
+      },
+      {
+        src: "src/components/theme/theme-toggle.tsx",
+        dest: "src/components/theme/theme-toggle.tsx"
+      },
+      {
+        src: "src/components/admin/window-help-button.tsx",
+        dest: "src/components/admin/window-help-button.tsx"
       },
       {
         src: "src/components/admin/ad-detail-shell.tsx",

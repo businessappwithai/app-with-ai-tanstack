@@ -1,5 +1,5 @@
 /**
- * The help screen for the builder.
+ * The builder's help, as the body of the help toaster.
  *
  * Written to be read by someone who has the builder open beside it, so every
  * section names what they can see rather than describing an abstraction. The
@@ -7,6 +7,17 @@
  * app's help says "Patient" and "Appointment", not "Order" and "Invoice" —
  * because a help page whose examples do not exist in your app is a help page
  * you have to translate before you can use.
+ *
+ * "Beside it" is the part that changed. This was a full pane that replaced the
+ * builder — the screen it described was the one thing you could not see while
+ * reading it, and the automations page opened on it, so the first thing a user
+ * met was documentation instead of their automations. It is now the same
+ * eleven sections inside the one help surface this application has: the
+ * toaster at the top right, opened by `?` and closed by its close button.
+ *
+ * Narrow, therefore. The topic list was a 236px rail beside the prose; in a
+ * 26rem panel it is a select above it, which is the same navigation in the
+ * width available.
  */
 
 import { useState } from "react";
@@ -79,59 +90,74 @@ const SECTIONS: { group: string; items: { id: SectionId; label: string }[] }[] =
   },
 ];
 
+const SECTION_IDS: SectionId[] = SECTIONS.flatMap((group) => group.items.map((item) => item.id));
+
 export function AutomationHelp({
   example = DEFAULT_EXAMPLE,
   initialSection = "how",
-  onClose,
 }: {
   example?: HelpExample;
   initialSection?: SectionId;
-  onClose?: () => void;
 }) {
   const [section, setSection] = useState<SectionId>(initialSection);
+  const index = Math.max(0, SECTION_IDS.indexOf(section));
 
   return (
-    <div className="flex h-full min-h-0 flex-1">
-      <nav
-        aria-label="Help topics"
-        className="w-[236px] shrink-0 overflow-y-auto border-r border-border bg-card py-4"
-      >
-        {SECTIONS.map((group) => (
-          <div key={group.group}>
-            <h2 className="px-[18px] pb-2 pt-3 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground first:pt-0">
-              {group.group}
-            </h2>
-            {group.items.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setSection(item.id)}
-                aria-current={section === item.id ? "page" : undefined}
-                className={cn(
-                  "mx-2 block w-[calc(100%-1rem)] rounded-lg px-2.5 py-1.5 text-left text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                  section === item.id
-                    ? "bg-primary/10 font-semibold text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        ))}
-      </nav>
+    <div className="space-y-3">
+      <label className="block">
+        <span className="sr-only">Help topic</span>
+        <select
+          aria-label="Help topic"
+          value={section}
+          onChange={(e) => setSection(e.target.value as SectionId)}
+          className="w-full rounded-lg border border-border bg-background px-2 py-1.5 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          {SECTIONS.map((group) => (
+            <optgroup key={group.group} label={group.group}>
+              {group.items.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </label>
 
-      <div className="flex-1 overflow-y-auto bg-muted/30 px-8 py-7">
-        {onClose ? (
-          <button
-            type="button"
-            onClick={onClose}
-            className="float-right rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            ✕ Close
-          </button>
-        ) : null}
-        <Section id={section} example={example} />
+      <Section id={section} example={example} />
+
+      {/* Reading the eleven sections in order is the intended first pass, and a
+          select alone gives no hint that there is a next one. */}
+      <div className="flex items-center justify-between border-t border-border pt-2 text-xs">
+        <button
+          type="button"
+          disabled={index === 0}
+          onClick={() => setSection(SECTION_IDS[index - 1] ?? section)}
+          className={cn(
+            "rounded-md px-2 py-1 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            index === 0
+              ? "cursor-not-allowed text-muted-foreground/40"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          )}
+        >
+          ← Previous
+        </button>
+        <span className="text-muted-foreground">
+          {index + 1} of {SECTION_IDS.length}
+        </span>
+        <button
+          type="button"
+          disabled={index === SECTION_IDS.length - 1}
+          onClick={() => setSection(SECTION_IDS[index + 1] ?? section)}
+          className={cn(
+            "rounded-md px-2 py-1 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            index === SECTION_IDS.length - 1
+              ? "cursor-not-allowed text-muted-foreground/40"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          )}
+        >
+          Next →
+        </button>
       </div>
     </div>
   );
@@ -206,7 +232,7 @@ function Example({ children }: { children: React.ReactNode }) {
 
 function Tip({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-5 flex max-w-[70ch] gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3.5 text-[13px] leading-relaxed text-blue-900">
+    <div className="mt-5 flex max-w-[70ch] gap-3 rounded-xl border border-blue-200 dark:border-blue-800/60 bg-blue-50 dark:bg-blue-950/40 px-4 py-3.5 text-[13px] leading-relaxed text-blue-900 dark:text-blue-200">
       <span aria-hidden="true" className="text-[15px]">
         💡
       </span>
@@ -222,8 +248,8 @@ function HowItRuns({ example }: { example: HelpExample }) {
     {
       kicker: "When",
       glyph: "⚡",
-      tone: "border-amber-200 bg-amber-50 text-amber-700",
-      kickerTone: "text-amber-700",
+      tone: "border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+      kickerTone: "text-amber-700 dark:text-amber-300",
       title: "The trigger",
       body: "The event that starts the run. One per automation: a record type plus what happened to it — created, updated, deleted, or the moment before any of those.",
       example: (
@@ -235,8 +261,8 @@ function HowItRuns({ example }: { example: HelpExample }) {
     {
       kicker: "Only if",
       glyph: "◇",
-      tone: "border-blue-200 bg-blue-50 text-blue-600",
-      kickerTone: "text-blue-600",
+      tone: "border-blue-200 dark:border-blue-800/60 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400",
+      kickerTone: "text-blue-600 dark:text-blue-400",
       title: "The checks",
       body: "All of them must pass before anything runs. No checks means it always runs. Compare a field to a fixed value, or to another field on the same record.",
       example: (
@@ -273,7 +299,7 @@ function HowItRuns({ example }: { example: HelpExample }) {
         runs top to bottom. If a step fails, the run stops there and the rest never happen.
       </Lede>
 
-      <div className="mb-6 grid gap-3.5 lg:grid-cols-3">
+      <div className="mb-6 grid gap-3.5">
         {parts.map((p) => (
           <div key={p.kicker} className="rounded-xl border border-border bg-card p-4">
             <div className="mb-2.5 flex items-center gap-2">
@@ -300,7 +326,7 @@ function HowItRuns({ example }: { example: HelpExample }) {
       </div>
 
       <H2>The steps you can add</H2>
-      <div className="grid gap-2.5 lg:grid-cols-3">
+      <div className="grid gap-2.5">
         {STEP_TYPES.map((type) => (
           <div key={type} className="flex gap-2.5 rounded-xl border border-border bg-card p-3">
             <span

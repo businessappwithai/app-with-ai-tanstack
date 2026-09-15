@@ -166,6 +166,6 @@ export function getFieldTypeColor(sysReferenceId: number): string {
     case REFERENCE_TYPE.PASSWORD: return 'bg-red-100 text-red-700';
     case REFERENCE_TYPE.TABLE:
     case REFERENCE_TYPE.TABLE_DIRECT: return 'bg-purple-100 text-purple-700';
-    default: return sysReferenceId >= 1000 ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-gray-100 text-gray-700';
+    default: return sysReferenceId >= 1000 ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-muted text-foreground/80';
   }
 }

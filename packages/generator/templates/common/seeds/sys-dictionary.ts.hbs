@@ -270,6 +270,18 @@ function fieldHelpText(entity: HelpEntity, col: HelpColumn): string {
   return parts.join(' ');
 }
 
+/*
+ * Columns that are real, queryable and useless in a grid: a uuid nobody reads
+ * and the audit trail. Mirrors NOISE in `generators/wasm/model-bundle.ts`, so
+ * the full stack's list view shows the same columns the browser build's does.
+ * All of them stay on the form.
+ *
+ * Module scope, not per entity: every entity's dictionary block below shares
+ * one function scope, so a `const` inside one of them is a redeclaration by
+ * the second entity.
+ */
+const GRID_NOISE = new Set(['id', 'created_by', 'updated_by', 'deleted_by', 'deleted_at', 'version']);
+
 const dictionaryHelpEntities: HelpEntity[] = [
   {{#each entities}}
   {
@@ -658,20 +670,52 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }
   {{/if}}
 
-  // Create sys_field entries with sequential seq_no
+  /*
+   * Create sys_field entries with sequential seq_no.
+   *
+   * Two of these values used to be decided by a column's *position* in the
+   * list, and both showed up as the generated form and grid disagreeing with
+   * the browser application generated from the same model:
+   *
+   *   sys_field_group_id: i < 3 ? fieldGroupGeneral : fieldGroupDetails
+   *   is_displayed_grid:  !col.isKey && i < 8
+   *
+   * The first split every form after its third column into a "General" section
+   * and a collapsed "Details" one — `dynamic-form.tsx` groups by
+   * `group_name`, so those headings are what a reader saw, and where the cut
+   * fell had nothing to do with the model. A thirteen-column entity got three
+   * fields and then ten behind a heading nobody asked for.
+   *
+   * The second hid every column past the eighth from the list view. On
+   * `bus_program` that is `annual_budget` and `objective` — columns the model
+   * declares, the dictionary describes, the API returns and the grid does not
+   * show, with nothing anywhere saying why.
+   *
+   * `sys_field_group_id` is unset now, and the grid is decided by what a
+   * column *is*. Both match `generators/wasm/model-bundle.ts`, which is the
+   * other producer of this same dictionary and the one a reader compares
+   * against: the same model has to describe the same application whether it
+   * was generated as the full stack or as the browser build.
+   *
+   * The three field groups above are still seeded. They are empty targets for
+   * the field-layout editor, which is a real screen in this stack — an
+   * administrator groups the fields that should be grouped, and until someone
+   * does, the form is the flat list the model's column order describes.
+   */
+
   for (let i = 0; i < {{camelCase name}}Columns.length; i++) {
     const col = {{camelCase name}}Columns[i];
     await db.insertInto('sys_field').values({
       sys_field_id: uuidv4(),
       sys_tab_id: {{camelCase name}}TabId,
       sys_column_id: col.id,
-      sys_field_group_id: i < 3 ? fieldGroupGeneral : fieldGroupDetails,
+      sys_field_group_id: undefined,
       name: col.displayName,
       help: fieldHelpFor('{{tableName}}', col.name),
       seq_no: (i + 1) * 10,
       seq_no_grid: (i + 1) * 10,
       is_displayed: !col.isKey,
-      is_displayed_grid: !col.isKey && i < 8, // show first 8 non-pk columns in grid
+      is_displayed_grid: !col.isKey && !GRID_NOISE.has(col.name),
       is_read_only: ['created_at', 'updated_at', 'deleted_at'].includes(col.name),
       is_encrypted: false,
       is_same_line: false,

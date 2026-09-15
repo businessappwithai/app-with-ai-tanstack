@@ -266,8 +266,8 @@ function NewRulePage() {
   const entityFields = entityName ? ENTITY_FIELDS[entityName] : undefined;
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b-4 border-black bg-white">
+    <div className="min-h-screen bg-card">
+      <header className="border-b-4 border-foreground bg-card">
         <div className="max-w-6xl mx-auto px-8 py-8">
           <div className="flex items-center gap-4">
             <Link to="/admin/rules">
@@ -277,8 +277,8 @@ function NewRulePage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-black">Create Business Rule</h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Create Business Rule</h1>
+              <p className="text-sm text-muted-foreground mt-1">
                 Define conditions and actions that run automatically when entity records are
                 created, updated, or deleted.
               </p>
@@ -290,18 +290,18 @@ function NewRulePage() {
       <main className="max-w-6xl mx-auto px-8 py-8">
         <form onSubmit={handleSubmit}>
           {/* Rule metadata section */}
-          <div className="border-2 border-black mb-8">
-            <div className="bg-gray-50 px-6 py-3 border-b-2 border-black">
+          <div className="border-2 border-foreground mb-8">
+            <div className="bg-muted/40 px-6 py-3 border-b-2 border-foreground">
               <h2 className="text-sm font-semibold uppercase tracking-wider">Rule Configuration</h2>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-3 gap-6">
                 <div>
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Entity *
                   </Label>
                   <Select value={entityName} onValueChange={setEntityName}>
-                    <SelectTrigger className="mt-1 border-2 border-gray-300 rounded-none">
+                    <SelectTrigger className="mt-1 border-2 border-border rounded-none">
                       <SelectValue placeholder="Select entity..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -313,31 +313,31 @@ function NewRulePage() {
                     </SelectContent>
                   </Select>
                   {errors.entityName && (
-                    <p className="text-xs text-red-600 mt-1">{errors.entityName}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.entityName}</p>
                   )}
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Rule Name *
                   </Label>
                   <Input
                     value={ruleName}
                     onChange={(e) => setRuleName(e.target.value)}
                     placeholder="e.g. Validate Email Format"
-                    className="mt-1 border-2 border-gray-300 rounded-none"
+                    className="mt-1 border-2 border-border rounded-none"
                   />
                   {errors.ruleName && (
-                    <p className="text-xs text-red-600 mt-1">{errors.ruleName}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.ruleName}</p>
                   )}
                 </div>
 
                 <div>
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Trigger Operation *
                   </Label>
                   <Select value={operation} onValueChange={setOperation}>
-                    <SelectTrigger className="mt-1 border-2 border-gray-300 rounded-none">
+                    <SelectTrigger className="mt-1 border-2 border-border rounded-none">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -345,14 +345,14 @@ function NewRulePage() {
                         <SelectItem key={op.value} value={op.value}>
                           <div>
                             <span>{op.label}</span>
-                            <span className="text-xs text-gray-400 ml-2">— {op.description}</span>
+                            <span className="text-xs text-muted-foreground/70 ml-2">— {op.description}</span>
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   {errors.operation && (
-                    <p className="text-xs text-red-600 mt-1">{errors.operation}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">{errors.operation}</p>
                   )}
                 </div>
               </div>
@@ -360,8 +360,8 @@ function NewRulePage() {
           </div>
 
           {/* Decision Table Editor */}
-          <div className="border-2 border-black mb-8">
-            <div className="bg-gray-50 px-6 py-3 border-b-2 border-black">
+          <div className="border-2 border-foreground mb-8">
+            <div className="bg-muted/40 px-6 py-3 border-b-2 border-foreground">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-semibold uppercase tracking-wider">Decision Logic</h2>
                 <Button
@@ -389,30 +389,30 @@ function NewRulePage() {
               onChange={(next) => setJdmContent(JSON.stringify(next, null, 2))}
             />
             {errors.jdmContent && (
-              <p className="text-xs text-red-600 px-4 pb-2">{errors.jdmContent}</p>
+              <p className="text-xs text-red-600 dark:text-red-400 px-4 pb-2">{errors.jdmContent}</p>
             )}
           </div>
 
           {/* Test Panel */}
           {showTestPanel && (
-            <div className="border-2 border-black mb-8">
-              <div className="bg-amber-50 px-6 py-3 border-b-2 border-black">
+            <div className="border-2 border-foreground mb-8">
+              <div className="bg-amber-50 dark:bg-amber-950/40 px-6 py-3 border-b-2 border-foreground">
                 <h2 className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
                   <TestTube2 className="h-4 w-4" />
                   Dry Run — Test Your Rule
                 </h2>
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Enter sample entity data to see how your rule would evaluate it.
                 </p>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <Label className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 block">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 block">
                       Test Data (JSON)
                     </Label>
                     <textarea
-                      className="w-full h-40 font-mono text-xs border-2 border-gray-300 p-3 rounded-none"
+                      className="w-full h-40 font-mono text-xs border-2 border-border p-3 rounded-none"
                       value={testData}
                       onChange={(e) => setTestData(e.target.value)}
                       placeholder={`{\n  "name": "Test Account",\n  "email": null,\n  "status": "active"\n}`}
@@ -433,13 +433,13 @@ function NewRulePage() {
                     </Button>
                   </div>
                   <div>
-                    <Label className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 block">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 block">
                       Result
                     </Label>
                     {testResult ? (
-                      <div className="h-40 overflow-auto border-2 border-gray-200 p-3 bg-gray-50 text-xs">
+                      <div className="h-40 overflow-auto border-2 border-border p-3 bg-muted/40 text-xs">
                         {testResult.error ? (
-                          <div className="flex items-start gap-2 text-red-600">
+                          <div className="flex items-start gap-2 text-red-600 dark:text-red-400">
                             <XCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                             <div>
                               <p className="font-semibold">Error</p>
@@ -453,8 +453,8 @@ function NewRulePage() {
                                 key={i}
                                 className={`flex items-start gap-2 p-2 rounded ${
                                   r.actions?.some((a: any) => a.type === "prevent")
-                                    ? "bg-red-50 text-red-700"
-                                    : "bg-amber-50 text-amber-700"
+                                    ? "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300"
+                                    : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300"
                                 }`}
                               >
                                 {r.actions?.some((a: any) => a.type === "prevent") ? (
@@ -474,14 +474,14 @@ function NewRulePage() {
                             ))}
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 text-green-600">
+                          <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                             <CheckCircle className="h-4 w-4" />
                             <span className="font-semibold">All checks passed — no violations</span>
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="h-40 border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400 text-xs">
+                      <div className="h-40 border-2 border-dashed border-border flex items-center justify-center text-muted-foreground/70 text-xs">
                         Click "Run Test" to see results
                       </div>
                     )}
@@ -497,7 +497,7 @@ function NewRulePage() {
               <Button
                 type="button"
                 variant="outline"
-                className="rounded-none border-2 border-black"
+                className="rounded-none border-2 border-foreground"
               >
                 Cancel
               </Button>
@@ -505,7 +505,7 @@ function NewRulePage() {
             <Button
               type="submit"
               disabled={createMutation.isPending}
-              className="bg-black text-white hover:bg-gray-800 rounded-none px-8"
+              className="bg-foreground text-background hover:bg-foreground/90 rounded-none px-8"
             >
               {createMutation.isPending ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

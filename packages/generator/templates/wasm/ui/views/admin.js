@@ -485,10 +485,18 @@ export async function modelView(root) {
   );
 }
 
-/** Every administrative screen has the same shape: a title, a lede, a body. */
+/**
+ * Every administrative screen has the same shape: a title, a body, and its
+ * explanation behind the `?`.
+ *
+ * The explanation used to be both — a `<p class="lede">` under the heading
+ * *and* the screen's registered help text, which is the same sentence shown
+ * twice. It is the help now, and only the help, so there is one place in this
+ * application that shows help and one control that opens it.
+ */
 function panel(title, subtitle, body) {
   if (subtitle) setHelp(subtitle);
-  return el("section", el("h2.section-title", title), subtitle ? el("p.lede", subtitle) : null, body);
+  return el("section", el("h2.section-title", title), body);
 }
 
 function statRow(entries) {

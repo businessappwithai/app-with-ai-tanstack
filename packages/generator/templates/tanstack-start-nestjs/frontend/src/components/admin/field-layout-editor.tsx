@@ -59,7 +59,7 @@ interface EditableField extends FieldMetadata {
 
 // Color options for field styling
 const COLOR_OPTIONS = [
-  { value: "contrast", label: "Auto", color: "bg-gray-100 border-gray-300" },
+  { value: "contrast", label: "Auto", color: "bg-muted border-border" },
   { value: "#3b82f6", label: "Blue", color: "bg-blue-500" },
   { value: "#ef4444", label: "Red", color: "bg-red-500" },
   { value: "#22c55e", label: "Green", color: "bg-green-500" },

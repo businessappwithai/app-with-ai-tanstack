@@ -16,6 +16,7 @@
  */
 
 import { el, empty, mount, spinner, toast } from "../dom.js";
+import { themeControl } from "../theme.js";
 import { reportApi, setReportToken } from "../api.js";
 import { reportLoginView } from "./report-login.js";
 
@@ -429,6 +430,10 @@ export async function reportAppView(root, { project, onLeave }) {
           el("span.masthead__badge", "Enterprise Reporting"),
           el("span.masthead__name", state.overview.application?.name ?? project.name),
           el("div.masthead__spacer"),
+          // The reporting application is a second sign-in over the same data,
+          // and the theme is one attribute on the shared document — so the
+          // control belongs in both mastheads rather than only the one.
+          themeControl(),
           el(
             "div.masthead__user",
             el("span.avatar.avatar--report", "ER"),

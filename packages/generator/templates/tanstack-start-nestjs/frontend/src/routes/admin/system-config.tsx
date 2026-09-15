@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { WindowHelpDialog } from '@/components/admin/window-help-dialog';
+import { WindowHelpButton } from '@/components/admin/window-help-button';
 import { apiClient } from '@/lib/api-client';
 import { Settings, ArrowLeft, Loader2, AlertCircle, Save, Eye, EyeOff, Power, PowerOff } from 'lucide-react';
 import { useState } from 'react';
@@ -90,7 +90,7 @@ function SystemConfigPage() {
             </Link>
             <Settings className="w-4 h-4 text-primary" />
             <h1 className="font-display text-lg font-semibold">System Configuration</h1>
-            <WindowHelpDialog windowName="System Configuration" entityLabel="System Configuration" />
+            <WindowHelpButton windowName="System Configuration" entityLabel="System Configuration" />
           </div>
         </div>
       </header>
@@ -131,7 +131,7 @@ function SystemConfigPage() {
                           <div className="flex items-center gap-2">
                             <code className="text-sm font-mono font-medium">{row.config_key}</code>
                             {row.is_sensitive && (
-                              <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                              <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 dark:bg-amber-900/30 dark:text-amber-400">
                                 sensitive
                               </span>
                             )}
@@ -152,7 +152,7 @@ function SystemConfigPage() {
                           )}
                           <button
                             onClick={() => handleToggleActive(row)}
-                            className={`p-1.5 rounded hover:bg-muted ${row.is_active ? 'text-green-600' : 'text-muted-foreground'}`}
+                            className={`p-1.5 rounded hover:bg-muted ${row.is_active ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}
                             title={row.is_active ? 'Deactivate (fall back to env var)' : 'Activate'}
                           >
                             {row.is_active ? <Power className="w-3.5 h-3.5" /> : <PowerOff className="w-3.5 h-3.5" />}

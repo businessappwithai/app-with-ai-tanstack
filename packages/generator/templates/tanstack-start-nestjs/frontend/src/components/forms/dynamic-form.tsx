@@ -6,7 +6,6 @@ import {
   Calendar,
   FileText,
   Hash,
-  HelpCircle,
   KeyRound,
   Link2,
   List,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { HelpButton, HelpText } from "@/components/help/help-toaster";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -285,30 +285,24 @@ function FieldTypeBadge({ field }: { field: FieldMetadata }) {
   );
 }
 
-function FieldHelpPopover({ help, fieldName }: { help: string; fieldName: string }) {
-  const [open, setOpen] = useState(false);
+/**
+ * A field's `?`. It opens the same toaster every other piece of help opens,
+ * rather than a popover of its own.
+ *
+ * This was an inline popover anchored under the label, which dismissed itself
+ * on the next click anywhere — including the click into the input the help was
+ * explaining. Reading it and acting on it were mutually exclusive.
+ */
+function FieldHelpButton({ help, fieldName }: { help: string; fieldName: string }) {
   return (
-    <div className="relative inline-block">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
-        aria-label={`Help for ${fieldName}`}
-      >
-        <HelpCircle className="w-3.5 h-3.5" />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-5 z-50 w-64 rounded-lg border border-border bg-popover shadow-lg p-3 text-popover-foreground">
-            <div className="flex items-start gap-2">
-              <HelpCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-              <p className="leading-relaxed text-xs whitespace-pre-wrap">{help}</p>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+    <HelpButton
+      label={fieldName}
+      topic={{
+        key: `field:${fieldName}`,
+        title: `${fieldName} — Help`,
+        body: <HelpText>{help}</HelpText>,
+      }}
+    />
   );
 }
 
@@ -416,7 +410,7 @@ function FieldRenderer({
                 <Lock className="w-2.5 h-2.5" /> Read-only
               </span>
             )}
-            {field.help && <FieldHelpPopover help={field.help} fieldName={fieldLabel} />}
+            {field.help && <FieldHelpButton help={field.help} fieldName={fieldLabel} />}
           </div>
         );
 
@@ -443,7 +437,7 @@ function FieldRenderer({
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
                   {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
-                  {field.help && <FieldHelpPopover help={field.help} fieldName={fieldLabel} />}
+                  {field.help && <FieldHelpButton help={field.help} fieldName={fieldLabel} />}
                 </div>
                 <div className="text-sm text-foreground font-medium min-h-[1.25rem]">
                   {!currentValue || currentValue === "" ? (
@@ -488,7 +482,7 @@ function FieldRenderer({
               <div className="flex items-center gap-1.5 mb-0.5">
                 <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
                 {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
-                {field.help && <FieldHelpPopover help={field.help} fieldName={fieldLabel} />}
+                {field.help && <FieldHelpButton help={field.help} fieldName={fieldLabel} />}
               </div>
               <div className="text-sm text-foreground font-medium min-h-[1.25rem]">
                 {displayValue}

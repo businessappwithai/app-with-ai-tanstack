@@ -86,7 +86,7 @@ function ReportsListPage() {
                     <div className="flex items-start justify-between mb-3">
                       <FileText className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                       {design ? (
-                        <span className="text-xs bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 font-medium">
+                        <span className="text-xs bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 rounded-full px-2 py-0.5 font-medium">
                           Designed
                         </span>
                       ) : (

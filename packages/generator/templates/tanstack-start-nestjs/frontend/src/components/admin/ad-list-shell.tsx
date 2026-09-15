@@ -16,7 +16,7 @@ import {
   buildAdminListUrl,
   type ParentContext,
 } from "./ad-window-configs";
-import { helpTableNameFromEndpoint, WindowHelpDialog } from "./window-help-dialog";
+import { helpTableNameFromEndpoint, WindowHelpButton } from "./window-help-button";
 
 type AnyRecord = Record<string, unknown>;
 
@@ -497,7 +497,7 @@ export function ADListShell({
         {activeFilterCount > 0 && (
           <span className="text-xs text-muted-foreground ml-1">({totalCount} filtered)</span>
         )}
-        <WindowHelpDialog
+        <WindowHelpButton
           tableName={helpTableNameFromEndpoint(level.endpoint)}
           entityLabel={level.label}
         />

@@ -59,3 +59,18 @@ export const SEEDED_ACCOUNTS: SeededAccount[] = [
 
 /** True when the model restricted `read`, so the counts above differ. */
 export const ACCESS_IS_SCOPED = {{#if access.scoped}}true{{else}}false{{/if}};
+
+/**
+ * Which theme this application starts in before anyone has chosen one.
+ *
+ * `--dark-mode` at generation time used to put `className="dark"` on `<html>`
+ * and that was the end of it: the application was dark, permanently, and no
+ * reader of it could ask for anything else. The flag now names the *default*,
+ * and the reader's own choice — stored per browser, applied before first paint
+ * — outranks it.
+ *
+ * `"system"` is the third value the reader can pick; a generated default is
+ * only ever one of the two explicit ones, because a flag that said "follow the
+ * machine" would make `--dark-mode` mean nothing on a light machine.
+ */
+export const DEFAULT_THEME = "{{#if config.enableDarkMode}}dark{{else}}light{{/if}}";
