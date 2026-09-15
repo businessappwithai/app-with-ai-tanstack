@@ -927,10 +927,7 @@ function deriveAccessSpec(model: ParsedModel, options: BuildPackOptions): Access
 // --- Entry point -------------------------------------------------------------
 
 /** Turn a parsed model into the reporting layer derived from it. */
-export function buildReportingPack(
-  model: ParsedModel,
-  options: BuildPackOptions
-): ReportingPack {
+export function buildReportingPack(model: ParsedModel, options: BuildPackOptions): ReportingPack {
   if (model.entities.length === 0) {
     throw new Error("Cannot derive a reporting pack: the model declares no entities.");
   }

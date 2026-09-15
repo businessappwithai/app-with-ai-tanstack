@@ -14,8 +14,8 @@ import type { Entity, EntityEnum, Relationship } from "@appwithai/core/types";
 import type { CompiledHook } from "../hooks";
 import type { EntityCategory } from "../parsers/category.parser";
 import type { CompiledRbac } from "../rbac";
-import type { CompiledReport } from "../reports";
 import type { ReportingPack } from "../reporting/pack";
+import type { CompiledReport } from "../reports";
 import type { CompiledRule } from "../rules";
 import type { CompiledSaga, CompiledWorkflow } from "../workflows";
 import { DEFAULT_FRONTEND_PORT } from "./ports";
@@ -27,9 +27,17 @@ import {
   TanStackStartFrontendGenerator,
   type TanStackStartFrontendOptions,
 } from "./tanstack-start-nestjs/tanstack-start-frontend.generator";
+import type { StackOption } from "./stack-option";
 import { BunE2ETestGenerator } from "./tests/bun-e2e.generator";
 
-export type StackOption = "tanstackjs-nestjs" | "tanstack-start-nestjs";
+/**
+ * Re-exported, not defined here.
+ *
+ * `pipeline/parse-model.ts` needs it and nothing else from this file, and this
+ * file pulls in every generator plus Handlebars — see `stack-option.ts` for
+ * what that cost.
+ */
+export type { StackOption } from "./stack-option";
 export type AIAddonOption = "none" | "basic" | "advanced";
 
 export interface FullStackGeneratorOptions {

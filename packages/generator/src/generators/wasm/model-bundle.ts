@@ -30,10 +30,10 @@ import {
   ReferenceType,
   referenceFromColumnName,
 } from "@appwithai/core/types";
-import type { ParsedModel } from "../../pipeline/generate-application";
 import { tableNameFor } from "../../naming/tables";
-import { buildReportingPack } from "../../reporting/pack";
+import type { ParsedModel } from "../../pipeline/generate-application";
 import { deriveAccess } from "../../rbac/roles";
+import { buildReportingPack } from "../../reporting/pack";
 import { DictionaryGenerator } from "../dictionary.generator";
 
 export interface WasmProjectSettings {

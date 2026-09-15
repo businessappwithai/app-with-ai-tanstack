@@ -193,10 +193,7 @@ describe("buildReportingPack", () => {
   it("refuses a pack whose items would collapse into one row", async () => {
     // The platform upserts by name, so two items sharing a name are one row
     // written twice — and which query survives depends on insertion order.
-    const clashing = MODEL.replace(
-      "title: Open tickets by site",
-      "title: Tickets per site"
-    );
+    const clashing = MODEL.replace("title: Open tickets by site", "title: Tickets per site");
     const model = await parseModel(clashing, {
       projectName: "field-service",
       outputDir: "/tmp/unused",
