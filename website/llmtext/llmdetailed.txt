@@ -78,8 +78,8 @@ app-with-ai-tanstack/
 ├── database/          # Migrations for the modelling tool's own database
 ├── website/           # What the site publishes from this repository
 │   ├── llmtext/       #   This file, and its companion
-│   └── viewers/       #   The model viewers — appwithai.org/viewers
-├── html/              # The human guide published at appwithai.org/guide, plus
+│   └── viewers/       #   The model viewers — https://www.appwithai.org/viewers
+├── html/              # The human guide published at https://www.appwithai.org/guide, plus
 │                   #   checker.js and fixer.js — the published validators — and
 │                   #   the pages that run a whole stack in a browser tab
 ├── scripts/           # Build and CI scripts, incl. the four --check bundlers (§8)
@@ -2582,10 +2582,34 @@ authoritative path, and nothing downstream distinguishes a verdict that came
 from it. In particular — and this has been observed in the wild — **failing to
 reach GitHub says nothing about whether the checker can run.** No clone, no
 credentials, no network route to github.com: the modules are served from
-`appwithai.org`, and `check-model.mjs` resolves them from `--base`, then from
+`https://www.appwithai.org`, and `check-model.mjs` resolves them from `--base`, then from
 its own directory, then from the published site. GitHub is not in that path at
 any point. "I could not obtain the repository, therefore I could not validate"
 is a wrong inference, not an honest limitation.
+
+**Write the URL in full, every time: `https://www.appwithai.org/…`.** Scheme
+included, `www.` included, never a bare host. Three things go wrong otherwise and
+all three have been observed:
+
+- **A bare host is not a URL.** `appwithai.org/guide/checker.js` is a string a
+  runtime either refuses or has to guess a scheme for, and a sandboxed agent's
+  HTTP client usually refuses.
+- **A Markdown link around a bare host is worse**, because it looks right.
+  `[www.appwithai.org](https://www.appwithai.org)` reads to a person as a working
+  link and to anything parsing your output as the bare host. Write the plain
+  absolute URL: this is a specification, not a web page, and nothing here is
+  rendered.
+- **The apex is not the canonical form.** `https://appwithai.org/…` serves the
+  same files, but `https://www.appwithai.org/…` is canonical, and an environment
+  that resolves one and not the other is common enough never to rely on.
+
+**The same rule governs how you report a failure.** Name the exact request and
+the exact error. *"Validator retrieval failed for appwithai.org"* says neither
+what was requested nor what happened; *"GET
+https://www.appwithai.org/guide/checker.js failed: EAI_AGAIN (DNS)"* says both,
+and is the difference between a reader who can reproduce your problem and one who
+cannot. Report the URL you actually requested — not a shortened, prettified or
+linked version of it.
 
 **The same mistake generalises, and it has now been made four ways.** Not
 reaching GitHub, not reaching `llmdetailed.txt` itself, Node refusing a URL
@@ -2600,9 +2624,10 @@ Re-reading this text is not a precondition for running the engine it describes.
 ladder above does not answer, and it is common: an agent sandbox with no egress
 reports it as a DNS-resolution failure, or as a gateway error — 403, 407, 502 —
 from a proxy that never forwarded the request. Both read exactly like the site
-being down, and the site is answering everyone else. `www.appwithai.org` is
-canonical and the apex serves the same files, so try both before concluding
-anything; `check-model.mjs` already tries both.
+being down, and the site is answering everyone else. `https://www.appwithai.org` is
+the canonical form and the one to write; the apex `https://appwithai.org`
+serves the same files, so try both before concluding anything — and say
+which one you tried. `check-model.mjs` already tries both.
 
 If neither answers, **the checker still runs**, because it does not need the
 network:
@@ -3157,7 +3182,7 @@ tables. All three are decisions a batch pass would have made silently.
     reach the checker at all, work the §10.6 ladder to its last rung first, then
     the manual review — and report it as a manual review. **A repository you
     could not clone is not a checker you could not run**: the engine is
-    published at `appwithai.org`, reachable by one `curl`, and runnable in a
+    published at `https://www.appwithai.org`, reachable by one `curl`, and runnable in a
     browser tab. Never describe anything but a run of the published engine as a
     checker result, and never withhold the file because you could not produce
     one.

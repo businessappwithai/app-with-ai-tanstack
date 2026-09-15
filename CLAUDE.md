@@ -665,6 +665,28 @@ that went missing. Both editions are held to asking for the file first, refusing
 to reconstruct a model from memory, inventorying before editing, and comparing
 against that inventory at the end.
 
+## The published host is written in full — `https://www.appwithai.org`
+
+Every mention of the host in all four `website/llmtext/*.txt` protocol documents
+is the absolute URL, scheme and `www.` included, and each document carries a rule
+saying so. A model following the specification reported a failed validator fetch
+as `[www.appwithai.org](https://www.appwithai.org)` — a Markdown link whose text
+is a bare host, which is what anything parsing that output then tries to resolve.
+These copies taught it: they used the apex `https://appwithai.org` for most URLs
+while the published ones used `www`, and both named the host without a scheme in
+prose.
+
+`bun run test:llmtext` holds it now. The check strips the canonical form before
+scanning rather than filtering lines containing it — a line can hold a good URL
+*and* a bare host, which is the case that survived the first sweep — and it
+asserts the rule's three counter-examples are still present, since a checker that
+"corrects" them leaves a rule that teaches nothing.
+
+**The rule goes in §3.6, not beside the `--base` paragraph.** In this shape that
+paragraph sits inside §10, which `llmtextenhancement.txt` replaces wholesale, so
+anchoring there puts the rule in the base and not in its companion — silently,
+with every other check still green.
+
 ## EML Language
 
 EML is a Mermaid-based language for ERD + business rules + workflows in one `.eml.mmd` file. `language/appwithai-language.json` is the **single source of truth** — for this repository. Two other copies exist, and they have drifted:

@@ -494,5 +494,57 @@ held(
   "llmdetailedenhancement.txt keeps the user's original untouched as the thing to compare against"
 );
 
+/* ------------------------------------------------------------------------ */
+/*  The published host, written in full                                      */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * Every mention of the host is `https://www.appwithai.org`.
+ *
+ * A model following these documents reported a failed validator fetch as
+ * `[www.appwithai.org](https://www.appwithai.org)` — a Markdown link whose text
+ * is a bare host, which is what anything parsing that output then tries to
+ * resolve. The documents taught it: they named the host without a scheme in
+ * prose, and these copies used the apex in most of their URLs while the
+ * published ones used `www`. Both are fixed; this is what stops either
+ * returning.
+ *
+ * The three passages that deliberately show another spelling are teaching
+ * material — the rule itself and the two sentences contrasting the apex with
+ * `www` — so they are dropped before the scan rather than special-cased in it.
+ * A counter-example that gets "corrected" stops being one.
+ */
+const TEACHING = [
+  "`appwithai.org/guide/checker.js` is a string a",
+  "`[www.appwithai.org](https://www.appwithai.org)` reads to a person as a working",
+  "- **The apex is not the canonical form.** `https://appwithai.org/…` serves the",
+  '*"Validator retrieval failed for appwithai.org"* says neither',
+  "  `https://appwithai.org` serves the same files, but the `www` form is",
+  "the canonical form and the one to write; the apex `https://appwithai.org`",
+];
+
+for (const name of DOCUMENTS) {
+  const doc = readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
+  const stray = doc
+    .split("\n")
+    .filter((line) => !TEACHING.some((teaching) => line.includes(teaching)))
+    .filter((line) => /appwithai\.org/.test(line.replace(/https:\/\/www\.appwithai\.org/g, "")));
+
+  held(
+    stray.length === 0,
+    `${name}: every mention of the host is https://www.appwithai.org${
+      stray.length ? ` (${stray.length} stray, first: "${stray[0]?.trim().slice(0, 72)}")` : ""
+    }`
+  );
+  held(
+    doc.includes("Write the URL in full, every time"),
+    `${name}: carries the rule that the URL is written in full`
+  );
+  held(
+    doc.includes("[www.appwithai.org](https://www.appwithai.org)"),
+    `${name}: keeps the Markdown-link counter-example the rule is about`
+  );
+}
+
 console.log(failed === 0 ? "\nllmtext claims hold." : `\n${failed} claim(s) contradicted.`);
 process.exit(failed === 0 ? 0 : 1);
