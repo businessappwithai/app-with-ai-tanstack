@@ -63,7 +63,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
 | `bun run test:language-tools` | The published `checker.js`/`fixer.js` still agree with the CLI |
 | `bun run build:viewers` | Rebuild `website/viewers/eml-model.js` (the model viewers' reader) |
-| `bun run test:llmtext` | Hold `website/llmtext/*.txt` to what the checker actually does, and the viewer claims in them |
+| `bun run test:llmtext` | Hold all four `website/llmtext/*.txt` protocol documents to what the checker actually does, the viewer claims in them, and — for the two enhancement editions — that they still carry their base's language reference byte for byte |
 | `bun run vendor:pglite` | Put PGlite beside `html/` (the wasm E2E job needs it) |
 | `bun run build:stack-templates` | Put the stack templates beside `run-real-stack.html` |
 
@@ -228,7 +228,8 @@ app-with-ai-tanstack/
 ├── database/       # Migrations (001–010)
 ├── html/           # Static guide + run-in-browser.html + run-real-stack.html
 ├── website/        # What businessappwithai.github.io publishes from here
-│   ├── llmtext/    #   llms-full.txt and llmdetailed.txt
+│   ├── llmtext/    #   llms-full.txt and llmdetailed.txt, plus the two
+│                   #   enhancement editions DERIVED from them
 │   └── viewers/    #   The model viewers — served at appwithai.org/viewers
 ├── tests/          # Playwright E2E suites
 └── examples/       # Sample .eml.mmd files
@@ -613,6 +614,57 @@ the service cannot forget.
 
 ---
 
+## The four protocol documents under `website/llmtext/`
+
+`llms-full.txt` and `llmdetailed.txt` tell a language model how to **write** a
+model from a brief. `llmtextenhancement.txt` and `llmdetailedenhancement.txt`
+tell it how to **change one that already exists** — the user loads their `.mmd`,
+the model reads and counts it, applies only what was asked, and hands the whole
+file back with before-and-after counts.
+
+| | Start from a brief | Start from an existing `.mmd` |
+|---|---|---|
+| **One pass** | `llms-full.txt` | `llmtextenhancement.txt` |
+| **Phased, with approval gates** | `llmdetailed.txt` §10 | `llmdetailedenhancement.txt` §10 |
+
+**The enhancement pair is derived, not authored.** Each is its base with the
+protocol section swapped and everything else — the whole language reference —
+carried across byte for byte. The deriver and its four sources live in the
+website repository (`scripts/build-llmtext-enhancement.mjs`, `scripts/llmtext/`),
+because that is where the published copies are served from; regenerate this
+repository's copies by pointing it at these bases:
+
+```bash
+node ../businessappwithai.github.io/scripts/build-llmtext-enhancement.mjs \
+  --base website/llmtext/llms-full.txt   --protocol batch \
+  --out  website/llmtext/llmtextenhancement.txt
+node ../businessappwithai.github.io/scripts/build-llmtext-enhancement.mjs \
+  --base website/llmtext/llmdetailed.txt --protocol interactive \
+  --out  website/llmtext/llmdetailedenhancement.txt
+```
+
+**Edit a base and you must regenerate its companion.** `bun run test:llmtext`
+fails otherwise — it asserts that everything before and after the protocol
+section is identical between a base and its enhancement edition, which is the
+only thing standing between four documents and four different accounts of what
+`%%rbac` does.
+
+**The protocol section is numbered differently in different shapes** — §10 in
+this repository's system edition, §1 in the site's language-only `llms-full.txt`
+— so the sources use a `{{N}}` token and never quote another document's section
+number. A source that says "`llms-full.txt` §1" is correct on the website and
+wrong here.
+
+**What the enhancement protocols add, and why `test:llmtext` checks for it.**
+Authoring fails one way: model the business badly. Enhancement fails three ways,
+and only the first is a diagnostic — prose instead of a model (`EML004`); a patch
+the user has to merge by hand; and a model that checks clean and is quietly
+smaller than the one that came in, because a smaller model is a valid model and
+nothing reports the `%%report` directives, the help text and the `%%rbac` lines
+that went missing. Both editions are held to asking for the file first, refusing
+to reconstruct a model from memory, inventorying before editing, and comparing
+against that inventory at the end.
+
 ## EML Language
 
 EML is a Mermaid-based language for ERD + business rules + workflows in one `.eml.mmd` file. `language/appwithai-language.json` is the **single source of truth** — for this repository. Two other copies exist, and they have drifted:
@@ -843,6 +895,8 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 | `language/appwithai-language.json` | ⭐ EML canonical definition |
 | `language/composer.ts` | ⭐ The only writer of complete EML documents |
 | `website/llmtext/llms-full.txt` | ⭐ The spec written for language models |
+| `website/llmtext/llmtextenhancement.txt` | `llms-full.txt` with its protocol section replaced: enhance an existing `.mmd`. **Derived — do not hand-edit** |
+| `website/llmtext/llmdetailedenhancement.txt` | `llmdetailed.txt` with its §10 replaced: the same, with approval gates. **Derived** |
 | `website/llmtext/llmdetailed.txt` | The same spec, §10 replaced by the interactive authoring walkthrough |
 | `packages/generator/src/viewers/view-model.ts` | ⭐ One reading of a model for the viewers — composed, never re-derived |
 | `website/viewers/` | ⭐ The published model viewers. `eml-model.js` is built; the rest is hand-written |
