@@ -15,6 +15,7 @@ import type { CompiledHook } from "../hooks";
 import type { EntityCategory } from "../parsers/category.parser";
 import type { CompiledRbac } from "../rbac";
 import type { CompiledReport } from "../reports";
+import type { ReportingPack } from "../reporting/pack";
 import type { CompiledRule } from "../rules";
 import type { CompiledSaga, CompiledWorkflow } from "../workflows";
 import { DEFAULT_FRONTEND_PORT } from "./ports";
@@ -94,6 +95,17 @@ export interface FullStackGeneratorOptions {
   compiledReports?: CompiledReport[];
   /** Records the bulk-seed suite creates per entity (default 1000). */
   recordsPerEntity?: number;
+  /**
+   * The reporting layer this project ships beside itself — saved queries,
+   * report and chart definitions, a dashboard, and one reporting role per
+   * `%%rbac` role.
+   *
+   * Written to `reporting/reporting-pack.json`, and read by the Enterprise
+   * Reporting platform that the generated `docker-compose.yml` brings up next
+   * to the application. Absent means no reporting services are emitted, which
+   * is what a model with no entities would get.
+   */
+  reportingPack?: ReportingPack;
 }
 
 export class FullStackGenerator {
@@ -336,6 +348,9 @@ tests/.e2e-seed-manifest.json
     // start script that image runs.
     await this.writeContainerFiles(outputDir);
 
+    // The reporting application this project ships beside itself.
+    await this.writeReportingFiles(outputDir);
+
     // Copy GitHub Actions workflows
     await this.copyGitHubWorkflows(outputDir);
   }
@@ -402,6 +417,97 @@ tests/.e2e-seed-manifest.json
         console.warn(`${file.output} generation skipped: ${(error as Error).message}`);
       }
     }
+  }
+
+  /**
+   * `reporting/` — the Enterprise Reporting platform, bundled.
+   *
+   * Three files and a directory: the pack derived from the model, a Dockerfile
+   * that fetches and builds the platform, the PostgreSQL init that gives it a
+   * database of its own, and a README naming both sets of accounts. The compose
+   * file's `report` and `report-seeder` services are what use them.
+   *
+   * Skipped entirely when no pack was derived — a model with no entities has no
+   * reporting layer, and emitting two compose services that fail to start is
+   * worse than emitting none. The compose file still names them, and compose
+   * is content to be told about a service whose build context is absent until
+   * something asks for it, which is the same trade the `single` profile makes.
+   */
+  private async writeReportingFiles(outputDir: string): Promise<void> {
+    const pack = this.options.reportingPack;
+    if (!pack) return;
+
+    const reportingDir = path.join(outputDir, "reporting");
+    await fs.mkdir(path.join(reportingDir, "pg-init"), { recursive: true });
+
+    // The pack. Pretty-printed on purpose: it is the one reporting artefact
+    // this project contains, a reader will open it to see where a report came
+    // from, and every line of it is derived from something the model declares.
+    await fs.writeFile(
+      path.join(reportingDir, "reporting-pack.json"),
+      `${JSON.stringify(pack, null, 2)}\n`
+    );
+
+    const templates: Array<{ template: string; output: string; executable?: boolean }> = [
+      { template: "reporting/Dockerfile.hbs", output: "reporting/Dockerfile" },
+      {
+        template: "reporting/pg-init/01-reporting-database.sh.hbs",
+        output: "reporting/pg-init/01-reporting-database.sh",
+        executable: true,
+      },
+      { template: "reporting/README.md.hbs", output: "reporting/README.md" },
+    ];
+
+    for (const file of templates) {
+      try {
+        const templateDir = await this.findTemplatesDir();
+        const source = path.join(templateDir, "tanstack-start-nestjs", file.template);
+        const rendered = this.renderReportingTemplate(await fs.readFile(source, "utf-8"), pack);
+        const destination = path.join(outputDir, file.output);
+        await fs.writeFile(destination, rendered);
+        if (file.executable) await fs.chmod(destination, 0o755).catch(() => {});
+      } catch (error) {
+        console.warn(`${file.output} generation skipped: ${(error as Error).message}`);
+      }
+    }
+  }
+
+  /**
+   * Substitution for the reporting templates.
+   *
+   * Plain replacement rather than Handlebars, the same choice
+   * `writeContainerFiles` makes and for the same reason: these are YAML, shell
+   * and Markdown, all full of braces of their own. The account table is built
+   * here because it is a loop over the pack, which a `.replace` cannot express
+   * and which nothing else needs.
+   */
+  private renderReportingTemplate(content: string, pack: ReportingPack): string {
+    const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const projectSnake = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+    const frontendPort = this.options.frontendPort ?? DEFAULT_FRONTEND_PORT;
+
+    const accounts = pack.access.roles
+      .map((role) => {
+        const tables = role.isAdmin
+          ? `all ${pack.access.entityTotal}`
+          : `${role.tables.length} of ${pack.access.entityTotal}`;
+        return `| \`${role.name}\` | \`${role.appEmail}\` | \`${role.email}\` | ${tables} |`;
+      })
+      .join("\n");
+
+    return content
+      .replace(/\{\{reporting\.accounts\}\}/g, accounts)
+      .replace(/\{\{reporting\.queries\}\}/g, String(pack.queries.length))
+      .replace(/\{\{reporting\.reports\}\}/g, String(pack.reports.length))
+      .replace(/\{\{reporting\.charts\}\}/g, String(pack.charts.length))
+      .replace(/\{\{reporting\.dashboards\}\}/g, String(pack.dashboards.length))
+      .replace(/\{\{reporting\.roles\}\}/g, String(pack.access.roles.length))
+      .replace(/\{\{reporting\.appPassword\}\}/g, pack.access.appPassword)
+      .replace(/\{\{reporting\.reportPassword\}\}/g, pack.access.reportPassword)
+      .replace(/\{\{project\.name \| replace '-' '_'\}\}/g, projectSnake)
+      .replace(/\{\{project\.name\}\}/g, this.options.projectName)
+      .replace(/\{\{project\.id\}\}/g, projectId)
+      .replace(/\{\{project\.frontendPort\}\}/g, String(frontendPort));
   }
 
   private async findTemplatesDir(): Promise<string> {
@@ -552,6 +658,25 @@ ${this.options.projectDescription}
 ## Tech Stack
 
 ${stackInfo}
+
+## Two applications
+
+\`docker compose up --build\` brings up **two** applications, not one:
+
+| | |
+|---|---|
+| http://localhost:${this.options.frontendPort ?? DEFAULT_FRONTEND_PORT} | **${this.options.projectName}** — this application |
+| http://localhost:3100 | **Enterprise Reporting** — its reports, charts and dashboard |
+
+The second is the Enterprise Reporting platform, pointed at this application's
+database and seeded with the reporting layer derived from the same model. It has
+**its own sign-in and its own accounts**: a role here decides which of this
+application's tables your queries may *read*, where a role in the application
+decides what you may *do* to a record. The names line up; neither password works
+on the other side.
+
+\`reporting/README.md\` names both sets of accounts, says what is in the pack,
+and explains what to set before the first start.
 
 ## Features
 

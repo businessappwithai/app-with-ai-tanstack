@@ -641,3 +641,71 @@ a { color: var(--primary); }
 @media (max-width: 860px) {
   .report-layout { grid-template-columns: 1fr; }
 }
+
+/* --------------------------------------------------- reporting ---------- */
+
+/*
+ * The reporting application, told apart from the one it reports on.
+ *
+ * The same design system — two applications generated from one model should not
+ * look like two products — with one deliberate difference: a slate accent
+ * instead of the teal. A reader who is signed into both at once in one tab has
+ * to be able to tell, at a glance, which one they are looking at, and the
+ * masthead is the only thing always on screen.
+ */
+:root {
+  --reporting: #3f4a5a;
+  --reporting-soft: #eef1f5;
+}
+
+.login--report .login__aside { background: var(--reporting-soft); }
+.login__mark--report { background: var(--reporting); }
+.login--report .btn--primary { background: var(--reporting); border-color: var(--reporting); }
+.login--report .btn--primary:hover { background: #313a47; border-color: #313a47; }
+.login--report .login__hint { background: var(--reporting-soft); }
+.login__aside-note {
+  margin: 18px 0 20px; font-size: 12.5px; line-height: 1.55; color: var(--text-soft);
+}
+
+.masthead--report { border-bottom: 2px solid var(--reporting); }
+.masthead__badge {
+  padding: 4px 9px; border-radius: 999px; background: var(--reporting); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.avatar--report { background: var(--reporting); }
+.shell--report .actionbar .btn.is-active {
+  background: var(--reporting); border-color: var(--reporting); color: #fff;
+}
+.crumbs__note { color: var(--text-faint); font-size: 12px; }
+
+/* The dashboard's tiles: one chart each, in a grid that collapses on a phone. */
+.report-grid {
+  display: grid; gap: 14px; margin: 14px 0 26px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+}
+.report-tile {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 16px; min-width: 0;
+}
+.report-tile h3 { margin: 0 0 8px; font-size: 14px; }
+.report-tile .report-chart { color: var(--reporting); width: 100%; height: auto; }
+
+.report-tables {
+  display: grid; gap: 4px; margin: 10px 0 24px; padding: 0; list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+}
+.report-tables li { font-size: 12.5px; }
+
+/* A saved query, shown where a reader asks where a number came from. */
+.report-sql { margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 13px; background: var(--surface); }
+.report-sql > summary { cursor: pointer; font-size: 13px; font-weight: 500; }
+.report-sql pre {
+  margin: 10px 0 0; padding: 11px 12px; overflow-x: auto;
+  background: var(--surface-2); border-radius: var(--radius-sm);
+  font-family: var(--mono); font-size: 12px; line-height: 1.5;
+}
+.shell--report .report-chart { color: var(--reporting); }
+
+/* The entry point on the application's own dashboard. */
+.category--reporting .category__count { color: var(--reporting); font-weight: 600; text-transform: none; }
+.card--reporting { border-left: 3px solid var(--reporting); }

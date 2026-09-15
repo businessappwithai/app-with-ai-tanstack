@@ -17,6 +17,7 @@ import { Router } from "./lib/router.js";
 import { errorResponse, json, notFound } from "./lib/http.js";
 import { Database } from "./lib/db.js";
 import { resolveSession } from "./lib/auth.js";
+import { resolveReportSession } from "./lib/report-auth.js";
 import { migrate } from "./migrate.js";
 import { authRoutes } from "./modules/auth.routes.js";
 import { sysRoutes } from "./modules/sys.routes.js";
@@ -26,6 +27,8 @@ import { workflowRoutes } from "./modules/workflow.routes.js";
 import { auditRoutes } from "./modules/audit.routes.js";
 import { modelRoutes } from "./modules/model.routes.js";
 import { reportsRoutes } from "./modules/reports.routes.js";
+import { reportAuthRoutes } from "./modules/report-auth.routes.js";
+import { reportingRoutes } from "./modules/reporting.routes.js";
 
 const MIME = {
   html: "text/html; charset=utf-8",
@@ -83,6 +86,20 @@ export async function createServer(options) {
   api.mount("/reports", reportsRoutes(model));
   api.mount("/model", modelRoutes(model, readAsset));
 
+  /*
+   * The reporting application, mounted beside the one it reports on.
+   *
+   * Two applications, one server — which is what a browser tab can hold, and
+   * not what the deployed pair is: there, `docker compose` runs the generated
+   * application and the Enterprise Reporting platform as separate services with
+   * separate databases behind one proxy. What is the same either way is the part
+   * a reader meets: a sign-in of its own, roles of its own, and reports scoped
+   * to what each role may read. These routes never consult the application's
+   * session and its routes never consult theirs.
+   */
+  api.mount("/report-auth", reportAuthRoutes(model));
+  api.mount("/reporting", reportingRoutes(model));
+
   // `/workflow-definitions` is what the dictionary screens ask for; keeping the
   // alias here rather than duplicating handlers means one implementation.
   api.mount("/workflow-definitions", (() => {
@@ -98,9 +115,21 @@ export async function createServer(options) {
     return alias;
   })());
 
-  /** Everything a handler needs, resolved once per request. */
+  /**
+   * Everything a handler needs, resolved once per request.
+   *
+   * Both sessions, every time, and independently: a reader can be signed into
+   * the application and the reporting platform at once, or into either alone,
+   * and no route may infer one from the other. `user` is the application's
+   * caller and `reportUser` the reporting one; a handler that wants the other
+   * product's session has asked the wrong question.
+   */
   async function context(request) {
-    return { db, model, user: await resolveSession(db, request) };
+    const [user, reportUser] = await Promise.all([
+      resolveSession(db, request),
+      resolveReportSession(db, request),
+    ]);
+    return { db, model, user, reportUser };
   }
 
   async function handleApi(request, pathname) {

@@ -124,6 +124,43 @@ export async function dashboardView(root, { entities, navigate, project, user })
           )
         ),
 
+      /*
+       * The other application generated from this model.
+       *
+       * A section of its own rather than a card in the dictionary grid, because
+       * it is not a screen of this application: it has its own accounts, and
+       * clicking through lands on a sign-in rather than on a report. Saying so
+       * here is the point — a reader who is never told the reporting platform
+       * exists has had it built for them and cannot find it.
+       */
+      el(
+        "section.category.category--reporting",
+        el(
+          "div.category__head",
+          el("span.category__name", "Enterprise Reporting"),
+          el("span.category__count", "separate sign-in")
+        ),
+        el(
+          "p.category__desc",
+          "The reporting application built from the same model — its reports, charts and dashboard, " +
+            "and one reporting role per role this model declares. It keeps its own accounts, so it " +
+            "asks you to sign in again."
+        ),
+        el(
+          "div.cards",
+          el(
+            "button.card.card--reporting",
+            { onclick: () => navigate("/report") },
+            el("div.card__top", el("span.card__icon", "▦"), el("span.card__name", "Open reporting")),
+            el("span.card__arrow", "→"),
+            el(
+              "p.card__sub",
+              "Sign in as a reporting role and see exactly the tables it may read"
+            )
+          )
+        )
+      ),
+
       el(
         "section.category",
         el(

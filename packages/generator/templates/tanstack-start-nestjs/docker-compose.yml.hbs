@@ -52,6 +52,10 @@ services:
       # to start.
 
       - postgres_data:/var/lib/postgresql
+      # Creates `enterprise_config` — the reporting platform's own database —
+      # on the first start of a fresh volume. Read-only, and it runs before
+      # anything connects. See reporting/pg-init/01-reporting-database.sh.
+      - ./reporting/pg-init:/docker-entrypoint-initdb.d:ro
     # Electric follows the write-ahead log, which it can only do when the log
     # carries row data. Without this the electric service starts and then fails
     # on its first shape request.
@@ -224,6 +228,104 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # The reporting application.
+  #
+  # A second application, on a second port, with a sign-in of its own. The
+  # Enterprise Reporting platform — connect a database, ask questions of it in
+  # natural language, publish the answers as reports, charts and dashboards —
+  # pointed at *this* application's database and seeded with the reporting layer
+  # derived from the same model this application was generated from.
+  #
+  # Two logins, and they are not merged. A role here decides which of this
+  # application's tables a user's queries may read; a role in the application
+  # decides what they may do to a record. The names line up, deliberately, so
+  # that `sales_manager` on one side is recognisable on the other — but they are
+  # separate accounts in separate databases and neither password works on the
+  # other side. `reporting/README.md` has the addresses.
+  #
+  # Not started by default is *not* the arrangement: it comes up with
+  # `docker compose up`. Leave it out with
+  # `docker compose up postgres backend frontend`.
+  # ─────────────────────────────────────────────────────────────────────────
+  report:
+    image: {{project.id}}-report:${IMAGE_TAG:-latest}
+    build:
+      # `./reporting`, which holds a Dockerfile that fetches the platform at
+      # REPORT_REF and builds it. The platform is a separate product and is not
+      # vendored into this project — see the notes in that file.
+      context: ./reporting
+      dockerfile: Dockerfile
+      args:
+        REPORT_REF: ${REPORT_REF:-main}
+    restart: unless-stopped
+    ports:
+      - "${REPORT_PORT:-3100}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Its own database, never this application's. A regeneration drops and
+      # recreates the application's tables; the reports have to survive that.
+      DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@postgres:5432/enterprise_config
+      GRAPH_DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@postgres:5432/ers_knowledge
+      # Both are required, and both have to be stable across restarts.
+      #
+      # ENCRYPTION_KEY in particular: it is what the platform encrypts stored
+      # data-source passwords with, so regenerating it leaves every connection
+      # undecryptable and the failure looks like a broken data source rather
+      # than a rotated key. Set them in `.env` before the first start.
+      AUTH_SECRET: ${REPORT_AUTH_SECRET:-change-me-in-production-at-least-32-chars}
+      ENCRYPTION_KEY: ${REPORT_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    # `restart: unless-stopped` above is the whole dependency story, and there
+    # is deliberately no `depends_on` for the database: the platform bootstraps
+    # its own schema on the first request, so it may start first and be
+    # restarted until PostgreSQL answers.
+
+  # The one-shot seeder.
+  #
+  # Runs after the application has migrated, then exits. It registers this
+  # application's database as a data source with its password encrypted the way
+  # the platform expects, introspects and caches its schema, and writes the
+  # pack's saved queries, reports, charts, dashboards and reporting roles.
+  #
+  # Idempotent by name, which is why it runs on every `docker compose up`
+  # rather than only the first: a second run updates in place.
+  #
+  # It is the platform's own script (`scripts/seed-reporting-pack.ts`), run in
+  # the platform's own image — not a copy of it living in this project. A
+  # seeder with its own encryption or its own schema-cache shape would drift
+  # from the reader, and the failure is a data source that exists and cannot be
+  # opened.
+  report-seeder:
+    image: {{project.id}}-report:${IMAGE_TAG:-latest}
+    build:
+      context: ./reporting
+      dockerfile: Dockerfile
+      args:
+        REPORT_REF: ${REPORT_REF:-main}
+    restart: "no"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@postgres:5432/enterprise_config
+      # The database it is registering *as a data source* — this application's.
+      APP_DATABASE_URL: postgres://${DB_USER:-app}:${DB_PASSWORD:-app}@postgres:5432/{{project.name | replace '-' '_'}}
+      REPORTING_PACK: /pack/reporting-pack.json
+      ENCRYPTION_KEY: ${REPORT_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+      AUTH_SECRET: ${REPORT_AUTH_SECRET:-change-me-in-production-at-least-32-chars}
+    volumes:
+      # The pack, read-only. It is the one reporting artefact this project
+      # contains, and it is derived entirely from the model.
+      - ./reporting/reporting-pack.json:/pack/reporting-pack.json:ro
+    # It waits for what it needs itself, and for the right things: both
+    # databases reachable, then the application's `bus_` tables to *exist*.
+    # `depends_on` covers a container, not a schema — the application migrates
+    # on start, and an empty database means "not migrated yet" rather than
+    # "nothing to report on", which would cache a data source the platform
+    # believes has no tables in it. Calling `getDb()` bootstraps the platform's
+    # own schema, so the seeder needs no running `report` service either.
+    command: ["bun", "scripts/seed-reporting-pack.ts"]
 
 volumes:
   postgres_data:

@@ -18001,6 +18001,7 @@ tests/.e2e-seed-manifest.json
 `;
     await writeFile(join(outputDir, ".gitignore"), gitignore);
     await this.writeContainerFiles(outputDir);
+    await this.writeReportingFiles(outputDir);
     await this.copyGitHubWorkflows(outputDir);
   }
   async writeContainerFiles(outputDir) {
@@ -18034,6 +18035,48 @@ tests/.e2e-seed-manifest.json
         console.warn(`${file.output} generation skipped: ${error.message}`);
       }
     }
+  }
+  async writeReportingFiles(outputDir) {
+    const pack = this.options.reportingPack;
+    if (!pack)
+      return;
+    const reportingDir = join(outputDir, "reporting");
+    await mkdir(join(reportingDir, "pg-init"), { recursive: true });
+    await writeFile(join(reportingDir, "reporting-pack.json"), `${JSON.stringify(pack, null, 2)}
+`);
+    const templates2 = [
+      { template: "reporting/Dockerfile.hbs", output: "reporting/Dockerfile" },
+      {
+        template: "reporting/pg-init/01-reporting-database.sh.hbs",
+        output: "reporting/pg-init/01-reporting-database.sh",
+        executable: true
+      },
+      { template: "reporting/README.md.hbs", output: "reporting/README.md" }
+    ];
+    for (const file of templates2) {
+      try {
+        const templateDir = await this.findTemplatesDir();
+        const source = join(templateDir, "tanstack-start-nestjs", file.template);
+        const rendered = this.renderReportingTemplate(await readFile(source, "utf-8"), pack);
+        const destination = join(outputDir, file.output);
+        await writeFile(destination, rendered);
+        if (file.executable)
+          await chmod(destination, 493).catch(() => {});
+      } catch (error) {
+        console.warn(`${file.output} generation skipped: ${error.message}`);
+      }
+    }
+  }
+  renderReportingTemplate(content, pack) {
+    const projectId = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const projectSnake = this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+    const frontendPort = this.options.frontendPort ?? DEFAULT_FRONTEND_PORT;
+    const accounts = pack.access.roles.map((role) => {
+      const tables = role.isAdmin ? `all ${pack.access.entityTotal}` : `${role.tables.length} of ${pack.access.entityTotal}`;
+      return `| \`${role.name}\` | \`${role.appEmail}\` | \`${role.email}\` | ${tables} |`;
+    }).join(`
+`);
+    return content.replace(/\{\{reporting\.accounts\}\}/g, accounts).replace(/\{\{reporting\.queries\}\}/g, String(pack.queries.length)).replace(/\{\{reporting\.reports\}\}/g, String(pack.reports.length)).replace(/\{\{reporting\.charts\}\}/g, String(pack.charts.length)).replace(/\{\{reporting\.dashboards\}\}/g, String(pack.dashboards.length)).replace(/\{\{reporting\.roles\}\}/g, String(pack.access.roles.length)).replace(/\{\{reporting\.appPassword\}\}/g, pack.access.appPassword).replace(/\{\{reporting\.reportPassword\}\}/g, pack.access.reportPassword).replace(/\{\{project\.name \| replace '-' '_'\}\}/g, projectSnake).replace(/\{\{project\.name\}\}/g, this.options.projectName).replace(/\{\{project\.id\}\}/g, projectId).replace(/\{\{project\.frontendPort\}\}/g, String(frontendPort));
   }
   async findTemplatesDir() {
     const cwd = process.cwd();
@@ -18132,6 +18175,25 @@ ${this.options.projectDescription}
 
 ${stackInfo}
 
+## Two applications
+
+\`docker compose up --build\` brings up **two** applications, not one:
+
+| | |
+|---|---|
+| http://localhost:${this.options.frontendPort ?? DEFAULT_FRONTEND_PORT} | **${this.options.projectName}** — this application |
+| http://localhost:3100 | **Enterprise Reporting** — its reports, charts and dashboard |
+
+The second is the Enterprise Reporting platform, pointed at this application's
+database and seeded with the reporting layer derived from the same model. It has
+**its own sign-in and its own accounts**: a role here decides which of this
+application's tables your queries may *read*, where a role in the application
+decides what you may *do* to a record. The names line up; neither password works
+on the other side.
+
+\`reporting/README.md\` names both sets of accounts, says what is in the pack,
+and explains what to set before the first start.
+
 ## Features
 
 - **Compiere-style Application Dictionary**: Runtime-configurable UI via sys_field metadata
@@ -18223,6 +18285,514 @@ MIT
   }
 }
 
+// packages/generator/src/naming/tables.ts
+var snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase();
+function tableNameFor(entity2) {
+  const base = snake(entity2.tableName || entity2.name);
+  return base.startsWith("bus_") || base.startsWith("sys_") ? base : `bus_${base}`;
+}
+
+// packages/generator/src/reporting/pack.ts
+var APP_PASSWORD = "admin123";
+var REPORT_PASSWORD = "admin";
+function titleOf(e) {
+  return e.name.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+}
+function pluralTitle(e) {
+  const t = titleOf(e);
+  if (/[^aeiou]y$/i.test(t))
+    return `${t.slice(0, -1)}ies`;
+  if (/(s|x|z|ch|sh)$/i.test(t))
+    return `${t}es`;
+  return `${t}s`;
+}
+function labelOf(column) {
+  return column.replace(/_id$/, "").replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+function helpOf(e) {
+  const h = e.description?.trim();
+  if (h)
+    return h.replace(/\s+/g, " ");
+  return `Rows of ${pluralTitle(e).toLowerCase()} held by the application.`;
+}
+function lit(value) {
+  return `'${value.replace(/'/g, "''")}'`;
+}
+function tablesIn(sql) {
+  const found = new Set;
+  for (const match of sql.matchAll(/\bbus_[a-z0-9_]+\b/g))
+    found.add(match[0]);
+  return [...found].sort();
+}
+function kebabName(value) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "app";
+}
+var AUDIT_COLUMNS = new Set([
+  "created_at",
+  "updated_at",
+  "deleted_at",
+  "created_by",
+  "updated_by",
+  "deleted_by",
+  "version"
+]);
+function businessColumns(e) {
+  return e.attributes.filter((a) => a.name !== e.primaryKey && !AUDIT_COLUMNS.has(a.name));
+}
+function displayColumn(e) {
+  const cols = businessColumns(e).filter((a) => !a.isForeignKey);
+  const byName = cols.find((a) => /^(name|title|label|code|reference|subject)$/.test(a.name));
+  if (byName)
+    return byName.name;
+  const unique = cols.find((a) => a.unique && (a.type === "string" || a.type === "text"));
+  if (unique)
+    return unique.name;
+  const email = cols.find((a) => /email/.test(a.name));
+  if (email)
+    return email.name;
+  const firstString = cols.find((a) => a.type === "string");
+  return firstString?.name ?? e.primaryKey;
+}
+function enumColumns(e) {
+  const bound = businessColumns(e).filter((a) => a.enumRef);
+  const rank = (a) => {
+    if (/^(status|state)$/.test(a.name))
+      return 0;
+    if (/(stage|phase|priority)/.test(a.name))
+      return 1;
+    if (/(type|tier|category|kind)/.test(a.name))
+      return 2;
+    return 3;
+  };
+  return [...bound].sort((x, y) => rank(x) - rank(y) || x.name.localeCompare(y.name));
+}
+function measureColumns(e) {
+  return businessColumns(e).filter((a) => !a.isForeignKey && (a.type === "integer" || a.type === "decimal"));
+}
+function declaredStates(w) {
+  const seen = [];
+  const push = (s) => {
+    const v = s.trim();
+    if (!v || v === "[*]" || seen.includes(v))
+      return;
+    seen.push(v);
+  };
+  for (const s of w.states)
+    push(s.name);
+  for (const t of w.transitions) {
+    push(t.from);
+    push(t.to);
+  }
+  return seen;
+}
+function linkColumn(parent, child, relForeignKey) {
+  const expected = `${tableNameFor(parent).replace(/^bus_/, "")}_id`;
+  return child.attributes.find((a) => a.name === expected) ?? (relForeignKey ? child.attributes.find((a) => a.name === relForeignKey) : undefined);
+}
+function addQuery(ctx, spec) {
+  ctx.queries.push({ ...spec, tables: tablesIn(spec.sql) });
+  return spec.key;
+}
+function deriveEntity(ctx, e) {
+  const table = tableNameFor(e);
+  const slug = table.replace(/^bus_/, "");
+  const display = displayColumn(e);
+  const help = helpOf(e);
+  const live = "deleted_at IS NULL";
+  const registerCols = [
+    display,
+    ...enumColumns(e).slice(0, 2).map((a) => a.name),
+    ...measureColumns(e).slice(0, 2).map((a) => a.name)
+  ].filter((c, i, all) => all.indexOf(c) === i);
+  const registerSelect = [...registerCols, "created_at", "updated_at"].join(", ");
+  const qRegister = addQuery(ctx, {
+    key: `${slug}__register`,
+    name: `${pluralTitle(e)} — register`,
+    description: `${help} Newest first.`,
+    sql: `SELECT ${registerSelect}
+FROM ${table}
+WHERE ${live}
+ORDER BY created_at DESC
+LIMIT 500`
+  });
+  ctx.reports.push({
+    key: `${slug}__register`,
+    name: `${pluralTitle(e)} — register`,
+    description: help,
+    queryKey: qRegister,
+    columns: [...registerCols, "created_at", "updated_at"].map((c) => ({
+      field: c,
+      label: labelOf(c)
+    })),
+    pageSize: 50
+  });
+  for (const col of enumColumns(e).slice(0, 2)) {
+    const values = col.enumValues ?? ctx.model.enums.find((en) => en.name === col.enumRef)?.values ?? [];
+    const key = `${slug}__by_${col.name}`;
+    const q = addQuery(ctx, {
+      key,
+      name: `${pluralTitle(e)} by ${labelOf(col.name).toLowerCase()}`,
+      description: col.description?.trim() ?? `How ${pluralTitle(e).toLowerCase()} divide across ${labelOf(col.name).toLowerCase()}.`,
+      sql: `SELECT COALESCE(${col.name}, '(unset)') AS bucket, COUNT(*) AS records
+FROM ${table}
+WHERE ${live}
+GROUP BY 1
+ORDER BY records DESC`
+    });
+    ctx.charts.push({
+      key,
+      name: `${pluralTitle(e)} by ${labelOf(col.name).toLowerCase()}`,
+      description: col.description?.trim() ?? `${help} Grouped by ${labelOf(col.name).toLowerCase()}.`,
+      queryKey: q,
+      chartType: values.length > 0 && values.length <= 6 ? "pie" : "bar",
+      xField: "bucket",
+      yField: "records"
+    });
+    ctx.reports.push({
+      key,
+      name: `${pluralTitle(e)} by ${labelOf(col.name).toLowerCase()}`,
+      description: `Counts of ${pluralTitle(e).toLowerCase()} per ${labelOf(col.name).toLowerCase()}.`,
+      queryKey: q,
+      columns: [
+        { field: "bucket", label: labelOf(col.name) },
+        { field: "records", label: "Records" }
+      ],
+      pageSize: 50
+    });
+  }
+  const qVolume = addQuery(ctx, {
+    key: `${slug}__volume_by_month`,
+    name: `${pluralTitle(e)} created per month`,
+    description: `New ${pluralTitle(e).toLowerCase()} per month over the last two years.`,
+    sql: `SELECT date_trunc('month', created_at)::date AS month, COUNT(*) AS records
+FROM ${table}
+WHERE ${live} AND created_at >= now() - interval '24 months'
+GROUP BY 1
+ORDER BY 1`
+  });
+  ctx.charts.push({
+    key: `${slug}__volume_by_month`,
+    name: `${pluralTitle(e)} created per month`,
+    description: `${help} Counted by the month the record was created.`,
+    queryKey: qVolume,
+    chartType: "line",
+    xField: "month",
+    yField: "records"
+  });
+  const wf = ctx.model.workflows.find((w) => w.entity === e.name);
+  const statusCol = enumColumns(e).find((a) => /^(status|state)$/.test(a.name))?.name;
+  if (wf && statusCol) {
+    const states = declaredStates(wf);
+    if (states.length > 0) {
+      const valuesList = states.map((s, i) => `(${lit(s)}, ${i})`).join(", ");
+      const key = `${slug}__lifecycle`;
+      const q = addQuery(ctx, {
+        key,
+        name: `${titleOf(e)} lifecycle — ${wf.name}`,
+        description: `Where ${pluralTitle(e).toLowerCase()} sit in the ${wf.name} state machine. Every state the model declares appears, including the ones nothing has reached.`,
+        sql: `WITH declared(state, position) AS (
+  VALUES ${valuesList}
+)
+SELECT d.state, COALESCE(c.records, 0) AS records
+FROM declared d
+LEFT JOIN (
+  SELECT ${statusCol} AS state, COUNT(*) AS records
+  FROM ${table}
+  WHERE ${live}
+  GROUP BY 1
+) c ON c.state = d.state
+ORDER BY d.position`
+      });
+      ctx.reports.push({
+        key,
+        name: `${titleOf(e)} lifecycle — ${wf.name}`,
+        description: `Where ${pluralTitle(e).toLowerCase()} sit in the ${wf.name} state machine, in the order the diagram draws it.`,
+        queryKey: q,
+        columns: [
+          { field: "state", label: "State" },
+          { field: "records", label: "Records" }
+        ],
+        pageSize: 50
+      });
+      ctx.charts.push({
+        key,
+        name: `${titleOf(e)} lifecycle`,
+        description: `${pluralTitle(e)} per declared state of ${wf.name}.`,
+        queryKey: q,
+        chartType: "bar",
+        xField: "state",
+        yField: "records"
+      });
+    }
+  }
+  const measures = measureColumns(e);
+  if (measures.length > 0) {
+    const groupCol = enumColumns(e)[0]?.name;
+    const aggregates = measures.slice(0, 4).flatMap((m) => [
+      `SUM(${m.name}) AS total_${m.name}`,
+      `ROUND(AVG(${m.name})::numeric, 2) AS avg_${m.name}`
+    ]);
+    const key = `${slug}__measures`;
+    const sql = groupCol ? `SELECT COALESCE(${groupCol}, '(unset)') AS bucket, COUNT(*) AS records, ${aggregates.join(", ")}
+FROM ${table}
+WHERE ${live}
+GROUP BY 1
+ORDER BY records DESC` : `SELECT COUNT(*) AS records, ${aggregates.join(", ")}
+FROM ${table}
+WHERE ${live}`;
+    const q = addQuery(ctx, {
+      key,
+      name: `${pluralTitle(e)} — measures`,
+      description: `Totals and averages over the numeric columns of ${pluralTitle(e).toLowerCase()}${groupCol ? `, by ${labelOf(groupCol).toLowerCase()}` : ""}.`,
+      sql
+    });
+    ctx.reports.push({
+      key,
+      name: `${pluralTitle(e)} — measures`,
+      description: `Totals and averages${groupCol ? ` by ${labelOf(groupCol).toLowerCase()}` : ""}. ${help}`,
+      queryKey: q,
+      columns: [
+        ...groupCol ? [{ field: "bucket", label: labelOf(groupCol) }] : [],
+        { field: "records", label: "Records" },
+        ...measures.slice(0, 4).flatMap((m) => [
+          { field: `total_${m.name}`, label: `Total ${labelOf(m.name).toLowerCase()}` },
+          { field: `avg_${m.name}`, label: `Average ${labelOf(m.name).toLowerCase()}` }
+        ])
+      ],
+      pageSize: 50
+    });
+  }
+}
+function addAuthoredReports(ctx) {
+  for (const r of ctx.model.reports) {
+    const key = `authored__${r.name}`;
+    const description = r.help?.trim() ?? `Declared in the model as %%report ${r.name}.`;
+    addQuery(ctx, { key, name: r.title, description, sql: r.sql });
+    const columns = r.chart && r.x && r.y ? [
+      { field: r.x, label: labelOf(r.x) },
+      { field: r.y, label: labelOf(r.y) }
+    ] : [];
+    ctx.reports.push({ key, name: r.title, description, queryKey: key, columns, pageSize: 50 });
+    if (r.chart && r.x && r.y) {
+      ctx.charts.push({
+        key,
+        name: r.title,
+        description,
+        queryKey: key,
+        chartType: r.chart,
+        xField: r.x,
+        yField: r.y
+      });
+    }
+  }
+}
+function deriveRelationships(ctx) {
+  const byName = new Map(ctx.model.entities.map((e) => [e.name, e]));
+  for (const rel of ctx.model.relationships) {
+    if (rel.cardinality !== "oneToMany")
+      continue;
+    const parent = byName.get(rel.sourceEntity);
+    const child = byName.get(rel.targetEntity);
+    if (!parent || !child)
+      continue;
+    const fk = linkColumn(parent, child, rel.foreignKey);
+    if (!fk)
+      continue;
+    const parentDisplay = displayColumn(parent);
+    const parentSlug = tableNameFor(parent).replace(/^bus_/, "");
+    const childSlug = tableNameFor(child).replace(/^bus_/, "");
+    const key = `${childSlug}__per_${parentSlug}`;
+    const sameType = fk.isForeignKey && (fk.name.endsWith("_id") || fk.name.endsWith("_by"));
+    const parentKey = sameType ? `p.${parent.primaryKey}` : `p.${parent.primaryKey}::text`;
+    const q = addQuery(ctx, {
+      key,
+      name: `${pluralTitle(child)} per ${titleOf(parent).toLowerCase()}`,
+      description: `How many ${pluralTitle(child).toLowerCase()} each ${titleOf(parent).toLowerCase()} has, most first. Derived from the ${rel.name.replace(/_/g, " ")} relationship the model draws.`,
+      sql: `SELECT p.${parentDisplay} AS ${parentSlug}, COUNT(c.${child.primaryKey}) AS records
+FROM ${tableNameFor(parent)} p
+LEFT JOIN ${tableNameFor(child)} c
+  ON c.${fk.name} = ${parentKey} AND c.deleted_at IS NULL
+WHERE p.deleted_at IS NULL
+GROUP BY 1
+ORDER BY records DESC
+LIMIT 50`
+    });
+    ctx.reports.push({
+      key,
+      name: `${pluralTitle(child)} per ${titleOf(parent).toLowerCase()}`,
+      description: `${helpOf(parent)} Counted by the ${pluralTitle(child).toLowerCase()} attached to each.`,
+      queryKey: q,
+      columns: [
+        { field: parentSlug, label: titleOf(parent) },
+        { field: "records", label: pluralTitle(child) }
+      ],
+      pageSize: 50
+    });
+    ctx.charts.push({
+      key,
+      name: `${pluralTitle(child)} per ${titleOf(parent).toLowerCase()}`,
+      description: `The ${titleOf(parent).toLowerCase()} records carrying the most ${pluralTitle(child).toLowerCase()}.`,
+      queryKey: q,
+      chartType: "bar",
+      xField: parentSlug,
+      yField: "records"
+    });
+  }
+}
+function centrality(model, e) {
+  const incoming = model.relationships.filter((r) => r.sourceEntity === e.name).length;
+  const outgoing = model.relationships.filter((r) => r.targetEntity === e.name).length;
+  const hasState = model.workflows.some((w) => w.entity === e.name) ? 3 : 0;
+  const hasMeasures = measureColumns(e).length > 0 ? 1 : 0;
+  return incoming * 2 + outgoing + hasState + hasMeasures;
+}
+function deriveDashboards(ctx, appName, appDescription) {
+  const model = ctx.model;
+  const ranked = [...model.entities].sort((a, b) => centrality(model, b) - centrality(model, a));
+  const headline = ranked.slice(0, 6);
+  const widgets = [];
+  let x = 0;
+  let y = 0;
+  const place = (title, chartKey) => {
+    widgets.push({ chartKey, title, x, y, w: 6, h: 4 });
+    x += 6;
+    if (x >= 12) {
+      x = 0;
+      y += 4;
+    }
+  };
+  for (const c of ctx.charts.filter((c2) => c2.key.startsWith("authored__")).slice(0, 4)) {
+    place(c.name, c.key);
+  }
+  for (const e of headline) {
+    const slug = tableNameFor(e).replace(/^bus_/, "");
+    const lifecycle = ctx.charts.find((c) => c.key === `${slug}__lifecycle`);
+    const breakdown = ctx.charts.find((c) => c.key.startsWith(`${slug}__by_`));
+    const volume = ctx.charts.find((c) => c.key === `${slug}__volume_by_month`);
+    const chosen = lifecycle ?? breakdown ?? volume;
+    if (chosen)
+      place(chosen.name, chosen.key);
+  }
+  return [
+    {
+      key: "overview",
+      name: `${appName} — overview`,
+      description: appDescription?.trim() || `The ${headline.length} entities this model puts at the centre of ${appName}, one tile each.`,
+      widgets
+    }
+  ];
+}
+function dropDerivedDuplicatesOfAuthored(ctx) {
+  const authoredNames = new Set([...ctx.reports, ...ctx.charts, ...ctx.queries].filter((x) => x.key.startsWith("authored__")).map((x) => x.name));
+  if (authoredNames.size === 0)
+    return;
+  const keep = (items) => items.filter((x) => x.key.startsWith("authored__") || !authoredNames.has(x.name));
+  const droppedQueryKeys = new Set(ctx.queries.filter((q) => !q.key.startsWith("authored__") && authoredNames.has(q.name)).map((q) => q.key));
+  ctx.queries = keep(ctx.queries);
+  ctx.reports = keep(ctx.reports).filter((r) => !droppedQueryKeys.has(r.queryKey));
+  ctx.charts = keep(ctx.charts).filter((c) => !droppedQueryKeys.has(c.queryKey));
+}
+function assertNamesUnique(ctx, dashboards) {
+  const collections = [
+    ["queries", ctx.queries],
+    ["reports", ctx.reports],
+    ["charts", ctx.charts],
+    ["dashboards", dashboards]
+  ];
+  const problems = [];
+  for (const [label, items] of collections) {
+    const byName = new Map;
+    for (const item of items) {
+      byName.set(item.name, [...byName.get(item.name) ?? [], item.key]);
+    }
+    for (const [name, keys] of byName) {
+      if (keys.length > 1)
+        problems.push(`  ${label}: "${name}" ← ${keys.join(", ")}`);
+    }
+  }
+  if (problems.length > 0) {
+    throw new Error(`The reporting pack has items sharing a name. The reporting platform upserts by name, so these would collapse into one row:
+${problems.join(`
+`)}`);
+  }
+}
+function deriveAccessSpec(model, options) {
+  const projectId = kebabName(options.projectName);
+  const access2 = deriveAccess(model.rbac, {
+    projectId,
+    adminEmail: options.adminEmail,
+    adminName: options.adminName,
+    entities: model.entities.map((e) => e.name)
+  });
+  const reportDomain = `${projectId || "app"}.reports.example.com`;
+  const roles = access2.roles.map((role) => {
+    const appUser = access2.users.find((u) => u.roleName === role.name);
+    const tables = role.isAdmin ? [] : model.entities.filter((entity2) => {
+      const admitted = access2.entityVisibility[entity2.name];
+      if (!admitted || admitted.length === 0)
+        return true;
+      return admitted.some((r) => r.toLowerCase() === role.declaredAs.toLowerCase());
+    }).map((entity2) => tableNameFor(entity2));
+    return {
+      name: role.name,
+      declaredAs: role.declaredAs,
+      description: role.isAdmin ? "Reads every table of the attached application" : `Reads what ${role.name} may see in the application`,
+      isAdmin: role.isAdmin,
+      email: role.isAdmin ? appUser?.email ?? "admin@admin.com" : `${role.declaredAs.toLowerCase().split(/[\s_-]+/).filter(Boolean).join(".")}@${reportDomain}`,
+      appEmail: appUser?.email ?? "admin@admin.com",
+      tables
+    };
+  });
+  for (const role of roles) {
+    if (role.isAdmin)
+      continue;
+    const expected = access2.entityCounts[role.name];
+    if (expected !== undefined && expected !== role.tables.length) {
+      throw new Error(`Reporting role "${role.name}" resolved ${role.tables.length} readable tables, ` + `but the application derives ${expected} for the same role. ` + `These must agree — the reporting side is mirroring %%rbac, not reinterpreting it.`);
+    }
+  }
+  return {
+    roles,
+    scoped: roles.some((role) => !role.isAdmin && role.tables.length < model.entities.length),
+    entityTotal: model.entities.length,
+    appPassword: APP_PASSWORD,
+    reportPassword: REPORT_PASSWORD
+  };
+}
+function buildReportingPack(model, options) {
+  if (model.entities.length === 0) {
+    throw new Error("Cannot derive a reporting pack: the model declares no entities.");
+  }
+  const ctx = { model, queries: [], reports: [], charts: [] };
+  addAuthoredReports(ctx);
+  for (const e of model.entities)
+    deriveEntity(ctx, e);
+  deriveRelationships(ctx);
+  dropDerivedDuplicatesOfAuthored(ctx);
+  const appName = options.applicationName?.trim() || options.projectName;
+  const dashboards = deriveDashboards(ctx, appName, options.projectDescription);
+  assertNamesUnique(ctx, dashboards);
+  return {
+    application: {
+      name: appName,
+      description: options.projectDescription?.trim() || `${appName}: ${model.entities.length} entities, ${model.workflows.length + model.sagas.length} workflows.`,
+      model: options.modelFileName ?? `${kebabName(appName)}.eml.mmd`,
+      databaseName: options.databaseName,
+      ...options.generatedAt ? { generatedAt: options.generatedAt } : {}
+    },
+    dataSource: {
+      name: `${appName} (application database)`,
+      description: "The generated application's own PostgreSQL database, read directly. Every report and chart below is a query against its bus_ tables.",
+      clientType: "pg"
+    },
+    queries: ctx.queries,
+    reports: ctx.reports,
+    charts: ctx.charts,
+    dashboards,
+    access: deriveAccessSpec(model, options)
+  };
+}
+
 // packages/generator/src/generators/wasm/model-bundle.ts
 var SEMANTIC_REFERENCE2 = {
   email: ReferenceType.EMAIL,
@@ -18262,11 +18832,6 @@ function referenceIdFor(attribute, isPrimaryKey) {
     default:
       return ReferenceType.STRING;
   }
-}
-var snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase();
-function tableNameFor(entity2) {
-  const base = snake(entity2.tableName || entity2.name);
-  return base.startsWith("bus_") || base.startsWith("sys_") ? base : `bus_${base}`;
 }
 var MANAGED_COLUMN_NAMES = new Set([
   "id",
@@ -19657,7 +20222,12 @@ function buildGeneratorOptions(model, settings) {
     compiledWorkflows: model.workflows,
     compiledSagas: model.sagas,
     compiledRbac: model.rbac,
-    compiledReports: model.reports
+    compiledReports: model.reports,
+    reportingPack: buildReportingPack(model, {
+      projectName: settings.projectName,
+      projectDescription: settings.projectDescription,
+      databaseName: settings.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_")
+    })
   };
 }
 async function writeManifest(outputDir, model, settings, extras = {}, log = NO_LOG) {
