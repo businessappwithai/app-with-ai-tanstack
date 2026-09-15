@@ -392,8 +392,18 @@ held(
  * smaller than the one that came in. Only the first of those has a diagnostic.
  */
 const PAIRS = [
-  ["llms-full.txt", "llmtextenhancement.txt", /^## \d+\. Authoring protocol\b/m, /^## \d+\. Enhancement protocol\b/m],
-  ["llmdetailed.txt", "llmdetailedenhancement.txt", /^## \d+\. Interactive authoring protocol\b/m, /^## \d+\. Interactive enhancement protocol\b/m],
+  [
+    "llms-full.txt",
+    "llmtextenhancement.txt",
+    /^## \d+\. Authoring protocol\b/m,
+    /^## \d+\. Enhancement protocol\b/m,
+  ],
+  [
+    "llmdetailed.txt",
+    "llmdetailedenhancement.txt",
+    /^## \d+\. Interactive authoring protocol\b/m,
+    /^## \d+\. Interactive enhancement protocol\b/m,
+  ],
 ] as const;
 
 for (const [baseName, enhancedName, baseHeading, enhancedHeading] of PAIRS) {
@@ -467,8 +477,7 @@ for (const name of ["llmtextenhancement.txt", "llmdetailedenhancement.txt"]) {
   /* Each document has to be findable from the other three, or a reader lands
      on the enhancement form for a model that does not exist yet. */
   for (const sibling of DOCUMENTS)
-    if (sibling !== name)
-      held(doc.includes(sibling), `${name}: names its companion ${sibling}`);
+    if (sibling !== name) held(doc.includes(sibling), `${name}: names its companion ${sibling}`);
 }
 
 /* The interactive edition keeps its gates. A phase list with no gate in it is
