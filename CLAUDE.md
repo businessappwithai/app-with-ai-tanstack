@@ -665,6 +665,78 @@ that went missing. Both editions are held to asking for the file first, refusing
 to reconstruct a model from memory, inventorying before editing, and comparing
 against that inventory at the end.
 
+## What a diagnostic hands back — the line, its text, and the steps
+
+`language/browser/checker.entry.ts` and `fixer.entry.ts` are what a language
+model actually reads a check through. Every diagnostic that can be placed now
+carries `lineText` beside `line` — the source line verbatim — and `formatReport`
+renders it:
+
+```
+error:18 [EML144] %%field "Order.status" references undeclared enum "MissingEnum".
+  18 │ %%field Order.status enum: MissingEnum
+     └ fix: Add  %%enum MissingEnum: value1, value2  before the erDiagram block.
+```
+
+A line number on its own makes the reader count lines. The reader is usually a
+model holding the document in a context window rather than open in an editor: it
+miscounts, edits a line that was never at fault, and reports a fix that was never
+applied. The text removes the counting.
+
+Three things here are load-bearing, and `bun run test:language-tools` holds all
+three:
+
+- **`checkAndFix` resolves `lineText` against `FixReport.source`, never against
+  its input.** A repair that inserts `%%meta name:` moves every line below it
+  down by one, so the remaining diagnostics index the *repaired* document.
+  Resolving them against the caller's copy reads one line too high, all the way
+  down, silently — on the probe in that test it reports `    }`, a closing brace,
+  as the line carrying an unknown type.
+- **The verdict is still the last line.** `formatReport` puts the steps between
+  the diagnostics and the verdict, not after it. Whoever reads a report reads its
+  final line, and a run ending in a note gets read as having failed on that note
+  — the bug that moving the verdict to the bottom already fixed once.
+- **A diagnostic with no line says so** rather than rendering an empty gutter.
+  `EML001` is about the document, not a line in it, and a blank excerpt reads
+  like a lookup that failed.
+
+`formatNextSteps` derives the closing steps from the run itself — which codes
+repair themselves and so must not be hand-edited, which line to start at, that
+the whole file is re-checked from zero each round. Stated in the abstract, those
+are already in every specification and are routinely not followed; stated with
+this run's counts and this run's first line, they are instructions.
+
+**Editing either entry stales two artifacts, not one**: `build:language-tools`
+(`html/checker.js`, `html/fixer.js`) and `build:viewers`
+(`website/viewers/eml-model.js`, which bundles the same checker entry). Rebuild
+both, and re-vendor all three to the website.
+
+**`formatIssue` is unchanged and still one line.** The block form is
+`formatIssueDetail`; the viewers re-export `formatIssue` and callers that want a
+log line still get one.
+
+## The published host is written in full — `https://www.appwithai.org`
+
+Every mention of the host in all four `website/llmtext/*.txt` protocol documents
+is the absolute URL, scheme and `www.` included, and each document carries a rule
+saying so. A model following the specification reported a failed validator fetch
+as `[www.appwithai.org](https://www.appwithai.org)` — a Markdown link whose text
+is a bare host, which is what anything parsing that output then tries to resolve.
+These copies taught it: they used the apex `https://appwithai.org` for most URLs
+while the published ones used `www`, and both named the host without a scheme in
+prose.
+
+`bun run test:llmtext` holds it now. The check strips the canonical form before
+scanning rather than filtering lines containing it — a line can hold a good URL
+*and* a bare host, which is the case that survived the first sweep — and it
+asserts the rule's three counter-examples are still present, since a checker that
+"corrects" them leaves a rule that teaches nothing.
+
+**The rule goes in §3.6, not beside the `--base` paragraph.** In this shape that
+paragraph sits inside §10, which `llmtextenhancement.txt` replaces wholesale, so
+anchoring there puts the rule in the base and not in its companion — silently,
+with every other check still green.
+
 ## EML Language
 
 EML is a Mermaid-based language for ERD + business rules + workflows in one `.eml.mmd` file. `language/appwithai-language.json` is the **single source of truth** — for this repository. Two other copies exist, and they have drifted:

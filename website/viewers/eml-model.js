@@ -4084,17 +4084,80 @@ var AUTO_FIXABLE = [...AUTO_FIXABLE_CODES].sort();
 var SEVERITY_ORDER = { error: 0, warning: 1, info: 2 };
 function check(source) {
   const result = checkSource(source);
+  const lines = source.split(`
+`);
   return {
     ok: result.errors === 0,
     counts: { errors: result.errors, warnings: result.warnings, infos: result.infos },
-    issues: [...result.issues].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] || (a.line ?? 0) - (b.line ?? 0)).map((issue) => ({ ...issue, autoFixable: AUTO_FIXABLE_CODES.has(issue.code) })),
+    issues: [...result.issues].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] || (a.line ?? 0) - (b.line ?? 0)).map((issue) => decorate(issue, lines)),
     languageVersion: LANGUAGE_VERSION
+  };
+}
+function decorate(issue, lines) {
+  const text = issue.line && issue.line >= 1 ? lines[issue.line - 1] : undefined;
+  return {
+    ...issue,
+    autoFixable: AUTO_FIXABLE_CODES.has(issue.code),
+    ...text === undefined ? {} : { lineText: text.replace(/\s+$/, "") }
   };
 }
 function formatIssue(issue) {
   const where = issue.line ? `:${issue.line}` : "";
   const hint = issue.hint ? `  — ${issue.hint}` : "";
   return `${issue.severity}${where} [${issue.code}] ${issue.message}${hint}`;
+}
+function formatIssueDetail(issue) {
+  const gutter = issue.line ? String(issue.line) : "";
+  const pad = " ".repeat(gutter.length);
+  const head = `${issue.severity}${issue.line ? `:${issue.line}` : ""} [${issue.code}]${issue.autoFixable ? " (auto-fixable)" : ""} ${issue.message}`;
+  const body = [];
+  if (issue.lineText !== undefined)
+    body.push(`  ${gutter} │ ${issue.lineText}`);
+  else if (!issue.line)
+    body.push(`  ${pad} │ (no single line — this is about the document as a whole)`);
+  else
+    body.push(`  ${gutter} │ (line ${issue.line} is not in the source that was checked)`);
+  if (issue.context)
+    body.push(`  ${pad} │ ${issue.context}`);
+  if (issue.hint)
+    body.push(`  ${pad} └ fix: ${issue.hint}`);
+  return [head, ...body].join(`
+`);
+}
+function formatNextSteps(report) {
+  const { errors, warnings } = report.counts;
+  const fixable = report.issues.filter((issue) => issue.autoFixable);
+  const manual = report.issues.filter((issue) => !issue.autoFixable);
+  const first = manual.find((issue) => issue.severity === "error") ?? manual[0];
+  const steps = [];
+  if (fixable.length > 0) {
+    const codes = [...new Set(fixable.map((issue) => issue.code))].sort().join(", ");
+    steps.push(`Run the fixer first — ${fixable.length} of these repair themselves (${codes}). ` + `\`checkAndFix(source)\`, or \`node check-model.mjs <file> --write\`. Do not hand-edit them: ` + `the repair shifts line numbers, and every number below is from before it.`);
+  }
+  if (manual.length > 0) {
+    const where = first?.line ? ` Start at line ${first.line} [${first.code}].` : "";
+    steps.push(`Fix the remaining ${manual.length} by hand, in the model file — not in this report.` + where);
+    steps.push(`Match each one on the line shown above it rather than on its number. If the text ` + `there is not what you expect, the file you are editing is not the file that was checked.`);
+  }
+  steps.push(`Re-run the checker over the whole file from zero after every round. A repair can ` + `uncover a problem an earlier error was masking, so a report from before your edit ` + `describes a document that no longer exists.`);
+  steps.push(errors > 0 ? `Repeat until the last line reads OK. The generator refuses this model while any error stands.` : `The generator accepts this model now. Clearing the ${warnings} warning${warnings === 1 ? "" : "s"} is optional, but each one names something it accepts and quietly gets wrong.`);
+  return ["next steps", ...steps.map((step, index) => `  ${index + 1}. ${wrap(step)}`)].join(`
+`);
+}
+function wrap(text, width = 74) {
+  const out = [];
+  let line = "";
+  for (const word of text.split(" ")) {
+    if (line && (line + " " + word).length > width) {
+      out.push(line);
+      line = word;
+    } else
+      line = line ? `${line} ${word}` : word;
+  }
+  if (line)
+    out.push(line);
+  return out.join(`
+     `);
 }
 function formatReport(report) {
   const { errors, warnings, infos } = report.counts;
@@ -4108,13 +4171,21 @@ function formatReport(report) {
   const verdict = report.ok ? `OK — ${counted} (EML ${report.languageVersion})${advisory}` : `FAILED — ${counted} (EML ${report.languageVersion})`;
   if (report.issues.length === 0)
     return verdict;
-  return [...report.issues.map(formatIssue), "", verdict].join(`
+  return [
+    ...report.issues.map((issue) => `${formatIssueDetail(issue)}
+`),
+    formatNextSteps(report),
+    "",
+    verdict
+  ].join(`
 `);
 }
 globalThis.EMLChecker = {
   check,
   checkSource,
   formatIssue,
+  formatIssueDetail,
+  formatNextSteps,
   formatReport,
   AUTO_FIXABLE,
   LANGUAGE_VERSION
