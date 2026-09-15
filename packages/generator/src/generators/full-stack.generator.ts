@@ -19,6 +19,7 @@ import type { CompiledReport } from "../reports";
 import type { CompiledRule } from "../rules";
 import type { CompiledSaga, CompiledWorkflow } from "../workflows";
 import { DEFAULT_FRONTEND_PORT } from "./ports";
+import type { StackOption } from "./stack-option";
 import {
   NestJsBackendGenerator,
   type NestJsBackendOptions,
@@ -27,7 +28,6 @@ import {
   TanStackStartFrontendGenerator,
   type TanStackStartFrontendOptions,
 } from "./tanstack-start-nestjs/tanstack-start-frontend.generator";
-import type { StackOption } from "./stack-option";
 import { BunE2ETestGenerator } from "./tests/bun-e2e.generator";
 
 /**
