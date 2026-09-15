@@ -138,7 +138,8 @@ export function formatIssueDetail(issue: CheckedIssue): string {
 
   const body: string[] = [];
   if (issue.lineText !== undefined) body.push(`  ${gutter} │ ${issue.lineText}`);
-  else if (!issue.line) body.push(`  ${pad} │ (no single line — this is about the document as a whole)`);
+  else if (!issue.line)
+    body.push(`  ${pad} │ (no single line — this is about the document as a whole)`);
   else body.push(`  ${gutter} │ (line ${issue.line} is not in the source that was checked)`);
 
   if (issue.context) body.push(`  ${pad} │ ${issue.context}`);
