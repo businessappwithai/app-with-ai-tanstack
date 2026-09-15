@@ -20,12 +20,35 @@
 
 const TOKEN_KEY = "appwithai.session";
 
+/**
+ * The reporting application's session, kept under a key of its own.
+ *
+ * Two applications share this tab and a reader can be signed into both at once,
+ * so there are two tokens and they must not collide — one storage key would
+ * mean signing into the reporting platform silently ended the application's
+ * session, which reads as a bug in whichever screen noticed first.
+ */
+const REPORT_TOKEN_KEY = "appwithai.report-session";
+
+/**
+ * The header the reporting token travels in.
+ *
+ * Not `Authorization`: both sessions are bearer tokens (a Service Worker does
+ * not pass cookies through to a request it intercepts), and one header cannot
+ * carry two of them. The server reads this one first for `/reporting` and
+ * `/report-auth`.
+ */
+const REPORT_HEADER = "X-Reporting-Authorization";
+
 let base = "/";
 let onUnauthorized = () => {};
+let onReportUnauthorized = () => {};
 let token = null;
+let reportToken = null;
 
 try {
   token = sessionStorage.getItem(TOKEN_KEY);
+  reportToken = sessionStorage.getItem(REPORT_TOKEN_KEY);
 } catch {
   // Storage can be denied outright (a locked-down browser, some private modes).
   // An in-memory session still works for as long as the page is open.
@@ -34,20 +57,34 @@ try {
 export function configure(options) {
   base = options.basePath || "/";
   if (options.onUnauthorized) onUnauthorized = options.onUnauthorized;
+  if (options.onReportUnauthorized) onReportUnauthorized = options.onReportUnauthorized;
 }
 
-export function setToken(value) {
-  token = value || null;
+function store(key, value) {
   try {
-    if (token) sessionStorage.setItem(TOKEN_KEY, token);
-    else sessionStorage.removeItem(TOKEN_KEY);
+    if (value) sessionStorage.setItem(key, value);
+    else sessionStorage.removeItem(key);
   } catch {
     // See above — memory is enough.
   }
 }
 
+export function setToken(value) {
+  token = value || null;
+  store(TOKEN_KEY, token);
+}
+
 export function hasToken() {
   return !!token;
+}
+
+export function setReportToken(value) {
+  reportToken = value || null;
+  store(REPORT_TOKEN_KEY, reportToken);
+}
+
+export function hasReportToken() {
+  return !!reportToken;
 }
 
 export class ApiError extends Error {
@@ -60,10 +97,23 @@ export class ApiError extends Error {
   }
 }
 
-async function request(method, path, body) {
+/**
+ * One request implementation, two audiences.
+ *
+ * `audience` decides which token is sent and which 401 handler runs — never
+ * which URL is called, because both applications are served by the same server
+ * under the same `/api`. A single handler would sign the reader out of the
+ * application because a reporting call expired, which is the confusion the two
+ * sessions exist to prevent.
+ */
+async function request(method, path, body, audience = "app") {
   const headers = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  if (token) headers.Authorization = `Bearer ${token}`;
+  if (audience === "report") {
+    if (reportToken) headers[REPORT_HEADER] = `Bearer ${reportToken}`;
+  } else if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
 
   const response = await fetch(`${base}api${path.startsWith("/") ? path : `/${path}`}`, {
     method,
@@ -84,8 +134,13 @@ async function request(method, path, body) {
 
   if (!response.ok) {
     if (response.status === 401) {
-      setToken(null);
-      onUnauthorized();
+      if (audience === "report") {
+        setReportToken(null);
+        onReportUnauthorized();
+      } else {
+        setToken(null);
+        onUnauthorized();
+      }
     }
     throw new ApiError(response.status, parsed);
   }
@@ -98,6 +153,12 @@ export const api = {
   put: (path, body) => request("PUT", path, body ?? {}),
   patch: (path, body) => request("PATCH", path, body ?? {}),
   delete: (path) => request("DELETE", path),
+};
+
+/** The same client, carrying the reporting application's session. */
+export const reportApi = {
+  get: (path) => request("GET", path, undefined, "report"),
+  post: (path, body) => request("POST", path, body ?? {}, "report"),
 };
 
 /** `{ a: 1, b: null }` -> `?a=1`, skipping what is not set. */

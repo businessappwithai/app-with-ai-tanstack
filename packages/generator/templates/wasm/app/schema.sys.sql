@@ -327,3 +327,67 @@ CREATE INDEX IF NOT EXISTS idx_sys_session_token ON sys_session(token);
 CREATE INDEX IF NOT EXISTS idx_sys_audit_created ON sys_audit_log(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sys_op_access ON sys_operation_access(table_name, operation);
 CREATE INDEX IF NOT EXISTS idx_sys_tr_access ON sys_transition_access(table_name, from_state, to_state);
+
+-- ---------------------------------------------------------------------------
+-- The reporting application's own half.
+--
+-- These are not the application's tables with a different prefix. They are the
+-- Enterprise Reporting platform's configuration — its users, its roles, and
+-- what each role's queries may read — and the platform keeps them in a
+-- database of its own (`enterprise_config`), separate from the application it
+-- reports on, so that regenerating the application cannot take the reports
+-- with it.
+--
+-- A browser tab has one database, so the separation here is the closest thing
+-- it can be: separate tables, a separate session table and a separate cookie,
+-- seeded from the reporting pack rather than from `sys_user`. Nothing joins
+-- across the two halves and neither password works on the other side — which
+-- is the fact worth being able to see, because it is the fact about the
+-- deployed pair as well.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS rpt_role (
+  rpt_role_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL UNIQUE,
+  -- The spelling the model used, so a reader can match this role to the
+  -- `%%rbac` line that shaped it.
+  declared_as VARCHAR(100),
+  description TEXT,
+  is_admin BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Which of the application's tables a reporting role's queries may read.
+--
+-- Rows are the whole of a role's read access, and an absence of them is not
+-- permission: only `rpt_role.is_admin` means "every table". The built-in `User`
+-- role — signed in, holding no functional role — genuinely has none, and
+-- reading that as unrestricted would make the narrowest account on the system
+-- the widest.
+CREATE TABLE IF NOT EXISTS rpt_role_tables (
+  rpt_role_id UUID NOT NULL REFERENCES rpt_role(rpt_role_id) ON DELETE CASCADE,
+  table_name VARCHAR(100) NOT NULL,
+  PRIMARY KEY (rpt_role_id, table_name)
+);
+
+CREATE TABLE IF NOT EXISTS rpt_user (
+  rpt_user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(200) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  description TEXT,
+  rpt_role_id UUID REFERENCES rpt_role(rpt_role_id) ON DELETE SET NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS rpt_session (
+  token VARCHAR(128) PRIMARY KEY,
+  rpt_user_id UUID NOT NULL REFERENCES rpt_user(rpt_user_id) ON DELETE CASCADE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  user_agent TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rpt_session_token ON rpt_session(token);
+CREATE INDEX IF NOT EXISTS idx_rpt_user_email ON rpt_user(email);

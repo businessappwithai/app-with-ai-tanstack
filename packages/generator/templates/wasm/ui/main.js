@@ -20,6 +20,7 @@ import { dashboardView } from "./views/dashboard.js";
 import { entityListView } from "./views/entity-list.js";
 import { dictionaryView, rulesView, processesView, auditView, modelView } from "./views/admin.js";
 import { reportsView } from "./views/reports.js";
+import { reportAppView, reportSessionEnded, resetReportView } from "./views/report-app.js";
 
 const state = {
   user: null,
@@ -49,6 +50,22 @@ export async function start({ basePath, project }) {
         state.user = null;
         state.model = null;
         toast("Your session ended — sign in again", "error");
+        render();
+      }
+    },
+    /* The reporting application's session, expiring separately. Losing it must
+       not touch `state.user`: the reader is still signed into the application,
+       and signing them out of it because a reporting call came back 401 is the
+       confusion two sessions exist to prevent.
+
+       `reportSessionEnded` answers whether there was a session at all — the
+       reporting shell probes `/report-auth/me` on entry and a "no" to that is
+       an ordinary 401, not an expiry. Announcing it would toast once per probe
+       and repaint once per toast, and the repaint probes again. */
+    onReportUnauthorized: () => {
+      if (!reportSessionEnded()) return;
+      if (isReportRoute(window.location.hash)) {
+        toast("Your reporting session ended — sign in again", "error");
         render();
       }
     },
@@ -94,8 +111,48 @@ export function childEntitiesOf(parentName) {
   return state.entities.filter((entity) => entity.parentEntity === parentName);
 }
 
+/**
+ * Is this route the reporting application?
+ *
+ * Matched exactly, never as a prefix. The application's own admin screen is
+ * `#/reports` — the `%%report` questions it serves itself — and
+ * `"#/reports".startsWith("#/report")` is true, so a prefix test sent every
+ * reader who clicked Reports in the application to the reporting platform's
+ * sign-in screen instead.
+ */
+function isReportRoute(hash) {
+  const route = (hash || "").replace(/^#/, "");
+  return route === "/report" || route.startsWith("/report/");
+}
+
 async function render() {
   const root = document.getElementById("app");
+
+  /*
+   * The reporting application, before the application's own sign-in gate.
+   *
+   * Deliberately first. `#/report` is the second of the two applications this
+   * model generates, and it has its own accounts — so reaching it must not
+   * require a session in the *other* one. Putting this check after the gate
+   * below would mean the reporting platform could only be opened by somebody
+   * already signed into the application, which is exactly the shared-login
+   * arrangement the two products do not have.
+   */
+  if (isReportRoute(window.location.hash)) {
+    // The shell owns the whole root here: it has a masthead of its own, and a
+    // second one above it would say the two are one application with a section.
+    return void (await reportAppView(root, {
+      project: state.project,
+      onLeave: () => {
+        // Nothing is signed out. The reader keeps their reporting session and
+        // arrives at the application needing that one, which is the truth
+        // about the pair rather than a convenience.
+        resetReportView();
+        mount(root);
+        navigate("/");
+      },
+    }));
+  }
 
   if (!state.user) {
     await loginView(root, {

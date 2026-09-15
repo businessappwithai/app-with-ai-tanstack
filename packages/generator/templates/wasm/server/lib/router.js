@@ -15,6 +15,23 @@
 
 import { errorResponse, notFound } from "./http.js";
 
+/**
+ * A handler that runs a sub-router's middleware first.
+ *
+ * Returned unchanged when there is none, so a mounted router without
+ * middleware costs no extra frame per request.
+ */
+function guarded(middleware, handler) {
+  if (!middleware || middleware.length === 0) return handler;
+  return async (request, ctx) => {
+    for (const fn of middleware) {
+      const early = await fn(request, ctx);
+      if (early instanceof Response) return early;
+    }
+    return handler(request, ctx);
+  };
+}
+
 function compile(pattern) {
   const parts = pattern.split("/").filter(Boolean);
   const keys = [];
@@ -59,11 +76,27 @@ export class Router {
   patch(p, h) { return this.add("PATCH", p, h); }
   delete(p, h) { return this.add("DELETE", p, h); }
 
-  /** Mount another router under a prefix. */
+  /**
+   * Mount another router under a prefix, middleware included.
+   *
+   * The middleware is the point of this being more than a loop. It used to copy
+   * `router.routes` and nothing else, and every module in this runtime declares
+   * its authentication as `router.use(… requireUser(user))` — so mounting one
+   * dropped its guard. `/api/sys`, `/api/rules`, `/api/workflows`, `/api/model`
+   * and `/api/reports` all answered a caller with no session: the Application
+   * Dictionary, the compiled business rules, the workflow definitions, the
+   * model and every report the model declares, to anybody who asked. Nothing
+   * looked wrong from the UI, which always has a session by the time it calls.
+   *
+   * Each mounted route is wrapped rather than the middleware being added to
+   * *this* router, because it belongs to the sub-router: `sys.routes.js`
+   * requires an administrator for any non-GET, and promoting that to the parent
+   * would apply it to every other module mounted beside it.
+   */
   mount(prefix, router) {
     for (const route of router.routes) {
       const pattern = `${prefix}/${route.parts.join("/")}`.replace(/\/+/g, "/");
-      this.add(route.method, pattern, route.handler);
+      this.add(route.method, pattern, guarded(router.middleware, route.handler));
     }
     return this;
   }

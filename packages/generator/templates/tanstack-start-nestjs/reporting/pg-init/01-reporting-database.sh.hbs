@@ -1,0 +1,54 @@
+#!/bin/bash
+# Give the reporting platform a database of its own.
+#
+# Runs once, on the first start of this project's PostgreSQL, from
+# `/docker-entrypoint-initdb.d/`. Two databases in one instance, which is what
+# separation means here:
+#
+#   {{project.name | replace '-' '_'}}   this application
+#   enterprise_config      the reporting platform's own configuration
+#
+# They are deliberately not one database. Regenerating this application drops
+# and recreates its tables, and the reports, charts and dashboards have to
+# survive that — so the platform's configuration lives where a regeneration
+# cannot reach it. `ers_knowledge` is created too: it is the platform's
+# knowledge graph, which needs an Apache AGE server this image is not, and the
+# platform's graph features are lazy and fail quietly without it. The database
+# exists so that turning it on later is a matter of configuration.
+#
+# This file does nothing after the first start. If you have an existing volume
+# and no `enterprise_config` in it, create it by hand:
+#
+#   docker compose exec postgres createdb -U "$DB_USER" enterprise_config
+set -euo pipefail
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+  SELECT 'CREATE DATABASE enterprise_config OWNER $POSTGRES_USER'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'enterprise_config')\gexec
+  SELECT 'CREATE DATABASE ers_knowledge OWNER $POSTGRES_USER'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'ers_knowledge')\gexec
+EOSQL
+
+# pgvector in the platform's own database: its natural-language query pipeline
+# stores embeddings there.
+#
+# Deliberately not fatal. This script runs inside the database's own
+# entrypoint, where a non-zero exit does not skip a feature — it aborts
+# initialisation and leaves the whole project with no database at all. pgvector
+# serves one lazy feature of the reporting platform and every other screen it
+# has boots without it, so a server that does not have it says so and carries
+# on.
+#
+# `ON_ERROR_STOP=1` is what makes that message real rather than decorative:
+# without it psql reports the missing extension on stderr and still exits 0, so
+# the `||` branch never runs and a reader is told nothing either way.
+if psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname enterprise_config <<-EOSQL >/dev/null 2>&1
+  CREATE EXTENSION IF NOT EXISTS vector;
+EOSQL
+then
+  echo "reporting: pgvector ready in enterprise_config"
+else
+  echo "reporting: pgvector unavailable in enterprise_config — the platform's NL-query retrieval will be off"
+fi
+
+echo "reporting: enterprise_config and ers_knowledge ready"

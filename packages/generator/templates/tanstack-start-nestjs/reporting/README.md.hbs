@@ -1,0 +1,136 @@
+# Reporting — {{project.name}}
+
+This project ships **two applications**, and this directory is the second one.
+
+```
+docker compose up --build
+```
+
+| | |
+|---|---|
+| http://localhost:{{project.frontendPort}} | **{{project.name}}** — the application |
+| http://localhost:3100 | **Enterprise Reporting** — its reports, charts and dashboard |
+
+The first start migrates and seeds the application, then loads its schema and
+the reporting pack into the platform. Until `report-seeder` exits, the reporting
+application is up but **empty**; `docker compose logs -f report-seeder` shows it
+working.
+
+## Two applications, two logins, and why they are not merged
+
+This is the thing most likely to be got wrong, so it is stated here rather than
+left to be discovered.
+
+|  | {{project.name}} | Enterprise Reporting |
+|---|---|---|
+| Port | {{project.frontendPort}} | 3100 |
+| Database | `{{project.name | replace '-' '_'}}` | `enterprise_config` |
+| Users | its own table, its own session | its own table, its own session |
+| A role decides | what you may **do** to a record | which tables your queries may **read** |
+| Password | `{{reporting.appPassword}}` | `{{reporting.reportPassword}}` |
+
+**The role names line up; nothing else is shared.** Both sides are derived from
+the same `%%rbac` directives in the model this project was generated from, so
+`sales_manager` is recognisable on either side — but they are separate accounts
+in separate databases, nothing is federated, and neither password works on the
+other side. Merging them would force one product's meaning of "role" onto the
+other.
+
+The addresses differ on purpose. Identical ones would invite you to try a single
+password on both.
+
+### The accounts
+
+{{reporting.roles}} roles, one account each side. "Tables" is what the reporting
+role may read — which is the whole of what signing in as it does.
+
+| Role | Application account | Reporting account | Tables |
+|---|---|---|---|
+{{reporting.accounts}}
+
+The administrator is the exception and keeps the same address on both sides,
+because that is what the reporting platform bootstraps for itself. It is still
+two different accounts in two different databases.
+
+**Only `read` rules narrow a reporting role.** `%%rbac` also restricts create,
+update and delete, and none of that means anything to somebody who cannot write
+through the reporting platform at all.
+
+## What is in the pack
+
+`reporting-pack.json` is the whole of this project's reporting layer:
+**{{reporting.queries}} saved queries, {{reporting.reports}} reports,
+{{reporting.charts}} charts and {{reporting.dashboards}} dashboard**. Nothing in
+it is invented — every query is derived from something the model declares:
+
+| The model declares | The pack gets |
+|---|---|
+| an entity | a register — what rows exist, newest first |
+| an `%%enum`-bound column | a breakdown, as a chart |
+| `created_at` | volume by month, as a line |
+| a `kind: state` workflow | a lifecycle over the states the diagram declares, in its order, zeroes included |
+| numeric columns | a measures report, grouped by the entity's primary enum column |
+| `oneToMany` | children per parent, ranked |
+| `%%report` | the question its author wrote, listed first and at the top of the dashboard |
+
+Names and descriptions come from `%%entity help:` and `%%field help:` — the only
+place a model says what an entity is *for* rather than what shape it is. That is
+the difference between a report called "bus_account by status" and one called
+"Accounts by status" that explains what an account is in this business.
+
+Edit the pack and re-run the seeder (`docker compose up report-seeder`) to
+change what the platform holds; it upserts by name, so a second run updates in
+place rather than duplicating.
+
+## How the platform gets here
+
+`Dockerfile` fetches the platform's source at build time and builds it. It is a
+separate product — around ninety megabytes of TanStack Start over PostgreSQL —
+so it is **not vendored into this project**: the only reporting artefact this
+repository contains is the pack.
+
+That means `docker build` needs network access. On a build host without it,
+clone the repository yourself and point the `report` service's `context` at the
+clone in `docker-compose.yml`; the build is otherwise identical.
+
+`REPORT_REF` chooses the version, and defaults to `main`. Pin it in `.env` once
+this project is something you deploy rather than something you are looking at:
+
+```sh
+REPORT_REF=<commit-sha>
+```
+
+## Configuration
+
+Set these in the `.env` beside `docker-compose.yml`, **before the first start**:
+
+```sh
+REPORT_AUTH_SECRET=         # at least 32 characters
+REPORT_ENCRYPTION_KEY=      # exactly 64 hex characters
+REPORT_PORT=3100            # where the reporting application is published
+REPORT_REF=main             # the platform version to build
+```
+
+**`REPORT_ENCRYPTION_KEY` has to stay the same.** It is what the platform
+encrypts the stored data-source password with, so regenerating it leaves every
+connection undecryptable — and the failure looks like a broken data source
+rather than a rotated key.
+
+Generate both:
+
+```sh
+openssl rand -hex 32   # REPORT_ENCRYPTION_KEY (64 hex characters)
+openssl rand -base64 32  # REPORT_AUTH_SECRET
+```
+
+## Running without it
+
+The reporting application is part of `docker compose up`. To leave it out, name
+the services you do want:
+
+```sh
+docker compose up postgres electric backend frontend
+```
+
+Nothing in the application depends on it — it reads the application's database
+and never writes to it.

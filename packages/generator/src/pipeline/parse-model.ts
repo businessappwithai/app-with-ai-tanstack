@@ -14,7 +14,7 @@
 
 import type { Entity, EntityEnum, Relationship } from "@appwithai/core/types";
 import { extractRuleSections } from "../eml";
-import type { StackOption } from "../generators/full-stack.generator";
+import type { StackOption } from "../generators/stack-option";
 import { type CompiledHook, compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";

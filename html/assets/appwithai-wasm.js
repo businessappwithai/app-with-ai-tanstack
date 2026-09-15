@@ -10566,6 +10566,70 @@ CREATE INDEX IF NOT EXISTS idx_sys_session_token ON sys_session(token);
 CREATE INDEX IF NOT EXISTS idx_sys_audit_created ON sys_audit_log(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sys_op_access ON sys_operation_access(table_name, operation);
 CREATE INDEX IF NOT EXISTS idx_sys_tr_access ON sys_transition_access(table_name, from_state, to_state);
+
+-- ---------------------------------------------------------------------------
+-- The reporting application's own half.
+--
+-- These are not the application's tables with a different prefix. They are the
+-- Enterprise Reporting platform's configuration — its users, its roles, and
+-- what each role's queries may read — and the platform keeps them in a
+-- database of its own (\`enterprise_config\`), separate from the application it
+-- reports on, so that regenerating the application cannot take the reports
+-- with it.
+--
+-- A browser tab has one database, so the separation here is the closest thing
+-- it can be: separate tables, a separate session table and a separate cookie,
+-- seeded from the reporting pack rather than from \`sys_user\`. Nothing joins
+-- across the two halves and neither password works on the other side — which
+-- is the fact worth being able to see, because it is the fact about the
+-- deployed pair as well.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS rpt_role (
+  rpt_role_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL UNIQUE,
+  -- The spelling the model used, so a reader can match this role to the
+  -- \`%%rbac\` line that shaped it.
+  declared_as VARCHAR(100),
+  description TEXT,
+  is_admin BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Which of the application's tables a reporting role's queries may read.
+--
+-- Rows are the whole of a role's read access, and an absence of them is not
+-- permission: only \`rpt_role.is_admin\` means "every table". The built-in \`User\`
+-- role — signed in, holding no functional role — genuinely has none, and
+-- reading that as unrestricted would make the narrowest account on the system
+-- the widest.
+CREATE TABLE IF NOT EXISTS rpt_role_tables (
+  rpt_role_id UUID NOT NULL REFERENCES rpt_role(rpt_role_id) ON DELETE CASCADE,
+  table_name VARCHAR(100) NOT NULL,
+  PRIMARY KEY (rpt_role_id, table_name)
+);
+
+CREATE TABLE IF NOT EXISTS rpt_user (
+  rpt_user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(200) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  description TEXT,
+  rpt_role_id UUID REFERENCES rpt_role(rpt_role_id) ON DELETE SET NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS rpt_session (
+  token VARCHAR(128) PRIMARY KEY,
+  rpt_user_id UUID NOT NULL REFERENCES rpt_user(rpt_user_id) ON DELETE CASCADE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  user_agent TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rpt_session_token ON rpt_session(token);
+CREATE INDEX IF NOT EXISTS idx_rpt_user_email ON rpt_user(email);
 `,
   "boot.js": `/**
  * Starting the application.
@@ -11331,6 +11395,7 @@ import { Router } from "./lib/router.js";
 import { errorResponse, json, notFound } from "./lib/http.js";
 import { Database } from "./lib/db.js";
 import { resolveSession } from "./lib/auth.js";
+import { resolveReportSession } from "./lib/report-auth.js";
 import { migrate } from "./migrate.js";
 import { authRoutes } from "./modules/auth.routes.js";
 import { sysRoutes } from "./modules/sys.routes.js";
@@ -11340,6 +11405,8 @@ import { workflowRoutes } from "./modules/workflow.routes.js";
 import { auditRoutes } from "./modules/audit.routes.js";
 import { modelRoutes } from "./modules/model.routes.js";
 import { reportsRoutes } from "./modules/reports.routes.js";
+import { reportAuthRoutes } from "./modules/report-auth.routes.js";
+import { reportingRoutes } from "./modules/reporting.routes.js";
 
 const MIME = {
   html: "text/html; charset=utf-8",
@@ -11397,6 +11464,20 @@ export async function createServer(options) {
   api.mount("/reports", reportsRoutes(model));
   api.mount("/model", modelRoutes(model, readAsset));
 
+  /*
+   * The reporting application, mounted beside the one it reports on.
+   *
+   * Two applications, one server — which is what a browser tab can hold, and
+   * not what the deployed pair is: there, \`docker compose\` runs the generated
+   * application and the Enterprise Reporting platform as separate services with
+   * separate databases behind one proxy. What is the same either way is the part
+   * a reader meets: a sign-in of its own, roles of its own, and reports scoped
+   * to what each role may read. These routes never consult the application's
+   * session and its routes never consult theirs.
+   */
+  api.mount("/report-auth", reportAuthRoutes(model));
+  api.mount("/reporting", reportingRoutes(model));
+
   // \`/workflow-definitions\` is what the dictionary screens ask for; keeping the
   // alias here rather than duplicating handlers means one implementation.
   api.mount("/workflow-definitions", (() => {
@@ -11412,9 +11493,21 @@ export async function createServer(options) {
     return alias;
   })());
 
-  /** Everything a handler needs, resolved once per request. */
+  /**
+   * Everything a handler needs, resolved once per request.
+   *
+   * Both sessions, every time, and independently: a reader can be signed into
+   * the application and the reporting platform at once, or into either alone,
+   * and no route may infer one from the other. \`user\` is the application's
+   * caller and \`reportUser\` the reporting one; a handler that wants the other
+   * product's session has asked the wrong question.
+   */
   async function context(request) {
-    return { db, model, user: await resolveSession(db, request) };
+    const [user, reportUser] = await Promise.all([
+      resolveSession(db, request),
+      resolveReportSession(db, request),
+    ]);
+    return { db, model, user, reportUser };
   }
 
   async function handleApi(request, pathname) {
@@ -12827,6 +12920,140 @@ export function toRouteName(entity) {
   return kebabCase(String(entity).replace(/^bus_/, ""));
 }
 `,
+  "server/lib/report-auth.js": `/**
+ * The reporting application's sessions — separate, on purpose.
+ *
+ * Passwords are hashed and verified by \`auth.js\`: there is one PBKDF2
+ * implementation in this runtime and both applications use it, because two
+ * would be two chances to get a password hash wrong and no benefit at all.
+ *
+ * Everything *identifying* is separate. A different session table
+ * (\`rpt_session\`, not \`sys_session\`), a different cookie, a different bearer
+ * token in the browser's storage. Signing into the application does not sign
+ * you into the reporting platform and signing out of one leaves the other
+ * alone — which is true of the deployed pair, where they are two servers with
+ * two databases, and would quietly stop being true here the moment the two
+ * shared a token.
+ */
+
+import { randomToken } from "./auth.js";
+
+const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+
+export const REPORT_SESSION_COOKIE = "appwithai_report_session";
+
+export function reportSessionCookie(token, maxAgeSeconds = SESSION_TTL_MS / 1000) {
+  // No \`Secure\`, for the same reason the application's cookie has none: this is
+  // routinely opened over plain http on localhost, and a cookie the browser
+  // declines to store is a sign-in that appears to work and does not stick.
+  return \`\${REPORT_SESSION_COOKIE}=\${encodeURIComponent(token)}; Path=/; SameSite=Lax; Max-Age=\${Math.floor(maxAgeSeconds)}\`;
+}
+
+export const clearedReportSessionCookie = () =>
+  \`\${REPORT_SESSION_COOKIE}=; Path=/; SameSite=Lax; Max-Age=0\`;
+
+export async function createReportSession(db, userId, userAgent) {
+  const token = randomToken();
+  await db.insert("rpt_session", {
+    token,
+    rpt_user_id: userId,
+    expires_at: new Date(Date.now() + SESSION_TTL_MS).toISOString(),
+    user_agent: userAgent || null,
+  });
+  return token;
+}
+
+/**
+ * The bearer token for the *reporting* side of a request.
+ *
+ * Read from \`X-Reporting-Authorization\` before the ordinary \`Authorization\`
+ * header, and that header exists for one reason: a reader can be signed into
+ * both applications at once in the same tab, and a Service Worker does not pass
+ * cookies through to a request it intercepts — so both sessions travel as
+ * bearer tokens, and one header cannot carry two of them. The application's
+ * token arriving here must not be mistaken for a reporting session: it would be
+ * looked up in \`rpt_session\`, found nowhere, and answered 401, which is correct
+ * but only by accident.
+ */
+function readReportToken(request) {
+  const scoped = request.headers.get("x-reporting-authorization");
+  if (scoped) return scoped.replace(/^Bearer\\s+/i, "") || null;
+
+  const cookie = request.headers.get("cookie");
+  if (cookie) {
+    for (const part of cookie.split(";")) {
+      const [key, ...rest] = part.trim().split("=");
+      if (key === REPORT_SESSION_COOKIE) return decodeURIComponent(rest.join("=")) || null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Resolve the reporting caller: the account, its role, and the tables it reads.
+ *
+ * \`tables\` is \`null\` for "every table" rather than a set containing all of
+ * them, and the distinction is the one that matters: an administrator and a
+ * role that happens to be allowed everything today are different answers, and
+ * only the first should stay right when an entity is added tomorrow.
+ */
+export async function resolveReportSession(db, request) {
+  const token = readReportToken(request);
+  if (!token) return null;
+
+  const row = await db.one(
+    \`SELECT u.rpt_user_id, u.name, u.email, u.is_active, s.expires_at,
+            r.name AS role_name, r.declared_as, r.is_admin, r.rpt_role_id
+       FROM rpt_session s
+       JOIN rpt_user u ON u.rpt_user_id = s.rpt_user_id
+       LEFT JOIN rpt_role r ON r.rpt_role_id = u.rpt_role_id
+      WHERE s.token = $1\`,
+    [token]
+  );
+  if (!row) return null;
+
+  if (new Date(row.expires_at).getTime() < Date.now()) {
+    await db.remove("rpt_session", { token });
+    return null;
+  }
+  if (row.is_active === false) return null;
+
+  const scoped = row.rpt_role_id
+    ? await db.query("SELECT table_name FROM rpt_role_tables WHERE rpt_role_id = $1", [
+        row.rpt_role_id,
+      ])
+    : [];
+
+  return {
+    id: row.rpt_user_id,
+    name: row.name,
+    email: row.email,
+    token,
+    role: row.role_name || null,
+    declaredAs: row.declared_as || null,
+    isAdmin: row.is_admin === true,
+    /*
+     * \`null\` means every table, and only an administrator gets it.
+     *
+     * An ordinary role with no rows reads *nothing*, which is not the same
+     * answer and is a real case: the built-in \`User\` role holds no functional
+     * role, so no \`read\` rule admits it and the pack gives it an empty table
+     * list. Reading "no rows" as "unrestricted" handed the least-privileged
+     * account on the system permission to read every table in the application
+     * — the exact inversion of what it is for, and invisible because its
+     * dashboard then looked like an administrator's.
+     *
+     * The pack's own \`tables: []\` carries the same two meanings and is
+     * disambiguated the same way, by \`isAdmin\`.
+     */
+    tables: row.is_admin === true ? null : new Set(scoped.map((s) => s.table_name)),
+  };
+}
+
+export async function destroyReportSession(db, token) {
+  if (token) await db.remove("rpt_session", { token });
+}
+`,
   "server/lib/router.js": `/**
  * A pattern router over Web \`Request\`.
  *
@@ -12843,6 +13070,23 @@ export function toRouteName(entity) {
  */
 
 import { errorResponse, notFound } from "./http.js";
+
+/**
+ * A handler that runs a sub-router's middleware first.
+ *
+ * Returned unchanged when there is none, so a mounted router without
+ * middleware costs no extra frame per request.
+ */
+function guarded(middleware, handler) {
+  if (!middleware || middleware.length === 0) return handler;
+  return async (request, ctx) => {
+    for (const fn of middleware) {
+      const early = await fn(request, ctx);
+      if (early instanceof Response) return early;
+    }
+    return handler(request, ctx);
+  };
+}
 
 function compile(pattern) {
   const parts = pattern.split("/").filter(Boolean);
@@ -12888,11 +13132,27 @@ export class Router {
   patch(p, h) { return this.add("PATCH", p, h); }
   delete(p, h) { return this.add("DELETE", p, h); }
 
-  /** Mount another router under a prefix. */
+  /**
+   * Mount another router under a prefix, middleware included.
+   *
+   * The middleware is the point of this being more than a loop. It used to copy
+   * \`router.routes\` and nothing else, and every module in this runtime declares
+   * its authentication as \`router.use(… requireUser(user))\` — so mounting one
+   * dropped its guard. \`/api/sys\`, \`/api/rules\`, \`/api/workflows\`, \`/api/model\`
+   * and \`/api/reports\` all answered a caller with no session: the Application
+   * Dictionary, the compiled business rules, the workflow definitions, the
+   * model and every report the model declares, to anybody who asked. Nothing
+   * looked wrong from the UI, which always has a session by the time it calls.
+   *
+   * Each mounted route is wrapped rather than the middleware being added to
+   * *this* router, because it belongs to the sub-router: \`sys.routes.js\`
+   * requires an administrator for any non-GET, and promoting that to the parent
+   * would apply it to every other module mounted beside it.
+   */
   mount(prefix, router) {
     for (const route of router.routes) {
       const pattern = \`\${prefix}/\${route.parts.join("/")}\`.replace(/\\/+/g, "/");
-      this.add(route.method, pattern, route.handler);
+      this.add(route.method, pattern, guarded(router.middleware, route.handler));
     }
     return this;
   }
@@ -13277,7 +13537,20 @@ export async function evaluateRules(rules, record, options = {}) {
 
 import { hashPassword } from "./lib/auth.js";
 
-const SCHEMA_VERSION = 1;
+/**
+ * What the seed has already written, and why it is a number rather than a flag.
+ *
+ * \`sys_schema_state.seeded\` holds this value, and a database carrying an older
+ * one is re-seeded. That is what lets a stage be *added* — version 2 introduced
+ * the reporting application's \`rpt_\` tables and the accounts that sign into it,
+ * and a reader reopening a tab whose database was written by version 1 would
+ * otherwise get a reporting sign-in screen listing no accounts at all, on a
+ * database where the tables exist (the schema is \`CREATE TABLE IF NOT EXISTS\`)
+ * and nothing ever filled them.
+ *
+ * Bump it whenever a seed stage is added or its rows change shape.
+ */
+const SCHEMA_VERSION = 2;
 
 /**
  * Seeding, as a fraction of itself.
@@ -13331,6 +13604,10 @@ function seedCounter(model, log) {
     count(model.rules) +
     count(model.workflows) +
     accessRuleCount(model) +
+    /* The reporting application's own roles and accounts — one of each per
+       \`%%rbac\` role. Counted because the stage ticks, and a progress bar that
+       reaches 100% with a stage still to run is worse than none. */
+    count(model.reporting?.access?.roles) * 2 +
     Object.values(model.sampleData || {}).reduce((sum, rows) => sum + rows.length, 0);
 
   let done = 0;
@@ -13378,6 +13655,7 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   await seedRules(db, model, tick);
   await seedWorkflows(db, model, tick);
   await seedAccess(db, model, tick);
+  await seedReporting(db, model, log, tick);
   await seedSampleData(db, model, log, tick);
 
   await db.query(
@@ -13847,6 +14125,81 @@ const titleize = (value) =>
   String(value)
     .replace(/[_-]+/g, " ")
     .replace(/\\b\\w/g, (character) => character.toUpperCase());
+
+/**
+ * The reporting application's roles and accounts.
+ *
+ * This is the seeder the platform's own \`seed-reporting.ts\` is, reduced to what
+ * a browser tab can hold. There, a one-shot container registers the
+ * application's database as a data source, introspects its schema and writes
+ * the pack's queries, reports, charts and dashboards into
+ * \`enterprise_config\`. Here the pack is already in \`model.json\` and the
+ * database is the same PGlite instance, so the only thing that has to be
+ * *written* is the half that has to be signed into: a role per \`%%rbac\` role,
+ * the tables each may read, and one account to hold it.
+ *
+ * The addresses come from the pack, so they are the same addresses the platform
+ * would seed — \`sales.manager@crm.reports.example.com\`, deliberately not the
+ * application's \`sales.manager@crm.example.com\`. Two accounts, two passwords,
+ * two sign-in screens. A reader who tries one password on the other side and
+ * finds it refused has learned the thing this arrangement exists to teach.
+ */
+async function seedReporting(db, model, log, tick = () => {}) {
+  const pack = model.reporting;
+  const roles = pack?.access?.roles ?? [];
+  if (roles.length === 0) return;
+
+  /* One hash for every account, computed once. PBKDF2 at 100k iterations costs
+     about a tenth of a second, and a ten-role model would spend a second of the
+     boot deriving the same hash ten times. */
+  const password = pack.access.reportPassword || "admin";
+  const hash = await hashPassword(password);
+  const seeded = [];
+
+  for (const role of roles) {
+    const existing = await db.one("SELECT rpt_role_id FROM rpt_role WHERE name = $1", [role.name]);
+    const roleId = existing
+      ? existing.rpt_role_id
+      : (
+          await db.insert("rpt_role", {
+            name: role.name,
+            declared_as: role.declaredAs ?? null,
+            description: role.description ?? null,
+            is_admin: !!role.isAdmin,
+          })
+        ).rpt_role_id;
+    tick();
+
+    /* No rows for an administrator: an empty scope means "every table", the
+       same way an entity no \`%%rbac\` line names is open to every role. Writing
+       one row per table for the administrator would say the same thing in a
+       form that goes stale the moment an entity is added. */
+    for (const table of role.tables ?? []) {
+      await db.query(
+        \`INSERT INTO rpt_role_tables (rpt_role_id, table_name) VALUES ($1, $2)
+           ON CONFLICT (rpt_role_id, table_name) DO NOTHING\`,
+        [roleId, table]
+      );
+    }
+
+    const user = await db.one("SELECT rpt_user_id FROM rpt_user WHERE email = $1", [role.email]);
+    if (!user) {
+      await db.insert("rpt_user", {
+        name: role.name,
+        email: role.email,
+        password_hash: hash,
+        description: role.description ?? null,
+        rpt_role_id: roleId,
+      });
+    }
+    tick();
+    seeded.push(role.email);
+  }
+
+  log(
+    \`Reporting sign-in ready — \${seeded.length} account(s), password \${password}: \${seeded.join(", ")}\`
+  );
+}
 `,
   "server/modules/audit.routes.js": `/**
  * The audit trail.
@@ -14870,6 +15223,410 @@ export function modelRoutes(model, readAsset) {
     const source = await readAsset("model/model.eml.mmd").catch(() => "");
     return text(source || "-- no model source was written with this application --");
   });
+
+  return router;
+}
+`,
+  "server/modules/report-auth.routes.js": `/**
+ * The reporting application's sign-in — the other login.
+ *
+ * Deliberately not a second door onto \`/auth\`. It reads \`rpt_user\`, writes
+ * \`rpt_session\` and answers with a token the browser keeps under its own key,
+ * so the two applications in this tab have two sessions and neither can be
+ * mistaken for the other. That is what the deployed pair does with two servers
+ * and two databases, and a reader who tries the application's password here and
+ * is refused has seen the only thing about the arrangement that is easy to get
+ * wrong.
+ */
+
+import { Router } from "../lib/router.js";
+import { json, readJson, unauthorized } from "../lib/http.js";
+import { verifyPassword } from "../lib/auth.js";
+import {
+  clearedReportSessionCookie,
+  createReportSession,
+  destroyReportSession,
+  reportSessionCookie,
+} from "../lib/report-auth.js";
+
+/** What a caller may know about itself. Never the token or the hash. */
+function present(reportUser) {
+  return {
+    id: reportUser.id,
+    name: reportUser.name,
+    email: reportUser.email,
+    role: reportUser.role,
+    declaredAs: reportUser.declaredAs,
+    isAdmin: reportUser.isAdmin,
+    /* An array, and \`null\` for unrestricted — the same distinction the server
+       keeps, handed to the client so its own screens can say "every table"
+       rather than counting to the total and hoping. */
+    tables: reportUser.tables ? [...reportUser.tables].sort() : null,
+  };
+}
+
+export function reportAuthRoutes(model) {
+  const router = new Router();
+
+  router.post("/login", async (request, { db }) => {
+    const body = await readJson(request);
+    const identifier = String(body.email ?? body.username ?? "")
+      .trim()
+      .toLowerCase();
+    const password = String(body.password ?? "");
+
+    const user = await db.one(
+      \`SELECT u.*, r.name AS role_name, r.is_admin
+         FROM rpt_user u
+         LEFT JOIN rpt_role r ON r.rpt_role_id = u.rpt_role_id
+        WHERE lower(u.email) = $1 OR lower(split_part(u.email, '@', 1)) = $1
+        LIMIT 1\`,
+      [identifier]
+    );
+
+    const ok =
+      user && user.is_active !== false && (await verifyPassword(password, user.password_hash));
+    if (!ok) {
+      /*
+       * One message for a wrong password and for an address that is not here.
+       *
+       * Two messages would say which addresses exist — and on this side of the
+       * pair that is a longer list than a reader might expect, because every
+       * \`%%rbac\` role has an account. The application's own sign-in makes the
+       * same choice.
+       */
+      throw unauthorized("Invalid email or password");
+    }
+
+    const token = await createReportSession(db, user.rpt_user_id, request.headers.get("user-agent"));
+    return json(
+      {
+        user: {
+          id: user.rpt_user_id,
+          name: user.name,
+          email: user.email,
+          role: user.role_name || null,
+          isAdmin: user.is_admin === true,
+        },
+        token,
+      },
+      { headers: { "Set-Cookie": reportSessionCookie(token) } }
+    );
+  });
+
+  router.post("/logout", async (_request, { db, reportUser }) => {
+    if (reportUser) await destroyReportSession(db, reportUser.token);
+    return json({ success: true }, { headers: { "Set-Cookie": clearedReportSessionCookie() } });
+  });
+
+  router.get("/me", async (_request, { reportUser }) => {
+    if (!reportUser) throw unauthorized("Sign in to the reporting application to continue");
+    return json(present(reportUser));
+  });
+
+  /**
+   * What the reporting sign-in screen offers.
+   *
+   * Every seeded reporting account, with the number of the application's tables
+   * its role may read. That number is why the list is worth printing: a
+   * reporting role is *only* a statement about what its queries may see, so
+   * \`support.agent@… — 5 of 17 tables\` is the whole of what signing in as it
+   * will do. The addresses are read out of the pack rather than out of the
+   * table, so the screen says the same thing whether or not the seed ran.
+   */
+  router.get("/config", async (_request, { db }) => {
+    const pack = model.reporting || {};
+    const access = pack.access || {};
+    const rows = await db.query(
+      \`SELECT u.email, u.name, r.name AS role_name, r.is_admin,
+              (SELECT COUNT(*) FROM rpt_role_tables t WHERE t.rpt_role_id = r.rpt_role_id) AS tables
+         FROM rpt_user u
+         LEFT JOIN rpt_role r ON r.rpt_role_id = u.rpt_role_id
+        ORDER BY r.is_admin DESC, u.email\`
+    );
+
+    const total = access.entityTotal ?? (model.entities || []).length;
+    const accounts = rows.map((row) => ({
+      email: row.email,
+      name: row.name,
+      role: row.role_name || null,
+      isAdmin: row.is_admin === true,
+      /* An administrator has no rows, and that means every table rather than
+         none. Reporting the raw count here is how a sign-in screen comes to
+         offer "Administrator — 0 of 17". */
+      tables: row.is_admin === true ? total : Number(row.tables ?? 0),
+      total,
+    }));
+
+    return json({
+      application: pack.application ?? { name: model.project?.name },
+      dataSource: pack.dataSource ?? null,
+      password: access.reportPassword ?? "admin",
+      scoped: access.scoped ?? false,
+      accounts,
+      counts: {
+        queries: (pack.queries || []).length,
+        reports: (pack.reports || []).length,
+        charts: (pack.charts || []).length,
+        dashboards: (pack.dashboards || []).length,
+      },
+    });
+  });
+
+  return router;
+}
+`,
+  "server/modules/reporting.routes.js": `/**
+ * \`/reporting\` — the Enterprise Reporting platform's surface, in a browser tab.
+ *
+ * The platform stores reports, charts and dashboards as definitions over saved
+ * SQL queries, and holds a role table deciding which of a data source's tables
+ * a reporting user's queries may read. These routes serve exactly those
+ * definitions, from the pack the generator derived, against the same PGlite
+ * database the application uses as its data source.
+ *
+ * What is the same as the deployed platform: the definitions, the roles, which
+ * tables each role reads, and the refusal when a query names a table the role
+ * does not.
+ *
+ * What is not: there is no SQL editor, nothing here writes a definition, and
+ * the platform's NL→SQL pipeline, scheduled deliveries and knowledge graph need
+ * servers this runtime does not have. A read-only mirror is worth more than a
+ * set of buttons that answer "not in the browser build".
+ *
+ * ## Access
+ *
+ * A query declares the \`bus_\` tables it reads (\`SavedQuerySpec.tables\`, filled
+ * in where the pack is derived). A role either reads every table or reads a
+ * named set, and a query is visible when every table it names is in that set.
+ * Checked twice on purpose: once when listing, so a report a role cannot run is
+ * not offered, and again when running, because a list is a convenience and the
+ * refusal is the boundary. The platform does the same thing with a SQL parser
+ * and \`ds_entity_permissions\`; here the tables are already known, so there is
+ * nothing to parse.
+ */
+
+import { Router } from "../lib/router.js";
+import { badRequest, forbidden, json, notFound, unauthorized } from "../lib/http.js";
+
+/**
+ * The most rows one report returns.
+ *
+ * A pack's query is free to have no LIMIT, and the derived ones mostly do have
+ * one; an authored \`%%report\` need not. This is a browser tab holding the whole
+ * database in memory, so "every row" is a question that ends the tab rather
+ * than answering anything.
+ */
+const MAX_ROWS = 2000;
+
+/**
+ * A report may only read.
+ *
+ * Refused three times over: the checker at authoring time (\`EML293\`), the
+ * compiler before the SQL can reach a pack, and here before the database is
+ * handed a statement. \`model.json\` is a file in the application directory, and
+ * the runtime should not execute SQL because a file said to.
+ */
+function assertReadOnly(sql) {
+  const body = String(sql).replace(/;\\s*$/, "");
+  if (!/^\\s*(?:with|select)\\b/i.test(body)) {
+    throw badRequest("A report query must be a SELECT or a WITH query.");
+  }
+  // A semicolon outside quotes is a second statement hiding behind the first.
+  let quote = null;
+  for (let index = 0; index < body.length; index++) {
+    const ch = body[index];
+    if (quote) {
+      if (ch === quote) {
+        if (body[index + 1] === quote) index += 1;
+        else quote = null;
+      }
+      continue;
+    }
+    if (ch === "'" || ch === '"') quote = ch;
+    else if (ch === ";") throw badRequest("A report query must be a single statement.");
+  }
+  return body;
+}
+
+function requireReportUser(reportUser) {
+  if (!reportUser) throw unauthorized("Sign in to the reporting application to continue");
+  return reportUser;
+}
+
+/** The tables a query reads that this role may not. Empty means it may run. */
+function tablesRefused(reportUser, query) {
+  if (!reportUser.tables) return [];
+  return (query?.tables ?? []).filter((table) => !reportUser.tables.has(table));
+}
+
+export function reportingRoutes(model) {
+  const router = new Router();
+  const pack = model.reporting || {};
+
+  const queries = pack.queries || [];
+  const byQueryKey = new Map(queries.map((query) => [query.key, query]));
+  const reports = pack.reports || [];
+  const charts = pack.charts || [];
+  const dashboards = pack.dashboards || [];
+
+  router.use(async (_request, { reportUser }) => {
+    requireReportUser(reportUser);
+  });
+
+  /** A report or chart is readable when the query behind it is. */
+  const readable = (reportUser) => (item) =>
+    tablesRefused(reportUser, byQueryKey.get(item.queryKey)).length === 0;
+
+  /** What a caller sees of a definition: everything except the SQL. */
+  const describe = (item) => {
+    const query = byQueryKey.get(item.queryKey);
+    const { sql: _sql, ...rest } = { ...item };
+    return { ...rest, tables: query?.tables ?? [] };
+  };
+
+  router.get("/", async (_request, { reportUser }) => {
+    const visibleReports = reports.filter(readable(reportUser));
+    const visibleCharts = charts.filter(readable(reportUser));
+    return json({
+      application: pack.application ?? { name: model.project?.name },
+      dataSource: pack.dataSource ?? null,
+      role: {
+        name: reportUser.role,
+        isAdmin: reportUser.isAdmin,
+        tables: reportUser.tables ? [...reportUser.tables].sort() : null,
+        tableTotal: pack.access?.entityTotal ?? (model.entities || []).length,
+      },
+      counts: {
+        /* Both numbers, always. "18 reports" on a scoped role is a number the
+           reader cannot act on — "18 of 116" is the whole story of what the
+           role did, and it is the only place in either application where the
+           two halves of \`%%rbac\` can be compared side by side. */
+        reports: visibleReports.length,
+        reportsTotal: reports.length,
+        charts: visibleCharts.length,
+        chartsTotal: charts.length,
+        dashboards: dashboards.length,
+      },
+    });
+  });
+
+  router.get("/reports", async (_request, { reportUser }) =>
+    json(reports.filter(readable(reportUser)).map(describe))
+  );
+
+  router.get("/charts", async (_request, { reportUser }) =>
+    json(charts.filter(readable(reportUser)).map(describe))
+  );
+
+  /**
+   * The dashboards, with the widgets this role cannot see removed.
+   *
+   * Removed rather than the dashboard being hidden: an overview of six tiles
+   * where a role may read four is an overview of four, and a role whose
+   * dashboard disappears entirely has been told less than one showing what it
+   * does cover. \`hiddenWidgets\` says how many went, so the screen can say so
+   * instead of quietly presenting a gap-toothed grid as complete.
+   */
+  router.get("/dashboards", async (_request, { reportUser }) =>
+    json(
+      dashboards.map((dashboard) => {
+        const chartOf = new Map(charts.map((chart) => [chart.key, chart]));
+        const widgets = (dashboard.widgets || []).filter((widget) => {
+          const chart = widget.chartKey ? chartOf.get(widget.chartKey) : null;
+          if (!chart) return !widget.chartKey;
+          return readable(reportUser)(chart);
+        });
+        return {
+          ...dashboard,
+          widgets,
+          hiddenWidgets: (dashboard.widgets || []).length - widgets.length,
+        };
+      })
+    )
+  );
+
+  /**
+   * Run one report or chart, by key.
+   *
+   * \`kind\` is in the path rather than guessed from the key, because a report
+   * and the chart derived from the same query share one: the pack keys both
+   * \`account__by_status\`, and a single lookup would answer whichever collection
+   * was searched first.
+   */
+  router.get("/:kind/:key/run", async (_request, { db, params, reportUser }) => {
+    const collection =
+      params.kind === "reports" ? reports : params.kind === "charts" ? charts : null;
+    if (!collection) throw notFound(\`No reporting collection named "\${params.kind}"\`);
+
+    const item = collection.find((candidate) => candidate.key === params.key);
+    if (!item) throw notFound(\`No \${params.kind.replace(/s$/, "")} named "\${params.key}"\`);
+
+    const query = byQueryKey.get(item.queryKey);
+    if (!query) {
+      // The pack is internally inconsistent — a definition pointing at a query
+      // that is not there. Say which, because the answer is in the generator.
+      throw notFound(\`"\${item.name}" points at query "\${item.queryKey}", which the pack has not\`);
+    }
+
+    const refused = tablesRefused(reportUser, query);
+    if (refused.length > 0) {
+      throw forbidden(
+        \`\${reportUser.role ?? "This role"} may not read \${refused.join(", ")}, which "\${item.name}" queries.\`
+      );
+    }
+
+    const body = assertReadOnly(query.sql);
+    const started = Date.now();
+
+    // Wrapped rather than appended to: a pack's query may end in ORDER BY, a
+    // LIMIT of its own or a comment, and adding to any of those changes what it
+    // means. One row past the cap distinguishes a full page from a truncated
+    // one without counting the whole thing twice.
+    let rows;
+    try {
+      rows = await db.query(\`SELECT * FROM (\${body}) AS report_body LIMIT \${MAX_ROWS + 1}\`);
+    } catch (error) {
+      // The query came out of the model, so this is a defect in the document or
+      // in the derivation rather than in the request. Name the report and quote
+      // the database — nobody can act on "the report failed".
+      throw badRequest(
+        \`Report "\${item.name}" failed: \${error?.message || String(error)}\`
+      );
+    }
+
+    const truncated = rows.length > MAX_ROWS;
+    if (truncated) rows = rows.slice(0, MAX_ROWS);
+
+    return json({
+      definition: describe(item),
+      query: { key: query.key, name: query.name, description: query.description, tables: query.tables },
+      // Off the first row rather than a driver field list, so the column order
+      // the query's own SELECT declares is the order it renders in.
+      columns: rows.length > 0 ? Object.keys(rows[0]) : [],
+      rows,
+      rowCount: rows.length,
+      truncated,
+      durationMs: Date.now() - started,
+    });
+  });
+
+  /**
+   * The saved queries, with their SQL.
+   *
+   * The SQL is shown here and withheld everywhere else, which is deliberate
+   * rather than inconsistent: a reporting user's question about a number is
+   * always "where did this come from", and the platform answers it with the
+   * saved query the report is built on. Only the queries this role may run are
+   * listed, so the screen is not a catalogue of what it cannot have.
+   */
+  router.get("/queries", async (_request, { reportUser }) =>
+    json(
+      queries
+        .filter((query) => tablesRefused(reportUser, query).length === 0)
+        .map((query) => ({ ...query }))
+    )
+  );
 
   return router;
 }
@@ -16108,6 +16865,74 @@ a { color: var(--primary); }
 @media (max-width: 860px) {
   .report-layout { grid-template-columns: 1fr; }
 }
+
+/* --------------------------------------------------- reporting ---------- */
+
+/*
+ * The reporting application, told apart from the one it reports on.
+ *
+ * The same design system — two applications generated from one model should not
+ * look like two products — with one deliberate difference: a slate accent
+ * instead of the teal. A reader who is signed into both at once in one tab has
+ * to be able to tell, at a glance, which one they are looking at, and the
+ * masthead is the only thing always on screen.
+ */
+:root {
+  --reporting: #3f4a5a;
+  --reporting-soft: #eef1f5;
+}
+
+.login--report .login__aside { background: var(--reporting-soft); }
+.login__mark--report { background: var(--reporting); }
+.login--report .btn--primary { background: var(--reporting); border-color: var(--reporting); }
+.login--report .btn--primary:hover { background: #313a47; border-color: #313a47; }
+.login--report .login__hint { background: var(--reporting-soft); }
+.login__aside-note {
+  margin: 18px 0 20px; font-size: 12.5px; line-height: 1.55; color: var(--text-soft);
+}
+
+.masthead--report { border-bottom: 2px solid var(--reporting); }
+.masthead__badge {
+  padding: 4px 9px; border-radius: 999px; background: var(--reporting); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.avatar--report { background: var(--reporting); }
+.shell--report .actionbar .btn.is-active {
+  background: var(--reporting); border-color: var(--reporting); color: #fff;
+}
+.crumbs__note { color: var(--text-faint); font-size: 12px; }
+
+/* The dashboard's tiles: one chart each, in a grid that collapses on a phone. */
+.report-grid {
+  display: grid; gap: 14px; margin: 14px 0 26px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+}
+.report-tile {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 16px; min-width: 0;
+}
+.report-tile h3 { margin: 0 0 8px; font-size: 14px; }
+.report-tile .report-chart { color: var(--reporting); width: 100%; height: auto; }
+
+.report-tables {
+  display: grid; gap: 4px; margin: 10px 0 24px; padding: 0; list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+}
+.report-tables li { font-size: 12.5px; }
+
+/* A saved query, shown where a reader asks where a number came from. */
+.report-sql { margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 13px; background: var(--surface); }
+.report-sql > summary { cursor: pointer; font-size: 13px; font-weight: 500; }
+.report-sql pre {
+  margin: 10px 0 0; padding: 11px 12px; overflow-x: auto;
+  background: var(--surface-2); border-radius: var(--radius-sm);
+  font-family: var(--mono); font-size: 12px; line-height: 1.5;
+}
+.shell--report .report-chart { color: var(--reporting); }
+
+/* The entry point on the application's own dashboard. */
+.category--reporting .category__count { color: var(--reporting); font-weight: 600; text-transform: none; }
+.card--reporting { border-left: 3px solid var(--reporting); }
 `,
   "sw.js": `/**
  * The Service Worker — this application's HTTP layer.
@@ -16444,12 +17269,35 @@ function contentType(name) {
 
 const TOKEN_KEY = "appwithai.session";
 
+/**
+ * The reporting application's session, kept under a key of its own.
+ *
+ * Two applications share this tab and a reader can be signed into both at once,
+ * so there are two tokens and they must not collide — one storage key would
+ * mean signing into the reporting platform silently ended the application's
+ * session, which reads as a bug in whichever screen noticed first.
+ */
+const REPORT_TOKEN_KEY = "appwithai.report-session";
+
+/**
+ * The header the reporting token travels in.
+ *
+ * Not \`Authorization\`: both sessions are bearer tokens (a Service Worker does
+ * not pass cookies through to a request it intercepts), and one header cannot
+ * carry two of them. The server reads this one first for \`/reporting\` and
+ * \`/report-auth\`.
+ */
+const REPORT_HEADER = "X-Reporting-Authorization";
+
 let base = "/";
 let onUnauthorized = () => {};
+let onReportUnauthorized = () => {};
 let token = null;
+let reportToken = null;
 
 try {
   token = sessionStorage.getItem(TOKEN_KEY);
+  reportToken = sessionStorage.getItem(REPORT_TOKEN_KEY);
 } catch {
   // Storage can be denied outright (a locked-down browser, some private modes).
   // An in-memory session still works for as long as the page is open.
@@ -16458,20 +17306,34 @@ try {
 export function configure(options) {
   base = options.basePath || "/";
   if (options.onUnauthorized) onUnauthorized = options.onUnauthorized;
+  if (options.onReportUnauthorized) onReportUnauthorized = options.onReportUnauthorized;
 }
 
-export function setToken(value) {
-  token = value || null;
+function store(key, value) {
   try {
-    if (token) sessionStorage.setItem(TOKEN_KEY, token);
-    else sessionStorage.removeItem(TOKEN_KEY);
+    if (value) sessionStorage.setItem(key, value);
+    else sessionStorage.removeItem(key);
   } catch {
     // See above — memory is enough.
   }
 }
 
+export function setToken(value) {
+  token = value || null;
+  store(TOKEN_KEY, token);
+}
+
 export function hasToken() {
   return !!token;
+}
+
+export function setReportToken(value) {
+  reportToken = value || null;
+  store(REPORT_TOKEN_KEY, reportToken);
+}
+
+export function hasReportToken() {
+  return !!reportToken;
 }
 
 export class ApiError extends Error {
@@ -16484,10 +17346,23 @@ export class ApiError extends Error {
   }
 }
 
-async function request(method, path, body) {
+/**
+ * One request implementation, two audiences.
+ *
+ * \`audience\` decides which token is sent and which 401 handler runs — never
+ * which URL is called, because both applications are served by the same server
+ * under the same \`/api\`. A single handler would sign the reader out of the
+ * application because a reporting call expired, which is the confusion the two
+ * sessions exist to prevent.
+ */
+async function request(method, path, body, audience = "app") {
   const headers = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  if (token) headers.Authorization = \`Bearer \${token}\`;
+  if (audience === "report") {
+    if (reportToken) headers[REPORT_HEADER] = \`Bearer \${reportToken}\`;
+  } else if (token) {
+    headers.Authorization = \`Bearer \${token}\`;
+  }
 
   const response = await fetch(\`\${base}api\${path.startsWith("/") ? path : \`/\${path}\`}\`, {
     method,
@@ -16508,8 +17383,13 @@ async function request(method, path, body) {
 
   if (!response.ok) {
     if (response.status === 401) {
-      setToken(null);
-      onUnauthorized();
+      if (audience === "report") {
+        setReportToken(null);
+        onReportUnauthorized();
+      } else {
+        setToken(null);
+        onUnauthorized();
+      }
     }
     throw new ApiError(response.status, parsed);
   }
@@ -16522,6 +17402,12 @@ export const api = {
   put: (path, body) => request("PUT", path, body ?? {}),
   patch: (path, body) => request("PATCH", path, body ?? {}),
   delete: (path) => request("DELETE", path),
+};
+
+/** The same client, carrying the reporting application's session. */
+export const reportApi = {
+  get: (path) => request("GET", path, undefined, "report"),
+  post: (path, body) => request("POST", path, body ?? {}, "report"),
 };
 
 /** \`{ a: 1, b: null }\` -> \`?a=1\`, skipping what is not set. */
@@ -16739,6 +17625,7 @@ import { dashboardView } from "./views/dashboard.js";
 import { entityListView } from "./views/entity-list.js";
 import { dictionaryView, rulesView, processesView, auditView, modelView } from "./views/admin.js";
 import { reportsView } from "./views/reports.js";
+import { reportAppView, reportSessionEnded, resetReportView } from "./views/report-app.js";
 
 const state = {
   user: null,
@@ -16768,6 +17655,22 @@ export async function start({ basePath, project }) {
         state.user = null;
         state.model = null;
         toast("Your session ended — sign in again", "error");
+        render();
+      }
+    },
+    /* The reporting application's session, expiring separately. Losing it must
+       not touch \`state.user\`: the reader is still signed into the application,
+       and signing them out of it because a reporting call came back 401 is the
+       confusion two sessions exist to prevent.
+
+       \`reportSessionEnded\` answers whether there was a session at all — the
+       reporting shell probes \`/report-auth/me\` on entry and a "no" to that is
+       an ordinary 401, not an expiry. Announcing it would toast once per probe
+       and repaint once per toast, and the repaint probes again. */
+    onReportUnauthorized: () => {
+      if (!reportSessionEnded()) return;
+      if (isReportRoute(window.location.hash)) {
+        toast("Your reporting session ended — sign in again", "error");
         render();
       }
     },
@@ -16813,8 +17716,48 @@ export function childEntitiesOf(parentName) {
   return state.entities.filter((entity) => entity.parentEntity === parentName);
 }
 
+/**
+ * Is this route the reporting application?
+ *
+ * Matched exactly, never as a prefix. The application's own admin screen is
+ * \`#/reports\` — the \`%%report\` questions it serves itself — and
+ * \`"#/reports".startsWith("#/report")\` is true, so a prefix test sent every
+ * reader who clicked Reports in the application to the reporting platform's
+ * sign-in screen instead.
+ */
+function isReportRoute(hash) {
+  const route = (hash || "").replace(/^#/, "");
+  return route === "/report" || route.startsWith("/report/");
+}
+
 async function render() {
   const root = document.getElementById("app");
+
+  /*
+   * The reporting application, before the application's own sign-in gate.
+   *
+   * Deliberately first. \`#/report\` is the second of the two applications this
+   * model generates, and it has its own accounts — so reaching it must not
+   * require a session in the *other* one. Putting this check after the gate
+   * below would mean the reporting platform could only be opened by somebody
+   * already signed into the application, which is exactly the shared-login
+   * arrangement the two products do not have.
+   */
+  if (isReportRoute(window.location.hash)) {
+    // The shell owns the whole root here: it has a masthead of its own, and a
+    // second one above it would say the two are one application with a section.
+    return void (await reportAppView(root, {
+      project: state.project,
+      onLeave: () => {
+        // Nothing is signed out. The reader keeps their reporting session and
+        // arrives at the application needing that one, which is the truth
+        // about the pair rather than a convenience.
+        resetReportView();
+        mount(root);
+        navigate("/");
+      },
+    }));
+  }
 
   if (!state.user) {
     await loginView(root, {
@@ -17671,6 +18614,43 @@ export async function dashboardView(root, { entities, navigate, project, user })
             )
           )
         ),
+
+      /*
+       * The other application generated from this model.
+       *
+       * A section of its own rather than a card in the dictionary grid, because
+       * it is not a screen of this application: it has its own accounts, and
+       * clicking through lands on a sign-in rather than on a report. Saying so
+       * here is the point — a reader who is never told the reporting platform
+       * exists has had it built for them and cannot find it.
+       */
+      el(
+        "section.category.category--reporting",
+        el(
+          "div.category__head",
+          el("span.category__name", "Enterprise Reporting"),
+          el("span.category__count", "separate sign-in")
+        ),
+        el(
+          "p.category__desc",
+          "The reporting application built from the same model — its reports, charts and dashboard, " +
+            "and one reporting role per role this model declares. It keeps its own accounts, so it " +
+            "asks you to sign in again."
+        ),
+        el(
+          "div.cards",
+          el(
+            "button.card.card--reporting",
+            { onclick: () => navigate("/report") },
+            el("div.card__top", el("span.card__icon", "▦"), el("span.card__name", "Open reporting")),
+            el("span.card__arrow", "→"),
+            el(
+              "p.card__sub",
+              "Sign in as a reporting role and see exactly the tables it may read"
+            )
+          )
+        )
+      ),
 
       el(
         "section.category",
@@ -19263,6 +20243,780 @@ const initials = (name) =>
     .map((word) => word[0].toUpperCase())
     .join("") || "AP";
 `,
+  "ui/views/report-app.js": `/**
+ * The reporting application — its own shell, inside the same tab.
+ *
+ * Two applications are generated from one model and this is the second of
+ * them. Deployed, it is the Enterprise Reporting platform: a separate service,
+ * a separate database (\`enterprise_config\`), a separate user table, reached at
+ * \`/report\` behind the same proxy. A browser tab cannot run a second server, so
+ * here it is a second shell over the same runtime — and everything a reader
+ * meets is still separate: its own sign-in, its own accounts, its own roles,
+ * and reports scoped to what each role may read.
+ *
+ * What it deliberately does not pretend to be: there is no SQL editor, no
+ * report designer, no natural-language query and no scheduled delivery. Those
+ * need the platform's servers. A read-only mirror of what the platform would
+ * hold is worth more than buttons that answer "not in the browser build".
+ */
+
+import { el, empty, mount, spinner, toast } from "../dom.js";
+import { reportApi, setReportToken } from "../api.js";
+import { reportLoginView } from "./report-login.js";
+
+const state = {
+  user: null,
+  overview: null,
+  /** Which section is showing: dashboard | reports | charts | queries | access. */
+  section: "dashboard",
+};
+
+/**
+ * Repaint the shell.
+ *
+ * Held here rather than threaded through every screen: the shell is a single
+ * function and the screens below it only ever want "show the section I just
+ * set". Assigned by \`reportAppView\`, which is the only thing that can build it.
+ */
+let rerender = async () => {};
+
+/** Render one SQL scalar as a cell. */
+function cell(value) {
+  if (value === null || value === undefined) return "—";
+  if (value instanceof Date) return value.toLocaleDateString();
+  if (typeof value === "number") return value.toLocaleString();
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}
+
+/**
+ * A chart, as SVG, from the rows the query already returned.
+ *
+ * No charting library, for the same reason the application's own reports screen
+ * has none: this runtime has no build step and no dependencies, and the drawing
+ * is two column names the pack chose plotted against each other. \`pie\` and
+ * \`area\` render as bars rather than as nothing — the shape is a presentation
+ * preference and refusing to draw would lose the answer.
+ */
+function chartSvg(kind, xField, yField, rows) {
+  const points = rows
+    .map((row) => ({ label: cell(row[xField]), value: Number(row[yField]) }))
+    .filter((point) => Number.isFinite(point.value))
+    .slice(0, 30);
+  if (points.length === 0) return null;
+
+  const max = Math.max(...points.map((point) => point.value), 0) || 1;
+  const width = 700;
+  const height = 200;
+  const step = width / points.length;
+  const svgns = "http://www.w3.org/2000/svg";
+
+  const svg = document.createElementNS(svgns, "svg");
+  svg.setAttribute("viewBox", \`0 0 \${width} \${height + 34}\`);
+  svg.setAttribute("class", "report-chart");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", \`\${yField} by \${xField}\`);
+
+  if (kind === "line") {
+    const line = document.createElementNS(svgns, "polyline");
+    line.setAttribute("fill", "none");
+    line.setAttribute("stroke", "currentColor");
+    line.setAttribute("stroke-width", "2");
+    line.setAttribute(
+      "points",
+      points
+        .map((p, i) => \`\${i * step + step / 2},\${height - (p.value / max) * (height - 16)}\`)
+        .join(" ")
+    );
+    svg.appendChild(line);
+  } else {
+    points.forEach((point, index) => {
+      const barHeight = (point.value / max) * (height - 16);
+      const rect = document.createElementNS(svgns, "rect");
+      rect.setAttribute("x", String(index * step + step * 0.15));
+      rect.setAttribute("y", String(height - barHeight));
+      rect.setAttribute("width", String(step * 0.7));
+      rect.setAttribute("height", String(barHeight));
+      rect.setAttribute("fill", "currentColor");
+      svg.appendChild(rect);
+    });
+  }
+
+  points.forEach((point, index) => {
+    const text = document.createElementNS(svgns, "text");
+    text.setAttribute("x", String(index * step + step / 2));
+    text.setAttribute("y", String(height + 14));
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("font-size", "10");
+    text.setAttribute("opacity", "0.7");
+    text.textContent = point.label.length > 12 ? \`\${point.label.slice(0, 11)}…\` : point.label;
+    svg.appendChild(text);
+  });
+
+  return svg;
+}
+
+/** Run one definition and render the answer into \`panel\`. */
+async function run(panel, kind, item) {
+  mount(panel, spinner("Running"));
+
+  let result;
+  try {
+    result = await reportApi.get(
+      \`/reporting/\${kind}/\${encodeURIComponent(item.key)}/run\`
+    );
+  } catch (error) {
+    /* A 403 here is the reporting role working, not a failure, and it names the
+       table it refused — so it is shown as the answer rather than as an error
+       the reader is meant to do something about. */
+    return void mount(
+      panel,
+      empty(
+        error.status === 403 ? "This role may not read that" : "This report did not run",
+        error.message || String(error)
+      )
+    );
+  }
+
+  const parts = [el("h2", item.name)];
+  if (item.description) parts.push(el("p.muted", item.description));
+
+  if (kind === "charts") {
+    const svg = chartSvg(item.chartType, item.xField, item.yField, result.rows);
+    if (svg) parts.push(el("div.report-chart-wrap", svg, el("p.muted", \`\${item.yField} by \${item.xField}\`)));
+  }
+
+  parts.push(
+    el(
+      "p.muted",
+      \`\${result.rowCount} row\${result.rowCount === 1 ? "" : "s"} in \${result.durationMs}ms\` +
+        (result.truncated ? " — capped; the query returns more" : "")
+    )
+  );
+
+  if (result.rowCount === 0) {
+    parts.push(
+      el("p.muted", "No rows. The query is valid; nothing in the application's data answers it yet.")
+    );
+  } else {
+    parts.push(
+      el(
+        "div.table-wrap",
+        el(
+          "table",
+          el("thead", el("tr", ...result.columns.map((column) => el("th", column)))),
+          el(
+            "tbody",
+            ...result.rows.map((row) =>
+              el("tr", ...result.columns.map((column) => el("td", cell(row[column]))))
+            )
+          )
+        )
+      )
+    );
+  }
+
+  /* Where the number came from. A reporting user's next question about any
+     figure is always this one, and the platform answers it with the saved query
+     the report is built on. The SQL itself is not in this response — \`/run\`
+     returns the definition without it, so that a client cannot become the place
+     a query is read from — and **Saved queries** is the screen that has it. */
+  parts.push(
+    el(
+      "details.report-sql",
+      el("summary", \`Saved query — \${result.query.name}\`),
+      el("p.muted", result.query.description),
+      el("p.muted", \`Reads \${result.query.tables.join(", ") || "no business table"}.\`),
+      el(
+        "button.link",
+        {
+          onclick: async () => {
+            state.section = "queries";
+            await rerender();
+          },
+        },
+        "See its SQL under Saved queries"
+      )
+    )
+  );
+
+  parts.push(
+    el(
+      "button.btn",
+      {
+        onclick: () => {
+          run(panel, kind, item);
+          toast("Re-running", "info");
+        },
+      },
+      "Run again"
+    )
+  );
+
+  mount(panel, ...parts);
+}
+
+/** A list of definitions on the left, the answer on the right. */
+function browser(items, kind, emptyTitle, emptyDetail) {
+  if (items.length === 0) return empty(emptyTitle, emptyDetail);
+
+  // Grouped by the table the query reads, because that is what a reporting
+  // role is a statement about — and on a scoped role it is the grouping that
+  // shows which half of the application it has.
+  const groups = new Map();
+  for (const item of items) {
+    const key = (item.tables || [])[0] || "Across the application";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  }
+
+  const panel = el(
+    "div.report-panel",
+    empty("Choose one", "Pick a definition on the left to run it against the application's data.")
+  );
+
+  const list = el(
+    "nav.report-list",
+    ...[...groups.entries()].map(([group, groupItems]) =>
+      el(
+        "section",
+        el("h3", group),
+        el(
+          "ul",
+          ...groupItems.map((item) =>
+            el(
+              "li",
+              el(
+                "button.link",
+                {
+                  onclick: (event) => {
+                    for (const active of list.querySelectorAll(".is-active")) {
+                      active.classList.remove("is-active");
+                    }
+                    event.currentTarget.classList.add("is-active");
+                    run(panel, kind, item);
+                  },
+                },
+                item.name
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+
+  return el("div.report-layout", list, panel);
+}
+
+async function dashboardSection(outlet) {
+  mount(outlet, spinner("Loading the dashboard"));
+  const [dashboards, charts] = await Promise.all([
+    reportApi.get("/reporting/dashboards"),
+    reportApi.get("/reporting/charts"),
+  ]);
+
+  const byKey = new Map(charts.map((chart) => [chart.key, chart]));
+  const parts = [];
+
+  for (const dashboard of dashboards) {
+    parts.push(el("h2", dashboard.name));
+    if (dashboard.description) parts.push(el("p.muted", dashboard.description));
+    if (dashboard.hiddenWidgets > 0) {
+      /* Said rather than left as a gap: a role that may not read a table gets a
+         shorter dashboard, and a shorter dashboard with no explanation looks
+         like a build that half-worked. */
+      parts.push(
+        el(
+          "p.muted",
+          \`\${dashboard.hiddenWidgets} tile\${dashboard.hiddenWidgets === 1 ? "" : "s"} hidden — \` +
+            \`\${state.user.role ?? "this role"} may not read the tables behind them.\`
+        )
+      );
+    }
+
+    if (dashboard.widgets.length === 0) {
+      parts.push(empty("Nothing on this dashboard", "Every tile reads a table this role may not."));
+      continue;
+    }
+
+    const tiles = [];
+    for (const widget of dashboard.widgets) {
+      const chart = widget.chartKey ? byKey.get(widget.chartKey) : null;
+      const tile = el("div.report-tile", el("h3", widget.title), spinner("Loading"));
+      tiles.push(tile);
+      if (!chart) continue;
+
+      /* Each tile runs its own query. Sequential rather than parallel would be
+         tidier to read and slower to watch: six queries against a database in
+         this tab finish in well under a second each, and the reader sees the
+         grid fill in. */
+      reportApi
+        .get(\`/reporting/charts/\${encodeURIComponent(chart.key)}/run\`)
+        .then((result) => {
+          const svg = chartSvg(chart.chartType, chart.xField, chart.yField, result.rows);
+          mount(
+            tile,
+            el("h3", widget.title),
+            svg ?? el("p.muted", "No rows yet."),
+            el("p.muted", \`\${result.rowCount} row\${result.rowCount === 1 ? "" : "s"}\`)
+          );
+        })
+        .catch((error) => {
+          mount(tile, el("h3", widget.title), el("p.muted", error.message || String(error)));
+        });
+    }
+    parts.push(el("div.report-grid", ...tiles));
+  }
+
+  mount(outlet, ...parts);
+}
+
+async function accessSection(outlet) {
+  const role = state.overview.role;
+  const tables = role.tables;
+
+  mount(
+    outlet,
+    el("h2", "What this reporting role may read"),
+    el(
+      "p.muted",
+      tables === null
+        ? \`\${role.name ?? "This role"} reads every table of the attached application — all \${role.tableTotal}.\`
+        : \`\${role.name ?? "This role"} reads \${tables.length} of the application's \${role.tableTotal} tables. \` +
+            "A report whose query names any other table is not offered, and is refused if asked for."
+    ),
+    el(
+      "p.muted",
+      "This role mirrors a %%rbac role in the model, and only its read rules: the directive also " +
+        "restricts create, update and delete, and none of that means anything to somebody who " +
+        "cannot write through the reporting application at all."
+    ),
+    tables === null
+      ? null
+      : el("ul.report-tables", ...tables.map((table) => el("li", el("code", table)))),
+    el("h3", "This is a mirror, not a shared system"),
+    el(
+      "p.muted",
+      "The application and the reporting application keep their own accounts, and neither " +
+        "password works on the other side. Deployed, they are two services with two databases; " +
+        "the role names line up so an administrator can see which is which, and nothing else is shared."
+    )
+  );
+}
+
+async function queriesSection(outlet) {
+  mount(outlet, spinner("Loading the saved queries"));
+  const queries = await reportApi.get("/reporting/queries");
+  mount(
+    outlet,
+    el("h2", \`\${queries.length} saved quer\${queries.length === 1 ? "y" : "ies"}\`),
+    el(
+      "p.muted",
+      "Every report and chart is a definition over one of these. Only the queries this role may " +
+        "run are listed."
+    ),
+    ...queries.map((query) =>
+      el(
+        "details.report-sql",
+        el("summary", query.name),
+        el("p.muted", query.description),
+        el("p.muted", \`Reads \${query.tables.join(", ") || "no business table"}.\`),
+        el("pre", el("code", query.sql))
+      )
+    )
+  );
+}
+
+/**
+ * The reporting application's shell.
+ *
+ * \`onLeave\` goes back to the application it reports on. It is a link rather
+ * than a shared header because the two are not one product with two tabs: a
+ * reader leaving here keeps their reporting session, and arriving at the
+ * application still has to be signed into *that*.
+ */
+export async function reportAppView(root, { project, onLeave }) {
+  const render = async () => {
+    if (!state.user) {
+      await reportLoginView(root, {
+        project,
+        onLeave,
+        onSignedIn: async (user) => {
+          state.user = user;
+          state.overview = null;
+          await render();
+        },
+      });
+      return;
+    }
+
+    if (!state.overview) {
+      mount(root, spinner("Loading the reporting layer"));
+      state.overview = await reportApi.get("/reporting");
+    }
+
+    const outlet = el("main.outlet");
+    const sections = [
+      ["dashboard", "Dashboard"],
+      ["reports", \`Reports (\${state.overview.counts.reports})\`],
+      ["charts", \`Charts (\${state.overview.counts.charts})\`],
+      ["queries", "Saved queries"],
+      ["access", "Access"],
+    ];
+
+    mount(
+      root,
+      el(
+        "div.shell.shell--report",
+        el(
+          "header.masthead.masthead--report",
+          el("span.masthead__badge", "Enterprise Reporting"),
+          el("span.masthead__name", state.overview.application?.name ?? project.name),
+          el("div.masthead__spacer"),
+          el(
+            "div.masthead__user",
+            el("span.avatar.avatar--report", "ER"),
+            el(
+              "div",
+              el("div.masthead__who", state.user.email),
+              el(
+                "div.masthead__roles",
+                state.user.role
+                  ? state.overview.role.tables === null
+                    ? \`\${state.user.role} — every table\`
+                    : \`\${state.user.role} — \${state.overview.role.tables.length} of \${state.overview.role.tableTotal} tables\`
+                  : "no reporting role"
+              )
+            ),
+            el(
+              "button.btn.btn--ghost.btn--icon",
+              {
+                title: "Sign out of reporting",
+                "aria-label": "Sign out of reporting",
+                onclick: async () => {
+                  await reportApi.post("/report-auth/logout").catch(() => {});
+                  setReportToken(null);
+                  state.user = null;
+                  state.overview = null;
+                  await render();
+                },
+              },
+              "⇥"
+            )
+          )
+        ),
+        el(
+          "div.actionbar",
+          ...sections.map(([key, label]) =>
+            el(
+              "button.btn",
+              {
+                class: state.section === key ? "is-active" : "",
+                onclick: async () => {
+                  state.section = key;
+                  await render();
+                },
+              },
+              label
+            )
+          ),
+          el("div.actionbar__spacer"),
+          el(
+            "button.btn.btn--ghost",
+            { onclick: () => onLeave() },
+            \`← \${project.name}\`
+          )
+        ),
+        el(
+          "nav.crumbs",
+          el(
+            "span.crumbs__current",
+            \`Reporting on \${state.overview.dataSource?.name ?? project.name}\`
+          ),
+          state.overview.counts.reports < state.overview.counts.reportsTotal
+            ? el(
+                "span.crumbs__note",
+                \` · \${state.overview.counts.reports} of \${state.overview.counts.reportsTotal} reports visible to this role\`
+              )
+            : null
+        ),
+        outlet
+      )
+    );
+
+    try {
+      if (state.section === "dashboard") await dashboardSection(outlet);
+      else if (state.section === "access") await accessSection(outlet);
+      else if (state.section === "queries") await queriesSection(outlet);
+      else {
+        mount(outlet, spinner("Loading"));
+        const items = await reportApi.get(\`/reporting/\${state.section}\`);
+        mount(
+          outlet,
+          browser(
+            items,
+            state.section,
+            \`No \${state.section} for this role\`,
+            "Every definition reads a table this reporting role may not."
+          )
+        );
+      }
+    } catch (error) {
+      mount(outlet, empty("Something went wrong", error.message || String(error)));
+    }
+  };
+
+  rerender = render;
+
+  /* Reattach to a session the reader already has: they may have signed in,
+     gone back to the application and returned, and being asked for a password
+     again on the way back is the kind of friction that makes the two
+     applications feel like one broken one. */
+  if (!state.user) {
+    try {
+      state.user = await reportApi.get("/report-auth/me");
+    } catch {
+      state.user = null;
+    }
+  }
+
+  await render();
+}
+
+/** Forget the reporting session in memory, without ending it on the server. */
+export function resetReportView() {
+  state.overview = null;
+}
+
+/**
+ * A reporting call came back 401. Was there a session to lose?
+ *
+ * Asked here because only this module knows. The shell probes
+ * \`/report-auth/me\` on every entry to find out whether the reader is already
+ * signed in, and a "no" to that probe is an ordinary 401 — not an expired
+ * session. Treating the two alike produced a toast per probe *and* a repaint
+ * per toast, and the repaint probed again: a reporting sign-in screen buried
+ * under an endless column of "your reporting session ended".
+ *
+ * Returns true only when a session really ended, which is the only case worth
+ * telling the reader about.
+ */
+export function reportSessionEnded() {
+  if (!state.user) return false;
+  state.user = null;
+  state.overview = null;
+  return true;
+}
+`,
+  "ui/views/report-login.js": `/**
+ * The reporting application's sign-in — the second login.
+ *
+ * It looks like the application's on purpose and is not the same screen: the
+ * accounts are different accounts, in different tables, with a different
+ * password, and what the numbers beside them count is different too. The
+ * application's screen says how many *entities* a role can open; this one says
+ * how many *tables* a role's queries may read. That is the whole difference
+ * between the two products' idea of a role, stated in the one place a reader
+ * meets both.
+ *
+ * Every seeded account is listed for the same reason the application lists
+ * every one of its own: the administrator reads every table, so a reporting
+ * platform you can only sign into as the administrator is one whose access
+ * control you cannot see. \`support.agent@… — 5 of 17 tables\` is the invitation.
+ */
+
+import { el, mount, toast } from "../dom.js";
+import { reportApi, setReportToken } from "../api.js";
+
+export async function reportLoginView(root, { project, onSignedIn, onLeave }) {
+  let config = null;
+  try {
+    config = await reportApi.get("/report-auth/config");
+  } catch {
+    // The screen still works without the hint — the form is the point.
+  }
+
+  const accounts = config?.accounts ?? [];
+  const password = config?.password ?? "admin";
+  const administrator = accounts.find((account) => account.isAdmin) ?? accounts[0] ?? null;
+
+  const emailInput = el("input.field__input", {
+    type: "text",
+    id: "report-email",
+    name: "email",
+    autocomplete: "username",
+    value: administrator?.email ?? "",
+    required: true,
+  });
+  const passwordInput = el("input.field__input", {
+    type: "password",
+    id: "report-password",
+    name: "password",
+    autocomplete: "current-password",
+    value: password,
+    required: true,
+  });
+  const submit = el("button.btn.btn--primary", { type: "submit" }, "Sign in to reporting");
+
+  const form = el(
+    "form.login__form",
+    {
+      onsubmit: async (event) => {
+        event.preventDefault();
+        submit.disabled = true;
+        submit.textContent = "Signing in…";
+        try {
+          const result = await reportApi.post("/report-auth/login", {
+            email: emailInput.value.trim(),
+            password: passwordInput.value,
+          });
+          // Before anything else calls the API: the next request loads this
+          // role's reports, and without the token it is a 401 that reads as
+          // "your session ended" a quarter-second after signing in.
+          setReportToken(result.token);
+          onSignedIn(result.user);
+        } catch (error) {
+          toast(error.message, "error");
+          submit.disabled = false;
+          submit.textContent = "Sign in to reporting";
+          passwordInput.focus();
+        }
+      },
+    },
+    el(
+      "div.field",
+      el(
+        "div.field__head",
+        el("label.field__label", { for: "report-email" }, "Reporting account"),
+        el("span.chip.chip--text", "Text")
+      ),
+      emailInput
+    ),
+    el(
+      "div.field",
+      el(
+        "div.field__head",
+        el("label.field__label", { for: "report-password" }, "Password"),
+        el("span.chip.chip--text", "Password")
+      ),
+      passwordInput
+    ),
+    submit
+  );
+
+  const counts = config?.counts ?? {};
+
+  mount(
+    root,
+    el(
+      "div.login.login--report",
+      el(
+        "div.login__panel",
+        el("div.login__mark.login__mark--report", "ER"),
+        el("h1.login__title", "Enterprise Reporting"),
+        el(
+          "p.login__subtitle",
+          \`Reporting on \${config?.application?.name ?? project.name}. A separate application, with its own accounts.\`
+        ),
+        form,
+        accounts.length > 0
+          ? el(
+              "div.accounts",
+              el(
+                "p.accounts__head",
+                \`\${accounts.length} reporting account\${accounts.length === 1 ? "" : "s"}, password \`,
+                el("code", password),
+                config?.scoped
+                  ? ". A reporting role decides which of the application's tables its queries may read — pick one to try it."
+                  : ". Pick one to fill the form."
+              ),
+              el(
+                "ul.accounts__list",
+                ...accounts.map((account) =>
+                  el(
+                    "li",
+                    el(
+                      "button.accounts__row",
+                      {
+                        type: "button",
+                        onclick: () => {
+                          emailInput.value = account.email;
+                          passwordInput.value = password;
+                          passwordInput.focus();
+                        },
+                      },
+                      el("span.accounts__role", account.role ?? account.name),
+                      el("span.accounts__email", account.email),
+                      el(
+                        "span.accounts__scope",
+                        account.isAdmin
+                          ? \`all \${account.total} tables\`
+                          : /* Zero is a real answer, not a missing seed: this is
+                               the account holding no functional role, so no
+                               \`read\` rule admits it and its queries may read
+                               nothing. Said plainly, because a row reading
+                               "0 of 17 tables" and nothing else looks like the
+                               generator failed. */
+                            account.tables === 0
+                            ? "no tables — signed in, holding no reporting role"
+                            : \`\${account.tables} of \${account.total} tables\`
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          : el(
+              "p.login__hint",
+              "No reporting accounts were seeded, which means this model declares no %%rbac roles. ",
+              el("span.login__hint-note", "Sign in as the administrator to read every table.")
+            )
+      ),
+      el(
+        "div.login__aside",
+        el("h2", "The other half of the model"),
+        el(
+          "ul.login__facts",
+          el(
+            "li",
+            el("strong", \`\${counts.reports ?? 0} reports and \${counts.charts ?? 0} charts\`),
+            " derived from this model — its entities, its enums, its state machines and its own %%report queries"
+          ),
+          el(
+            "li",
+            el("strong", "One reporting role per %%rbac role"),
+            " — the same names, permitted to read exactly the tables that role may see"
+          ),
+          el(
+            "li",
+            el("strong", "A separate sign-in"),
+            " — two applications, two user tables, two sessions. Neither password works on the other side"
+          ),
+          el(
+            "li",
+            el("strong", "Read-only"),
+            " — a reporting role narrows what a query may read; nothing here writes to the application"
+          )
+        ),
+        el(
+          "p.login__aside-note",
+          "Deployed, this is the Enterprise Reporting platform running beside the application as its own service, with its own database. Here it is the same reports and the same roles, served from this tab."
+        ),
+        onLeave
+          ? el(
+              "button.btn.btn--ghost",
+              { type: "button", onclick: () => onLeave() },
+              \`← Back to \${project.name}\`
+            )
+          : null
+      )
+    )
+  );
+
+  emailInput.focus();
+}
+`,
   "ui/views/reports.js": `/**
  * Reports — the questions the model declared with \`%%report\`.
  *
@@ -19496,7 +21250,7 @@ export async function reportsView(root) {
 }
 `
 });
-var RUNTIME_BYTES = 347766;
+var RUNTIME_BYTES = 414308;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -19915,6 +21669,13 @@ var EntitySchema = exports_external.object({
   primaryKey: exports_external.string(),
   timestamps: exports_external.boolean()
 });
+// packages/generator/src/naming/tables.ts
+var snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase();
+function tableNameFor(entity2) {
+  const base = snake(entity2.tableName || entity2.name);
+  return base.startsWith("bus_") || base.startsWith("sys_") ? base : `bus_${base}`;
+}
+
 // packages/generator/src/rbac/roles.ts
 function titleCaseRole(name) {
   return name.split(/[\s_-]+/).filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
@@ -20007,6 +21768,507 @@ function deriveAccess(compiled, options) {
     entityVisibility,
     entityCounts,
     scoped: Object.keys(entityVisibility).length > 0
+  };
+}
+
+// packages/generator/src/reporting/pack.ts
+var APP_PASSWORD = "admin123";
+var REPORT_PASSWORD = "admin";
+function titleOf(e) {
+  return e.name.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+}
+function pluralTitle(e) {
+  const t = titleOf(e);
+  if (/[^aeiou]y$/i.test(t))
+    return `${t.slice(0, -1)}ies`;
+  if (/(s|x|z|ch|sh)$/i.test(t))
+    return `${t}es`;
+  return `${t}s`;
+}
+function labelOf(column) {
+  return column.replace(/_id$/, "").replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+function helpOf(e) {
+  const h = e.description?.trim();
+  if (h)
+    return h.replace(/\s+/g, " ");
+  return `Rows of ${pluralTitle(e).toLowerCase()} held by the application.`;
+}
+function lit(value) {
+  return `'${value.replace(/'/g, "''")}'`;
+}
+function tablesIn(sql) {
+  const found = new Set;
+  for (const match of sql.matchAll(/\bbus_[a-z0-9_]+\b/g))
+    found.add(match[0]);
+  return [...found].sort();
+}
+function kebabName(value) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "app";
+}
+var AUDIT_COLUMNS = new Set([
+  "created_at",
+  "updated_at",
+  "deleted_at",
+  "created_by",
+  "updated_by",
+  "deleted_by",
+  "version"
+]);
+function businessColumns(e) {
+  return e.attributes.filter((a) => a.name !== e.primaryKey && !AUDIT_COLUMNS.has(a.name));
+}
+function displayColumn(e) {
+  const cols = businessColumns(e).filter((a) => !a.isForeignKey);
+  const byName = cols.find((a) => /^(name|title|label|code|reference|subject)$/.test(a.name));
+  if (byName)
+    return byName.name;
+  const unique = cols.find((a) => a.unique && (a.type === "string" || a.type === "text"));
+  if (unique)
+    return unique.name;
+  const email = cols.find((a) => /email/.test(a.name));
+  if (email)
+    return email.name;
+  const firstString = cols.find((a) => a.type === "string");
+  return firstString?.name ?? e.primaryKey;
+}
+function enumColumns(e) {
+  const bound = businessColumns(e).filter((a) => a.enumRef);
+  const rank = (a) => {
+    if (/^(status|state)$/.test(a.name))
+      return 0;
+    if (/(stage|phase|priority)/.test(a.name))
+      return 1;
+    if (/(type|tier|category|kind)/.test(a.name))
+      return 2;
+    return 3;
+  };
+  return [...bound].sort((x, y) => rank(x) - rank(y) || x.name.localeCompare(y.name));
+}
+function measureColumns(e) {
+  return businessColumns(e).filter((a) => !a.isForeignKey && (a.type === "integer" || a.type === "decimal"));
+}
+function declaredStates(w) {
+  const seen = [];
+  const push = (s) => {
+    const v = s.trim();
+    if (!v || v === "[*]" || seen.includes(v))
+      return;
+    seen.push(v);
+  };
+  for (const s of w.states)
+    push(s.name);
+  for (const t of w.transitions) {
+    push(t.from);
+    push(t.to);
+  }
+  return seen;
+}
+function linkColumn(parent, child, relForeignKey) {
+  const expected = `${tableNameFor(parent).replace(/^bus_/, "")}_id`;
+  return child.attributes.find((a) => a.name === expected) ?? (relForeignKey ? child.attributes.find((a) => a.name === relForeignKey) : undefined);
+}
+function addQuery(ctx, spec) {
+  ctx.queries.push({ ...spec, tables: tablesIn(spec.sql) });
+  return spec.key;
+}
+function deriveEntity(ctx, e) {
+  const table = tableNameFor(e);
+  const slug = table.replace(/^bus_/, "");
+  const display = displayColumn(e);
+  const help = helpOf(e);
+  const live = "deleted_at IS NULL";
+  const registerCols = [
+    display,
+    ...enumColumns(e).slice(0, 2).map((a) => a.name),
+    ...measureColumns(e).slice(0, 2).map((a) => a.name)
+  ].filter((c, i, all) => all.indexOf(c) === i);
+  const registerSelect = [...registerCols, "created_at", "updated_at"].join(", ");
+  const qRegister = addQuery(ctx, {
+    key: `${slug}__register`,
+    name: `${pluralTitle(e)} — register`,
+    description: `${help} Newest first.`,
+    sql: `SELECT ${registerSelect}
+FROM ${table}
+WHERE ${live}
+ORDER BY created_at DESC
+LIMIT 500`
+  });
+  ctx.reports.push({
+    key: `${slug}__register`,
+    name: `${pluralTitle(e)} — register`,
+    description: help,
+    queryKey: qRegister,
+    columns: [...registerCols, "created_at", "updated_at"].map((c) => ({
+      field: c,
+      label: labelOf(c)
+    })),
+    pageSize: 50
+  });
+  for (const col of enumColumns(e).slice(0, 2)) {
+    const values = col.enumValues ?? ctx.model.enums.find((en) => en.name === col.enumRef)?.values ?? [];
+    const key = `${slug}__by_${col.name}`;
+    const q = addQuery(ctx, {
+      key,
+      name: `${pluralTitle(e)} by ${labelOf(col.name).toLowerCase()}`,
+      description: col.description?.trim() ?? `How ${pluralTitle(e).toLowerCase()} divide across ${labelOf(col.name).toLowerCase()}.`,
+      sql: `SELECT COALESCE(${col.name}, '(unset)') AS bucket, COUNT(*) AS records
+FROM ${table}
+WHERE ${live}
+GROUP BY 1
+ORDER BY records DESC`
+    });
+    ctx.charts.push({
+      key,
+      name: `${pluralTitle(e)} by ${labelOf(col.name).toLowerCase()}`,
+      description: col.description?.trim() ?? `${help} Grouped by ${labelOf(col.name).toLowerCase()}.`,
+      queryKey: q,
+      chartType: values.length > 0 && values.length <= 6 ? "pie" : "bar",
+      xField: "bucket",
+      yField: "records"
+    });
+    ctx.reports.push({
+      key,
+      name: `${pluralTitle(e)} by ${labelOf(col.name).toLowerCase()}`,
+      description: `Counts of ${pluralTitle(e).toLowerCase()} per ${labelOf(col.name).toLowerCase()}.`,
+      queryKey: q,
+      columns: [
+        { field: "bucket", label: labelOf(col.name) },
+        { field: "records", label: "Records" }
+      ],
+      pageSize: 50
+    });
+  }
+  const qVolume = addQuery(ctx, {
+    key: `${slug}__volume_by_month`,
+    name: `${pluralTitle(e)} created per month`,
+    description: `New ${pluralTitle(e).toLowerCase()} per month over the last two years.`,
+    sql: `SELECT date_trunc('month', created_at)::date AS month, COUNT(*) AS records
+FROM ${table}
+WHERE ${live} AND created_at >= now() - interval '24 months'
+GROUP BY 1
+ORDER BY 1`
+  });
+  ctx.charts.push({
+    key: `${slug}__volume_by_month`,
+    name: `${pluralTitle(e)} created per month`,
+    description: `${help} Counted by the month the record was created.`,
+    queryKey: qVolume,
+    chartType: "line",
+    xField: "month",
+    yField: "records"
+  });
+  const wf = ctx.model.workflows.find((w) => w.entity === e.name);
+  const statusCol = enumColumns(e).find((a) => /^(status|state)$/.test(a.name))?.name;
+  if (wf && statusCol) {
+    const states = declaredStates(wf);
+    if (states.length > 0) {
+      const valuesList = states.map((s, i) => `(${lit(s)}, ${i})`).join(", ");
+      const key = `${slug}__lifecycle`;
+      const q = addQuery(ctx, {
+        key,
+        name: `${titleOf(e)} lifecycle — ${wf.name}`,
+        description: `Where ${pluralTitle(e).toLowerCase()} sit in the ${wf.name} state machine. Every state the model declares appears, including the ones nothing has reached.`,
+        sql: `WITH declared(state, position) AS (
+  VALUES ${valuesList}
+)
+SELECT d.state, COALESCE(c.records, 0) AS records
+FROM declared d
+LEFT JOIN (
+  SELECT ${statusCol} AS state, COUNT(*) AS records
+  FROM ${table}
+  WHERE ${live}
+  GROUP BY 1
+) c ON c.state = d.state
+ORDER BY d.position`
+      });
+      ctx.reports.push({
+        key,
+        name: `${titleOf(e)} lifecycle — ${wf.name}`,
+        description: `Where ${pluralTitle(e).toLowerCase()} sit in the ${wf.name} state machine, in the order the diagram draws it.`,
+        queryKey: q,
+        columns: [
+          { field: "state", label: "State" },
+          { field: "records", label: "Records" }
+        ],
+        pageSize: 50
+      });
+      ctx.charts.push({
+        key,
+        name: `${titleOf(e)} lifecycle`,
+        description: `${pluralTitle(e)} per declared state of ${wf.name}.`,
+        queryKey: q,
+        chartType: "bar",
+        xField: "state",
+        yField: "records"
+      });
+    }
+  }
+  const measures = measureColumns(e);
+  if (measures.length > 0) {
+    const groupCol = enumColumns(e)[0]?.name;
+    const aggregates = measures.slice(0, 4).flatMap((m) => [
+      `SUM(${m.name}) AS total_${m.name}`,
+      `ROUND(AVG(${m.name})::numeric, 2) AS avg_${m.name}`
+    ]);
+    const key = `${slug}__measures`;
+    const sql = groupCol ? `SELECT COALESCE(${groupCol}, '(unset)') AS bucket, COUNT(*) AS records, ${aggregates.join(", ")}
+FROM ${table}
+WHERE ${live}
+GROUP BY 1
+ORDER BY records DESC` : `SELECT COUNT(*) AS records, ${aggregates.join(", ")}
+FROM ${table}
+WHERE ${live}`;
+    const q = addQuery(ctx, {
+      key,
+      name: `${pluralTitle(e)} — measures`,
+      description: `Totals and averages over the numeric columns of ${pluralTitle(e).toLowerCase()}${groupCol ? `, by ${labelOf(groupCol).toLowerCase()}` : ""}.`,
+      sql
+    });
+    ctx.reports.push({
+      key,
+      name: `${pluralTitle(e)} — measures`,
+      description: `Totals and averages${groupCol ? ` by ${labelOf(groupCol).toLowerCase()}` : ""}. ${help}`,
+      queryKey: q,
+      columns: [
+        ...groupCol ? [{ field: "bucket", label: labelOf(groupCol) }] : [],
+        { field: "records", label: "Records" },
+        ...measures.slice(0, 4).flatMap((m) => [
+          { field: `total_${m.name}`, label: `Total ${labelOf(m.name).toLowerCase()}` },
+          { field: `avg_${m.name}`, label: `Average ${labelOf(m.name).toLowerCase()}` }
+        ])
+      ],
+      pageSize: 50
+    });
+  }
+}
+function addAuthoredReports(ctx) {
+  for (const r of ctx.model.reports) {
+    const key = `authored__${r.name}`;
+    const description = r.help?.trim() ?? `Declared in the model as %%report ${r.name}.`;
+    addQuery(ctx, { key, name: r.title, description, sql: r.sql });
+    const columns = r.chart && r.x && r.y ? [
+      { field: r.x, label: labelOf(r.x) },
+      { field: r.y, label: labelOf(r.y) }
+    ] : [];
+    ctx.reports.push({ key, name: r.title, description, queryKey: key, columns, pageSize: 50 });
+    if (r.chart && r.x && r.y) {
+      ctx.charts.push({
+        key,
+        name: r.title,
+        description,
+        queryKey: key,
+        chartType: r.chart,
+        xField: r.x,
+        yField: r.y
+      });
+    }
+  }
+}
+function deriveRelationships(ctx) {
+  const byName = new Map(ctx.model.entities.map((e) => [e.name, e]));
+  for (const rel of ctx.model.relationships) {
+    if (rel.cardinality !== "oneToMany")
+      continue;
+    const parent = byName.get(rel.sourceEntity);
+    const child = byName.get(rel.targetEntity);
+    if (!parent || !child)
+      continue;
+    const fk = linkColumn(parent, child, rel.foreignKey);
+    if (!fk)
+      continue;
+    const parentDisplay = displayColumn(parent);
+    const parentSlug = tableNameFor(parent).replace(/^bus_/, "");
+    const childSlug = tableNameFor(child).replace(/^bus_/, "");
+    const key = `${childSlug}__per_${parentSlug}`;
+    const sameType = fk.isForeignKey && (fk.name.endsWith("_id") || fk.name.endsWith("_by"));
+    const parentKey = sameType ? `p.${parent.primaryKey}` : `p.${parent.primaryKey}::text`;
+    const q = addQuery(ctx, {
+      key,
+      name: `${pluralTitle(child)} per ${titleOf(parent).toLowerCase()}`,
+      description: `How many ${pluralTitle(child).toLowerCase()} each ${titleOf(parent).toLowerCase()} has, most first. Derived from the ${rel.name.replace(/_/g, " ")} relationship the model draws.`,
+      sql: `SELECT p.${parentDisplay} AS ${parentSlug}, COUNT(c.${child.primaryKey}) AS records
+FROM ${tableNameFor(parent)} p
+LEFT JOIN ${tableNameFor(child)} c
+  ON c.${fk.name} = ${parentKey} AND c.deleted_at IS NULL
+WHERE p.deleted_at IS NULL
+GROUP BY 1
+ORDER BY records DESC
+LIMIT 50`
+    });
+    ctx.reports.push({
+      key,
+      name: `${pluralTitle(child)} per ${titleOf(parent).toLowerCase()}`,
+      description: `${helpOf(parent)} Counted by the ${pluralTitle(child).toLowerCase()} attached to each.`,
+      queryKey: q,
+      columns: [
+        { field: parentSlug, label: titleOf(parent) },
+        { field: "records", label: pluralTitle(child) }
+      ],
+      pageSize: 50
+    });
+    ctx.charts.push({
+      key,
+      name: `${pluralTitle(child)} per ${titleOf(parent).toLowerCase()}`,
+      description: `The ${titleOf(parent).toLowerCase()} records carrying the most ${pluralTitle(child).toLowerCase()}.`,
+      queryKey: q,
+      chartType: "bar",
+      xField: parentSlug,
+      yField: "records"
+    });
+  }
+}
+function centrality(model, e) {
+  const incoming = model.relationships.filter((r) => r.sourceEntity === e.name).length;
+  const outgoing = model.relationships.filter((r) => r.targetEntity === e.name).length;
+  const hasState = model.workflows.some((w) => w.entity === e.name) ? 3 : 0;
+  const hasMeasures = measureColumns(e).length > 0 ? 1 : 0;
+  return incoming * 2 + outgoing + hasState + hasMeasures;
+}
+function deriveDashboards(ctx, appName, appDescription) {
+  const model = ctx.model;
+  const ranked = [...model.entities].sort((a, b) => centrality(model, b) - centrality(model, a));
+  const headline = ranked.slice(0, 6);
+  const widgets = [];
+  let x = 0;
+  let y = 0;
+  const place = (title, chartKey) => {
+    widgets.push({ chartKey, title, x, y, w: 6, h: 4 });
+    x += 6;
+    if (x >= 12) {
+      x = 0;
+      y += 4;
+    }
+  };
+  for (const c of ctx.charts.filter((c2) => c2.key.startsWith("authored__")).slice(0, 4)) {
+    place(c.name, c.key);
+  }
+  for (const e of headline) {
+    const slug = tableNameFor(e).replace(/^bus_/, "");
+    const lifecycle = ctx.charts.find((c) => c.key === `${slug}__lifecycle`);
+    const breakdown = ctx.charts.find((c) => c.key.startsWith(`${slug}__by_`));
+    const volume = ctx.charts.find((c) => c.key === `${slug}__volume_by_month`);
+    const chosen = lifecycle ?? breakdown ?? volume;
+    if (chosen)
+      place(chosen.name, chosen.key);
+  }
+  return [
+    {
+      key: "overview",
+      name: `${appName} — overview`,
+      description: appDescription?.trim() || `The ${headline.length} entities this model puts at the centre of ${appName}, one tile each.`,
+      widgets
+    }
+  ];
+}
+function dropDerivedDuplicatesOfAuthored(ctx) {
+  const authoredNames = new Set([...ctx.reports, ...ctx.charts, ...ctx.queries].filter((x) => x.key.startsWith("authored__")).map((x) => x.name));
+  if (authoredNames.size === 0)
+    return;
+  const keep = (items) => items.filter((x) => x.key.startsWith("authored__") || !authoredNames.has(x.name));
+  const droppedQueryKeys = new Set(ctx.queries.filter((q) => !q.key.startsWith("authored__") && authoredNames.has(q.name)).map((q) => q.key));
+  ctx.queries = keep(ctx.queries);
+  ctx.reports = keep(ctx.reports).filter((r) => !droppedQueryKeys.has(r.queryKey));
+  ctx.charts = keep(ctx.charts).filter((c) => !droppedQueryKeys.has(c.queryKey));
+}
+function assertNamesUnique(ctx, dashboards) {
+  const collections = [
+    ["queries", ctx.queries],
+    ["reports", ctx.reports],
+    ["charts", ctx.charts],
+    ["dashboards", dashboards]
+  ];
+  const problems = [];
+  for (const [label, items] of collections) {
+    const byName = new Map;
+    for (const item of items) {
+      byName.set(item.name, [...byName.get(item.name) ?? [], item.key]);
+    }
+    for (const [name, keys] of byName) {
+      if (keys.length > 1)
+        problems.push(`  ${label}: "${name}" ← ${keys.join(", ")}`);
+    }
+  }
+  if (problems.length > 0) {
+    throw new Error(`The reporting pack has items sharing a name. The reporting platform upserts by name, so these would collapse into one row:
+${problems.join(`
+`)}`);
+  }
+}
+function deriveAccessSpec(model, options) {
+  const projectId = kebabName(options.projectName);
+  const access = deriveAccess(model.rbac, {
+    projectId,
+    adminEmail: options.adminEmail,
+    adminName: options.adminName,
+    entities: model.entities.map((e) => e.name)
+  });
+  const reportDomain = `${projectId || "app"}.reports.example.com`;
+  const roles = access.roles.map((role) => {
+    const appUser = access.users.find((u) => u.roleName === role.name);
+    const tables = role.isAdmin ? [] : model.entities.filter((entity2) => {
+      const admitted = access.entityVisibility[entity2.name];
+      if (!admitted || admitted.length === 0)
+        return true;
+      return admitted.some((r) => r.toLowerCase() === role.declaredAs.toLowerCase());
+    }).map((entity2) => tableNameFor(entity2));
+    return {
+      name: role.name,
+      declaredAs: role.declaredAs,
+      description: role.isAdmin ? "Reads every table of the attached application" : `Reads what ${role.name} may see in the application`,
+      isAdmin: role.isAdmin,
+      email: role.isAdmin ? appUser?.email ?? "admin@admin.com" : `${role.declaredAs.toLowerCase().split(/[\s_-]+/).filter(Boolean).join(".")}@${reportDomain}`,
+      appEmail: appUser?.email ?? "admin@admin.com",
+      tables
+    };
+  });
+  for (const role of roles) {
+    if (role.isAdmin)
+      continue;
+    const expected = access.entityCounts[role.name];
+    if (expected !== undefined && expected !== role.tables.length) {
+      throw new Error(`Reporting role "${role.name}" resolved ${role.tables.length} readable tables, ` + `but the application derives ${expected} for the same role. ` + `These must agree — the reporting side is mirroring %%rbac, not reinterpreting it.`);
+    }
+  }
+  return {
+    roles,
+    scoped: roles.some((role) => !role.isAdmin && role.tables.length < model.entities.length),
+    entityTotal: model.entities.length,
+    appPassword: APP_PASSWORD,
+    reportPassword: REPORT_PASSWORD
+  };
+}
+function buildReportingPack(model, options) {
+  if (model.entities.length === 0) {
+    throw new Error("Cannot derive a reporting pack: the model declares no entities.");
+  }
+  const ctx = { model, queries: [], reports: [], charts: [] };
+  addAuthoredReports(ctx);
+  for (const e of model.entities)
+    deriveEntity(ctx, e);
+  deriveRelationships(ctx);
+  dropDerivedDuplicatesOfAuthored(ctx);
+  const appName = options.applicationName?.trim() || options.projectName;
+  const dashboards = deriveDashboards(ctx, appName, options.projectDescription);
+  assertNamesUnique(ctx, dashboards);
+  return {
+    application: {
+      name: appName,
+      description: options.projectDescription?.trim() || `${appName}: ${model.entities.length} entities, ${model.workflows.length + model.sagas.length} workflows.`,
+      model: options.modelFileName ?? `${kebabName(appName)}.eml.mmd`,
+      databaseName: options.databaseName,
+      ...options.generatedAt ? { generatedAt: options.generatedAt } : {}
+    },
+    dataSource: {
+      name: `${appName} (application database)`,
+      description: "The generated application's own PostgreSQL database, read directly. Every report and chart below is a query against its bus_ tables.",
+      clientType: "pg"
+    },
+    queries: ctx.queries,
+    reports: ctx.reports,
+    charts: ctx.charts,
+    dashboards,
+    access: deriveAccessSpec(model, options)
   };
 }
 
@@ -20275,13 +22537,9 @@ function referenceIdFor(attribute, isPrimaryKey) {
       return ReferenceType.STRING;
   }
 }
-var snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase();
-var kebab = (value) => snake(value).replace(/_/g, "-");
+var snake2 = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase();
+var kebab = (value) => snake2(value).replace(/_/g, "-");
 var title = formatDisplayName;
-function tableNameFor(entity2) {
-  const base = snake(entity2.tableName || entity2.name);
-  return base.startsWith("bus_") || base.startsWith("sys_") ? base : `bus_${base}`;
-}
 var MANAGED_COLUMNS = `  version INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -20310,10 +22568,10 @@ function buildSchema(entities, relationships) {
   ];
   for (const entity2 of entities) {
     const table = tableNameFor(entity2);
-    const columns = entity2.attributes.filter((attribute) => !MANAGED_COLUMN_NAMES2.has(snake(attribute.name))).map((attribute) => {
+    const columns = entity2.attributes.filter((attribute) => !MANAGED_COLUMN_NAMES2.has(snake2(attribute.name))).map((attribute) => {
       const nullability = attribute.required ? " NOT NULL" : "";
       const unique = attribute.unique ? " UNIQUE" : "";
-      return `  ${snake(attribute.name)} ${sqlType(attribute)}${nullability}${unique},`;
+      return `  ${snake2(attribute.name)} ${sqlType(attribute)}${nullability}${unique},`;
     });
     lines.push(`CREATE TABLE IF NOT EXISTS ${table} (`);
     lines.push("  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),");
@@ -20322,9 +22580,9 @@ function buildSchema(entities, relationships) {
     lines.push(");");
     lines.push(`CREATE INDEX IF NOT EXISTS idx_${table}_deleted ON ${table}(deleted_at);`);
     for (const index of entity2.indexes ?? []) {
-      const name = `idx_${table}_${index.columns.map(snake).join("_")}`;
+      const name = `idx_${table}_${index.columns.map(snake2).join("_")}`;
       const unique = index.unique ? "UNIQUE " : "";
-      lines.push(`CREATE ${unique}INDEX IF NOT EXISTS ${name} ON ${table}(${index.columns.map(snake).join(", ")});`);
+      lines.push(`CREATE ${unique}INDEX IF NOT EXISTS ${name} ON ${table}(${index.columns.map(snake2).join(", ")});`);
     }
     lines.push("");
   }
@@ -20343,7 +22601,7 @@ function buildSchema(entities, relationships) {
       if (!attribute.isForeignKey)
         continue;
       const table = tableNameFor(entity2);
-      const column = snake(attribute.name);
+      const column = snake2(attribute.name);
       lines.push(`CREATE INDEX IF NOT EXISTS idx_${table}_${column} ON ${table}(${column});`);
     }
   }
@@ -20355,11 +22613,11 @@ function buildSchema(entities, relationships) {
       continue;
     const [owner, referenced] = relationship.cardinality === "manyToOne" ? [source, target] : [target, source];
     const candidates = [
-      `${snake(referenced.name)}_id`,
-      relationship.foreignKey ? snake(relationship.foreignKey) : ""
+      `${snake2(referenced.name)}_id`,
+      relationship.foreignKey ? snake2(relationship.foreignKey) : ""
     ].filter(Boolean);
     for (const column of candidates) {
-      const attribute = owner.attributes.find((item) => snake(item.name) === column);
+      const attribute = owner.attributes.find((item) => snake2(item.name) === column);
       if (!attribute)
         continue;
       const key = `${tableNameFor(owner)}.${column}`;
@@ -20392,6 +22650,13 @@ function buildModelBundle(parsed, project) {
     includeRbac: true,
     randomizeFieldOrder: false
   }).generateDictionaryContext(parsed.entities, parsed.relationships);
+  const reporting = buildReportingPack(parsed, {
+    projectName: project.name,
+    projectDescription: project.description,
+    databaseName: kebab(project.name),
+    adminEmail: project.adminEmail,
+    adminName: project.adminName
+  });
   const access = deriveAccess(parsed.rbac, {
     projectId: kebab(project.name),
     adminEmail: project.adminEmail,
@@ -20415,10 +22680,10 @@ function buildModelBundle(parsed, project) {
       primaryKey: entity2.primaryKey,
       category: categoryOf.get(entity2.name) ?? "General",
       parentEntity: entity2.parentEntity,
-      parentLinkColumn: entity2.parentLinkColumn ? snake(entity2.parentLinkColumn) : undefined,
+      parentLinkColumn: entity2.parentLinkColumn ? snake2(entity2.parentLinkColumn) : undefined,
       attributes: entity2.attributes.map((attribute, index) => ({
         name: attribute.name,
-        columnName: snake(attribute.name),
+        columnName: snake2(attribute.name),
         displayName: attributeDisplayName(attribute, entity2.primaryKey, declared),
         type: attribute.type,
         sqlType: sqlType(attribute),
@@ -20483,6 +22748,7 @@ function buildModelBundle(parsed, project) {
       seqNo: index
     })),
     rbac: parsed.rbac,
+    reporting,
     roles: access.roles,
     users: access.users,
     entityVisibility: access.entityVisibility,

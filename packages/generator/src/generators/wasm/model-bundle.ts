@@ -30,8 +30,10 @@ import {
   ReferenceType,
   referenceFromColumnName,
 } from "@appwithai/core/types";
+import { tableNameFor } from "../../naming/tables";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { deriveAccess } from "../../rbac/roles";
+import { buildReportingPack } from "../../reporting/pack";
 import { DictionaryGenerator } from "../dictionary.generator";
 
 export interface WasmProjectSettings {
@@ -164,11 +166,14 @@ const kebab = (value: string) => snake(value).replace(/_/g, "-");
  */
 const title = formatDisplayName;
 
-/** `Order` -> `bus_order`, leaving an already-prefixed name alone. */
-export function tableNameFor(entity: Entity): string {
-  const base = snake(entity.tableName || entity.name);
-  return base.startsWith("bus_") || base.startsWith("sys_") ? base : `bus_${base}`;
-}
+/**
+ * `Order` -> `bus_order`.
+ *
+ * Re-exported rather than defined here: the reporting pack writes SQL against
+ * these tables and the NestJS migration creates them, so the rule has one home
+ * (`naming/tables.ts`) that all three read.
+ */
+export { tableNameFor };
 
 /**
  * Columns every generated table carries.
@@ -329,6 +334,20 @@ export function buildModelBundle(
     randomizeFieldOrder: false,
   }).generateDictionaryContext(parsed.entities, parsed.relationships);
 
+  /* The reporting layer — the same pack the Enterprise Reporting platform is
+     seeded with beside a *deployed* application, derived from the same model by
+     the same code. The platform needs a server, a second database and a seeder;
+     a browser tab has none of those, so this runtime serves the pack itself,
+     behind its own sign-in and its own roles. One derivation, two readers: a
+     report a reader sees here is the report the platform would give them. */
+  const reporting = buildReportingPack(parsed, {
+    projectName: project.name,
+    projectDescription: project.description,
+    databaseName: kebab(project.name),
+    adminEmail: project.adminEmail,
+    adminName: project.adminName,
+  });
+
   /* Roles, the accounts that hold them and what each may look at, derived by
      the same function the NestJS build renders into its seed. An application
      whose only account is the administrator cannot show what `%%rbac` did,
@@ -463,6 +482,11 @@ export function buildModelBundle(
       seqNo: index,
     })),
     rbac: parsed.rbac,
+    /* Queries, reports, charts, a dashboard and one reporting role per `%%rbac`
+       role — read by `/api/reporting/*` and nothing else. Kept as a block
+       rather than spread into the model so that what the reporting application
+       serves is visibly one thing, arriving from one derivation. */
+    reporting,
     roles: access.roles,
     /* One account per role, seeded with the administrator's password. The
        whole point is that a reader can sign in as a role and see the

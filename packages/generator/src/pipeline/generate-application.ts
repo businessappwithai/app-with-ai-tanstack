@@ -19,6 +19,7 @@ import {
   type FullStackGeneratorOptions,
 } from "../generators/full-stack.generator";
 import { renderManual } from "../manual";
+import { buildReportingPack } from "../reporting/pack";
 import { NO_LOG, type PipelineLogger } from "./logger-port";
 import {
   GENERATION_DEFAULTS,
@@ -106,6 +107,22 @@ export function buildGeneratorOptions(
     compiledSagas: model.sagas,
     compiledRbac: model.rbac,
     compiledReports: model.reports,
+    /*
+     * The reporting layer the generated project ships beside itself.
+     *
+     * Derived here rather than inside the generator because it is a reading of
+     * the whole parsed model — its entities, enums, state machines,
+     * relationships, `%%report` questions and `%%rbac` roles — and the
+     * generator is handed the compiled pieces one at a time. It is the same
+     * derivation the browser stack writes into `model.json` and the same one
+     * the Enterprise Reporting platform is seeded from, so a report a reader
+     * sees in one is the report they see in the other.
+     */
+    reportingPack: buildReportingPack(model, {
+      projectName: settings.projectName,
+      projectDescription: settings.projectDescription,
+      databaseName: settings.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_"),
+    }),
   };
 }
 

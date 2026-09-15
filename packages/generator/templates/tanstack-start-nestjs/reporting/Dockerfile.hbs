@@ -1,0 +1,104 @@
+# The Enterprise Reporting platform, built to run beside this application.
+#
+# This application's `docker-compose.yml` brings up three things: the
+# application, this platform, and a one-shot seeder that loads one into the
+# other. What you get is two applications on two ports, each with its own
+# sign-in and its own accounts — the application's roles decide what a user may
+# *do* to a record, and the reporting platform's decide which of the
+# application's tables their queries may *read*.
+#
+# ## Why this clones rather than copying
+#
+# The platform is a separate product — a TanStack Start server over PostgreSQL,
+# around ninety megabytes of source — and this project is a generated
+# application, not a fork of it. Vendoring it here would put a second copy of
+# somebody else's application in your repository, pinned to whatever day this
+# project was generated and diverging from then on. So the source is fetched at
+# build time, at the ref below, and `reporting/reporting-pack.json` beside this
+# file is the only reporting artefact this project actually contains.
+#
+# It needs network access during `docker build`. If your build host has none,
+# clone the repository yourself and point the service's `context` at it in
+# `docker-compose.yml` — the build is otherwise identical.
+#
+# ## Changing the version
+#
+# `REPORT_REF` is the commit, tag or branch to build. It defaults to `main`
+# rather than to a commit, because a generated project is meant to be run soon
+# after it is generated and a stale pin is a worse default than a moving one.
+# Pin it in `.env` (`REPORT_REF=<sha>`) once this project is something you
+# deploy rather than something you are looking at.
+
+# syntax=docker/dockerfile:1.7
+FROM oven/bun:1.3 AS source
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG REPORT_REPO=https://github.com/businessappwithai/enterprise_reporting_tanstack.git
+ARG REPORT_REF=main
+WORKDIR /src
+# `--depth 1` on a named ref: a generated project wants the code, never the
+# history, and the shallow clone is the difference between a few seconds and a
+# few minutes on every cold build.
+RUN git clone --depth 1 --branch "${REPORT_REF}" "${REPORT_REPO}" . \
+    || (git clone "${REPORT_REPO}" . && git checkout "${REPORT_REF}")
+
+# ─── build ──────────────────────────────────────────────────────────────────
+FROM oven/bun:1.3 AS builder
+
+WORKDIR /app
+COPY --from=source /src .
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# `bun install`, not `--frozen-lockfile`, and that is a decision rather than an
+# oversight: this builds a ref of somebody else's repository, and a lockfile
+# that has drifted from its own manifest there would fail every build here
+# without catching anything. The ref is what makes a build reproducible.
+RUN bun install && bun pm cache rm
+
+RUN bun run build
+
+# ─── runtime ────────────────────────────────────────────────────────────────
+FROM oven/bun:1.3-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/server-static-wrapper.mjs ./server-static-wrapper.mjs
+
+# The seeder and what it imports. `scripts/seed-reporting-pack.ts` is the
+# platform's own script — it writes eleven of its tables and uses its own
+# `getDb`, `encrypt` and `introspectAndCacheSchema`, so it cannot be a copy
+# living here. `src/lib/{db,security,sql,mastra}` and `src/types` are what it
+# resolves through `@/`.
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/src/lib/db ./src/lib/db
+COPY --from=builder /app/src/lib/security ./src/lib/security
+COPY --from=builder /app/src/lib/sql ./src/lib/sql
+COPY --from=builder /app/src/lib/mastra ./src/lib/mastra
+COPY --from=builder /app/src/types ./src/types
+
+EXPOSE 3000
+
+ENV NODE_ENV=production \
+    PORT=3000 \
+    PUBLIC_DIR=/app/dist/client
+
+# The probe is bun rather than curl, which is why there is no apt-get in this
+# stage: `oven/bun:1.3-slim` ships no curl, and installing one buys exactly one
+# healthcheck. `127.0.0.1`, never `localhost` — inside the container localhost
+# also resolves to `::1`, the server listens on IPv4 only, and the probe then
+# reports a refused connection against a server answering 200 to the host.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=90s --retries=15 \
+    CMD ["bun", "-e", "const r = await fetch('http://127.0.0.1:3000/api/health').catch(() => null); process.exit(r?.ok ? 0 : 1)"]
+
+CMD ["bun", "server-static-wrapper.mjs"]

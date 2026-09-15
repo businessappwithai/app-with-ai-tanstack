@@ -17,7 +17,20 @@
 
 import { hashPassword } from "./lib/auth.js";
 
-const SCHEMA_VERSION = 1;
+/**
+ * What the seed has already written, and why it is a number rather than a flag.
+ *
+ * `sys_schema_state.seeded` holds this value, and a database carrying an older
+ * one is re-seeded. That is what lets a stage be *added* — version 2 introduced
+ * the reporting application's `rpt_` tables and the accounts that sign into it,
+ * and a reader reopening a tab whose database was written by version 1 would
+ * otherwise get a reporting sign-in screen listing no accounts at all, on a
+ * database where the tables exist (the schema is `CREATE TABLE IF NOT EXISTS`)
+ * and nothing ever filled them.
+ *
+ * Bump it whenever a seed stage is added or its rows change shape.
+ */
+const SCHEMA_VERSION = 2;
 
 /**
  * Seeding, as a fraction of itself.
@@ -71,6 +84,10 @@ function seedCounter(model, log) {
     count(model.rules) +
     count(model.workflows) +
     accessRuleCount(model) +
+    /* The reporting application's own roles and accounts — one of each per
+       `%%rbac` role. Counted because the stage ticks, and a progress bar that
+       reaches 100% with a stage still to run is worse than none. */
+    count(model.reporting?.access?.roles) * 2 +
     Object.values(model.sampleData || {}).reduce((sum, rows) => sum + rows.length, 0);
 
   let done = 0;
@@ -118,6 +135,7 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   await seedRules(db, model, tick);
   await seedWorkflows(db, model, tick);
   await seedAccess(db, model, tick);
+  await seedReporting(db, model, log, tick);
   await seedSampleData(db, model, log, tick);
 
   await db.query(
@@ -587,3 +605,78 @@ const titleize = (value) =>
   String(value)
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
+
+/**
+ * The reporting application's roles and accounts.
+ *
+ * This is the seeder the platform's own `seed-reporting.ts` is, reduced to what
+ * a browser tab can hold. There, a one-shot container registers the
+ * application's database as a data source, introspects its schema and writes
+ * the pack's queries, reports, charts and dashboards into
+ * `enterprise_config`. Here the pack is already in `model.json` and the
+ * database is the same PGlite instance, so the only thing that has to be
+ * *written* is the half that has to be signed into: a role per `%%rbac` role,
+ * the tables each may read, and one account to hold it.
+ *
+ * The addresses come from the pack, so they are the same addresses the platform
+ * would seed — `sales.manager@crm.reports.example.com`, deliberately not the
+ * application's `sales.manager@crm.example.com`. Two accounts, two passwords,
+ * two sign-in screens. A reader who tries one password on the other side and
+ * finds it refused has learned the thing this arrangement exists to teach.
+ */
+async function seedReporting(db, model, log, tick = () => {}) {
+  const pack = model.reporting;
+  const roles = pack?.access?.roles ?? [];
+  if (roles.length === 0) return;
+
+  /* One hash for every account, computed once. PBKDF2 at 100k iterations costs
+     about a tenth of a second, and a ten-role model would spend a second of the
+     boot deriving the same hash ten times. */
+  const password = pack.access.reportPassword || "admin";
+  const hash = await hashPassword(password);
+  const seeded = [];
+
+  for (const role of roles) {
+    const existing = await db.one("SELECT rpt_role_id FROM rpt_role WHERE name = $1", [role.name]);
+    const roleId = existing
+      ? existing.rpt_role_id
+      : (
+          await db.insert("rpt_role", {
+            name: role.name,
+            declared_as: role.declaredAs ?? null,
+            description: role.description ?? null,
+            is_admin: !!role.isAdmin,
+          })
+        ).rpt_role_id;
+    tick();
+
+    /* No rows for an administrator: an empty scope means "every table", the
+       same way an entity no `%%rbac` line names is open to every role. Writing
+       one row per table for the administrator would say the same thing in a
+       form that goes stale the moment an entity is added. */
+    for (const table of role.tables ?? []) {
+      await db.query(
+        `INSERT INTO rpt_role_tables (rpt_role_id, table_name) VALUES ($1, $2)
+           ON CONFLICT (rpt_role_id, table_name) DO NOTHING`,
+        [roleId, table]
+      );
+    }
+
+    const user = await db.one("SELECT rpt_user_id FROM rpt_user WHERE email = $1", [role.email]);
+    if (!user) {
+      await db.insert("rpt_user", {
+        name: role.name,
+        email: role.email,
+        password_hash: hash,
+        description: role.description ?? null,
+        rpt_role_id: roleId,
+      });
+    }
+    tick();
+    seeded.push(role.email);
+  }
+
+  log(
+    `Reporting sign-in ready — ${seeded.length} account(s), password ${password}: ${seeded.join(", ")}`
+  );
+}
