@@ -33,6 +33,18 @@ const directives = (
 ).map((entry) => ({ name: entry.keyword.replace(/^%%/, ""), status: entry.status }));
 
 const ROOT = resolve(import.meta.dir, "../..");
+
+/* The four published protocol documents. Two author a model from a brief; two
+   take an existing `.mmd` and change it. The enhancement pair is *derived* from
+   the pair above it — the whole language reference is copied and only the
+   protocol section differs — so every claim held below has to hold for all four,
+   and the derivation itself is held at the end of this file. */
+const DOCUMENTS = [
+  "llms-full.txt",
+  "llmdetailed.txt",
+  "llmtextenhancement.txt",
+  "llmdetailedenhancement.txt",
+] as const;
 const checkerSource = readFileSync(join(ROOT, "language/checker.ts"), "utf-8");
 
 let failed = 0;
@@ -44,7 +56,7 @@ const held = (condition: boolean, label: string): void => {
   }
 };
 
-for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
+for (const name of DOCUMENTS) {
   const doc = readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
   /* Both files are hard-wrapped, so a claim about a sentence has to be matched
      against a whitespace-collapsed copy or it turns on where a line broke. */
@@ -179,7 +191,7 @@ for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
  */
 const ENTITY_BLOCK = /^[ \t]*([A-Z][A-Za-z0-9_]*)[ \t]*\{/gm;
 
-for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
+for (const name of DOCUMENTS) {
   const doc = readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
 
   /* Fenced ```mermaid blocks only. A plain ``` fence is prose about the
@@ -353,6 +365,124 @@ const viewerEntry = readFileSync(join(ROOT, "packages/generator/src/browser/view
 held(
   viewerEntry.includes("checker.entry") && viewerEntry.includes("../viewers"),
   "the viewer bundle really re-exports the published checker and the pipeline's reading"
+);
+
+/* ------------------------------------------------------------------------ */
+/*  The enhancement editions                                                 */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * `llmtextenhancement.txt` and `llmdetailedenhancement.txt` start from an
+ * existing `.mmd` where their bases start from a brief. Two things are held
+ * here that nothing above covers.
+ *
+ * First, the derivation. Each enhancement edition is its base with the
+ * authoring protocol swapped for the enhancement protocol and everything else
+ * copied, so a base edited without rebuilding its companion is the one way
+ * these four documents can come to disagree about the language itself — which
+ * is the failure the whole arrangement exists to prevent. The site's
+ * `scripts/build-llmtext-enhancement.mjs` is the deriver; what is asserted here
+ * is the property it produces, so this check holds whether or not the deriver
+ * was the thing that last wrote the file.
+ *
+ * Second, the four rules that make an enhancement protocol different from an
+ * authoring one. Each was a real failure before it was a rule: starting without
+ * the user's file, rebuilding the model from memory, answering with a patch the
+ * user has to merge, and handing back a model that checks clean and is quietly
+ * smaller than the one that came in. Only the first of those has a diagnostic.
+ */
+const PAIRS = [
+  ["llms-full.txt", "llmtextenhancement.txt", /^## \d+\. Authoring protocol\b/m, /^## \d+\. Enhancement protocol\b/m],
+  ["llmdetailed.txt", "llmdetailedenhancement.txt", /^## \d+\. Interactive authoring protocol\b/m, /^## \d+\. Interactive enhancement protocol\b/m],
+] as const;
+
+for (const [baseName, enhancedName, baseHeading, enhancedHeading] of PAIRS) {
+  const base = readFileSync(join(ROOT, "website", "llmtext", baseName), "utf-8");
+  const enhanced = readFileSync(join(ROOT, "website", "llmtext", enhancedName), "utf-8");
+
+  held(baseHeading.test(base), `${baseName}: still carries the authoring protocol section`);
+  held(enhancedHeading.test(enhanced), `${enhancedName}: carries the enhancement protocol section`);
+
+  /* Everything after the protocol section is the base's, byte for byte. Taking
+     the tail from the *next* `## ` heading after each protocol is what makes
+     this independent of how long either protocol happens to be. */
+  const tailAfterProtocol = (doc: string, heading: RegExp): string => {
+    const at = doc.search(heading);
+    const rest = doc.slice(at);
+    /* The next *numbered* `## ` heading. A bare `## ` would stop inside the
+       fenced dossier both protocols quote, whose own headings are `## Fields`
+       and `## Enums` — which is the bug this assertion caught in the deriver. */
+    const next = rest.search(/\n## \d+\. /);
+    return next === -1 ? "" : rest.slice(next);
+  };
+  held(
+    tailAfterProtocol(base, baseHeading) === tailAfterProtocol(enhanced, enhancedHeading) &&
+      tailAfterProtocol(base, baseHeading).length > 1000,
+    `${enhancedName}: carries ${baseName}'s language reference unchanged after the protocol`
+  );
+
+  /* And everything between the header rule and the protocol, which is §0 and
+     whatever else precedes it in that shape. */
+  const headTo = (doc: string, heading: RegExp): string =>
+    doc.slice(doc.indexOf("\n---\n"), doc.search(heading));
+  held(
+    headTo(base, baseHeading) === headTo(enhanced, enhancedHeading),
+    `${enhancedName}: carries ${baseName}'s sections before the protocol unchanged`
+  );
+}
+
+for (const name of ["llmtextenhancement.txt", "llmdetailedenhancement.txt"]) {
+  const doc = readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
+  const prose = doc.replace(/\s+/g, " ");
+
+  held(
+    /load (?:their|your) `?\.mmd`?|Send me the `\.mmd`/i.test(prose),
+    `${name}: asks the user to load their .mmd before anything else`
+  );
+  held(
+    /Never reconstruct the model/i.test(prose),
+    `${name}: forbids rebuilding the model from memory or the conversation`
+  );
+  held(
+    /Not a patch\. Not a diff\.|Not a diff, not a patch/i.test(prose),
+    `${name}: delivers the whole model rather than a patch`
+  );
+  held(
+    /baseline/i.test(prose) && /inventor/i.test(prose),
+    `${name}: baselines and inventories the model before editing it`
+  );
+  held(
+    /(nothing was lost|nothing lost|regression)/i.test(prose) && doc.includes("%%report"),
+    `${name}: compares the result against the baseline to prove nothing was lost`
+  );
+  /* The losses that no diagnostic reports. Naming them is the whole value of
+     the comparison — a protocol that says "check nothing was lost" without
+     saying what goes missing is a protocol nobody can follow. */
+  for (const lost of ["%%rbac", "%%report", "help text"])
+    held(
+      name === "llmtextenhancement.txt" || doc.includes(lost),
+      `${name}: names ${lost} among what an enhancement silently drops`
+    );
+
+  /* Each document has to be findable from the other three, or a reader lands
+     on the enhancement form for a model that does not exist yet. */
+  for (const sibling of DOCUMENTS)
+    if (sibling !== name)
+      held(doc.includes(sibling), `${name}: names its companion ${sibling}`);
+}
+
+/* The interactive edition keeps its gates. A phase list with no gate in it is
+   the batch protocol wearing the other file's name, which that file does
+   better. */
+const interactiveEnhancement = readFileSync(
+  join(ROOT, "website", "llmtext", "llmdetailedenhancement.txt"),
+  "utf-8"
+);
+for (const gate of ["Gate A", "Gate B", "Gate C", "Gate D", "Gate E"])
+  held(interactiveEnhancement.includes(gate), `llmdetailedenhancement.txt keeps ${gate}`);
+held(
+  interactiveEnhancement.includes("00-original.mmd"),
+  "llmdetailedenhancement.txt keeps the user's original untouched as the thing to compare against"
 );
 
 console.log(failed === 0 ? "\nllmtext claims hold." : `\n${failed} claim(s) contradicted.`);
