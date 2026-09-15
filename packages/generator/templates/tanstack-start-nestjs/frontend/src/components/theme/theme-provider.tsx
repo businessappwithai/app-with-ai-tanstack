@@ -56,7 +56,32 @@ function isTheme(value: unknown): value is Theme {
   return value === "light" || value === "dark" || value === "system";
 }
 
-const fallbackTheme: Theme = isTheme(DEFAULT_THEME) ? DEFAULT_THEME : "light";
+const generatedDefault: Theme = isTheme(DEFAULT_THEME) ? DEFAULT_THEME : "light";
+
+/**
+ * `?theme=light|dark|system` — the default a host embedding this application
+ * asks for, honoured only until the reader chooses for themselves.
+ *
+ * The published guide runs a generated application in an iframe on a near-black
+ * page; left on the generated default it renders light inside it, and a host
+ * cannot reach into the frame to say otherwise. So it asks in the URL. It is a
+ * *default*, not an override: a stored choice wins, and the theme control
+ * decides from then on.
+ *
+ * Read on the client only. During SSR there is no location to read, and the
+ * pre-paint script below has already applied the answer by the time React
+ * hydrates — so reading it during render would be the one thing that makes the
+ * two trees disagree.
+ */
+function requestedTheme(): Theme | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const asked = new URLSearchParams(window.location.search).get("theme");
+    return isTheme(asked) ? asked : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Runs in the document head, before the body exists, as plain ES5 in a string.
@@ -71,9 +96,12 @@ const fallbackTheme: Theme = isTheme(DEFAULT_THEME) ? DEFAULT_THEME : "light";
  * null in a browser with site data blocked, and a theme is not worth a blank
  * page.
  */
-export const THEME_BOOT_SCRIPT = `(function(){try{
-var k=${JSON.stringify(THEME_STORAGE_KEY)},d=${JSON.stringify(fallbackTheme)};
-var t=localStorage.getItem(k);if(t!=="light"&&t!=="dark"&&t!=="system")t=d;
+export const THEME_BOOT_SCRIPT = `(function(){
+var k=${JSON.stringify(THEME_STORAGE_KEY)},d=${JSON.stringify(generatedDefault)};
+var ok=function(v){return v==="light"||v==="dark"||v==="system"};
+try{var a=new URLSearchParams(window.location.search).get("theme");if(ok(a))d=a}catch(e){}
+var t=d;try{var s=localStorage.getItem(k);if(ok(s))t=s}catch(e){}
+try{
 var dark=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);
 var r=document.documentElement;
 r.classList[dark?"add":"remove"]("dark");
@@ -119,7 +147,7 @@ export function useTheme(): ThemeContextValue {
   // than a crash — the sign-in page and the error boundary render there.
   if (ctx) return ctx;
   return {
-    theme: fallbackTheme,
+    theme: generatedDefault,
     resolvedTheme:
       typeof document !== "undefined" && document.documentElement.classList.contains("dark")
         ? "dark"
@@ -133,8 +161,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // has already painted the reader's real choice onto `<html>`; reading storage
   // *here* during render would make the server and client disagree, and React
   // would throw away the tree.
-  const [theme, setThemeState] = useState<Theme>(fallbackTheme);
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolve(fallbackTheme));
+  const [theme, setThemeState] = useState<Theme>(generatedDefault);
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
+    resolve(generatedDefault)
+  );
 
   useEffect(() => {
     let stored: string | null = null;
@@ -143,7 +173,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } catch {
       // Private window, blocked site data. The default stands.
     }
-    const initial = isTheme(stored) ? stored : fallbackTheme;
+    const initial = isTheme(stored) ? stored : (requestedTheme() ?? generatedDefault);
     setThemeState(initial);
     const next = resolve(initial);
     setResolvedTheme(next);

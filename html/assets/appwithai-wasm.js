@@ -11284,23 +11284,38 @@ main().catch((error) => {
       run before the stylesheet below can paint a single pixel, or a reader on
       a dark theme sees a white flash on every load.
 
-      The three rules here are the same three in \`ui/main.js\`'s \`paintTheme\`,
-      written twice because this copy has to execute before any module has
-      loaded and there is no way to share it. Keep them in step — a
-      disagreement shows up as one frame of the wrong theme, which is easy to
-      miss and impossible to explain.
+      The rules here are the same ones in \`ui/theme.js\`, written twice because
+      this copy has to execute before any module has loaded and there is no way
+      to share it. Keep them in step — a disagreement shows up as one frame of
+      the wrong theme, which is easy to miss and impossible to explain.
+
+      \`?theme=light|dark|system\` names the *default* for a host embedding this
+      application in a page of its own — the guide runs it in an iframe on a
+      near-black page, and an application left on \`system\` renders light inside
+      it for every reader whose machine is set to light. It is a default and not
+      an override: a reader who has already chosen keeps their choice, and the
+      control in the masthead still decides from then on.
 
       try/catch because \`localStorage\` throws rather than returning null where
       site data is blocked, and a theme is not worth a blank page.
     -->
     <script>
       (function () {
+        var valid = function (v) { return v === "light" || v === "dark" || v === "system"; };
+        var fallback = "system";
+        try {
+          var asked = new URLSearchParams(window.location.search).get("theme");
+          if (valid(asked)) fallback = asked;
+        } catch (e) {}
+        var chosen = fallback;
         try {
           var stored = localStorage.getItem("appwithai.theme");
-          if (stored !== "light" && stored !== "dark" && stored !== "system") stored = "system";
+          if (valid(stored)) chosen = stored;
+        } catch (e) {}
+        try {
           var dark =
-            stored === "dark" ||
-            (stored === "system" &&
+            chosen === "dark" ||
+            (chosen === "system" &&
               window.matchMedia("(prefers-color-scheme: dark)").matches);
           document.documentElement.dataset.theme = dark ? "dark" : "light";
           document.documentElement.style.colorScheme = dark ? "dark" : "light";
@@ -18220,6 +18235,29 @@ import { el, mount } from "./dom.js";
 /** Per browser, not per account: the choice belongs to the screen being read. */
 const THEME_STORAGE_KEY = "appwithai.theme";
 
+/**
+ * \`?theme=light|dark|system\` — the default a host embedding this application
+ * asks for, honoured only until the reader chooses for themselves.
+ *
+ * The guide runs a freshly generated application in an iframe on a near-black
+ * page. Left on \`system\` it renders light inside that page for every reader
+ * whose machine is set to light, which is the same mistake \`viewers/index.html\`
+ * fixed with \`data-awv-theme="dark"\`. A host cannot reach into the frame, so it
+ * asks in the URL.
+ *
+ * Read here as well as in \`index.html\`'s pre-paint script, so the control in
+ * the masthead shows the theme the page is actually in rather than \`system\`.
+ */
+function requestedTheme() {
+  try {
+    const asked = new URLSearchParams(window.location.search).get("theme");
+    if (asked === "light" || asked === "dark" || asked === "system") return asked;
+  } catch {
+    // A URL we cannot parse is not a reason to fail to paint.
+  }
+  return "system";
+}
+
 const THEMES = [
   { value: "light", label: "Light", glyph: "\\u2600" },
   { value: "dark", label: "Dark", glyph: "\\u263e" },
@@ -18233,7 +18271,7 @@ export function storedTheme() {
   } catch {
     // Site data blocked. The default stands.
   }
-  return "system";
+  return requestedTheme();
 }
 
 function prefersDark() {
@@ -21618,7 +21656,7 @@ export async function reportsView(root) {
 }
 `
 });
-var RUNTIME_BYTES = 429649;
+var RUNTIME_BYTES = 431346;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

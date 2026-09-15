@@ -27,6 +27,29 @@ import { el, mount } from "./dom.js";
 /** Per browser, not per account: the choice belongs to the screen being read. */
 const THEME_STORAGE_KEY = "appwithai.theme";
 
+/**
+ * `?theme=light|dark|system` — the default a host embedding this application
+ * asks for, honoured only until the reader chooses for themselves.
+ *
+ * The guide runs a freshly generated application in an iframe on a near-black
+ * page. Left on `system` it renders light inside that page for every reader
+ * whose machine is set to light, which is the same mistake `viewers/index.html`
+ * fixed with `data-awv-theme="dark"`. A host cannot reach into the frame, so it
+ * asks in the URL.
+ *
+ * Read here as well as in `index.html`'s pre-paint script, so the control in
+ * the masthead shows the theme the page is actually in rather than `system`.
+ */
+function requestedTheme() {
+  try {
+    const asked = new URLSearchParams(window.location.search).get("theme");
+    if (asked === "light" || asked === "dark" || asked === "system") return asked;
+  } catch {
+    // A URL we cannot parse is not a reason to fail to paint.
+  }
+  return "system";
+}
+
 const THEMES = [
   { value: "light", label: "Light", glyph: "\u2600" },
   { value: "dark", label: "Dark", glyph: "\u263e" },
@@ -40,7 +63,7 @@ export function storedTheme() {
   } catch {
     // Site data blocked. The default stands.
   }
-  return "system";
+  return requestedTheme();
 }
 
 function prefersDark() {
