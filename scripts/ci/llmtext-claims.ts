@@ -115,9 +115,11 @@ for (const name of ["llms-full.txt", "llmdetailed.txt"]) {
   }
 
   /* The published route has to be offered, or a model without this checkout
-     concludes the checker is unreachable — the failure this text exists for. */
+     concludes the checker is unreachable — the failure this text exists for.
+     Either hostname satisfies it: `www` is canonical and the apex serves the
+     same files, and which one the line names is not what is being held. */
   held(
-    prose.includes("curl -sO https://appwithai.org/guide/check-model.mjs"),
+    /curl -sO https:\/\/(?:www\.)?appwithai\.org\/guide\/check-model\.mjs/.test(prose),
     `${name}: offers the checkout-free way to run the checker`
   );
   held(
@@ -299,7 +301,7 @@ const detailed = readFileSync(join(ROOT, "website", "llmtext", "llmdetailed.txt"
 const detailedProse = detailed.replace(/\s+/g, " ");
 
 held(
-  detailed.includes("https://appwithai.org/viewers/"),
+  /https:\/\/(?:www\.)?appwithai\.org\/viewers\//.test(detailed),
   "llmdetailed.txt: names the viewers by their published URL"
 );
 
