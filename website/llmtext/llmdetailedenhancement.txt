@@ -2241,6 +2241,18 @@ published site. A run that loaded the modules from disk is a **real run** — th
 same engine, the same report, the same exit codes — and its counts are
 reportable without qualification.
 
+**"My web layer can read it, my shell cannot" is the commonest shape of this,
+and it is not a failure.** An assistant with a browsing or fetch tool beside a
+sandboxed shell already has both halves of the job: one side can read
+`https://appwithai.org/guide/checker.js` and
+`https://appwithai.org/guide/fixer.js`, the other can write a file and run
+Node. Read them with the side that reaches, write them with the side that runs
+— a heredoc is enough, and a file too large for one write goes in pieces — then
+`node check-model.mjs <slug>.mmd --base .`. Reporting "the shell cannot resolve
+the host" as an undetermined validation describes the transport and not the
+checker, and stops one capability short of a result the two together can
+produce. A split like that is a row on this ladder, not the end of it.
+
 **A blocked network must not hold a gate open.** This is the failure this
 paragraph exists to prevent, and it has been observed: a walkthrough stalled
 between Gate B and Phase 3, reporting that the published fixer and checker could
@@ -2360,6 +2372,7 @@ the checker is out of reach:
 | Bun or Deno, writing the code yourself | `import { check } from "https://appwithai.org/guide/checker.js"` — a URL import works as it stands |
 | Node, writing the code yourself | Node has no network imports: `fetch` both files into one directory and `import()` them from there |
 | A browser, a canvas, an HTML preview | `<script type="module">` with the same URL import |
+| A browse or fetch tool beside a shell with no network | The split most assistants have, and a **bridge, not a blocker**: read the two modules with the layer that can reach them, write them into the shell's working directory, then take the Node row above with `--base .`. The shell needs no network — only a file write |
 | None of these | "If the checker cannot be run here", below — check by hand, and say so |
 
 The Node row is the one that catches people out. A URL import there fails while
