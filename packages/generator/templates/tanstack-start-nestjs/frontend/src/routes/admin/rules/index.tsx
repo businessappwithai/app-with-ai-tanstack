@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { WindowHelpDialog } from "@/components/admin/window-help-dialog";
+import { WindowHelpButton } from "@/components/admin/window-help-button";
 import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/admin/rules/")({
@@ -119,26 +119,26 @@ function AdminRulesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b-4 border-black bg-white">
+    <div className="min-h-screen bg-card">
+      <header className="border-b-4 border-foreground bg-card">
         <div className="max-w-7xl mx-auto px-8 py-12">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <Link
                 to="/admin"
-                className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-black transition-colors mb-4"
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
               >
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Back to Admin
               </Link>
               <div className="flex items-center gap-4 mb-4">
-                <Scale className="h-8 w-8 text-black" />
+                <Scale className="h-8 w-8 text-foreground" />
                 <div>
                   <div className="flex items-center gap-3">
-                    <h1 className="text-6xl font-bold tracking-tight text-black">Business Rules</h1>
-                    <WindowHelpDialog windowName="Business Rules" entityLabel="Business Rules" />
+                    <h1 className="text-6xl font-bold tracking-tight text-foreground">Business Rules</h1>
+                    <WindowHelpButton windowName="Business Rules" entityLabel="Business Rules" />
                   </div>
-                  <p className="text-xl text-gray-600 font-light mt-2">
+                  <p className="text-xl text-muted-foreground font-light mt-2">
                     Manage validation rules and business logic with JDM Editor
                   </p>
                 </div>
@@ -150,13 +150,13 @@ function AdminRulesPage() {
                 size="default"
                 onClick={() => refetch()}
                 disabled={isLoading}
-                className="border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
+                className="border-2 border-foreground hover:bg-foreground hover:text-background transition-colors rounded-none"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
                 Refresh
               </Button>
               <Link to="/admin/rules/new">
-                <Button className="bg-black text-white hover:bg-gray-800 rounded-none">
+                <Button className="bg-foreground text-background hover:bg-foreground/90 rounded-none">
                   <Plus className="h-4 w-4 mr-2" />
                   New Rule
                 </Button>
@@ -169,26 +169,26 @@ function AdminRulesPage() {
       <main className="max-w-7xl mx-auto px-8 py-12">
         {/* Stats Cards */}
         <section className="mb-12">
-          <div className="grid grid-cols-4 gap-0 border-l border-r border-black">
-            <div className="border-t border-b border-black border-r p-6 bg-gray-50">
-              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Total Rules</p>
-              <p className="text-4xl font-bold text-black">{rules?.length || 0}</p>
+          <div className="grid grid-cols-4 gap-0 border-l border-r border-foreground">
+            <div className="border-t border-b border-foreground border-r p-6 bg-muted/40">
+              <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2">Total Rules</p>
+              <p className="text-4xl font-bold text-foreground">{rules?.length || 0}</p>
             </div>
-            <div className="border-t border-b border-black border-r p-6 bg-gray-50">
-              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Active</p>
-              <p className="text-4xl font-bold text-emerald-700">
+            <div className="border-t border-b border-foreground border-r p-6 bg-muted/40">
+              <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2">Active</p>
+              <p className="text-4xl font-bold text-emerald-700 dark:text-emerald-300">
                 {rules?.filter((r) => r.isActive).length || 0}
               </p>
             </div>
-            <div className="border-t border-b border-black border-r p-6 bg-gray-50">
-              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Inactive</p>
-              <p className="text-4xl font-bold text-gray-400">
+            <div className="border-t border-b border-foreground border-r p-6 bg-muted/40">
+              <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2">Inactive</p>
+              <p className="text-4xl font-bold text-muted-foreground/70">
                 {rules?.filter((r) => !r.isActive).length || 0}
               </p>
             </div>
-            <div className="border-t border-b border-black p-6 bg-gray-50">
-              <p className="text-sm uppercase tracking-widest text-gray-500 mb-2">Entities</p>
-              <p className="text-4xl font-bold text-black">{entityNames.length}</p>
+            <div className="border-t border-b border-foreground p-6 bg-muted/40">
+              <p className="text-sm uppercase tracking-widest text-muted-foreground mb-2">Entities</p>
+              <p className="text-4xl font-bold text-foreground">{entityNames.length}</p>
             </div>
           </div>
         </section>
@@ -197,20 +197,20 @@ function AdminRulesPage() {
         <section className="mb-8">
           <div className="mb-6 flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
               <Input
                 type="text"
                 placeholder="Search rules by name or entity..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-2 border-black rounded-none focus:ring-0 focus:border-black"
+                className="pl-10 border-2 border-foreground rounded-none focus:ring-0 focus:border-foreground"
               />
             </div>
 
             <select
               value={entityFilter}
               onChange={(e) => setEntityFilter(e.target.value)}
-              className="px-4 py-2 border-2 border-black rounded-none focus:ring-0 focus:border-black bg-white"
+              className="px-4 py-2 border-2 border-foreground rounded-none focus:ring-0 focus:border-foreground bg-card"
             >
               <option value="">All Entities</option>
               {entityNames.map((entity) => (
@@ -223,7 +223,7 @@ function AdminRulesPage() {
             <select
               value={operationFilter}
               onChange={(e) => setOperationFilter(e.target.value)}
-              className="px-4 py-2 border-2 border-black rounded-none focus:ring-0 focus:border-black bg-white"
+              className="px-4 py-2 border-2 border-foreground rounded-none focus:ring-0 focus:border-foreground bg-card"
             >
               <option value="">All Operations</option>
               {operations.map((op) => (
@@ -236,7 +236,7 @@ function AdminRulesPage() {
             <select
               value={activeFilter}
               onChange={(e) => setActiveFilter(e.target.value)}
-              className="px-4 py-2 border-2 border-black rounded-none focus:ring-0 focus:border-black bg-white"
+              className="px-4 py-2 border-2 border-foreground rounded-none focus:ring-0 focus:border-foreground bg-card"
             >
               <option value="">All Status</option>
               <option value="true">Active</option>
@@ -247,18 +247,18 @@ function AdminRulesPage() {
 
         {/* Rules List */}
         {isLoading ? (
-          <div className="text-center py-16 text-gray-500 border-2 border-black">
+          <div className="text-center py-16 text-muted-foreground border-2 border-foreground">
             Loading rules...
           </div>
         ) : filteredRules.length === 0 ? (
-          <div className="text-center py-16 text-gray-500 border-2 border-black">
+          <div className="text-center py-16 text-muted-foreground border-2 border-foreground">
             {searchQuery || entityFilter || operationFilter || activeFilter !== ""
               ? "No rules match your search criteria."
               : "No rules found. Create your first rule to get started."}
           </div>
         ) : (
-          <div className="border-2 border-black">
-            <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b-2 border-black text-sm uppercase tracking-wider font-semibold">
+          <div className="border-2 border-foreground">
+            <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-muted/40 border-b-2 border-foreground text-sm uppercase tracking-wider font-semibold">
               <div className="col-span-3">Rule Name</div>
               <div className="col-span-2">Entity</div>
               <div className="col-span-2">Operation</div>
@@ -271,15 +271,15 @@ function AdminRulesPage() {
             {filteredRules.map((rule) => (
               <div
                 key={rule.id}
-                className="grid grid-cols-12 gap-4 px-6 py-4 border-t border-gray-200 hover:bg-gray-50 items-center"
+                className="grid grid-cols-12 gap-4 px-6 py-4 border-t border-border hover:bg-muted/40 items-center"
               >
                 <div className="col-span-3">
-                  <div className="font-semibold text-black">{rule.ruleName}</div>
-                  <div className="text-xs text-gray-500 font-mono">{rule.id.slice(0, 8)}</div>
+                  <div className="font-semibold text-foreground">{rule.ruleName}</div>
+                  <div className="text-xs text-muted-foreground font-mono">{rule.id.slice(0, 8)}</div>
                 </div>
 
                 <div className="col-span-2">
-                  <code className="text-sm bg-gray-100 px-2 py-1 font-mono">{rule.entityName}</code>
+                  <code className="text-sm bg-muted px-2 py-1 font-mono">{rule.entityName}</code>
                 </div>
 
                 <div className="col-span-2">
@@ -292,12 +292,12 @@ function AdminRulesPage() {
 
                 <div className="col-span-1">
                   {rule.isActive ? (
-                    <span className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-emerald-50 text-emerald-700 font-semibold">
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold">
                       <CheckCircle className="h-3 w-3" />
                       Active
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-red-50 text-red-700 font-semibold">
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 font-semibold">
                       <XCircle className="h-3 w-3" />
                       Inactive
                     </span>
@@ -305,10 +305,10 @@ function AdminRulesPage() {
                 </div>
 
                 <div className="col-span-2">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     {new Date(rule.updatedAt).toLocaleDateString()}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {new Date(rule.updatedAt).toLocaleTimeString()}
                   </div>
                 </div>
@@ -318,7 +318,7 @@ function AdminRulesPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 hover:bg-black hover:text-white rounded-none"
+                      className="h-8 w-8 p-0 hover:bg-foreground hover:text-background rounded-none"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -327,7 +327,7 @@ function AdminRulesPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(rule)}
-                    className="h-8 w-8 p-0 hover:bg-red-600 hover:text-white rounded-none"
+                    className="h-8 w-8 p-0 hover:bg-red-600 hover:text-background rounded-none"
                     disabled={!rule.isActive}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -340,7 +340,7 @@ function AdminRulesPage() {
       </main>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="border-2 border-black rounded-none">
+        <AlertDialogContent className="border-2 border-foreground rounded-none">
           <AlertDialogHeader>
             <AlertDialogTitle>Deactivate Rule</AlertDialogTitle>
             <AlertDialogDescription>
@@ -360,9 +360,9 @@ function AdminRulesPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <footer className="border-t-2 border-black mt-16">
+      <footer className="border-t-2 border-foreground mt-16">
         <div className="max-w-7xl mx-auto px-8 py-8">
-          <p className="text-sm text-gray-500">Business Rules Management</p>
+          <p className="text-sm text-muted-foreground">Business Rules Management</p>
         </div>
       </footer>
     </div>

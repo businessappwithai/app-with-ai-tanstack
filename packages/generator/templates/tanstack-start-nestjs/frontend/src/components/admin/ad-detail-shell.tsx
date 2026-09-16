@@ -23,7 +23,7 @@ import {
   type ParentContext,
 } from "./ad-window-configs";
 import { DocStatusBadge } from "./doc-status-badge";
-import { helpTableNameFromEndpoint, WindowHelpDialog } from "./window-help-dialog";
+import { helpTableNameFromEndpoint, WindowHelpButton } from "./window-help-button";
 import { format } from "date-fns";
 
 type AnyRecord = Record<string, unknown>;
@@ -224,17 +224,17 @@ function SummaryFieldValue({ field, record }: { field: FieldMetadata; record: An
 function SummaryPanel({ fields, record }: { fields: FieldMetadata[]; record: AnyRecord }) {
   if (!fields.length) return null;
   return (
-    <div className="flex-shrink-0 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/80 rounded-xl p-3 min-w-[200px] max-w-[340px] self-start">
-      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-amber-200/60">
+    <div className="flex-shrink-0 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/80 dark:border-amber-800/60 rounded-xl p-3 min-w-[200px] max-w-[340px] self-start">
+      <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-amber-200/60 dark:border-amber-800/60">
         <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-400" />
-        <span className="text-xs font-semibold text-amber-700 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide">
           Highlights
         </span>
       </div>
       <div className="space-y-1.5">
         {fields.map((f) => (
           <div key={f.sys_field_id} className="flex items-baseline gap-2 min-w-0">
-            <span className="text-[10px] text-amber-600/70 font-medium shrink-0 uppercase tracking-wide">
+            <span className="text-[10px] text-amber-600/70 dark:text-amber-400 font-medium shrink-0 uppercase tracking-wide">
               {f.name}
             </span>
             <span className="text-sm font-semibold text-foreground truncate flex-1 text-right">
@@ -380,7 +380,7 @@ interface AuditResponse {
 }
 
 function auditActionIcon(action: string) {
-  if (action === "ENTITY_CREATE") return <FilePlus2 className="h-3.5 w-3.5 text-emerald-600" />;
+  if (action === "ENTITY_CREATE") return <FilePlus2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />;
   if (action === "ENTITY_DELETE") return <FileX2 className="h-3.5 w-3.5 text-red-500" />;
   return <Pencil className="h-3.5 w-3.5 text-blue-500" />;
 }
@@ -498,13 +498,13 @@ function EntityAuditTrail({ entityType, recordId }: { entityType: string; record
                 <div className="mt-2 grid grid-cols-2 gap-3 text-xs">
                   <div>
                     <p className="font-semibold text-muted-foreground mb-1">Before</p>
-                    <pre className="bg-red-50 border border-red-100 rounded p-2 overflow-auto max-h-36 whitespace-pre-wrap text-red-900 text-[11px]">
+                    <pre className="bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 rounded p-2 overflow-auto max-h-36 whitespace-pre-wrap text-red-900 dark:text-red-200 text-[11px]">
                       {event.before_value ? JSON.stringify(event.before_value, null, 2) : "—"}
                     </pre>
                   </div>
                   <div>
                     <p className="font-semibold text-muted-foreground mb-1">After</p>
-                    <pre className="bg-green-50 border border-green-100 rounded p-2 overflow-auto max-h-36 whitespace-pre-wrap text-green-900 text-[11px]">
+                    <pre className="bg-green-50 dark:bg-green-950/40 border border-green-100 dark:border-green-900/50 rounded p-2 overflow-auto max-h-36 whitespace-pre-wrap text-green-900 dark:text-green-200 text-[11px]">
                       {event.after_value ? JSON.stringify(event.after_value, null, 2) : "—"}
                     </pre>
                   </div>
@@ -568,9 +568,22 @@ export function ADDetailShell({
     enabled: !!reportTableName,
     staleTime: 60_000,
   });
-  const summaryFields: FieldMetadata[] = (entityMeta?.columns ?? []).filter(
-    (c: any) => c.group_layout_type === "summary" && c.is_displayed
-  ) as FieldMetadata[];
+  /*
+   * The Highlights panel's fields: the ones whose group is the summary group.
+   *
+   * `level.formFields` first, and `entityMeta` only as the fallback — the same
+   * order, and for the same reason, as the print modal twenty lines below.
+   * `entityMeta` is fetched only when a level supplies *no* fields of its own,
+   * and every business entity supplies them from the dictionary, so reading
+   * `entityMeta` alone meant `summaryFields` was empty for every `bus_` record
+   * ever opened: the panel could not render no matter how an administrator
+   * arranged the groups. `getFormFields` is `getEntityMetadata`'s own columns
+   * filtered by `is_displayed`, so it carries `group_layout_type` too.
+   */
+  const summaryFields: FieldMetadata[] = ((level.formFields?.length
+    ? level.formFields
+    : (entityMeta?.columns ?? [])) as FieldMetadata[]
+  ).filter((c: any) => c.group_layout_type === "summary" && c.is_displayed);
 
   // Fetch each parent record's display name for breadcrumbs.
   // A self-referencing hierarchy can put the same record in the trail twice, so
@@ -809,7 +822,7 @@ export function ADDetailShell({
                   message={currentRecord.doc_status_message as string}
                 />
               )}
-              <WindowHelpDialog
+              <WindowHelpButton
                 tableName={helpTableNameFromEndpoint(level.endpoint)}
                 entityLabel={level.label}
               />

@@ -630,6 +630,14 @@ export class BusService {
         'sys_field_group.name as group_name',
         'sys_field_group.columns as group_columns',
         'sys_field_group.description as group_description',
+        // `layout_type` decides *where* a group renders, not how it looks, so
+        // leaving it out of this select made one of the two layouts
+        // unreachable. `ad-detail-shell.tsx` filters these columns for
+        // `group_layout_type === "summary"` to build the Highlights panel in
+        // the record header — with the field absent the comparison was
+        // `undefined === "summary"` for every column, so the panel was dead
+        // code however an administrator arranged the fields.
+        'sys_field_group.layout_type as group_layout_type',
       ])
       .where('sys_column.sys_table_id', '=', table.sys_table_id)
       .where('sys_column.is_active', '=', true)
@@ -708,6 +716,7 @@ export class BusService {
           group_name: col.group_name || null,
           group_columns: col.group_columns || null,
           group_description: col.group_description || null,
+          group_layout_type: col.group_layout_type || null,
         };
       }),
       window: window

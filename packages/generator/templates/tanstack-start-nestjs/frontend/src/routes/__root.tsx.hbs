@@ -1,14 +1,37 @@
 import { createRootRoute, Outlet, Link } from '@tanstack/react-router'
 import { Meta, Scripts } from '@tanstack/start'
 import { Providers } from '../providers'
+import { THEME_BOOT_SCRIPT } from '../components/theme/theme-provider'
 import { Toaster } from 'sonner'
 import globalsCssUrl from '../styles/globals.css?url'
 
+/**
+ * Hoisted, and not written inline, for a Handlebars reason rather than a React
+ * one: this file is a `.hbs` template, and the inline form of
+ * `dangerouslySetInnerHTML` opens with a doubled brace — which Handlebars reads
+ * as a mustache expression and substitutes away before the generated
+ * application ever sees any JSX. Note that this comment cannot contain the
+ * doubled brace either, for exactly the same reason.
+ */
+const themeBootHtml = { __html: THEME_BOOT_SCRIPT }
+
+/**
+ * The same pre-paint script the layout uses. The error and not-found documents
+ * are whole `<html>` trees of their own, so without it a reader on a dark
+ * theme meets a white page exactly when something has already gone wrong.
+ */
+function ThemeBootScript() {
+  // biome-ignore lint/security/noDangerouslySetInnerHtml: a constant string
+  // from theme-provider.tsx, and the only way to run before first paint
+  return <script dangerouslySetInnerHTML={themeBootHtml} />
+}
+
 function RootErrorComponent({ error }: { error: Error }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>Error - {{project.name}}</title>
+        <ThemeBootScript />
         <Meta />
       </head>
       <body className="font-sans antialiased">
@@ -37,9 +60,10 @@ function RootErrorComponent({ error }: { error: Error }) {
 
 function RootNotFoundComponent() {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>Not Found - {{project.name}}</title>
+        <ThemeBootScript />
         <Meta />
       </head>
       <body className="font-sans antialiased">
@@ -83,10 +107,18 @@ export const Route = createRootRoute({
 
 function RootLayout() {
   return (
-    <html lang="en"{{#if config.enableDarkMode}} className="dark"{{/if}}>
+    // `suppressHydrationWarning` because the boot script below has already put
+    // `class="dark"` and `style="color-scheme:dark"` on this element by the
+    // time React hydrates, and the server had no way to know it would. The
+    // alternative is not a clean tree — it is applying the theme one paint
+    // late, which is a white flash on every load of a dark application.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>{{project.name}}</title>
         <meta name="description" content="{{project.description}}" />
+        {/* Before the stylesheet paints anything, and before any module has
+            loaded. This is the only reason the theme does not flash. */}
+        <ThemeBootScript />
         <Meta />
       </head>
       <body className="font-sans antialiased">
@@ -95,7 +127,11 @@ function RootLayout() {
             <Outlet />
           </main>
         </Providers>
-        <Toaster richColors position="top-right" />
+        {/* Bottom right, not top right. The top right is the help toaster's
+            now, and it is a panel that stays open — a transient message
+            landing on top of it is the one collision this arrangement can
+            have, so the two do not share a corner. */}
+        <Toaster richColors position="bottom-right" />
         <Scripts />
       </body>
     </html>

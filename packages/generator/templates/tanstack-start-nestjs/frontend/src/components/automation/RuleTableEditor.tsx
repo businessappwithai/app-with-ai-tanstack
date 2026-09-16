@@ -319,7 +319,7 @@ export function RuleTableEditor({
               <th className="w-9 border-b border-border bg-muted/40 px-3 py-2" />
               <th
                 colSpan={table.inputs.length}
-                className="border-b border-border bg-muted/40 px-3 py-2 text-center text-[10.5px] font-bold uppercase tracking-[0.1em] text-blue-600"
+                className="border-b border-border bg-muted/40 px-3 py-2 text-center text-[10.5px] font-bold uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400"
               >
                 ◇ When all of these fit
               </th>
@@ -336,7 +336,7 @@ export function RuleTableEditor({
               {table.inputs.map((c) => (
                 <th
                   key={c.id}
-                  className="border-b border-border bg-muted/40 px-3 py-2 text-left text-[10.5px] font-bold uppercase tracking-[0.07em] text-blue-600"
+                  className="border-b border-border bg-muted/40 px-3 py-2 text-left text-[10.5px] font-bold uppercase tracking-[0.07em] text-blue-600 dark:text-blue-400"
                 >
                   {c.field || c.name}
                 </th>
@@ -448,7 +448,7 @@ export function RuleTableEditor({
                         type="button"
                         aria-label={`Remove row ${rowIndex + 1}`}
                         onClick={() => removeRow(rowIndex)}
-                        className="rounded px-1 text-xs text-muted-foreground hover:bg-muted hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="rounded px-1 text-xs text-muted-foreground hover:bg-muted hover:text-red-600 dark:hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                       >
                         ✕
                       </button>
@@ -494,11 +494,11 @@ export function RuleTableEditor({
             ))}
           </div>
           {result.rowIndex === null ? (
-            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12.5px] text-amber-800">
+            <p className="rounded-lg border border-amber-200/60 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-[12.5px] text-amber-800 dark:text-amber-300">
               No row fits these values, so this table would return nothing.
             </p>
           ) : (
-            <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12.5px] text-emerald-800">
+            <p className="rounded-lg border border-emerald-200/60 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2 text-[12.5px] text-emerald-800 dark:text-emerald-300">
               <b>Row {result.rowIndex + 1} fits.</b>{" "}
               {Object.entries(result.outputs)
                 .map(([k, v]) => `${k} = ${v || "(empty)"}`)
@@ -518,8 +518,8 @@ export function RuleTableEditor({
               className={cn(
                 "mb-2 rounded-lg border px-3 py-2 text-[12.5px] last:mb-0",
                 note.level === "ok"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                  : "border-amber-200 bg-amber-50 text-amber-800"
+                  ? "border-emerald-200/60 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300"
+                  : "border-amber-200/60 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300"
               )}
             >
               {note.message}

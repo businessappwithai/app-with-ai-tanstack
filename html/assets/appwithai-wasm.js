@@ -11277,6 +11277,51 @@ main().catch((error) => {
     <title>__PROJECT_NAME__</title>
     <meta name="description" content="__PROJECT_DESCRIPTION__" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%97%84%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+    <!--
+      The theme, before anything paints.
+
+      Synchronous and classic (not \`type="module"\`, which defers): it has to
+      run before the stylesheet below can paint a single pixel, or a reader on
+      a dark theme sees a white flash on every load.
+
+      The rules here are the same ones in \`ui/theme.js\`, written twice because
+      this copy has to execute before any module has loaded and there is no way
+      to share it. Keep them in step — a disagreement shows up as one frame of
+      the wrong theme, which is easy to miss and impossible to explain.
+
+      \`?theme=light|dark|system\` names the *default* for a host embedding this
+      application in a page of its own — the guide runs it in an iframe on a
+      near-black page, and an application left on \`system\` renders light inside
+      it for every reader whose machine is set to light. It is a default and not
+      an override: a reader who has already chosen keeps their choice, and the
+      control in the masthead still decides from then on.
+
+      try/catch because \`localStorage\` throws rather than returning null where
+      site data is blocked, and a theme is not worth a blank page.
+    -->
+    <script>
+      (function () {
+        var valid = function (v) { return v === "light" || v === "dark" || v === "system"; };
+        var fallback = "system";
+        try {
+          var asked = new URLSearchParams(window.location.search).get("theme");
+          if (valid(asked)) fallback = asked;
+        } catch (e) {}
+        var chosen = fallback;
+        try {
+          var stored = localStorage.getItem("appwithai.theme");
+          if (valid(stored)) chosen = stored;
+        } catch (e) {}
+        try {
+          var dark =
+            chosen === "dark" ||
+            (chosen === "system" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.dataset.theme = dark ? "dark" : "light";
+          document.documentElement.style.colorScheme = dark ? "dark" : "light";
+        } catch (e) {}
+      })();
+    </script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -16277,32 +16322,48 @@ export function workflowRoutes(model) {
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1a1a1a;
-    --surface: #1f1f1f;
-    --surface-2: #2e2e2e;
-    --border: #333333;
-    --border-strong: #454545;
-    --text: #fafafa;
-    --text-soft: #b3b3b3;
-    --text-faint: #999999;
+/*
+ * The dark palette. One selector, because there is one mechanism.
+ *
+ * \`index.html\` runs a synchronous script in the head that resolves the
+ * reader's stored choice — light, dark, or whatever the machine says — and
+ * writes the answer to \`data-theme\` on \`<html>\` before anything paints. The
+ * theme control in the masthead rewrites the same attribute. So every rule in
+ * this stylesheet resolves its colours through the properties below and
+ * nothing else in it knows a theme exists.
+ *
+ * This was \`@media (prefers-color-scheme: dark)\` and nothing else, which is
+ * not a mode: a reader who wanted the other one had to change their operating
+ * system. The preference is still honoured — it is what \`system\` resolves to,
+ * and what an unset choice defaults to — but it is now one of three answers
+ * rather than the only one. There is no media query left here because there is
+ * nothing for it to cover: the script is blocking, and a browser running none
+ * of this application's JavaScript has no application to theme.
+ */
+[data-theme="dark"] {
+  --bg: #1a1a1a;
+  --surface: #1f1f1f;
+  --surface-2: #2e2e2e;
+  --border: #333333;
+  --border-strong: #454545;
+  --text: #fafafa;
+  --text-soft: #b3b3b3;
+  --text-faint: #999999;
 
-    --primary: #21c0c0;
-    --primary-hover: #4ad4d4;
-    --primary-soft: #12302f;
-    --primary-on: #1a1a1a;
+  --primary: #21c0c0;
+  --primary-hover: #4ad4d4;
+  --primary-soft: #12302f;
+  --primary-on: #1a1a1a;
 
-    --destructive: #e68a63;
-    --destructive-soft: #2e1d16;
-    --success: #4ec98a;
-    --success-soft: #10241a;
-    --warn: #e0a458;
-    --warn-soft: #2a2012;
+  --destructive: #e68a63;
+  --destructive-soft: #2e1d16;
+  --success: #4ec98a;
+  --success-soft: #10241a;
+  --warn: #e0a458;
+  --warn-soft: #2a2012;
 
-    --table-head: #0f172a;
-    --table-head-text: #e2e8f0;
-  }
+  --table-head: #0f172a;
+  --table-head-text: #e2e8f0;
 }
 
 * { box-sizing: border-box; }
@@ -16358,7 +16419,10 @@ a { color: var(--primary); }
 
 /* --------------------------------------------------------------- login --- */
 
-.login { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); min-height: 100vh; }
+.login { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); min-height: 100vh; }
+/* Out of the grid flow on purpose: the two columns are a designed proportion,
+   and a third cell for a 78px control would change it. */
+.login__theme { position: absolute; top: 18px; right: 18px; z-index: 2; }
 .login__panel { display: grid; align-content: center; padding: 48px clamp(24px, 6vw, 80px); }
 .login__mark {
   width: 42px; height: 42px; display: grid; place-items: center;
@@ -16468,6 +16532,19 @@ a { color: var(--primary); }
   content: "⌕"; position: absolute; left: 12px; top: 50%; transform: translateY(-52%);
   color: var(--text-faint); font-size: 15px;
 }
+/*
+ * Light / dark / system, as three buttons rather than a two-way switch:
+ * \`system\` is a state of its own and a switch cannot express it.
+ */
+.themepick { display: inline-flex; gap: 2px; padding: 2px; border-radius: 999px; background: var(--surface-2); }
+.themepick__option {
+  display: inline-grid; place-items: center; width: 24px; height: 24px;
+  border: 0; border-radius: 999px; padding: 0; background: transparent;
+  color: var(--text-faint); font-size: 13px; line-height: 1; cursor: pointer; font-family: inherit;
+}
+.themepick__option:hover { color: var(--text); }
+.themepick__option.is-active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 2px rgb(0 0 0 / 10%); }
+
 .masthead__user { display: flex; align-items: center; gap: 9px; padding-left: 16px; border-left: 1px solid var(--border); }
 .avatar {
   width: 30px; height: 30px; flex: none; display: grid; place-items: center;
@@ -16493,11 +16570,18 @@ a { color: var(--primary); }
 .crumbs a:hover { color: var(--primary); }
 .crumbs__sep { color: var(--text-faint); }
 .crumbs__current { color: var(--text); font-weight: 600; }
+/*
+ * The \`?\`. One control, one glyph, the same on every screen — so "press the
+ * question mark" is true of all of them. It read "? Help" and opened a message
+ * that disappeared after four seconds; it now opens the help panel above.
+ */
 .crumbs__help {
-  display: inline-flex; align-items: center; gap: 4px; margin-left: 4px;
-  font-size: 11.5px; padding: 2px 9px; border-radius: 999px;
+  display: inline-grid; place-items: center; margin-left: 4px;
+  width: 20px; height: 20px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; line-height: 1;
   background: var(--primary-soft); color: var(--primary); border: 0; cursor: pointer; font-family: inherit;
 }
+.crumbs__help:hover { background: var(--primary); color: var(--primary-on); }
 
 .outlet { padding: 22px; }
 
@@ -16646,7 +16730,18 @@ a { color: var(--primary); }
   .chip--date { background: #2c1c10; color: #f0a06a; }
   .chip--lookup { background: #2a1430; color: #e07ae8; }
 }
-.field__help { border: 0; background: transparent; color: var(--text-faint); cursor: help; font-size: 12px; padding: 0; }
+/*
+ * \`cursor: help\` and a \`title\` is what this was — a tooltip, which needs a
+ * pointer, a hover and a delay, and never appears on a phone at all. It is a
+ * button now and it opens the help panel.
+ */
+.field__help {
+  display: inline-grid; place-items: center; width: 16px; height: 16px;
+  border: 0; border-radius: 999px; padding: 0;
+  background: var(--surface-2); color: var(--text-faint);
+  font-size: 11px; font-weight: 700; line-height: 1; cursor: pointer; font-family: inherit;
+}
+.field__help:hover { background: var(--primary-soft); color: var(--primary); }
 .field__input {
   width: 100%; padding: 9px 12px; font: inherit; font-size: 13.5px;
   border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
@@ -16656,7 +16751,9 @@ a { color: var(--primary); }
 .field__input:disabled { background: var(--surface-2); color: var(--text-faint); }
 .field__input--area { resize: vertical; min-height: 84px; }
 .field__checkbox { width: 17px; height: 17px; accent-color: var(--primary); justify-self: start; }
-.field__note { margin: 0; font-size: 11.5px; color: var(--text-faint); }
+/* \`.field__note\` was the field's dictionary help printed under every input,
+   which doubled the height of a form whose author documented every column.
+   It is behind the field's \`?\` now — see \`.toast--help\` above. */
 
 /* The dictionary browser: a table list you can pick from, and the help text a
    model wrote for each column — narrow enough that a sentence does not push
@@ -16755,7 +16852,21 @@ a { color: var(--primary); }
 .empty h3 { margin: 0 0 6px; color: var(--text); font-size: 16px; }
 .empty p { margin: 0; font-size: 13px; }
 
+/* Transient messages: bottom right, where they were, and where they cannot
+   collide with the help panel above. */
 .toasts { position: fixed; right: 18px; bottom: 18px; display: grid; gap: 9px; z-index: 200; max-width: min(420px, calc(100vw - 36px)); }
+
+/*
+ * Help: top right, its own tray, one panel at a time.
+ *
+ * \`top: 70px\` rather than 18px, and the number is the sticky masthead's
+ * height. At 18px the panel sat *over* the masthead's right-hand end, which is
+ * where the theme control and Sign out are — so a non-modal panel, whose whole
+ * point is that the application stays usable behind it, was the one thing
+ * making two of its controls unclickable. Found by driving it in a browser;
+ * nothing about the markup says so.
+ */
+.helptray { position: fixed; right: 18px; top: 70px; z-index: 210; width: min(420px, calc(100vw - 36px)); }
 .toast {
   display: flex; gap: 10px; align-items: flex-start;
   background: var(--surface); border: 1px solid var(--border); border-left-width: 3px;
@@ -16767,6 +16878,31 @@ a { color: var(--primary); }
 .toast--info { border-left-color: var(--primary); }
 .toast__body { white-space: pre-wrap; flex: 1; }
 .toast__close { border: 0; background: transparent; color: var(--text-faint); font-size: 17px; line-height: 1; cursor: pointer; padding: 0 2px; }
+.toast__close:hover { color: var(--text); }
+
+/*
+ * The help panel. The only surface in this application that shows help.
+ *
+ * Taller than a message and scrollable, because a window's help is its
+ * overview plus a line per field — and unlike a message, it is read rather
+ * than glanced at. Deliberately not modal and with no backdrop: the form it
+ * describes stays visible and editable beside it.
+ */
+.toast--help {
+  border-left-color: var(--primary); border-left-width: 3px;
+  max-height: min(70vh, calc(100vh - 100px)); overflow: hidden;
+}
+.toast--help .toast__body { display: flex; flex-direction: column; min-height: 0; gap: 8px; }
+.toast__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.toast__title { font-family: var(--serif); font-size: 14px; font-weight: 600; color: var(--text); }
+.toast__help { overflow-y: auto; min-height: 0; white-space: pre-wrap; color: var(--text-soft); }
+.toast__help .field__helptext { margin: 0 0 8px; color: var(--text); white-space: pre-wrap; }
+.toast__help .field__helpfacts {
+  margin: 0; padding: 0; list-style: none;
+  display: grid; gap: 3px; font-size: 12px; color: var(--text-faint);
+}
+.toast__help .field__helpfacts li { font-family: var(--mono); }
+.toast__help dl, .toast__help ul { margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
@@ -17561,20 +17697,76 @@ export function mount(node, ...children) {
   return node;
 }
 
+function tray(className) {
+  let node = document.querySelector(\`.\${className}\`);
+  if (!node) {
+    node = el(\`div.\${className}\`);
+    document.body.appendChild(node);
+  }
+  return node;
+}
+
 /** Transient message. Errors stay until dismissed; successes fade. */
 export function toast(message, tone = "info") {
-  let tray = document.querySelector(".toasts");
-  if (!tray) {
-    tray = el("div.toasts");
-    document.body.appendChild(tray);
-  }
   const node = el(
     \`div.toast.toast--\${tone}\`,
     el("div.toast__body", message),
     el("button.toast__close", { onclick: () => node.remove(), "aria-label": "Dismiss" }, "×")
   );
-  tray.appendChild(node);
+  tray("toasts").appendChild(node);
   if (tone !== "error") setTimeout(() => node.remove(), 4000);
+  return node;
+}
+
+/**
+ * Help, and the only shape it takes in this application.
+ *
+ * A window's help and a field's help both arrive here: one panel at the top
+ * right, opened by a \`?\` and removed by its own close button and nothing else.
+ *
+ * Four ways it is deliberately not an ordinary toast:
+ *
+ * 1. **No timeout.** \`toast(help, "info")\` is what this used to be, and it
+ *    took the text away after four seconds — help is read while the form it
+ *    describes is being filled in, so four seconds is not a reading time, it
+ *    is a glimpse. Only the close button removes it: not a timer, not a click
+ *    elsewhere, not Escape.
+ * 2. **Its own tray.** Transient messages are bottom right and this is top
+ *    right, so saving a record while help is open cannot push the help off
+ *    the screen, and a panel that may be 500px tall cannot push the
+ *    confirmation of the save off it either.
+ * 3. **Only one of it.** Opening a second topic replaces the first rather than
+ *    stacking, because a tower of panels down the edge of the screen is what a
+ *    toaster is supposed to avoid.
+ * 4. **It never covers the page.** No backdrop: the record stays visible and
+ *    editable with the help open beside it.
+ *
+ * \`body\` is a string or a node, so a caller can hand over a list of fields
+ * rather than a paragraph.
+ */
+export function helpToast(title, body) {
+  const helptray = tray("helptray");
+  helptray.querySelector(".toast--help")?.remove();
+
+  const node = el(
+    "div.toast.toast--help",
+    { role: "note", "aria-live": "polite" },
+    el(
+      "div.toast__body",
+      el(
+        "div.toast__head",
+        el("strong.toast__title", title),
+        el(
+          "button.toast__close",
+          { onclick: () => node.remove(), "aria-label": "Close help", title: "Close help" },
+          "×"
+        )
+      ),
+      el("div.toast__help", body)
+    )
+  );
+
+  helptray.appendChild(node);
   return node;
 }
 
@@ -17618,7 +17810,8 @@ export const escapeHtml = (value) =>
  * a pushState there rewrites the *host* page's URL. A hash cannot.
  */
 
-import { el, mount, toast } from "./dom.js";
+import { el, helpToast, mount, toast } from "./dom.js";
+import { themeControl } from "./theme.js";
 import { api, configure, setToken } from "./api.js";
 import { loginView } from "./views/login.js";
 import { dashboardView } from "./views/dashboard.js";
@@ -17644,6 +17837,9 @@ const state = {
    * over a rules listing that has nothing to save.
    */
   renderId: 0,
+  /** The current screen's help, and what to call it in the toaster. */
+  helpText: "",
+  helpTitle: "Help",
 };
 
 export async function start({ basePath, project }) {
@@ -17796,6 +17992,7 @@ async function render() {
   state.actions = {};
   state.renderId += 1;
   state.helpText = "";
+  state.helpTitle = "Help";
 
   try {
     const [, section, ...rest] = route.split("/");
@@ -17876,6 +18073,9 @@ function ensureShell(root) {
       el("a.masthead__name", { href: "#/", title: "Dashboard" }, state.project.name),
       el("div.masthead__spacer"),
       el("div.masthead__search", search),
+      // Light / dark / system. The attribute lands on <html>, so this one
+      // control changes every screen rather than the masthead.
+      themeControl(),
       el(
         "div.masthead__user",
         el("span.avatar", initials(state.user.name || state.user.email)),
@@ -17916,6 +18116,7 @@ function ensureShell(root) {
  * application is reached from it and a breadcrumb with one entry is a label.
  */
 function setCrumbs(trail) {
+  state.helpTitle = trail.length ? trail[trail.length - 1].label : "Dashboard";
   const crumbs = document.querySelector(".crumbs");
   if (!crumbs) return;
   mount(
@@ -17927,9 +18128,27 @@ function setCrumbs(trail) {
         ? el("a", { href: item.href }, item.label)
         : el("span.crumbs__current", item.label),
     ]),
-    state.helpText
-      ? el("button.crumbs__help", { onclick: () => toast(state.helpText, "info") }, "? Help")
-      : null
+    state.helpText ? helpButton() : null
+  );
+}
+
+/**
+ * The \`?\`. The only control in this application that shows help.
+ *
+ * It opened a \`toast(..., "info")\` before, which took the text away after four
+ * seconds. Now it opens the help toaster: top right, no timeout, closed by its
+ * own close button.
+ */
+function helpButton() {
+  return el(
+    "button.crumbs__help",
+    {
+      type: "button",
+      title: \`Help for \${state.helpTitle}\`,
+      "aria-label": \`Help for \${state.helpTitle}\`,
+      onclick: () => helpToast(\`\${state.helpTitle} — Help\`, state.helpText),
+    },
+    "?"
   );
 }
 
@@ -17937,9 +18156,7 @@ export function setHelp(text) {
   state.helpText = text;
   const crumbs = document.querySelector(".crumbs");
   if (crumbs && !crumbs.querySelector(".crumbs__help") && text) {
-    crumbs.appendChild(
-      el("button.crumbs__help", { onclick: () => toast(text, "info") }, "? Help")
-    );
+    crumbs.appendChild(helpButton());
   }
 }
 
@@ -17988,6 +18205,146 @@ const initials = (value) =>
     .slice(0, 2)
     .map((word) => (word[0] || "").toUpperCase())
     .join("") || "U";
+`,
+  "ui/theme.js": `/**
+ * The theme: light, dark, or whatever the machine says.
+ *
+ * One attribute on \`<html>\`. \`styles.css\` states the whole palette twice —
+ * once as \`:root\` and once under \`[data-theme="dark"]\` — and every rule in it
+ * resolves its colours through those custom properties, so setting the
+ * attribute is the entire mechanism. Screens, panels, grids, forms, the
+ * reporting application and the toasts all follow with nothing to opt into.
+ *
+ * It used to be \`@media (prefers-color-scheme: dark)\` and nothing else, which
+ * is not a mode: a reader who wanted the other one had to change their
+ * operating system. The preference is still honoured — it is what \`system\`
+ * resolves to, and the default when nothing has been chosen — but it is now
+ * one of three answers rather than the only one.
+ *
+ * \`index.html\` applies the stored choice before first paint, in a blocking
+ * script that duplicates \`paintTheme\` below because it has to run before any
+ * module has loaded. Keep the two in step.
+ *
+ * This is a module of its own rather than part of \`main.js\` so that the
+ * sign-in screen and the reporting application can offer the control without
+ * importing the shell that renders them.
+ */
+
+import { el, mount } from "./dom.js";
+
+/** Per browser, not per account: the choice belongs to the screen being read. */
+const THEME_STORAGE_KEY = "appwithai.theme";
+
+/**
+ * \`?theme=light|dark|system\` — the default a host embedding this application
+ * asks for, honoured only until the reader chooses for themselves.
+ *
+ * The guide runs a freshly generated application in an iframe on a near-black
+ * page. Left on \`system\` it renders light inside that page for every reader
+ * whose machine is set to light, which is the same mistake \`viewers/index.html\`
+ * fixed with \`data-awv-theme="dark"\`. A host cannot reach into the frame, so it
+ * asks in the URL.
+ *
+ * Read here as well as in \`index.html\`'s pre-paint script, so the control in
+ * the masthead shows the theme the page is actually in rather than \`system\`.
+ */
+function requestedTheme() {
+  try {
+    const asked = new URLSearchParams(window.location.search).get("theme");
+    if (asked === "light" || asked === "dark" || asked === "system") return asked;
+  } catch {
+    // A URL we cannot parse is not a reason to fail to paint.
+  }
+  return "system";
+}
+
+const THEMES = [
+  { value: "light", label: "Light", glyph: "\\u2600" },
+  { value: "dark", label: "Dark", glyph: "\\u263e" },
+  { value: "system", label: "System", glyph: "\\u25d1" },
+];
+
+export function storedTheme() {
+  try {
+    const value = localStorage.getItem(THEME_STORAGE_KEY);
+    if (value === "light" || value === "dark" || value === "system") return value;
+  } catch {
+    // Site data blocked. The default stands.
+  }
+  return requestedTheme();
+}
+
+function prefersDark() {
+  return typeof window.matchMedia === "function"
+    ? window.matchMedia("(prefers-color-scheme: dark)").matches
+    : false;
+}
+
+/** Resolve a choice to a painted theme and put it on the document. */
+export function paintTheme(theme) {
+  const resolved = theme === "system" ? (prefersDark() ? "dark" : "light") : theme;
+  document.documentElement.dataset.theme = resolved;
+  // The browser's own chrome — scrollbars, the controls it draws itself — is
+  // not styled by our properties. Without this a dark application scrolls with
+  // a white scrollbar.
+  document.documentElement.style.colorScheme = resolved;
+  return resolved;
+}
+
+export function applyTheme(theme) {
+  paintTheme(theme);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // Applied for this page; just not remembered.
+  }
+  // Every control on screen, not only the one that was pressed: the sign-in
+  // screen and the reporting application each carry one.
+  for (const control of document.querySelectorAll(".themepick")) {
+    mount(control, ...themeChoices(theme));
+  }
+}
+
+function themeChoices(active) {
+  return THEMES.map((option) =>
+    el(
+      "button.themepick__option",
+      {
+        type: "button",
+        class: option.value === active ? "is-active" : null,
+        "aria-pressed": option.value === active ? "true" : "false",
+        title: \`\${option.label} theme\`,
+        "aria-label": \`\${option.label} theme\`,
+        onclick: () => applyTheme(option.value),
+      },
+      option.glyph
+    )
+  );
+}
+
+/**
+ * Three buttons rather than a two-way switch, because \`system\` is a state of
+ * its own and a switch cannot express it: a reader whose machine goes dark at
+ * sunset wants the application to follow, and a reader who wants dark on a
+ * light machine wants it not to.
+ */
+export function themeControl() {
+  return el(
+    "div.themepick",
+    { role: "group", "aria-label": "Theme" },
+    themeChoices(storedTheme())
+  );
+}
+
+/**
+ * \`system\` means "keep following it", so the query stays subscribed for the
+ * life of the tab rather than being read once at boot.
+ */
+if (typeof window.matchMedia === "function") {
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (storedTheme() === "system") paintTheme("system");
+  });
+}
 `,
   "ui/views/admin.js": `/**
  * The administrative screens: dictionary, rules, processes, audit, model.
@@ -18476,10 +18833,18 @@ export async function modelView(root) {
   );
 }
 
-/** Every administrative screen has the same shape: a title, a lede, a body. */
+/**
+ * Every administrative screen has the same shape: a title, a body, and its
+ * explanation behind the \`?\`.
+ *
+ * The explanation used to be both — a \`<p class="lede">\` under the heading
+ * *and* the screen's registered help text, which is the same sentence shown
+ * twice. It is the help now, and only the help, so there is one place in this
+ * application that shows help and one control that opens it.
+ */
 function panel(title, subtitle, body) {
   if (subtitle) setHelp(subtitle);
-  return el("section", el("h2.section-title", title), subtitle ? el("p.lede", subtitle) : null, body);
+  return el("section", el("h2.section-title", title), body);
 }
 
 function statRow(entries) {
@@ -18819,7 +19184,7 @@ function purgeSection(project, navigate) {
  * permit. Offering a button the server will refuse is worse than offering none.
  */
 
-import { el, mount, spinner, toast, displayValue } from "../dom.js";
+import { el, helpToast, mount, spinner, toast, displayValue } from "../dom.js";
 import { api } from "../api.js";
 import { setActions, childEntitiesOf } from "../main.js";
 
@@ -19479,17 +19844,47 @@ async function control(field, record, entity, inputs) {
           "button.field__help",
           {
             type: "button",
-            title: \`\${field.column_name} — \${attribute.type ?? "text"}\${
-              attribute.maxLength ? \`, up to \${attribute.maxLength} characters\` : ""
-            }\`,
+            title: \`Help for \${field.name}\`,
+            "aria-label": \`Help for \${field.name}\`,
+            onclick: () => helpToast(\`\${field.name} — Help\`, fieldHelpBody(field, attribute)),
           },
           "?"
         )
       ),
-      input,
-      field.description ? el("p.field__note", field.description) : null
+      input
     ),
   ];
+}
+
+/**
+ * What a field's \`?\` says: the dictionary's own help text, then what the
+ * column actually is.
+ *
+ * Both halves used to be somewhere else. \`field.description\` — the model's
+ * \`%%field … help:\` text, and the only prose the dictionary carries about a
+ * column — rendered as a permanent note under the input, so a form with help
+ * on every field was twice as tall as the form. The type and length sat in the
+ * \`?\` button's \`title\` attribute, which is a tooltip: it appears on hover, on
+ * a pointer, after a delay, and not at all on a phone.
+ *
+ * One \`?\`, one panel, both halves.
+ */
+function fieldHelpBody(field, attribute) {
+  const facts = [\`Column: \${field.column_name}\`, \`Type: \${attribute.type ?? "text"}\`];
+  if (attribute.maxLength) facts.push(\`Up to \${attribute.maxLength} characters\`);
+  if (field.is_mandatory) facts.push("Required");
+  if (field.is_read_only) facts.push("Read-only");
+  if (attribute.enumValues?.length) facts.push(\`One of: \${attribute.enumValues.join(", ")}\`);
+  if (attribute.refTable) facts.push(\`References \${attribute.refTable}\`);
+
+  return el(
+    "div",
+    field.description ? el("p.field__helptext", field.description) : null,
+    el(
+      "ul.field__helpfacts",
+      facts.map((fact) => el("li", fact))
+    )
+  );
 }
 
 function normalizeForInput(value, type) {
@@ -20082,6 +20477,7 @@ function debounce(fn, delay) {
 
 import { el, mount, toast } from "../dom.js";
 import { api, setToken } from "../api.js";
+import { themeControl } from "../theme.js";
 
 export async function loginView(root, { project, onSignedIn }) {
   let config = null;
@@ -20153,6 +20549,11 @@ export async function loginView(root, { project, onSignedIn }) {
     root,
     el(
       "div.login",
+      // The theme is switchable before anyone has signed in. The choice is
+      // stored per browser rather than on the account, so there is nothing to
+      // wait for a session for — and this is the first screen of the
+      // application, a poor one to have no say over.
+      el("div.login__theme", themeControl()),
       el(
         "div.login__panel",
         el("div.login__mark", initials(project.name)),
@@ -20227,7 +20628,7 @@ export async function loginView(root, { project, onSignedIn }) {
       el(
         "p.login__footer",
         "Built with ",
-        el("a", { href: "http://www.appwithai.org", target: "_blank", rel: "noopener noreferrer" }, "APPWITHAI")
+        el("a", { href: "https://appwithai.org", target: "_blank", rel: "noopener noreferrer" }, "APPWITHAI")
       )
     )
   );
@@ -20261,6 +20662,7 @@ const initials = (name) =>
  */
 
 import { el, empty, mount, spinner, toast } from "../dom.js";
+import { themeControl } from "../theme.js";
 import { reportApi, setReportToken } from "../api.js";
 import { reportLoginView } from "./report-login.js";
 
@@ -20674,6 +21076,10 @@ export async function reportAppView(root, { project, onLeave }) {
           el("span.masthead__badge", "Enterprise Reporting"),
           el("span.masthead__name", state.overview.application?.name ?? project.name),
           el("div.masthead__spacer"),
+          // The reporting application is a second sign-in over the same data,
+          // and the theme is one attribute on the shared document — so the
+          // control belongs in both mastheads rather than only the one.
+          themeControl(),
           el(
             "div.masthead__user",
             el("span.avatar.avatar--report", "ER"),
@@ -21250,7 +21656,7 @@ export async function reportsView(root) {
 }
 `
 });
-var RUNTIME_BYTES = 414308;
+var RUNTIME_BYTES = 431343;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

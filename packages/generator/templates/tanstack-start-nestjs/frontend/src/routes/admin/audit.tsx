@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { WindowHelpDialog } from "@/components/admin/window-help-dialog";
+import { WindowHelpButton } from "@/components/admin/window-help-button";
 import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/admin/audit")({
@@ -66,19 +66,19 @@ interface AuditResponse {
 // ---------------------------------------------------------------------------
 
 const ACTION_COLORS: Record<string, string> = {
-  ENTITY_CREATE: "bg-green-100 text-green-800",
-  ENTITY_UPDATE: "bg-blue-100 text-blue-800",
-  ENTITY_DELETE: "bg-red-100 text-red-800",
-  AUTH_LOGIN: "bg-purple-100 text-purple-800",
-  AUTH_LOGOUT: "bg-gray-100 text-gray-700",
-  AUTH_LOGIN_FAILED: "bg-red-100 text-red-800",
-  SYS_FIELD_UPDATE: "bg-yellow-100 text-yellow-800",
-  SYS_TABLE_CHANGE: "bg-yellow-100 text-yellow-800",
-  AI_SQL_EXECUTED: "bg-indigo-100 text-indigo-800",
+  ENTITY_CREATE: "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300",
+  ENTITY_UPDATE: "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300",
+  ENTITY_DELETE: "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300",
+  AUTH_LOGIN: "bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300",
+  AUTH_LOGOUT: "bg-muted text-foreground/80",
+  AUTH_LOGIN_FAILED: "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300",
+  SYS_FIELD_UPDATE: "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300",
+  SYS_TABLE_CHANGE: "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300",
+  AI_SQL_EXECUTED: "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300",
 };
 
 function actionBadge(action: string) {
-  const cls = ACTION_COLORS[action] ?? "bg-gray-100 text-gray-700";
+  const cls = ACTION_COLORS[action] ?? "bg-muted text-foreground/80";
   const label = action.replace(/_/g, " ");
   return (
     <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${cls}`}>{label}</span>
@@ -87,12 +87,12 @@ function actionBadge(action: string) {
 
 function sourceBadge(source?: string) {
   const map: Record<string, string> = {
-    WEB_UI: "bg-sky-100 text-sky-700",
-    API: "bg-orange-100 text-orange-700",
-    AGENT: "bg-violet-100 text-violet-700",
-    SYSTEM: "bg-gray-100 text-gray-600",
+    WEB_UI: "bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300",
+    API: "bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300",
+    AGENT: "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300",
+    SYSTEM: "bg-muted text-muted-foreground",
   };
-  const cls = map[source ?? ""] ?? "bg-gray-100 text-gray-600";
+  const cls = map[source ?? ""] ?? "bg-muted text-muted-foreground";
   return (
     <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${cls}`}>
       {source ?? "—"}
@@ -114,13 +114,13 @@ function JsonDiff({
     <div className="grid grid-cols-2 gap-4 text-xs">
       <div>
         <p className="font-semibold text-muted-foreground mb-1">Before</p>
-        <pre className="bg-red-50 border border-red-100 rounded p-2 overflow-auto max-h-48 whitespace-pre-wrap text-red-900">
+        <pre className="bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/50 rounded p-2 overflow-auto max-h-48 whitespace-pre-wrap text-red-900 dark:text-red-200">
           {before ? JSON.stringify(before, null, 2) : "—"}
         </pre>
       </div>
       <div>
         <p className="font-semibold text-muted-foreground mb-1">After</p>
-        <pre className="bg-green-50 border border-green-100 rounded p-2 overflow-auto max-h-48 whitespace-pre-wrap text-green-900">
+        <pre className="bg-green-50 dark:bg-green-950/40 border border-green-100 dark:border-green-900/50 rounded p-2 overflow-auto max-h-48 whitespace-pre-wrap text-green-900 dark:text-green-200">
           {after ? JSON.stringify(after, null, 2) : "—"}
         </pre>
       </div>
@@ -155,7 +155,7 @@ function VerifyButton({ id, immudbKey }: { id: string; immudbKey?: string }) {
   if (result) {
     if (result.verified) {
       return (
-        <span className="flex items-center gap-1 text-xs text-green-700">
+        <span className="flex items-center gap-1 text-xs text-green-700 dark:text-green-300">
           <ShieldCheck className="h-3.5 w-3.5" />
           Verified
         </span>
@@ -170,7 +170,7 @@ function VerifyButton({ id, immudbKey }: { id: string; immudbKey?: string }) {
         Offline
       </span>
     ) : (
-      <span className="flex items-center gap-1 text-xs text-red-600" title={result.reason}>
+      <span className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400" title={result.reason}>
         <ShieldAlert className="h-3.5 w-3.5" />
         Tampered?
       </span>
@@ -250,7 +250,7 @@ function DetailRow({ event }: { event: AuditEvent }) {
                 </p>
               )}
               {event.error_message && (
-                <p className="text-red-600">
+                <p className="text-red-600 dark:text-red-400">
                   <span className="font-medium">Error:</span> {event.error_message}
                 </p>
               )}
@@ -503,7 +503,7 @@ function AuditLogPage() {
         </Link>
         <span className="text-muted-foreground">/</span>
         <span className="font-medium text-foreground">Audit Log</span>
-        <WindowHelpDialog windowName="Audit Log" entityLabel="Audit Log" />
+        <WindowHelpButton windowName="Audit Log" entityLabel="Audit Log" />
         {hasFilters && (
           <span className="text-xs text-muted-foreground ml-1">
             ({total.toLocaleString()} filtered)
@@ -593,10 +593,10 @@ function AuditLogPage() {
                     <td className="px-4 py-2">{sourceBadge(ev.source)}</td>
                     <td className="px-4 py-2">
                       {ev.success ? (
-                        <span className="text-green-600 text-xs font-medium">✓ OK</span>
+                        <span className="text-green-600 dark:text-green-400 text-xs font-medium">✓ OK</span>
                       ) : (
                         <span
-                          className="text-red-600 text-xs font-medium"
+                          className="text-red-600 dark:text-red-400 text-xs font-medium"
                           title={ev.error_message ?? ""}
                         >
                           ✗ Failed

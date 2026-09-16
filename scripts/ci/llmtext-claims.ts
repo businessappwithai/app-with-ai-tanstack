@@ -128,10 +128,12 @@ for (const name of DOCUMENTS) {
 
   /* The published route has to be offered, or a model without this checkout
      concludes the checker is unreachable — the failure this text exists for.
-     Either hostname satisfies it: `www` is canonical and the apex serves the
-     same files, and which one the line names is not what is being held. */
+     The host is pinned to the apex. A `www.` label resolves but is served a
+     certificate that does not name it, so a model told to curl that URL gets a
+     TLS refusal and reports its validation state as "not determinable" — the
+     very failure this text exists to prevent, arriving through the text. */
   held(
-    /curl -sO https:\/\/(?:www\.)?appwithai\.org\/guide\/check-model\.mjs/.test(prose),
+    /curl -sO https:\/\/appwithai\.org\/guide\/check-model\.mjs/.test(prose),
     `${name}: offers the checkout-free way to run the checker`
   );
   held(
@@ -313,7 +315,7 @@ const detailed = readFileSync(join(ROOT, "website", "llmtext", "llmdetailed.txt"
 const detailedProse = detailed.replace(/\s+/g, " ");
 
 held(
-  /https:\/\/(?:www\.)?appwithai\.org\/viewers\//.test(detailed),
+  /https:\/\/appwithai\.org\/viewers\//.test(detailed),
   "llmdetailed.txt: names the viewers by their published URL"
 );
 

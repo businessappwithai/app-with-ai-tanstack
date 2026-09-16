@@ -92,7 +92,7 @@ const AlertDialogCancel = React.forwardRef<
   <AlertDialogPrimitive.Cancel
     ref={ref}
     className={cn(
-      "mt-2 sm:mt-0 inline-flex w-full sm:w-auto justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 focus:ring-offset-background sm:mt-0",
+      "mt-2 sm:mt-0 inline-flex w-full sm:w-auto justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background sm:mt-0",
       className
     )}
     {...props}
@@ -167,7 +167,7 @@ export function DeleteConfirmDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-red-600">{title}</AlertDialogTitle>
+          <AlertDialogTitle className="text-red-600 dark:text-red-400">{title}</AlertDialogTitle>
           <AlertDialogDescription>
             {description ||
               `Are you sure you want to delete ${itemName || "this record"}? This action cannot be undone.`}

@@ -6,6 +6,51 @@
     <title>__PROJECT_NAME__</title>
     <meta name="description" content="__PROJECT_DESCRIPTION__" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%97%84%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+    <!--
+      The theme, before anything paints.
+
+      Synchronous and classic (not `type="module"`, which defers): it has to
+      run before the stylesheet below can paint a single pixel, or a reader on
+      a dark theme sees a white flash on every load.
+
+      The rules here are the same ones in `ui/theme.js`, written twice because
+      this copy has to execute before any module has loaded and there is no way
+      to share it. Keep them in step — a disagreement shows up as one frame of
+      the wrong theme, which is easy to miss and impossible to explain.
+
+      `?theme=light|dark|system` names the *default* for a host embedding this
+      application in a page of its own — the guide runs it in an iframe on a
+      near-black page, and an application left on `system` renders light inside
+      it for every reader whose machine is set to light. It is a default and not
+      an override: a reader who has already chosen keeps their choice, and the
+      control in the masthead still decides from then on.
+
+      try/catch because `localStorage` throws rather than returning null where
+      site data is blocked, and a theme is not worth a blank page.
+    -->
+    <script>
+      (function () {
+        var valid = function (v) { return v === "light" || v === "dark" || v === "system"; };
+        var fallback = "system";
+        try {
+          var asked = new URLSearchParams(window.location.search).get("theme");
+          if (valid(asked)) fallback = asked;
+        } catch (e) {}
+        var chosen = fallback;
+        try {
+          var stored = localStorage.getItem("appwithai.theme");
+          if (valid(stored)) chosen = stored;
+        } catch (e) {}
+        try {
+          var dark =
+            chosen === "dark" ||
+            (chosen === "system" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.dataset.theme = dark ? "dark" : "light";
+          document.documentElement.style.colorScheme = dark ? "dark" : "light";
+        } catch (e) {}
+      })();
+    </script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>

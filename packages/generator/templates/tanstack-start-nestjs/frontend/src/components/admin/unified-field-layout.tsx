@@ -169,8 +169,8 @@ function FieldCard({
             snapshot.isDragging
               ? "bg-primary/5 border-primary/40 shadow-lg ring-1 ring-primary/20"
               : field.dirty
-                ? "bg-amber-50 border-amber-200"
-                : "bg-white border-border hover:border-primary/30 hover:bg-muted/20",
+                ? "bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800"
+                : "bg-card border-border hover:border-primary/30 hover:bg-muted/20",
             !field.is_displayed && "opacity-50"
           )}
         >
@@ -267,7 +267,7 @@ function GroupPanel({
         isUnassigned
           ? "border-dashed border-muted-foreground/30 bg-muted/20"
           : isSummary
-            ? "border-amber-300 bg-amber-50/50 shadow-amber-100"
+            ? "border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/40 shadow-amber-100"
             : "border-border bg-card",
         group.isNew && "ring-2 ring-primary/40"
       )}
@@ -279,7 +279,7 @@ function GroupPanel({
           isUnassigned
             ? "border-muted-foreground/20 bg-muted/30"
             : isSummary
-              ? "border-amber-200 bg-amber-100/60"
+              ? "border-amber-200/60 dark:border-amber-800 bg-amber-100/60 dark:bg-amber-900/40"
               : "border-border bg-muted/30"
         )}
       >
@@ -296,7 +296,7 @@ function GroupPanel({
               />
               <button
                 onClick={() => onEditSave(group.id, editName, editCols, editDesc)}
-                className="text-emerald-600 hover:text-emerald-700 flex-shrink-0"
+                className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 flex-shrink-0"
                 title="Save"
               >
                 <Check className="h-4 w-4" />
@@ -349,7 +349,7 @@ function GroupPanel({
                     variant="secondary"
                     className={cn(
                       "text-[10px] h-4 px-1.5 flex-shrink-0",
-                      isSummary && "bg-amber-100 text-amber-700 border-amber-200"
+                      isSummary && "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800"
                     )}
                   >
                     {isSummary ? (
@@ -377,7 +377,7 @@ function GroupPanel({
                   className={cn(
                     "p-1 transition-colors rounded",
                     isSummary
-                      ? "text-amber-500 hover:text-amber-600"
+                      ? "text-amber-500 hover:text-amber-600 dark:hover:text-amber-400"
                       : "text-muted-foreground hover:text-amber-500"
                   )}
                   title={isSummary ? "Remove from Summary" : "Mark as Summary section"}
@@ -843,7 +843,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
             </button>
           </div>
           {isDirty && (
-            <Badge variant="outline" className="text-amber-600 border-amber-300 bg-amber-50">
+            <Badge variant="outline" className="text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40">
               {dirtyFieldCount} unsaved change{dirtyFieldCount !== 1 ? "s" : ""}
             </Badge>
           )}
@@ -900,8 +900,8 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
                           snap.isDragging
                             ? "bg-primary/5 border-primary/40 shadow-lg"
                             : field.dirty
-                              ? "bg-amber-50 border-amber-200"
-                              : "bg-white border-border hover:border-primary/30",
+                              ? "bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800"
+                              : "bg-card border-border hover:border-primary/30",
                           !field.is_displayed && "opacity-50"
                         )}
                       >
@@ -1029,7 +1029,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
         <span className="flex items-center gap-1.5">
           <Pencil className="h-3.5 w-3.5" /> Edit group name &amp; columns
         </span>
-        <span className="flex items-center gap-1.5 text-amber-600">
+        <span className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
           <Star className="h-3.5 w-3.5" /> Mark group as Summary (shown in record header)
         </span>
       </div>

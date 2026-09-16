@@ -47,25 +47,25 @@ function SetupDictionaryButton({ tableId }: { tableId: string }) {
   if (!tableRecord?.table_name) return null;
 
   return (
-    <div className="flex items-center gap-3 px-6 py-3 border-b bg-amber-50">
+    <div className="flex items-center gap-3 px-6 py-3 border-b bg-amber-50 dark:bg-amber-950/40">
       <Button
         size="sm"
         variant="outline"
         onClick={handleSetup}
         disabled={status === "loading"}
-        className="border-amber-400 text-amber-800 hover:bg-amber-100"
+        className="border-amber-400 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40"
       >
         {status === "loading" ? "Setting up…" : "⚙ Setup Dictionary (Window / Tab / Fields)"}
       </Button>
       {status !== "idle" && (
         <span
-          className={`text-sm ${status === "error" ? "text-red-600" : status === "done" ? "text-green-700" : "text-amber-700"}`}
+          className={`text-sm ${status === "error" ? "text-red-600 dark:text-red-400" : status === "done" ? "text-green-700 dark:text-green-300" : "text-amber-700 dark:text-amber-300"}`}
         >
           {message}
         </span>
       )}
       {status === "idle" && (
-        <span className="text-xs text-amber-700">
+        <span className="text-xs text-amber-700 dark:text-amber-300">
           Auto-creates sys_window, sys_tab, and sys_field records so this entity appears in the CRM
           application.
         </span>

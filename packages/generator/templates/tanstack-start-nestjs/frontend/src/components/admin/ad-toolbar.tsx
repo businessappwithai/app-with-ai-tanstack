@@ -10,6 +10,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -261,7 +262,7 @@ export function ADToolbar({
                   variant="outline"
                   size="sm"
                   onClick={onPrint}
-                  className="h-9 gap-2 px-3 text-sm font-medium text-violet-700 border-violet-300 hover:bg-violet-50 hover:border-violet-400"
+                  className="h-9 gap-2 px-3 text-sm font-medium text-violet-700 dark:text-violet-300 border-violet-300 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:border-violet-400"
                 >
                   <Printer className="h-4 w-4" />
                   <span className="hidden sm:inline">Print</span>
@@ -283,6 +284,10 @@ export function ADToolbar({
             </TooltipTrigger>
             <TooltipContent>Refresh</TooltipContent>
           </Tooltip>
+          {/* Every entity and dictionary window is drawn by one of the four AD
+              shells, and all four render this toolbar — so this is the one
+              place that puts the theme control on all of them. */}
+          <ThemeToggle />
         </div>
       </div>
     </TooltipProvider>

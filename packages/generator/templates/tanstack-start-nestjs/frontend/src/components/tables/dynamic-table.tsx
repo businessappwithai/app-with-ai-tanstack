@@ -524,7 +524,7 @@ export function DynamicTable({
               {onView && (
                 <button
                   onClick={() => onView(rowId)}
-                  className="text-blue-600 hover:text-blue-800 text-sm"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
                 >
                   View
                 </button>
@@ -532,7 +532,7 @@ export function DynamicTable({
               {onEdit && (
                 <button
                   onClick={() => onEdit(rowId)}
-                  className="text-green-600 hover:text-green-800 text-sm"
+                  className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 text-sm"
                 >
                   Edit
                 </button>
@@ -540,7 +540,7 @@ export function DynamicTable({
               {_onDelete && (
                 <button
                   onClick={() => handleDeleteClick(rowId)}
-                  className="text-red-600 hover:text-red-800 text-sm"
+                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm"
                 >
                   Delete
                 </button>

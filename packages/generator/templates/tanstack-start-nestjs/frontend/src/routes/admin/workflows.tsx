@@ -99,28 +99,28 @@ function AdminWorkflowsPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success': return <CheckCircle className="h-4 w-4 text-emerald-600" />;
-      case 'error':   return <XCircle className="h-4 w-4 text-red-600" />;
-      case 'draft':   return <Clock className="h-4 w-4 text-blue-600" />;
-      default:        return <AlertCircle className="h-4 w-4 text-gray-400" />;
+      case 'success': return <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />;
+      case 'error':   return <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />;
+      case 'draft':   return <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
+      default:        return <AlertCircle className="h-4 w-4 text-muted-foreground/70" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'success': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      case 'error':   return 'bg-red-50 text-red-700 border-red-200';
-      case 'draft':   return 'bg-blue-50 text-blue-700 border-blue-200';
-      default:        return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'success': return 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800';
+      case 'error':   return 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200/60 dark:border-red-800';
+      case 'draft':   return 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800';
+      default:        return 'bg-muted/40 text-foreground/80 border-border';
     }
   };
 
   const getOpBadge = (op: string) => {
     switch (op.toUpperCase()) {
-      case 'CREATE': return 'bg-teal-50 text-teal-700 border-teal-200';
-      case 'UPDATE': return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'DELETE': return 'bg-rose-50 text-rose-700 border-rose-200';
-      default:       return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'CREATE': return 'bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-200/60 dark:border-teal-800';
+      case 'UPDATE': return 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800';
+      case 'DELETE': return 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800';
+      default:       return 'bg-muted/40 text-foreground/80 border-border';
     }
   };
 
@@ -139,24 +139,24 @@ function AdminWorkflowsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b-4 border-black bg-white">
+    <div className="min-h-screen bg-card">
+      <header className="border-b-4 border-foreground bg-card">
         <div className="max-w-7xl mx-auto px-8 pt-6 pb-0">
-          <nav aria-label="breadcrumb" className="flex items-center gap-1 text-sm text-gray-500 mb-4">
-            <Link to="/dashboard" className="hover:text-gray-700 hover:underline">Dashboard</Link>
+          <nav aria-label="breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
+            <Link to="/dashboard" className="hover:text-foreground/80 hover:underline">Dashboard</Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <Link to="/admin/workflow-definitions" className="hover:text-gray-700 hover:underline">Workflow Designer</Link>
+            <Link to="/admin/workflow-definitions" className="hover:text-foreground/80 hover:underline">Workflow Designer</Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <span className="text-gray-900 font-medium">Run History</span>
+            <span className="text-foreground font-medium">Run History</span>
           </nav>
         </div>
         <div className="max-w-7xl mx-auto px-8 pb-10">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <Workflow className="h-8 w-8 text-black" />
+              <Workflow className="h-8 w-8 text-foreground" />
               <div>
-                <h1 className="text-5xl font-bold tracking-tight text-black">Workflow Monitor</h1>
-                <p className="text-lg text-gray-500 font-light mt-1">
+                <h1 className="text-5xl font-bold tracking-tight text-foreground">Workflow Monitor</h1>
+                <p className="text-lg text-muted-foreground font-light mt-1">
                   Real-time automation run history — refreshing every 5 seconds
                 </p>
               </div>
@@ -166,7 +166,7 @@ function AdminWorkflowsPage() {
               size="default"
               onClick={() => refetch()}
               disabled={isLoading}
-              className="border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
+              className="border-2 border-foreground hover:bg-foreground hover:text-background transition-colors rounded-none"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
@@ -178,16 +178,16 @@ function AdminWorkflowsPage() {
       <main className="max-w-7xl mx-auto px-8 py-10">
         {/* Stats */}
         <section className="mb-10">
-          <div className="grid grid-cols-5 gap-0 border border-black">
+          <div className="grid grid-cols-5 gap-0 border border-foreground">
             {[
-              { label: 'Total Runs', value: workflows?.length ?? 0, color: 'text-black' },
-              { label: 'In Progress', value: (workflows ?? []).filter((w) => w.status === 'draft').length, color: 'text-blue-700' },
-              { label: 'Succeeded', value: (workflows ?? []).filter((w) => w.status === 'success').length, color: 'text-emerald-700' },
-              { label: 'Failed', value: (workflows ?? []).filter((w) => w.status === 'error').length, color: 'text-red-700' },
-              { label: 'Avg Duration', value: formatDuration(avgDuration), color: 'text-black' },
+              { label: 'Total Runs', value: workflows?.length ?? 0, color: 'text-foreground' },
+              { label: 'In Progress', value: (workflows ?? []).filter((w) => w.status === 'draft').length, color: 'text-blue-700 dark:text-blue-300' },
+              { label: 'Succeeded', value: (workflows ?? []).filter((w) => w.status === 'success').length, color: 'text-emerald-700 dark:text-emerald-300' },
+              { label: 'Failed', value: (workflows ?? []).filter((w) => w.status === 'error').length, color: 'text-red-700 dark:text-red-300' },
+              { label: 'Avg Duration', value: formatDuration(avgDuration), color: 'text-foreground' },
             ].map((stat, i) => (
-              <div key={stat.label} className={`p-6 bg-gray-50 ${i < 4 ? 'border-r border-black' : ''}`}>
-                <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">{stat.label}</p>
+              <div key={stat.label} className={`p-6 bg-muted/40 ${i < 4 ? 'border-r border-foreground' : ''}`}>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{stat.label}</p>
                 <p className={`text-4xl font-bold ${stat.color}`}>{stat.value}</p>
               </div>
             ))}
@@ -197,19 +197,19 @@ function AdminWorkflowsPage() {
         {/* Filters */}
         <section className="mb-6 flex gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
             <Input
               type="text"
               placeholder="Search by entity, workflow name, or record ID…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-2 border-black rounded-none focus:ring-0 focus:border-black"
+              className="pl-10 border-2 border-foreground rounded-none focus:ring-0 focus:border-foreground"
             />
           </div>
           <select
             value={entityFilter}
             onChange={(e) => setEntityFilter(e.target.value)}
-            className="px-4 py-2 border-2 border-black rounded-none focus:ring-0 focus:border-black bg-white text-sm"
+            className="px-4 py-2 border-2 border-foreground rounded-none focus:ring-0 focus:border-foreground bg-card text-sm"
           >
             <option value="">All Entities</option>
             {entityNames.map((entity) => (
@@ -219,7 +219,7 @@ function AdminWorkflowsPage() {
           <select
             value={operationFilter}
             onChange={(e) => setOperationFilter(e.target.value)}
-            className="px-4 py-2 border-2 border-black rounded-none focus:ring-0 focus:border-black bg-white text-sm"
+            className="px-4 py-2 border-2 border-foreground rounded-none focus:ring-0 focus:border-foreground bg-card text-sm"
           >
             <option value="">All Operations</option>
             {operations.map((op) => (
@@ -229,7 +229,7 @@ function AdminWorkflowsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border-2 border-black rounded-none focus:ring-0 focus:border-black bg-white text-sm"
+            className="px-4 py-2 border-2 border-foreground rounded-none focus:ring-0 focus:border-foreground bg-card text-sm"
           >
             <option value="">All Status</option>
             <option value="draft">In Progress</option>
@@ -240,22 +240,22 @@ function AdminWorkflowsPage() {
 
         {/* Table */}
         {isLoading ? (
-          <div className="text-center py-16 text-gray-400 border-2 border-black animate-pulse">
+          <div className="text-center py-16 text-muted-foreground/70 border-2 border-foreground animate-pulse">
             Loading workflow runs…
           </div>
         ) : filteredWorkflows.length === 0 ? (
-          <div className="text-center py-16 border-2 border-black">
-            <Zap className="h-10 w-10 text-gray-200 mx-auto mb-3" />
-            <p className="text-gray-500">
+          <div className="text-center py-16 border-2 border-foreground">
+            <Zap className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
+            <p className="text-muted-foreground">
               {searchQuery || statusFilter || entityFilter || operationFilter
                 ? 'No runs match your filters.'
                 : 'No runs yet. Automations will appear here after records are created or updated.'}
             </p>
           </div>
         ) : (
-          <div className="border-2 border-black">
+          <div className="border-2 border-foreground">
             {/* Header */}
-            <div className="grid grid-cols-12 px-6 py-3 bg-black text-white text-xs uppercase tracking-widest font-semibold">
+            <div className="grid grid-cols-12 px-6 py-3 bg-foreground text-background text-xs uppercase tracking-widest font-semibold">
               <div className="col-span-1" />
               <div className="col-span-2">Entity</div>
               <div className="col-span-3">Workflow</div>
@@ -269,23 +269,23 @@ function AdminWorkflowsPage() {
               const isExpanded = expandedId === wf.id;
               const mutations = mutationCount(wf);
               return (
-                <div key={wf.id} className="border-t border-gray-200">
+                <div key={wf.id} className="border-t border-border">
                   {/* Row */}
                   <div
-                    className="grid grid-cols-12 px-6 py-4 hover:bg-gray-50 items-center cursor-pointer"
+                    className="grid grid-cols-12 px-6 py-4 hover:bg-muted/40 items-center cursor-pointer"
                     onClick={() => setExpandedId(isExpanded ? null : wf.id)}
                   >
                     <div className="col-span-1">
                       <ChevronDown
-                        className={`h-4 w-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        className={`h-4 w-4 text-muted-foreground/70 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                       />
                     </div>
 
                     <div className="col-span-2">
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-foreground">
                         {formatEntity(wf.entity_name)}
                       </span>
-                      <div className="text-xs text-gray-400 font-mono mt-0.5">
+                      <div className="text-xs text-muted-foreground/70 font-mono mt-0.5">
                         {wf.entity_id.slice(0, 8)}…
                       </div>
                     </div>
@@ -293,14 +293,14 @@ function AdminWorkflowsPage() {
                     <div className="col-span-3">
                       {wf.workflow_name ? (
                         <div className="flex items-center gap-1.5">
-                          <GitBranch className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-                          <span className="text-sm text-gray-800 truncate">{wf.workflow_name}</span>
+                          <GitBranch className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0" />
+                          <span className="text-sm text-foreground truncate">{wf.workflow_name}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400 italic">unnamed run</span>
+                        <span className="text-xs text-muted-foreground/70 italic">unnamed run</span>
                       )}
                       {mutations > 0 && (
-                        <div className="text-xs text-gray-500 mt-0.5 ml-5">
+                        <div className="text-xs text-muted-foreground mt-0.5 ml-5">
                           {mutations} mutation{mutations !== 1 ? 's' : ''} applied
                         </div>
                       )}
@@ -326,10 +326,10 @@ function AdminWorkflowsPage() {
                     </div>
 
                     <div className="col-span-2">
-                      <div className="text-sm text-gray-700">
+                      <div className="text-sm text-foreground/80">
                         {new Date(wf.created_at).toLocaleDateString()}
                       </div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-muted-foreground/70">
                         {new Date(wf.created_at).toLocaleTimeString()}
                       </div>
                     </div>
@@ -337,25 +337,25 @@ function AdminWorkflowsPage() {
 
                   {/* Expanded detail */}
                   {isExpanded && (
-                    <div className="border-t border-gray-100 bg-gray-50 px-8 py-5 grid grid-cols-2 gap-6 text-sm">
+                    <div className="border-t border-border bg-muted/40 px-8 py-5 grid grid-cols-2 gap-6 text-sm">
                       <div>
-                        <p className="text-xs uppercase tracking-widest text-gray-400 mb-2 font-semibold">Run ID</p>
-                        <code className="text-xs text-gray-600 font-mono break-all">{wf.id}</code>
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground/70 mb-2 font-semibold">Run ID</p>
+                        <code className="text-xs text-muted-foreground font-mono break-all">{wf.id}</code>
                       </div>
                       <div>
-                        <p className="text-xs uppercase tracking-widest text-gray-400 mb-2 font-semibold">Record ID</p>
-                        <code className="text-xs text-gray-600 font-mono break-all">{wf.entity_id}</code>
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground/70 mb-2 font-semibold">Record ID</p>
+                        <code className="text-xs text-muted-foreground font-mono break-all">{wf.entity_id}</code>
                       </div>
                       {wf.completed_at && (
                         <div>
-                          <p className="text-xs uppercase tracking-widest text-gray-400 mb-2 font-semibold">Completed</p>
-                          <span className="text-gray-700">{new Date(wf.completed_at).toLocaleString()}</span>
+                          <p className="text-xs uppercase tracking-widest text-muted-foreground/70 mb-2 font-semibold">Completed</p>
+                          <span className="text-foreground/80">{new Date(wf.completed_at).toLocaleString()}</span>
                         </div>
                       )}
                       {wf.mutations_applied && mutations > 0 && (
                         <div className="col-span-2">
-                          <p className="text-xs uppercase tracking-widest text-gray-400 mb-2 font-semibold">Mutations Applied</p>
-                          <pre className="text-xs bg-white border border-gray-200 p-3 rounded overflow-auto max-h-40 text-gray-700">
+                          <p className="text-xs uppercase tracking-widest text-muted-foreground/70 mb-2 font-semibold">Mutations Applied</p>
+                          <pre className="text-xs bg-card border border-border p-3 rounded overflow-auto max-h-40 text-foreground/80">
                             {JSON.stringify(wf.mutations_applied, null, 2)}
                           </pre>
                         </div>
@@ -363,7 +363,7 @@ function AdminWorkflowsPage() {
                       {wf.error_details && (
                         <div className="col-span-2">
                           <p className="text-xs uppercase tracking-widest text-red-400 mb-2 font-semibold">Error Details</p>
-                          <pre className="text-xs bg-red-50 border border-red-200 p-3 rounded overflow-auto max-h-40 text-red-700">
+                          <pre className="text-xs bg-red-50 dark:bg-red-950/40 border border-red-200/60 dark:border-red-800 p-3 rounded overflow-auto max-h-40 text-red-700 dark:text-red-300">
                             {wf.error_details}
                           </pre>
                         </div>
@@ -377,9 +377,9 @@ function AdminWorkflowsPage() {
         )}
       </main>
 
-      <footer className="border-t-2 border-black mt-16">
+      <footer className="border-t-2 border-foreground mt-16">
         <div className="max-w-7xl mx-auto px-8 py-6">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground/70">
             {APP_NAME} · Workflow Monitor · Auto-refreshing every 5 seconds
           </p>
         </div>
