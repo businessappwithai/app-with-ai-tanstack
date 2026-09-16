@@ -715,11 +715,16 @@ both, and re-vendor all three to the website.
 `formatIssueDetail`; the viewers re-export `formatIssue` and callers that want a
 log line still get one.
 
-## The published host is written in full — `https://appwithai.org`
+## The published host is written in full — `https://www.appwithai.org`
 
 Every mention of the host in all four `website/llmtext/*.txt` protocol documents
-is the absolute URL, scheme and `www.` included, and each document carries a rule
-saying so. A model following the specification reported a failed validator fetch
+is the absolute URL — scheme and `www.` included — and each document carries a
+rule saying so. **`www` is canonical and the apex serves the same files**; both
+carry a certificate. That was not true for part of this project's life: `www`
+was a DNS record onto the apex, so Pages served it a certificate naming only the
+apex and every client refused with ERR_CERT_COMMON_NAME_INVALID. It is a CNAME
+onto `businessappwithai.github.io` now, verified in a browser, which is what
+makes the canonical form safe to publish. A model following the specification reported a failed validator fetch
 as `[appwithai.org](https://appwithai.org)` — a Markdown link whose text
 is a bare host, which is what anything parsing that output then tries to resolve.
 These copies taught it: they used the apex `https://appwithai.org` for most URLs
