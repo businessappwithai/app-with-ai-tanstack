@@ -290,7 +290,7 @@ function LoginPage() {
           <p className="text-xs text-muted-foreground">
             Built with{' '}
             <a
-              href="http://www.appwithai.org"
+              href="https://appwithai.org"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground transition-colors"

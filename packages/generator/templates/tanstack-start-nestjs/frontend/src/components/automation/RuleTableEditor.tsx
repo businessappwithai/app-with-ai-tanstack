@@ -494,11 +494,11 @@ export function RuleTableEditor({
             ))}
           </div>
           {result.rowIndex === null ? (
-            <p className="rounded-lg border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-[12.5px] text-amber-800 dark:text-amber-300">
+            <p className="rounded-lg border border-amber-200/60 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-[12.5px] text-amber-800 dark:text-amber-300">
               No row fits these values, so this table would return nothing.
             </p>
           ) : (
-            <p className="rounded-lg border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2 text-[12.5px] text-emerald-800 dark:text-emerald-300">
+            <p className="rounded-lg border border-emerald-200/60 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2 text-[12.5px] text-emerald-800 dark:text-emerald-300">
               <b>Row {result.rowIndex + 1} fits.</b>{" "}
               {Object.entries(result.outputs)
                 .map(([k, v]) => `${k} = ${v || "(empty)"}`)
@@ -518,8 +518,8 @@ export function RuleTableEditor({
               className={cn(
                 "mb-2 rounded-lg border px-3 py-2 text-[12.5px] last:mb-0",
                 note.level === "ok"
-                  ? "border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300"
-                  : "border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300"
+                  ? "border-emerald-200/60 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300"
+                  : "border-amber-200/60 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300"
               )}
             >
               {note.message}

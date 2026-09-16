@@ -88,7 +88,7 @@ function TriggerInspector({
       <header className="flex items-center gap-3 px-4 py-3.5">
         <span
           aria-hidden="true"
-          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40 text-sm text-amber-700 dark:text-amber-300"
+          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-amber-200/60 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-sm text-amber-700 dark:text-amber-300"
         >
           ⚡
         </span>
@@ -244,11 +244,11 @@ function AddMenu({
         type="button"
         role="menuitem"
         onClick={onAddCondition}
-        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-blue-300 dark:hover:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/40/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-blue-300 dark:hover:border-blue-800 hover:bg-blue-50/50 dark:hover:bg-blue-950/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         <span
           aria-hidden="true"
-          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-blue-200 dark:border-blue-800/60 bg-blue-50 dark:bg-blue-950/40 text-xs text-blue-600 dark:text-blue-400"
+          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-blue-200/60 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-xs text-blue-600 dark:text-blue-400"
         >
           ◇
         </span>
@@ -264,11 +264,11 @@ function AddMenu({
         type="button"
         role="menuitem"
         onClick={onAddLoop}
-        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-teal-300 dark:hover:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/40/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-teal-300 dark:hover:border-teal-800 hover:bg-teal-50/50 dark:hover:bg-teal-950/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         <span
           aria-hidden="true"
-          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-teal-200 dark:border-teal-800/60 bg-teal-50 dark:bg-teal-950/40 text-xs text-teal-700 dark:text-teal-300"
+          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-teal-200/60 dark:border-teal-800 bg-teal-50 dark:bg-teal-950/40 text-xs text-teal-700 dark:text-teal-300"
         >
           ↻
         </span>

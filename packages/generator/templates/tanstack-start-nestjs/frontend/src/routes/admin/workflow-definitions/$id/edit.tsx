@@ -139,21 +139,21 @@ const NODE_META: Record<string, { icon: React.ReactNode; label: string; color: s
     label: 'Update Record',
     color: 'text-blue-700 dark:text-blue-300',
     bg: 'bg-blue-50 dark:bg-blue-950/40',
-    border: 'border-blue-200 dark:border-blue-800/60',
+    border: 'border-blue-200/60 dark:border-blue-800',
   },
   CreateEntity: {
     icon: <PlusCircle className="h-5 w-5" />,
     label: 'Create Record',
     color: 'text-emerald-700 dark:text-emerald-300',
     bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-    border: 'border-emerald-200 dark:border-emerald-800/60',
+    border: 'border-emerald-200/60 dark:border-emerald-800',
   },
   Formula: {
     icon: <Code2 className="h-5 w-5" />,
     label: 'Run Formula',
     color: 'text-purple-700 dark:text-purple-300',
     bg: 'bg-purple-50 dark:bg-purple-950/40',
-    border: 'border-purple-200 dark:border-purple-800/60',
+    border: 'border-purple-200/60 dark:border-purple-800',
   },
   Unknown: {
     icon: <AlertCircle className="h-5 w-5" />,
@@ -178,7 +178,7 @@ function StepConnector({ onAddRule }: { onAddRule?: () => void }) {
           onClick={onAddRule}
           className="absolute top-1/2 -translate-y-1/2 left-1/2 ml-6 opacity-0 group-hover:opacity-100 transition-opacity
                      flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/40
-                     border border-amber-200 dark:border-amber-800/60 rounded-full px-2 py-0.5 font-medium"
+                     border border-amber-200/60 dark:border-amber-800 rounded-full px-2 py-0.5 font-medium"
           title="Insert rule check here"
         >
           <Plus className="h-3 w-3" />
@@ -297,7 +297,7 @@ function StepCard({ step, index }: { step: BpmnStep; index: number }) {
           {step.props['expression'] && (
             <div className="mb-2">
               <span className="text-xs uppercase tracking-widest text-muted-foreground/70 block mb-1">Expression</span>
-              <code className="block bg-card border border-purple-200 dark:border-purple-800/60 px-3 py-2 rounded text-xs font-mono text-purple-800 dark:text-purple-300">
+              <code className="block bg-card border border-purple-200/60 dark:border-purple-800 px-3 py-2 rounded text-xs font-mono text-purple-800 dark:text-purple-300">
                 {step.props['expression']}
               </code>
             </div>
@@ -437,7 +437,7 @@ function WorkflowDefinitionDetail() {
                   <Badge className="bg-muted text-muted-foreground shrink-0">Inactive</Badge>
                 )}
                 {wf.source === 'model' && (
-                  <Badge variant="outline" className="border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs shrink-0">From model</Badge>
+                  <Badge variant="outline" className="border-indigo-200/60 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs shrink-0">From model</Badge>
                 )}
               </div>
               {wf.description && (
@@ -502,7 +502,7 @@ function WorkflowDefinitionDetail() {
           <StepConnector onAddRule={handleAddRule} />
 
           {linkedRules.length > 0 && (
-            <div className="border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40/40 rounded-lg p-3">
+            <div className="border border-amber-200/60 dark:border-amber-800 bg-amber-50/40 dark:bg-amber-950/40 rounded-lg p-3">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-3">
                 <Shield className="h-3.5 w-3.5" />
                 Rule gates · {fmt(wf.entity_name)} {wf.operation}
@@ -533,7 +533,7 @@ function WorkflowDefinitionDetail() {
             <button
               onClick={handleAddRule}
               className="w-full flex items-center justify-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300
-                         border border-dashed border-amber-300 dark:border-amber-800 hover:border-amber-400 rounded-lg py-3 transition-colors bg-amber-50 dark:bg-amber-950/40/40"
+                         border border-dashed border-amber-300 dark:border-amber-800 hover:border-amber-400 rounded-lg py-3 transition-colors bg-amber-50/40 dark:bg-amber-950/40"
             >
               <Plus className="h-3.5 w-3.5" />
               Add a rule gate before these steps
@@ -630,7 +630,7 @@ function WorkflowDefinitionDetail() {
               <button
                 onClick={handleAddRule}
                 className="mt-2 w-full flex items-center justify-center gap-1 text-xs text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300
-                           border border-dashed border-amber-200 dark:border-amber-800/60 hover:border-amber-400 rounded py-1.5 transition-colors"
+                           border border-dashed border-amber-200/60 dark:border-amber-800 hover:border-amber-400 rounded py-1.5 transition-colors"
               >
                 <Plus className="h-3 w-3" />
                 New rule

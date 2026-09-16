@@ -302,10 +302,11 @@ function fieldHelpText(entity: HelpEntity, col: HelpColumn): string {
  * describe the same application whether it was generated as the full stack or
  * as the browser build.
  *
- * The three field groups below are still seeded, as empty targets for the
- * field-layout editor — a real screen in this stack. An administrator groups
- * the fields that should be grouped; until someone does, the form is the flat
- * list the model's column order describes.
+ * Four field groups are still seeded per tab, as empty targets for the Field
+ * Layout Manager — a real screen in this stack, and one that was unreachable
+ * until those groups were bound to a tab. An administrator groups the fields
+ * that should be grouped; until someone does, the form is the flat list the
+ * model's column order describes.
  *
  * Module scope, not per entity: every entity's dictionary block shares one
  * function scope, so a `const` inside one of them is a redeclaration by the
@@ -496,55 +497,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }).onConflict((oc) => oc.doNothing()).execute();
 
   // ============================================================================
-  // Create Default Field Groups
-  // ============================================================================
-  const fieldGroupGeneral = uuidv4();
-  const fieldGroupDetails = uuidv4();
-  const fieldGroupSystem = uuidv4();
-
-  await db.insertInto('sys_field_group').values([
-    {
-      sys_field_group_id: fieldGroupGeneral,
-      name: 'General',
-      description: 'General information fields',
-      field_group_type: 'C',
-      is_collapsed_by_default: false,
-      entity_type: 'D',
-      is_active: true,
-      created_by: createdBy,
-      updated_by: createdBy,
-      created_at: now,
-      updated_at: now,
-    },
-    {
-      sys_field_group_id: fieldGroupDetails,
-      name: 'Details',
-      description: 'Detailed information fields',
-      field_group_type: 'C',
-      is_collapsed_by_default: true,
-      entity_type: 'D',
-      is_active: true,
-      created_by: createdBy,
-      updated_by: createdBy,
-      created_at: now,
-      updated_at: now,
-    },
-    {
-      sys_field_group_id: fieldGroupSystem,
-      name: 'System',
-      description: 'System fields (audit trail)',
-      field_group_type: 'C',
-      is_collapsed_by_default: true,
-      entity_type: 'D',
-      is_active: true,
-      created_by: createdBy,
-      updated_by: createdBy,
-      created_at: now,
-      updated_at: now,
-    },
-  ]).execute();
-
-  // ============================================================================
   // Business Entities Dictionary Entries
   // ============================================================================
 
@@ -700,6 +652,104 @@ export async function seed(db: Kysely<any>): Promise<void> {
     }
   }
   {{/if}}
+
+  /*
+   * Field groups for this tab.
+   *
+   * Per tab, not once globally, because `GET /sys/field-groups?entity=<table>`
+   * resolves the entity's tab and filters `sys_field_group.sys_tab_id` to it.
+   * The four groups used to be inserted once with `sys_tab_id` unset, so that
+   * query matched nothing for every entity: the Field Layout Manager showed an
+   * "Unassigned" column and no group panels at all, which left the whole
+   * drag-and-drop layout feature — and with it the Highlights panel in the
+   * record header — visible in the code and unreachable in the application.
+   *
+   * `Highlights` carries `layout_type: 'summary'`, and that is what puts a
+   * group in the record header rather than the form body:
+   * `ad-detail-shell.tsx` filters the entity's columns for
+   * `group_layout_type === "summary"` and renders them as the amber
+   * **Highlights** panel at the top right of the window tab, beside the
+   * record's title. The Star toggle on any group in the layout manager sets
+   * the same flag.
+   *
+   * All four are seeded **empty**: a model does not say which two or three of
+   * an entity's columns are worth reading at a glance, and that judgement is
+   * what the layout manager is for. Until an administrator drags a field in,
+   * every field stays unassigned and the form is the flat list the model's
+   * column order describes — the parity with the browser build that the note
+   * on GRID_NOISE is about.
+   */
+  await db.insertInto('sys_field_group').values([
+    {
+      sys_field_group_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      name: 'Highlights',
+      description:
+        'Shown in the record header, not the form. Drag the two or three fields worth reading at a glance into this group.',
+      layout_type: 'summary',
+      columns: 1,
+      seq_no: 10,
+      field_group_type: 'C',
+      is_collapsed_by_default: false,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      sys_field_group_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      name: 'General',
+      description: 'General information fields',
+      layout_type: 'single',
+      columns: 2,
+      seq_no: 20,
+      field_group_type: 'C',
+      is_collapsed_by_default: false,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      sys_field_group_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      name: 'Details',
+      description: 'Detailed information fields',
+      layout_type: 'single',
+      columns: 2,
+      seq_no: 30,
+      field_group_type: 'C',
+      is_collapsed_by_default: true,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      sys_field_group_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      name: 'System',
+      description: 'System fields (audit trail)',
+      layout_type: 'single',
+      columns: 2,
+      seq_no: 40,
+      field_group_type: 'C',
+      is_collapsed_by_default: true,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+  ]).execute();
 
   // sys_field: sequential seq_no, no field group, grid by GRID_NOISE. See the
   // note on GRID_NOISE for why none of this is decided by position.

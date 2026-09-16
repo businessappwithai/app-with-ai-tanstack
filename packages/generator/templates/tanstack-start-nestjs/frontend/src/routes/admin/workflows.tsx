@@ -108,18 +108,18 @@ function AdminWorkflowsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'success': return 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60';
-      case 'error':   return 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/60';
-      case 'draft':   return 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60';
+      case 'success': return 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800';
+      case 'error':   return 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200/60 dark:border-red-800';
+      case 'draft':   return 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200/60 dark:border-blue-800';
       default:        return 'bg-muted/40 text-foreground/80 border-border';
     }
   };
 
   const getOpBadge = (op: string) => {
     switch (op.toUpperCase()) {
-      case 'CREATE': return 'bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800/60';
-      case 'UPDATE': return 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60';
-      case 'DELETE': return 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/60';
+      case 'CREATE': return 'bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border-teal-200/60 dark:border-teal-800';
+      case 'UPDATE': return 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800';
+      case 'DELETE': return 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/60 dark:border-rose-800';
       default:       return 'bg-muted/40 text-foreground/80 border-border';
     }
   };
@@ -363,7 +363,7 @@ function AdminWorkflowsPage() {
                       {wf.error_details && (
                         <div className="col-span-2">
                           <p className="text-xs uppercase tracking-widest text-red-400 mb-2 font-semibold">Error Details</p>
-                          <pre className="text-xs bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 p-3 rounded overflow-auto max-h-40 text-red-700 dark:text-red-300">
+                          <pre className="text-xs bg-red-50 dark:bg-red-950/40 border border-red-200/60 dark:border-red-800 p-3 rounded overflow-auto max-h-40 text-red-700 dark:text-red-300">
                             {wf.error_details}
                           </pre>
                         </div>

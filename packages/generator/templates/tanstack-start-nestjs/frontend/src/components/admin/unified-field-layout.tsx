@@ -169,7 +169,7 @@ function FieldCard({
             snapshot.isDragging
               ? "bg-primary/5 border-primary/40 shadow-lg ring-1 ring-primary/20"
               : field.dirty
-                ? "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60"
+                ? "bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800"
                 : "bg-card border-border hover:border-primary/30 hover:bg-muted/20",
             !field.is_displayed && "opacity-50"
           )}
@@ -267,7 +267,7 @@ function GroupPanel({
         isUnassigned
           ? "border-dashed border-muted-foreground/30 bg-muted/20"
           : isSummary
-            ? "border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40/50 shadow-amber-100"
+            ? "border-amber-300 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/40 shadow-amber-100"
             : "border-border bg-card",
         group.isNew && "ring-2 ring-primary/40"
       )}
@@ -279,7 +279,7 @@ function GroupPanel({
           isUnassigned
             ? "border-muted-foreground/20 bg-muted/30"
             : isSummary
-              ? "border-amber-200 dark:border-amber-800/60 bg-amber-100 dark:bg-amber-900/40/60"
+              ? "border-amber-200/60 dark:border-amber-800 bg-amber-100/60 dark:bg-amber-900/40"
               : "border-border bg-muted/30"
         )}
       >
@@ -349,7 +349,7 @@ function GroupPanel({
                     variant="secondary"
                     className={cn(
                       "text-[10px] h-4 px-1.5 flex-shrink-0",
-                      isSummary && "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60"
+                      isSummary && "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-200/60 dark:border-amber-800"
                     )}
                   >
                     {isSummary ? (
@@ -900,7 +900,7 @@ export function UnifiedFieldLayout({ entityName }: UnifiedFieldLayoutProps) {
                           snap.isDragging
                             ? "bg-primary/5 border-primary/40 shadow-lg"
                             : field.dirty
-                              ? "bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60"
+                              ? "bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800"
                               : "bg-card border-border hover:border-primary/30",
                           !field.is_displayed && "opacity-50"
                         )}

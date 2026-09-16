@@ -378,7 +378,7 @@ function MetadataPanel({
             </div>
             <div className="rounded-lg bg-amber-500/10 px-2.5 py-1.5 text-center">
               <p className="text-lg font-semibold text-amber-600 dark:text-amber-400">{mandatoryCount}</p>
-              <p className="text-[10px] text-amber-600 dark:text-amber-400/70">Required</p>
+              <p className="text-[10px] text-amber-600/70 dark:text-amber-400">Required</p>
             </div>
             <div className="rounded-lg bg-muted px-2.5 py-1.5 text-center">
               <p className="text-lg font-semibold text-muted-foreground">{readOnlyCount}</p>
@@ -386,7 +386,7 @@ function MetadataPanel({
             </div>
             <div className="rounded-lg bg-emerald-500/10 px-2.5 py-1.5 text-center">
               <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">{fieldCount - readOnlyCount}</p>
-              <p className="text-[10px] text-emerald-600 dark:text-emerald-400/70">Editable</p>
+              <p className="text-[10px] text-emerald-600/70 dark:text-emerald-400">Editable</p>
             </div>
           </div>
         </div>

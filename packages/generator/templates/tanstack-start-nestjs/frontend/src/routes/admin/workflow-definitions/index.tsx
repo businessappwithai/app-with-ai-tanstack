@@ -156,7 +156,7 @@ function WorkflowDefinitionsList() {
                       {d.source === "model" && (
                         <Badge
                           variant="outline"
-                          className="ml-2 text-[10px] border-indigo-200 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300"
+                          className="ml-2 text-[10px] border-indigo-200/60 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300"
                           title="Declared by a %%workflow section in the model. Edit the model and regenerate."
                         >
                           From the model
@@ -181,7 +181,7 @@ function WorkflowDefinitionsList() {
                       <Badge
                         className={
                           d.is_active
-                            ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800/60"
+                            ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border-green-200/60 dark:border-green-800"
                             : "bg-muted text-muted-foreground"
                         }
                       >

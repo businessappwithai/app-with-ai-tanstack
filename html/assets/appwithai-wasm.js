@@ -20628,7 +20628,7 @@ export async function loginView(root, { project, onSignedIn }) {
       el(
         "p.login__footer",
         "Built with ",
-        el("a", { href: "http://www.appwithai.org", target: "_blank", rel: "noopener noreferrer" }, "APPWITHAI")
+        el("a", { href: "https://appwithai.org", target: "_blank", rel: "noopener noreferrer" }, "APPWITHAI")
       )
     )
   );
@@ -21656,7 +21656,7 @@ export async function reportsView(root) {
 }
 `
 });
-var RUNTIME_BYTES = 431346;
+var RUNTIME_BYTES = 431343;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

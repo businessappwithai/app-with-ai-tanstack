@@ -169,7 +169,7 @@ export async function loginView(root, { project, onSignedIn }) {
       el(
         "p.login__footer",
         "Built with ",
-        el("a", { href: "http://www.appwithai.org", target: "_blank", rel: "noopener noreferrer" }, "APPWITHAI")
+        el("a", { href: "https://appwithai.org", target: "_blank", rel: "noopener noreferrer" }, "APPWITHAI")
       )
     )
   );

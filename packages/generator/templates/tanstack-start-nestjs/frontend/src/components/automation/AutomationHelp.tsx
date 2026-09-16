@@ -232,7 +232,7 @@ function Example({ children }: { children: React.ReactNode }) {
 
 function Tip({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-5 flex max-w-[70ch] gap-3 rounded-xl border border-blue-200 dark:border-blue-800/60 bg-blue-50 dark:bg-blue-950/40 px-4 py-3.5 text-[13px] leading-relaxed text-blue-900 dark:text-blue-200">
+    <div className="mt-5 flex max-w-[70ch] gap-3 rounded-xl border border-blue-200/60 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-3.5 text-[13px] leading-relaxed text-blue-900 dark:text-blue-200">
       <span aria-hidden="true" className="text-[15px]">
         💡
       </span>
@@ -248,7 +248,7 @@ function HowItRuns({ example }: { example: HelpExample }) {
     {
       kicker: "When",
       glyph: "⚡",
-      tone: "border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+      tone: "border-amber-200/60 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
       kickerTone: "text-amber-700 dark:text-amber-300",
       title: "The trigger",
       body: "The event that starts the run. One per automation: a record type plus what happened to it — created, updated, deleted, or the moment before any of those.",
@@ -261,7 +261,7 @@ function HowItRuns({ example }: { example: HelpExample }) {
     {
       kicker: "Only if",
       glyph: "◇",
-      tone: "border-blue-200 dark:border-blue-800/60 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400",
+      tone: "border-blue-200/60 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400",
       kickerTone: "text-blue-600 dark:text-blue-400",
       title: "The checks",
       body: "All of them must pass before anything runs. No checks means it always runs. Compare a field to a fixed value, or to another field on the same record.",
