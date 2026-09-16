@@ -2600,9 +2600,11 @@ Re-reading this text is not a precondition for running the engine it describes.
 ladder above does not answer, and it is common: an agent sandbox with no egress
 reports it as a DNS-resolution failure, or as a gateway error — 403, 407, 502 —
 from a proxy that never forwarded the request. Both read exactly like the site
-being down, and the site is answering everyone else. `appwithai.org` is
-canonical and the apex serves the same files, so try both before concluding
-anything; `check-model.mjs` already tries both.
+being down, and the site is answering everyone else. `appwithai.org` is the one
+host that serves these files. There is no `www.` alias to fall back to, so one
+refusal is the whole of the network's answer rather than half of it — which is
+the reason to go to the offline procedure below immediately rather than to
+retry a second name.
 
 If neither answers, **the checker still runs**, because it does not need the
 network:
