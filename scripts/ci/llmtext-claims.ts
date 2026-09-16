@@ -133,7 +133,7 @@ for (const name of DOCUMENTS) {
      TLS refusal and reports its validation state as "not determinable" — the
      very failure this text exists to prevent, arriving through the text. */
   held(
-    /curl -sO https:\/\/appwithai\.org\/guide\/check-model\.mjs/.test(prose),
+    /curl -sO https:\/\/www\.appwithai\.org\/guide\/check-model\.mjs/.test(prose),
     `${name}: offers the checkout-free way to run the checker`
   );
   held(
@@ -315,7 +315,7 @@ const detailed = readFileSync(join(ROOT, "website", "llmtext", "llmdetailed.txt"
 const detailedProse = detailed.replace(/\s+/g, " ");
 
 held(
-  /https:\/\/appwithai\.org\/viewers\//.test(detailed),
+  /https:\/\/www\.appwithai\.org\/viewers\//.test(detailed),
   "llmdetailed.txt: names the viewers by their published URL"
 );
 
@@ -501,10 +501,10 @@ held(
 /* ------------------------------------------------------------------------ */
 
 /**
- * Every mention of the host is `https://appwithai.org`.
+ * Every mention of the host is `https://www.appwithai.org`.
  *
  * A model following these documents reported a failed validator fetch as
- * `[appwithai.org](https://appwithai.org)` — a Markdown link whose text
+ * `[appwithai.org](https://www.appwithai.org)` — a Markdown link whose text
  * is a bare host, which is what anything parsing that output then tries to
  * resolve. The documents taught it: they named the host without a scheme in
  * prose, and these copies used the apex in most of their URLs while the
@@ -520,10 +520,12 @@ held(
  */
 const TEACHING = [
   "`appwithai.org/guide/checker.js` is a string a",
-  "`[appwithai.org](https://appwithai.org)` reads to a person as a working",
-  "- **There is no `www.` alias.** `https://appwithai.org/…` is not a second",
-  "  spelling of this host. GitHub Pages issues a certificate for the domain in",
+  "`[appwithai.org](https://www.appwithai.org)` reads to a person as a working",
+  "- **The apex is not the canonical form.** `https://appwithai.org/…` serves the same files and",
+  "  is the domain the repository's `CNAME` pins, but `https://www.appwithai.org/…`",
   '*"Validator retrieval failed for appwithai.org"* says neither',
+  "  `https://appwithai.org` serves the same files, but the `www.` form is the canonical one.",
+  "is the canonical host and the apex `https://appwithai.org` serves the same",
 ];
 
 for (const name of DOCUMENTS) {
@@ -531,11 +533,11 @@ for (const name of DOCUMENTS) {
   const stray = doc
     .split("\n")
     .filter((line) => !TEACHING.some((teaching) => line.includes(teaching)))
-    .filter((line) => /appwithai\.org/.test(line.replace(/https:\/\/appwithai\.org/g, "")));
+    .filter((line) => /appwithai\.org/.test(line.replace(/https:\/\/www\.appwithai\.org/g, "")));
 
   held(
     stray.length === 0,
-    `${name}: every mention of the host is https://appwithai.org${
+    `${name}: every mention of the host is https://www.appwithai.org${
       stray.length ? ` (${stray.length} stray, first: "${stray[0]?.trim().slice(0, 72)}")` : ""
     }`
   );
@@ -544,7 +546,7 @@ for (const name of DOCUMENTS) {
     `${name}: carries the rule that the URL is written in full`
   );
   held(
-    doc.includes("[appwithai.org](https://appwithai.org)"),
+    doc.includes("[appwithai.org](https://www.appwithai.org)"),
     `${name}: keeps the Markdown-link counter-example the rule is about`
   );
 }
