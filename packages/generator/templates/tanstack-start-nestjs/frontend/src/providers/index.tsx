@@ -3,19 +3,27 @@
  * Application Providers
  *
  * Provider order (outer → inner):
- * 1. QueryProvider  — TanStack Query server state
- * 2. AuthProvider   — session / user object
- * 3. ElectricProvider — syncs the Application Dictionary into TanStack DB
+ * 1. ThemeProvider  — light / dark / system, applied to <html>. Outermost so
+ *                     every screen below it, including the ones that render
+ *                     before a session exists, can read and change it.
+ * 2. QueryProvider  — TanStack Query server state
+ * 3. AuthProvider   — session / user object
+ * 4. ElectricProvider — syncs the Application Dictionary into TanStack DB
  *                       collections over ElectricSQL. The server scopes the
  *                       shape to the session's roles, so a client only ever
  *                       holds the part of the dictionary it may see.
- * 4. TranslationProvider — i18n
+ * 5. TranslationProvider — i18n
+ * 6. HelpProvider   — the help toaster, and the only surface help appears on.
+ *                     Innermost, so a `?` anywhere inside opens it; it renders
+ *                     the toaster itself, so no screen places one.
  *
  */
 
 import React, { startTransition, type ReactNode, useEffect, useState } from 'react';
 import { QueryProvider } from './query-provider';
 import { ElectricProvider } from './electric-provider';
+import { HelpProvider } from '@/components/help/help-toaster';
+import { ThemeProvider } from '@/components/theme/theme-provider';
 import { AuthProvider, useAuth } from '@/contexts/auth-context';
 import { TranslationProvider } from '@/lib/translations';
 import { Toaster } from 'sonner';
@@ -32,7 +40,8 @@ function ClientToaster() {
   // finished hydrating". Nothing is waiting on the toaster, so it can arrive a
   // tick late.
   useEffect(() => startTransition(() => setMounted(true)), []);
-  return mounted ? <Toaster position="top-right" richColors /> : null;
+  // Bottom right: the top right is the help toaster's, and it stays open.
+  return mounted ? <Toaster position="bottom-right" richColors /> : null;
 }
 
 /**
@@ -51,15 +60,17 @@ function ElectricBridge({ children }: { children: ReactNode }) {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <QueryProvider>
-      <AuthProvider>
-        <ElectricBridge>
-          <TranslationProvider>
-            {children}
-            <ClientToaster />
-          </TranslationProvider>
-        </ElectricBridge>
-      </AuthProvider>
-    </QueryProvider>
+    <ThemeProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <ElectricBridge>
+            <TranslationProvider>
+              <HelpProvider>{children}</HelpProvider>
+              <ClientToaster />
+            </TranslationProvider>
+          </ElectricBridge>
+        </AuthProvider>
+      </QueryProvider>
+    </ThemeProvider>
   );
 }

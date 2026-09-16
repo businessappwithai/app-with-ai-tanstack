@@ -32,7 +32,7 @@ import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 import { getFieldTypeColor, getFieldTypeLabel } from "@/lib/field-schema";
 import { ADRecordNav } from "./ad-record-nav";
 import { ADToolbar } from "./ad-toolbar";
-import { WindowHelpDialog } from "./window-help-dialog";
+import { WindowHelpButton } from "./window-help-button";
 
 type AnyRecord = Record<string, unknown>;
 
@@ -377,16 +377,16 @@ function MetadataPanel({
               <p className="text-[10px] text-primary/70">Fields</p>
             </div>
             <div className="rounded-lg bg-amber-500/10 px-2.5 py-1.5 text-center">
-              <p className="text-lg font-semibold text-amber-600">{mandatoryCount}</p>
-              <p className="text-[10px] text-amber-600/70">Required</p>
+              <p className="text-lg font-semibold text-amber-600 dark:text-amber-400">{mandatoryCount}</p>
+              <p className="text-[10px] text-amber-600/70 dark:text-amber-400">Required</p>
             </div>
             <div className="rounded-lg bg-muted px-2.5 py-1.5 text-center">
               <p className="text-lg font-semibold text-muted-foreground">{readOnlyCount}</p>
               <p className="text-[10px] text-muted-foreground/70">Read-only</p>
             </div>
             <div className="rounded-lg bg-emerald-500/10 px-2.5 py-1.5 text-center">
-              <p className="text-lg font-semibold text-emerald-600">{fieldCount - readOnlyCount}</p>
-              <p className="text-[10px] text-emerald-600/70">Editable</p>
+              <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">{fieldCount - readOnlyCount}</p>
+              <p className="text-[10px] text-emerald-600/70 dark:text-emerald-400">Editable</p>
             </div>
           </div>
         </div>
@@ -755,7 +755,7 @@ export function EntityWindowShell({ tableName, entityLabel }: EntityWindowShellP
               )}
             </>
           )}
-          <WindowHelpDialog tableName={tableName} entityLabel={entityLabel} />
+          <WindowHelpButton tableName={tableName} entityLabel={entityLabel} />
         </div>
         {viewMode === "detail" && !isCreating && (
           <ADRecordNav

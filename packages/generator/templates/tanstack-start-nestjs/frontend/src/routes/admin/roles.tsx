@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { WindowHelpDialog } from '@/components/admin/window-help-dialog';
+import { WindowHelpButton } from '@/components/admin/window-help-button';
 import { apiClient } from '@/lib/api-client';
 import { UserCog, ArrowLeft, Loader2, AlertCircle, Star } from 'lucide-react';
 
@@ -35,7 +35,7 @@ function RolesPage() {
             </Link>
             <UserCog className="w-4 h-4 text-primary" />
             <h1 className="font-display text-lg font-semibold">Role Management</h1>
-            <WindowHelpDialog windowName="Role" entityLabel="Role" />
+            <WindowHelpButton windowName="Role" entityLabel="Role" />
           </div>
         </div>
       </header>
@@ -73,13 +73,13 @@ function RolesPage() {
                     <td className="px-4 py-3 text-muted-foreground">{r.description ?? '—'}</td>
                     <td className="px-4 py-3">
                       {r.is_master_role ? (
-                        <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Master</span>
+                        <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">Master</span>
                       ) : (
                         <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">Standard</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${r.is_active ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${r.is_active ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' : 'bg-muted text-muted-foreground'}`}>
                         {r.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>

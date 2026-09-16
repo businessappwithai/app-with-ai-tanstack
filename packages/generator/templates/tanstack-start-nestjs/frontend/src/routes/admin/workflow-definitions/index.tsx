@@ -16,7 +16,7 @@ import {
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
-import { WindowHelpDialog } from "../../../components/admin/window-help-dialog";
+import { WindowHelpButton } from "../../../components/admin/window-help-button";
 import { apiClient } from "../../../lib/api-client";
 
 export const Route = createFileRoute("/admin/workflow-definitions/")({
@@ -63,22 +63,22 @@ function WorkflowDefinitionsList() {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Breadcrumb */}
-      <nav aria-label="breadcrumb" className="flex items-center gap-1 text-sm text-gray-500">
-        <Link to="/dashboard" className="hover:text-gray-700 hover:underline">
+      <nav aria-label="breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground">
+        <Link to="/dashboard" className="hover:text-foreground/80 hover:underline">
           Dashboard
         </Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-gray-900 font-medium">Workflow Designer</span>
+        <span className="text-foreground font-medium">Workflow Designer</span>
       </nav>
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">Workflows</h1>
-            <WindowHelpDialog windowName="Workflow Designer" entityLabel="Workflow Designer" />
+            <h1 className="text-2xl font-bold text-foreground">Workflows</h1>
+            <WindowHelpButton windowName="Workflow Designer" entityLabel="Workflow Designer" />
           </div>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Everything that runs automatically on your records. Built in the automation builder.
           </p>
         </div>
@@ -90,19 +90,19 @@ function WorkflowDefinitionsList() {
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{stats.total}</div>
-            <div className="text-xs text-gray-500">Total workflows</div>
+            <div className="text-xs text-muted-foreground">Total workflows</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
-            <div className="text-xs text-gray-500">Active</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.active}</div>
+            <div className="text-xs text-muted-foreground">Active</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
             <div className="text-2xl font-bold">{stats.entities}</div>
-            <div className="text-xs text-gray-500">Entities covered</div>
+            <div className="text-xs text-muted-foreground">Entities covered</div>
           </CardContent>
         </Card>
       </div>
@@ -119,11 +119,11 @@ function WorkflowDefinitionsList() {
 
       {/* Table */}
       {isLoading ? (
-        <div className="text-center py-12 text-gray-400">Loading…</div>
+        <div className="text-center py-12 text-muted-foreground/70">Loading…</div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-muted-foreground/70">
           No workflows yet.{" "}
-          <Link to="/admin/automations" className="text-teal-600 underline">
+          <Link to="/admin/automations" className="text-teal-600 dark:text-teal-400 underline">
             Create one
           </Link>
         </div>
@@ -131,42 +131,42 @@ function WorkflowDefinitionsList() {
         <Card>
           <CardContent className="p-0">
             <table className="w-full text-sm">
-              <thead className="border-b bg-gray-50">
+              <thead className="border-b bg-muted/40">
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Name</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Entity</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Operation</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Runs when</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Created</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Name</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Entity</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Operation</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Runs when</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Created</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {filtered.map((d) => (
-                  <tr key={d.id} className="hover:bg-gray-50">
+                  <tr key={d.id} className="hover:bg-muted/40">
                     <td className="px-4 py-3 font-medium">
                       <Link
                         to="/admin/workflow-definitions/$id/edit"
                         params={{ id: d.id }}
-                        className="text-teal-700 hover:underline"
+                        className="text-teal-700 dark:text-teal-300 hover:underline"
                       >
                         {d.name}
                       </Link>
                       {d.source === "model" && (
                         <Badge
                           variant="outline"
-                          className="ml-2 text-[10px] border-indigo-200 text-indigo-700"
+                          className="ml-2 text-[10px] border-indigo-200/60 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300"
                           title="Declared by a %%workflow section in the model. Edit the model and regenerate."
                         >
                           From the model
                         </Badge>
                       )}
                       {d.description && (
-                        <div className="text-xs text-gray-400 mt-0.5">{d.description}</div>
+                        <div className="text-xs text-muted-foreground/70 mt-0.5">{d.description}</div>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-600">{d.entity_name}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{d.entity_name}</td>
                     <td className="px-4 py-3">
                       <Badge variant="outline" className="text-xs">
                         {d.operation}
@@ -181,14 +181,14 @@ function WorkflowDefinitionsList() {
                       <Badge
                         className={
                           d.is_active
-                            ? "bg-green-100 text-green-700 border-green-200"
-                            : "bg-gray-100 text-gray-500"
+                            ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border-green-200/60 dark:border-green-800"
+                            : "bg-muted text-muted-foreground"
                         }
                       >
                         {d.is_active ? "Active" : "Inactive"}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
                       {new Date(d.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -217,7 +217,7 @@ function WorkflowDefinitionsList() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-red-500 hover:text-red-700"
+                              className="text-red-500 hover:text-red-700 dark:hover:text-red-300"
                               disabled={d.source === "model"}
                               title={
                                 d.source === "model"

@@ -270,6 +270,50 @@ function fieldHelpText(entity: HelpEntity, col: HelpColumn): string {
   return parts.join(' ');
 }
 
+/*
+ * Which columns a grid shows — and, by its absence below, what decides a
+ * field's group.
+ *
+ * These are the columns that are real, queryable and useless in a grid: a uuid
+ * nobody reads and the audit trail. Everything else the model declares is
+ * shown, and all of them stay on the form.
+ *
+ * Two values used to be decided by a column's *position* in the list instead,
+ * and both showed up as this application and the browser application generated
+ * from the same model laying the same entity out differently:
+ *
+ *   sys_field_group_id: i < 3 ? fieldGroupGeneral : fieldGroupDetails
+ *   is_displayed_grid:  !col.isKey && i < 8
+ *
+ * The first split every form after its third column into a "General" section
+ * and a collapsed "Details" one — `dynamic-form.tsx` groups by `group_name`,
+ * so those headings are what a reader saw, and where the cut fell had nothing
+ * to do with the model. A thirteen-column entity got three fields and then ten
+ * behind a heading nobody asked for.
+ *
+ * The second hid every column past the eighth from the list view. On
+ * `bus_program` that is `annual_budget` and `objective`: columns the model
+ * declares, the dictionary describes, the API returns and the grid did not
+ * show, with nothing anywhere saying why.
+ *
+ * `sys_field_group_id` is unset now and the grid is this set, both mirroring
+ * `generators/wasm/model-bundle.ts` — the other producer of this same
+ * dictionary, and the one a reader compares against. The same model has to
+ * describe the same application whether it was generated as the full stack or
+ * as the browser build.
+ *
+ * Four field groups are still seeded per tab, as empty targets for the Field
+ * Layout Manager — a real screen in this stack, and one that was unreachable
+ * until those groups were bound to a tab. An administrator groups the fields
+ * that should be grouped; until someone does, the form is the flat list the
+ * model's column order describes.
+ *
+ * Module scope, not per entity: every entity's dictionary block shares one
+ * function scope, so a `const` inside one of them is a redeclaration by the
+ * second entity.
+ */
+const GRID_NOISE = new Set(['id', 'created_by', 'updated_by', 'deleted_by', 'deleted_at', 'version']);
+
 const dictionaryHelpEntities: HelpEntity[] = [
   {{#each entities}}
   {
@@ -453,55 +497,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }).onConflict((oc) => oc.doNothing()).execute();
 
   // ============================================================================
-  // Create Default Field Groups
-  // ============================================================================
-  const fieldGroupGeneral = uuidv4();
-  const fieldGroupDetails = uuidv4();
-  const fieldGroupSystem = uuidv4();
-
-  await db.insertInto('sys_field_group').values([
-    {
-      sys_field_group_id: fieldGroupGeneral,
-      name: 'General',
-      description: 'General information fields',
-      field_group_type: 'C',
-      is_collapsed_by_default: false,
-      entity_type: 'D',
-      is_active: true,
-      created_by: createdBy,
-      updated_by: createdBy,
-      created_at: now,
-      updated_at: now,
-    },
-    {
-      sys_field_group_id: fieldGroupDetails,
-      name: 'Details',
-      description: 'Detailed information fields',
-      field_group_type: 'C',
-      is_collapsed_by_default: true,
-      entity_type: 'D',
-      is_active: true,
-      created_by: createdBy,
-      updated_by: createdBy,
-      created_at: now,
-      updated_at: now,
-    },
-    {
-      sys_field_group_id: fieldGroupSystem,
-      name: 'System',
-      description: 'System fields (audit trail)',
-      field_group_type: 'C',
-      is_collapsed_by_default: true,
-      entity_type: 'D',
-      is_active: true,
-      created_by: createdBy,
-      updated_by: createdBy,
-      created_at: now,
-      updated_at: now,
-    },
-  ]).execute();
-
-  // ============================================================================
   // Business Entities Dictionary Entries
   // ============================================================================
 
@@ -658,20 +653,119 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }
   {{/if}}
 
-  // Create sys_field entries with sequential seq_no
+  /*
+   * Field groups for this tab.
+   *
+   * Per tab, not once globally, because `GET /sys/field-groups?entity=<table>`
+   * resolves the entity's tab and filters `sys_field_group.sys_tab_id` to it.
+   * The four groups used to be inserted once with `sys_tab_id` unset, so that
+   * query matched nothing for every entity: the Field Layout Manager showed an
+   * "Unassigned" column and no group panels at all, which left the whole
+   * drag-and-drop layout feature — and with it the Highlights panel in the
+   * record header — visible in the code and unreachable in the application.
+   *
+   * `Highlights` carries `layout_type: 'summary'`, and that is what puts a
+   * group in the record header rather than the form body:
+   * `ad-detail-shell.tsx` filters the entity's columns for
+   * `group_layout_type === "summary"` and renders them as the amber
+   * **Highlights** panel at the top right of the window tab, beside the
+   * record's title. The Star toggle on any group in the layout manager sets
+   * the same flag.
+   *
+   * All four are seeded **empty**: a model does not say which two or three of
+   * an entity's columns are worth reading at a glance, and that judgement is
+   * what the layout manager is for. Until an administrator drags a field in,
+   * every field stays unassigned and the form is the flat list the model's
+   * column order describes — the parity with the browser build that the note
+   * on GRID_NOISE is about.
+   */
+  await db.insertInto('sys_field_group').values([
+    {
+      sys_field_group_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      name: 'Highlights',
+      description:
+        'Shown in the record header, not the form. Drag the two or three fields worth reading at a glance into this group.',
+      layout_type: 'summary',
+      columns: 1,
+      seq_no: 10,
+      field_group_type: 'C',
+      is_collapsed_by_default: false,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      sys_field_group_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      name: 'General',
+      description: 'General information fields',
+      layout_type: 'single',
+      columns: 2,
+      seq_no: 20,
+      field_group_type: 'C',
+      is_collapsed_by_default: false,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      sys_field_group_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      name: 'Details',
+      description: 'Detailed information fields',
+      layout_type: 'single',
+      columns: 2,
+      seq_no: 30,
+      field_group_type: 'C',
+      is_collapsed_by_default: true,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+    {
+      sys_field_group_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      name: 'System',
+      description: 'System fields (audit trail)',
+      layout_type: 'single',
+      columns: 2,
+      seq_no: 40,
+      field_group_type: 'C',
+      is_collapsed_by_default: true,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+  ]).execute();
+
+  // sys_field: sequential seq_no, no field group, grid by GRID_NOISE. See the
+  // note on GRID_NOISE for why none of this is decided by position.
   for (let i = 0; i < {{camelCase name}}Columns.length; i++) {
     const col = {{camelCase name}}Columns[i];
     await db.insertInto('sys_field').values({
       sys_field_id: uuidv4(),
       sys_tab_id: {{camelCase name}}TabId,
       sys_column_id: col.id,
-      sys_field_group_id: i < 3 ? fieldGroupGeneral : fieldGroupDetails,
+      sys_field_group_id: undefined,
       name: col.displayName,
       help: fieldHelpFor('{{tableName}}', col.name),
       seq_no: (i + 1) * 10,
       seq_no_grid: (i + 1) * 10,
       is_displayed: !col.isKey,
-      is_displayed_grid: !col.isKey && i < 8, // show first 8 non-pk columns in grid
+      is_displayed_grid: !col.isKey && !GRID_NOISE.has(col.name),
       is_read_only: ['created_at', 'updated_at', 'deleted_at'].includes(col.name),
       is_encrypted: false,
       is_same_line: false,

@@ -20,37 +20,37 @@ const STATUS_CONFIG: Record<
   draft: {
     label: "Draft",
     variant: "outline",
-    className: "border-amber-300 text-amber-700 bg-amber-50",
+    className: "border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40",
     icon: FileEdit,
   },
   pending_rules: {
     label: "Evaluating",
     variant: "outline",
-    className: "border-blue-300 text-blue-700 bg-blue-50",
+    className: "border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40",
     icon: Clock,
   },
   final: {
     label: "Final",
     variant: "outline",
-    className: "border-green-300 text-green-700 bg-green-50",
+    className: "border-green-300 dark:border-green-800 text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40",
     icon: CheckCircle,
   },
   approved: {
     label: "Final",
     variant: "outline",
-    className: "border-green-300 text-green-700 bg-green-50",
+    className: "border-green-300 dark:border-green-800 text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/40",
     icon: CheckCircle,
   },
   rejected: {
     label: "Draft",
     variant: "outline",
-    className: "border-amber-300 text-amber-700 bg-amber-50",
+    className: "border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40",
     icon: FileEdit,
   },
   none: {
     label: "No Rules",
     variant: "secondary",
-    className: "text-gray-500",
+    className: "text-muted-foreground",
     icon: CheckCircle,
   },
 };

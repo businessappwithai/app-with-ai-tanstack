@@ -53,32 +53,48 @@
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1a1a1a;
-    --surface: #1f1f1f;
-    --surface-2: #2e2e2e;
-    --border: #333333;
-    --border-strong: #454545;
-    --text: #fafafa;
-    --text-soft: #b3b3b3;
-    --text-faint: #999999;
+/*
+ * The dark palette. One selector, because there is one mechanism.
+ *
+ * `index.html` runs a synchronous script in the head that resolves the
+ * reader's stored choice — light, dark, or whatever the machine says — and
+ * writes the answer to `data-theme` on `<html>` before anything paints. The
+ * theme control in the masthead rewrites the same attribute. So every rule in
+ * this stylesheet resolves its colours through the properties below and
+ * nothing else in it knows a theme exists.
+ *
+ * This was `@media (prefers-color-scheme: dark)` and nothing else, which is
+ * not a mode: a reader who wanted the other one had to change their operating
+ * system. The preference is still honoured — it is what `system` resolves to,
+ * and what an unset choice defaults to — but it is now one of three answers
+ * rather than the only one. There is no media query left here because there is
+ * nothing for it to cover: the script is blocking, and a browser running none
+ * of this application's JavaScript has no application to theme.
+ */
+[data-theme="dark"] {
+  --bg: #1a1a1a;
+  --surface: #1f1f1f;
+  --surface-2: #2e2e2e;
+  --border: #333333;
+  --border-strong: #454545;
+  --text: #fafafa;
+  --text-soft: #b3b3b3;
+  --text-faint: #999999;
 
-    --primary: #21c0c0;
-    --primary-hover: #4ad4d4;
-    --primary-soft: #12302f;
-    --primary-on: #1a1a1a;
+  --primary: #21c0c0;
+  --primary-hover: #4ad4d4;
+  --primary-soft: #12302f;
+  --primary-on: #1a1a1a;
 
-    --destructive: #e68a63;
-    --destructive-soft: #2e1d16;
-    --success: #4ec98a;
-    --success-soft: #10241a;
-    --warn: #e0a458;
-    --warn-soft: #2a2012;
+  --destructive: #e68a63;
+  --destructive-soft: #2e1d16;
+  --success: #4ec98a;
+  --success-soft: #10241a;
+  --warn: #e0a458;
+  --warn-soft: #2a2012;
 
-    --table-head: #0f172a;
-    --table-head-text: #e2e8f0;
-  }
+  --table-head: #0f172a;
+  --table-head-text: #e2e8f0;
 }
 
 * { box-sizing: border-box; }
@@ -134,7 +150,10 @@ a { color: var(--primary); }
 
 /* --------------------------------------------------------------- login --- */
 
-.login { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); min-height: 100vh; }
+.login { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); min-height: 100vh; }
+/* Out of the grid flow on purpose: the two columns are a designed proportion,
+   and a third cell for a 78px control would change it. */
+.login__theme { position: absolute; top: 18px; right: 18px; z-index: 2; }
 .login__panel { display: grid; align-content: center; padding: 48px clamp(24px, 6vw, 80px); }
 .login__mark {
   width: 42px; height: 42px; display: grid; place-items: center;
@@ -244,6 +263,19 @@ a { color: var(--primary); }
   content: "⌕"; position: absolute; left: 12px; top: 50%; transform: translateY(-52%);
   color: var(--text-faint); font-size: 15px;
 }
+/*
+ * Light / dark / system, as three buttons rather than a two-way switch:
+ * `system` is a state of its own and a switch cannot express it.
+ */
+.themepick { display: inline-flex; gap: 2px; padding: 2px; border-radius: 999px; background: var(--surface-2); }
+.themepick__option {
+  display: inline-grid; place-items: center; width: 24px; height: 24px;
+  border: 0; border-radius: 999px; padding: 0; background: transparent;
+  color: var(--text-faint); font-size: 13px; line-height: 1; cursor: pointer; font-family: inherit;
+}
+.themepick__option:hover { color: var(--text); }
+.themepick__option.is-active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 2px rgb(0 0 0 / 10%); }
+
 .masthead__user { display: flex; align-items: center; gap: 9px; padding-left: 16px; border-left: 1px solid var(--border); }
 .avatar {
   width: 30px; height: 30px; flex: none; display: grid; place-items: center;
@@ -269,11 +301,18 @@ a { color: var(--primary); }
 .crumbs a:hover { color: var(--primary); }
 .crumbs__sep { color: var(--text-faint); }
 .crumbs__current { color: var(--text); font-weight: 600; }
+/*
+ * The `?`. One control, one glyph, the same on every screen — so "press the
+ * question mark" is true of all of them. It read "? Help" and opened a message
+ * that disappeared after four seconds; it now opens the help panel above.
+ */
 .crumbs__help {
-  display: inline-flex; align-items: center; gap: 4px; margin-left: 4px;
-  font-size: 11.5px; padding: 2px 9px; border-radius: 999px;
+  display: inline-grid; place-items: center; margin-left: 4px;
+  width: 20px; height: 20px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; line-height: 1;
   background: var(--primary-soft); color: var(--primary); border: 0; cursor: pointer; font-family: inherit;
 }
+.crumbs__help:hover { background: var(--primary); color: var(--primary-on); }
 
 .outlet { padding: 22px; }
 
@@ -422,7 +461,18 @@ a { color: var(--primary); }
   .chip--date { background: #2c1c10; color: #f0a06a; }
   .chip--lookup { background: #2a1430; color: #e07ae8; }
 }
-.field__help { border: 0; background: transparent; color: var(--text-faint); cursor: help; font-size: 12px; padding: 0; }
+/*
+ * `cursor: help` and a `title` is what this was — a tooltip, which needs a
+ * pointer, a hover and a delay, and never appears on a phone at all. It is a
+ * button now and it opens the help panel.
+ */
+.field__help {
+  display: inline-grid; place-items: center; width: 16px; height: 16px;
+  border: 0; border-radius: 999px; padding: 0;
+  background: var(--surface-2); color: var(--text-faint);
+  font-size: 11px; font-weight: 700; line-height: 1; cursor: pointer; font-family: inherit;
+}
+.field__help:hover { background: var(--primary-soft); color: var(--primary); }
 .field__input {
   width: 100%; padding: 9px 12px; font: inherit; font-size: 13.5px;
   border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
@@ -432,7 +482,9 @@ a { color: var(--primary); }
 .field__input:disabled { background: var(--surface-2); color: var(--text-faint); }
 .field__input--area { resize: vertical; min-height: 84px; }
 .field__checkbox { width: 17px; height: 17px; accent-color: var(--primary); justify-self: start; }
-.field__note { margin: 0; font-size: 11.5px; color: var(--text-faint); }
+/* `.field__note` was the field's dictionary help printed under every input,
+   which doubled the height of a form whose author documented every column.
+   It is behind the field's `?` now — see `.toast--help` above. */
 
 /* The dictionary browser: a table list you can pick from, and the help text a
    model wrote for each column — narrow enough that a sentence does not push
@@ -531,7 +583,21 @@ a { color: var(--primary); }
 .empty h3 { margin: 0 0 6px; color: var(--text); font-size: 16px; }
 .empty p { margin: 0; font-size: 13px; }
 
+/* Transient messages: bottom right, where they were, and where they cannot
+   collide with the help panel above. */
 .toasts { position: fixed; right: 18px; bottom: 18px; display: grid; gap: 9px; z-index: 200; max-width: min(420px, calc(100vw - 36px)); }
+
+/*
+ * Help: top right, its own tray, one panel at a time.
+ *
+ * `top: 70px` rather than 18px, and the number is the sticky masthead's
+ * height. At 18px the panel sat *over* the masthead's right-hand end, which is
+ * where the theme control and Sign out are — so a non-modal panel, whose whole
+ * point is that the application stays usable behind it, was the one thing
+ * making two of its controls unclickable. Found by driving it in a browser;
+ * nothing about the markup says so.
+ */
+.helptray { position: fixed; right: 18px; top: 70px; z-index: 210; width: min(420px, calc(100vw - 36px)); }
 .toast {
   display: flex; gap: 10px; align-items: flex-start;
   background: var(--surface); border: 1px solid var(--border); border-left-width: 3px;
@@ -543,6 +609,31 @@ a { color: var(--primary); }
 .toast--info { border-left-color: var(--primary); }
 .toast__body { white-space: pre-wrap; flex: 1; }
 .toast__close { border: 0; background: transparent; color: var(--text-faint); font-size: 17px; line-height: 1; cursor: pointer; padding: 0 2px; }
+.toast__close:hover { color: var(--text); }
+
+/*
+ * The help panel. The only surface in this application that shows help.
+ *
+ * Taller than a message and scrollable, because a window's help is its
+ * overview plus a line per field — and unlike a message, it is read rather
+ * than glanced at. Deliberately not modal and with no backdrop: the form it
+ * describes stays visible and editable beside it.
+ */
+.toast--help {
+  border-left-color: var(--primary); border-left-width: 3px;
+  max-height: min(70vh, calc(100vh - 100px)); overflow: hidden;
+}
+.toast--help .toast__body { display: flex; flex-direction: column; min-height: 0; gap: 8px; }
+.toast__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.toast__title { font-family: var(--serif); font-size: 14px; font-weight: 600; color: var(--text); }
+.toast__help { overflow-y: auto; min-height: 0; white-space: pre-wrap; color: var(--text-soft); }
+.toast__help .field__helptext { margin: 0 0 8px; color: var(--text); white-space: pre-wrap; }
+.toast__help .field__helpfacts {
+  margin: 0; padding: 0; list-style: none;
+  display: grid; gap: 3px; font-size: 12px; color: var(--text-faint);
+}
+.toast__help .field__helpfacts li { font-family: var(--mono); }
+.toast__help dl, .toast__help ul { margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

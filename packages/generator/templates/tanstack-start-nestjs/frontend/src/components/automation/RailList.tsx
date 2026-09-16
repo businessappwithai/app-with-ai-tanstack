@@ -82,7 +82,7 @@ export function RailSection({
                 ? "bg-emerald-500"
                 : item.state === "draft"
                   ? "bg-amber-500"
-                  : "bg-neutral-400"
+                  : "bg-muted-foreground"
             )}
           />
           <span className="min-w-0">

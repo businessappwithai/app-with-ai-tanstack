@@ -62,31 +62,31 @@ function AdminDashboardPage() {
   });
 
   const stats = [
-    { label: "Tables", count: tablesRes?.meta?.total || 0, icon: Table2, color: "text-blue-600" },
+    { label: "Tables", count: tablesRes?.meta?.total || 0, icon: Table2, color: "text-blue-600 dark:text-blue-400" },
     {
       label: "Columns",
       count: columnsRes?.meta?.total || 0,
       icon: Columns,
-      color: "text-indigo-600",
+      color: "text-indigo-600 dark:text-indigo-400",
     },
     {
       label: "Windows",
       count: windowsRes?.meta?.total || 0,
       icon: AppWindow,
-      color: "text-violet-600",
+      color: "text-violet-600 dark:text-violet-400",
     },
-    { label: "Tabs", count: tabsRes?.meta?.total || 0, icon: Layers, color: "text-purple-600" },
+    { label: "Tabs", count: tabsRes?.meta?.total || 0, icon: Layers, color: "text-purple-600 dark:text-purple-400" },
     {
       label: "Fields",
       count: fieldsRes?.meta?.total || 0,
       icon: LayoutList,
-      color: "text-pink-600",
+      color: "text-pink-600 dark:text-pink-400",
     },
     {
       label: "References",
       count: refsRes?.meta?.total || 0,
       icon: Hash,
-      color: "text-emerald-600",
+      color: "text-emerald-600 dark:text-emerald-400",
     },
   ];
 

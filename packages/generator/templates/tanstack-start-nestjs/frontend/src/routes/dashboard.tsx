@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Icon } from '@/components/ui/icon';
 import { NotificationBell } from '@/components/notifications/notification-bell';
+import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { APP_NAME } from "@/lib/app-meta";
@@ -181,7 +182,7 @@ function DashboardPage() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground" />
       </div>
     );
   }
@@ -285,6 +286,7 @@ function DashboardPage() {
                   {/* Beside Log out, where a user looks for what just
                       happened to the record they saved. */}
                   <NotificationBell />
+                  <ThemeToggle />
                   <button
                     onClick={handleLogout}
                     className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"

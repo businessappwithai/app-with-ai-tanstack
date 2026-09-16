@@ -4,7 +4,7 @@
 > language it reads, the pipeline that compiles it, the templates it renders,
 > and the shape of the application that comes out. Written for language models.
 >
-> Companion human guide: https://www.appwithai.org/guide/index.html
+> Companion human guide: https://appwithai.org/guide/index.html
 > (nine chapters, every screenshot from the CRM described in §9. The material
 > is inlined here in §9 so you do not need to fetch it.)
 >
@@ -710,8 +710,8 @@ which is also the procedure you are expected to follow before handing a model to
 anyone:
 
 ```js
-import { check }        from "https://www.appwithai.org/guide/checker.js";
-import { checkAndFix }  from "https://www.appwithai.org/guide/fixer.js";
+import { check }        from "https://appwithai.org/guide/checker.js";
+import { checkAndFix }  from "https://appwithai.org/guide/fixer.js";
 ```
 
 Severities: **error** (generator would produce something wrong — exit 1);
@@ -1461,7 +1461,7 @@ All three pin the same `BUN_VERSION`; none uses `bun-version: latest`.
 
 ## 9. Worked example — building a CRM
 
-Mirrors the human guide at https://www.appwithai.org/guide/index.html. Model:
+Mirrors the human guide at https://appwithai.org/guide/index.html. Model:
 `language/examples/crm.eml.mmd`.
 
 **Scale**: 1 model file · 17 entities · 7 categories · 26 enums · 20 indexes ·
@@ -1719,7 +1719,7 @@ else — the rules, the workflows, the enums and the access control are `%%`
 directives it treats as comments — so a stakeholder pointed at a Mermaid preview
 is being shown the smallest part of what they are approving.
 
-**The viewers are at `https://www.appwithai.org/viewers/`**, and they draw all of
+**The viewers are at `https://appwithai.org/viewers/`**, and they draw all of
 it — entities with their columns, badges and help text, relationships in crow's
 foot notation, state machines with the moves the generated API will allow, sagas
 as an ordered ladder, decision tables as tables, and the roles with the entity
@@ -2128,7 +2128,7 @@ not optional.
 #### The tools
 
 **One engine, published four ways.** `language/checker.ts` in this repository,
-`https://www.appwithai.org/guide/checker.js` on the web, the copy chapter 11 runs
+`https://appwithai.org/guide/checker.js` on the web, the copy chapter 11 runs
 inside a browser tab, and the copy inside `website/viewers/eml-model.js` that
 the viewers report their verdict from are the same checker, built from the same
 source by `bun run build:language-tools` and `bun run build:viewers`, with CI
@@ -2160,9 +2160,11 @@ Re-reading this text is not a precondition for running the engine it describes.
 ladder above does not answer, and it is common: an agent sandbox with no egress
 reports it as a DNS-resolution failure, or as a gateway error — 403, 407, 502 —
 from a proxy that never forwarded the request. Both read exactly like the site
-being down, and the site is answering everyone else. `www.appwithai.org` is
-canonical and the apex serves the same files, so try both before concluding
-anything; `check-model.mjs` already tries both.
+being down, and the site is answering everyone else. `appwithai.org` is the one
+host that serves these files. There is no `www.` alias to fall back to, so one
+refusal is the whole of the network's answer rather than half of it — which is
+the reason to go to the offline procedure below immediately rather than to
+retry a second name.
 
 If neither answers, **the checker still runs**, because it does not need the
 network:
@@ -2199,7 +2201,7 @@ So when validation cannot be run, do all three of these and keep going:
 3. **Mark the delivery.** `03-validation.md` records *not validated*, the reason,
    and the one line the user needs to finish the job themselves:
    `node check-model.mjs <slug>.mmd` on any machine with egress, or paste the
-   document into `https://www.appwithai.org/guide/11-check-a-model.html`, which
+   document into `https://appwithai.org/guide/11-check-a-model.html`, which
    runs these same modules in the tab in a few seconds.
 
 Reporting "I cannot proceed until I can validate" is not caution. It converts a
@@ -2210,7 +2212,7 @@ deliverable.
 bitten.** It validates the document; it does not ask whether the document's parts
 can perform each other. Two checks belong in this phase, and both are a dozen
 lines against the same `ViewModel` the viewers draw from
-(`https://www.appwithai.org/viewers/eml-model.js`, whose `readModel` is the
+(`https://appwithai.org/viewers/eml-model.js`, whose `readModel` is the
 generator's own reader):
 
 1. **Every state a saga writes must be a state its machine draws.** A
@@ -2267,7 +2269,7 @@ runner that drives both is published beside them. **On a shell this is the whole
 step** — no checkout, nothing installed:
 
 ```sh
-curl -sO https://www.appwithai.org/guide/check-model.mjs
+curl -sO https://appwithai.org/guide/check-model.mjs
 node check-model.mjs docs/eml-sessions/<slug>/<slug>.mmd
 #   exit 0  clean
 #   exit 1  one or more errors — the generator would refuse it
@@ -2281,8 +2283,8 @@ over the input; `--base <url>` points it at another host.
 
 | File | URL | What it is |
 |---|---|---|
-| `html/checker.js` | `https://www.appwithai.org/guide/checker.js` | every diagnostic the CLI prints, as `check(source)` |
-| `html/fixer.js` | `https://www.appwithai.org/guide/fixer.js` | the auto-repairs, plus `checkAndFix(source)` — repair and re-check in one call |
+| `html/checker.js` | `https://appwithai.org/guide/checker.js` | every diagnostic the CLI prints, as `check(source)` |
+| `html/fixer.js` | `https://appwithai.org/guide/fixer.js` | the auto-repairs, plus `checkAndFix(source)` — repair and re-check in one call |
 
 They are bundled from `language/checker.ts` and `language/fixer.ts` by
 `scripts/build-language-tools.ts`, and CI asserts they are current — so a
@@ -2296,7 +2298,7 @@ the checker is out of reach:
 |---|---|
 | A checkout | `bun language/checker.ts <file>` — above |
 | A shell with Node 18+, Bun or Deno | `curl -sO …/check-model.mjs`, then `node check-model.mjs <file>` |
-| Bun or Deno, writing the code yourself | `import { check } from "https://www.appwithai.org/guide/checker.js"` — a URL import works as it stands |
+| Bun or Deno, writing the code yourself | `import { check } from "https://appwithai.org/guide/checker.js"` — a URL import works as it stands |
 | Node, writing the code yourself | Node has no network imports: `fetch` both files into one directory and `import()` them from there |
 | A browser, a canvas, an HTML preview | `<script type="module">` with the same URL import |
 | None of these | "If the checker cannot be run here", below — check by hand, and say so |
@@ -2313,17 +2315,17 @@ not a finding about the environment; it is a finding about that attempt. Work
 these in order, and stop at the first that runs:
 
 1. `bun language/checker.ts <file>` — if the repository happens to be on disk.
-2. `curl -sO https://www.appwithai.org/guide/check-model.mjs` then
+2. `curl -sO https://appwithai.org/guide/check-model.mjs` then
    `node check-model.mjs <file>` — no checkout, no Bun, one dependency-free
    file. This is the one that answers "I could not clone the repository".
 3. `fetch` `checker.js` and `fixer.js` into one directory and `import()` them
    from there — when `curl` is missing but the runtime can make a request.
-4. **The website.** Open `https://www.appwithai.org/guide/11-check-a-model.html`,
+4. **The website.** Open `https://appwithai.org/guide/11-check-a-model.html`,
    paste the document, read the verdict line. It runs these same modules in the
    tab with nothing installed, so if you can drive or render a browser at all,
    this is a real run and its counts are reportable as such. A surface with no
    shell is not thereby a surface with no checker.
-   `https://www.appwithai.org/viewers/` answers the same question the same way — it
+   `https://appwithai.org/viewers/` answers the same question the same way — it
    carries the same checker and prints the same verdict — and draws the model
    besides, so it is the better rung when the user is present.
 5. Only now, the manual review below.
@@ -2453,7 +2455,7 @@ nothing else earns it.
 **3 · Say one plain sentence at delivery** (§10.7): the checker could not be run
 here, this is what was verified by hand, and the user can validate the file in
 their own browser in a few seconds at
-`https://www.appwithai.org/guide/11-check-a-model.html`, which runs these same two
+`https://appwithai.org/guide/11-check-a-model.html`, which runs these same two
 modules with nothing to install.
 
 An unvalidated `.mmd` handed over with that sentence is still the deliverable.
@@ -2545,7 +2547,7 @@ Alongside the file — in the reply, never inside it — give the change roster 
 built, the regression table from §10.6, the checker's counts for the original
 and for the delivered file, anything still unresolved, and where the session
 directory is on disk. Then tell them what to do next: upload the file at
-`https://www.appwithai.org/guide/run-in-browser.html#upload`, where it becomes a
+`https://appwithai.org/guide/run-in-browser.html#upload`, where it becomes a
 running application in the browser tab.
 
 Say plainly that the original is still at `00-original.mmd`. A user who can see

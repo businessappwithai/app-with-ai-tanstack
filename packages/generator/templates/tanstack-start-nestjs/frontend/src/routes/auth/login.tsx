@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { signIn } from '@/lib/auth';
 import { useAuth } from '@/contexts/auth-context';
+import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -96,7 +97,14 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
+      {/* The theme is switchable before anyone has signed in. The choice is
+          stored per browser rather than on the account, so there is nothing to
+          wait for a session for — and the first screen of the application is a
+          poor one to have no say over. */}
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">
@@ -282,7 +290,7 @@ function LoginPage() {
           <p className="text-xs text-muted-foreground">
             Built with{' '}
             <a
-              href="http://www.appwithai.org"
+              href="https://appwithai.org"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground transition-colors"

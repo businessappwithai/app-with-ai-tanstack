@@ -221,6 +221,8 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/components/automation",
       "src/components/reports",
       "src/components/notifications",
+      "src/components/help",
+      "src/components/theme",
       "test",
     ];
 
@@ -743,9 +745,32 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       },
       // AD shell components
       {
-        // Shared by every shell — the Help button and screen for a window.
-        src: "src/components/admin/window-help-dialog.tsx",
-        dest: "src/components/admin/window-help-dialog.tsx",
+        // The one help surface in a generated application: a toaster pinned to
+        // the top right, opened by a `?` and closed by its own close button.
+        // Every other piece of help — a window's, a field's, the automation
+        // builder's — routes through it, so this file and the provider in
+        // `providers/index.tsx` are the whole of it.
+        src: "src/components/help/help-toaster.tsx",
+        dest: "src/components/help/help-toaster.tsx",
+      },
+      {
+        // Light / dark / system, applied to <html> before first paint.
+        // `__root.tsx` imports THEME_BOOT_SCRIPT from here, so omitting it
+        // fails the generated build rather than quietly shipping an
+        // application stuck in one theme.
+        src: "src/components/theme/theme-provider.tsx",
+        dest: "src/components/theme/theme-provider.tsx",
+      },
+      {
+        src: "src/components/theme/theme-toggle.tsx",
+        dest: "src/components/theme/theme-toggle.tsx",
+      },
+      {
+        // Shared by every shell — the `?` that puts a window's help in the
+        // toaster. Was `window-help-dialog.tsx`, a centred modal that covered
+        // the record it described.
+        src: "src/components/admin/window-help-button.tsx",
+        dest: "src/components/admin/window-help-button.tsx",
       },
       {
         src: "src/components/admin/ad-detail-shell.tsx",

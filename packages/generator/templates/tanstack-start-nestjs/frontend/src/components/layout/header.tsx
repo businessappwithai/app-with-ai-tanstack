@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useAuth } from "@/contexts/auth-context";
 
 interface HeaderProps {
@@ -71,6 +72,10 @@ export function Header({ className }: HeaderProps) {
             hard-coded "No new notifications", which told the user there was
             something to read and then that there was not. */}
         <NotificationBell />
+
+        {/* Light / dark / system. The class lands on <html>, so this one
+            control changes every screen rather than this header. */}
+        <ThemeToggle />
 
         {/* User Menu */}
         <DropdownMenu>

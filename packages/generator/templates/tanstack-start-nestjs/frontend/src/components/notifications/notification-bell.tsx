@@ -63,12 +63,12 @@ function relativeTime(iso: string): string {
 
 function OutcomeIcon({ outcome }: { outcome: TransactionOutcome }) {
   if (outcome === "succeeded") {
-    return <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" aria-hidden />;
+    return <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden />;
   }
   if (outcome === "failed") {
     return <AlertCircle className="h-4 w-4 shrink-0 text-destructive" aria-hidden />;
   }
-  return <Clock className="h-4 w-4 shrink-0 text-amber-600" aria-hidden />;
+  return <Clock className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />;
 }
 
 const OUTCOME_LABEL: Record<TransactionOutcome, string> = {
@@ -241,10 +241,10 @@ export function NotificationBell() {
                             className={[
                               "rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
                               item.outcome === "succeeded"
-                                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                ? "border-emerald-200/60 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
                                 : item.outcome === "failed"
                                   ? "border-destructive/30 bg-destructive/10 text-destructive"
-                                  : "border-amber-200 bg-amber-50 text-amber-700",
+                                  : "border-amber-200/60 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
                             ].join(" ")}
                           >
                             {OUTCOME_LABEL[item.outcome]}

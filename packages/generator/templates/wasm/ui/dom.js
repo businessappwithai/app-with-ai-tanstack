@@ -54,20 +54,76 @@ export function mount(node, ...children) {
   return node;
 }
 
+function tray(className) {
+  let node = document.querySelector(`.${className}`);
+  if (!node) {
+    node = el(`div.${className}`);
+    document.body.appendChild(node);
+  }
+  return node;
+}
+
 /** Transient message. Errors stay until dismissed; successes fade. */
 export function toast(message, tone = "info") {
-  let tray = document.querySelector(".toasts");
-  if (!tray) {
-    tray = el("div.toasts");
-    document.body.appendChild(tray);
-  }
   const node = el(
     `div.toast.toast--${tone}`,
     el("div.toast__body", message),
     el("button.toast__close", { onclick: () => node.remove(), "aria-label": "Dismiss" }, "×")
   );
-  tray.appendChild(node);
+  tray("toasts").appendChild(node);
   if (tone !== "error") setTimeout(() => node.remove(), 4000);
+  return node;
+}
+
+/**
+ * Help, and the only shape it takes in this application.
+ *
+ * A window's help and a field's help both arrive here: one panel at the top
+ * right, opened by a `?` and removed by its own close button and nothing else.
+ *
+ * Four ways it is deliberately not an ordinary toast:
+ *
+ * 1. **No timeout.** `toast(help, "info")` is what this used to be, and it
+ *    took the text away after four seconds — help is read while the form it
+ *    describes is being filled in, so four seconds is not a reading time, it
+ *    is a glimpse. Only the close button removes it: not a timer, not a click
+ *    elsewhere, not Escape.
+ * 2. **Its own tray.** Transient messages are bottom right and this is top
+ *    right, so saving a record while help is open cannot push the help off
+ *    the screen, and a panel that may be 500px tall cannot push the
+ *    confirmation of the save off it either.
+ * 3. **Only one of it.** Opening a second topic replaces the first rather than
+ *    stacking, because a tower of panels down the edge of the screen is what a
+ *    toaster is supposed to avoid.
+ * 4. **It never covers the page.** No backdrop: the record stays visible and
+ *    editable with the help open beside it.
+ *
+ * `body` is a string or a node, so a caller can hand over a list of fields
+ * rather than a paragraph.
+ */
+export function helpToast(title, body) {
+  const helptray = tray("helptray");
+  helptray.querySelector(".toast--help")?.remove();
+
+  const node = el(
+    "div.toast.toast--help",
+    { role: "note", "aria-live": "polite" },
+    el(
+      "div.toast__body",
+      el(
+        "div.toast__head",
+        el("strong.toast__title", title),
+        el(
+          "button.toast__close",
+          { onclick: () => node.remove(), "aria-label": "Close help", title: "Close help" },
+          "×"
+        )
+      ),
+      el("div.toast__help", body)
+    )
+  );
+
+  helptray.appendChild(node);
   return node;
 }
 

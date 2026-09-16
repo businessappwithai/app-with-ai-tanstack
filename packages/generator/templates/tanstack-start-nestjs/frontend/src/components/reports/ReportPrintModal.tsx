@@ -323,7 +323,7 @@ export function ReportPrintModal({
               The document could not be rendered: {error}
             </p>
           )}
-          <div ref={setContainer} className="mx-auto bg-white shadow-sm" />
+          <div ref={setContainer} className="mx-auto bg-card shadow-sm" />
         </div>
       </DialogContent>
     </Dialog>

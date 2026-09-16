@@ -85,7 +85,7 @@ function RunOutput({
             result.status === "ok"
               ? "border-primary/30 bg-primary/10 text-primary"
               : result.status === "failed"
-                ? "border-red-200 bg-red-50 text-red-600"
+                ? "border-red-200/60 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400"
                 : "border-border bg-muted text-muted-foreground"
           )}
         >
@@ -101,7 +101,7 @@ function RunOutput({
       </div>
 
       {result.status === "failed" && result.error ? (
-        <p className="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+        <p className="mb-2 rounded-lg border border-red-200/60 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-xs text-red-700 dark:text-red-300">
           {result.error}
         </p>
       ) : null}
@@ -116,7 +116,7 @@ function RunOutput({
       ) : null}
 
       {result.note ? (
-        <p className="mb-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+        <p className="mb-2 rounded-lg border border-emerald-200/60 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2 text-xs text-emerald-800 dark:text-emerald-300">
           {result.note}
         </p>
       ) : null}
@@ -142,7 +142,7 @@ function RunOutput({
       ) : null}
 
       {result.stale ? (
-        <p className="mt-2 flex gap-1.5 text-[11.5px] leading-snug text-amber-700">
+        <p className="mt-2 flex gap-1.5 text-[11.5px] leading-snug text-amber-700 dark:text-amber-300">
           <span aria-hidden="true">⚠</span>
           <span>You changed this step since that run. Re-run to see what it does now.</span>
         </p>
@@ -523,12 +523,12 @@ export function ConditionInspector({
       <header className="flex items-center gap-3 px-4 py-3.5">
         <span
           aria-hidden="true"
-          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-600"
+          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-blue-200/60 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-sm text-blue-600 dark:text-blue-400"
         >
           ◇
         </span>
         <div>
-          <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-blue-600">
+          <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-blue-600 dark:text-blue-400">
             Only continue if
           </span>
           <h3 className="text-[15px] font-bold">A check</h3>
@@ -617,12 +617,12 @@ export function LoopInspector({
       <header className="flex items-center gap-3 px-4 py-3.5">
         <span
           aria-hidden="true"
-          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-teal-200 bg-teal-50 text-sm text-teal-700"
+          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-teal-200/60 dark:border-teal-800 bg-teal-50 dark:bg-teal-950/40 text-sm text-teal-700 dark:text-teal-300"
         >
           ↻
         </span>
         <div>
-          <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-teal-700">
+          <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-teal-700 dark:text-teal-300">
             Keep repeating
           </span>
           <h3 className="text-[15px] font-bold">A repeat</h3>
@@ -690,22 +690,22 @@ export function LoopInspector({
           />
         </Field>
 
-        <div className="mb-4 rounded-lg border border-teal-200 bg-teal-50/60 p-3">
-          <p className="text-[11.5px] font-semibold text-teal-800">
+        <div className="mb-4 rounded-lg border border-teal-200/60 dark:border-teal-800 bg-teal-50/60 dark:bg-teal-950/40 p-3">
+          <p className="text-[11.5px] font-semibold text-teal-800 dark:text-teal-300">
             Inside the repeat you can use {`{{${loop.id}.iteration}}`}
           </p>
-          <p className="mt-1 text-[11.5px] leading-snug text-teal-800/80">
+          <p className="mt-1 text-[11.5px] leading-snug text-teal-800/80 dark:text-teal-300">
             The pass number, counting from 1. Handy for writing an attempt count, or for building a
             value that changes each time round.
           </p>
         </div>
 
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/60 p-3">
-          <p className="text-[11.5px] font-semibold text-amber-900">
+        <div className="mb-4 rounded-lg border border-amber-200/60 dark:border-amber-800 bg-amber-50/60 dark:bg-amber-950/40 p-3">
+          <p className="text-[11.5px] font-semibold text-amber-900 dark:text-amber-200">
             If the check never fails, the run is stopped at{" "}
             {loop.maxPasses.trim() ? `${loop.maxPasses} passes` : "the limit you set"}
           </p>
-          <p className="mt-1 text-[11.5px] leading-snug text-amber-900/80">
+          <p className="mt-1 text-[11.5px] leading-snug text-amber-900/80 dark:text-amber-200">
             An automation runs inside the save that triggered it, so a repeat that cannot end holds
             the record open. Hitting the limit marks the whole run failed rather than letting it
             look like it finished.

@@ -569,11 +569,17 @@ export function buildModelBundle(
         ),
         seqNo: column.seq_no,
       })),
-      // No field groups. The dictionary generator produces them, but nothing
-      // references one — `sys_field.sys_field_group_id` is left unset in both
-      // stacks — so seeding a table of groups no field belongs to would read as
-      // a feature the application does not have. The form groups by the label
-      // the field carries instead.
+      // No field groups, and the form is therefore one flat list in the
+      // model's own column order.
+      //
+      // `sys_field.sys_field_group_id` is unset in both stacks — but it took a
+      // fix to make that true. The NestJS seed
+      // (`templates/common/seeds/sys-dictionary.ts.hbs`) used to assign a
+      // group by *position*, `i < 3 ? General : Details`, which its form
+      // renders as two headed sections split after the third column. So one
+      // model produced two applications that laid the same entity out
+      // differently, and the split was not something the model asked for.
+      // Change one of these two and change the other.
       fieldGroups: [] as Array<{ tableName: string; name: string; seqNo: number }>,
       fields: dictionary.sysFields.map((field) => {
         const reference = columnByTemp.get(field._columnRef);
