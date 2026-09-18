@@ -371,7 +371,18 @@ async function bootstrap() {
     // rather than on better-auth's `disableSignUp` — that flag also disables
     // `auth.api.signUpEmail`, which is how the admin endpoint writes the
     // credential, so setting it leaves no way to create anyone at all.
-    if (request.url.includes('/sign-up')) {
+    /*
+     * Matched on the parsed pathname, not on a substring of the raw URL.
+     *
+     * `request.url.includes('/sign-up')` is a substring test over path AND
+     * query string, which is wrong in both directions: a perfectly ordinary
+     * request carrying `?redirect=/sign-up` was blocked, and anything that
+     * reaches better-auth's route without that exact literal in the raw URL was
+     * not. A denylist over an unparsed string is the weakest form this check
+     * could take, and it guards account creation.
+     */
+    const authPath = new URL(request.url, `http://localhost:${port}`).pathname;
+    if (authPath === '/api/auth/sign-up' || authPath.startsWith('/api/auth/sign-up/')) {
       reply.status(403).send({
         statusCode: 403,
         error: 'Forbidden',
