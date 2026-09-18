@@ -1482,6 +1482,7 @@ var appwithai_language_default = {
       EML112: "Duplicate attribute - deletes the later line, keeping the stronger constraints.",
       EML114: "Foreign key not ending in _id - appends the suffix.",
       EML117: "Entity has no primary key - prepends `string id PK`.",
+      EML287: "Rule condition names a camelCase identifier - rewrites it as the snake_case column.",
       EML421: "State workflow has no initial transition - inserts `[*] --> <firstState>`.",
       EML422: "State workflow has no terminal state - appends `<lastState> --> [*]`."
     },
@@ -3243,6 +3244,21 @@ class CheckEngine {
           hint: `Declare it with %%workflow ${workflow} entity: <Entity> kind: saga trigger: rule, or correct the name.`
         });
       }
+      const condition = props.when?.trim();
+      if (condition) {
+        const camel = [
+          ...new Set((condition.match(/\b[a-z][A-Za-z0-9]*\b/g) ?? []).filter((identifier) => /[a-z][A-Z]/.test(identifier)))
+        ];
+        if (camel.length > 0) {
+          const snake = (identifier) => identifier.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+          const tested = camel.map((c) => `"${c}"`).join(", ");
+          const meant = camel.map(snake).join(", ");
+          this.error("EML287", `%%action "${name}" tests ${tested}, which no column is named.`, {
+            line: lineNo,
+            hint: `A rule reads the record being written, and every column is snake_case. ` + `Write ${meant}. A camelCase name is undefined at evaluation: the rule ` + `never fires, or — against == null — fires on every write and the entity ` + `cannot be created.`
+          });
+        }
+      }
       const known = new Set(["when", ...contract.required, ...contract.optional ?? []]);
       for (const key of Object.keys(props)) {
         if (!known.has(key)) {
@@ -3955,7 +3971,8 @@ var AUTO_FIXABLE_CODES = new Set([
   "EML001",
   "EML114",
   "EML112",
-  "EML103"
+  "EML103",
+  "EML287"
 ]);
 if (false) {}
 
@@ -3999,6 +4016,8 @@ function applyFix(lines, issue) {
       return fixMissingInitialTransition(lines, issue, base);
     case "EML422":
       return fixMissingTerminalTransition(lines, issue, base);
+    case "EML287":
+      return fixCamelCaseRuleCondition(lines, issue, base);
     default:
       base.description = `No auto-fix strategy for ${issue.code}.`;
       return base;
@@ -4030,6 +4049,51 @@ function fixMissingMetaName(lines, _issue, base) {
   base.applied = true;
   base.description = `Inserted  ${newLine}  at line ${insertAt + 1}.`;
   base.changes.push({ lineNo: insertAt + 1, before: "", after: newLine, action: "insert" });
+  return base;
+}
+function fixCamelCaseRuleCondition(lines, issue, base) {
+  const lineNo = issue.line ? issue.line - 1 : -1;
+  if (lineNo < 0 || lineNo >= lines.length) {
+    base.description = "EML287 carries no line to repair.";
+    return base;
+  }
+  const original = lines[lineNo] ?? "";
+  if (!/^\s*%%action\b/.test(original)) {
+    base.description = `Line ${issue.line} is not a %%action directive.`;
+    return base;
+  }
+  const WHEN = /^(.*?\bwhen:\s*)(.*?)(\s+(?:message|field|value|workflow|to|target):\s.*)?$/;
+  const match = original.match(WHEN);
+  if (!match) {
+    base.description = "Could not isolate the when: condition.";
+    return base;
+  }
+  const [, head, condition, tail] = match;
+  const renamed = [];
+  const repaired = condition.replace(/'[^']*'|"[^"]*"|\b[a-z][A-Za-z0-9]*\b/g, (token) => {
+    if (token.startsWith("'") || token.startsWith('"'))
+      return token;
+    if (!/[a-z][A-Z]/.test(token))
+      return token;
+    const snake = token.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+    renamed.push(`${token} → ${snake}`);
+    return snake;
+  });
+  if (renamed.length === 0) {
+    base.description = "No camelCase identifier found in the condition.";
+    return base;
+  }
+  lines[lineNo] = `${head}${repaired}${tail ?? ""}`;
+  base.applied = true;
+  base.description = `Rewrote ${renamed.join(", ")} in the rule condition.`;
+  base.changes = [
+    {
+      lineNo: issue.line ?? lineNo + 1,
+      before: original,
+      after: lines[lineNo] ?? "",
+      action: "replace"
+    }
+  ];
   return base;
 }
 function fixForeignKeyNaming(lines, issue, base) {
