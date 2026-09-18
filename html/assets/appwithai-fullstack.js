@@ -17626,6 +17626,7 @@ var SHARED_SUITES = [
   "17-display-identifier.test.ts",
   "19-window-list-defaults.test.ts",
   "20-transaction-notifications.test.ts",
+  "21-reports.test.ts",
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",
   "11-performance-budget.test.ts"
@@ -17670,6 +17671,14 @@ class BunE2ETestGenerator extends BaseGenerator {
       relationships,
       fkOverrides: this.buildFkOverrides(entities, relationships),
       modelEnums: this.options.modelEnums ?? [],
+      modelReports: (this.options.compiledReports ?? []).map((report) => ({
+        name: report.name,
+        title: report.title,
+        entity: report.entity ?? "",
+        chart: report.chart ?? "",
+        x: report.x ?? "",
+        y: report.y ?? ""
+      })),
       stateMachines: this.stateMachines(entities),
       ...this.accessContext(entities),
       now: new Date().toISOString()
@@ -17926,7 +17935,8 @@ class FullStackGenerator {
         recordsPerEntity: this.options.recordsPerEntity,
         modelEnums: this.options.modelEnums,
         compiledWorkflows: this.options.compiledWorkflows,
-        compiledRbac: this.options.compiledRbac
+        compiledRbac: this.options.compiledRbac,
+        compiledReports: this.options.compiledReports
       });
       await testGenerator.generate(entities, relationships, outputDir);
     }

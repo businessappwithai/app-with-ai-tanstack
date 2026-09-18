@@ -1,0 +1,245 @@
+/**
+ * Every `%%report` the model declares, actually run.
+ *
+ * This is the only suite that executes a line of SQL the *model* authored. The
+ * rest of the run drives an API the generator also wrote, so a mistake shared
+ * between the two is invisible: the application agrees with itself and passes.
+ * A report is different — the query is written by hand in the `.mmd` and run
+ * verbatim against a schema a separate compiler emitted, and nothing type-checks
+ * one against the other.
+ *
+ * Two readers already look at `%%report` and neither closes that gap. The
+ * checker validates the directive's *shape* — that it names a query, that the
+ * query reads rather than writes, that a chart declares both axes — and it
+ * runs where the author is, with no database in sight. The compiler refuses a
+ * non-SELECT before it can reach a seed file. Neither can tell you that
+ * `bus_kyc_record.kyc_status` is spelled `status`, or that a column a migration
+ * renamed still appears in a JOIN. That failure surfaces the first time
+ * somebody opens the report, which on a published model is a reader, not a test.
+ *
+ * So: assert the model's list against `sys_report`, then run every one of them.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
+import { harness, HttpClient, modelReports } from "../harness/index.ts";
+
+/** A row of `sys_report` as the list endpoint serves it — no SQL. */
+interface ServedReport {
+  id: string;
+  name: string;
+  title: string;
+  entity_name?: string | null;
+  table_name?: string | null;
+  chart?: string | null;
+  x_axis?: string | null;
+  y_axis?: string | null;
+  help?: string | null;
+  sort_order?: number;
+}
+
+interface RunResult {
+  report: ServedReport;
+  columns: string[];
+  rows: Array<Record<string, unknown>>;
+  rowCount: number;
+  truncated: boolean;
+  durationMs: number;
+}
+
+const hasReports = modelReports.length > 0;
+
+describe("reports", () => {
+  let served: ServedReport[] = [];
+  let byName = new Map<string, ServedReport>();
+
+  beforeAll(async () => {
+    if (!hasReports) return;
+    await harness.setup();
+    const response = await harness.client.get<ServedReport[]>("/sys/reports");
+    expect(response.status).toBe(200);
+    served = Array.isArray(response.data) ? response.data : [];
+    byName = new Map(served.map((report) => [report.name, report]));
+  });
+
+  afterAll(async () => {
+    if (!hasReports) return;
+    await harness.teardown();
+  });
+
+  it("offers every report the model declares", async () => {
+    if (!hasReports) return;
+    const missing = modelReports
+      .map((report) => report.name)
+      .filter((name) => !byName.has(name));
+    expect(missing).toEqual([]);
+  });
+
+  it("offers no report the model does not declare", async () => {
+    if (!hasReports) return;
+    const declared = new Set(modelReports.map((report) => report.name));
+    const extra = served.map((report) => report.name).filter((name) => !declared.has(name));
+    expect(extra).toEqual([]);
+  });
+
+  it("keeps each report's title and entity", async () => {
+    if (!hasReports) return;
+    const drifted: string[] = [];
+    for (const report of modelReports) {
+      const row = byName.get(report.name);
+      if (!row) continue;
+      if (row.title !== report.title) {
+        drifted.push(`${report.name}: title "${row.title}" ≠ "${report.title}"`);
+      }
+      if (report.entity && (row.entity_name ?? "") !== report.entity) {
+        drifted.push(`${report.name}: entity "${row.entity_name}" ≠ "${report.entity}"`);
+      }
+    }
+    expect(drifted).toEqual([]);
+  });
+
+  /**
+   * A chart with one axis renders nothing and reports no error. The checker
+   * refuses that at authoring time (`EML295`); this asserts the pair survived
+   * compilation and seeding, which is the half the checker cannot see.
+   */
+  it("carries both axes for every report drawn as a chart", async () => {
+    if (!hasReports) return;
+    const broken: string[] = [];
+    for (const report of modelReports) {
+      if (!report.chart) continue;
+      const row = byName.get(report.name);
+      if (!row) continue;
+      if (!row.chart) broken.push(`${report.name}: chart type lost in seeding`);
+      if (!row.x_axis || !row.y_axis) {
+        broken.push(`${report.name}: chart with x="${row.x_axis}" y="${row.y_axis}"`);
+      }
+    }
+    expect(broken).toEqual([]);
+  });
+
+  /**
+   * The assertion this suite exists for.
+   *
+   * Every declared report is executed against the database this run migrated
+   * and seeded. A column that does not exist, a table renamed since the query
+   * was written, a JOIN across a foreign key the schema types differently —
+   * each is a failing test here and nothing anywhere else.
+   *
+   * Zero rows is a pass. A report may legitimately ask a question this data
+   * has no answer to ("encounters never billed" against a freshly seeded
+   * database), and asserting on row counts would make the suite depend on
+   * which sample rows the faker seed happened to write.
+   */
+  it("runs every declared report against the real schema", async () => {
+    if (!hasReports) return;
+    const failures: string[] = [];
+
+    for (const report of modelReports) {
+      if (!byName.has(report.name)) continue;
+      const response = await harness.client.get<RunResult | { message?: string }>(
+        `/sys/reports/${encodeURIComponent(report.name)}/run`,
+        { allowFailure: true }
+      );
+
+      if (response.status !== 200) {
+        const body = response.data as { message?: string };
+        failures.push(`${report.name} → ${response.status}: ${body?.message ?? response.raw.slice(0, 200)}`);
+        continue;
+      }
+
+      const result = response.data as RunResult;
+      if (!Array.isArray(result.rows)) {
+        failures.push(`${report.name}: no rows array in the result`);
+        continue;
+      }
+      // Columns are read off the first row (so the order matches the SELECT),
+      // which means a report with no rows legitimately reports none. Asserting
+      // otherwise would fail on a question this data has no answer to.
+      if (result.rowCount > 0 && (!Array.isArray(result.columns) || result.columns.length === 0)) {
+        failures.push(`${report.name}: returned ${result.rowCount} rows and no columns`);
+      }
+    }
+
+    expect(failures).toEqual([]);
+  });
+
+  /**
+   * A chart plots two named result columns. If the query stops returning one
+   * of them the chart renders empty and the table beside it still looks right,
+   * so this is checked against the columns the query actually returned rather
+   * than against the report row.
+   *
+   * Only where the query returned rows: the column list comes off the first
+   * row, so an empty result names no columns and a missing axis cannot be
+   * distinguished from no data.
+   */
+  it("returns the columns each chart says it plots", async () => {
+    if (!hasReports) return;
+    const missing: string[] = [];
+    let checked = 0;
+    let empty = 0;
+
+    for (const report of modelReports) {
+      if (!report.chart || !byName.has(report.name)) continue;
+      const response = await harness.client.get<RunResult>(
+        `/sys/reports/${encodeURIComponent(report.name)}/run`,
+        { allowFailure: true }
+      );
+      if (response.status !== 200) continue; // already reported above
+      if ((response.data?.rowCount ?? 0) === 0) {
+        empty++;
+        continue;
+      }
+      checked++;
+      const columns = new Set(response.data?.columns ?? []);
+      for (const axis of [report.x, report.y]) {
+        if (axis && !columns.has(axis)) {
+          missing.push(`${report.name}: plots "${axis}", query returns ${[...columns].join(", ")}`);
+        }
+      }
+    }
+
+    // Say what was covered. How much of this check actually ran depends on
+    // which sample rows the seed wrote, and a check that silently covers two
+    // reports out of eleven is indistinguishable from one that covers all of
+    // them. Naming the number is what makes the gap visible in the log.
+    console.log(`  charts: ${checked} axis-checked, ${empty} skipped (no rows to read columns from)`);
+
+    expect(missing).toEqual([]);
+  });
+
+  it("refuses a report nobody declared", async () => {
+    if (!hasReports) return;
+    const response = await harness.client.get(
+      "/sys/reports/no-such-report-{{project.id}}/run",
+      { allowFailure: true }
+    );
+    expect(response.status).toBeGreaterThanOrEqual(400);
+    expect(response.status).toBeLessThan(500);
+  });
+
+  it("does not serve a report's SQL to a caller", async () => {
+    if (!hasReports) return;
+    const first = modelReports[0];
+    if (!first || !byName.has(first.name)) return;
+    const response = await harness.client.get<Record<string, unknown>>(
+      `/sys/reports/${encodeURIComponent(first.name)}`
+    );
+    expect(response.status).toBe(200);
+    expect(response.data.sql_text).toBeUndefined();
+    expect(response.data.sql).toBeUndefined();
+  });
+
+  it("needs a session", async () => {
+    if (!hasReports) return;
+    // A fresh client rather than a header on the authenticated one: the cookie
+    // jar lives on the client, so clearing a header would not remove it.
+    const anonymous = new HttpClient();
+    const response = await anonymous.get("/sys/reports", { allowFailure: true });
+    expect(response.status).toBeGreaterThanOrEqual(400);
+    expect(response.status).toBeLessThan(500);
+  });
+});
