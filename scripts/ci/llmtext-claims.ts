@@ -182,6 +182,15 @@ for (const name of DOCUMENTS) {
     /never reached the site, so none of them is evidence it is down/.test(prose),
     `${name}: says those failures are not evidence the site is down`
   );
+
+  /* The page-only rung. A fetch layer that reads text/html and refuses
+   * application/javascript reports the module as inaccessible while the same
+   * host serves it pages — so the modules are published inside pages too, and
+   * every edition has to name that directory or the rung is unreachable. */
+  held(
+    prose.includes("https://www.appwithai.org/guide/source/"),
+    `${name}: names the page-carried copies, for a fetcher that refuses JavaScript`
+  );
   /* Three observed failures were all one URL failing, generalised into "no
      validation is possible" — including one where the blocked URL was this
      very file. */
