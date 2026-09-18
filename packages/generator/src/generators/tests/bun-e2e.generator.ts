@@ -26,8 +26,8 @@ import type {
 } from "@appwithai/core/types";
 import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import type { CompiledRbac } from "../../rbac";
-import type { CompiledReport } from "../../reports";
 import { deriveAccess } from "../../rbac/roles";
+import type { CompiledReport } from "../../reports";
 import type { CompiledWorkflow } from "../../workflows";
 import { BaseGenerator } from "../base.generator";
 

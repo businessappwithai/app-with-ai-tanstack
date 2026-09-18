@@ -89,13 +89,22 @@ for (const name of DOCUMENTS) {
      would have passed a document that said "nine". The words are matched
      generically and compared against AUTO_FIXABLE_CODES. */
   const NUMBER_WORDS = [
-    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
-    "nine", "ten", "eleven", "twelve",
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
   ];
   const counted = [
-    ...prose.matchAll(
-      /\b([a-z]+)(?: auto-repairs\b| codes are auto-fixable\b| codes: `EML)/gi
-    ),
+    ...prose.matchAll(/\b([a-z]+)(?: auto-repairs\b| codes are auto-fixable\b| codes: `EML)/gi),
   ]
     .map((match) => NUMBER_WORDS.indexOf((match[1] ?? "").toLowerCase()))
     .filter((index) => index >= 0);
