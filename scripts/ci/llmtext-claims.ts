@@ -140,6 +140,31 @@ for (const name of DOCUMENTS) {
     /reach GitHub says nothing about whether the checker can run/i.test(prose),
     `${name}: states that an unreachable GitHub is not an unreachable checker`
   );
+  /* The second runner, and the distinction it exists for.
+   *
+   * The checker answers "would the generator refuse this model". Nothing in it
+   * requires a model to *have* a lifecycle, a rule, an access rule or a word of
+   * help text, so a bare ERD is 0 errors and 0 warnings — and these documents
+   * used to point at `scripts/check-model.mjs` in the website repository for the
+   * other question, which the reader of this text has no clone of. It is a
+   * published runner now, and every edition has to offer it by URL.
+   *
+   * The score itself is held to a real run on the site, in `check-spec.mjs`;
+   * what is held here is that all four copies quote the same figure, because a
+   * check added to the runner without editing the documents leaves them quoting
+   * a number no run produces. */
+  held(
+    /curl -sO https:\/\/www\.appwithai\.org\/guide\/audit-model\.mjs/.test(prose),
+    `${name}: offers the checklist audit, not only the checker`
+  );
+  held(
+    /clean report is not a finished model/i.test(prose),
+    `${name}: says plainly that a clean checker run does not mean the model is finished`
+  );
+  held(
+    /22 passed, 0 failed/.test(prose) && /[Tt]wenty-two checks/.test(prose),
+    `${name}: quotes the audit's score, and the same count in words`
+  );
   /* Three observed failures were all one URL failing, generalised into "no
      validation is possible" — including one where the blocked URL was this
      very file. */
