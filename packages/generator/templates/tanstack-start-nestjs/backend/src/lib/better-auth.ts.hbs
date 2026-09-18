@@ -107,14 +107,40 @@ export function buildAuthOptions(): any {
       },
       user: {
         additionalFields: {
+          /*
+           * `input: false` on both, and it is load-bearing.
+           *
+           * Better Auth accepts an additional field from the client unless the
+           * field says otherwise, on sign-up AND on `updateUser`. `main.ts`
+           * forwards the whole of `/api/auth/*` to this library and blocks only
+           * `/sign-up`, so `POST /api/auth/update-user` is reachable by anyone
+           * who is signed in.
+           *
+           * `role` is not decoration: `roles.guard.ts` folds `user.role` into
+           * the caller's role set and `dictionary-write.guard.ts` does the same.
+           * Without this flag, `{"role":"admin"}` sent to update-user made the
+           * sender an administrator of their own application — a one-request
+           * privilege escalation in every generated application.
+           *
+           * `sysUserId` is the same shape of problem pointed at a different
+           * target: it is the link to `sys_user`, which is where the
+           * application's own roles hang, so letting a client write it lets
+           * them adopt somebody else's.
+           *
+           * Both are written server-side — by the bootstrap in `main.ts` and by
+           * the administrator-only user-management endpoint — and neither has
+           * any reason to arrive from a browser.
+           */
           role: {
             type: 'string',
             required: false,
             defaultValue: 'user',
+            input: false,
           },
           sysUserId: {
             type: 'string',
             required: false,
+            input: false,
           },
         },
       },
