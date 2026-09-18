@@ -63,13 +63,23 @@ export function buildAuthOptions(): any {
       //
       // Getting this wrong looks like a wrong password, not a misconfiguration,
       // which is why the list is deliberately generous about localhost.
+      // The localhost entries are development conveniences and are only
+      // trusted in development. Listing them unconditionally meant a deployed
+      // application accepted requests claiming a localhost origin — a slice of
+      // CSRF surface with nothing to pay for it, since nobody signs into
+      // production from http://localhost. A deployment names its real origin
+      // in CORS_ORIGIN, which is where this list should come from.
       trustedOrigins: [
         ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map((o: string) => o.trim()) : []),
-        `http://localhost:${process.env.PORT || '{{config.port}}'}`,
-        'http://localhost:{{config.frontendPort}}',
-        'http://127.0.0.1:{{config.frontendPort}}',
-        'http://localhost:3001',
-        'http://localhost:3000',
+        ...(process.env.NODE_ENV === 'production'
+          ? []
+          : [
+              `http://localhost:${process.env.PORT || '{{config.port}}'}`,
+              'http://localhost:{{config.frontendPort}}',
+              'http://127.0.0.1:{{config.frontendPort}}',
+              'http://localhost:3001',
+              'http://localhost:3000',
+            ]),
       ].filter(Boolean),
       secret: (() => {
         const s = process.env.BETTER_AUTH_SECRET;

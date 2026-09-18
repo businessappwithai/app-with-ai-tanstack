@@ -198,7 +198,18 @@ export class EntityAccessGuard implements CanActivate {
      * single-word role matched by luck, which is why a model with `manager` and
      * `member` in it showed nothing wrong.
      */
-    const foldRole = (role: string) => role.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+    /*
+     * Separators collapse to a single space rather than vanishing.
+     *
+     * Stripping them outright — `replace(/[\s\-_]+/g, '')` — folds
+     * `data_analyst` and `dataanalyst` to the same string, so two roles a model
+     * declares as distinct are enforced as one, and holding either grants both.
+     * Collapsing instead still equates the three spellings this has to equate
+     * (`computational_chemist`, `Computational Chemist`, `computational-chemist`)
+     * while keeping a word boundary that means something.
+     */
+    const foldRole = (role: string) =>
+      role.trim().toLowerCase().replace(/[\s\-_]+/g, ' ');
     const heldFolded = new Set(held.map(foldRole));
     const holdsOne = (roles: string[]) => roles.some((role) => heldFolded.has(foldRole(role)));
 
