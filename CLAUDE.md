@@ -718,6 +718,7 @@ log line still get one.
 ## The published host is written in full — `https://www.appwithai.org`
 
 Every mention of the host in all four `website/llmtext/*.txt` protocol documents
+<<<<<<< HEAD
 is the absolute URL — scheme and `www.` included — and each document carries a
 rule saying so. **`www` is canonical and the apex serves the same files**; both
 carry a certificate. That was not true for part of this project's life: `www`
@@ -726,6 +727,11 @@ apex and every client refused with ERR_CERT_COMMON_NAME_INVALID. It is a CNAME
 onto `businessappwithai.github.io` now, verified in a browser, which is what
 makes the canonical form safe to publish. A model following the specification reported a failed validator fetch
 as `[appwithai.org](https://appwithai.org)` — a Markdown link whose text
+=======
+is the absolute URL, scheme and `www.` included, and each document carries a rule
+saying so. A model following the specification reported a failed validator fetch
+as `[www.appwithai.org](https://www.appwithai.org)` — a Markdown link whose text
+>>>>>>> origin/claude/charming-bell-5uazl5
 is a bare host, which is what anything parsing that output then tries to resolve.
 These copies taught it: they used the apex `https://appwithai.org` for most URLs
 while the published ones used `www`, and both named the host without a scheme in

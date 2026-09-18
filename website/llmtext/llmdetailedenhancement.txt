@@ -2173,13 +2173,18 @@ any point. "I could not obtain the repository, therefore I could not validate"
 is a wrong inference, not an honest limitation.
 
 **Write the URL in full, every time: `https://www.appwithai.org/…`.** Scheme
+<<<<<<< HEAD
 included, never a bare host, and never under a `www.` label. Three things go wrong otherwise and
+=======
+included, `www.` included, never a bare host. Three things go wrong otherwise and
+>>>>>>> origin/claude/charming-bell-5uazl5
 all three have been observed:
 
 - **A bare host is not a URL.** `appwithai.org/guide/checker.js` is a string a
   runtime either refuses or has to guess a scheme for, and a sandboxed agent's
   HTTP client usually refuses.
 - **A Markdown link around a bare host is worse**, because it looks right.
+<<<<<<< HEAD
   `[appwithai.org](https://www.appwithai.org)` reads to a person as a working
   link and to anything parsing your output as the bare host. Write the plain
   absolute URL: this is a specification, not a web page, and nothing here is
@@ -2188,6 +2193,15 @@ all three have been observed:
   is the domain the repository's `CNAME` pins, but `https://www.appwithai.org/…`
   is the canonical form to write. Both carry a certificate now; write the
   canonical one so every reference agrees.
+=======
+  `[www.appwithai.org](https://www.appwithai.org)` reads to a person as a working
+  link and to anything parsing your output as the bare host. Write the plain
+  absolute URL: this is a specification, not a web page, and nothing here is
+  rendered.
+- **The apex is not the canonical form.** `https://appwithai.org/…` serves the
+  same files, but `https://www.appwithai.org/…` is canonical, and an environment
+  that resolves one and not the other is common enough never to rely on.
+>>>>>>> origin/claude/charming-bell-5uazl5
 
 **The same rule governs how you report a failure.** Name the exact request and
 the exact error. *"Validator retrieval failed for appwithai.org"* says neither
@@ -2197,6 +2211,7 @@ and is the difference between a reader who can reproduce your problem and one wh
 cannot. Report the URL you actually requested — not a shortened, prettified or
 linked version of it.
 
+<<<<<<< HEAD
 **Classify the failure by its exit code before you describe it.** These mean
 different things, and only one of them is about the site at all:
 
@@ -2224,6 +2239,8 @@ escaped source because it survives a reflow or a Markdown conversion, and
 because a corrupted copy then fails the hash instead of quietly becoming a
 checker that is not this one.
 
+=======
+>>>>>>> origin/claude/charming-bell-5uazl5
 **What a diagnostic gives you back.** Every diagnostic that can be placed
 carries three things, and the report prints all three:
 
@@ -2271,10 +2288,17 @@ Re-reading this text is not a precondition for running the engine it describes.
 ladder above does not answer, and it is common: an agent sandbox with no egress
 reports it as a DNS-resolution failure, or as a gateway error — 403, 407, 502 —
 from a proxy that never forwarded the request. Both read exactly like the site
+<<<<<<< HEAD
 being down, and the site is answering everyone else. `https://www.appwithai.org`
 is the canonical host and the apex `https://appwithai.org` serves the same
 files, so try both before concluding anything — and say which one you tried.
 Two refusals are the network's whole answer; one is half of it.
+=======
+being down, and the site is answering everyone else. `https://www.appwithai.org` is
+the canonical form and the one to write; the apex `https://appwithai.org`
+serves the same files, so try both before concluding anything — and say
+which one you tried. `check-model.mjs` already tries both.
+>>>>>>> origin/claude/charming-bell-5uazl5
 
 If neither answers, **the checker still runs**, because it does not need the
 network:
