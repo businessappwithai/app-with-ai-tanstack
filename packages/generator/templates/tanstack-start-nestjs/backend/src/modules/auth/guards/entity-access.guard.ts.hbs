@@ -90,9 +90,30 @@ export class EntityAccessGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
-    // No database wired means no rules to read. Failing closed here would take
-    // the whole API down over a missing optional dependency.
-    if (!this.db) return true;
+    /*
+     * No database wired means the rules cannot be read — which is not the same
+     * as there being none, and used to be treated as if it were.
+     *
+     * "Open unless closed" is the deliberate design for a table with *no rows*:
+     * it is what makes `%%rbac` additive, and an application generated from a
+     * model that declares none behaves as it did before this guard existed.
+     * That reasoning is about an answered question with an empty answer. It
+     * does not extend to an unanswered one.
+     *
+     * So a missing database is refused rather than waved through. It is a
+     * misconfiguration at startup, not a per-request condition to degrade
+     * around, and the previous behaviour meant one unwired dependency silently
+     * disabled every entity restriction in the application.
+     */
+    if (!this.db) {
+      this.logger.error(
+        'EntityAccessGuard has no DatabaseService, so %%rbac rules cannot be read. ' +
+          'Refusing rather than allowing — check the module wiring.',
+      );
+      throw new ForbiddenException(
+        'Access rules are unavailable. This is a server misconfiguration, not a permission you lack.',
+      );
+    }
 
     const request = context.switchToHttp().getRequest();
     const entity: string | undefined = request.params?.entity ?? request.params?.entityName;
@@ -114,9 +135,34 @@ export class EntityAccessGuard implements CanActivate {
         .execute();
       allowedRoles = rows.map((row: any) => row.role_name);
     } catch (error: any) {
-      // The table is created by a migration. An application whose database
-      // predates it must keep serving rather than refusing every request, so a
-      // failed lookup means "no rules", which is the unrestricted case.
+      /*
+       * A missing table and a failed query are different things, and only the
+       * first is safe to read as "no rules".
+       *
+       * `sys_operation_access` is created by a migration, so an application
+       * whose database predates it must keep serving — that is the case this
+       * catch was written for. But it caught everything, so a connection blip,
+       * a lock timeout or a permissions error on the table also resolved to
+       * "unrestricted", and a transient fault silently disabled every entity
+       * restriction for the duration.
+       *
+       * PostgreSQL says which it is: 42P01 is undefined_table. That one keeps
+       * the old behaviour. Anything else is a lookup that should have worked,
+       * and an access decision that cannot be made is a refusal.
+       */
+      const undefinedTable =
+        error?.code === '42P01' || /relation .* does not exist/i.test(error?.message ?? '');
+
+      if (!undefinedTable) {
+        this.logger.error(
+          `Operation access lookup failed for ${tableName}.${operation}, refusing: ` +
+            `${error?.message ?? error}`,
+        );
+        throw new ForbiddenException(
+          'Access rules could not be read, so the request was refused. Please retry.',
+        );
+      }
+
       this.logger.warn(
         `Operation access lookup failed for ${tableName}.${operation}: ${error?.message ?? error}`,
       );
