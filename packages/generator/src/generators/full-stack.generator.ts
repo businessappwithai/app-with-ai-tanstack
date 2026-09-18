@@ -247,6 +247,9 @@ export class FullStackGenerator {
         // The access suite drives every %%rbac rule as the role it names, so it
         // needs both the rules and the addresses the seeds gave those roles.
         compiledRbac: this.options.compiledRbac,
+        // The reports suite runs the model's own SQL against the schema this
+        // same run emitted — the one pairing nothing else checks.
+        compiledReports: this.options.compiledReports,
       });
       await testGenerator.generate(entities, relationships, outputDir);
     }

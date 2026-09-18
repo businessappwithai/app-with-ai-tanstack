@@ -1491,6 +1491,7 @@ var appwithai_language_default = {
       EML112: "Duplicate attribute - deletes the later line, keeping the stronger constraints.",
       EML114: "Foreign key not ending in _id - appends the suffix.",
       EML117: "Entity has no primary key - prepends `string id PK`.",
+      EML287: "Rule condition names a camelCase identifier - rewrites it as the snake_case column.",
       EML421: "State workflow has no initial transition - inserts `[*] --> <firstState>`.",
       EML422: "State workflow has no terminal state - appends `<lastState> --> [*]`."
     },
@@ -3360,6 +3361,21 @@ class CheckEngine {
           hint: `Declare it with %%workflow ${workflow} entity: <Entity> kind: saga trigger: rule, or correct the name.`
         });
       }
+      const condition = props.when?.trim();
+      if (condition) {
+        const camel = [
+          ...new Set((condition.match(/\b[a-z][A-Za-z0-9]*\b/g) ?? []).filter((identifier) => /[a-z][A-Z]/.test(identifier)))
+        ];
+        if (camel.length > 0) {
+          const snake = (identifier) => identifier.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+          const tested = camel.map((c) => `"${c}"`).join(", ");
+          const meant = camel.map(snake).join(", ");
+          this.error("EML287", `%%action "${name}" tests ${tested}, which no column is named.`, {
+            line: lineNo,
+            hint: `A rule reads the record being written, and every column is snake_case. ` + `Write ${meant}. A camelCase name is undefined at evaluation: the rule ` + `never fires, or — against == null — fires on every write and the entity ` + `cannot be created.`
+          });
+        }
+      }
       const known = new Set(["when", ...contract.required, ...contract.optional ?? []]);
       for (const key of Object.keys(props)) {
         if (!known.has(key)) {
@@ -4072,7 +4088,8 @@ var AUTO_FIXABLE_CODES = new Set([
   "EML001",
   "EML114",
   "EML112",
-  "EML103"
+  "EML103",
+  "EML287"
 ]);
 if (false) {}
 

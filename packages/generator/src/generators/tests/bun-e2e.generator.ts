@@ -27,6 +27,7 @@ import type {
 import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import type { CompiledRbac } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
+import type { CompiledReport } from "../../reports";
 import type { CompiledWorkflow } from "../../workflows";
 import { BaseGenerator } from "../base.generator";
 
@@ -80,6 +81,17 @@ export interface BunE2ETestGeneratorOptions {
    * naming convention, and the two would drift the first time it changed.
    */
   compiledRbac?: CompiledRbac;
+  /**
+   * The `%%report` directives the model declares, as `compileReports` returned
+   * them.
+   *
+   * The reports suite needs the model's own list because `sys_report` is what
+   * it is checking: a report the seed dropped, or one whose SQL names a column
+   * a migration renamed, is served by nothing and reported by nothing. The
+   * checker cannot catch either — it validates the directive's shape, never
+   * that the query runs against the schema the generator emitted.
+   */
+  compiledReports?: CompiledReport[];
   /** The administrator address the bootstrap creates. */
   adminEmail?: string;
 }
@@ -147,6 +159,11 @@ const SHARED_SUITES = [
   // read notification stays read. Runs after the lifecycle suites because it
   // asserts against the same promotion pipeline they exercise.
   "20-transaction-notifications.test.ts",
+  // Every %%report the model declares: seeded into sys_report, offered by the
+  // list, and actually runnable. Nothing else in this suite runs a line of the
+  // model's own SQL, and the checker that validated the directive never saw
+  // the schema the query has to match.
+  "21-reports.test.ts",
   // Last, so they measure the fullest the tables will be this run.
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",
@@ -214,6 +231,14 @@ export class BunE2ETestGenerator extends BaseGenerator {
       relationships,
       fkOverrides: this.buildFkOverrides(entities, relationships),
       modelEnums: this.options.modelEnums ?? [],
+      modelReports: (this.options.compiledReports ?? []).map((report) => ({
+        name: report.name,
+        title: report.title,
+        entity: report.entity ?? "",
+        chart: report.chart ?? "",
+        x: report.x ?? "",
+        y: report.y ?? "",
+      })),
       stateMachines: this.stateMachines(entities),
       ...this.accessContext(entities),
       now: new Date().toISOString(),

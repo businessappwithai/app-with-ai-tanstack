@@ -83,10 +83,37 @@ for (const name of DOCUMENTS) {
       autoFixable.filter((c) => !claimed.includes(c)).join(", ") || "none"
     })`
   );
+  /* Any spelled-out count of the auto-repairs has to be the real one.
+     This was pinned to the word "seven" and the number 7, so adding a code
+     made the check fail on documents that had already been corrected — and
+     would have passed a document that said "nine". The words are matched
+     generically and compared against AUTO_FIXABLE_CODES. */
+  const NUMBER_WORDS = [
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+    "eleven",
+    "twelve",
+  ];
+  const counted = [
+    ...prose.matchAll(/\b([a-z]+)(?: auto-repairs\b| codes are auto-fixable\b| codes: `EML)/gi),
+  ]
+    .map((match) => NUMBER_WORDS.indexOf((match[1] ?? "").toLowerCase()))
+    .filter((index) => index >= 0);
+  const miscounted = counted.filter((count) => count !== autoFixable.length);
   held(
-    !/\bseven auto-repairs\b|\bSeven codes are auto-fixable\b/i.test(prose) ||
-      autoFixable.length === 7,
-    `${name}: counts the auto-repairs correctly (checker says ${autoFixable.length})`
+    miscounted.length === 0,
+    `${name}: counts the auto-repairs correctly (checker says ${autoFixable.length}${
+      miscounted.length ? `, document says ${[...new Set(miscounted)].join(", ")}` : ""
+    })`
   );
 
   /* A cross-reference that resolves nowhere sends a reader nowhere. */

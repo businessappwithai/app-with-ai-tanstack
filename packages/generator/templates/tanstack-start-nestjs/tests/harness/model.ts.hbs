@@ -48,6 +48,41 @@ export interface StateMachine {
   edges: StateEdge[];
 }
 
+export interface ModelReport {
+  /** Name as the `%%report` directive spells it — and the row's key. */
+  name: string;
+  /** What the report is called on screen. */
+  title: string;
+  /** The entity it is about, where it names one; "" otherwise. */
+  entity: string;
+  /** Chart type, or "" for a table. */
+  chart: string;
+  /** Result columns the chart plots. Both set when `chart` is. */
+  x: string;
+  y: string;
+}
+
+/**
+ * Every `%%report` the model declares.
+ *
+ * The SQL is deliberately absent: the point of the suite that reads this is
+ * that the *application* holds the query and runs it. Carrying a second copy
+ * here would let a suite assert a report against the string it was handed
+ * rather than against the schema the query has to match.
+ */
+export const modelReports: ModelReport[] = [
+{{#each modelReports}}
+  {
+    name: "{{name}}",
+    title: {{{json title}}},
+    entity: "{{entity}}",
+    chart: "{{chart}}",
+    x: "{{x}}",
+    y: "{{y}}",
+  },
+{{/each}}
+];
+
 export const modelEnums: ModelEnum[] = [
 {{#each modelEnums}}
   {
