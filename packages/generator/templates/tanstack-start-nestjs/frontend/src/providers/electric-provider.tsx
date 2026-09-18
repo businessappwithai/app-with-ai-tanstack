@@ -25,6 +25,7 @@ import React, {
 } from "react";
 import {
   getSysCollections,
+  isShapeSyncUnavailable,
   resetSysCollections,
   SYNC_ENABLED,
   whenSysCollectionsReady,
@@ -39,7 +40,12 @@ interface ElectricContextValue {
   isSynced: boolean;
   isSyncing: boolean;
   error: Error | null;
-  /** False when VITE_ELECTRIC_SYNC is off — hooks read over HTTP instead. */
+  /**
+   * False when VITE_ELECTRIC_SYNC is off, and false once the shape proxy has
+   * said this deployment has no Electric server behind it — hooks read over
+   * HTTP instead. Both are the same answer to the same question; only one of
+   * them was configured in advance.
+   */
   isEnabled: boolean;
 }
 
@@ -73,8 +79,10 @@ export function ElectricProvider({ children, role }: ElectricProviderProps) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // No session yet: a shape request now would be unauthenticated and rejected.
-    if (!SYNC_ENABLED || !role) {
+    // No session yet: a shape request now would be unauthenticated and
+    // rejected. And once the proxy has answered "no Electric upstream", asking
+    // again on each navigation is six requests for an answer already held.
+    if (!SYNC_ENABLED || isShapeSyncUnavailable() || !role) {
       setIsSynced(false);
       return;
     }
@@ -117,7 +125,14 @@ export function ElectricProvider({ children, role }: ElectricProviderProps) {
   }, [role]);
 
   return (
-    <ElectricContext.Provider value={{ isSynced, isSyncing, error, isEnabled: SYNC_ENABLED }}>
+    <ElectricContext.Provider
+      value={{
+        isSynced,
+        isSyncing,
+        error,
+        isEnabled: SYNC_ENABLED && !isShapeSyncUnavailable(),
+      }}
+    >
       {children}
     </ElectricContext.Provider>
   );

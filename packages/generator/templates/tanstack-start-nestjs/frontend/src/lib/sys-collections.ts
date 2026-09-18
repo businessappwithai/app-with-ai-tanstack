@@ -70,6 +70,121 @@ export const SHAPE_URL: string =
 export const SYNC_ENABLED: boolean =
   String(import.meta.env.VITE_ELECTRIC_SYNC ?? 'true') !== 'false';
 
+/* -------------------------------------------------------------------------- */
+/*  "This deployment has no Electric server" — established once, then honoured  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Proxy answers that mean sync will never work here, however long we wait.
+ *
+ * 503 is the one the proxy itself returns when `ELECTRIC_URL` is unset, which
+ * is the default of every generated application: it says, in as many words,
+ * that the client should fall back to the HTTP API. 501 covers a proxy that
+ * does not implement shapes at all.
+ *
+ * Electric's own client cannot tell that apart from a server having a bad
+ * minute. Its backoff retries any 5xx with `maxRetries: Infinity`, so on a
+ * deployment without Electric each of the six collections below retried its
+ * shape request forever — a measured 18 to 26 failed requests per page load,
+ * climbing, with a console error apiece, while every screen was already
+ * reading the dictionary over HTTP and rendering correctly. The retries bought
+ * nothing and cost a third of the page's request budget.
+ *
+ * A 4xx that is not 429 is the one thing that backoff gives up on immediately,
+ * so that is what the wrapper below hands back once it knows.
+ */
+const PERMANENT_SHAPE_FAILURES = new Set([501, 503]);
+
+/** Not 429, so Electric's backoff treats it as final rather than retrying. */
+const SHAPE_GIVE_UP_STATUS = 424;
+
+/**
+ * Remembered for the tab, not just the page.
+ *
+ * Whether the deployment has an Electric server is a property of the
+ * deployment, and a full page navigation re-evaluates this module from
+ * scratch. Without somewhere to put the answer, every navigation pays the six
+ * discovery requests again. `sessionStorage` is the right scope: it clears
+ * with the tab, so a deployment that gains an Electric server is one reload
+ * away from syncing, and it never crosses to another user.
+ *
+ * Wrapped because `sessionStorage` throws outright in some privacy modes —
+ * losing the memo is a slower page, losing the dictionary is a broken one.
+ */
+const SHAPE_UNAVAILABLE_KEY = 'ad:shape-sync-unavailable';
+
+function readLatch(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.sessionStorage.getItem(SHAPE_UNAVAILABLE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+let shapeSyncUnavailable = readLatch();
+
+function latchShapeSyncUnavailable(reason: string): void {
+  if (shapeSyncUnavailable) return;
+  shapeSyncUnavailable = true;
+  try {
+    window.sessionStorage.setItem(SHAPE_UNAVAILABLE_KEY, '1');
+  } catch {
+    /* A tab that cannot remember still gets the in-memory latch. */
+  }
+  console.info(
+    `[dictionary] Electric sync unavailable (${reason}); reading the dictionary over HTTP.`
+  );
+}
+
+/**
+ * Has this deployment already told us it cannot serve shapes?
+ *
+ * Read by the provider so it can report "not syncing" without starting the
+ * discovery it already knows the answer to.
+ */
+export function isShapeSyncUnavailable(): boolean {
+  return shapeSyncUnavailable;
+}
+
+/** Test seam: forget the latch. Not used by the application itself. */
+export function resetShapeSyncLatch(): void {
+  shapeSyncUnavailable = false;
+  try {
+    window.sessionStorage.removeItem(SHAPE_UNAVAILABLE_KEY);
+  } catch {
+    /* nothing to forget */
+  }
+}
+
+/**
+ * The credentialed fetch every shape request goes through, plus the latch.
+ *
+ * The session cookie is what the proxy reads to decide this caller's roles, so
+ * the request has to be credentialed. Asserted to `typeof fetch` because the
+ * DOM type carries static members this wrapper does not need to reimplement.
+ */
+const shapeFetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+  if (shapeSyncUnavailable) {
+    // Answered locally: the other five collections do not each need to
+    // rediscover what the first one found out.
+    return new Response(null, {
+      status: SHAPE_GIVE_UP_STATUS,
+      statusText: 'Electric sync unavailable',
+    });
+  }
+
+  const response = await fetch(input, { ...init, credentials: 'include' });
+  if (PERMANENT_SHAPE_FAILURES.has(response.status)) {
+    latchShapeSyncUnavailable(`HTTP ${response.status} from the shape proxy`);
+    return new Response(null, {
+      status: SHAPE_GIVE_UP_STATUS,
+      statusText: 'Electric sync unavailable',
+    });
+  }
+  return response;
+}) as typeof fetch;
+
 /**
  * The parts of a collection this module uses.
  *
@@ -100,12 +215,23 @@ function dictionaryCollection<T extends Row>(table: string, getKey: (row: T) => 
       shapeOptions: {
         url: SHAPE_URL,
         params: { table },
-        // The session cookie is what the proxy reads to decide this caller's
-        // roles, so the shape request has to be credentialed. Asserted to
-        // `typeof fetch` because the DOM type carries static members this
-        // wrapper does not need to reimplement.
-        fetchClient: ((input: RequestInfo | URL, init?: RequestInit) =>
-          fetch(input, { ...init, credentials: 'include' })) as typeof fetch,
+        fetchClient: shapeFetch,
+        /*
+         * Left to itself, the collection reports a failed stream with a
+         * six-line `console.error` naming this very hook as the way to stop it.
+         * On a deployment with no Electric server that is one error per
+         * collection on every page — six shouted lines describing the expected,
+         * documented, already-reported fallback, which trains everyone reading
+         * the console to ignore it.
+         *
+         * So: say nothing about the case `shapeFetch` has already accounted
+         * for, and say everything about a case it has not. An unexpected
+         * failure is still a real one and still gets printed.
+         */
+        onError: (error: unknown) => {
+          if (shapeSyncUnavailable) return;
+          console.warn(`[dictionary] shape stream for ${table} failed:`, error);
+        },
       },
       getKey,
     })
@@ -135,6 +261,10 @@ let _collections: SysCollections | null = null;
  */
 export function getSysCollections(): SysCollections | null {
   if (!SYNC_ENABLED) return null;
+  // Same answer as "switched off", reached by asking rather than by
+  // configuration. Without this the next screen builds six fresh collections
+  // and repeats a discovery this session has already finished.
+  if (shapeSyncUnavailable) return null;
   if (_collections) return _collections;
 
   _collections = {

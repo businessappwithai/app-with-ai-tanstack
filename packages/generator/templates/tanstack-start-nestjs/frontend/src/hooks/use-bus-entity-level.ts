@@ -172,6 +172,79 @@ export function useBusEntityLevel(entityName: string) {
   const localTabs = useCollectionRows<SysTab>(collections?.tabs);
   const localColumns = useCollectionRows<ColumnMetadata>(collections?.columns);
 
+  /*
+   * The dictionary lists, when they have to come over HTTP.
+   *
+   * One query per list, keyed by the list rather than by the entity — which is
+   * the whole point. These used to be fetched inside two entity-keyed queries
+   * that each needed `sys_table`, so React Query, which caches by key, had no
+   * way to know they were the same request: every entity page fetched
+   * `/sys/tables?limit=500` twice, and the next entity page fetched it twice
+   * again. Keyed by the list, the second reader is a cache hit and so is every
+   * later screen, for the five minutes the rows stay fresh.
+   *
+   * All three are skipped entirely while the dictionary is local — the same
+   * rows are already in memory.
+   */
+  const dictionaryLists = useQueries({
+    queries: [
+      {
+        queryKey: ["sys-tables-all"],
+        queryFn: async () =>
+          (await apiClient.get<{ data: BusTableMeta[] }>("/sys/tables", { limit: 500 })).data,
+        staleTime: 5 * 60 * 1000,
+        enabled: !local,
+      },
+      {
+        queryKey: ["sys-windows-all"],
+        queryFn: async () =>
+          (await apiClient.get<{ data: BusWindowMeta[] }>("/sys/windows", { limit: 500 })).data,
+        staleTime: 5 * 60 * 1000,
+        enabled: !local,
+      },
+      {
+        queryKey: ["sys-tabs-all"],
+        queryFn: async () =>
+          (await apiClient.get<{ data: SysTab[] }>("/sys/tabs", { limit: 500 })).data,
+        staleTime: 5 * 60 * 1000,
+        enabled: !local,
+      },
+    ],
+  });
+
+  const [tablesQuery, windowsQuery, tabsQuery] = dictionaryLists;
+  const httpTables: BusTableMeta[] = (tablesQuery?.data as BusTableMeta[] | undefined) ?? [];
+  const httpWindows: BusWindowMeta[] = (windowsQuery?.data as BusWindowMeta[] | undefined) ?? [];
+  const httpTabs: SysTab[] = (tabsQuery?.data as SysTab[] | undefined) ?? [];
+
+  /*
+   * Only the child tables' own columns are needed, and most entities have no
+   * children at all — so this asks for nothing in the common case rather than
+   * pulling the whole sys_column table on every record that is opened. Keyed by
+   * the table ids, so two entities sharing a line-item table share the answer.
+   */
+  const childTableIds = local
+    ? []
+    : [...new Set(childTabRows(entityName, httpTables, httpTabs).map((t) => t.sys_table_id))].sort();
+
+  const childColumnsQuery = useQueries({
+    queries: [
+      {
+        queryKey: ["sys-columns-for-tables", childTableIds.join(",")],
+        queryFn: async () => {
+          const pages = await Promise.all(
+            childTableIds.map((tableId) =>
+              apiClient.get<{ data: ColumnMetadata[] }>("/sys/columns", { tableId, limit: 200 })
+            )
+          );
+          return pages.flatMap((page) => page.data);
+        },
+        staleTime: 5 * 60 * 1000,
+        enabled: !local && childTableIds.length > 0,
+      },
+    ],
+  })[0];
+
   const results = useQueries({
     queries: [
       {
@@ -184,65 +257,19 @@ export function useBusEntityLevel(entityName: string) {
         queryFn: () => apiClient.get<FieldMetadata[]>(`/bus/${entityName}/fields/grid`),
         staleTime: 5 * 60 * 1000,
       },
-      {
-        queryKey: ["sys-window-for-entity", entityName],
-        queryFn: async () => {
-          const resp = await apiClient.get<{ data: BusWindowMeta[] }>("/sys/windows", {
-            limit: 500,
-          });
-          const tableResp = await apiClient.get<{ data: BusTableMeta[] }>("/sys/tables", {
-            limit: 500,
-          });
-          return resolveWindowMeta(entityName, resp.data, tableResp.data);
-        },
-        staleTime: 5 * 60 * 1000,
-        // Skipped entirely while the dictionary is local — the same answer is
-        // already in memory.
-        enabled: !local,
-      },
-      {
-        /*
-         * The tab and column rows the line items are read from. Both are on the
-         * same footing as the window lookup above: a live query over rows
-         * already in memory once the dictionary has synced, two fetches before
-         * that.
-         */
-        queryKey: ["sys-child-tabs", entityName],
-        queryFn: async () => {
-          const [tablesResp, tabsResp] = await Promise.all([
-            apiClient.get<{ data: BusTableMeta[] }>("/sys/tables", { limit: 500 }),
-            apiClient.get<{ data: SysTab[] }>("/sys/tabs", { limit: 500 }),
-          ]);
-          const tables = tablesResp.data;
-          const tabs = tabsResp.data;
-          // Only the child tables' own columns are needed, and most entities
-          // have no children at all — so this asks for nothing in the common
-          // case rather than pulling the whole sys_column table on every
-          // record that is opened.
-          const childTables = [...new Set(childTabRows(entityName, tables, tabs).map((t) => t.sys_table_id))];
-          const columnPages = await Promise.all(
-            childTables.map((tableId) =>
-              apiClient.get<{ data: ColumnMetadata[] }>("/sys/columns", { tableId, limit: 200 })
-            )
-          );
-          return resolveChildTabs(
-            entityName,
-            tables,
-            tabs,
-            columnPages.flatMap((page) => page.data)
-          );
-        },
-        staleTime: 5 * 60 * 1000,
-        enabled: !local,
-      },
     ],
   });
 
-  const [formQuery, gridQuery, windowQuery, childQuery] = results;
+  const [formQuery, gridQuery] = results;
 
   const childMetas: ChildTabMeta[] = local
     ? resolveChildTabs(entityName, localTables, localTabs, localColumns)
-    : ((childQuery?.data as ChildTabMeta[] | undefined) ?? []);
+    : resolveChildTabs(
+        entityName,
+        httpTables,
+        httpTabs,
+        (childColumnsQuery?.data as ColumnMetadata[] | undefined) ?? []
+      );
 
   /*
    * A child's own field lists, on the same two endpoints the parent uses. They
@@ -267,9 +294,9 @@ export function useBusEntityLevel(entityName: string) {
 
   const windowMeta: WindowMeta | undefined = local
     ? resolveWindowMeta(entityName, localWindows, localTables)
-    : (windowQuery.data as WindowMeta | undefined);
+    : resolveWindowMeta(entityName, httpWindows, httpTables);
 
-  const windowLoading = local ? false : windowQuery.isLoading;
+  const windowLoading = local ? false : windowsQuery.isLoading || tablesQuery.isLoading;
   const isLoading = formQuery.isLoading || gridQuery.isLoading || windowLoading;
 
   const formFields: FieldMetadata[] = (formQuery.data as FieldMetadata[]) ?? [];
