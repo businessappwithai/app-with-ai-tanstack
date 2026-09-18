@@ -14,6 +14,7 @@
 // runs from `src/` under `bun run src/main.ts` but from `dist/src/` after a
 // Nest build, so any fixed depth is wrong in one of the two — which is how
 // ELECTRIC_URL could sit in .env and still read as unset in a built server.
+import { randomBytes } from 'crypto';
 import { config as loadEnv } from 'dotenv';
 import * as nodeFs from 'fs';
 import * as nodePath from 'path';
@@ -49,12 +50,33 @@ import {
 import { initAuth, getAuth } from './lib/better-auth';
 import { AuditService } from './modules/audit/audit.service';
 
+/**
+ * The bootstrap administrator's password.
+ *
+ * `ADMIN_PASSWORD` when set, and otherwise a random one that is printed once
+ * and stored nowhere it can be read back. It used to default to the literal
+ * `admin123`, which every generated application shipped with and nothing
+ * prompted anyone to change — a published password on every deployment.
+ *
+ * Must satisfy the `minPasswordLength` in src/lib/better-auth.ts. A shorter one
+ * is rejected at sign-in with "Invalid email or password", which reads as a
+ * wrong password rather than a password the server never allowed.
+ */
+function resolveAdminPassword(logger: Logger): { password: string; generated: boolean } {
+  const configured = process.env.ADMIN_PASSWORD;
+  if (configured && configured.length >= 8) return { password: configured, generated: false };
+
+  if (configured) {
+    logger.warn('ADMIN_PASSWORD is shorter than 8 characters and was ignored.');
+  }
+
+  return { password: randomBytes(18).toString('base64url'), generated: true };
+}
+
 async function ensureAdminUser(logger: Logger) {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
-  // Must satisfy the `minPasswordLength` in src/lib/better-auth.ts. A shorter
-  // default is rejected at sign-in with "Invalid email or password", which
-  // reads as a wrong password rather than a password the server never allowed.
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const { password: adminPassword, generated: adminPasswordGenerated } =
+    resolveAdminPassword(logger);
 
   const pool = process.env.DATABASE_URL
     ? new Pool({ connectionString: process.env.DATABASE_URL })
@@ -77,7 +99,27 @@ async function ensureAdminUser(logger: Logger) {
     if (!baUser) {
       await auth.api.signUpEmail({ body: { email: adminEmail, password: adminPassword, name: 'Admin User' } });
       baUser = await db.selectFrom('user').select(['id', 'role', 'sysUserId']).where('email', '=', adminEmail).executeTakeFirst();
-      logger.log(`Admin user created: ${adminEmail} (password: ${adminPassword})`);
+      /*
+       * The password is NOT logged.
+       *
+       * This line used to read `(password: ${adminPassword})`, writing the
+       * administrator's credential in plaintext into whatever collects this
+       * process's stdout — where it is shipped and retained under far weaker
+       * access control than the row it came from.
+       *
+       * A generated password still has to reach the person who ran the
+       * application, or the account is unreachable, so it is printed exactly
+       * once and only when this process invented it. A password the operator
+       * supplied is never echoed: they already have it.
+       */
+      logger.log(`Admin user created: ${adminEmail}`);
+      if (adminPasswordGenerated) {
+        logger.warn(
+          `No ADMIN_PASSWORD was set. Generated one for ${adminEmail}: ${adminPassword}\n` +
+            'This is shown once and is not recoverable. Sign in and change it, or set ' +
+            'ADMIN_PASSWORD before first boot.',
+        );
+      }
     }
 
     if (!baUser) throw new Error('Could not find or create admin Better Auth user');
