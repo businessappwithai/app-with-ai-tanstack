@@ -165,6 +165,23 @@ for (const name of DOCUMENTS) {
     /22 passed, 0 failed/.test(prose) && /[Tt]wenty-two checks/.test(prose),
     `${name}: quotes the audit's score, and the same count in words`
   );
+
+  /* Naming the exact error is only half of it — the reader also has to be able
+   * to tell which *kind* of failure it was. A shell reporting `curl: (6)` has
+   * no resolver, so every host fails identically and the result says nothing
+   * about this one; the observed behaviour was to report it as the site being
+   * unavailable. The table names the four codes that never reached the site and
+   * the one that did, so a model can classify its own failure rather than
+   * generalise from it. */
+  for (const code of ["curl: (6)", "curl: (7)", "curl: (56)"])
+    held(
+      prose.includes(code),
+      `${name}: names \`${code}\` among the failures that never reached the site`
+    );
+  held(
+    /never reached the site, so none of them is evidence it is down/.test(prose),
+    `${name}: says those failures are not evidence the site is down`
+  );
   /* Three observed failures were all one URL failing, generalised into "no
      validation is possible" — including one where the blocked URL was this
      very file. */
