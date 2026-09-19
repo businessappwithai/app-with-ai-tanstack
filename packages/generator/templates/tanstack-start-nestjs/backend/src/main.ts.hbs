@@ -259,6 +259,23 @@ function safeParse(value: string): any {
   }
 }
 
+/**
+ * TRUST_PROXY as Fastify wants it.
+ *
+ * Fastify accepts a boolean, a hop count, or a list of trusted addresses, and
+ * they mean different things — so the string is mapped rather than coerced.
+ * Anything unrecognised is handed through as an address list, which Fastify
+ * validates itself; anything absent is `false`.
+ */
+function parseTrustProxy(value: string | undefined): boolean | number | string {
+  if (!value) return false;
+  const trimmed = value.trim();
+  if (/^(true|yes|on)$/i.test(trimmed)) return true;
+  if (/^(false|no|off)$/i.test(trimmed)) return false;
+  if (/^\d+$/.test(trimmed)) return Number(trimmed);
+  return trimmed;
+}
+
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const log = getLogger('app');
@@ -301,6 +318,26 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter({
       logger: process.env.NODE_ENV === 'development',
+      /*
+       * Whether `X-Forwarded-For` may be believed.
+       *
+       * Off unless TRUST_PROXY says otherwise, and that default is the
+       * security-relevant half: with it on, any client can put whatever it
+       * likes in the header, and `req.ip` — which the rate limiter falls back
+       * to for anonymous callers, and which the audit trail records — becomes
+       * whatever the caller claims. Turn it on only where a proxy you control
+       * really does sit in front and overwrites the header.
+       *
+       * Off, `req.ip` behind a proxy is the proxy's own address. That is
+       * blunt but safe: anonymous callers share one bucket, and signed-in ones
+       * are tracked by session instead (see UserThrottlerGuard), so the case
+       * that used to break — every user in a hospital sharing one limit — does
+       * not depend on this setting being right.
+       *
+       * `TRUST_PROXY=1` trusts the immediate peer; a number trusts that many
+       * hops; a CIDR or comma-separated list trusts those addresses.
+       */
+      trustProxy: parseTrustProxy(process.env.TRUST_PROXY),
     }),
     {
       // Nest's own output — route mapping, dependency errors, shutdown — goes

@@ -8,7 +8,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { UserThrottlerGuard } from './common/guards/user-throttler.guard';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 import { DatabaseModule } from './database/database.module';
 import { SysModule } from './modules/sys/sys.module';
@@ -41,14 +42,25 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
       ],
     }),
 
-    // Rate limiting (permissive in dev/test, strict in production).
-    // THROTTLE_TTL / THROTTLE_LIMIT override the defaults — raise the limit for
-    // bulk data loads and end-to-end runs, which legitimately exceed 1000/min.
+    /*
+     * Rate limiting, per caller.
+     *
+     * The limit is per route handler per caller, and `UserThrottlerGuard`
+     * decides who a caller is: the session for anyone signed in, the source
+     * address for anyone not. That distinction is the whole point — the
+     * default tracker is the IP, and behind the reverse proxy this application
+     * is deployed with, every user has the *same* IP. A generated application
+     * refused legitimate traffic at 31 concurrent users because of it, while
+     * answering in 3ms.
+     *
+     * THROTTLE_TTL / THROTTLE_LIMIT override the defaults — raise the limit for
+     * bulk data loads and end-to-end runs, which legitimately exceed 1000/min.
+     */
     ThrottlerModule.forRoot([
       {
         ttl: Number(process.env.THROTTLE_TTL ?? 60000),
         limit: Number(
-          process.env.THROTTLE_LIMIT ?? (process.env.NODE_ENV === 'production' ? 100 : 1000),
+          process.env.THROTTLE_LIMIT ?? (process.env.NODE_ENV === 'production' ? 300 : 1000),
         ),
       },
     ]),
@@ -114,10 +126,12 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
       useClass: AuditInterceptor,
     },
 
-    // Global rate limiting guard
+    /* The only global guard, so it runs before the per-controller auth guards
+       — which is why it reads the session cookie itself rather than
+       `request.user`, and why that detail is load-bearing. */
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: UserThrottlerGuard,
     },
   ],
 })

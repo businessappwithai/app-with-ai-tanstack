@@ -15488,6 +15488,7 @@ class NestJsBackendGenerator extends BaseGenerator {
       "src/common/decorators/etag.decorator.ts",
       "src/common/filters/http-exception.filter.ts",
       "src/common/guards/etag.guard.ts",
+      "src/common/guards/user-throttler.guard.ts",
       "src/common/interceptors/logging.interceptor.ts",
       "src/common/interceptors/transform.interceptor.ts",
       "src/common/logging/logger.service.ts",
