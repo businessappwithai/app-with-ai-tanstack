@@ -49,15 +49,24 @@ interface CategoryGroup {
  * Categories with their entities, already ordered by category name server-side.
  * The dashboard renders one block per category, separated by a rule.
  */
-function useCategoryGroups() {
+/**
+ * The whole dashboard in one request.
+ *
+ * `/sys/categories/dashboard` answers with the categories, the entities inside
+ * them, the admin windows this caller may open and their role — from a single
+ * SQL statement that resolves the roles itself. It replaced two calls here
+ * (`/sys/categories/with-entities` and `/me/permissions`) over six queries.
+ */
+function useDashboard() {
   return useQuery({
-    queryKey: ['dashboard', 'categories'],
-    queryFn: () => apiClient.get<{ data: CategoryGroup[] }>('/sys/categories/with-entities'),
+    queryKey: ['dashboard'],
+    queryFn: () => apiClient.get<DashboardResponse>('/sys/categories/dashboard'),
     staleTime: 5 * 60 * 1000,
   });
 }
 
-interface PermissionsResponse {
+interface DashboardResponse {
+  data: CategoryGroup[];
   role: string;
   isMaster: boolean;
   windows: {
@@ -70,14 +79,6 @@ interface PermissionsResponse {
     category: string;
     is_read_only: boolean;
   }[];
-}
-
-function usePermissions() {
-  return useQuery<PermissionsResponse>({
-    queryKey: ['me', 'permissions'],
-    queryFn: () => apiClient.get<PermissionsResponse>('/me/permissions'),
-    staleTime: 5 * 60 * 1000,
-  });
 }
 
 function Dashlet({
@@ -145,11 +146,22 @@ function DashboardPage() {
    * browser *unscoped by role and including line items*, and their result was
    * rendered nowhere whenever any category existed. They are gone.
    */
-  const { data: categoryData, isLoading: categoriesLoading, error } = useCategoryGroups();
-  const { data: perms, isLoading: permsLoading } = usePermissions();
+  const { data: dashboard, isLoading: categoriesLoading, error } = useDashboard();
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  /*
+   * An administrator's dashboard is the Application Dictionary, not the
+   * business records.
+   *
+   * The master role exists to administer the application — define entities,
+   * grant access, write rules — and putting every business entity in front of
+   * it buried the eight cards it actually came for under twenty-six it did not.
+   * So the entity blocks start collapsed for an administrator and for nobody
+   * else, and this opens them: an administrator diagnosing a record still needs
+   * to reach one, and a screen with no way through is its own problem.
+   */
+  const [showEntitiesAsAdmin, setShowEntitiesAsAdmin] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -192,7 +204,7 @@ function DashboardPage() {
    * the map named windows that no longer existed. A window with no icon gets a
    * default one now; it is never withheld.
    */
-  const adminWindowsFromPerms = (perms?.windows ?? [])
+  const adminWindowsFromPerms = (dashboard?.windows ?? [])
     .filter((w) => w.category === 'admin' && !!w.route)
     .map((w) => ({
       name: w.name,
@@ -209,7 +221,7 @@ function DashboardPage() {
 
   // Entities grouped by category, alphabetical by category name. The search box
   // filters within each group and drops groups that end up empty.
-  const categoryGroups = (categoryData?.data ?? [])
+  const categoryGroups = (dashboard?.data ?? [])
     .map((group) => ({
       ...group,
       entities: query
@@ -224,6 +236,10 @@ function DashboardPage() {
     .filter((group) => group.entities.length > 0);
 
   const groupedEntityCount = categoryGroups.reduce((sum, g) => sum + g.entities.length, 0);
+
+  /** True for the master role only — not for a caller the dictionary has never heard of. */
+  const isAdministrator = dashboard?.isMaster === true;
+  const entitiesVisible = !isAdministrator || showEntitiesAsAdmin;
 
   return (
     <div className="min-h-screen bg-background">
@@ -314,7 +330,7 @@ function DashboardPage() {
 
         {/* Business Entities — grouped by category, ordered by category name.
             Each group is introduced by its name above a separating rule. */}
-        {!categoriesLoading && !error && groupedEntityCount > 0 && (
+        {!categoriesLoading && !error && groupedEntityCount > 0 && entitiesVisible && (
           <section data-testid="dashboard-categories">
             {categoryGroups.map((group) => (
               <div
@@ -368,6 +384,25 @@ function DashboardPage() {
           </section>
         )}
 
+        {/* The way back to the business entities, for an administrator only.
+            Everyone else sees them above and needs no control at all. */}
+        {isAdministrator && !error && groupedEntityCount > 0 && (
+          <div className="flex items-center justify-between gap-3 swiss-card p-4">
+            <p className="text-sm text-muted-foreground">
+              {showEntitiesAsAdmin
+                ? `Showing this application's ${groupedEntityCount} business entities.`
+                : `This application has ${groupedEntityCount} business entities. They are hidden here because you are signed in as an administrator.`}
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowEntitiesAsAdmin((shown) => !shown)}
+            >
+              {showEntitiesAsAdmin ? 'Hide business entities' : 'Show business entities'}
+            </Button>
+          </div>
+        )}
+
         {/* Admin / Dictionary */}
         {filteredAdmin.length > 0 && (
           <section>
@@ -405,10 +440,10 @@ function DashboardPage() {
             Administrator-only, and the server agrees independently —
             DictionaryWriteGuard refuses every non-GET on /sys from anyone else,
             so hiding it here is courtesy rather than the enforcement. */}
-        {perms?.isMaster && <PurgeBusinessData />}
+        {dashboard?.isMaster && <PurgeBusinessData />}
 
         {/* Empty search */}
-        {!categoriesLoading && !error && query && groupedEntityCount === 0 && filteredAdmin.length === 0 && (
+        {!categoriesLoading && !error && query && (groupedEntityCount === 0 || !entitiesVisible) && filteredAdmin.length === 0 && (
           <div className="swiss-card p-12 text-center">
             <Search className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
             <p className="font-semibold">No results for &ldquo;{searchQuery}&rdquo;</p>
@@ -425,7 +460,7 @@ function DashboardPage() {
           restriction restricts. Rendered as bare emptiness it reads as a
           broken build, so it says which of the two it is.
         */}
-        {!categoriesLoading && !error && !query && groupedEntityCount === 0 && (
+        {!categoriesLoading && !error && !query && groupedEntityCount === 0 && filteredAdmin.length === 0 && (
           <div className="swiss-card p-12 text-center">
             <Database className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
             <p className="font-semibold">Nothing to show</p>

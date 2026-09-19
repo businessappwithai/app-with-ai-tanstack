@@ -26,6 +26,22 @@ export class SysCategoryController {
 
   // Static routes must be declared before ':id' or they get shadowed.
 
+  /**
+   * Everything the dashboard draws, in one request and one query.
+   *
+   * On `sys/categories` because that is where the entity half already lives,
+   * and splitting it across two controllers to be tidy would cost the round
+   * trip this exists to remove. `/me/permissions` still serves the screens that
+   * only want the window grants.
+   */
+  @Get('dashboard')
+  @ApiOperation({
+    summary: 'Categories, their entities, the admin windows this caller may open, and their role',
+  })
+  async dashboard(@CurrentUser() user: CurrentUser) {
+    return this.service.dashboard(user as never);
+  }
+
   @Get('with-entities')
   @ApiOperation({
     summary: 'Categories with their entities attached, ordered by category name',

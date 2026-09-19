@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { ADDetailShell } from "@/components/admin/ad-detail-shell";
+import { EntityIconField } from "@/components/admin/entity-icon-field";
 import { TABLE_LEVEL } from "@/components/admin/ad-window-configs";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api-client";
@@ -66,7 +67,7 @@ function SetupDictionaryButton({ tableId }: { tableId: string }) {
       )}
       {status === "idle" && (
         <span className="text-xs text-amber-700 dark:text-amber-300">
-          Auto-creates sys_window, sys_tab, and sys_field records so this entity appears in the CRM
+          Auto-creates sys_window, sys_tab, and sys_field records so this entity appears in the
           application.
         </span>
       )}
@@ -80,6 +81,12 @@ function TableDetailPage() {
     <div className="flex flex-col h-full">
       <SetupDictionaryButton tableId={tableId} />
       <div className="flex-1 overflow-auto">
+        {/* Above the generic form, because it is the one field on this record
+            that is not a text box: it has a preview, a file picker and its own
+            endpoint. The form's `icon` row still edits the same column. */}
+        <div className="p-4 pb-0">
+          <EntityIconField tableId={tableId} />
+        </div>
         <ADDetailShell level={TABLE_LEVEL} recordId={tableId} parentContext={[]} />
       </div>
     </div>

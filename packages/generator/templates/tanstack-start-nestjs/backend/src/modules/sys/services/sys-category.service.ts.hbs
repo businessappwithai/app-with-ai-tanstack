@@ -14,6 +14,33 @@ import { sql } from 'kysely';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseService } from '../../../database/database.service';
 
+/** One row of the dashboard's entity half: a category, an entity, or both. */
+interface DashboardEntityRow {
+  sys_category_id: string | null;
+  category_name: string | null;
+  code: string | null;
+  category_description: string | null;
+  category_icon: string | null;
+  color: string | null;
+  seq_no: number | null;
+  sys_table_id: string | null;
+  table_name: string | null;
+  entity_name: string | null;
+  entity_description: string | null;
+  entity_icon: string | null;
+  entity_type: string | null;
+}
+
+/** One admin window this caller is granted. */
+interface DashboardWindowRow {
+  sys_window_id: string;
+  name: string;
+  route: string | null;
+  icon: string | null;
+  entity_type: string | null;
+  is_read_only: boolean;
+}
+
 export interface SysCategoryRecord {
   sys_category_id: string;
   name: string;
@@ -143,6 +170,157 @@ export class SysCategoryService {
    * Nothing the caller sends reaches this SQL. `isMaster` is a boolean and the
    * role list is bound as a parameter array.
    */
+  /**
+   * The whole dashboard, in one statement.
+   *
+   * Everything the screen draws: the categories with the entities inside them,
+   * the admin windows this caller may open, and who the caller is as far as the
+   * dictionary is concerned. One round trip, and the roles are resolved inside
+   * it rather than handed in.
+   *
+   * It replaces two HTTP calls and six queries. `/sys/categories/with-entities`
+   * was four (`sys_category`, `sys_table`, `sys_operation_access`, and
+   * `sys_tab ⋈ sys_table`), `/me/permissions` was two more (the caller's roles,
+   * then the windows granted to them) — and the second pair could not be folded
+   * into the first while the roles arrived from the session object instead of
+   * from the database.
+   *
+   * Resolving the roles in SQL is what makes one statement possible, and it is
+   * also the more correct of the two. `sys_operation_access` holds the model's
+   * spelling of a role (`billing_clerk`) and `sys_role` the displayed one
+   * (`Billing Clerk`); folding both sides here means the entity scope and the
+   * window grants are decided against the same rows, rather than against a
+   * session object that may carry either spelling or neither.
+   *
+   * Three JSON aggregates rather than a UNION of differently-shaped rows: the
+   * categories and the windows have nothing in common but the request they
+   * answer, and forcing them into one column list would mean a dozen nullable
+   * columns and a discriminator to unpick at the other end.
+   *
+   * Nothing the caller sends is interpolated. The user identity is bound, and
+   * every predicate is built from dictionary rows.
+   */
+  async dashboard(user?: { id?: string; sysUserId?: string; email?: string; isMaster?: boolean }) {
+    const sysUserId = typeof user?.sysUserId === 'string' ? user.sysUserId : null;
+    const email = typeof user?.email === 'string' ? user.email : null;
+
+    const result = await sql<{
+      categories: unknown;
+      windows: unknown;
+      is_master: boolean;
+      unscoped: boolean;
+      role_names: string[] | null;
+    }>`
+      WITH me AS (
+        SELECT su.sys_user_id
+          FROM sys_user su
+         WHERE (${sysUserId}::uuid IS NOT NULL AND su.sys_user_id = ${sysUserId}::uuid)
+            OR (${sysUserId}::uuid IS NULL AND ${email}::text IS NOT NULL AND su.email = ${email}::text)
+         LIMIT 1
+      ),
+      myroles AS (
+        SELECT r.sys_role_id, r.name, r.is_master_role
+          FROM sys_user_roles ur
+          JOIN sys_role r ON r.sys_role_id = ur.sys_role_id
+         WHERE ur.sys_user_id = (SELECT sys_user_id FROM me)
+           AND ur.is_active
+           AND r.is_active
+      ),
+      /*
+       * Two questions that are not the same question, answered separately
+       * because conflating them hid every entity from the wrong people.
+       *
+       *   unscoped   may this caller see every entity? A master role may, and
+       *              so does a caller with no dictionary identity at all —
+       *              the same fail-open the access guard takes on a database
+       *              that predates the rbac migration.
+       *   is_master  is this caller actually an administrator? Only the master
+       *              role is. A user the dictionary has never heard of is not
+       *              an administrator, they are unmapped, and the dashboard
+       *              must not treat the two alike.
+       */
+      scope AS (
+        SELECT COALESCE((SELECT bool_or(is_master_role) FROM myroles), false) AS is_master,
+               (NOT EXISTS (SELECT 1 FROM me))
+               OR COALESCE((SELECT bool_or(is_master_role) FROM myroles), false) AS unscoped
+      ),
+      /* The model's spelling and the displayed one, folded the same way
+         EntityAccessGuard folds them: case and separators both. */
+      held AS (
+        SELECT lower(regexp_replace(name, '[[:space:]_-]+', '', 'g')) AS folded FROM myroles
+      ),
+      visible AS (
+        SELECT t.sys_table_id, t.table_name, t.name, t.description, t.icon,
+               t.entity_type, t.sys_category_id
+          FROM sys_table t
+         WHERE t.is_active
+           AND (t.table_name LIKE 'bus\_%' ESCAPE '\' OR t.entity_type = 'U')
+           AND NOT EXISTS (
+                 SELECT 1 FROM sys_tab tb
+                  WHERE tb.sys_table_id = t.sys_table_id AND tb.tab_level > 0)
+           AND (
+                 (SELECT unscoped FROM scope)
+                 OR NOT EXISTS (
+                      SELECT 1 FROM sys_operation_access oa
+                       WHERE oa.table_name = t.table_name
+                         AND oa.operation = 'read' AND oa.is_active)
+                 OR EXISTS (
+                      SELECT 1 FROM sys_operation_access oa
+                       WHERE oa.table_name = t.table_name
+                         AND oa.operation = 'read' AND oa.is_active
+                         AND lower(regexp_replace(oa.role_name, '[[:space:]_-]+', '', 'g'))
+                             IN (SELECT folded FROM held))
+               )
+      ),
+      grouped AS (
+        SELECT c.sys_category_id, c.name AS category_name, c.code,
+               c.description AS category_description, c.icon AS category_icon,
+               c.color, c.seq_no,
+               v.sys_table_id, v.table_name, v.name AS entity_name,
+               v.description AS entity_description, v.icon AS entity_icon,
+               v.entity_type
+          FROM sys_category c
+          FULL OUTER JOIN visible v ON v.sys_category_id = c.sys_category_id
+         WHERE c.sys_category_id IS NULL OR c.is_active
+      ),
+      win AS (
+        SELECT DISTINCT w.sys_window_id, w.name, w.description AS route, w.icon,
+               w.entity_type, bool_and(a.is_read_only) AS is_read_only
+          FROM sys_access a
+          JOIN sys_window w ON w.sys_window_id = a.sys_window_id
+         WHERE a.sys_role_id IN (SELECT sys_role_id FROM myroles)
+           AND a.is_exclude = false
+           AND w.is_active
+         GROUP BY w.sys_window_id, w.name, w.description, w.icon, w.entity_type
+      )
+      SELECT
+        (SELECT json_agg(row_to_json(g) ORDER BY g.category_name NULLS LAST, g.entity_name)
+           FROM grouped g)                                            AS categories,
+        (SELECT json_agg(row_to_json(x) ORDER BY x.name) FROM win x)  AS windows,
+        (SELECT is_master FROM scope)                                 AS is_master,
+        (SELECT unscoped FROM scope)                                  AS unscoped,
+        (SELECT array_agg(name ORDER BY name) FROM myroles)           AS role_names
+    `.execute(this.db.kysely);
+
+    const row = result.rows[0];
+    const rows = (row?.categories as DashboardEntityRow[] | null) ?? [];
+    const windows = (row?.windows as DashboardWindowRow[] | null) ?? [];
+
+    return {
+      data: this.groupDashboardRows(rows, Boolean(row?.unscoped)),
+      windows: windows.map((w) => ({
+        sys_window_id: w.sys_window_id,
+        name: w.name,
+        route: w.route,
+        icon: w.icon ?? null,
+        category: w.entity_type === 'S' ? 'admin' : 'business',
+        is_read_only: w.is_read_only,
+      })),
+      role: row?.role_names?.[0] ?? 'user',
+      isMaster: Boolean(row?.is_master),
+    };
+  }
+
   private async dashboardRows(user?: {
     isMaster?: boolean;
     roles?: string[];
@@ -227,8 +405,14 @@ export class SysCategoryService {
     return { rows: rows.rows, unscoped };
   }
 
-  async findAllWithEntities(user?: { isMaster?: boolean; roles?: string[]; sysRoles?: string[]; role?: string }) {
-    const { rows, unscoped } = await this.dashboardRows(user);
+  /**
+   * Bucket the dashboard's entity rows into category groups.
+   *
+   * Shared by `dashboard()` and `findAllWithEntities()` so the two cannot
+   * disagree about what a group is: same ordering, same Uncategorized bucket,
+   * same rule for dropping a group a scoped reader has no entity in.
+   */
+  private groupDashboardRows(rows: DashboardEntityRow[], unscoped: boolean) {
 
     const groups = new Map<string, any>();
     const orphans: any[] = [];
@@ -299,6 +483,12 @@ export class SysCategoryService {
       return String(a.name).localeCompare(String(b.name));
     });
 
+    return result;
+  }
+
+  async findAllWithEntities(user?: { isMaster?: boolean; roles?: string[]; sysRoles?: string[]; role?: string }) {
+    const { rows, unscoped } = await this.dashboardRows(user);
+    const result = this.groupDashboardRows(rows as DashboardEntityRow[], unscoped);
     return { data: result, meta: { total: result.length } };
   }
 
