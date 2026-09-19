@@ -1118,8 +1118,18 @@ routes/
 ```
 
 The dashboard is your `%%category` directives: one block per category, heading
-and description taken from the model. An eighth block, Application Dictionary,
-is the generator's own admin surface. Above them is a **Manual** button.
+and description taken from the model. A final block, Application Dictionary, is
+the generator's own admin surface. Above them is a **Manual** button.
+
+**Both halves are scoped to the reader, and neither is a fixed list.** The
+entity blocks hold what `%%rbac … .read` lets this role see, with line items
+excluded because a child is reached through its parent; a category whose every
+entity belongs to someone else does not appear at all. The Application
+Dictionary block is the admin windows this role is granted through `sys_access`,
+so an administrator and an ordinary user see different cards there — and a
+window the dictionary defines is never withheld for want of an icon. Every
+card's icon comes from the dictionary: `sys_category.icon` for a heading,
+`sys_table.icon` for an entity, `sys_window.icon` for an admin card.
 
 ### 5.6 The manual
 

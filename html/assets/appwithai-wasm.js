@@ -1261,6 +1261,7 @@ var appwithai_language_default = {
       {
         keyword: "%%category",
         form: "%%category name: <Name>; code: <id>; description: <text>; icon: <LucideIcon>; color: <#hex>; seq: <n>; default: true; entities: <A>, <B>",
+        dashboardScope: "A category block appears on the dashboard only when the reader may read at least one entity in it: the entity list is filtered by `%%rbac ... .read` and line items are excluded, because a child is reached through its parent. The Application Dictionary block beside the categories is the admin windows the reader is granted through sys_access, so it differs by role too.",
         iconNaming: "A lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and snake_case all resolve to the same icon - LayoutGrid, layout-grid and layout_grid are one. A name lucide does not have is NOT a diagnostic (the checker does not carry lucide's catalogue) and renders a placeholder instead: `icon: flask` is the common trap, because lucide has `flask-conical` and no `flask`. Compiled to sys_category.icon and drawn beside the category heading on the dashboard.",
         status: "compiled",
         consumedBy: ["packages/generator/src/parsers/category.parser.ts"],

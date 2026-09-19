@@ -67,7 +67,7 @@ function SetupDictionaryButton({ tableId }: { tableId: string }) {
       )}
       {status === "idle" && (
         <span className="text-xs text-amber-700 dark:text-amber-300">
-          Auto-creates sys_window, sys_tab, and sys_field records so this entity appears in the CRM
+          Auto-creates sys_window, sys_tab, and sys_field records so this entity appears in the
           application.
         </span>
       )}
