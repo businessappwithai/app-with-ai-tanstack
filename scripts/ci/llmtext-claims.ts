@@ -582,34 +582,13 @@ held(
  * Every mention of the host is `https://www.appwithai.org`.
  *
  * A model following these documents reported a failed validator fetch as
-<<<<<<< HEAD
- * `[appwithai.org](https://www.appwithai.org)` — a Markdown link whose text
-=======
  * `[www.appwithai.org](https://www.appwithai.org)` — a Markdown link whose text
->>>>>>> origin/claude/charming-bell-5uazl5
  * is a bare host, which is what anything parsing that output then tries to
  * resolve. The documents taught it: they named the host without a scheme in
  * prose, and these copies used the apex in most of their URLs while the
  * published ones used `www`. Both are fixed; this is what stops either
  * returning.
  *
-<<<<<<< HEAD
- * The passages that deliberately show a bad spelling are teaching material —
- * the bare host, the Markdown link around one, the `www.` label that has no
- * certificate, and the badly-reported failure — so they are dropped before the
- * scan rather than special-cased in it. A counter-example that gets
- * "corrected" stops being one, which is why they are listed rather than
- * pattern-matched.
- */
-const TEACHING = [
-  "`appwithai.org/guide/checker.js` is a string a",
-  "`[appwithai.org](https://www.appwithai.org)` reads to a person as a working",
-  "- **The apex is not the canonical form.** `https://appwithai.org/…` serves the same files and",
-  "  is the domain the repository's `CNAME` pins, but `https://www.appwithai.org/…`",
-  '*"Validator retrieval failed for appwithai.org"* says neither',
-  "  `https://appwithai.org` serves the same files, but the `www.` form is the canonical one.",
-  "is the canonical host and the apex `https://appwithai.org` serves the same",
-=======
  * The three passages that deliberately show another spelling are teaching
  * material — the rule itself and the two sentences contrasting the apex with
  * `www` — so they are dropped before the scan rather than special-cased in it.
@@ -621,8 +600,21 @@ const TEACHING = [
   "- **The apex is not the canonical form.** `https://appwithai.org/…` serves the",
   '*"Validator retrieval failed for appwithai.org"* says neither',
   "  `https://appwithai.org` serves the same files, but the `www` form is",
+  /*
+   * The same sentence, in the spelling the enhancement editions carry.
+   *
+   * They are derived, and the paragraph this line sits in comes from the
+   * deriver's own header source in the website repository rather than from the
+   * base here — so the two say the same thing with different punctuation
+   * (`www.` against `www`). Both are deliberate teaching passages contrasting
+   * the apex with the canonical host, and both have to be listed: an allowlist
+   * that covered only one made the derived document look like it had a stray
+   * bare host in it. Listed rather than shortened to their common prefix,
+   * because a prefix would quietly keep passing if either sentence changed
+   * into something that is no longer teaching.
+   */
+  "  `https://appwithai.org` serves the same files, but the `www.` form is the canonical one.",
   "the canonical form and the one to write; the apex `https://appwithai.org`",
->>>>>>> origin/claude/charming-bell-5uazl5
 ];
 
 for (const name of DOCUMENTS) {
@@ -643,11 +635,7 @@ for (const name of DOCUMENTS) {
     `${name}: carries the rule that the URL is written in full`
   );
   held(
-<<<<<<< HEAD
-    doc.includes("[appwithai.org](https://www.appwithai.org)"),
-=======
     doc.includes("[www.appwithai.org](https://www.appwithai.org)"),
->>>>>>> origin/claude/charming-bell-5uazl5
     `${name}: keeps the Markdown-link counter-example the rule is about`
   );
 }
