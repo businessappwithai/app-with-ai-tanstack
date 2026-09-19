@@ -15190,6 +15190,13 @@ function cleanJsonContent(jsonStr) {
     return jsonStr.replace(/,(\s*[}\]])/g, "$1").replace(/(\[\s*),/g, "$1");
   }
 }
+var COMMON_TEMPLATES = [
+  "src/common/filters/http-exception.filter.ts",
+  "src/common/guards/user-throttler.guard.ts",
+  "src/common/interceptors/transform.interceptor.ts",
+  "src/common/logging/logger.service.ts",
+  "src/common/pipes/zod-validation.pipe.ts"
+];
 
 class NestJsBackendGenerator extends BaseGenerator {
   options;
@@ -15251,7 +15258,6 @@ class NestJsBackendGenerator extends BaseGenerator {
   }
   async createAdditionalDirectories(outputDir) {
     const dirs2 = [
-      "src/common/decorators",
       "src/common/filters",
       "src/common/guards",
       "src/common/interceptors",
@@ -15484,22 +15490,10 @@ class NestJsBackendGenerator extends BaseGenerator {
         console.warn(`Static app file not found: ${file}`);
       }
     }
-    const commonFiles = [
-      "src/common/decorators/etag.decorator.ts",
-      "src/common/filters/http-exception.filter.ts",
-      "src/common/guards/etag.guard.ts",
-      "src/common/guards/user-throttler.guard.ts",
-      "src/common/interceptors/logging.interceptor.ts",
-      "src/common/interceptors/transform.interceptor.ts",
-      "src/common/logging/logger.service.ts",
-      "src/common/pipes/zod-validation.pipe.ts"
-    ];
-    for (const file of commonFiles) {
-      try {
-        const content = await this.renderTemplate(`${file}.hbs`, context);
-        await mkdir(dirname(join(outputDir, file)), { recursive: true });
-        await writeFile(join(outputDir, file), content);
-      } catch (_e) {}
+    for (const file of COMMON_TEMPLATES) {
+      const content = await this.renderTemplate(`${file}.hbs`, context);
+      await mkdir(dirname(join(outputDir, file)), { recursive: true });
+      await writeFile(join(outputDir, file), content);
     }
     await mkdir(join(outputDir, "src/common/logging"), { recursive: true });
     await writeFile(join(outputDir, "src/common/logging/log-spec.json"), generatedLogSpec());
