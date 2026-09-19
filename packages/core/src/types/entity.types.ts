@@ -69,6 +69,21 @@ export interface Entity {
   /** Explicit `%%index` declarations bound to this entity. */
   indexes?: EntityIndex[];
   /**
+   * What this entity looks like, from `%%entity <E> icon: <name>`.
+   *
+   * A lucide icon id — the same vocabulary `%%category icon:` uses and the
+   * same one the Application Dictionary's upload field writes into
+   * `sys_table.icon`, which is where this lands. Undefined when the model says
+   * nothing, and then the column keeps its default: an entity is never
+   * withheld from a screen for want of an icon.
+   *
+   * The name is not validated here and cannot be. The checker does not carry
+   * lucide's catalogue, so an unknown name is silent by construction — it
+   * renders the placeholder. That is what the specification warns about rather
+   * than something a diagnostic can catch.
+   */
+  icon?: string;
+  /**
    * The entity this one is a line item of, from `%%entity <E> parent: <P>`.
    *
    * A child is not a thing you navigate to. It has no window of its own and no
@@ -120,4 +135,6 @@ export const EntitySchema = z.object({
   attributes: z.array(EntityAttributeSchema),
   primaryKey: z.string(),
   timestamps: z.boolean(),
+  /** A lucide icon id from `%%entity <E> icon:`. */
+  icon: z.string().optional(),
 });

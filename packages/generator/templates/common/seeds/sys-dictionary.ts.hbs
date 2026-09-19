@@ -546,6 +546,13 @@ export async function seed(db: Kysely<any>): Promise<void> {
           amount …` used to close the string on its apostrophe and take the
           generated application's compile with it. --}}
     description: {{#if description}}{{tsString description}}{{else}}'Manage {{displayName}} records'{{/if}},
+    {{!-- `%%entity <E> icon: <name>`, or null and the card draws a default.
+          Null rather than a guess from the table's name: the model is the only
+          thing that decides what an entity looks like, and an icon invented
+          here would be indistinguishable from one the modeller chose. An
+          administrator can still set or upload one afterwards — same column,
+          through Table and Column. --}}
+    icon: {{#if icon}}{{tsString icon}}{{else}}null{{/if}},
     access_level: 'A',
     is_view: false,
     is_document: false,

@@ -379,6 +379,10 @@ export function buildModelBundle(
       description: entity.description,
       primaryKey: entity.primaryKey,
       category: categoryOf.get(entity.name) ?? "General",
+      /* `%%entity <E> icon: <name>` — a lucide id, or undefined and the card
+         draws a default. The same value the NestJS stack seeds into
+         `sys_table.icon`, so one model gives both stacks the same icons. */
+      icon: entity.icon,
       /* `%%entity <E> parent: <P>`. A child has no window and no dashboard
          card; it is reached as a tab inside its parent. */
       parentEntity: entity.parentEntity,

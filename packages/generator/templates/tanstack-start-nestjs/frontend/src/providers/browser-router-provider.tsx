@@ -6,8 +6,6 @@
  *
  * Use `useNavigate()` from '@tanstack/react-router' for navigation.
  * Use `Route.useParams()` for accessing route parameters.
- *
- * Generated: {{now}}
  */
 
 // Router is automatically provided by TanStack Start

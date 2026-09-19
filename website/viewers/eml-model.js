@@ -1223,16 +1223,18 @@ var appwithai_language_default = {
         form: "%%entity <Name> <key>: <value>",
         status: "compiled",
         consumedBy: [
-          "packages/generator/src/parsers/mermaid.parser.ts (the help: / description: key only; the rest are validated)",
+          "packages/generator/src/parsers/mermaid.parser.ts (help:/description:, icon: and parent: are compiled; prefix:, softDelete:, label: and audited: are validated only)",
           "language/checker.ts (EML160, EML161, EML162)"
         ],
-        purpose: "Attach entity-level metadata not expressible in the ERD block: the sentence that explains the entity to whoever opens its screen, plus table prefix (bus/sys), soft delete, label, icon, audited.",
+        purpose: "Attach entity-level metadata not expressible in the ERD block: the sentence that explains the entity to whoever opens its screen, the icon that represents it, the parent it is a line item of, plus table prefix (bus/sys), soft delete, label, audited.",
         examples: [
           "%%entity Account help: A company you sell to. One account holds many contacts and every deal you run with them.",
+          "%%entity Patient icon: stethoscope",
           "%%entity Order audited: true",
           "%%entity Account prefix: bus",
           "%%entity Session softDelete: false"
-        ]
+        ],
+        iconNaming: "`icon:` is a lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and snake_case all resolve to the same icon - LayoutGrid, layout-grid and layout_grid are one. A name lucide does not have is NOT a diagnostic (the checker does not carry lucide's catalogue) and renders a placeholder instead: `icon: flask` is the common trap, because lucide has `flask-conical` and no `flask`. Compiled to sys_table.icon, which is what the entity's dashboard card, its window heading and the navigation all draw. An administrator can override it afterwards in Table and Column, including by uploading an image - the same column holds both. In the browser (--standalone) stack the value is carried into model.json and served by /model, but that interface draws a text glyph and does not render it."
       },
       {
         keyword: "%%field",
@@ -8718,6 +8720,7 @@ class MermaidParser {
     const enumBindings = [];
     const fieldHelpText = [];
     const entityHelpText = new Map;
+    const entityIcons = new Map;
     const entityParents = new Map;
     for (let i = 0;i < lines.length; i++) {
       const line = lines[i] ?? "";
@@ -8742,6 +8745,9 @@ class MermaidParser {
         const entityHelp = this.parseEntityHelpDirective(trimmed);
         if (entityHelp)
           entityHelpText.set(entityHelp.entity, entityHelp.help);
+        const entityIcon = this.parseEntityIconDirective(trimmed);
+        if (entityIcon)
+          entityIcons.set(entityIcon.entity, entityIcon.icon);
         const entityParent = this.parseEntityParentDirective(trimmed);
         if (entityParent)
           entityParents.set(entityParent.entity, entityParent.parent);
@@ -8785,6 +8791,7 @@ class MermaidParser {
     }
     this.attachIndexes(entities, declaredIndexes);
     this.attachHelp(entities, fieldHelpText, entityHelpText);
+    this.attachIcons(entities, entityIcons);
     this.attachParents(entities, entityParents);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
     return { entities, relationships, enums };
@@ -8799,6 +8806,13 @@ class MermaidParser {
       const attribute = entities.find((candidate) => candidate.name === name)?.attributes.find((candidate) => candidate.name === column);
       if (attribute)
         attribute.description = help;
+    }
+  }
+  attachIcons(entities, icons) {
+    for (const [name, icon] of icons) {
+      const entity = entities.find((candidate) => candidate.name === name);
+      if (entity)
+        entity.icon = icon;
     }
   }
   attachParents(entities, parents) {
@@ -8862,6 +8876,13 @@ class MermaidParser {
       return null;
     const help = match[2].trim();
     return help ? { entity: match[1], help } : null;
+  }
+  parseEntityIconDirective(line) {
+    const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+icon\s*:\s*(.+)$/);
+    if (!match?.[1] || !match[2])
+      return null;
+    const icon = match[2].trim();
+    return icon ? { entity: match[1], icon } : null;
   }
   parseEntityParentDirective(line) {
     const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+parent\s*:\s*([A-Za-z_]\w*)\s*$/);
