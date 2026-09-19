@@ -374,7 +374,7 @@
       "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
       "%%field <Entity>.<column> help: and %%entity <Name> help: become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table. %%entity description: is the same key under its other name.",
       "%%entity <Child> parent: <Parent> makes the child a line item: no window and no dashboard card, a tab inside the parent's window instead. See masterDetail.",
-      "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled."
+      "The remaining %%entity keys (label, icon, prefix, softDelete, audited) are validated but not yet compiled. `icon` in particular: an entity's icon is not taken from the model, it is set in the running application through Application Dictionary -> Table and Column, where it may be a lucide name or an uploaded image. Only %%category carries an icon the model decides."
     ],
     "helpText": {
       "description": "The only explanation a generated application has. `%%entity <Name> help:` becomes sys_table.description and opens that entity's section of manual.html; `%%field <Entity>.<column> help:` becomes sys_column.description, the hint under the control, and the column's row in the manual. There is no second source \u2014 no hand-written tooltip, no README beside the form, no designer to ask \u2014 so a model that skips it produces an application whose manual is a table of dashes.",
@@ -1144,6 +1144,7 @@
       {
         "keyword": "%%category",
         "form": "%%category name: <Name>; code: <id>; description: <text>; icon: <LucideIcon>; color: <#hex>; seq: <n>; default: true; entities: <A>, <B>",
+        "iconNaming": "A lucide icon name (https://lucide.dev/icons). PascalCase, kebab-case and snake_case all resolve to the same icon - LayoutGrid, layout-grid and layout_grid are one. A name lucide does not have is NOT a diagnostic (the checker does not carry lucide's catalogue) and renders a placeholder instead: `icon: flask` is the common trap, because lucide has `flask-conical` and no `flask`. Compiled to sys_category.icon and drawn beside the category heading on the dashboard.",
         "status": "compiled",
         "consumedBy": ["packages/generator/src/parsers/category.parser.ts"],
         "purpose": "Group business entities into a named Application Dictionary category. The dashboard renders one block per category, ordered by name; the admin dictionary maintains them. Only `name` is required; the rest are `;`-separated and may appear in any order. `code` is a stable short identifier, slugified from `name` when omitted \u2014 it is the dictionary row's key, so setting it explicitly keeps that key stable across a rename. A directive may span several lines by ending each continued line with `\\`. A model that declares none gets a single \"General\" default holding every entity.",
