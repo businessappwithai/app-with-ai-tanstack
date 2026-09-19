@@ -3,7 +3,7 @@
  */
 
 import { useNavigate } from "@tanstack/react-router";
-import { LogOut, Search } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useAuth } from "@/contexts/auth-context";
@@ -45,23 +44,19 @@ export function Header({ className }: HeaderProps) {
     <header
       className={`sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6 ${className || ""}`}
     >
-      {/* Search */}
-      <div className="flex-1">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search... (Ctrl+K)"
-              className="w-full bg-background pl-8 md:w-[300px] lg:w-[400px]"
-            />
-          </div>
-        </form>
-      </div>
+      {/*
+       * No global search box here.
+       *
+       * There was one, and it did nothing: a form whose only handler was
+       * `preventDefault()`, over an input bound to no state, placeholdered
+       * "Search... (Ctrl+K)" — a shortcut that was never wired either. A
+       * control that looks like it works and does not is worse than no
+       * control, and this application already has the two searches that mean
+       * something: the dashboard filters its own cards, and `ADToolbar`
+       * searches the records of the entity on screen. There is no endpoint a
+       * third, global one could call.
+       */}
+      <div className="flex-1" />
 
       {/* Actions */}
       <div className="flex items-center gap-2">

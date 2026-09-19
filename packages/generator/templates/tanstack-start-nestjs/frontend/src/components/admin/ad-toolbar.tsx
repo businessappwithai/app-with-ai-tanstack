@@ -10,7 +10,6 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -284,10 +283,11 @@ export function ADToolbar({
             </TooltipTrigger>
             <TooltipContent>Refresh</TooltipContent>
           </Tooltip>
-          {/* Every entity and dictionary window is drawn by one of the four AD
-              shells, and all four render this toolbar — so this is the one
-              place that puts the theme control on all of them. */}
-          <ThemeToggle />
+          {/* No theme control here any more. It was in this toolbar because the
+              four AD shells were the only chrome an entity screen had, and it
+              was the one place that could put the control on all of them.
+              `AppLayout`'s header is on every screen now, so keeping this one
+              put two theme toggles a few centimetres apart. */}
         </div>
       </div>
     </TooltipProvider>

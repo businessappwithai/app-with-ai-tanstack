@@ -12,11 +12,8 @@ import {
   Database,
   LayoutGrid,
   X,
-  LogOut,
 } from 'lucide-react';
 import { Icon } from '@/components/ui/icon';
-import { NotificationBell } from '@/components/notifications/notification-bell';
-import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { APP_NAME } from "@/lib/app-meta";
@@ -147,7 +144,7 @@ function DashboardPage() {
    * rendered nowhere whenever any category existed. They are gone.
    */
   const { data: dashboard, isLoading: categoriesLoading, error } = useDashboard();
-  const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   /*
@@ -179,13 +176,6 @@ function DashboardPage() {
 
   if (!isAuthenticated) return null;
 
-  const handleLogout = async () => {
-    await logout();
-    navigate({ to: '/auth/login' });
-  };
-
-  const getInitials = (name: string) =>
-    name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
 
 
@@ -244,61 +234,48 @@ function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-card border-b border-border">
-        <div className="container-swiss">
-          <div className="flex h-14 items-center justify-between gap-2">
-            <div className="flex min-w-0 items-center gap-3">
-              <h1 className="font-display truncate text-xl font-semibold text-foreground">{APP_NAME}</h1>
-            </div>
-            <div className="flex min-w-0 items-center gap-3">
-              {/* The search box shrinks rather than pushing the account
-                  controls off-screen — a fixed width overflowed the header on
-                  a 375px viewport. */}
-              <div className="relative min-w-0 flex-1 sm:flex-none">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="swiss-input h-9 w-full pl-9 pr-8 text-sm sm:w-56"
-                />
-                <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-              {user && (
-                <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium">
-                      {getInitials(user.name)}
-                    </div>
-                    <span className="text-sm font-medium text-foreground hidden md:inline">{user.name}</span>
-                  </div>
-                  {/* Beside Log out, where a user looks for what just
-                      happened to the record they saved. */}
-                  <NotificationBell />
-                  <ThemeToggle />
-                  <button
-                    onClick={handleLogout}
-                    className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                    title="Log out"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      {/*
+        * No page header here any more.
+        *
+        * This screen used to draw its own: the application name, a search box,
+        * the avatar, the notification bell, the theme toggle and a log-out
+        * button. `AppLayout` now provides all of that on every screen, so
+        * keeping this one meant two stacked headers on the dashboard and none
+        * anywhere else — a reader who opened a record lost the bell and the
+        * way out until they navigated back.
+        *
+        * The search box is the exception and it stays, moved into the page
+        * below. It is not a global search: it filters the cards on this
+        * screen, which is a different thing from the record search `ADToolbar`
+        * runs on an entity, and there is no third meaning for it to have.
+        */}
 
       <main className="container-swiss py-8 space-y-10">
+        {/* The card filter. Its own control on the page rather than chrome in
+            a header, because that is what it is: it narrows what is shown
+            below and means nothing anywhere else in the application. */}
+        <div className="relative max-w-sm">
+          <input
+            type="text"
+            placeholder="Filter entities and screens..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="swiss-input h-9 w-full pl-9 pr-8 text-sm"
+            aria-label="Filter the cards on this screen"
+          />
+          <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              aria-label="Clear the filter"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
         {/* The manual, above everything else.
 
             Generation writes public/manual.html beside this application: every

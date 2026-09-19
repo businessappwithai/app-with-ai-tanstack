@@ -33,7 +33,7 @@
  * Generated: {{now}}
  */
 
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -47,6 +47,8 @@ import {
   Database,
   ChevronLeft,
   ChevronRight,
+  Search,
+  X,
 } from 'lucide-react';
 
 /** One entity as the dictionary describes it. */
@@ -96,6 +98,16 @@ interface NavEntry {
    */
   icon: string | null;
   description?: string;
+  /**
+   * Everything this entry can be found by, beyond its title.
+   *
+   * The physical table name is in here on purpose: somebody who has been
+   * reading the dictionary, a migration or a log line knows the entity as
+   * `bus_lab_order`, and typing that should find "Lab Order" rather than
+   * nothing. The category name is here for the same reason — "diagnostics"
+   * is a real way to look for a screen whose name you have forgotten.
+   */
+  keywords: string;
 }
 
 /**
@@ -123,6 +135,92 @@ function entityHref(table: DictionaryTable): string {
   return `/${table.name.toLowerCase().replace(/\s+/g, '-')}`;
 }
 
+/**
+ * A flattened nav entry, with the heading it came from.
+ *
+ * Search results are a flat list rather than the grouped tree: when somebody
+ * types "lab" they want the two screens that match, not seven headings with
+ * one row under two of them. The group name rides along so the result can say
+ * where the screen lives, which is the part the flattening would otherwise
+ * throw away.
+ */
+interface SearchableEntry extends NavEntry {
+  group: string;
+}
+
+/** Case- and punctuation-insensitive, so "Lab Order" is found by "laborder". */
+function fold(value: string): string {
+  return value.toLowerCase().replace(/[\s_-]+/g, '');
+}
+
+/**
+ * Rank: title prefix, then title substring, then anything else.
+ *
+ * Three tiers rather than a score, because the list is short and a reader can
+ * predict three. Typing "pa" should put Patient and Payment above Imaging
+ * Report — all three contain the letters, only two start with them.
+ */
+function rank(entry: SearchableEntry, needle: string): number {
+  const title = fold(entry.title);
+  if (title.startsWith(needle)) return 0;
+  if (title.includes(needle)) return 1;
+  if (fold(entry.keywords).includes(needle)) return 2;
+  return -1;
+}
+
+/**
+ * The title with the matched run marked.
+ *
+ * Only the title is highlighted, and only when the match is actually in it —
+ * a row matched on its table name has nothing to underline in the words on
+ * screen, and inventing a highlight there would point at the wrong letters.
+ */
+function highlight(title: string, needle: string) {
+  if (!needle) return title;
+  const folded = fold(title);
+  const at = folded.indexOf(needle);
+  if (at < 0) return title;
+
+  /*
+   * `fold` removes characters, so an index into the folded string is not an
+   * index into the original. Walk the original counting only the characters
+   * that survived folding, and the marked run lands on the letters the reader
+   * actually typed — "lab or" highlights "Lab Or", spaces included.
+   */
+  const bounds: number[] = [];
+  for (let i = 0; i < title.length; i++) {
+    if (!/[\s_-]/.test(title[i] as string)) bounds.push(i);
+  }
+  const start = bounds[at];
+  const end = bounds[at + needle.length - 1];
+  if (start === undefined || end === undefined) return title;
+
+  return (
+    <>
+      {title.slice(0, start)}
+      <mark className="bg-primary/20 text-inherit rounded-sm">
+        {title.slice(start, end + 1)}
+      </mark>
+      {title.slice(end + 1)}
+    </>
+  );
+}
+
+/**
+ * The one entry that is not from the dictionary.
+ *
+ * At module scope, not in the component body. A literal there is a new object
+ * on every render, and every `useMemo` listing it as a dependency recomputes
+ * on every keystroke — which is exactly what the memo was added to prevent.
+ */
+const DASHBOARD_ENTRY: NavEntry = {
+  title: 'Dashboard',
+  href: '/dashboard',
+  icon: null,
+  description: 'Overview and statistics',
+  keywords: 'home overview start',
+};
+
 interface SidebarProps {
   className?: string;
 }
@@ -131,6 +229,10 @@ export function Sidebar({ className }: SidebarProps) {
   const location = useLocation();
   const pathname = location.pathname;
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [query, setQuery] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
   const { data: dashboard } = useDashboard();
 
   /*
@@ -143,7 +245,7 @@ export function Sidebar({ className }: SidebarProps) {
    * of what belongs in a navigation — anything further would be this file
    * second-guessing the dictionary again.
    */
-  const groups = (dashboard?.data ?? [])
+  const groups = useMemo(() => (dashboard?.data ?? [])
     .map((group) => ({
       code: group.code,
       name: group.name,
@@ -152,9 +254,10 @@ export function Sidebar({ className }: SidebarProps) {
         href: entityHref(table),
         icon: table.icon ?? null,
         description: table.description,
+        keywords: `${table.table_name} ${group.name}`,
       })),
     }))
-    .filter((group) => group.entries.length > 0);
+    .filter((group) => group.entries.length > 0), [dashboard]);
 
   /*
    * The admin section, from `sys_access` rather than from the session's role
@@ -167,26 +270,93 @@ export function Sidebar({ className }: SidebarProps) {
    * what the screens themselves are guarded by. Asking the dictionary means the
    * navigation and the guard cannot disagree.
    */
-  const adminEntries = (dashboard?.windows ?? [])
+  const adminEntries = useMemo(() => (dashboard?.windows ?? [])
     .filter((window) => window.category === 'admin' && !!window.route)
     .map<NavEntry>((window) => ({
       title: window.name,
       href: window.route,
       icon: window.icon,
       description: window.is_read_only ? 'View only' : undefined,
-    }));
+      keywords: `${window.route} administration admin`,
+    })), [dashboard]);
 
-  const dashboardEntry: NavEntry = {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: null,
-    description: 'Overview and statistics',
+  /*
+   * Everything that can be navigated to, in the order it is drawn.
+   *
+   * Built once from the dictionary rather than per keystroke — the search is
+   * client-side precisely because the data is already here, and re-flattening
+   * twenty-eight entries on every character typed would throw that away.
+   */
+  const searchable = useMemo<SearchableEntry[]>(
+    () => [
+      { ...DASHBOARD_ENTRY, group: '' },
+      ...groups.flatMap((group) =>
+        group.entries.map((entry) => ({ ...entry, group: group.name }))
+      ),
+      ...adminEntries.map((entry) => ({ ...entry, group: 'Administration' })),
+    ],
+    [groups, adminEntries]
+  );
+
+  const needle = fold(query);
+  const isSearching = needle.length > 0;
+
+  const results = useMemo(() => {
+    if (!isSearching) return [];
+    return searchable
+      .map((entry) => ({ entry, tier: rank(entry, needle) }))
+      .filter((hit) => hit.tier >= 0)
+      .sort((a, b) => a.tier - b.tier || a.entry.title.localeCompare(b.entry.title))
+      .map((hit) => hit.entry);
+  }, [searchable, needle, isSearching]);
+
+  /* A new query means a new first result; leaving the old index would arm
+     Enter to open whatever happened to be at that position before. */
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [needle]);
+
+  const go = (href: string) => {
+    setQuery('');
+    navigate({ to: href });
+  };
+
+  /**
+   * Arrow keys move, Enter opens, Escape backs out.
+   *
+   * Escape clears a query first and only blurs when there is nothing left to
+   * clear — pressing it once should undo the typing, not throw away the focus
+   * as well and make the reader click back in.
+   */
+  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (results.length === 0) return;
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      setActiveIndex((current) => (current + step + results.length) % results.length);
+      return;
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const chosen = results[activeIndex];
+      if (chosen) go(chosen.href);
+      return;
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      if (query) setQuery('');
+      else inputRef.current?.blur();
+    }
   };
 
   return (
     <div
       className={cn(
-        'relative flex flex-col border-r bg-background',
+        /* Hidden below `md`. The sidebar is a fixed 256px (64px collapsed) and
+           a phone is 375px wide, so showing it there would leave 119px for the
+           record being read. Mobile keeps exactly what it has today — the
+           header, and the screen's own breadcrumb to navigate by. */
+        'relative hidden flex-col border-r bg-background md:flex',
         isCollapsed ? 'w-16' : 'w-64',
         'transition-all duration-300',
         className
@@ -217,13 +387,88 @@ export function Sidebar({ className }: SidebarProps) {
         </Button>
       </div>
 
+      {/*
+        * The search box. Expanded only — 64px of collapsed rail has no room
+        * for an input, and a search that silently did nothing there would be
+        * the third dead control this layout has had.
+        */}
+      {!isCollapsed && (
+        <div className="border-b px-3 py-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={onKeyDown}
+              placeholder="Search screens..."
+              className="h-9 w-full rounded-md border border-input bg-background pl-8 pr-8 text-sm outline-none focus:border-primary"
+              /* Combobox semantics, so a screen reader is told there is a list
+                 below and which row is current — without them this is an input
+                 that mysteriously changes the page when you press Enter. */
+              role="combobox"
+              aria-expanded={isSearching}
+              aria-controls="sidebar-search-results"
+              aria-activedescendant={
+                isSearching && results[activeIndex]
+                  ? `sidebar-result-${activeIndex}`
+                  : undefined
+              }
+              aria-label="Search the navigation"
+              autoComplete="off"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  inputRef.current?.focus();
+                }}
+                aria-label="Clear the search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
       <ScrollArea className="flex-1 px-2 py-4">
-        <nav className="space-y-6">
+        {isSearching ? (
+          /*
+           * Results are a flat, ranked list — not the tree with rows hidden.
+           * Filtering the tree in place leaves the headings of groups that
+           * matched nothing, and the reader counts empty sections looking for
+           * the one hit.
+           */
+          <div id="sidebar-search-results" role="listbox" aria-label="Search results" className="space-y-1">
+            {results.length === 0 ? (
+              <p className="px-4 py-6 text-center text-xs text-muted-foreground">
+                No screen matches <span className="font-medium text-foreground">{query}</span>.
+              </p>
+            ) : (
+              results.map((item, index) => (
+                <SearchResultRow
+                  key={item.href}
+                  item={item}
+                  needle={needle}
+                  index={index}
+                  isActive={index === activeIndex}
+                  onHover={() => setActiveIndex(index)}
+                  onChoose={() => go(item.href)}
+                />
+              ))
+            )}
+          </div>
+        ) : (
+          <nav className="space-y-6">
           <div className="space-y-1">
             <NavItemRow
-              item={dashboardEntry}
-              isActive={pathname === dashboardEntry.href}
+              item={DASHBOARD_ENTRY}
+              isActive={pathname === DASHBOARD_ENTRY.href}
               isCollapsed={isCollapsed}
               fallback={LayoutDashboard}
             />
@@ -265,9 +510,64 @@ export function Sidebar({ className }: SidebarProps) {
               ))}
             </div>
           )}
-        </nav>
+          </nav>
+        )}
       </ScrollArea>
     </div>
+  );
+}
+
+interface SearchResultRowProps {
+  item: SearchableEntry;
+  needle: string;
+  index: number;
+  isActive: boolean;
+  onHover: () => void;
+  onChoose: () => void;
+}
+
+/**
+ * One search result: the icon, the title with the match marked, and where it
+ * lives.
+ *
+ * `isActive` here is the keyboard cursor, not the current route — during a
+ * search the reader is choosing, and highlighting the page they are already
+ * on would fight the thing the arrow keys are moving.
+ *
+ * `onMouseEnter` moves that cursor too, so the mouse and the arrow keys never
+ * disagree about which row Enter would open.
+ */
+function SearchResultRow({
+  item,
+  needle,
+  index,
+  isActive,
+  onHover,
+  onChoose,
+}: SearchResultRowProps) {
+  return (
+    <button
+      type="button"
+      id={`sidebar-result-${index}`}
+      role="option"
+      aria-selected={isActive}
+      onMouseEnter={onHover}
+      onClick={onChoose}
+      className={cn(
+        'flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors',
+        isActive ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
+      )}
+    >
+      {item.icon ? (
+        <Icon name={item.icon} size={16} className="flex-shrink-0" />
+      ) : (
+        <Database className="h-4 w-4 flex-shrink-0" />
+      )}
+      <span className="min-w-0 flex-1 truncate">{highlight(item.title, needle)}</span>
+      {item.group && (
+        <span className="flex-shrink-0 text-xs text-muted-foreground">{item.group}</span>
+      )}
+    </button>
   );
 }
 
