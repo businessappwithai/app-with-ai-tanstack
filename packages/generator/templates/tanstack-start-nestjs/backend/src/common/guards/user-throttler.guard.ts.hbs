@@ -1,0 +1,111 @@
+/**
+ * Rate limiting, counted per caller rather than per source address.
+ *
+ * `@nestjs/throttler`'s default tracker is the request's IP:
+ *
+ *     getTracker(req) { return normalizeIp(req.ip) }
+ *
+ * and its key is `sha256(Controller-handler-name-<tracker>)`, so the budget is
+ * one bucket *per route handler, per IP*. That is the right shape for a public
+ * internet service and the wrong one for this application, which is a business
+ * system whose users arrive through a reverse proxy — the docker-compose one,
+ * a corporate gateway, an ingress controller. To Fastify they all have the
+ * same `req.ip`, so every user in the installation shares one bucket per route
+ * and the limit stops being "how fast may a person go" and becomes "how many
+ * people may there be".
+ *
+ * Measured on a generated hospital application with k6, at the production
+ * default of 100 requests per 60s: realistic journeys — a clinician opening the
+ * dashboard, an entity list and a record, one screen every eight seconds —
+ * started returning **429 at 31 concurrent users**, on `/sys/categories/dashboard`,
+ * while p95 latency was 3ms and the server was doing nothing. Thirty-one people
+ * is a small department, and the application was refusing them while idle.
+ *
+ * So the tracker is the caller's session, falling back to the IP:
+ *
+ * - **A signed-in caller** is tracked by their session token, hashed. Two
+ *   people behind one gateway now have two budgets, and 100 requests a minute
+ *   *per person per route* is what the number was always meant to mean.
+ * - **An anonymous caller** is still tracked by IP, which is the only thing
+ *   there is to track — and is exactly right for the routes anonymous callers
+ *   can reach, since sign-in is where brute force lives.
+ *
+ * The token is hashed here rather than handed to the storage as-is. The key
+ * that reaches storage is hashed again by `generateKey`, but a tracker string
+ * also reaches log lines and error paths, and a session token in either is a
+ * credential in a place nobody audits.
+ *
+ * TRUST_PROXY governs the fallback: see `main.ts`. Left off, `req.ip` is the
+ * proxy's address, and every anonymous caller shares one bucket — which is
+ * safe (it only over-restricts) but blunt. Turned on where a trusted proxy
+ * really does sit in front, the fallback becomes the client's own address.
+ */
+
+import { createHash } from 'node:crypto';
+import { Injectable } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import type { FastifyRequest } from 'fastify';
+
+/** better-auth writes the session under this name; see lib/better-auth.ts. */
+const SESSION_COOKIE = '{{projectSnake}}_app.session_token';
+
+@Injectable()
+export class UserThrottlerGuard extends ThrottlerGuard {
+  /**
+   * Who is being rate limited.
+   *
+   * Deliberately reads the raw cookie header rather than `request.user`. This
+   * guard is the application's only global guard, so it runs *before* the
+   * per-controller `SessionAuthGuard` that populates `request.user` — asking
+   * for the user here would find nothing on every request and silently fall
+   * back to the IP, which is the behaviour this class exists to replace.
+   */
+  protected async getTracker(req: Record<string, unknown>): Promise<string> {
+    const request = req as unknown as FastifyRequest;
+    const token = sessionToken(request);
+    if (token) {
+      return `u:${createHash('sha256').update(token).digest('hex').slice(0, 32)}`;
+    }
+    return `ip:${await super.getTracker(req)}`;
+  }
+}
+
+/**
+ * The caller's session token, from the cookie or a bearer header.
+ *
+ * Both are accepted because both are issued: the browser gets the cookie, and
+ * `/auth/sign-in/email` also answers with a token that API clients send as
+ * `Authorization: Bearer`. Tracking only the cookie would leave every
+ * programmatic caller sharing the anonymous IP bucket.
+ *
+ * The header is parsed by hand rather than through `request.cookies`, which is
+ * only populated once `@fastify/cookie` has run — a plugin this guard must not
+ * depend on having been registered, since being wrong here means silently
+ * reverting to per-IP limiting.
+ */
+function sessionToken(request: FastifyRequest): string | null {
+  const auth = request.headers?.authorization;
+  if (typeof auth === 'string' && auth.toLowerCase().startsWith('bearer ')) {
+    const bearer = auth.slice(7).trim();
+    if (bearer) return bearer;
+  }
+
+  const header = request.headers?.cookie;
+  if (typeof header !== 'string' || !header) return null;
+
+  for (const part of header.split(';')) {
+    const eq = part.indexOf('=');
+    if (eq < 0) continue;
+    if (part.slice(0, eq).trim() !== SESSION_COOKIE) continue;
+    const value = part.slice(eq + 1).trim();
+    /*
+     * better-auth signs the cookie as `<token>.<signature>`. Either half alone
+     * identifies the session for this purpose, but keeping the whole string
+     * means a rotated signature starts a new bucket — so take the token.
+     */
+    const token = decodeURIComponent(value).split('.')[0];
+    return token || null;
+  }
+
+  return null;
+}

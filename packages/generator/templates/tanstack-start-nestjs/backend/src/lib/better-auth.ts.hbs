@@ -154,11 +154,83 @@ export function buildAuthOptions(): any {
           },
         },
       },
+      /*
+       * Rate limiting for /api/auth/* — better-auth's own, because nothing
+       * else covers these routes.
+       *
+       * The application's Nest-level limiter (`UserThrottlerGuard`) is an
+       * APP_GUARD, so it only sees requests that go through a Nest controller.
+       * better-auth is mounted in `main.ts` as a raw Fastify route —
+       * `fastifyInstance.all('/api/auth/*', …)` — which is deliberate (its
+       * handler wants the untouched Request) and has the consequence that the
+       * guard never runs on it. Sign-in therefore accepted unlimited password
+       * guesses: a load test put 140 wrong passwords through in nine seconds
+       * and every one of them was answered.
+       *
+       * `window` is in SECONDS here, unlike THROTTLE_TTL, which Nest takes in
+       * milliseconds. Getting that wrong silently buys a 60x wider window.
+       *
+       * The custom rule on sign-in is the one that matters, and its number is a
+       * compromise rather than a maximum. Counting is per IP, and without
+       * TRUST_PROXY set every user behind the deployment's proxy counts as the
+       * same IP — so a limit tuned for one person locks out a shift change. 30
+       * a minute survives fifty nurses arriving at 7am and still reduces a
+       * password-spraying attack to half a guess a second, which is not an
+       * attack. Set TRUST_PROXY where a real proxy sits in front and the count
+       * becomes per client, which is what the number is actually for.
+       *
+       * This is a floor, not a substitute for per-account lockout, which this
+       * application does not have. Everything else under /api/auth gets the
+       * default, which is mostly the session reads the front end makes on
+       * every page.
+       */
+      rateLimit: {
+        enabled: true,
+        window: Number(process.env.AUTH_RATE_WINDOW ?? 60),
+        max: Number(process.env.AUTH_RATE_MAX ?? 120),
+        customRules: {
+          '/sign-in/email': {
+            window: Number(process.env.AUTH_SIGNIN_WINDOW ?? 60),
+            max: Number(process.env.AUTH_SIGNIN_MAX ?? 30),
+          },
+          '/sign-up/email': {
+            window: Number(process.env.AUTH_SIGNIN_WINDOW ?? 60),
+            max: Number(process.env.AUTH_SIGNUP_MAX ?? 10),
+          },
+        },
+      },
+
       advanced: {
         cookiePrefix: '{{projectSnake}}_app',
         crossSubDomainCookies: {
           enabled: false,
         },
+        /*
+         * Which address the rate limit above counts against.
+         *
+         * Only when TRUST_PROXY says a proxy really is in front, and for the
+         * same reason `main.ts` gates Fastify's own `trustProxy`: a client
+         * that may set its own `X-Forwarded-For` can give itself a fresh
+         * bucket per request, which turns a sign-in limit into decoration.
+         *
+         * Left off, better-auth counts against the connection's address —
+         * the proxy's, in a proxied deployment, so the whole installation
+         * shares one sign-in budget. That errs towards locking people out
+         * rather than towards letting an attacker through, which is the right
+         * way round for this one; set TRUST_PROXY to get per-client counting.
+         */
+        ...(process.env.TRUST_PROXY
+          ? {
+              ipAddress: {
+                ipAddressHeaders: (
+                  process.env.TRUST_PROXY_IP_HEADERS ?? 'x-forwarded-for'
+                )
+                  .split(',')
+                  .map((header) => header.trim().toLowerCase())
+                  .filter(Boolean),
+              },
+            }
+          : {}),
       },
   };
 }
