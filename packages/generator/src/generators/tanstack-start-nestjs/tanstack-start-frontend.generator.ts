@@ -777,6 +777,14 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/ad-detail-shell.tsx",
       },
       {
+        // The model assistant, and with it the whole CopilotKit tree. Reached
+        // only through `React.lazy` from src/routes/admin.tsx — which is the
+        // point of it being a separate file, so keep it out of any static
+        // import or the admin pages carry mermaid and shiki again.
+        src: "src/components/admin/model-assistant.tsx",
+        dest: "src/components/admin/model-assistant.tsx",
+      },
+      {
         // ad-detail-shell imports this, so leaving it out of the list does not
         // lose a feature quietly — it fails the generated app's build.
         src: "src/components/reports/ReportPrintModal.tsx",
@@ -1269,9 +1277,15 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const envLocalContent = `VITE_API_URL=
 VITE_BACKEND_URL=${context.config.baseUrl}
 VITE_MASTRA_URL=http://localhost:4111
-# Set VITE_ELECTRIC_URL to enable ElectricSQL real-time sync (requires ELECTRIC_URL on backend)
-# Leave empty to use HTTP API fallback
-VITE_ELECTRIC_URL=
+# Dictionary sync over ElectricSQL. The client reads VITE_ELECTRIC_SYNC, not
+# VITE_ELECTRIC_URL — the shape request goes to this application's own
+# /api/v1/shape proxy, and it is the backend's ELECTRIC_URL that names the
+# Electric server behind it.
+#
+# Left on: with no ELECTRIC_URL on the backend the proxy answers 503 once, the
+# client records that this deployment has no Electric server, and every screen
+# reads the dictionary over HTTP. Set it to false to skip that one discovery.
+VITE_ELECTRIC_SYNC=true
 # Where a built server forwards /api/*. Only read outside \`vinxi dev\`, which
 # proxies through Vite instead.
 BACKEND_URL=${context.config.baseUrl}
