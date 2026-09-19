@@ -162,6 +162,21 @@ export interface NestJsBackendOptions {
   compiledReports?: CompiledReport[];
 }
 
+/**
+ * The `src/common/**` templates every generated backend gets.
+ *
+ * Exported so `__tests__/common-templates.test.ts` can assert each one exists
+ * without re-parsing this file. The list is not allowed to name a template
+ * that is not there: see the loop that consumes it.
+ */
+export const COMMON_TEMPLATES = [
+  "src/common/filters/http-exception.filter.ts",
+  "src/common/guards/user-throttler.guard.ts",
+  "src/common/interceptors/transform.interceptor.ts",
+  "src/common/logging/logger.service.ts",
+  "src/common/pipes/zod-validation.pipe.ts",
+] as const;
+
 export class NestJsBackendGenerator extends BaseGenerator {
   private options: NestJsBackendOptions;
   private resolvedTemplateDir: string;
@@ -274,7 +289,10 @@ export class NestJsBackendGenerator extends BaseGenerator {
    */
   private async createAdditionalDirectories(outputDir: string): Promise<void> {
     const dirs = [
-      "src/common/decorators",
+      /* No `src/common/decorators`: it held the ETag decorator that was
+         never written, and creating it left every generated application with
+         an empty directory. The auth decorators live under
+         `src/modules/auth/decorators`, which is created with that module. */
       "src/common/filters",
       "src/common/guards",
       "src/common/interceptors",
@@ -637,26 +655,26 @@ export class NestJsBackendGenerator extends BaseGenerator {
       }
     }
 
-    // Common components
-    const commonFiles = [
-      "src/common/decorators/etag.decorator.ts",
-      "src/common/filters/http-exception.filter.ts",
-      "src/common/guards/etag.guard.ts",
-      "src/common/guards/user-throttler.guard.ts",
-      "src/common/interceptors/logging.interceptor.ts",
-      "src/common/interceptors/transform.interceptor.ts",
-      "src/common/logging/logger.service.ts",
-      "src/common/pipes/zod-validation.pipe.ts",
-    ];
-
-    for (const file of commonFiles) {
-      try {
-        const content = await this.renderTemplate(`${file}.hbs`, context);
-        await fs.mkdir(path.dirname(path.join(outputDir, file)), { recursive: true });
-        await fs.writeFile(path.join(outputDir, file), content);
-      } catch (_e) {
-        // Template may not exist, skip
-      }
+    /*
+     * Common components. Every entry must have a template.
+     *
+     * The loop below used to wrap this in a try/catch commented "Template may
+     * not exist, skip", and three entries had rotted behind it unnoticed:
+     * `etag.decorator.ts` and `etag.guard.ts`, for an ETag feature that was
+     * never written — the only trace left of it is `ETag` in the CORS
+     * `exposedHeaders` — and `logging.interceptor.ts`, deliberately replaced
+     * by the Fastify `onResponse` hook because an interceptor runs after the
+     * guards and so sees no 401, no 403 and none of the better-auth routes.
+     *
+     * The swallow was worse than the stale entries it hid. A Handlebars syntax
+     * error raises here too, and was indistinguishable from a missing file: the
+     * template would vanish from the generated application and the first sign
+     * of it would be a build failure somewhere else entirely.
+     */
+    for (const file of COMMON_TEMPLATES) {
+      const content = await this.renderTemplate(`${file}.hbs`, context);
+      await fs.mkdir(path.dirname(path.join(outputDir, file)), { recursive: true });
+      await fs.writeFile(path.join(outputDir, file), content);
     }
 
     // The log specification the application runs on, derived from the
