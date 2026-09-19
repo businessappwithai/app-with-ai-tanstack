@@ -10,16 +10,7 @@ import {
   Loader2,
   AlertCircle,
   Database,
-  Table2,
-  AppWindow,
-  Tag,
-  BookOpen,
   LayoutGrid,
-  ShieldCheck,
-  ScrollText,
-  Workflow,
-  Users,
-  UserCog,
   X,
   LogOut,
 } from 'lucide-react';
@@ -29,21 +20,6 @@ import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { APP_NAME } from "@/lib/app-meta";
-
-// Map admin window names from the DB to frontend icon + route
-const ADMIN_WINDOW_META: Record<string, { icon: any; href: string }> = {
-  'Table and Column':      { icon: Table2,     href: '/admin/tables' },
-  'Window, Tab and Field': { icon: AppWindow,  href: '/admin/windows' },
-  'Element':               { icon: Tag,        href: '/admin/elements' },
-  'Reference':             { icon: BookOpen,   href: '/admin/references' },
-  'Entity Category':       { icon: Tag,        href: '/admin/categories' },
-  'Field Layout Manager':  { icon: LayoutGrid, href: '/admin/fields' },
-  'Business Rules':        { icon: ShieldCheck,href: '/admin/rules' },
-  'Workflow Designer':     { icon: Workflow,   href: '/admin/workflow-definitions' },
-  'Audit Log':             { icon: ScrollText, href: '/admin/audit' },
-  'User':                  { icon: Users,      href: '/admin/users' },
-  'Role':                  { icon: UserCog,    href: '/admin/roles' },
-};
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardPage,
@@ -56,11 +32,6 @@ interface TableMetadata {
   description?: string;
   icon?: string;
   is_active: boolean;
-}
-
-interface TablesResponse {
-  data: TableMetadata[];
-  meta: { total: number; page: number; pageSize: number };
 }
 
 /** A dictionary category with the entities assigned to it. */
@@ -86,28 +57,19 @@ function useCategoryGroups() {
   });
 }
 
-function useBusTables() {
-  return useQuery({
-    queryKey: ['sys-tables', 'bus_+U'],
-    queryFn: async () => {
-      const [bus, user] = await Promise.all([
-        apiClient.get<TablesResponse>('/sys/tables?prefix=bus_'),
-        apiClient.get<TablesResponse>('/sys/tables?entity_type=U&limit=100'),
-      ]);
-      const busData = bus?.data ?? [];
-      const userData = user?.data ?? [];
-      const seen = new Set(busData.map((t: TableMetadata) => t.sys_table_id));
-      const merged = [...busData, ...userData.filter((t: TableMetadata) => !seen.has(t.sys_table_id))];
-      return { data: merged, meta: bus?.meta ?? { total: merged.length, page: 1, pageSize: merged.length } };
-    },
-    staleTime: 10 * 60 * 1000,
-  });
-}
-
 interface PermissionsResponse {
   role: string;
   isMaster: boolean;
-  windows: { sys_window_id: string; name: string; route: string; category: string; is_read_only: boolean }[];
+  windows: {
+    sys_window_id: string;
+    name: string;
+    /** The window's route, held in `sys_window.description`. */
+    route: string;
+    /** A lucide icon id, or a `data:` URI for an uploaded one. May be null. */
+    icon: string | null;
+    category: string;
+    is_read_only: boolean;
+  }[];
 }
 
 function usePermissions() {
@@ -121,14 +83,24 @@ function usePermissions() {
 function Dashlet({
   name,
   description,
-  icon: IconComp,
+  icon,
   href,
 }: {
   name: string;
   // Optional: callers deliberately pass `undefined` for a dashlet that has
   // nothing to add beyond its name.
   description?: string;
-  icon?: any;
+  /*
+   * What the dictionary says this thing looks like: a lucide icon id, or a
+   * `data:` URI for an image someone uploaded. Null when it says nothing, and
+   * then a default is drawn — a card is never withheld for want of an icon.
+   *
+   * It used to be `any`, because admin cards passed an imported React
+   * component while entity cards passed a name. Both sides read the dictionary
+   * now, so there is one kind of value and `Icon` is the only thing that has to
+   * understand it.
+   */
+  icon?: string | null;
   href: string;
 }) {
   return (
@@ -137,12 +109,8 @@ function Dashlet({
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-              {IconComp ? (
-                typeof IconComp === 'string' ? (
-                  <Icon name={IconComp} size={20} className="text-primary" />
-                ) : (
-                  <IconComp className="w-5 h-5" />
-                )
+              {icon ? (
+                <Icon name={icon} size={20} className="text-primary" />
               ) : (
                 <FileText className="w-5 h-5" />
               )}
@@ -166,8 +134,18 @@ function Dashlet({
 }
 
 function DashboardPage() {
-  const { data: tablesData, isLoading, error } = useBusTables();
-  const { data: categoryData, isLoading: categoriesLoading } = useCategoryGroups();
+  /*
+   * One query for the business section, not three.
+   *
+   * `/sys/categories/with-entities` is the whole of it: the server decides
+   * which entities are business entities, drops the line items, and scopes the
+   * result to this caller's read rights — in a single join. Two further calls
+   * used to run beside it, `/sys/tables?prefix=bus_` and
+   * `/sys/tables?entity_type=U&limit=100`, reproducing that same filter in the
+   * browser *unscoped by role and including line items*, and their result was
+   * rendered nowhere whenever any category existed. They are gone.
+   */
+  const { data: categoryData, isLoading: categoriesLoading, error } = useCategoryGroups();
   const { data: perms, isLoading: permsLoading } = usePermissions();
   const { user, isAuthenticated, isLoading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
@@ -197,26 +175,33 @@ function DashboardPage() {
   const getInitials = (name: string) =>
     name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
-  const busTables = tablesData?.data ?? [];
 
-  // Build admin dashlets from permissions
+
+  /*
+   * The admin cards, entirely from the dictionary.
+   *
+   * Name, route and icon all come off `sys_window`, and which of them appear
+   * is `sys_access` for this caller's roles — the same grant the screens
+   * themselves are guarded by, so the dashboard cannot offer a window that
+   * then refuses.
+   *
+   * This used to run each window through a hard-coded name-to-icon map and
+   * drop anything the map did not name. That is a gate, not a fallback:
+   * `System Configuration` was seeded, granted to the admin role, and missing
+   * from the dashboard for every user including master — while four entries in
+   * the map named windows that no longer existed. A window with no icon gets a
+   * default one now; it is never withheld.
+   */
   const adminWindowsFromPerms = (perms?.windows ?? [])
-    .filter(w => w.category === 'admin')
-    .map(w => {
-      const meta = ADMIN_WINDOW_META[w.name];
-      return meta ? { name: w.name, href: meta.href, icon: meta.icon, is_read_only: w.is_read_only } : null;
-    })
-    .filter(Boolean) as { name: string; href: string; icon: any; is_read_only: boolean }[];
+    .filter((w) => w.category === 'admin' && !!w.route)
+    .map((w) => ({
+      name: w.name,
+      href: w.route,
+      icon: w.icon,
+      is_read_only: w.is_read_only,
+    }));
 
   const query = searchQuery.toLowerCase().trim();
-  const filteredBus = query
-    ? busTables.filter(
-        (t) =>
-          t.name.toLowerCase().includes(query) ||
-          t.table_name.toLowerCase().includes(query) ||
-          (t.description?.toLowerCase().includes(query) ?? false),
-      )
-    : busTables;
 
   const filteredAdmin = query
     ? adminWindowsFromPerms.filter(d => d.name.toLowerCase().includes(query))
@@ -239,10 +224,6 @@ function DashboardPage() {
     .filter((group) => group.entities.length > 0);
 
   const groupedEntityCount = categoryGroups.reduce((sum, g) => sum + g.entities.length, 0);
-
-  // Fall back to the flat list only when no categories are configured at all,
-  // so an un-migrated database still shows its entities.
-  const useGroupedView = (categoryData?.data ?? []).length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -313,7 +294,7 @@ function DashboardPage() {
         <ManualBanner />
 
         {/* Loading */}
-        {(isLoading || categoriesLoading) && (
+        {categoriesLoading && (
           <div className="swiss-card p-12 text-center">
             <Loader2 className="w-8 h-8 mx-auto animate-spin text-primary" />
             <p className="text-muted-foreground mt-4 text-sm">Loading entities...</p>
@@ -333,7 +314,7 @@ function DashboardPage() {
 
         {/* Business Entities — grouped by category, ordered by category name.
             Each group is introduced by its name above a separating rule. */}
-        {!isLoading && !error && useGroupedView && groupedEntityCount > 0 && (
+        {!categoriesLoading && !error && groupedEntityCount > 0 && (
           <section data-testid="dashboard-categories">
             {categoryGroups.map((group) => (
               <div
@@ -387,30 +368,6 @@ function DashboardPage() {
           </section>
         )}
 
-        {/* Ungrouped fallback — only when no categories exist at all */}
-        {!isLoading && !error && !useGroupedView && filteredBus.length > 0 && (
-          <section>
-            <div className="flex items-center gap-2 mb-5">
-              <Database className="w-4 h-4 text-primary" />
-              <h2 className="section-header mb-0">
-                Business Entities
-              </h2>
-              <span className="font-mono-display text-muted-foreground">({filteredBus.length})</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredBus.map((table) => (
-                <Dashlet
-                  key={table.table_name}
-                  name={table.name}
-                  description={table.description || `Manage ${table.name} records`}
-                  icon={table.icon}
-                  href={`/${table.name.toLowerCase().replace(/\s+/g, '-')}`}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
         {/* Admin / Dictionary */}
         {filteredAdmin.length > 0 && (
           <section>
@@ -451,7 +408,7 @@ function DashboardPage() {
         {perms?.isMaster && <PurgeBusinessData />}
 
         {/* Empty search */}
-        {!isLoading && !error && query && groupedEntityCount === 0 && filteredBus.length === 0 && filteredAdmin.length === 0 && (
+        {!categoriesLoading && !error && query && groupedEntityCount === 0 && filteredAdmin.length === 0 && (
           <div className="swiss-card p-12 text-center">
             <Search className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
             <p className="font-semibold">No results for &ldquo;{searchQuery}&rdquo;</p>
@@ -468,7 +425,7 @@ function DashboardPage() {
           restriction restricts. Rendered as bare emptiness it reads as a
           broken build, so it says which of the two it is.
         */}
-        {!isLoading && !error && !query && groupedEntityCount === 0 && filteredBus.length === 0 && (
+        {!categoriesLoading && !error && !query && groupedEntityCount === 0 && (
           <div className="swiss-card p-12 text-center">
             <Database className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
             <p className="font-semibold">Nothing to show</p>

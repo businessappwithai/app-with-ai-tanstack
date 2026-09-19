@@ -1635,6 +1635,14 @@ export async function executeCustomValidateHooks(
         slug: "add_reports",
         template: "src/migrations/018_add_reports.ts.hbs",
       },
+      // sys_window.icon (new) and sys_table.icon (widened to TEXT) — an icon is
+      // dictionary data, and it may be a lucide name or an uploaded image.
+      // Without the window column the dashboard gated its admin cards on a
+      // hard-coded map and dropped any window the map did not name.
+      {
+        slug: "add_dictionary_icons",
+        template: "src/migrations/019_add_dictionary_icons.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This

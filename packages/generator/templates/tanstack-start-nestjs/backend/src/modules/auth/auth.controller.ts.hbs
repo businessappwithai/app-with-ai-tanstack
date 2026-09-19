@@ -72,7 +72,11 @@ export class AuthController {
       .select([
         'w.sys_window_id',
         'w.name',
+        // `description` is where the seed writes the window's route
+        // (`/admin/audit`). The column is named for what it was before windows
+        // had routes; the alias is what every reader actually wants.
         'w.description as route',
+        'w.icon',
         'w.entity_type',
         'a.is_read_only',
       ])
@@ -89,6 +93,11 @@ export class AuthController {
         sys_window_id: w.sys_window_id,
         name: w.name,
         route: w.route,
+        // A lucide icon id, or a `data:` URI for one that was uploaded. The
+        // dashboard used to carry a hard-coded name-to-icon map instead, and
+        // used it as a gate: a window the dictionary granted but the map did
+        // not name was silently missing from the dashboard.
+        icon: w.icon ?? null,
         category: w.entity_type === 'S' ? 'admin' : 'business',
         is_read_only: w.is_read_only,
       })),

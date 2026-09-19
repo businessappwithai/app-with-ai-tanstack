@@ -162,7 +162,20 @@ function getLazyIcon(id: string): ComponentType<LucideIconProps> | null {
 }
 
 /**
- * Renders a lucide icon by the name the dictionary holds.
+ * Is this an uploaded image rather than a lucide name?
+ *
+ * `data:` only. A dictionary value is written by an administrator through the
+ * dictionary screens, and letting it name an arbitrary `http(s)` source would
+ * make every icon a request to somewhere else — a tracking pixel on every
+ * dashboard, and a way to probe hosts a browser can reach that a server
+ * cannot. A `data:` URI carries its own bytes and reaches nothing.
+ */
+function isUploadedIcon(value: string): boolean {
+  return /^data:image\//i.test(value.trim());
+}
+
+/**
+ * Renders what the dictionary says: a lucide icon, or an uploaded image.
  *
  * `...props` goes to whichever of the two actually renders. Passing it only to
  * the placeholder — which is what the first version of this did — meant a
@@ -171,7 +184,29 @@ function getLazyIcon(id: string): ComponentType<LucideIconProps> | null {
  * queried by test id passed or failed on timing.
  */
 export function Icon({ name, size = 16, className, style, ...props }: IconProps) {
-  const IconComponent = useMemo(() => getLazyIcon(normalizeIconName(name)), [name]);
+  const uploaded = useMemo(() => isUploadedIcon(name), [name]);
+  const IconComponent = useMemo(
+    () => (uploaded ? null : getLazyIcon(normalizeIconName(name))),
+    [uploaded, name]
+  );
+
+  if (uploaded) {
+    return (
+      <img
+        src={name.trim()}
+        alt=""
+        // Decorative: every call site puts the name in readable text beside it,
+        // so an alt would be read out twice.
+        aria-hidden="true"
+        width={size}
+        height={size}
+        className={className}
+        style={{ width: `${size}px`, height: `${size}px`, objectFit: 'contain', ...style }}
+        {...props}
+      />
+    );
+  }
+
   const placeholder = (
     <IconPlaceholder size={size} className={className} style={style} {...props} />
   );

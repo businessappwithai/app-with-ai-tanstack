@@ -16148,6 +16148,10 @@ export async function executeCustomValidateHooks(
       {
         slug: "add_reports",
         template: "src/migrations/018_add_reports.ts.hbs"
+      },
+      {
+        slug: "add_dictionary_icons",
+        template: "src/migrations/019_add_dictionary_icons.ts.hbs"
       }
     ];
     const scaffoldSlugs = new Set(scaffold.map((m) => m.slug));

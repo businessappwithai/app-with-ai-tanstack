@@ -844,6 +844,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     {
       name: 'Business Rules',
       route: '/admin/rules',
+      icon: 'shield-check',
       help:
         'Every rule that runs when a record is written. A rule belongs to one entity and one ' +
         'operation — CREATE, UPDATE or ALL — and is evaluated as a decision table: the inputs are ' +
@@ -857,6 +858,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     {
       name: 'Workflow Designer',
       route: '/admin/workflow-definitions',
+      icon: 'workflow',
       help:
         'Everything that runs automatically on your records. Each workflow is bound to one entity ' +
         'and lists its steps in the order they run: look up a decision table, create a record on ' +
@@ -871,6 +873,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     {
       name: 'Audit Log',
       route: '/admin/audit',
+      icon: 'scroll-text',
       help:
         'The record of who changed what. One entry per insert, update and delete, holding the entity, ' +
         'the row, the user, the time and the before and after values of every column that moved.\n\n' +
@@ -882,6 +885,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     {
       name: 'Table and Column',
       route: '/admin/tables',
+      icon: 'table-2',
       help:
         'The database as the application understands it. One row per table, with its columns, their ' +
         'types, and the flags that decide behaviour everywhere else: mandatory, unique, and which ' +
@@ -895,6 +899,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     {
       name: 'Window, Tab and Field',
       route: '/admin/windows',
+      icon: 'app-window',
       help:
         'How each entity is presented. A window is one screen, a tab is one record view inside it, ' +
         'and a field is one column shown on that tab, in the order and grouping given by its sequence ' +
@@ -908,6 +913,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     {
       name: 'User',
       route: '/admin/users',
+      icon: 'users',
       help:
         'The people who can sign in, and the role each of them holds. A user with no role can ' +
         'authenticate but reach nothing, and deactivating a user ends their access without deleting ' +
@@ -918,6 +924,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     {
       name: 'Role',
       route: '/admin/roles',
+      icon: 'user-cog',
       help:
         'What each role is allowed to reach. Access is granted per window: a role either sees a ' +
         'window or does not, and can be given it read-only.\n\n' +
@@ -928,6 +935,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
     {
       name: 'System Configuration',
       route: '/admin/system-config',
+      icon: 'settings',
       help:
         'Runtime configuration that can be changed without a redeploy. AI endpoints, feature toggles, ' +
         'rate limits, logging, and CORS are managed here.\n\n' +
@@ -938,7 +946,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   ];
 
   for (const wd of adminWindowDefs) {
-    const existing = await db.selectFrom('sys_window').select(['sys_window_id', 'help']).where('name', '=', wd.name).executeTakeFirst();
+    const existing = await db.selectFrom('sys_window').select(['sys_window_id', 'help', 'icon']).where('name', '=', wd.name).executeTakeFirst();
     const windowId = existing?.sys_window_id ?? uuidv4();
     if (!existing) {
       await db.insertInto('sys_window').values({
@@ -946,6 +954,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         name: wd.name,
         description: wd.route,
         help: wd.help,
+        icon: wd.icon,
         entity_type: 'S',
         is_active: true,
         created_by: createdBy,
@@ -953,11 +962,19 @@ export async function seed(db: Kysely<any>): Promise<void> {
         created_at: now,
         updated_at: now,
       }).execute();
-    } else if (!existing.help) {
-      // Backfill only. An administrator who has rewritten this text keeps it —
-      // re-seeding is not a licence to overwrite what someone edited.
+    } else if (!existing.help || !existing.icon) {
+      /*
+       * Backfill only, per field. An administrator who has rewritten the help
+       * text or chosen their own icon keeps it — re-seeding is not a licence to
+       * overwrite what someone edited. The icon matters here beyond looks: the
+       * dashboard reads it straight from the dictionary now, so a window seeded
+       * before this column existed would otherwise show a default icon forever.
+       */
+      const patch: Record<string, unknown> = { updated_by: createdBy, updated_at: now };
+      if (!existing.help) patch.help = wd.help;
+      if (!existing.icon) patch.icon = wd.icon;
       await db.updateTable('sys_window')
-        .set({ help: wd.help, updated_by: createdBy, updated_at: now })
+        .set(patch)
         .where('sys_window_id', '=', windowId)
         .execute();
     }
