@@ -6,7 +6,12 @@
  * Generated: {{now}}
  */
 
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { sql } from 'kysely';
 import { randomUUID } from 'crypto';
 import { DatabaseService } from '../../database/database.service';
@@ -357,6 +362,115 @@ export class SysService {
     return column;
   }
 
+  /* ------------------------------------------------------------------ *
+   *  Entity icons                                                       *
+   * ------------------------------------------------------------------ */
+
+  /**
+   * What `sys_table.icon` is allowed to contain.
+   *
+   * Two shapes and nothing else: a lucide icon id, or a small image someone
+   * uploaded through the dictionary screens as a `data:` URI.
+   *
+   * This exists because the column stopped being small. It was VARCHAR(100),
+   * which put a ceiling on the damage; it is TEXT now so that an uploaded image
+   * fits, and `updateTable` spreads the request body straight into the UPDATE.
+   * Without a check here, any administrator could put a megabyte of anything in
+   * a column that the dashboard renders into an `<img src>` on every page load.
+   *
+   * What is refused, and why:
+   *
+   *   an http(s) URL   would make every dashboard a request to somebody else's
+   *                    server: a tracking pixel on every page, and a way to
+   *                    probe hosts the browser can reach that this server
+   *                    cannot. A `data:` URI carries its own bytes.
+   *   any other scheme `javascript:` is the obvious one. The allowlist is
+   *                    positive, so nothing has to be enumerated.
+   *   an unlisted type SVG, PNG, WEBP, GIF and JPEG. SVG is allowed because it
+   *                    is what an icon should be, and it is rendered through
+   *                    `<img>` rather than inlined — a script inside an SVG
+   *                    does not run when the SVG is the source of an img.
+   *   anything large   64KB decoded. An icon is drawn at 20 pixels; a file
+   *                    bigger than this is a photograph by mistake, and every
+   *                    row of it is carried in the dashboard's response.
+   */
+  private static readonly ICON_MAX_DECODED_BYTES = 64 * 1024;
+  private static readonly ICON_MEDIA_TYPES = new Set([
+    'image/svg+xml',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/jpeg',
+  ]);
+
+  validateIconValue(value: unknown): string | null {
+    // Clearing the icon is a legitimate edit: the entity falls back to the
+    // default one.
+    if (value === null || value === undefined || value === '') return null;
+    if (typeof value !== 'string') {
+      throw new BadRequestException('icon must be a string, or null to clear it');
+    }
+
+    const icon = value.trim();
+
+    if (!icon.startsWith('data:')) {
+      /*
+       * A lucide id. Not checked against lucide's catalogue — this server does
+       * not carry it, and the front end already draws a placeholder for a name
+       * it cannot resolve. What is checked is that it is a *name*: short, and
+       * made of the characters a name is made of. That is what keeps a URL, a
+       * script, or a paragraph of text out of the column.
+       */
+      if (icon.length > 64 || !/^[A-Za-z][A-Za-z0-9 _-]*$/.test(icon)) {
+        throw new BadRequestException(
+          'icon must be a lucide icon name (letters, digits, spaces, - and _; 64 characters at most) or an uploaded image',
+        );
+      }
+      return icon;
+    }
+
+    const match = /^data:([a-z+/-]+);base64,([A-Za-z0-9+/=]+)$/i.exec(icon);
+    if (!match?.[1] || !match[2]) {
+      throw new BadRequestException(
+        'an uploaded icon must be a base64 data URI, e.g. data:image/svg+xml;base64,...',
+      );
+    }
+
+    const [, mediaType, payload] = match;
+    if (!SysService.ICON_MEDIA_TYPES.has(mediaType.toLowerCase())) {
+      throw new BadRequestException(
+        `unsupported image type '${mediaType}'; use SVG, PNG, WEBP, GIF or JPEG`,
+      );
+    }
+
+    // Decoded length from the base64 length, without allocating the buffer:
+    // four characters carry three bytes, minus whatever the padding stands in
+    // for. A caller does not get to make the server materialise a large buffer
+    // just to be told it is too large.
+    const padding = payload.endsWith('==') ? 2 : payload.endsWith('=') ? 1 : 0;
+    const decoded = Math.floor((payload.length * 3) / 4) - padding;
+    if (decoded > SysService.ICON_MAX_DECODED_BYTES) {
+      throw new BadRequestException(
+        `the icon is ${Math.ceil(decoded / 1024)}KB; the limit is ${SysService.ICON_MAX_DECODED_BYTES / 1024}KB`,
+      );
+    }
+
+    return icon;
+  }
+
+  /** Set or clear one entity's icon. `null` restores the default. */
+  async setTableIcon(id: string, value: unknown) {
+    const icon = this.validateIconValue(value);
+    await this.findTableById(id);
+    await this.db.kysely
+      .updateTable('sys_table')
+      .set({ icon, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
+      .where('sys_table_id', '=', id)
+      .execute();
+    this.busService.clearMetadataCache();
+    return this.findTableById(id);
+  }
+
   async updateTable(id: string, data: Record<string, unknown>) {
     const table = await this.findTableById(id);
     if ('table_name' in data && data.table_name !== table.table_name) {
@@ -364,8 +478,16 @@ export class SysService {
       // controllers/services already generated against the old name.
       throw new ConflictException('The database table name cannot be changed after creation');
     }
+    /*
+     * This method spreads the caller's body into the UPDATE, so a dedicated
+     * endpoint for one column is only a real check if the general one honours
+     * it too. `icon` is the column that matters: it is TEXT, and the dashboard
+     * renders it into an `<img src>`.
+     */
+    const patch = { ...data };
+    if ('icon' in patch) patch.icon = this.validateIconValue(patch.icon);
     await this.db.kysely.updateTable('sys_table')
-      .set({ ...data, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
+      .set({ ...patch, updated_at: new Date().toISOString(), updated_by: 'system' } as any)
       .where('sys_table_id', '=', id)
       .execute();
     return this.findTableById(id);

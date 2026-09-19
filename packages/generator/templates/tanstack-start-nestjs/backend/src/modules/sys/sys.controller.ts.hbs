@@ -151,6 +151,31 @@ export class SysController {
     return this.sysService.updateTable(id, data);
   }
 
+  /**
+   * Set or clear the icon that represents this entity.
+   *
+   * A PUT rather than a POST: the icon is one value on the entity, and sending
+   * it twice leaves the same icon. `{"icon": null}` clears it and the entity
+   * falls back to the default.
+   *
+   * The body carries the image already encoded as a `data:` URI rather than a
+   * multipart upload, because that is what the column stores and what the
+   * dashboard renders — encoding it in the browser keeps one representation
+   * end to end instead of converting at every hop. `validateIconValue` decides
+   * what is acceptable; nothing here trusts the body.
+   *
+   * Administrator-only, like every other non-GET on this controller, through
+   * DictionaryWriteGuard.
+   */
+  @Put('tables/:id/icon')
+  @ApiOperation({ summary: "Set an entity's icon: a lucide name, an uploaded image, or null to clear" })
+  async setTableIcon(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { icon?: unknown },
+  ) {
+    return this.sysService.setTableIcon(id, body?.icon ?? null);
+  }
+
   @Delete('tables/:id')
   @ApiOperation({ summary: 'Delete table (soft-delete + DROP TABLE)' })
   async deleteTable(@Param('id', ParseUUIDPipe) id: string) {

@@ -777,6 +777,14 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/ad-detail-shell.tsx",
       },
       {
+        // The entity icon control on the Table and Column detail screen: a
+        // lucide name or an uploaded image, written to sys_table.icon.
+        // admin/table/$tableId/index.tsx imports it, so leaving it out of this
+        // list fails the generated app's build rather than losing it quietly.
+        src: "src/components/admin/entity-icon-field.tsx",
+        dest: "src/components/admin/entity-icon-field.tsx",
+      },
+      {
         // The model assistant, and with it the whole CopilotKit tree. Reached
         // only through `React.lazy` from src/routes/admin.tsx — which is the
         // point of it being a separate file, so keep it out of any static

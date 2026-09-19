@@ -17238,6 +17238,10 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/ad-detail-shell.tsx"
       },
       {
+        src: "src/components/admin/entity-icon-field.tsx",
+        dest: "src/components/admin/entity-icon-field.tsx"
+      },
+      {
         src: "src/components/admin/model-assistant.tsx",
         dest: "src/components/admin/model-assistant.tsx"
       },
