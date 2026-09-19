@@ -1,8 +1,6 @@
 
 /**
  * Dropdown Menu Component
- *
- * Generated: {{now}}
  */
 
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";

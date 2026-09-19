@@ -331,6 +331,30 @@ export function useBusEntityLevel(entityName: string) {
     [local, entityName, localWindows, localTables, httpWindows, httpTables]
   );
 
+  /*
+   * Does the dictionary have this entity at all?
+   *
+   * `/$entity` is a catch-all: any unmatched path reaches it and becomes an
+   * entity name. `/login` — the address people type, while the sign-in screen
+   * is at `/auth/login` — arrived here as the entity "login", and everything
+   * below answered for it: the field endpoints 404, `formFields` falls back to
+   * `[]`, and `ADListShell` renders a titled, empty, perfectly functional grid
+   * for a table that does not exist. A typo in a URL looked like an entity with
+   * no records.
+   *
+   * Asserted from the table list rather than from the field fetches failing: a
+   * 404 on `/bus/x/fields/form` is also what a momentary outage looks like, and
+   * "this does not exist" is a claim worth making only from a list that
+   * actually arrived. Hence the `length > 0` — an empty list is a failed fetch,
+   * not an application with no entities.
+   */
+  const tablesKnown = local ? localTables : httpTables;
+  const isUnknownEntity = useMemo(() => {
+    if (tablesKnown.length === 0) return false;
+    const candidates = [`bus_${entityName}`, `bus_${entityName.replace(/-/g, "_")}`];
+    return !tablesKnown.some((table) => candidates.includes(table.table_name));
+  }, [tablesKnown, entityName]);
+
   const windowLoading = local ? false : windowsQuery.isLoading || tablesQuery.isLoading;
   const isLoading = formQuery.isLoading || gridQuery.isLoading || windowLoading;
 
@@ -389,5 +413,5 @@ export function useBusEntityLevel(entityName: string) {
         baseRoutePath: `/${windowSlug}`,
       };
 
-  return { level, isLoading };
+  return { level, isLoading, isUnknownEntity };
 }

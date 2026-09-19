@@ -1,8 +1,6 @@
 
 /**
  * Avatar Component
- *
- * Generated: {{now}}
  */
 
 import * as AvatarPrimitive from "@radix-ui/react-avatar";

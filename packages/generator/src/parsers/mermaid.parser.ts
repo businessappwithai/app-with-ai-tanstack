@@ -140,6 +140,7 @@ export class MermaidParser {
     const enumBindings: Array<{ entity: string; column: string; enumName: string }> = [];
     const fieldHelpText: Array<{ entity: string; column: string; help: string }> = [];
     const entityHelpText = new Map<string, string>();
+    const entityIcons = new Map<string, string>();
     const entityParents = new Map<string, string>();
 
     for (let i = 0; i < lines.length; i++) {
@@ -165,6 +166,8 @@ export class MermaidParser {
         if (fieldHelp) fieldHelpText.push(fieldHelp);
         const entityHelp = this.parseEntityHelpDirective(trimmed);
         if (entityHelp) entityHelpText.set(entityHelp.entity, entityHelp.help);
+        const entityIcon = this.parseEntityIconDirective(trimmed);
+        if (entityIcon) entityIcons.set(entityIcon.entity, entityIcon.icon);
         const entityParent = this.parseEntityParentDirective(trimmed);
         if (entityParent) entityParents.set(entityParent.entity, entityParent.parent);
         continue;
@@ -220,6 +223,7 @@ export class MermaidParser {
 
     this.attachIndexes(entities, declaredIndexes);
     this.attachHelp(entities, fieldHelpText, entityHelpText);
+    this.attachIcons(entities, entityIcons);
     this.attachParents(entities, entityParents);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
 
@@ -248,6 +252,20 @@ export class MermaidParser {
         .find((candidate) => candidate.name === name)
         ?.attributes.find((candidate) => candidate.name === column);
       if (attribute) attribute.description = help;
+    }
+  }
+
+  /**
+   * Hang each `%%entity <E> icon: <name>` on the entity it names.
+   *
+   * A directive naming an entity the document does not declare is dropped, the
+   * way help text is: the checker reports it (EML141) and an entity conjured
+   * out of an icon line would be a table the schema has no place for.
+   */
+  private attachIcons(entities: Entity[], icons: Map<string, string>): void {
+    for (const [name, icon] of icons) {
+      const entity = entities.find((candidate) => candidate.name === name);
+      if (entity) entity.icon = icon;
     }
   }
 
@@ -374,6 +392,27 @@ export class MermaidParser {
     if (!match?.[1] || !match[2]) return null;
     const help = match[2].trim();
     return help ? { entity: match[1], help } : null;
+  }
+
+  /**
+   * `%%entity Patient icon: stethoscope` — what the entity looks like.
+   *
+   * A lucide icon id, landing in `sys_table.icon`, which the dashboard card,
+   * the navigation and the window heading all read. The same key the
+   * Application Dictionary's upload field writes, so a model can set an icon
+   * and an administrator can change it afterwards without the two disagreeing
+   * about where an icon lives.
+   *
+   * Deliberately not validated against a catalogue: the checker does not carry
+   * lucide's 1401 ids and a name it does not know renders a placeholder rather
+   * than failing. `icon: flask` is the trap — lucide has `flask-conical` — and
+   * the specification names it, because nothing else can.
+   */
+  private parseEntityIconDirective(line: string): { entity: string; icon: string } | null {
+    const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+icon\s*:\s*(.+)$/);
+    if (!match?.[1] || !match[2]) return null;
+    const icon = match[2].trim();
+    return icon ? { entity: match[1], icon } : null;
   }
 
   /**

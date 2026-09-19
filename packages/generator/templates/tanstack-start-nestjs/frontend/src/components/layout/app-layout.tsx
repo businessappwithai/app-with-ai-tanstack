@@ -2,8 +2,6 @@
  * App Layout Component
  *
  * Main layout wrapper for authenticated pages with sidebar and header.
- *
- * Generated: {{now}}
  */
 
 import { useNavigate } from "@tanstack/react-router";

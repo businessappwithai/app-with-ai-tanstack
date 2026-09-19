@@ -1,8 +1,6 @@
 
 /**
  * Dialog Component
- *
- * Generated: {{now}}
  */
 
 import * as DialogPrimitive from "@radix-ui/react-dialog";

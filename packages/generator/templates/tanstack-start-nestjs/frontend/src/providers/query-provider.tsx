@@ -3,8 +3,6 @@
  * TanStack Query Provider
  *
  * Wraps the app with TanStack Query (React Query) for server state management.
- *
- * Generated: {{now}}
  */
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

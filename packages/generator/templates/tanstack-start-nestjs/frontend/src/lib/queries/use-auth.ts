@@ -2,8 +2,6 @@
  * Authentication Query Hooks
  *
  * TanStack Query hooks for authentication operations.
- *
- * Generated: {{now}}
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

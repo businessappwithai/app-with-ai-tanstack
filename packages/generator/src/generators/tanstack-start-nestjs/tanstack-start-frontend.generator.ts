@@ -239,25 +239,16 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const busEntities = entities.map((entity) => entityToBusEntity(entity, declared));
 
     /*
-     * The sidebar's shortlist. Two filters, and only one of them is a heuristic:
-     * a line item is excluded because the model said so — `%%entity <Child>
-     * parent: <Parent>` gives it no window and no card, and a navigation entry
-     * would be a third place it is not supposed to appear. The single-word rule
-     * below is the shortlist's own taste and stays a guess.
+     * No shortlist any more.
+     *
+     * The sidebar used to be handed `mainEntities` — ten entities chosen here,
+     * each with an icon looked up in a hard-coded table-name map — and wrote
+     * them into the component as a literal array. It now reads
+     * `/sys/categories/dashboard` at runtime, the same statement the dashboard
+     * reads, so the navigation is whatever the Application Dictionary says this
+     * reader may open. The model's `%%entity <E> icon:` and any icon an
+     * administrator set or uploaded both reach it; neither could before.
      */
-    const lineItems = new Set(
-      entities.filter((entity) => entity.parentEntity).map((entity) => entity.name)
-    );
-    const mainEntities = busEntities
-      .filter((e) => !lineItems.has(e.name))
-      .filter((e) => !e.tableName.includes("_") || e.tableName.match(/^bus_[a-z]+$/))
-      .slice(0, 10) // Limit to top 10 main entities
-      .map((entity) => ({
-        ...entity,
-        title: entity.displayName || entity.name,
-        description: `Manage ${entity.displayName || entity.name}`,
-        icon: this.getIconForEntity(entity.tableName),
-      }));
 
     /* Same derivation the backend seed uses, so the addresses printed on the
        sign-in screen are the addresses the seed actually created. */
@@ -293,37 +284,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       projectSnake: this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "_"),
       projectKebab: this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       entities: busEntities,
-      mainEntities,
       relationships,
       now: new Date().toISOString(),
     };
-  }
-
-  private getIconForEntity(tableName: string): string {
-    // Map entity table names to appropriate Lucide icons
-    const iconMap: Record<string, string> = {
-      bus_patient: "UserCircle",
-      bus_patient_insurance: "FileCheck",
-      bus_patient_document: "FileText",
-      bus_patient_allergy: "Activity",
-      bus_insurance_provider: "Building2",
-      bus_insurance_claim: "FileCheck",
-      bus_appointment: "Calendar",
-      bus_admission: "ClipboardList",
-      bus_prescription: "Pill",
-      bus_medication: "Pill",
-      bus_lab_order: "TestTube",
-      bus_lab_result: "FileCheck",
-      bus_radiology_order: "Activity",
-      bus_radiology_report: "FileText",
-      bus_department: "Building2",
-      bus_staff: "Users",
-      bus_customer: "Building2",
-      bus_product: "Package",
-      bus_order: "ShoppingCart",
-      bus_sales_order: "Receipt",
-    };
-    return iconMap[tableName] || "FileText";
   }
 
   private async generateCoreFiles(outputDir: string, context: any): Promise<void> {
@@ -405,6 +368,16 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       await fs.writeFile(path.join(outputDir, "src/routes/auth/login.tsx"), loginPageContent);
     } catch (_e) {
       console.warn("Login page template not found");
+    }
+
+    /* `/login` → `/auth/login`. A static route, so the router prefers it to the
+       `$entity` catch-all that used to swallow the address and render an empty
+       grid for an entity named "login". */
+    try {
+      const loginRedirect = await this.component("src/routes/login.tsx");
+      await fs.writeFile(path.join(outputDir, "src/routes/login.tsx"), loginRedirect);
+    } catch (_e) {
+      console.warn("Login redirect template not found");
     }
 
     // No sign-up page. Accounts are created by an administrator from the user

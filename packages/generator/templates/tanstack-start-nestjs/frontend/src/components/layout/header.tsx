@@ -1,7 +1,5 @@
 /**
  * Header Component
- *
- * Generated: {{now}}
  */
 
 import { useNavigate } from "@tanstack/react-router";
