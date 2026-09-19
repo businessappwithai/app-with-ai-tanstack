@@ -16,7 +16,7 @@
  */
 
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { lazy, Suspense, useState } from 'react';
+import { Component, type ErrorInfo, lazy, type ReactNode, Suspense, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 
 export const Route = createFileRoute('/admin')({
@@ -53,22 +53,63 @@ function AssistantLauncher({ onOpen }: { onOpen: () => void }) {
   );
 }
 
+/**
+ * Keeps a failed assistant from taking the admin section with it.
+ *
+ * The assistant arrives as a chunk fetched on demand, and the most likely way
+ * for that fetch to fail is the ordinary one: a deploy replaced the build while
+ * this tab was open, so the hashed filename this page remembers is gone. That
+ * throws during render, and without a boundary here it propagates to the root
+ * error component — replacing every admin screen with an error page because
+ * somebody clicked a chat button.
+ *
+ * Errors from below are not caught: `<Outlet />` sits outside this, so a real
+ * fault in an admin page still reaches the root boundary that is meant to
+ * report it.
+ */
+class AssistantBoundary extends Component<
+  { children: ReactNode; onFailure: () => void },
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('[admin] the model assistant failed to load:', error, info.componentStack);
+    this.props.onFailure();
+  }
+
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
 function AdminLayout() {
-  // One-way: once the assistant has been asked for, it stays mounted for the
-  // rest of the session. Unmounting it would throw away the conversation, and
-  // the chunk is already in the browser's cache either way.
+  // Once the assistant has been asked for it stays mounted: unmounting it would
+  // throw away the conversation, and the chunk is in the browser's cache
+  // anyway. The exception is a load failure, which puts the launcher back so
+  // the next click can retry — a stale-chunk error clears on a reload, and
+  // leaving no control at all would mean the only way back is to know to
+  // refresh.
   const [assistantRequested, setAssistantRequested] = useState(false);
 
   return (
     <>
       <Outlet />
       {assistantRequested ? (
-        // No fallback: the launcher has already been replaced, and a spinner
-        // where a sidebar is about to appear reads as a fault rather than a
-        // download.
-        <Suspense fallback={null}>
-          <ModelAssistant />
-        </Suspense>
+        <AssistantBoundary onFailure={() => setAssistantRequested(false)}>
+          {/*
+           * No fallback: the launcher has already been replaced, and a spinner
+           * where a sidebar is about to appear reads as a fault rather than a
+           * download.
+           */}
+          <Suspense fallback={null}>
+            <ModelAssistant />
+          </Suspense>
+        </AssistantBoundary>
       ) : (
         <AssistantLauncher onOpen={() => setAssistantRequested(true)} />
       )}
