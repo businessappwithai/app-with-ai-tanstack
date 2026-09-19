@@ -688,7 +688,6 @@ import { check }        from "https://www.appwithai.org/guide/checker.js";
 import { checkAndFix }  from "https://www.appwithai.org/guide/fixer.js";
 ```
 
-<<<<<<< HEAD
 **A clean report is not a finished model.** Nothing in the checker requires a
 model to *have* anything: one entity with a primary key and a name is valid EML
 with no lifecycle, no rule, no access control and no help text — 0 errors, and
@@ -715,27 +714,13 @@ a second checker**: every diagnostic it reads comes from `checker.js`. Run both,
 and report both.
 
 **Write the URL in full, every time: `https://www.appwithai.org/…`.** Scheme
-included, never a bare host, and never under a `www.` label. Three things go wrong otherwise and
-=======
-**Write the URL in full, every time: `https://www.appwithai.org/…`.** Scheme
 included, `www.` included, never a bare host. Three things go wrong otherwise and
->>>>>>> origin/claude/charming-bell-5uazl5
 all three have been observed:
 
 - **A bare host is not a URL.** `appwithai.org/guide/checker.js` is a string a
   runtime either refuses or has to guess a scheme for, and a sandboxed agent's
   HTTP client usually refuses.
 - **A Markdown link around a bare host is worse**, because it looks right.
-<<<<<<< HEAD
-  `[appwithai.org](https://www.appwithai.org)` reads to a person as a working
-  link and to anything parsing your output as the bare host. Write the plain
-  absolute URL: this is a specification, not a web page, and nothing here is
-  rendered.
-- **The apex is not the canonical form.** `https://appwithai.org/…` serves the same files and
-  is the domain the repository's `CNAME` pins, but `https://www.appwithai.org/…`
-  is the canonical form to write. Both carry a certificate now; write the
-  canonical one so every reference agrees.
-=======
   `[www.appwithai.org](https://www.appwithai.org)` reads to a person as a working
   link and to anything parsing your output as the bare host. Write the plain
   absolute URL: this is a specification, not a web page, and nothing here is
@@ -743,7 +728,6 @@ all three have been observed:
 - **The apex is not the canonical form.** `https://appwithai.org/…` serves the
   same files, but `https://www.appwithai.org/…` is canonical, and an environment
   that resolves one and not the other is common enough never to rely on.
->>>>>>> origin/claude/charming-bell-5uazl5
 
 **The same rule governs how you report a failure.** Name the exact request and
 the exact error. *"Validator retrieval failed for appwithai.org"* says neither
@@ -753,7 +737,6 @@ and is the difference between a reader who can reproduce your problem and one wh
 cannot. Report the URL you actually requested — not a shortened, prettified or
 linked version of it.
 
-<<<<<<< HEAD
 **Classify the failure by its exit code before you describe it.** These mean
 different things, and only one of them is about the site at all:
 
@@ -781,8 +764,6 @@ escaped source because it survives a reflow or a Markdown conversion, and
 because a corrupted copy then fails the hash instead of quietly becoming a
 checker that is not this one.
 
-=======
->>>>>>> origin/claude/charming-bell-5uazl5
 **What a diagnostic gives you back.** Every diagnostic that can be placed
 carries three things, and the report prints all three:
 
@@ -1848,11 +1829,7 @@ not the whole truth about the file.
 | File | URL | What it is |
 |---|---|---|
 | `html/checker.js` | `https://www.appwithai.org/guide/checker.js` | every diagnostic `bun language/checker.ts` prints, as `check(source)` |
-<<<<<<< HEAD
 | `html/fixer.js` | `https://www.appwithai.org/guide/fixer.js` | the eight auto-repairs, plus `checkAndFix(source)` — repair and re-check in one call |
-=======
-| `html/fixer.js` | `https://www.appwithai.org/guide/fixer.js` | the seven auto-repairs, plus `checkAndFix(source)` — repair and re-check in one call |
->>>>>>> origin/claude/charming-bell-5uazl5
 
 Both are ES modules bundled from `language/checker.ts` and `language/fixer.ts` by
 `scripts/build-language-tools.ts`. They are the same engines the CLI runs, not a
