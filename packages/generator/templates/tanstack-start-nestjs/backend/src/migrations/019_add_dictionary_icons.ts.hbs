@@ -1,0 +1,69 @@
+/**
+ * Icons belong to the Application Dictionary.
+ *
+ * Two columns, one idea: what a thing looks like on a screen is part of what
+ * the dictionary says about it, not something the code that renders it knows.
+ *
+ *   sys_window.icon   NEW. Admin windows had no icon column at all, so the
+ *                     dashboard carried a hard-coded name-to-icon map and used
+ *                     it as a *gate* — a window the dictionary defined and
+ *                     granted, but the map did not name, was silently absent
+ *                     from the dashboard. `System Configuration` was exactly
+ *                     that: seeded, granted to the admin role, and invisible.
+ *
+ *   sys_table.icon    WIDENED, VARCHAR(100) → TEXT. An entity's icon may now be
+ *                     an uploaded image rather than a name, and an image does
+ *                     not fit in 100 characters.
+ *
+ * **Either column may hold two kinds of value**, and the reader decides by
+ * looking:
+ *
+ *   a lucide icon id   `stethoscope`, `layout-grid`, `FlaskConical` — the
+ *                      dictionary's own spelling, normalised by the front end's
+ *                      `Icon` component.
+ *   a `data:` URI      `data:image/svg+xml;base64,…` — an image someone
+ *                      uploaded through the dictionary screens.
+ *
+ * A data URI rather than a path or a separate blob table, deliberately. An icon
+ * that lives in a file needs a writable volume that outlives the container, a
+ * second thing to back up, and a serving route — and none of that exists on the
+ * `--standalone` browser stack, which has no server filesystem at all. In the
+ * column, the icon travels with a database dump, restores with it, and works
+ * unchanged in every stack this generator writes. The cost is row size, which
+ * is why the upload endpoint caps what it will accept.
+ *
+ * Both are TEXT and both are nullable: an entity or window with nothing set
+ * falls back to a default icon, which is what every row did before this ran.
+ */
+
+import { type Kysely, sql } from 'kysely';
+
+export async function up(db: Kysely<any>): Promise<void> {
+  // Added idempotently rather than in sys_window's CREATE TABLE: that migration
+  // is already recorded as executed in every application generated before this
+  // column existed, so it would never run again for them.
+  await sql`ALTER TABLE sys_window ADD COLUMN IF NOT EXISTS icon TEXT`.execute(db);
+
+  /*
+   * VARCHAR(100) → TEXT, not a new column.
+   *
+   * Widening in place keeps every seeded name where it is; Postgres does this
+   * without rewriting the table, because TEXT and VARCHAR share a
+   * representation and the change only drops a length constraint. A second
+   * column would have meant a precedence rule to explain and two places for an
+   * icon to hide.
+   */
+  await sql`ALTER TABLE sys_table ALTER COLUMN icon TYPE TEXT`.execute(db);
+}
+
+export async function down(db: Kysely<any>): Promise<void> {
+  await sql`ALTER TABLE sys_window DROP COLUMN IF EXISTS icon`.execute(db);
+
+  /*
+   * Narrowing back would fail on any row holding an uploaded image, and a
+   * migration that throws on real data is worse than one that leaves a column
+   * wider than it found it. The names that were there before all fit.
+   */
+  await sql`UPDATE sys_table SET icon = NULL WHERE length(icon) > 100`.execute(db);
+  await sql`ALTER TABLE sys_table ALTER COLUMN icon TYPE VARCHAR(100)`.execute(db);
+}
