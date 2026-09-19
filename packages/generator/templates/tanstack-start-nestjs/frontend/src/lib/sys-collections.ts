@@ -75,25 +75,49 @@ export const SYNC_ENABLED: boolean =
 /* -------------------------------------------------------------------------- */
 
 /**
- * Proxy answers that mean sync will never work here, however long we wait.
+ * The backend saying, in as many words, that this deployment has no Electric
+ * server behind the proxy.
  *
- * 503 is the one the proxy itself returns when `ELECTRIC_URL` is unset, which
- * is the default of every generated application: it says, in as many words,
- * that the client should fall back to the HTTP API. 501 covers a proxy that
- * does not implement shapes at all.
+ * Only the backend sets it, and the front end's `/api` proxy forwards it
+ * unchanged. That is the whole point of it being a header rather than a status
+ * code: **a 503 on its own does not mean what it looks like it means here.**
+ * The front end's own proxy answers 503 from `apiUnavailable()` whenever the
+ * API is down or still starting, so a backend restart during a page load is
+ * indistinguishable, by status, from a deployment with sync switched off. An
+ * earlier version of this file latched on the status alone, and that restart
+ * killed dictionary sync for the rest of the tab — persisted, so a reload did
+ * not clear it.
  *
- * Electric's own client cannot tell that apart from a server having a bad
- * minute. Its backoff retries any 5xx with `maxRetries: Infinity`, so on a
- * deployment without Electric each of the six collections below retried its
- * shape request forever — a measured 18 to 26 failed requests per page load,
- * climbing, with a console error apiece, while every screen was already
- * reading the dictionary over HTTP and rendering correctly. The retries bought
- * nothing and cost a third of the page's request budget.
+ * Why latch at all: Electric's backoff retries any 5xx with
+ * `maxRetries: Infinity`. On a deployment without Electric each of the six
+ * collections below retried its shape request forever — a measured 18 to 26
+ * failed requests per page load, climbing, with a console error apiece, while
+ * every screen was already reading the dictionary over HTTP and rendering
+ * correctly. The retries bought nothing and cost a third of the page's request
+ * budget.
  *
- * A 4xx that is not 429 is the one thing that backoff gives up on immediately,
- * so that is what the wrapper below hands back once it knows.
+ * A 5xx without this header is left to retry, which is the right behaviour for
+ * a backend that is merely down: when it comes back, sync starts.
  */
-const PERMANENT_SHAPE_FAILURES = new Set([501, 503]);
+const ELECTRIC_SYNC_HEADER = 'x-electric-sync';
+const ELECTRIC_SYNC_UNCONFIGURED = 'unconfigured';
+
+/**
+ * A proxy that does not implement shapes at all. Permanent, and it cannot be
+ * confused with a transient failure the way 503 can: nothing between the
+ * browser and the backend answers 501.
+ */
+const PERMANENT_SHAPE_STATUS = new Set([501]);
+
+/**
+ * Does this response say sync is off for good?
+ *
+ * The header is authoritative whatever the status; 501 stands on its own.
+ */
+function saysSyncUnavailable(response: Response): boolean {
+  if (response.headers.get(ELECTRIC_SYNC_HEADER) === ELECTRIC_SYNC_UNCONFIGURED) return true;
+  return PERMANENT_SHAPE_STATUS.has(response.status);
+}
 
 /** Not 429, so Electric's backoff treats it as final rather than retrying. */
 const SHAPE_GIVE_UP_STATUS = 424;
@@ -175,13 +199,20 @@ const shapeFetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   }
 
   const response = await fetch(input, { ...init, credentials: 'include' });
-  if (PERMANENT_SHAPE_FAILURES.has(response.status)) {
-    latchShapeSyncUnavailable(`HTTP ${response.status} from the shape proxy`);
+  if (saysSyncUnavailable(response)) {
+    latchShapeSyncUnavailable(
+      response.status === 501
+        ? 'the shape proxy answered 501'
+        : `the backend reported ${ELECTRIC_SYNC_HEADER}: ${ELECTRIC_SYNC_UNCONFIGURED}`
+    );
     return new Response(null, {
       status: SHAPE_GIVE_UP_STATUS,
       statusText: 'Electric sync unavailable',
     });
   }
+  // Anything else — including a bare 503 from a backend that is down or still
+  // starting — is handed back untouched, so Electric retries and sync begins
+  // as soon as the backend answers.
   return response;
 }) as typeof fetch;
 

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQueries } from "@tanstack/react-query";
 import type { ADChildTabConfig, ADLevel } from "@/components/admin/ad-window-configs";
 import type { FieldMetadata } from "@/hooks/use-entities";
@@ -133,6 +134,9 @@ function resolveChildTabs(
  * Shared by the entity being shown and by each of its line items, so a child
  * named in a tab reads the same way it does anywhere else.
  */
+/** One shared empty array: a fresh `[]` each render would defeat every memo below. */
+const EMPTY_COLUMNS: ColumnMetadata[] = [];
+
 const NAME_FALLBACKS = ["name", "full_name", "title", "first_name", "code", "description", "type"];
 
 function identifierColumn(fields: FieldMetadata[]): string {
@@ -223,9 +227,26 @@ export function useBusEntityLevel(entityName: string) {
    * pulling the whole sys_column table on every record that is opened. Keyed by
    * the table ids, so two entities sharing a line-item table share the answer.
    */
-  const childTableIds = local
-    ? []
-    : [...new Set(childTabRows(entityName, httpTables, httpTabs).map((t) => t.sys_table_id))].sort();
+  /*
+   * Memoised, and not as a micro-optimisation.
+   *
+   * These joins used to sit inside a cached `queryFn`, so they ran once per
+   * fetch. Moving the fetches out from under them left the joins in the render
+   * body, where they re-scan up to 1000 dictionary rows on every render of a
+   * hook that is mounted on every business screen — a rebuild of the arrays
+   * below on each keystroke in a filter box. The array identity matters too:
+   * `childTableIds` feeds a query key, and a fresh array each render makes
+   * `.join(",")` recompute for nothing.
+   */
+  const childTableIds = useMemo(
+    () =>
+      local
+        ? []
+        : [
+            ...new Set(childTabRows(entityName, httpTables, httpTabs).map((t) => t.sys_table_id)),
+          ].sort(),
+    [local, entityName, httpTables, httpTabs]
+  );
 
   const childColumnsQuery = useQueries({
     queries: [
@@ -262,14 +283,24 @@ export function useBusEntityLevel(entityName: string) {
 
   const [formQuery, gridQuery] = results;
 
-  const childMetas: ChildTabMeta[] = local
-    ? resolveChildTabs(entityName, localTables, localTabs, localColumns)
-    : resolveChildTabs(
-        entityName,
-        httpTables,
-        httpTabs,
-        (childColumnsQuery?.data as ColumnMetadata[] | undefined) ?? []
-      );
+  const httpChildColumns = (childColumnsQuery?.data as ColumnMetadata[] | undefined) ?? EMPTY_COLUMNS;
+
+  const childMetas: ChildTabMeta[] = useMemo(
+    () =>
+      local
+        ? resolveChildTabs(entityName, localTables, localTabs, localColumns)
+        : resolveChildTabs(entityName, httpTables, httpTabs, httpChildColumns),
+    [
+      local,
+      entityName,
+      localTables,
+      localTabs,
+      localColumns,
+      httpTables,
+      httpTabs,
+      httpChildColumns,
+    ]
+  );
 
   /*
    * A child's own field lists, on the same two endpoints the parent uses. They
@@ -292,9 +323,13 @@ export function useBusEntityLevel(entityName: string) {
     ]),
   });
 
-  const windowMeta: WindowMeta | undefined = local
-    ? resolveWindowMeta(entityName, localWindows, localTables)
-    : resolveWindowMeta(entityName, httpWindows, httpTables);
+  const windowMeta: WindowMeta | undefined = useMemo(
+    () =>
+      local
+        ? resolveWindowMeta(entityName, localWindows, localTables)
+        : resolveWindowMeta(entityName, httpWindows, httpTables),
+    [local, entityName, localWindows, localTables, httpWindows, httpTables]
+  );
 
   const windowLoading = local ? false : windowsQuery.isLoading || tablesQuery.isLoading;
   const isLoading = formQuery.isLoading || gridQuery.isLoading || windowLoading;

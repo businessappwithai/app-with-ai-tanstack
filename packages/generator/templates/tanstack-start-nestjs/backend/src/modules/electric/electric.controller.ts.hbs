@@ -36,6 +36,15 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DatabaseService } from '../../database/database.service';
 
+/**
+ * Says that this deployment has no Electric server behind the proxy.
+ *
+ * The one signal the client latches on. Kept as a header rather than a body
+ * field so the decision does not depend on parsing an error payload whose
+ * shape belongs to the exception filter.
+ */
+const ELECTRIC_SYNC_HEADER = 'x-electric-sync';
+
 /** Dictionary tables a client may sync. Nothing else is reachable this way. */
 const ALLOWED_SYS_TABLES = new Set([
   'sys_window',
@@ -153,10 +162,31 @@ export class ElectricController {
 
     const upstreamBase = electricUpstream();
     if (!upstreamBase) {
-      throw new HttpException(
-        'Electric upstream not configured (set ELECTRIC_URL); the client falls back to the HTTP API',
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
+      /*
+       * Answered here rather than thrown, so it can carry a header.
+       *
+       * "No Electric server is configured" is permanent for this deployment,
+       * and the client stops trying once it hears it. "The backend is not
+       * reachable" is transient, and the client must keep trying. Both arrive
+       * at the browser as a 503 — the second one from the front end's own
+       * /api proxy, which answers `apiUnavailable()` with that status whenever
+       * the API is down or still starting.
+       *
+       * A client that reads only the status cannot tell them apart, so a
+       * backend restart during a page load looked exactly like a deployment
+       * with sync switched off, and the client latched it for the whole tab.
+       * This header is the difference, stated rather than inferred: only the
+       * backend sends it, and the proxy forwards it unchanged.
+       */
+      res
+        .header(ELECTRIC_SYNC_HEADER, 'unconfigured')
+        .status(HttpStatus.SERVICE_UNAVAILABLE)
+        .send({
+          statusCode: HttpStatus.SERVICE_UNAVAILABLE,
+          message:
+            'Electric upstream not configured (set ELECTRIC_URL); the client falls back to the HTTP API',
+        });
+      return;
     }
 
     // Built from the allowlist and from role names verified against sys_role —
