@@ -186,7 +186,11 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <div
       className={cn(
-        'relative flex flex-col border-r bg-background',
+        /* Hidden below `md`. The sidebar is a fixed 256px (64px collapsed) and
+           a phone is 375px wide, so showing it there would leave 119px for the
+           record being read. Mobile keeps exactly what it has today — the
+           header, and the screen's own breadcrumb to navigate by. */
+        'relative hidden flex-col border-r bg-background md:flex',
         isCollapsed ? 'w-16' : 'w-64',
         'transition-all duration-300',
         className

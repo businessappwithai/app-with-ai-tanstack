@@ -1,4 +1,5 @@
-import { createRootRoute, Outlet, Link } from '@tanstack/react-router'
+import { createRootRoute, Outlet, Link, useLocation } from '@tanstack/react-router'
+import { AppLayout } from '@/components/layout/app-layout'
 import { Meta, Scripts } from '@tanstack/start'
 import { Providers } from '../providers'
 import { THEME_BOOT_SCRIPT } from '../components/theme/theme-provider'
@@ -105,6 +106,37 @@ export const Route = createRootRoute({
   component: RootLayout,
 })
 
+/**
+ * The application shell, or nothing, depending on where you are.
+ *
+ * `AppLayout` carries the sidebar, the header and the sign-in redirect, and it
+ * must not wrap the sign-in screen itself: that page has no session by
+ * definition, so the redirect inside the layout would bounce it back to
+ * itself. Keying on the path rather than moving every route under a pathless
+ * `_authed` layout keeps the route tree — and therefore every generated route
+ * file — untouched.
+ *
+ * `/auth/*` is the whole of the unauthenticated surface. `/` is not listed
+ * because it redirects to `/dashboard` in `beforeLoad` and never renders.
+ */
+function AppChrome() {
+  const { pathname } = useLocation();
+
+  if (pathname.startsWith('/auth/')) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Outlet />
+      </main>
+    );
+  }
+
+  return (
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
+  );
+}
+
 function RootLayout() {
   return (
     // `suppressHydrationWarning` because the boot script below has already put
@@ -123,9 +155,7 @@ function RootLayout() {
       </head>
       <body className="font-sans antialiased">
         <Providers>
-          <main className="min-h-screen bg-background">
-            <Outlet />
-          </main>
+          <AppChrome />
         </Providers>
         {/* Bottom right, not top right. The top right is the help toaster's
             now, and it is a panel that stays open — a transient message

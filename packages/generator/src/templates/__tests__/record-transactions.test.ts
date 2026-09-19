@@ -157,12 +157,33 @@ describe("the notification list is read from the trail and nowhere else", () => 
 });
 
 describe("the bell sits beside Log out", () => {
-  it("is mounted next to the sign-out control on the dashboard", () => {
-    const dashboard = frontend("src/routes/dashboard.tsx");
-    const bellAt = dashboard.indexOf("<NotificationBell />");
-    const logoutAt = dashboard.indexOf('title="Log out"');
+  it("is mounted next to the sign-out control, in the application header", () => {
+    /*
+     * The header, not the dashboard.
+     *
+     * This used to read `routes/dashboard.tsx`, because that screen drew its
+     * own top bar and was the only place the bell appeared — so a reader who
+     * opened a record lost it until they navigated back. `AppLayout` now puts
+     * one header on every screen and the dashboard's was removed, which is
+     * what moved both controls here.
+     *
+     * The property is unchanged and is the point of the test: whatever draws
+     * the chrome, the notification bell is beside the way out. Somebody
+     * looking for "what happened to the record I just saved" and somebody
+     * leaving are the same person a moment apart.
+     */
+    const header = frontend("src/components/layout/header.tsx");
+    const bellAt = header.indexOf("<NotificationBell />");
+    const logoutAt = header.indexOf("Log out");
     expect(bellAt).toBeGreaterThan(-1);
     expect(logoutAt).toBeGreaterThan(bellAt);
+  });
+
+  it("is not left behind on the dashboard as a second copy", () => {
+    // Two headers is what adopting AppLayout naively produces, and the bell
+    // appearing twice is the visible symptom.
+    const dashboard = frontend("src/routes/dashboard.tsx");
+    expect(dashboard).not.toContain("<NotificationBell />");
   });
 
   it("shows read and unread differently", () => {
