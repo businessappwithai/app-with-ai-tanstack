@@ -181,6 +181,27 @@ and it runs the suite via the generator's own `run.ts`, never `bun test` — the
 suites are ordered and stateful, and running them in one parallel process makes
 failures move around between runs.
 
+### `bun run lint` does not run the formatter; CI does
+
+`lint` is `biome lint .`. The first job runs
+`bunx biome check . --max-diagnostics=2000 --diagnostic-level=error`, and
+**`check` is lint *plus* the formatter** — so a clean `bun run lint` says nothing
+about whether CI will accept the file. A long line and an object literal Biome
+would have expanded turned that job red after `lint`, `type-check` and 838 unit
+tests had all passed locally.
+
+Run the CI command itself before pushing, or `bun run format:check` (which is
+`biome format .`) beside `lint`. `bun run lint:fix` is `biome check --write`, so
+it fixes both — but it also applies the `organizeImports` assist, which touches
+far more than the file you were working on. `bunx biome format --write <files>`
+is the narrow fix.
+
+**A formatting-only change stales the browser bundles.** `Bun.build` keeps
+comments and whitespace in these bundles, so re-wrapping two lines in
+`manual/index.ts` left `appwithai-wasm.js` and `appwithai-fullstack.js`
+byte-different from their sources. Re-run the five `--check` comparisons after
+formatting, not just after a change you think of as behavioural.
+
 ---
 
 ## Tech Stack
@@ -307,6 +328,49 @@ demonstrate the workflows it was generated from.
 `appwithai-wasm` runs the same pipeline as `appwithai`, then applies an overlay replacing `pg` with WebAssembly Postgres and swapping `bun` for `node`. The overlay changes exactly 9 files and adds 6 — CI asserts this footprint exactly. **After editing `templates/wasm/` or `templates/wasm-overlay/`, run `bun run build:wasm-runtime` from repo root.**
 
 `--standalone` mode generates a self-contained browser app (model compiled to `model.json` + SQL, no per-entity source). Regular mode generates the full NestJS + TanStack stack (~413 files).
+
+#### The browser application's Application Dictionary shows fields, and did not
+
+`sys_window`, `sys_tab` and `sys_field` are all seeded by `server/migrate.js` and
+all served by `server/modules/sys.routes.js` — reads open to any signed-in user,
+writes administrator-only. The dictionary screen
+(`templates/wasm/ui/views/admin.js`) showed the first two and stopped: no Fields
+stat, no Fields section, and the per-table detail listing `sys_column` rather
+than `sys_field`. On the hospital model that is 323 rows seeded, served, and
+rendered nowhere.
+
+**A field is not a column**, which is why this was worth fixing rather than
+filing as cosmetic. The column is where a value is *stored*; the field is where
+it is *placed* — on the form at all, in the grid at all, in what order, under
+what label, editable or not. The application queries exactly those rows on every
+screen it draws (`/bus/<entity>/fields/form` and `.../fields/grid`), so the part
+of the dictionary that decides what a form looks like was the one part a reader
+could not look at. The NestJS stack has had a Fields screen all along
+(`templates/tanstack-start-nestjs/frontend/src/routes/admin/fields.tsx`); this
+was a parity gap between the two stacks, not a missing feature in both.
+
+Two things to keep true when touching that screen:
+
+- **`/sys/tables` is role-scoped and `/sys/tabs` and `/sys/fields` are not.** The
+  Fields stat counts only tabs whose table survives that scoping, and a tab whose
+  table did not says so instead of listing its columns. Dropping that makes this
+  screen name the columns of an entity the rest of the application refuses to
+  show.
+- **`PATCH /sys/fields/:id` still has no caller.** It toggles a field's
+  visibility — the one dictionary write the application offers, and the one that
+  pays off without regenerating. The read view added here is where it would hang;
+  it is deliberately not wired up yet.
+
+#### The sign-in screen names the reporting application
+
+`render()` in `templates/wasm/ui/main.js` matches `#/report` **before** the
+sign-in gate, deliberately, so the reporting application never needed a session
+in this one. Until recently the only link to it was the dashboard card — on the
+far side of a sign-in the reporting platform does not share — so a reader who
+stopped at the first screen was never told a second application had been
+generated for them. `templates/wasm/ui/views/login.js` carries that link now, as
+a plain `<a href="#/report">`, because `hashchange` is already wired to the
+router.
 
 ### `docker compose up --build` — the three things that have to hold
 
@@ -714,6 +778,57 @@ both, and re-vendor all three to the website.
 **`formatIssue` is unchanged and still one line.** The block form is
 `formatIssueDetail`; the viewers re-export `formatIssue` and callers that want a
 log line still get one.
+
+### The dictionary warnings are not advisory, and the report used to say they were
+
+`DICTIONARY_COMPLETENESS` in `checker.entry.ts` names six codes — `EML119`,
+`EML146`, `EML151`, `EML152`, `EML153`, `EML154` — and both `formatNextSteps`
+and `formatReport`'s verdict single them out.
+
+They had to, because the report contradicted the protocol it serves. The closing
+step read *"clearing the N warnings is optional"* and the verdict *"notes and
+warnings are advisory"*, for every warning alike. But §10 of the authoring
+protocol requires a complete Application Dictionary — help on every entity and
+every column, the `FK` modifier on every reference, an enum binding on every
+closed vocabulary, a `name:` on every category — and `audit-model.mjs` **fails**
+a model missing any of it, which item 21 makes part of delivering. So a model
+could clear the checker, read in the checker's own last words that the rest was
+optional, and fail the audit the same protocol required it to pass.
+
+The reader is usually a language model and the report is the last thing it
+reads, so a blanket "optional" is the sentence it acts on. Both lines now say
+which warnings are gaps and which are genuinely advisory; a model with none of
+the six gets the old wording unchanged.
+
+**Keep the two in step.** They read the same set, and the verdict is the line
+§8.2 tells a reader to read — softening one while tightening the other puts the
+contradiction back one line down, which is exactly how it arose.
+
+## The manual documents the screen, not only the storage
+
+`manual/index.ts` reported an entity's *columns* and stopped. The layer between
+a column and a screen — `sys_window`, `sys_tab`, `sys_field`, which is what the
+running application reads on every render — was in the dictionary, in the
+database, and in no document the reader was handed. Each entity section now
+carries a **Where it appears** block: the window, the tab, and every field with
+its form and grid placement and the order the screen draws them in.
+
+Two things make it correct rather than merely present:
+
+- **It calls `DictionaryGenerator.generateDictionaryContext`**, the same
+  derivation `model-bundle.ts` and the NestJS dictionary generator call. Working
+  the layout out again from the entity list would be a second answer to one
+  question, and the first time the derivation changed the manual would describe
+  a layout no application has.
+- **It applies `GRID_NOISE`**, now exported from `model-bundle.ts` rather than
+  private to it. The derivation marks every column grid-visible and each
+  consumer narrows it — the browser stack through `isNoise`, the NestJS seed
+  through its own literal copy (a template cannot import). A manual reading the
+  derivation raw reports a list carrying `id`, `version` and the four audit
+  columns that no application shows: accurate about the dictionary and wrong
+  about the screen, which is the worse failure because it reads as
+  authoritative. `manual/__tests__/screen-layout.test.ts` holds both, and was
+  verified non-vacuous by removing the filter and watching it fail.
 
 ## The published host is written in full — `https://www.appwithai.org`
 

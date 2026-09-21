@@ -758,6 +758,19 @@ a { color: var(--primary); }
   margin: 18px 0 20px; font-size: 12.5px; line-height: 1.55; color: var(--text-soft);
 }
 
+/* The second application, named on the first screen. `.btn` is an <a> here, so
+   it needs the decoration and line-height a <button> got for free. */
+.login__other {
+  margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--border);
+}
+.login__other h2 { margin: 0 0 4px; font-size: 18px; }
+.login__other .login__aside-note { margin: 10px 0 16px; }
+.btn--report {
+  background: var(--reporting); border-color: var(--reporting); color: #fff;
+  text-decoration: none; line-height: 1.2;
+}
+.btn--report:hover:not(:disabled) { background: #313a47; border-color: #313a47; }
+
 .masthead--report { border-bottom: 2px solid var(--reporting); }
 .masthead__badge {
   padding: 4px 9px; border-radius: 999px; background: var(--reporting); color: #fff;
