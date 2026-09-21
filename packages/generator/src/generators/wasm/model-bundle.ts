@@ -619,11 +619,27 @@ export function buildModelBundle(
   return { model, schema };
 }
 
-// Columns that are real, queryable and useless in a grid. `id` is a uuid
-// nobody reads, and the audit columns would make every table eight columns
-// wider than the model asked for. All of them stay on the form.
-const NOISE = new Set(["id", "created_by", "updated_by", "deleted_by", "deleted_at", "version"]);
-const isNoise = (column: string) => NOISE.has(column);
+/**
+ * Columns that are real, queryable and useless in a grid. `id` is a uuid nobody
+ * reads, and the audit columns would make every table eight columns wider than
+ * the model asked for. All of them stay on the form.
+ *
+ * `DictionaryGenerator` does not apply this — it marks every column grid-visible
+ * and each consumer narrows it, which is why this is exported rather than
+ * private. The NestJS stack applies the same set as `GRID_NOISE` in
+ * `templates/common/seeds/sys-dictionary.ts.hbs` (a literal, because a template
+ * cannot import), and `manual/index.ts` imports this one so the manual reports
+ * the grid the application actually draws. Change one and change the other.
+ */
+export const GRID_NOISE = new Set([
+  "id",
+  "created_by",
+  "updated_by",
+  "deleted_by",
+  "deleted_at",
+  "version",
+]);
+const isNoise = (column: string) => GRID_NOISE.has(column);
 
 function entityNameFor(entities: Array<{ name: string; tableName: string }>, tableName: string) {
   return entities.find((entity) => entity.tableName === tableName)?.name ?? tableName;

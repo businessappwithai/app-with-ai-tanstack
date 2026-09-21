@@ -758,6 +758,57 @@ both, and re-vendor all three to the website.
 `formatIssueDetail`; the viewers re-export `formatIssue` and callers that want a
 log line still get one.
 
+### The dictionary warnings are not advisory, and the report used to say they were
+
+`DICTIONARY_COMPLETENESS` in `checker.entry.ts` names six codes — `EML119`,
+`EML146`, `EML151`, `EML152`, `EML153`, `EML154` — and both `formatNextSteps`
+and `formatReport`'s verdict single them out.
+
+They had to, because the report contradicted the protocol it serves. The closing
+step read *"clearing the N warnings is optional"* and the verdict *"notes and
+warnings are advisory"*, for every warning alike. But §10 of the authoring
+protocol requires a complete Application Dictionary — help on every entity and
+every column, the `FK` modifier on every reference, an enum binding on every
+closed vocabulary, a `name:` on every category — and `audit-model.mjs` **fails**
+a model missing any of it, which item 21 makes part of delivering. So a model
+could clear the checker, read in the checker's own last words that the rest was
+optional, and fail the audit the same protocol required it to pass.
+
+The reader is usually a language model and the report is the last thing it
+reads, so a blanket "optional" is the sentence it acts on. Both lines now say
+which warnings are gaps and which are genuinely advisory; a model with none of
+the six gets the old wording unchanged.
+
+**Keep the two in step.** They read the same set, and the verdict is the line
+§8.2 tells a reader to read — softening one while tightening the other puts the
+contradiction back one line down, which is exactly how it arose.
+
+## The manual documents the screen, not only the storage
+
+`manual/index.ts` reported an entity's *columns* and stopped. The layer between
+a column and a screen — `sys_window`, `sys_tab`, `sys_field`, which is what the
+running application reads on every render — was in the dictionary, in the
+database, and in no document the reader was handed. Each entity section now
+carries a **Where it appears** block: the window, the tab, and every field with
+its form and grid placement and the order the screen draws them in.
+
+Two things make it correct rather than merely present:
+
+- **It calls `DictionaryGenerator.generateDictionaryContext`**, the same
+  derivation `model-bundle.ts` and the NestJS dictionary generator call. Working
+  the layout out again from the entity list would be a second answer to one
+  question, and the first time the derivation changed the manual would describe
+  a layout no application has.
+- **It applies `GRID_NOISE`**, now exported from `model-bundle.ts` rather than
+  private to it. The derivation marks every column grid-visible and each
+  consumer narrows it — the browser stack through `isNoise`, the NestJS seed
+  through its own literal copy (a template cannot import). A manual reading the
+  derivation raw reports a list carrying `id`, `version` and the four audit
+  columns that no application shows: accurate about the dictionary and wrong
+  about the screen, which is the worse failure because it reads as
+  authoritative. `manual/__tests__/screen-layout.test.ts` holds both, and was
+  verified non-vacuous by removing the filter and watching it fail.
+
 ## The published host is written in full — `https://www.appwithai.org`
 
 Every mention of the host in all four `website/llmtext/*.txt` protocol documents

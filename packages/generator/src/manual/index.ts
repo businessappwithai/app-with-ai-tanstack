@@ -41,7 +41,8 @@
 
 import type { Entity, EntityAttribute, Relationship } from "@appwithai/core/types";
 import { formatDisplayName, ReferenceType } from "@appwithai/core/types";
-import { referenceIdFor, tableNameFor } from "../generators/wasm/model-bundle";
+import { DictionaryGenerator } from "../generators/dictionary.generator";
+import { GRID_NOISE, referenceIdFor, tableNameFor } from "../generators/wasm/model-bundle";
 import type { ParsedModel } from "../pipeline/generate-application";
 import { deriveAccess } from "../rbac/roles";
 
@@ -244,6 +245,130 @@ function relationshipsFor(model: ParsedModel, entity: Entity): string {
       </ul>`;
 }
 
+/**
+ * The window, the tab and the fields on it — the layer between a column and a
+ * screen.
+ *
+ * A column is where a value is *stored*; a field is where it is *placed*. The
+ * running application does not draw the fields table above — it draws
+ * `sys_field`, joined to the `sys_tab` it sits on and the `sys_window` that tab
+ * belongs to, which is why a field can be hidden or reordered in a live
+ * application without regenerating it. A manual that stopped at the columns
+ * described the storage and left out the screen.
+ *
+ * **Derived from `DictionaryGenerator`, never re-derived here.** It is the same
+ * call `model-bundle.ts` and the NestJS dictionary generator make, so the window
+ * this page names is the window the application actually opens. Working it out
+ * again from the entity list would be a second answer to the same question, and
+ * the first time the derivation changed the manual would start describing a
+ * layout the application does not have.
+ */
+function screensFor(dictionary: ManualDictionary, entity: Entity): string {
+  const layout = dictionary.get(entity.name);
+  if (!layout) return "";
+
+  const rows = layout.fields
+    .map(
+      (field) =>
+        `          <tr>
+            <td><code>${escapeHtml(field.column)}</code></td>
+            <td>${escapeHtml(field.label)}</td>
+            <td>${field.onForm ? "Yes" : "No"}</td>
+            <td>${field.inGrid ? "Yes" : "No"}</td>
+            <td>${field.formSeq}</td>
+            <td>${field.readOnly ? "Yes" : "No"}</td>
+          </tr>`
+    )
+    .join("\n");
+
+  return `      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>${escapeHtml(layout.window)}</b> window, on the <b>${escapeHtml(layout.tab)}</b> tab. These are its ${layout.fields.length} field${layout.fields.length === 1 ? "" : "s"} &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <table>
+        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+${rows}
+        </tbody>
+      </table>`;
+}
+
+/** One entity's screen layout, as the Application Dictionary records it. */
+interface ManualLayout {
+  window: string;
+  tab: string;
+  fields: Array<{
+    column: string;
+    label: string;
+    onForm: boolean;
+    inGrid: boolean;
+    formSeq: number;
+    readOnly: boolean;
+  }>;
+}
+
+type ManualDictionary = Map<string, ManualLayout>;
+
+/**
+ * Run the dictionary derivation once and index it by entity name.
+ *
+ * `DictionaryGenerator` links its rows by temporary ids rather than by name —
+ * a field names a tab, a tab names a window and a table — so this resolves
+ * those once rather than per entity.
+ */
+function manualDictionary(model: ParsedModel): ManualDictionary {
+  const context = new DictionaryGenerator({
+    databaseType: "postgresql",
+    includeRbac: true,
+    randomizeFieldOrder: false,
+  }).generateDictionaryContext(model.entities, model.relationships);
+
+  const tableOf = new Map(context.sysTables.map((table) => [table._tempId, table.table_name]));
+  const windowOf = new Map(context.sysWindows.map((w) => [w._tempId, w.name]));
+  const columnOf = new Map(context.sysColumns.map((c) => [c._tempId, c.column_name]));
+  const tabOf = new Map(
+    context.sysTabs.map((tab) => [
+      tab._tempId,
+      { name: tab.name, window: windowOf.get(tab._windowRef) ?? tab.name, table: tableOf.get(tab._tableRef) ?? "" },
+    ])
+  );
+
+  const byTable = new Map<string, ManualLayout>();
+  for (const tab of tabOf.values()) {
+    if (tab.table && !byTable.has(tab.table)) {
+      byTable.set(tab.table, { window: tab.window, tab: tab.name, fields: [] });
+    }
+  }
+  for (const field of context.sysFields) {
+    const tab = tabOf.get(field._tabRef);
+    if (!tab?.table) continue;
+    const layout = byTable.get(tab.table);
+    if (!layout) continue;
+    const column = columnOf.get(field._columnRef) ?? "";
+    layout.fields.push({
+      column,
+      label: field.name,
+      onForm: field.is_displayed !== false,
+      /* `DictionaryGenerator` marks every column grid-visible and each consumer
+         narrows it — the browser stack through `isNoise`, the NestJS seed
+         through its own `GRID_NOISE`. The manual has to narrow it the same way
+         or it reports a list with eight audit columns the application does not
+         draw. Same set, imported rather than restated. */
+      inGrid: field.is_displayed_grid !== false && !GRID_NOISE.has(column),
+      formSeq: field.seq_no ?? 0,
+      readOnly: !!field.is_read_only,
+    });
+  }
+  for (const layout of byTable.values()) layout.fields.sort((a, b) => a.formSeq - b.formSeq);
+
+  /* Keyed by entity name for the caller, which holds entities rather than
+     table names. */
+  const byEntity: ManualDictionary = new Map();
+  for (const entity of model.entities) {
+    const layout = byTable.get(tableNameFor(entity));
+    if (layout) byEntity.set(entity.name, layout);
+  }
+  return byEntity;
+}
+
 function workflowFor(model: ParsedModel, entity: Entity): string {
   const workflows = model.workflows.filter((workflow) => workflow.entity === entity.name);
   if (workflows.length === 0) return "";
@@ -376,6 +501,10 @@ export function renderManual(model: ParsedModel, options: ManualOptions): string
 
   const entities = [...model.entities].sort((a, b) => a.name.localeCompare(b.name));
   const declared = declaredNames(model);
+  /* One derivation for the whole page: the window/tab/field layout every entity
+     section reports, taken from the same generator the application's own
+     dictionary is built by. */
+  const dictionary = manualDictionary(model);
 
   const contents = `
       <nav class="toc" aria-label="Contents">
@@ -425,6 +554,7 @@ ${fieldRows(entity, declared)}
         </tbody>
       </table>
 ${[
+  screensFor(dictionary, entity),
   relationshipsFor(model, entity),
   workflowFor(model, entity),
   rulesFor(model, entity),
