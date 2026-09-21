@@ -308,6 +308,49 @@ demonstrate the workflows it was generated from.
 
 `--standalone` mode generates a self-contained browser app (model compiled to `model.json` + SQL, no per-entity source). Regular mode generates the full NestJS + TanStack stack (~413 files).
 
+#### The browser application's Application Dictionary shows fields, and did not
+
+`sys_window`, `sys_tab` and `sys_field` are all seeded by `server/migrate.js` and
+all served by `server/modules/sys.routes.js` — reads open to any signed-in user,
+writes administrator-only. The dictionary screen
+(`templates/wasm/ui/views/admin.js`) showed the first two and stopped: no Fields
+stat, no Fields section, and the per-table detail listing `sys_column` rather
+than `sys_field`. On the hospital model that is 323 rows seeded, served, and
+rendered nowhere.
+
+**A field is not a column**, which is why this was worth fixing rather than
+filing as cosmetic. The column is where a value is *stored*; the field is where
+it is *placed* — on the form at all, in the grid at all, in what order, under
+what label, editable or not. The application queries exactly those rows on every
+screen it draws (`/bus/<entity>/fields/form` and `.../fields/grid`), so the part
+of the dictionary that decides what a form looks like was the one part a reader
+could not look at. The NestJS stack has had a Fields screen all along
+(`templates/tanstack-start-nestjs/frontend/src/routes/admin/fields.tsx`); this
+was a parity gap between the two stacks, not a missing feature in both.
+
+Two things to keep true when touching that screen:
+
+- **`/sys/tables` is role-scoped and `/sys/tabs` and `/sys/fields` are not.** The
+  Fields stat counts only tabs whose table survives that scoping, and a tab whose
+  table did not says so instead of listing its columns. Dropping that makes this
+  screen name the columns of an entity the rest of the application refuses to
+  show.
+- **`PATCH /sys/fields/:id` still has no caller.** It toggles a field's
+  visibility — the one dictionary write the application offers, and the one that
+  pays off without regenerating. The read view added here is where it would hang;
+  it is deliberately not wired up yet.
+
+#### The sign-in screen names the reporting application
+
+`render()` in `templates/wasm/ui/main.js` matches `#/report` **before** the
+sign-in gate, deliberately, so the reporting application never needed a session
+in this one. Until recently the only link to it was the dashboard card — on the
+far side of a sign-in the reporting platform does not share — so a reader who
+stopped at the first screen was never told a second application had been
+generated for them. `templates/wasm/ui/views/login.js` carries that link now, as
+a plain `<a href="#/report">`, because `hashchange` is already wired to the
+router.
+
 ### `docker compose up --build` — the three things that have to hold
 
 The generated project ships two ways to run: `Dockerfile` at the root builds the
