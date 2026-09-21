@@ -181,6 +181,27 @@ and it runs the suite via the generator's own `run.ts`, never `bun test` — the
 suites are ordered and stateful, and running them in one parallel process makes
 failures move around between runs.
 
+### `bun run lint` does not run the formatter; CI does
+
+`lint` is `biome lint .`. The first job runs
+`bunx biome check . --max-diagnostics=2000 --diagnostic-level=error`, and
+**`check` is lint *plus* the formatter** — so a clean `bun run lint` says nothing
+about whether CI will accept the file. A long line and an object literal Biome
+would have expanded turned that job red after `lint`, `type-check` and 838 unit
+tests had all passed locally.
+
+Run the CI command itself before pushing, or `bun run format:check` (which is
+`biome format .`) beside `lint`. `bun run lint:fix` is `biome check --write`, so
+it fixes both — but it also applies the `organizeImports` assist, which touches
+far more than the file you were working on. `bunx biome format --write <files>`
+is the narrow fix.
+
+**A formatting-only change stales the browser bundles.** `Bun.build` keeps
+comments and whitespace in these bundles, so re-wrapping two lines in
+`manual/index.ts` left `appwithai-wasm.js` and `appwithai-fullstack.js`
+byte-different from their sources. Re-run the five `--check` comparisons after
+formatting, not just after a change you think of as behavioural.
+
 ---
 
 ## Tech Stack

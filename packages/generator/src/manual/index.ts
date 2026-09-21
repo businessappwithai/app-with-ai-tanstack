@@ -327,7 +327,11 @@ function manualDictionary(model: ParsedModel): ManualDictionary {
   const tabOf = new Map(
     context.sysTabs.map((tab) => [
       tab._tempId,
-      { name: tab.name, window: windowOf.get(tab._windowRef) ?? tab.name, table: tableOf.get(tab._tableRef) ?? "" },
+      {
+        name: tab.name,
+        window: windowOf.get(tab._windowRef) ?? tab.name,
+        table: tableOf.get(tab._tableRef) ?? "",
+      },
     ])
   );
 

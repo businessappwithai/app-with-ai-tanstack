@@ -55,7 +55,8 @@ describe("the manual's screen layout", () => {
 
     /* Not just the heading: the sentence naming the window and the tab has to be
        there too, or the section is a title over an empty table. */
-    const named = html.match(/opens this record in the <b>[^<]+<\/b> window, on the <b>[^<]+<\/b> tab/g) ?? [];
+    const named =
+      html.match(/opens this record in the <b>[^<]+<\/b> window, on the <b>[^<]+<\/b> tab/g) ?? [];
     expect(named).toHaveLength(parsed.entities.length);
   });
 
