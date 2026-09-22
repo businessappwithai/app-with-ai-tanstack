@@ -33,7 +33,7 @@ import { setHelp } from "../main.js";
  * seventeen-entity model has several hundred columns and nobody reads them all at
  * once.
  */
-export async function dictionaryView(root) {
+export async function dictionaryView(root, { user } = {}) {
   mount(root, spinner("Reading the dictionary"));
   const [tables, summary, references, refLists, windows, tabs, fields] = await Promise.all([
     api.get("/sys/tables"),
@@ -103,6 +103,55 @@ export async function dictionaryView(root) {
 
   const yesNo = (value) => (value ? "Yes" : "No");
 
+  /**
+   * The one dictionary write this application offers, and it had no caller.
+   *
+   * `PATCH /sys/fields/:id` has been in `sys.routes.js` since the dictionary
+   * was, under a comment calling it "the one dictionary write the application
+   * itself offers, because it is the one that pays off immediately: a column
+   * hidden here disappears from every grid and form without regenerating". It
+   * paid off for nobody: no screen listed the fields, so nothing could reach it.
+   * The Fields panel is where it belongs.
+   *
+   * Administrator-only *as an offer*. `sys.routes.js` refuses any non-GET from a
+   * caller who is not one, so this decides what is drawn, never what is allowed
+   * — a reader who is not an administrator sees the value and no control rather
+   * than a control that answers 403.
+   *
+   * The row is updated from the server's response rather than from what was
+   * clicked: the endpoint returns the updated row, and trusting the optimistic
+   * value is how a screen comes to disagree with the database it is describing.
+   */
+  function visibilityCell(field, key, onChanged) {
+    if (!user?.isAdmin) return el("td", yesNo(field[key]));
+
+    const label = key === "is_displayed" ? "the form" : "the list";
+    const button = el(
+      "button.linklike",
+      { type: "button", title: `${field[key] ? "Remove from" : "Add to"} ${label}` },
+      yesNo(field[key])
+    );
+    button.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      button.disabled = true;
+      try {
+        const updated = await api.patch(`/sys/fields/${field.sys_field_id}`, {
+          [key]: !field[key],
+        });
+        Object.assign(field, updated);
+        toast(
+          `${field.name} is ${field[key] ? "on" : "off"} ${label}. The screen picks it up next time it loads.`,
+          "success"
+        );
+        onChanged();
+      } catch (error) {
+        toast(error.message, "error");
+        button.disabled = false;
+      }
+    });
+    return el("td", button);
+  }
+
   async function showFields(tab) {
     const table = tables.find((row) => row.sys_table_id === tab.sys_table_id);
     /* `/sys/tables` is scoped to what this caller's roles may read; `/sys/tabs`
@@ -133,7 +182,11 @@ export async function dictionaryView(root) {
         el(
           "p.lede",
           "“On form” and “In grid” are what the application asks for when it draws this " +
-            "entity’s record screen and its list. Sequence is the order it draws them in."
+            "entity’s record screen and its list. Sequence is the order it draws them in." +
+            (user?.isAdmin
+              ? " Both are editable: click one to hide or show that field. The column stays in the" +
+                " database and the screen stops drawing it — no regeneration, no migration."
+              : "")
         ),
         rows.length === 0
           ? el("p.muted", "No fields are seeded against this tab.")
@@ -157,8 +210,8 @@ export async function dictionaryView(root) {
                       "tr",
                       el("td", field.name || "—"),
                       el("td", el("code", columnName.get(field.sys_column_id) || "—")),
-                      el("td", yesNo(field.is_displayed)),
-                      el("td", yesNo(field.is_displayed_grid)),
+                      visibilityCell(field, "is_displayed", () => showFields(tab)),
+                      visibilityCell(field, "is_displayed_grid", () => showFields(tab)),
                       el("td", displayValue(field.seq_no ?? "—")),
                       el("td", displayValue(field.seq_no_grid ?? "—")),
                       el("td", yesNo(field.is_mandatory)),

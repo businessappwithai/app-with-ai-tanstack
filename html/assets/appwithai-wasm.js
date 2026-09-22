@@ -16850,6 +16850,17 @@ a { color: var(--primary); }
 .dict__row:hover { background: var(--surface-2, rgba(127, 127, 127, 0.08)); }
 .dict__detail { margin-bottom: var(--gap, 16px); }
 .dict__help { max-width: 34ch; color: var(--text-faint); font-size: 12px; }
+
+/* A value in a table that is also the control that changes it — the field
+   visibility toggles. A <button> so it is reachable by keyboard and announced
+   as one; styled as text because a row of twelve buttons reads as a toolbar
+   rather than as data. */
+.linklike {
+  font: inherit; color: var(--primary); background: none; border: 0; padding: 0;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+}
+.linklike:hover:not(:disabled) { color: var(--text); }
+.linklike:disabled { opacity: 0.5; cursor: progress; text-decoration: none; }
 .muted { color: var(--text-faint); }
 
 .record__actions { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
@@ -18133,7 +18144,12 @@ async function render() {
 
     if (admin) {
       setCrumbs([{ label: admin[0] }]);
-      return void (await admin[1](outlet));
+      /* The admin screens are read-only except one: the dictionary offers the
+         field-visibility toggle, which is administrator-only. The server
+         refuses a non-admin write regardless (\`sys.routes.js\` guards on the
+         method), so this decides whether the control is *offered*, not whether
+         it is allowed. */
+      return void (await admin[1](outlet, { user: state.user }));
     }
 
     setCrumbs([{ label: "Not found" }]);
@@ -18482,7 +18498,7 @@ import { setHelp } from "../main.js";
  * seventeen-entity model has several hundred columns and nobody reads them all at
  * once.
  */
-export async function dictionaryView(root) {
+export async function dictionaryView(root, { user } = {}) {
   mount(root, spinner("Reading the dictionary"));
   const [tables, summary, references, refLists, windows, tabs, fields] = await Promise.all([
     api.get("/sys/tables"),
@@ -18552,6 +18568,55 @@ export async function dictionaryView(root) {
 
   const yesNo = (value) => (value ? "Yes" : "No");
 
+  /**
+   * The one dictionary write this application offers, and it had no caller.
+   *
+   * \`PATCH /sys/fields/:id\` has been in \`sys.routes.js\` since the dictionary
+   * was, under a comment calling it "the one dictionary write the application
+   * itself offers, because it is the one that pays off immediately: a column
+   * hidden here disappears from every grid and form without regenerating". It
+   * paid off for nobody: no screen listed the fields, so nothing could reach it.
+   * The Fields panel is where it belongs.
+   *
+   * Administrator-only *as an offer*. \`sys.routes.js\` refuses any non-GET from a
+   * caller who is not one, so this decides what is drawn, never what is allowed
+   * — a reader who is not an administrator sees the value and no control rather
+   * than a control that answers 403.
+   *
+   * The row is updated from the server's response rather than from what was
+   * clicked: the endpoint returns the updated row, and trusting the optimistic
+   * value is how a screen comes to disagree with the database it is describing.
+   */
+  function visibilityCell(field, key, onChanged) {
+    if (!user?.isAdmin) return el("td", yesNo(field[key]));
+
+    const label = key === "is_displayed" ? "the form" : "the list";
+    const button = el(
+      "button.linklike",
+      { type: "button", title: \`\${field[key] ? "Remove from" : "Add to"} \${label}\` },
+      yesNo(field[key])
+    );
+    button.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      button.disabled = true;
+      try {
+        const updated = await api.patch(\`/sys/fields/\${field.sys_field_id}\`, {
+          [key]: !field[key],
+        });
+        Object.assign(field, updated);
+        toast(
+          \`\${field.name} is \${field[key] ? "on" : "off"} \${label}. The screen picks it up next time it loads.\`,
+          "success"
+        );
+        onChanged();
+      } catch (error) {
+        toast(error.message, "error");
+        button.disabled = false;
+      }
+    });
+    return el("td", button);
+  }
+
   async function showFields(tab) {
     const table = tables.find((row) => row.sys_table_id === tab.sys_table_id);
     /* \`/sys/tables\` is scoped to what this caller's roles may read; \`/sys/tabs\`
@@ -18582,7 +18647,11 @@ export async function dictionaryView(root) {
         el(
           "p.lede",
           "“On form” and “In grid” are what the application asks for when it draws this " +
-            "entity’s record screen and its list. Sequence is the order it draws them in."
+            "entity’s record screen and its list. Sequence is the order it draws them in." +
+            (user?.isAdmin
+              ? " Both are editable: click one to hide or show that field. The column stays in the" +
+                " database and the screen stops drawing it — no regeneration, no migration."
+              : "")
         ),
         rows.length === 0
           ? el("p.muted", "No fields are seeded against this tab.")
@@ -18606,8 +18675,8 @@ export async function dictionaryView(root) {
                       "tr",
                       el("td", field.name || "—"),
                       el("td", el("code", columnName.get(field.sys_column_id) || "—")),
-                      el("td", yesNo(field.is_displayed)),
-                      el("td", yesNo(field.is_displayed_grid)),
+                      visibilityCell(field, "is_displayed", () => showFields(tab)),
+                      visibilityCell(field, "is_displayed_grid", () => showFields(tab)),
                       el("td", displayValue(field.seq_no ?? "—")),
                       el("td", displayValue(field.seq_no_grid ?? "—")),
                       el("td", yesNo(field.is_mandatory)),
@@ -21902,7 +21971,7 @@ export async function reportsView(root) {
 }
 `
 });
-var RUNTIME_BYTES = 438458;
+var RUNTIME_BYTES = 441716;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
