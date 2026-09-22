@@ -236,11 +236,27 @@ export function sysRoutes(model) {
   });
 
   router.get("/model-summary", async (_request, { db }) => {
+    /*
+     * Counted from the tables, not from the model, for the three an
+     * administrator can now edit.
+     *
+     * These read `model.rules` and `model.workflows` until the admin screens
+     * grew create and delete — at which point a screen reporting "18 Rules"
+     * over a list showing seventeen is not a stale number, it is the dictionary
+     * describing a different application from the one running. `entities`,
+     * `hooks` and `categories` stay on the model: nothing edits those, and the
+     * model is where they live.
+     */
     const counts = {
       entities: model.entities.length,
-      rules: (model.rules || []).length,
-      workflows: (model.workflows || []).length,
-      sagas: (model.sagas || []).length,
+      rules: await db.value("SELECT COUNT(*)::int FROM sys_rule_definitions"),
+      workflows: await db.value(
+        "SELECT COUNT(*)::int FROM sys_workflow_definitions WHERE kind = 'state'"
+      ),
+      sagas: await db.value(
+        "SELECT COUNT(*)::int FROM sys_workflow_definitions WHERE kind = 'saga'"
+      ),
+      reports: await db.value("SELECT COUNT(*)::int FROM sys_report"),
       hooks: (model.hooks || []).length,
       categories: (model.categories || []).length,
     };

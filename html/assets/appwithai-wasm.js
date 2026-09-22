@@ -10648,6 +10648,38 @@ CREATE TABLE IF NOT EXISTS sys_transition_access (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- The \`%%report\` questions this application answers about itself.
+--
+-- These were served from \`model.json\` in memory until now, which made them the
+-- one part of the application that could be read and never changed: no table,
+-- so no create, update or delete. The NestJS stack has had \`sys_report\` since
+-- migration 018 and this is the same shape deliberately, down to the column
+-- names, so one model produces two applications that agree about what a report
+-- is.
+--
+-- \`sql_text\` rather than \`sql\`: the column holds a statement and \`sql\` is a
+-- reserved word in enough dialects that naming it that invites a quoting bug.
+-- Every read of it still goes through \`assertReadOnly\` at run time — the table
+-- is ordinary and an administrator can now write to it, so the runtime trusts
+-- what it is handed exactly as much as it did before, which is not at all.
+CREATE TABLE IF NOT EXISTS sys_report (
+  sys_report_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(120) NOT NULL UNIQUE,
+  title VARCHAR(255) NOT NULL,
+  entity_name VARCHAR(100),
+  table_name VARCHAR(100),
+  chart VARCHAR(20),
+  x_axis VARCHAR(100),
+  y_axis VARCHAR(100),
+  help TEXT,
+  sql_text TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sys_report_table ON sys_report(table_name, sort_order);
 CREATE INDEX IF NOT EXISTS idx_sys_column_table ON sys_column(sys_table_id);
 CREATE INDEX IF NOT EXISTS idx_sys_field_tab ON sys_field(sys_tab_id);
 CREATE INDEX IF NOT EXISTS idx_sys_session_token ON sys_session(token);
@@ -13651,6 +13683,109 @@ export async function evaluateRules(rules, record, options = {}) {
   return { violations, mutations, notifications, traces };
 }
 `,
+  "server/lib/workflows.js": `/**
+ * Where a workflow is read from — the table, not the model.
+ *
+ * \`sys_workflow_definitions\` is seeded at first boot from \`model.workflows\`,
+ * storing each workflow object whole in the \`definition\` column. Until now it
+ * was written there and read by three listing endpoints and nothing else: every
+ * *behavioural* use of a workflow — which transitions a record is offered, and
+ * whether a status change is recorded as modelled — read \`model.workflows\`
+ * instead, the copy compiled into the bundle.
+ *
+ * That split is fine while nothing can change either. It stops being fine the
+ * moment the admin screen can edit a workflow, because the edit lands in the
+ * table and the application keeps behaving from the model: a definition that is
+ * "seeded, visible in the admin screen, drawn by the viewer, and inert" — the
+ * failure this codebase has already documented once, in the dance-studio
+ * model's sixteen \`%%action\` lines.
+ *
+ * So the table is the source of truth, the way \`sys_rule_definitions\` already
+ * is for rules (\`bus.routes.js\` enforces from that table, not from
+ * \`model.rules\`) and the way the Application Dictionary is for screens. The
+ * model seeds it; after that, what the database says is what the application
+ * does.
+ *
+ * **The fallback to the model is deliberate and narrow.** An application
+ * generated before this table was seeded, or one whose seed was interrupted,
+ * would otherwise lose its state machines entirely rather than degrade — and
+ * losing them silently disables the transition UI on every record. Falling back
+ * keeps such an application behaving exactly as it did before.
+ */
+
+/**
+ * Every workflow for one entity, newest definition wins on a name collision.
+ *
+ * Parsed defensively: \`definition\` is JSONB the administrator can now write, and
+ * a row that will not parse should cost that one workflow rather than every
+ * screen that asks for one.
+ */
+export async function workflowsForEntity(db, model, entityName) {
+  let rows = [];
+  try {
+    rows = await db.select("sys_workflow_definitions", {
+      where: { entity_name: entityName, is_active: true },
+      orderBy: "name",
+    });
+  } catch {
+    rows = [];
+  }
+
+  if (rows.length === 0) {
+    return (model.workflows || []).filter((item) => item.entity === entityName);
+  }
+
+  const parsed = [];
+  for (const row of rows) {
+    const definition = parseDefinition(row);
+    if (definition) parsed.push(definition);
+  }
+  /* Every row failing to parse is not the same as no rows: the model is still
+     the better answer than nothing. */
+  if (parsed.length === 0) {
+    return (model.workflows || []).filter((item) => item.entity === entityName);
+  }
+  return parsed;
+}
+
+/**
+ * The one state machine an entity moves on, or null.
+ *
+ * A \`kind: saga\` definition is a multi-step process, not a lifecycle, and asking
+ * it for \`transitions\` gets an empty list — so the state machine is picked by
+ * kind rather than by being first.
+ */
+export async function stateMachineFor(db, model, entityName) {
+  const workflows = await workflowsForEntity(db, model, entityName);
+  return (
+    workflows.find((item) => (item.kind ?? "state") === "state" && Array.isArray(item.transitions)) ??
+    null
+  );
+}
+
+function parseDefinition(row) {
+  const raw = row.definition;
+  if (!raw) return null;
+  let value = raw;
+  if (typeof raw === "string") {
+    try {
+      value = JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  if (!value || typeof value !== "object") return null;
+  /* The row's own columns win over the stored blob for the three things the
+     row also carries: an administrator who renames a workflow edits the column,
+     and the blob it was seeded from would otherwise keep the old name. */
+  return {
+    ...value,
+    name: row.name ?? value.name,
+    entity: row.entity_name ?? value.entity,
+    kind: row.kind ?? value.kind ?? "state",
+  };
+}
+`,
   "server/migrate.js": `/**
  * Schema and seed, run once at first boot.
  *
@@ -13736,6 +13871,7 @@ function seedCounter(model, log) {
     count(model.users) +
     count(model.rules) +
     count(model.workflows) +
+    count(model.reports) +
     accessRuleCount(model) +
     /* The reporting application's own roles and accounts — one of each per
        \`%%rbac\` role. Counted because the stage ticks, and a progress bar that
@@ -13787,6 +13923,7 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   await seedRoleUsers(db, model, log, tick);
   await seedRules(db, model, tick);
   await seedWorkflows(db, model, tick);
+  await seedReports(db, model, tick);
   await seedAccess(db, model, tick);
   await seedReporting(db, model, log, tick);
   await seedSampleData(db, model, log, tick);
@@ -14212,6 +14349,42 @@ async function seedWorkflows(db, model, tick = () => {}) {
       entity_name: saga.entity,
       kind: "saga",
       definition: JSON.stringify(saga),
+    });
+  }
+}
+
+/**
+ * The \`%%report\` questions, into a table the administrator can edit.
+ *
+ * They used to be read straight out of \`model.json\` on every request, which is
+ * why they were the one part of this application that could be read and never
+ * changed. Seeded by name, skipped when present — the same shape every other
+ * seed here uses, so a second boot does not overwrite an edited report with the
+ * model's original.
+ *
+ * \`sort_order\` preserves the model's own order. The reports screen lists them
+ * as the model wrote them, and a model puts the question its users ask most
+ * first.
+ */
+async function seedReports(db, model, tick = () => {}) {
+  const reports = Array.isArray(model.reports) ? model.reports : [];
+  for (const [index, report] of reports.entries()) {
+    const exists = await db.one("SELECT sys_report_id FROM sys_report WHERE name = $1", [
+      report.name,
+    ]);
+    tick();
+    if (exists) continue;
+    await db.insert("sys_report", {
+      name: report.name,
+      title: report.title ?? report.name,
+      entity_name: report.entity ?? null,
+      table_name: report.tableName ?? null,
+      chart: report.chart ?? null,
+      x_axis: report.x ?? null,
+      y_axis: report.y ?? null,
+      help: report.help ?? null,
+      sql_text: report.sql,
+      sort_order: index * 10,
     });
   }
 }
@@ -14713,6 +14886,7 @@ import { Router } from "../lib/router.js";
 import { badRequest, json, notFound, readJson } from "../lib/http.js";
 import { ident } from "../lib/db.js";
 import { checkOperationAccess, checkTransitionAccess, requireUser } from "../lib/guards.js";
+import { stateMachineFor } from "../lib/workflows.js";
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
 import { recordAudit } from "./audit.routes.js";
@@ -14938,9 +15112,17 @@ function validate(entity, values, mode) {
 
 const isBlank = (value) => value == null || String(value).trim() === "";
 
-/** The column a state machine moves, when the entity has one. */
-function statusColumn(entity, model) {
-  const workflow = (model.workflows || []).find((item) => item.entity === entity.name);
+/**
+ * The column a state machine moves, when the entity has one.
+ *
+ * Takes the workflow rather than the model: the definitions live in
+ * \`sys_workflow_definitions\` and an administrator can now edit them, so an
+ * entity's machine is whatever the table currently says it is. Reading
+ * \`model.workflows\` here would mean an entity given a machine after generation
+ * never had its status changes recorded, and one whose machine was deleted went
+ * on being treated as having one.
+ */
+function statusColumn(entity, workflow) {
   if (!workflow) return null;
   const candidates = ["status", "state", "workflow_state"];
   return entity.attributes.find((attribute) => candidates.includes(attribute.columnName))?.columnName ?? null;
@@ -15151,7 +15333,15 @@ export function busRoutes(model) {
     }
     Object.assign(values, applicableMutations(entity, outcome.mutations));
 
-    await checkTransitionAccess(db, user, entity.tableName, current, { ...current, ...values }, statusColumn(entity, model));
+    const machine = await stateMachineFor(db, model, entity.name);
+    await checkTransitionAccess(
+      db,
+      user,
+      entity.tableName,
+      current,
+      { ...current, ...values },
+      statusColumn(entity, machine)
+    );
 
     values.updated_by = user.id;
     values.updated_at = new Date().toISOString();
@@ -15234,13 +15424,13 @@ function applicableMutations(entity, mutations) {
 
 /** Record a state change against the entity's machine, when it crossed one. */
 async function recordWorkflowRun(db, model, entity, before, after, user) {
-  const column = statusColumn(entity, model);
+  const workflow = await stateMachineFor(db, model, entity.name);
+  const column = statusColumn(entity, workflow);
   if (!column) return;
   const from = before[column];
   const to = after[column];
   if (!to || from === to) return;
 
-  const workflow = (model.workflows || []).find((item) => item.entity === entity.name);
   const transition = (workflow?.transitions || []).find(
     (item) => item.from === String(from) && item.to === String(to)
   );
@@ -15774,15 +15964,31 @@ export function reportingRoutes(model) {
  * server, a second database and a seeder, and a browser tab has none of those.
  * The same directive, read a second way.
  *
- * The reports are not a table. They come off \`model.json\` — the model *is* the
- * definition, and storing a copy in \`sys_\` would only create something that can
- * disagree with it. Nothing in this runtime edits a report, so nothing needs a
- * row to edit.
+ * **The reports are a table now, and that is a reversal.** This comment used to
+ * say they were not: that they came off \`model.json\`, that the model *was* the
+ * definition, and that "nothing in this runtime edits a report, so nothing needs
+ * a row to edit". The last clause was the load-bearing one and it stopped being
+ * true the moment the administrator section was asked to offer create, update
+ * and delete — at which point "no row to edit" is not a design, it is the reason
+ * the feature cannot exist.
+ *
+ * So \`sys_report\` is seeded from \`model.json\` at first boot and read from after
+ * that, which is what \`sys_rule_definitions\` already did for rules and what the
+ * Application Dictionary does for screens. The NestJS stack has had the same
+ * table since migration 018, so this also closes a gap between the two rather
+ * than inventing something for one of them.
+ *
+ * The concern the old comment had — a copy that can disagree with the model — is
+ * real and is the point rather than a cost: an administrator who edits a report
+ * *means* to disagree with the model, the same way one who hides a field does.
+ * Regenerating restores the model's version, because the seed skips a report
+ * whose name is already there and a regenerated application starts on an empty
+ * database.
  */
 
 import { Router } from "../lib/router.js";
-import { badRequest, json, notFound } from "../lib/http.js";
-import { requireUser } from "../lib/guards.js";
+import { badRequest, json, noContent, notFound, readJson } from "../lib/http.js";
+import { requireAdmin, requireUser } from "../lib/guards.js";
 
 /**
  * The most rows one report returns.
@@ -15824,6 +16030,31 @@ function assertReadOnly(sql) {
   return body;
 }
 
+/**
+ * A row as the rest of the application talks about a report.
+ *
+ * The table's column names are the NestJS stack's (\`sql_text\`, \`x_axis\`,
+ * \`entity_name\`); the shape every caller already reads is the model's (\`sql\`,
+ * \`x\`, \`entity\`). Translated in one place so neither side has to learn the
+ * other's spelling.
+ */
+function fromRow(row) {
+  return {
+    id: row.sys_report_id,
+    name: row.name,
+    title: row.title,
+    entity: row.entity_name ?? null,
+    tableName: row.table_name ?? null,
+    chart: row.chart ?? null,
+    x: row.x_axis ?? null,
+    y: row.y_axis ?? null,
+    help: row.help ?? null,
+    sql: row.sql_text,
+    sortOrder: row.sort_order,
+    isActive: row.is_active !== false,
+  };
+}
+
 /** What a caller may see: everything except the query itself. */
 function withoutSql(report) {
   const { sql: _sql, ...meta } = report;
@@ -15832,23 +16063,43 @@ function withoutSql(report) {
 
 export function reportsRoutes(model) {
   const router = new Router();
-  router.use(async (_request, { user }) => {
+  /* Reads open to any signed-in user, writes administrator-only — the same
+     arrangement \`/sys\`, \`/rules\` and \`/workflows\` use. A report's SQL runs
+     against this application's whole database, so who may write one is a
+     different question from who may read the answers. */
+  router.use(async (request, { user }) => {
     requireUser(user);
+    if (request.method !== "GET") requireAdmin(user);
   });
 
-  const reports = Array.isArray(model.reports) ? model.reports : [];
-  const byName = new Map(reports.map((report) => [report.name, report]));
+  async function reportByName(db, name) {
+    const row = await db.one("SELECT * FROM sys_report WHERE name = $1", [name]);
+    return row ? fromRow(row) : null;
+  }
 
-  router.get("/", async () => json(reports.map(withoutSql)));
+  router.get("/", async (_request, { db }) => {
+    const rows = await db.select("sys_report", { orderBy: "sort_order" });
+    return json(rows.map((row) => withoutSql(fromRow(row))));
+  });
 
-  router.get("/:name", async (_request, { params }) => {
-    const report = byName.get(params.name);
+  router.get("/:name", async (_request, { db, params, user }) => {
+    const report = await reportByName(db, params.name);
     if (!report) throw notFound(\`No report named "\${params.name}"\`);
-    return json(withoutSql(report));
+    /*
+     * The query itself goes only to an administrator, who is the only caller
+     * that can edit one — everyone else gets what they always got.
+     *
+     * \`withoutSql\` exists because a report's SQL names tables the reader may
+     * have no access to, and reading the statement is a way to learn the schema
+     * and the joins behind a screen that would otherwise only show its results.
+     * Editing needs the text, so this route hands it over; that is a reason to
+     * gate it, not a reason to widen it.
+     */
+    return json(user?.isAdmin ? report : withoutSql(report));
   });
 
   router.get("/:name/run", async (_request, { db, params }) => {
-    const report = byName.get(params.name);
+    const report = await reportByName(db, params.name);
     if (!report) throw notFound(\`No report named "\${params.name}"\`);
 
     const body = assertReadOnly(report.sql);
@@ -15885,7 +16136,142 @@ export function reportsRoutes(model) {
     });
   });
 
+  /*
+   * Create, update and delete.
+   *
+   * **The SQL is checked here as well as on every run**, and both matter. The
+   * run-time check is the one that cannot be skipped, because \`sys_report\` is
+   * an ordinary table whose rows predate this route and could be written by
+   * anything that reaches the database. The save-time check is the one that
+   * tells an administrator *now* that what they typed is not a query this
+   * application will execute, rather than storing it and failing whenever
+   * somebody next opens the report.
+   *
+   * It is the same \`assertReadOnly\` both times, deliberately: two spellings of
+   * "read-only" is how one of them comes to permit something the other refuses.
+   */
+  function reportFields(body, existing = {}) {
+    const values = {};
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) throw badRequest("A report needs a \`name\`");
+      if (!/^[a-z0-9][a-z0-9-]*$/i.test(name)) {
+        throw badRequest("\`name\` is the report's handle in a URL — letters, digits and hyphens");
+      }
+      values.name = name;
+    }
+    if (body.title !== undefined) {
+      const title = String(body.title).trim();
+      if (!title) throw badRequest("A report needs a \`title\` — the question it answers");
+      values.title = title;
+    }
+    if (body.entity !== undefined) {
+      values.entity_name = body.entity || null;
+      /* \`tableName\` follows the entity rather than being accepted beside it:
+         two fields naming the same thing is two chances to disagree. */
+      const entity = body.entity ? resolveReportEntity(model, body.entity) : null;
+      values.table_name = entity ? entity.tableName : null;
+    }
+    if (body.help !== undefined) values.help = body.help || null;
+    if (body.sortOrder !== undefined) {
+      const order = Number(body.sortOrder);
+      if (!Number.isInteger(order)) throw badRequest("\`sortOrder\` must be a whole number");
+      values.sort_order = order;
+    }
+    if (body.isActive !== undefined) values.is_active = !!body.isActive;
+
+    /*
+     * A chart needs both axes or neither. The dashboard draws \`chart\` with \`x\`
+     * and \`y\`; one without the other renders an empty frame, which reads as a
+     * broken report rather than as a report nobody finished configuring.
+     */
+    if (body.chart !== undefined || body.x !== undefined || body.y !== undefined) {
+      const chart = body.chart ? String(body.chart).trim() : null;
+      if (chart && !CHART_TYPES.has(chart)) {
+        throw badRequest(\`\\\`chart\\\` must be one of \${[...CHART_TYPES].join(", ")}\`);
+      }
+      const x = body.x !== undefined ? body.x || null : (existing.x_axis ?? null);
+      const y = body.y !== undefined ? body.y || null : (existing.y_axis ?? null);
+      if (chart && (!x || !y)) {
+        throw badRequest("A chart needs both \`x\` and \`y\` — an axis on its own draws nothing");
+      }
+      values.chart = chart;
+      values.x_axis = chart ? x : null;
+      values.y_axis = chart ? y : null;
+    }
+
+    if (body.sql !== undefined) {
+      values.sql_text = assertReadOnly(body.sql);
+    }
+    if (!values.sql_text && !existing.sql_text) {
+      throw badRequest("A report needs \`sql\` — the query that answers the question");
+    }
+    return values;
+  }
+
+  router.post("/", async (request, { db }) => {
+    const body = await readJson(request);
+    const values = { sort_order: 0, is_active: true, ...reportFields(body) };
+    if (!values.name) throw badRequest("A report needs a \`name\`");
+    if (!values.title) throw badRequest("A report needs a \`title\`");
+
+    const clash = await db.one("SELECT sys_report_id FROM sys_report WHERE name = $1", [
+      values.name,
+    ]);
+    /* Answered as a conflict rather than left to the unique index, so the
+       message names the report instead of quoting a constraint. */
+    if (clash) throw badRequest(\`A report named "\${values.name}" already exists\`);
+
+    const row = await db.insert("sys_report", values);
+    return json(fromRow(row), { status: 201 });
+  });
+
+  router.patch("/:name", async (request, { db, params }) => {
+    const existing = await db.one("SELECT * FROM sys_report WHERE name = $1", [params.name]);
+    if (!existing) throw notFound(\`No report named "\${params.name}"\`);
+
+    const body = await readJson(request);
+    const values = reportFields(body, existing);
+    if (Object.keys(values).length === 0) throw badRequest("Nothing to change");
+
+    if (values.name && values.name !== existing.name) {
+      const clash = await db.one("SELECT sys_report_id FROM sys_report WHERE name = $1", [
+        values.name,
+      ]);
+      if (clash) throw badRequest(\`A report named "\${values.name}" already exists\`);
+    }
+    values.updated_at = new Date().toISOString();
+
+    const row = await db.update("sys_report", values, { sys_report_id: existing.sys_report_id });
+    return json(fromRow(row));
+  });
+
+  router.delete("/:name", async (_request, { db, params }) => {
+    const existing = await db.one("SELECT sys_report_id FROM sys_report WHERE name = $1", [
+      params.name,
+    ]);
+    if (!existing) throw notFound(\`No report named "\${params.name}"\`);
+    await db.remove("sys_report", { sys_report_id: existing.sys_report_id });
+    return noContent();
+  });
+
   return router;
+}
+
+/** The chart types the dashboard knows how to draw. */
+const CHART_TYPES = new Set(["bar", "line", "pie", "area"]);
+
+/** The entity a report names, by any of the spellings a model might use. */
+function resolveReportEntity(model, name) {
+  const wanted = String(name ?? "").toLowerCase();
+  return (
+    (model.entities || []).find(
+      (entity) =>
+        entity.name.toLowerCase() === wanted ||
+        entity.tableName === wanted ||
+        entity.route === wanted
+    ) || null
+  );
 }
 `,
   "server/modules/rules.routes.js": `/**
@@ -15900,15 +16286,31 @@ export function reportsRoutes(model) {
  */
 
 import { Router } from "../lib/router.js";
-import { badRequest, json, notFound, readJson } from "../lib/http.js";
-import { requireUser } from "../lib/guards.js";
+import { badRequest, json, noContent, notFound, readJson } from "../lib/http.js";
+import { requireAdmin, requireUser } from "../lib/guards.js";
 import { evaluateRules, interpretCondition } from "../lib/rules.js";
 import { resolveEntity } from "./bus.routes.js";
 
 export function rulesRoutes(model) {
   const router = new Router();
-  router.use(async (_request, { user }) => {
+  /*
+   * Reads open to any signed-in user, writes administrator-only — the same
+   * arrangement \`/sys\` uses, and for the same reason. Every write in this
+   * application is filtered through these rules, so a rule is a statement about
+   * what the business permits; someone who can edit one can decide what the
+   * application accepts from everybody else.
+   *
+   * Keyed on the HTTP method rather than per-route, deliberately: there are more
+   * write routes than anyone remembers, and one added later would otherwise
+   * default to open. \`POST /evaluate\` is the single exception and is carved out
+   * explicitly below — it writes nothing, it is the dry run.
+   */
+  router.use(async (request, { user }) => {
     requireUser(user);
+    if (request.method === "GET") return;
+    const path = new URL(request.url).pathname;
+    if (request.method === "POST" && path.endsWith("/evaluate")) return;
+    requireAdmin(user);
   });
 
   router.get("/", async (_request, { db, query }) => {
@@ -15925,6 +16327,121 @@ export function rulesRoutes(model) {
     ]);
     if (!row) throw notFound("No such rule");
     return json(withReading(model)(row));
+  });
+
+  /*
+   * Create, update and delete.
+   *
+   * A rule is four things the engine needs — the entity it binds to, when it
+   * fires, in what order, and the JDM graph that decides — so those are what is
+   * validated. \`jdm_content\` is stored as text and parsed on evaluation, which
+   * means a syntactically broken graph would be accepted here and fail on the
+   * next write to the entity, a long way from the screen that caused it. It is
+   * parsed on the way in instead.
+   *
+   * \`table_name\` is derived rather than accepted: it is the entity's, and a
+   * caller who could set it independently could bind a rule to one entity and
+   * have it evaluated against another's columns.
+   */
+  function ruleFields(body, entity, existing = {}) {
+    const values = {};
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) throw badRequest("A rule needs a \`name\`");
+      values.name = name;
+    }
+    if (body.description !== undefined) values.description = body.description || null;
+    if (entity) {
+      values.entity_name = entity.name;
+      values.table_name = entity.tableName;
+    }
+    if (body.event !== undefined) {
+      const event = String(body.event).trim();
+      if (!EVENTS.has(event)) throw badRequest(\`\\\`event\\\` must be one of \${[...EVENTS].join(", ")}\`);
+      values.event = event;
+    }
+    if (body.operation !== undefined) {
+      const operation = String(body.operation).trim().toUpperCase();
+      if (!OPERATIONS.has(operation))
+        throw badRequest(\`\\\`operation\\\` must be one of \${[...OPERATIONS].join(", ")}\`);
+      values.operation = operation;
+    }
+    if (body.priority !== undefined) {
+      const priority = Number(body.priority);
+      if (!Number.isInteger(priority)) throw badRequest("\`priority\` must be a whole number");
+      values.priority = priority;
+    }
+    if (body.is_active !== undefined) values.is_active = !!body.is_active;
+    if (body.jdm_content !== undefined) {
+      const content =
+        typeof body.jdm_content === "string" ? body.jdm_content : JSON.stringify(body.jdm_content);
+      try {
+        const graph = JSON.parse(content);
+        if (!graph || typeof graph !== "object" || !Array.isArray(graph.nodes)) {
+          throw new Error("a JDM graph needs a \`nodes\` array");
+        }
+      } catch (error) {
+        throw badRequest(\`\\\`jdm_content\\\` is not a usable JDM graph: \${error.message}\`);
+      }
+      values.jdm_content = content;
+    }
+    if (!values.jdm_content && !existing.jdm_content) {
+      throw badRequest("A rule needs \`jdm_content\` — the JDM graph that decides");
+    }
+    return values;
+  }
+
+  router.post("/", async (request, { db }) => {
+    const body = await readJson(request);
+    const entityName = body.entity_name || body.entity;
+    if (!entityName) throw badRequest("A rule needs an \`entity_name\`");
+    const entity = resolveEntity(model, entityName);
+    if (!entity) throw notFound(\`No entity "\${entityName}" in this model\`);
+
+    const values = {
+      event: "beforeCreate",
+      operation: "ALL",
+      priority: 100,
+      is_active: true,
+      ...ruleFields(body, entity),
+    };
+    const row = await db.insert("sys_rule_definitions", values);
+    return json(withReading(model)(row), { status: 201 });
+  });
+
+  router.patch("/:id", async (request, { db, params }) => {
+    const existing = await db.one(
+      "SELECT * FROM sys_rule_definitions WHERE sys_rule_definition_id = $1",
+      [params.id]
+    );
+    if (!existing) throw notFound("No such rule");
+
+    const body = await readJson(request);
+    const entityName = body.entity_name || body.entity;
+    let entity = null;
+    if (entityName) {
+      entity = resolveEntity(model, entityName);
+      if (!entity) throw notFound(\`No entity "\${entityName}" in this model\`);
+    }
+
+    const values = ruleFields(body, entity, existing);
+    if (Object.keys(values).length === 0) throw badRequest("Nothing to change");
+    values.updated_at = new Date().toISOString();
+
+    const row = await db.update("sys_rule_definitions", values, {
+      sys_rule_definition_id: params.id,
+    });
+    return json(withReading(model)(row));
+  });
+
+  router.delete("/:id", async (_request, { db, params }) => {
+    const existing = await db.one(
+      "SELECT sys_rule_definition_id FROM sys_rule_definitions WHERE sys_rule_definition_id = $1",
+      [params.id]
+    );
+    if (!existing) throw notFound("No such rule");
+    await db.remove("sys_rule_definitions", { sys_rule_definition_id: params.id });
+    return noContent();
   });
 
   router.post("/evaluate", async (request, { db }) => {
@@ -15950,6 +16467,27 @@ export function rulesRoutes(model) {
 
   return router;
 }
+
+/**
+ * What the rules engine actually dispatches on.
+ *
+ * \`bus.service\` runs \`beforeCreate\`/\`beforeUpdate\` hooks and then
+ * \`enforceBusinessRules(table, data, action)\`, so a rule whose event is not one
+ * of these is seeded, listed, and never evaluated — the silent-inert failure the
+ * dance-studio model's sixteen actions already demonstrated once. Rejected at
+ * the door rather than stored.
+ */
+const EVENTS = new Set([
+  "beforeCreate",
+  "afterCreate",
+  "beforeUpdate",
+  "afterUpdate",
+  "beforeDelete",
+  "afterDelete",
+]);
+
+/** \`ALL\` is the wildcard the evaluate query already matches on. */
+const OPERATIONS = new Set(["ALL", "CREATE", "UPDATE", "DELETE"]);
 
 /**
  * Annotate a rule with how its decisions were read.
@@ -16220,11 +16758,27 @@ export function sysRoutes(model) {
   });
 
   router.get("/model-summary", async (_request, { db }) => {
+    /*
+     * Counted from the tables, not from the model, for the three an
+     * administrator can now edit.
+     *
+     * These read \`model.rules\` and \`model.workflows\` until the admin screens
+     * grew create and delete — at which point a screen reporting "18 Rules"
+     * over a list showing seventeen is not a stale number, it is the dictionary
+     * describing a different application from the one running. \`entities\`,
+     * \`hooks\` and \`categories\` stay on the model: nothing edits those, and the
+     * model is where they live.
+     */
     const counts = {
       entities: model.entities.length,
-      rules: (model.rules || []).length,
-      workflows: (model.workflows || []).length,
-      sagas: (model.sagas || []).length,
+      rules: await db.value("SELECT COUNT(*)::int FROM sys_rule_definitions"),
+      workflows: await db.value(
+        "SELECT COUNT(*)::int FROM sys_workflow_definitions WHERE kind = 'state'"
+      ),
+      sagas: await db.value(
+        "SELECT COUNT(*)::int FROM sys_workflow_definitions WHERE kind = 'saga'"
+      ),
+      reports: await db.value("SELECT COUNT(*)::int FROM sys_report"),
       hooks: (model.hooks || []).length,
       categories: (model.categories || []).length,
     };
@@ -16248,23 +16802,37 @@ export function sysRoutes(model) {
   "server/modules/workflow.routes.js": `/**
  * \`/workflows\` and \`/workflow-definitions\` — the processes the model declared.
  *
- * A state machine has no endpoint that "runs" it, and inventing one would be a
- * second way to change a record's status that the guards, hooks and rules on
- * the ordinary update path know nothing about. So this module reads: the
- * machines, the transitions available from where a record actually is, and the
- * runs that have already happened. Moving a record is a PUT to the record.
+ * A state machine still has no endpoint that "runs" it, and inventing one would
+ * be a second way to change a record's status that the guards, hooks and rules
+ * on the ordinary update path know nothing about. **Moving a record is a PUT to
+ * the record**, and that has not changed.
+ *
+ * What this module now also does is let an administrator edit the machine
+ * itself — create a definition, change its transitions, retire it. That is a
+ * different thing from running one: it changes which moves *exist*, not which
+ * one a particular record is making, and it goes through the same table the
+ * readers read (\`sys_workflow_definitions\`, via \`lib/workflows.js\`) so an edit
+ * takes effect on the next request rather than at the next generation.
+ *
+ * Reads are open to any signed-in user; every write is administrator-only.
  */
 
 import { Router } from "../lib/router.js";
-import { json, notFound } from "../lib/http.js";
-import { requireUser } from "../lib/guards.js";
+import { badRequest, json, noContent, notFound, readJson } from "../lib/http.js";
+import { requireAdmin, requireUser } from "../lib/guards.js";
 import { resolveEntity } from "./bus.routes.js";
 import { ident } from "../lib/db.js";
+import { stateMachineFor } from "../lib/workflows.js";
 
 export function workflowRoutes(model) {
   const router = new Router();
-  router.use(async (_request, { user }) => {
+  /* Reads open to any signed-in user, writes administrator-only — the same
+     arrangement \`/sys\` and \`/rules\` use. A state machine decides which moves a
+     record may make, so editing one changes what the application permits
+     everybody else to do. */
+  router.use(async (request, { user }) => {
     requireUser(user);
+    if (request.method !== "GET") requireAdmin(user);
   });
 
   router.get("/definitions", async (_request, { db }) =>
@@ -16278,6 +16846,116 @@ export function workflowRoutes(model) {
     );
     if (!row) throw notFound("No such workflow");
     return json(row);
+  });
+
+  /*
+   * Create, update and delete a definition.
+   *
+   * What is stored is the workflow object itself, in \`definition\`, exactly as
+   * the seed writes it — so a machine edited here is read back by
+   * \`stateMachineFor\` and drives the transition UI and the run log immediately.
+   * That is only true because the readers were moved onto this table; before
+   * that an edit here changed nothing, which is the whole reason this shape was
+   * worth building rather than a screen that looked like it worked.
+   *
+   * \`transitions\` is validated rather than trusted. A transition with no \`from\`
+   * or no \`to\` is not a move, and the two readers would silently skip it — so it
+   * is refused at the door rather than stored and ignored.
+   */
+  function workflowFields(body, entity, existing = {}) {
+    const values = {};
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) throw badRequest("A workflow needs a \`name\`");
+      values.name = name;
+    }
+    if (entity) values.entity_name = entity.name;
+    if (body.kind !== undefined) {
+      const kind = String(body.kind).trim();
+      if (!KINDS.has(kind)) throw badRequest(\`\\\`kind\\\` must be one of \${[...KINDS].join(", ")}\`);
+      values.kind = kind;
+    }
+    if (body.is_active !== undefined) values.is_active = !!body.is_active;
+
+    if (body.definition !== undefined) {
+      const definition =
+        typeof body.definition === "string" ? safeParse(body.definition) : body.definition;
+      if (!definition || typeof definition !== "object") {
+        throw badRequest("\`definition\` must be an object describing the workflow");
+      }
+      const kind = values.kind ?? existing.kind ?? "state";
+      if (kind === "state") {
+        const transitions = definition.transitions;
+        if (!Array.isArray(transitions) || transitions.length === 0) {
+          throw badRequest("A \`state\` workflow needs at least one transition");
+        }
+        for (const [index, transition] of transitions.entries()) {
+          if (!transition || !String(transition.from ?? "").trim() || !String(transition.to ?? "").trim()) {
+            throw badRequest(
+              \`transitions[\${index}] needs both a \\\`from\\\` and a \\\`to\\\` — a half-drawn edge is not a move\`
+            );
+          }
+        }
+      }
+      values.definition = JSON.stringify(definition);
+    }
+
+    if (!values.definition && !existing.definition) {
+      throw badRequest("A workflow needs a \`definition\`");
+    }
+    return values;
+  }
+
+  router.post("/definitions", async (request, { db }) => {
+    const body = await readJson(request);
+    const entityName = body.entity_name || body.entity;
+    if (!entityName) throw badRequest("A workflow needs an \`entity_name\`");
+    const entity = resolveEntity(model, entityName);
+    if (!entity) throw notFound(\`No entity "\${entityName}" in this model\`);
+
+    const values = { kind: "state", is_active: true, ...workflowFields(body, entity) };
+    const row = await db.insert("sys_workflow_definitions", values);
+    return json(row, { status: 201 });
+  });
+
+  router.patch("/definitions/:id", async (request, { db, params }) => {
+    const existing = await db.one(
+      "SELECT * FROM sys_workflow_definitions WHERE sys_workflow_definition_id = $1",
+      [params.id]
+    );
+    if (!existing) throw notFound("No such workflow");
+
+    const body = await readJson(request);
+    const entityName = body.entity_name || body.entity;
+    let entity = null;
+    if (entityName) {
+      entity = resolveEntity(model, entityName);
+      if (!entity) throw notFound(\`No entity "\${entityName}" in this model\`);
+    }
+
+    const values = workflowFields(body, entity, existing);
+    if (Object.keys(values).length === 0) throw badRequest("Nothing to change");
+    values.updated_at = new Date().toISOString();
+
+    const row = await db.update("sys_workflow_definitions", values, {
+      sys_workflow_definition_id: params.id,
+    });
+    return json(row);
+  });
+
+  /*
+   * Deleting a definition leaves its runs alone. \`sys_workflow_runs\` is the
+   * record of what the application actually did, and a history that disappears
+   * when somebody tidies up a definition is not a history.
+   */
+  router.delete("/definitions/:id", async (_request, { db, params }) => {
+    const existing = await db.one(
+      "SELECT sys_workflow_definition_id FROM sys_workflow_definitions WHERE sys_workflow_definition_id = $1",
+      [params.id]
+    );
+    if (!existing) throw notFound("No such workflow");
+    await db.remove("sys_workflow_definitions", { sys_workflow_definition_id: params.id });
+    return noContent();
   });
 
   router.get("/runs", async (_request, { db, query }) => {
@@ -16315,7 +16993,7 @@ export function workflowRoutes(model) {
     const entity = resolveEntity(model, params.entityName);
     if (!entity) throw notFound(\`No entity "\${params.entityName}"\`);
 
-    const workflow = (model.workflows || []).find((item) => item.entity === entity.name);
+    const workflow = await stateMachineFor(db, model, entity.name);
     if (!workflow) return json({ workflow: null, current: null, transitions: [] });
 
     const column = ["status", "state", "workflow_state"].find((candidate) =>
@@ -16353,6 +17031,25 @@ export function workflowRoutes(model) {
   });
 
   return router;
+}
+
+/**
+ * The two kinds the model compiles, and the two the readers understand.
+ *
+ * \`state\` is a lifecycle — \`stateMachineFor\` picks it and the transition UI
+ * draws it. \`saga\` is a multi-step process with no \`transitions\` of its own, so
+ * it is listed and never offered as a move. A third spelling would be stored,
+ * shown, and understood by neither.
+ */
+const KINDS = new Set(["state", "saga"]);
+
+/** JSON that may not be JSON — the caller supplies this one. */
+function safeParse(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
 }
 `,
   "styles.css": `/*
@@ -21971,7 +22668,7 @@ export async function reportsView(root) {
 }
 `
 });
-var RUNTIME_BYTES = 441716;
+var RUNTIME_BYTES = 470504;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
