@@ -78,14 +78,28 @@ COPY --from=builder /app/server-static-wrapper.mjs ./server-static-wrapper.mjs
 # The seeder and what it imports. `scripts/seed-reporting-pack.ts` is the
 # platform's own script — it writes eleven of its tables and uses its own
 # `getDb`, `encrypt` and `introspectAndCacheSchema`, so it cannot be a copy
-# living here. `src/lib/{db,security,sql,mastra}` and `src/types` are what it
-# resolves through `@/`.
+# living here. It resolves its imports through `@/`, which is `src/`.
+#
+# The whole of `src/`, deliberately, and not the handful of directories the
+# seeder happens to import today. That list was maintained by hand —
+# `src/lib/{db,security,sql,mastra}` and `src/types` — and it went stale the
+# first time the platform added an import to something already on it:
+# `src/lib/db/bootstrap.ts` began importing `@/lib/auth/bcrypt-cost`, no line
+# here copied `src/lib/auth`, and every `docker compose up` of a generated
+# project ended with
+#
+#   report-seeder-1  | error: Cannot find module '@/lib/auth/bcrypt-cost'
+#
+# Two things make that worth a blanket copy rather than a sixth line. Nothing
+# fails at build time — the image builds, the platform serves, and only the
+# one-shot seeder dies, so a generated project comes up looking healthy with
+# an unseeded reporting side. And the platform is fetched at REPORT_REF, which
+# defaults to `main`: the list has to stay correct against a moving ref this
+# project does not control, so it is wrong the moment somebody else adds an
+# import. `src/` is about four megabytes beside a `node_modules` already
+# copied above.
 COPY --from=builder /app/scripts ./scripts
-COPY --from=builder /app/src/lib/db ./src/lib/db
-COPY --from=builder /app/src/lib/security ./src/lib/security
-COPY --from=builder /app/src/lib/sql ./src/lib/sql
-COPY --from=builder /app/src/lib/mastra ./src/lib/mastra
-COPY --from=builder /app/src/types ./src/types
+COPY --from=builder /app/src ./src
 
 EXPOSE 3000
 
