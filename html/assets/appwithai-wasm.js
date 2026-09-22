@@ -10648,6 +10648,38 @@ CREATE TABLE IF NOT EXISTS sys_transition_access (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- The \`%%report\` questions this application answers about itself.
+--
+-- These were served from \`model.json\` in memory until now, which made them the
+-- one part of the application that could be read and never changed: no table,
+-- so no create, update or delete. The NestJS stack has had \`sys_report\` since
+-- migration 018 and this is the same shape deliberately, down to the column
+-- names, so one model produces two applications that agree about what a report
+-- is.
+--
+-- \`sql_text\` rather than \`sql\`: the column holds a statement and \`sql\` is a
+-- reserved word in enough dialects that naming it that invites a quoting bug.
+-- Every read of it still goes through \`assertReadOnly\` at run time — the table
+-- is ordinary and an administrator can now write to it, so the runtime trusts
+-- what it is handed exactly as much as it did before, which is not at all.
+CREATE TABLE IF NOT EXISTS sys_report (
+  sys_report_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(120) NOT NULL UNIQUE,
+  title VARCHAR(255) NOT NULL,
+  entity_name VARCHAR(100),
+  table_name VARCHAR(100),
+  chart VARCHAR(20),
+  x_axis VARCHAR(100),
+  y_axis VARCHAR(100),
+  help TEXT,
+  sql_text TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sys_report_table ON sys_report(table_name, sort_order);
 CREATE INDEX IF NOT EXISTS idx_sys_column_table ON sys_column(sys_table_id);
 CREATE INDEX IF NOT EXISTS idx_sys_field_tab ON sys_field(sys_tab_id);
 CREATE INDEX IF NOT EXISTS idx_sys_session_token ON sys_session(token);
@@ -13651,6 +13683,109 @@ export async function evaluateRules(rules, record, options = {}) {
   return { violations, mutations, notifications, traces };
 }
 `,
+  "server/lib/workflows.js": `/**
+ * Where a workflow is read from — the table, not the model.
+ *
+ * \`sys_workflow_definitions\` is seeded at first boot from \`model.workflows\`,
+ * storing each workflow object whole in the \`definition\` column. Until now it
+ * was written there and read by three listing endpoints and nothing else: every
+ * *behavioural* use of a workflow — which transitions a record is offered, and
+ * whether a status change is recorded as modelled — read \`model.workflows\`
+ * instead, the copy compiled into the bundle.
+ *
+ * That split is fine while nothing can change either. It stops being fine the
+ * moment the admin screen can edit a workflow, because the edit lands in the
+ * table and the application keeps behaving from the model: a definition that is
+ * "seeded, visible in the admin screen, drawn by the viewer, and inert" — the
+ * failure this codebase has already documented once, in the dance-studio
+ * model's sixteen \`%%action\` lines.
+ *
+ * So the table is the source of truth, the way \`sys_rule_definitions\` already
+ * is for rules (\`bus.routes.js\` enforces from that table, not from
+ * \`model.rules\`) and the way the Application Dictionary is for screens. The
+ * model seeds it; after that, what the database says is what the application
+ * does.
+ *
+ * **The fallback to the model is deliberate and narrow.** An application
+ * generated before this table was seeded, or one whose seed was interrupted,
+ * would otherwise lose its state machines entirely rather than degrade — and
+ * losing them silently disables the transition UI on every record. Falling back
+ * keeps such an application behaving exactly as it did before.
+ */
+
+/**
+ * Every workflow for one entity, newest definition wins on a name collision.
+ *
+ * Parsed defensively: \`definition\` is JSONB the administrator can now write, and
+ * a row that will not parse should cost that one workflow rather than every
+ * screen that asks for one.
+ */
+export async function workflowsForEntity(db, model, entityName) {
+  let rows = [];
+  try {
+    rows = await db.select("sys_workflow_definitions", {
+      where: { entity_name: entityName, is_active: true },
+      orderBy: "name",
+    });
+  } catch {
+    rows = [];
+  }
+
+  if (rows.length === 0) {
+    return (model.workflows || []).filter((item) => item.entity === entityName);
+  }
+
+  const parsed = [];
+  for (const row of rows) {
+    const definition = parseDefinition(row);
+    if (definition) parsed.push(definition);
+  }
+  /* Every row failing to parse is not the same as no rows: the model is still
+     the better answer than nothing. */
+  if (parsed.length === 0) {
+    return (model.workflows || []).filter((item) => item.entity === entityName);
+  }
+  return parsed;
+}
+
+/**
+ * The one state machine an entity moves on, or null.
+ *
+ * A \`kind: saga\` definition is a multi-step process, not a lifecycle, and asking
+ * it for \`transitions\` gets an empty list — so the state machine is picked by
+ * kind rather than by being first.
+ */
+export async function stateMachineFor(db, model, entityName) {
+  const workflows = await workflowsForEntity(db, model, entityName);
+  return (
+    workflows.find((item) => (item.kind ?? "state") === "state" && Array.isArray(item.transitions)) ??
+    null
+  );
+}
+
+function parseDefinition(row) {
+  const raw = row.definition;
+  if (!raw) return null;
+  let value = raw;
+  if (typeof raw === "string") {
+    try {
+      value = JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  if (!value || typeof value !== "object") return null;
+  /* The row's own columns win over the stored blob for the three things the
+     row also carries: an administrator who renames a workflow edits the column,
+     and the blob it was seeded from would otherwise keep the old name. */
+  return {
+    ...value,
+    name: row.name ?? value.name,
+    entity: row.entity_name ?? value.entity,
+    kind: row.kind ?? value.kind ?? "state",
+  };
+}
+`,
   "server/migrate.js": `/**
  * Schema and seed, run once at first boot.
  *
@@ -13736,6 +13871,7 @@ function seedCounter(model, log) {
     count(model.users) +
     count(model.rules) +
     count(model.workflows) +
+    count(model.reports) +
     accessRuleCount(model) +
     /* The reporting application's own roles and accounts — one of each per
        \`%%rbac\` role. Counted because the stage ticks, and a progress bar that
@@ -13787,6 +13923,7 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   await seedRoleUsers(db, model, log, tick);
   await seedRules(db, model, tick);
   await seedWorkflows(db, model, tick);
+  await seedReports(db, model, tick);
   await seedAccess(db, model, tick);
   await seedReporting(db, model, log, tick);
   await seedSampleData(db, model, log, tick);
@@ -14212,6 +14349,42 @@ async function seedWorkflows(db, model, tick = () => {}) {
       entity_name: saga.entity,
       kind: "saga",
       definition: JSON.stringify(saga),
+    });
+  }
+}
+
+/**
+ * The \`%%report\` questions, into a table the administrator can edit.
+ *
+ * They used to be read straight out of \`model.json\` on every request, which is
+ * why they were the one part of this application that could be read and never
+ * changed. Seeded by name, skipped when present — the same shape every other
+ * seed here uses, so a second boot does not overwrite an edited report with the
+ * model's original.
+ *
+ * \`sort_order\` preserves the model's own order. The reports screen lists them
+ * as the model wrote them, and a model puts the question its users ask most
+ * first.
+ */
+async function seedReports(db, model, tick = () => {}) {
+  const reports = Array.isArray(model.reports) ? model.reports : [];
+  for (const [index, report] of reports.entries()) {
+    const exists = await db.one("SELECT sys_report_id FROM sys_report WHERE name = $1", [
+      report.name,
+    ]);
+    tick();
+    if (exists) continue;
+    await db.insert("sys_report", {
+      name: report.name,
+      title: report.title ?? report.name,
+      entity_name: report.entity ?? null,
+      table_name: report.tableName ?? null,
+      chart: report.chart ?? null,
+      x_axis: report.x ?? null,
+      y_axis: report.y ?? null,
+      help: report.help ?? null,
+      sql_text: report.sql,
+      sort_order: index * 10,
     });
   }
 }
@@ -14713,6 +14886,7 @@ import { Router } from "../lib/router.js";
 import { badRequest, json, notFound, readJson } from "../lib/http.js";
 import { ident } from "../lib/db.js";
 import { checkOperationAccess, checkTransitionAccess, requireUser } from "../lib/guards.js";
+import { stateMachineFor } from "../lib/workflows.js";
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
 import { recordAudit } from "./audit.routes.js";
@@ -14938,9 +15112,17 @@ function validate(entity, values, mode) {
 
 const isBlank = (value) => value == null || String(value).trim() === "";
 
-/** The column a state machine moves, when the entity has one. */
-function statusColumn(entity, model) {
-  const workflow = (model.workflows || []).find((item) => item.entity === entity.name);
+/**
+ * The column a state machine moves, when the entity has one.
+ *
+ * Takes the workflow rather than the model: the definitions live in
+ * \`sys_workflow_definitions\` and an administrator can now edit them, so an
+ * entity's machine is whatever the table currently says it is. Reading
+ * \`model.workflows\` here would mean an entity given a machine after generation
+ * never had its status changes recorded, and one whose machine was deleted went
+ * on being treated as having one.
+ */
+function statusColumn(entity, workflow) {
   if (!workflow) return null;
   const candidates = ["status", "state", "workflow_state"];
   return entity.attributes.find((attribute) => candidates.includes(attribute.columnName))?.columnName ?? null;
@@ -15151,7 +15333,15 @@ export function busRoutes(model) {
     }
     Object.assign(values, applicableMutations(entity, outcome.mutations));
 
-    await checkTransitionAccess(db, user, entity.tableName, current, { ...current, ...values }, statusColumn(entity, model));
+    const machine = await stateMachineFor(db, model, entity.name);
+    await checkTransitionAccess(
+      db,
+      user,
+      entity.tableName,
+      current,
+      { ...current, ...values },
+      statusColumn(entity, machine)
+    );
 
     values.updated_by = user.id;
     values.updated_at = new Date().toISOString();
@@ -15234,13 +15424,13 @@ function applicableMutations(entity, mutations) {
 
 /** Record a state change against the entity's machine, when it crossed one. */
 async function recordWorkflowRun(db, model, entity, before, after, user) {
-  const column = statusColumn(entity, model);
+  const workflow = await stateMachineFor(db, model, entity.name);
+  const column = statusColumn(entity, workflow);
   if (!column) return;
   const from = before[column];
   const to = after[column];
   if (!to || from === to) return;
 
-  const workflow = (model.workflows || []).find((item) => item.entity === entity.name);
   const transition = (workflow?.transitions || []).find(
     (item) => item.from === String(from) && item.to === String(to)
   );
@@ -15774,15 +15964,31 @@ export function reportingRoutes(model) {
  * server, a second database and a seeder, and a browser tab has none of those.
  * The same directive, read a second way.
  *
- * The reports are not a table. They come off \`model.json\` — the model *is* the
- * definition, and storing a copy in \`sys_\` would only create something that can
- * disagree with it. Nothing in this runtime edits a report, so nothing needs a
- * row to edit.
+ * **The reports are a table now, and that is a reversal.** This comment used to
+ * say they were not: that they came off \`model.json\`, that the model *was* the
+ * definition, and that "nothing in this runtime edits a report, so nothing needs
+ * a row to edit". The last clause was the load-bearing one and it stopped being
+ * true the moment the administrator section was asked to offer create, update
+ * and delete — at which point "no row to edit" is not a design, it is the reason
+ * the feature cannot exist.
+ *
+ * So \`sys_report\` is seeded from \`model.json\` at first boot and read from after
+ * that, which is what \`sys_rule_definitions\` already did for rules and what the
+ * Application Dictionary does for screens. The NestJS stack has had the same
+ * table since migration 018, so this also closes a gap between the two rather
+ * than inventing something for one of them.
+ *
+ * The concern the old comment had — a copy that can disagree with the model — is
+ * real and is the point rather than a cost: an administrator who edits a report
+ * *means* to disagree with the model, the same way one who hides a field does.
+ * Regenerating restores the model's version, because the seed skips a report
+ * whose name is already there and a regenerated application starts on an empty
+ * database.
  */
 
 import { Router } from "../lib/router.js";
-import { badRequest, json, notFound } from "../lib/http.js";
-import { requireUser } from "../lib/guards.js";
+import { badRequest, json, noContent, notFound, readJson } from "../lib/http.js";
+import { requireAdmin, requireUser } from "../lib/guards.js";
 
 /**
  * The most rows one report returns.
@@ -15824,6 +16030,31 @@ function assertReadOnly(sql) {
   return body;
 }
 
+/**
+ * A row as the rest of the application talks about a report.
+ *
+ * The table's column names are the NestJS stack's (\`sql_text\`, \`x_axis\`,
+ * \`entity_name\`); the shape every caller already reads is the model's (\`sql\`,
+ * \`x\`, \`entity\`). Translated in one place so neither side has to learn the
+ * other's spelling.
+ */
+function fromRow(row) {
+  return {
+    id: row.sys_report_id,
+    name: row.name,
+    title: row.title,
+    entity: row.entity_name ?? null,
+    tableName: row.table_name ?? null,
+    chart: row.chart ?? null,
+    x: row.x_axis ?? null,
+    y: row.y_axis ?? null,
+    help: row.help ?? null,
+    sql: row.sql_text,
+    sortOrder: row.sort_order,
+    isActive: row.is_active !== false,
+  };
+}
+
 /** What a caller may see: everything except the query itself. */
 function withoutSql(report) {
   const { sql: _sql, ...meta } = report;
@@ -15832,23 +16063,43 @@ function withoutSql(report) {
 
 export function reportsRoutes(model) {
   const router = new Router();
-  router.use(async (_request, { user }) => {
+  /* Reads open to any signed-in user, writes administrator-only — the same
+     arrangement \`/sys\`, \`/rules\` and \`/workflows\` use. A report's SQL runs
+     against this application's whole database, so who may write one is a
+     different question from who may read the answers. */
+  router.use(async (request, { user }) => {
     requireUser(user);
+    if (request.method !== "GET") requireAdmin(user);
   });
 
-  const reports = Array.isArray(model.reports) ? model.reports : [];
-  const byName = new Map(reports.map((report) => [report.name, report]));
+  async function reportByName(db, name) {
+    const row = await db.one("SELECT * FROM sys_report WHERE name = $1", [name]);
+    return row ? fromRow(row) : null;
+  }
 
-  router.get("/", async () => json(reports.map(withoutSql)));
+  router.get("/", async (_request, { db }) => {
+    const rows = await db.select("sys_report", { orderBy: "sort_order" });
+    return json(rows.map((row) => withoutSql(fromRow(row))));
+  });
 
-  router.get("/:name", async (_request, { params }) => {
-    const report = byName.get(params.name);
+  router.get("/:name", async (_request, { db, params, user }) => {
+    const report = await reportByName(db, params.name);
     if (!report) throw notFound(\`No report named "\${params.name}"\`);
-    return json(withoutSql(report));
+    /*
+     * The query itself goes only to an administrator, who is the only caller
+     * that can edit one — everyone else gets what they always got.
+     *
+     * \`withoutSql\` exists because a report's SQL names tables the reader may
+     * have no access to, and reading the statement is a way to learn the schema
+     * and the joins behind a screen that would otherwise only show its results.
+     * Editing needs the text, so this route hands it over; that is a reason to
+     * gate it, not a reason to widen it.
+     */
+    return json(user?.isAdmin ? report : withoutSql(report));
   });
 
   router.get("/:name/run", async (_request, { db, params }) => {
-    const report = byName.get(params.name);
+    const report = await reportByName(db, params.name);
     if (!report) throw notFound(\`No report named "\${params.name}"\`);
 
     const body = assertReadOnly(report.sql);
@@ -15885,7 +16136,142 @@ export function reportsRoutes(model) {
     });
   });
 
+  /*
+   * Create, update and delete.
+   *
+   * **The SQL is checked here as well as on every run**, and both matter. The
+   * run-time check is the one that cannot be skipped, because \`sys_report\` is
+   * an ordinary table whose rows predate this route and could be written by
+   * anything that reaches the database. The save-time check is the one that
+   * tells an administrator *now* that what they typed is not a query this
+   * application will execute, rather than storing it and failing whenever
+   * somebody next opens the report.
+   *
+   * It is the same \`assertReadOnly\` both times, deliberately: two spellings of
+   * "read-only" is how one of them comes to permit something the other refuses.
+   */
+  function reportFields(body, existing = {}) {
+    const values = {};
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) throw badRequest("A report needs a \`name\`");
+      if (!/^[a-z0-9][a-z0-9-]*$/i.test(name)) {
+        throw badRequest("\`name\` is the report's handle in a URL — letters, digits and hyphens");
+      }
+      values.name = name;
+    }
+    if (body.title !== undefined) {
+      const title = String(body.title).trim();
+      if (!title) throw badRequest("A report needs a \`title\` — the question it answers");
+      values.title = title;
+    }
+    if (body.entity !== undefined) {
+      values.entity_name = body.entity || null;
+      /* \`tableName\` follows the entity rather than being accepted beside it:
+         two fields naming the same thing is two chances to disagree. */
+      const entity = body.entity ? resolveReportEntity(model, body.entity) : null;
+      values.table_name = entity ? entity.tableName : null;
+    }
+    if (body.help !== undefined) values.help = body.help || null;
+    if (body.sortOrder !== undefined) {
+      const order = Number(body.sortOrder);
+      if (!Number.isInteger(order)) throw badRequest("\`sortOrder\` must be a whole number");
+      values.sort_order = order;
+    }
+    if (body.isActive !== undefined) values.is_active = !!body.isActive;
+
+    /*
+     * A chart needs both axes or neither. The dashboard draws \`chart\` with \`x\`
+     * and \`y\`; one without the other renders an empty frame, which reads as a
+     * broken report rather than as a report nobody finished configuring.
+     */
+    if (body.chart !== undefined || body.x !== undefined || body.y !== undefined) {
+      const chart = body.chart ? String(body.chart).trim() : null;
+      if (chart && !CHART_TYPES.has(chart)) {
+        throw badRequest(\`\\\`chart\\\` must be one of \${[...CHART_TYPES].join(", ")}\`);
+      }
+      const x = body.x !== undefined ? body.x || null : (existing.x_axis ?? null);
+      const y = body.y !== undefined ? body.y || null : (existing.y_axis ?? null);
+      if (chart && (!x || !y)) {
+        throw badRequest("A chart needs both \`x\` and \`y\` — an axis on its own draws nothing");
+      }
+      values.chart = chart;
+      values.x_axis = chart ? x : null;
+      values.y_axis = chart ? y : null;
+    }
+
+    if (body.sql !== undefined) {
+      values.sql_text = assertReadOnly(body.sql);
+    }
+    if (!values.sql_text && !existing.sql_text) {
+      throw badRequest("A report needs \`sql\` — the query that answers the question");
+    }
+    return values;
+  }
+
+  router.post("/", async (request, { db }) => {
+    const body = await readJson(request);
+    const values = { sort_order: 0, is_active: true, ...reportFields(body) };
+    if (!values.name) throw badRequest("A report needs a \`name\`");
+    if (!values.title) throw badRequest("A report needs a \`title\`");
+
+    const clash = await db.one("SELECT sys_report_id FROM sys_report WHERE name = $1", [
+      values.name,
+    ]);
+    /* Answered as a conflict rather than left to the unique index, so the
+       message names the report instead of quoting a constraint. */
+    if (clash) throw badRequest(\`A report named "\${values.name}" already exists\`);
+
+    const row = await db.insert("sys_report", values);
+    return json(fromRow(row), { status: 201 });
+  });
+
+  router.patch("/:name", async (request, { db, params }) => {
+    const existing = await db.one("SELECT * FROM sys_report WHERE name = $1", [params.name]);
+    if (!existing) throw notFound(\`No report named "\${params.name}"\`);
+
+    const body = await readJson(request);
+    const values = reportFields(body, existing);
+    if (Object.keys(values).length === 0) throw badRequest("Nothing to change");
+
+    if (values.name && values.name !== existing.name) {
+      const clash = await db.one("SELECT sys_report_id FROM sys_report WHERE name = $1", [
+        values.name,
+      ]);
+      if (clash) throw badRequest(\`A report named "\${values.name}" already exists\`);
+    }
+    values.updated_at = new Date().toISOString();
+
+    const row = await db.update("sys_report", values, { sys_report_id: existing.sys_report_id });
+    return json(fromRow(row));
+  });
+
+  router.delete("/:name", async (_request, { db, params }) => {
+    const existing = await db.one("SELECT sys_report_id FROM sys_report WHERE name = $1", [
+      params.name,
+    ]);
+    if (!existing) throw notFound(\`No report named "\${params.name}"\`);
+    await db.remove("sys_report", { sys_report_id: existing.sys_report_id });
+    return noContent();
+  });
+
   return router;
+}
+
+/** The chart types the dashboard knows how to draw. */
+const CHART_TYPES = new Set(["bar", "line", "pie", "area"]);
+
+/** The entity a report names, by any of the spellings a model might use. */
+function resolveReportEntity(model, name) {
+  const wanted = String(name ?? "").toLowerCase();
+  return (
+    (model.entities || []).find(
+      (entity) =>
+        entity.name.toLowerCase() === wanted ||
+        entity.tableName === wanted ||
+        entity.route === wanted
+    ) || null
+  );
 }
 `,
   "server/modules/rules.routes.js": `/**
@@ -15900,15 +16286,31 @@ export function reportsRoutes(model) {
  */
 
 import { Router } from "../lib/router.js";
-import { badRequest, json, notFound, readJson } from "../lib/http.js";
-import { requireUser } from "../lib/guards.js";
+import { badRequest, json, noContent, notFound, readJson } from "../lib/http.js";
+import { requireAdmin, requireUser } from "../lib/guards.js";
 import { evaluateRules, interpretCondition } from "../lib/rules.js";
 import { resolveEntity } from "./bus.routes.js";
 
 export function rulesRoutes(model) {
   const router = new Router();
-  router.use(async (_request, { user }) => {
+  /*
+   * Reads open to any signed-in user, writes administrator-only — the same
+   * arrangement \`/sys\` uses, and for the same reason. Every write in this
+   * application is filtered through these rules, so a rule is a statement about
+   * what the business permits; someone who can edit one can decide what the
+   * application accepts from everybody else.
+   *
+   * Keyed on the HTTP method rather than per-route, deliberately: there are more
+   * write routes than anyone remembers, and one added later would otherwise
+   * default to open. \`POST /evaluate\` is the single exception and is carved out
+   * explicitly below — it writes nothing, it is the dry run.
+   */
+  router.use(async (request, { user }) => {
     requireUser(user);
+    if (request.method === "GET") return;
+    const path = new URL(request.url).pathname;
+    if (request.method === "POST" && path.endsWith("/evaluate")) return;
+    requireAdmin(user);
   });
 
   router.get("/", async (_request, { db, query }) => {
@@ -15925,6 +16327,121 @@ export function rulesRoutes(model) {
     ]);
     if (!row) throw notFound("No such rule");
     return json(withReading(model)(row));
+  });
+
+  /*
+   * Create, update and delete.
+   *
+   * A rule is four things the engine needs — the entity it binds to, when it
+   * fires, in what order, and the JDM graph that decides — so those are what is
+   * validated. \`jdm_content\` is stored as text and parsed on evaluation, which
+   * means a syntactically broken graph would be accepted here and fail on the
+   * next write to the entity, a long way from the screen that caused it. It is
+   * parsed on the way in instead.
+   *
+   * \`table_name\` is derived rather than accepted: it is the entity's, and a
+   * caller who could set it independently could bind a rule to one entity and
+   * have it evaluated against another's columns.
+   */
+  function ruleFields(body, entity, existing = {}) {
+    const values = {};
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) throw badRequest("A rule needs a \`name\`");
+      values.name = name;
+    }
+    if (body.description !== undefined) values.description = body.description || null;
+    if (entity) {
+      values.entity_name = entity.name;
+      values.table_name = entity.tableName;
+    }
+    if (body.event !== undefined) {
+      const event = String(body.event).trim();
+      if (!EVENTS.has(event)) throw badRequest(\`\\\`event\\\` must be one of \${[...EVENTS].join(", ")}\`);
+      values.event = event;
+    }
+    if (body.operation !== undefined) {
+      const operation = String(body.operation).trim().toUpperCase();
+      if (!OPERATIONS.has(operation))
+        throw badRequest(\`\\\`operation\\\` must be one of \${[...OPERATIONS].join(", ")}\`);
+      values.operation = operation;
+    }
+    if (body.priority !== undefined) {
+      const priority = Number(body.priority);
+      if (!Number.isInteger(priority)) throw badRequest("\`priority\` must be a whole number");
+      values.priority = priority;
+    }
+    if (body.is_active !== undefined) values.is_active = !!body.is_active;
+    if (body.jdm_content !== undefined) {
+      const content =
+        typeof body.jdm_content === "string" ? body.jdm_content : JSON.stringify(body.jdm_content);
+      try {
+        const graph = JSON.parse(content);
+        if (!graph || typeof graph !== "object" || !Array.isArray(graph.nodes)) {
+          throw new Error("a JDM graph needs a \`nodes\` array");
+        }
+      } catch (error) {
+        throw badRequest(\`\\\`jdm_content\\\` is not a usable JDM graph: \${error.message}\`);
+      }
+      values.jdm_content = content;
+    }
+    if (!values.jdm_content && !existing.jdm_content) {
+      throw badRequest("A rule needs \`jdm_content\` — the JDM graph that decides");
+    }
+    return values;
+  }
+
+  router.post("/", async (request, { db }) => {
+    const body = await readJson(request);
+    const entityName = body.entity_name || body.entity;
+    if (!entityName) throw badRequest("A rule needs an \`entity_name\`");
+    const entity = resolveEntity(model, entityName);
+    if (!entity) throw notFound(\`No entity "\${entityName}" in this model\`);
+
+    const values = {
+      event: "beforeCreate",
+      operation: "ALL",
+      priority: 100,
+      is_active: true,
+      ...ruleFields(body, entity),
+    };
+    const row = await db.insert("sys_rule_definitions", values);
+    return json(withReading(model)(row), { status: 201 });
+  });
+
+  router.patch("/:id", async (request, { db, params }) => {
+    const existing = await db.one(
+      "SELECT * FROM sys_rule_definitions WHERE sys_rule_definition_id = $1",
+      [params.id]
+    );
+    if (!existing) throw notFound("No such rule");
+
+    const body = await readJson(request);
+    const entityName = body.entity_name || body.entity;
+    let entity = null;
+    if (entityName) {
+      entity = resolveEntity(model, entityName);
+      if (!entity) throw notFound(\`No entity "\${entityName}" in this model\`);
+    }
+
+    const values = ruleFields(body, entity, existing);
+    if (Object.keys(values).length === 0) throw badRequest("Nothing to change");
+    values.updated_at = new Date().toISOString();
+
+    const row = await db.update("sys_rule_definitions", values, {
+      sys_rule_definition_id: params.id,
+    });
+    return json(withReading(model)(row));
+  });
+
+  router.delete("/:id", async (_request, { db, params }) => {
+    const existing = await db.one(
+      "SELECT sys_rule_definition_id FROM sys_rule_definitions WHERE sys_rule_definition_id = $1",
+      [params.id]
+    );
+    if (!existing) throw notFound("No such rule");
+    await db.remove("sys_rule_definitions", { sys_rule_definition_id: params.id });
+    return noContent();
   });
 
   router.post("/evaluate", async (request, { db }) => {
@@ -15950,6 +16467,27 @@ export function rulesRoutes(model) {
 
   return router;
 }
+
+/**
+ * What the rules engine actually dispatches on.
+ *
+ * \`bus.service\` runs \`beforeCreate\`/\`beforeUpdate\` hooks and then
+ * \`enforceBusinessRules(table, data, action)\`, so a rule whose event is not one
+ * of these is seeded, listed, and never evaluated — the silent-inert failure the
+ * dance-studio model's sixteen actions already demonstrated once. Rejected at
+ * the door rather than stored.
+ */
+const EVENTS = new Set([
+  "beforeCreate",
+  "afterCreate",
+  "beforeUpdate",
+  "afterUpdate",
+  "beforeDelete",
+  "afterDelete",
+]);
+
+/** \`ALL\` is the wildcard the evaluate query already matches on. */
+const OPERATIONS = new Set(["ALL", "CREATE", "UPDATE", "DELETE"]);
 
 /**
  * Annotate a rule with how its decisions were read.
@@ -16220,11 +16758,27 @@ export function sysRoutes(model) {
   });
 
   router.get("/model-summary", async (_request, { db }) => {
+    /*
+     * Counted from the tables, not from the model, for the three an
+     * administrator can now edit.
+     *
+     * These read \`model.rules\` and \`model.workflows\` until the admin screens
+     * grew create and delete — at which point a screen reporting "18 Rules"
+     * over a list showing seventeen is not a stale number, it is the dictionary
+     * describing a different application from the one running. \`entities\`,
+     * \`hooks\` and \`categories\` stay on the model: nothing edits those, and the
+     * model is where they live.
+     */
     const counts = {
       entities: model.entities.length,
-      rules: (model.rules || []).length,
-      workflows: (model.workflows || []).length,
-      sagas: (model.sagas || []).length,
+      rules: await db.value("SELECT COUNT(*)::int FROM sys_rule_definitions"),
+      workflows: await db.value(
+        "SELECT COUNT(*)::int FROM sys_workflow_definitions WHERE kind = 'state'"
+      ),
+      sagas: await db.value(
+        "SELECT COUNT(*)::int FROM sys_workflow_definitions WHERE kind = 'saga'"
+      ),
+      reports: await db.value("SELECT COUNT(*)::int FROM sys_report"),
       hooks: (model.hooks || []).length,
       categories: (model.categories || []).length,
     };
@@ -16248,23 +16802,37 @@ export function sysRoutes(model) {
   "server/modules/workflow.routes.js": `/**
  * \`/workflows\` and \`/workflow-definitions\` — the processes the model declared.
  *
- * A state machine has no endpoint that "runs" it, and inventing one would be a
- * second way to change a record's status that the guards, hooks and rules on
- * the ordinary update path know nothing about. So this module reads: the
- * machines, the transitions available from where a record actually is, and the
- * runs that have already happened. Moving a record is a PUT to the record.
+ * A state machine still has no endpoint that "runs" it, and inventing one would
+ * be a second way to change a record's status that the guards, hooks and rules
+ * on the ordinary update path know nothing about. **Moving a record is a PUT to
+ * the record**, and that has not changed.
+ *
+ * What this module now also does is let an administrator edit the machine
+ * itself — create a definition, change its transitions, retire it. That is a
+ * different thing from running one: it changes which moves *exist*, not which
+ * one a particular record is making, and it goes through the same table the
+ * readers read (\`sys_workflow_definitions\`, via \`lib/workflows.js\`) so an edit
+ * takes effect on the next request rather than at the next generation.
+ *
+ * Reads are open to any signed-in user; every write is administrator-only.
  */
 
 import { Router } from "../lib/router.js";
-import { json, notFound } from "../lib/http.js";
-import { requireUser } from "../lib/guards.js";
+import { badRequest, json, noContent, notFound, readJson } from "../lib/http.js";
+import { requireAdmin, requireUser } from "../lib/guards.js";
 import { resolveEntity } from "./bus.routes.js";
 import { ident } from "../lib/db.js";
+import { stateMachineFor } from "../lib/workflows.js";
 
 export function workflowRoutes(model) {
   const router = new Router();
-  router.use(async (_request, { user }) => {
+  /* Reads open to any signed-in user, writes administrator-only — the same
+     arrangement \`/sys\` and \`/rules\` use. A state machine decides which moves a
+     record may make, so editing one changes what the application permits
+     everybody else to do. */
+  router.use(async (request, { user }) => {
     requireUser(user);
+    if (request.method !== "GET") requireAdmin(user);
   });
 
   router.get("/definitions", async (_request, { db }) =>
@@ -16278,6 +16846,116 @@ export function workflowRoutes(model) {
     );
     if (!row) throw notFound("No such workflow");
     return json(row);
+  });
+
+  /*
+   * Create, update and delete a definition.
+   *
+   * What is stored is the workflow object itself, in \`definition\`, exactly as
+   * the seed writes it — so a machine edited here is read back by
+   * \`stateMachineFor\` and drives the transition UI and the run log immediately.
+   * That is only true because the readers were moved onto this table; before
+   * that an edit here changed nothing, which is the whole reason this shape was
+   * worth building rather than a screen that looked like it worked.
+   *
+   * \`transitions\` is validated rather than trusted. A transition with no \`from\`
+   * or no \`to\` is not a move, and the two readers would silently skip it — so it
+   * is refused at the door rather than stored and ignored.
+   */
+  function workflowFields(body, entity, existing = {}) {
+    const values = {};
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) throw badRequest("A workflow needs a \`name\`");
+      values.name = name;
+    }
+    if (entity) values.entity_name = entity.name;
+    if (body.kind !== undefined) {
+      const kind = String(body.kind).trim();
+      if (!KINDS.has(kind)) throw badRequest(\`\\\`kind\\\` must be one of \${[...KINDS].join(", ")}\`);
+      values.kind = kind;
+    }
+    if (body.is_active !== undefined) values.is_active = !!body.is_active;
+
+    if (body.definition !== undefined) {
+      const definition =
+        typeof body.definition === "string" ? safeParse(body.definition) : body.definition;
+      if (!definition || typeof definition !== "object") {
+        throw badRequest("\`definition\` must be an object describing the workflow");
+      }
+      const kind = values.kind ?? existing.kind ?? "state";
+      if (kind === "state") {
+        const transitions = definition.transitions;
+        if (!Array.isArray(transitions) || transitions.length === 0) {
+          throw badRequest("A \`state\` workflow needs at least one transition");
+        }
+        for (const [index, transition] of transitions.entries()) {
+          if (!transition || !String(transition.from ?? "").trim() || !String(transition.to ?? "").trim()) {
+            throw badRequest(
+              \`transitions[\${index}] needs both a \\\`from\\\` and a \\\`to\\\` — a half-drawn edge is not a move\`
+            );
+          }
+        }
+      }
+      values.definition = JSON.stringify(definition);
+    }
+
+    if (!values.definition && !existing.definition) {
+      throw badRequest("A workflow needs a \`definition\`");
+    }
+    return values;
+  }
+
+  router.post("/definitions", async (request, { db }) => {
+    const body = await readJson(request);
+    const entityName = body.entity_name || body.entity;
+    if (!entityName) throw badRequest("A workflow needs an \`entity_name\`");
+    const entity = resolveEntity(model, entityName);
+    if (!entity) throw notFound(\`No entity "\${entityName}" in this model\`);
+
+    const values = { kind: "state", is_active: true, ...workflowFields(body, entity) };
+    const row = await db.insert("sys_workflow_definitions", values);
+    return json(row, { status: 201 });
+  });
+
+  router.patch("/definitions/:id", async (request, { db, params }) => {
+    const existing = await db.one(
+      "SELECT * FROM sys_workflow_definitions WHERE sys_workflow_definition_id = $1",
+      [params.id]
+    );
+    if (!existing) throw notFound("No such workflow");
+
+    const body = await readJson(request);
+    const entityName = body.entity_name || body.entity;
+    let entity = null;
+    if (entityName) {
+      entity = resolveEntity(model, entityName);
+      if (!entity) throw notFound(\`No entity "\${entityName}" in this model\`);
+    }
+
+    const values = workflowFields(body, entity, existing);
+    if (Object.keys(values).length === 0) throw badRequest("Nothing to change");
+    values.updated_at = new Date().toISOString();
+
+    const row = await db.update("sys_workflow_definitions", values, {
+      sys_workflow_definition_id: params.id,
+    });
+    return json(row);
+  });
+
+  /*
+   * Deleting a definition leaves its runs alone. \`sys_workflow_runs\` is the
+   * record of what the application actually did, and a history that disappears
+   * when somebody tidies up a definition is not a history.
+   */
+  router.delete("/definitions/:id", async (_request, { db, params }) => {
+    const existing = await db.one(
+      "SELECT sys_workflow_definition_id FROM sys_workflow_definitions WHERE sys_workflow_definition_id = $1",
+      [params.id]
+    );
+    if (!existing) throw notFound("No such workflow");
+    await db.remove("sys_workflow_definitions", { sys_workflow_definition_id: params.id });
+    return noContent();
   });
 
   router.get("/runs", async (_request, { db, query }) => {
@@ -16315,7 +16993,7 @@ export function workflowRoutes(model) {
     const entity = resolveEntity(model, params.entityName);
     if (!entity) throw notFound(\`No entity "\${params.entityName}"\`);
 
-    const workflow = (model.workflows || []).find((item) => item.entity === entity.name);
+    const workflow = await stateMachineFor(db, model, entity.name);
     if (!workflow) return json({ workflow: null, current: null, transitions: [] });
 
     const column = ["status", "state", "workflow_state"].find((candidate) =>
@@ -16353,6 +17031,25 @@ export function workflowRoutes(model) {
   });
 
   return router;
+}
+
+/**
+ * The two kinds the model compiles, and the two the readers understand.
+ *
+ * \`state\` is a lifecycle — \`stateMachineFor\` picks it and the transition UI
+ * draws it. \`saga\` is a multi-step process with no \`transitions\` of its own, so
+ * it is listed and never offered as a move. A third spelling would be stored,
+ * shown, and understood by neither.
+ */
+const KINDS = new Set(["state", "saga"]);
+
+/** JSON that may not be JSON — the caller supplies this one. */
+function safeParse(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
 }
 `,
   "styles.css": `/*
@@ -16850,6 +17547,49 @@ a { color: var(--primary); }
 .dict__row:hover { background: var(--surface-2, rgba(127, 127, 127, 0.08)); }
 .dict__detail { margin-bottom: var(--gap, 16px); }
 .dict__help { max-width: 34ch; color: var(--text-faint); font-size: 12px; }
+
+/* A value in a table that is also the control that changes it — the field
+   visibility toggles. A <button> so it is reachable by keyboard and announced
+   as one; styled as text because a row of twelve buttons reads as a toolbar
+   rather than as data. */
+.linklike {
+  font: inherit; color: var(--primary); background: none; border: 0; padding: 0;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+}
+.linklike:hover:not(:disabled) { color: var(--text); }
+.linklike:disabled { opacity: 0.5; cursor: progress; text-decoration: none; }
+
+/* ---------------------------------------------------------------------------
+   The admin editors — one form shape for rules, processes and reports.
+
+   Deliberately not a modal. This application runs inside an iframe on the page
+   that generated it, where a dialog is not guaranteed to appear; the same
+   reason the dashboard's purge control is two-step. The form takes the place of
+   what the reader was looking at instead.
+   --------------------------------------------------------------------------- */
+.editor-host:empty { display: none; }
+.editor {
+  display: grid; gap: 12px; margin: 14px 0 18px; padding: 16px;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+}
+.editor .field__input--code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px; line-height: 1.5; resize: vertical;
+}
+.editor__actions { display: flex; gap: 8px; margin-top: 4px; }
+.editor__error {
+  margin: 0; padding: 9px 11px; border-radius: var(--radius-sm);
+  background: var(--destructive-soft, rgba(220, 38, 38, 0.1));
+  border-left: 3px solid var(--destructive);
+  font-size: 13px; white-space: pre-wrap;
+}
+.field__hint { margin: 0; font-size: 12px; color: var(--text-faint); }
+
+/* A delete that arms on the first click. \`is-armed\` is what says so — the label
+   changes too, but colour alone would not reach somebody who cannot see it. */
+.btn.is-armed { background: var(--destructive); border-color: var(--destructive); color: #fff; }
+
+.rule__actions, .report-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .muted { color: var(--text-faint); }
 
 .record__actions { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
@@ -17438,8 +18178,22 @@ async function forward(base, request) {
   );
 
   const result = await answer;
-  return new Response(result.body, { status: result.status, headers: result.headers });
+  /* A 204, 205 or 304 may not carry a body, and the constructor throws rather
+     than ignoring one. The host answers every request with an ArrayBuffer — a
+     zero-byte one for a 204 — which is still a body as far as \`new Response\`
+     is concerned, so passing it through rejected the fetch handler and the
+     browser reported \`net::ERR_FAILED\`: a request that never reached the
+     application, on a route that was answering correctly. Every DELETE in the
+     administrator section failed this way, and the same routes returned 204
+     without complaint over the Node host, which has no such boundary. */
+  return new Response(NULL_BODY_STATUS.has(result.status) ? null : result.body, {
+    status: result.status,
+    headers: result.headers,
+  });
 }
+
+/** Statuses the Response constructor refuses to pair with a body. */
+const NULL_BODY_STATUS = new Set([204, 205, 304]);
 
 /**
  * Ask every page under this scope to hand over a fresh port.
@@ -17896,6 +18650,217 @@ export const escapeHtml = (value) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]
   );
 `,
+  "ui/editor.js": `/**
+ * The admin screens' shared editor: one form builder and one two-step delete.
+ *
+ * The dictionary, the rules, the processes and the reports all now offer
+ * create, edit and delete, and all four want the same three things — a form
+ * whose fields come from a description rather than from markup, a save that
+ * reports the server's refusal rather than swallowing it, and a delete that
+ * cannot happen on one misplaced click. Written once here rather than four
+ * times, because four copies is how three of them come to disagree about what
+ * "cancel" does.
+ *
+ * ## No \`confirm()\` and no \`prompt()\`
+ *
+ * This application runs inside an iframe on the page that generated it, and a
+ * modal dialog is not guaranteed to appear there — the same reason the
+ * dashboard's purge control is two-step rather than a \`confirm()\`. So a delete
+ * arms itself on the first click and commits on the second, and anything that
+ * needs typing gets a real field in a real form.
+ *
+ * ## The server is the validator
+ *
+ * These forms check almost nothing. Every rule about what a rule, a workflow or
+ * a report may contain lives in the routes — the six events the engine
+ * dispatches on, the read-only SQL guard, a chart needing both axes — and a
+ * second copy here would be a second answer that drifts. What the form does is
+ * put the server's refusal where the reader can act on it: beside the field
+ * they are editing, not in a toast that vanishes.
+ */
+
+import { el, mount, toast } from "./dom.js";
+
+/**
+ * Build a form from a field description.
+ *
+ * \`fields\` is an array of \`{ name, label, type, options, hint, rows, required }\`.
+ * \`type\` is one of \`text\`, \`number\`, \`textarea\`, \`select\`, \`checkbox\`; anything
+ * else renders as \`text\`, because a typo in a field description should cost a
+ * plain input rather than a blank screen.
+ *
+ * \`onSave\` receives the collected values and may throw — the message is shown
+ * in the form and the form stays open with what the reader typed still in it.
+ * That is the whole reason this returns a node rather than a promise: a save
+ * that fails must not lose the work.
+ */
+export function editorForm({ title, lede, fields, values = {}, saveLabel = "Save", onSave, onCancel }) {
+  const inputs = new Map();
+  const error = el("p.editor__error", { hidden: true });
+
+  const controls = fields.map((field) => {
+    const id = \`editor-\${field.name}\`;
+    const current = values[field.name];
+    let input;
+
+    if (field.type === "textarea") {
+      input = el("textarea.field__input.field__input--code", {
+        id,
+        rows: field.rows ?? 8,
+        spellcheck: "false",
+      });
+      input.value = current == null ? "" : String(current);
+    } else if (field.type === "select") {
+      input = el(
+        "select.field__input",
+        { id },
+        ...(field.options || []).map((option) => {
+          const value = typeof option === "string" ? option : option.value;
+          const label = typeof option === "string" ? option : option.label;
+          const node = el("option", { value }, label);
+          if (String(current ?? "") === String(value)) node.selected = true;
+          return node;
+        })
+      );
+    } else if (field.type === "checkbox") {
+      input = el("input", { id, type: "checkbox" });
+      input.checked = current !== false;
+    } else {
+      input = el("input.field__input", {
+        id,
+        type: field.type === "number" ? "number" : "text",
+      });
+      input.value = current == null ? "" : String(current);
+    }
+
+    inputs.set(field.name, { input, field });
+
+    return el(
+      "div.field",
+      el(
+        "div.field__head",
+        el("label.field__label", { for: id }, field.label),
+        field.required ? el("span.chip.chip--text", "Required") : null
+      ),
+      input,
+      field.hint ? el("p.field__hint", field.hint) : null
+    );
+  });
+
+  function collect() {
+    const out = {};
+    for (const [name, { input, field }] of inputs) {
+      if (field.type === "checkbox") {
+        out[name] = input.checked;
+        continue;
+      }
+      const raw = input.value;
+      if (field.type === "number") {
+        out[name] = raw === "" ? undefined : Number(raw);
+        continue;
+      }
+      const text = typeof raw === "string" ? raw.trim() : raw;
+      /* An empty optional field is sent as "" rather than omitted, so clearing
+         one actually clears it — \`undefined\` would leave the old value in
+         place, which reads as the save having silently failed. */
+      out[name] = field.required && text === "" ? "" : text;
+    }
+    return out;
+  }
+
+  const save = el("button.btn.btn--primary", { type: "submit" }, saveLabel);
+  const form = el(
+    "form.editor",
+    {
+      onsubmit: async (event) => {
+        event.preventDefault();
+        error.hidden = true;
+        save.disabled = true;
+        save.textContent = "Saving…";
+        try {
+          await onSave(collect());
+        } catch (failure) {
+          /* The server's own words. It knows why it refused and this screen
+             does not, so paraphrasing here can only lose information. */
+          error.textContent = failure?.message || String(failure);
+          error.hidden = false;
+          save.disabled = false;
+          save.textContent = saveLabel;
+        }
+      },
+    },
+    el("h3.section-title", title),
+    lede ? el("p.lede", lede) : null,
+    ...controls,
+    error,
+    el(
+      "div.editor__actions",
+      save,
+      el("button.btn", { type: "button", onclick: () => onCancel?.() }, "Cancel")
+    )
+  );
+
+  /* Focus the first field so a keyboard reader can start typing, and so opening
+     the form is visibly *about* that form rather than a section that appeared
+     somewhere on the page. */
+  queueMicrotask(() => inputs.values().next().value?.input?.focus());
+  return form;
+}
+
+/**
+ * A delete that takes two clicks.
+ *
+ * The first arms it and says what will happen; the second does it. A third
+ * click anywhere else disarms it, because a control left armed across a scroll
+ * is a control waiting to be hit by accident.
+ */
+export function deleteButton(label, description, onDelete) {
+  const button = el("button.btn.btn--danger.btn--small", { type: "button" }, label);
+  let armed = false;
+
+  const disarm = () => {
+    armed = false;
+    button.textContent = label;
+    button.classList.remove("is-armed");
+    document.removeEventListener("click", away, true);
+  };
+  const away = (event) => {
+    if (event.target !== button) disarm();
+  };
+
+  button.addEventListener("click", async () => {
+    if (!armed) {
+      armed = true;
+      button.textContent = description || "Really delete?";
+      button.classList.add("is-armed");
+      document.addEventListener("click", away, true);
+      return;
+    }
+    disarm();
+    button.disabled = true;
+    try {
+      await onDelete();
+    } catch (error) {
+      toast(error.message, "error");
+      button.disabled = false;
+    }
+  });
+
+  return button;
+}
+
+/**
+ * Put an editor where the reader is looking.
+ *
+ * The form replaces the panel's contents rather than appearing above or below
+ * it: on a list of thirty reports, a form rendered at the top is a form the
+ * reader has to go and find.
+ */
+export function openEditor(host, form) {
+  mount(host, form);
+  host.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+`,
   "ui/main.js": `/**
  * The shell: masthead, action bar, breadcrumb, and which screen is on show.
  *
@@ -18133,7 +19098,12 @@ async function render() {
 
     if (admin) {
       setCrumbs([{ label: admin[0] }]);
-      return void (await admin[1](outlet));
+      /* The admin screens are read-only except one: the dictionary offers the
+         field-visibility toggle, which is administrator-only. The server
+         refuses a non-admin write regardless (\`sys.routes.js\` guards on the
+         method), so this decides whether the control is *offered*, not whether
+         it is allowed. */
+      return void (await admin[1](outlet, { user: state.user }));
     }
 
     setCrumbs([{ label: "Not found" }]);
@@ -18465,6 +19435,7 @@ if (typeof window.matchMedia === "function") {
 import { el, mount, spinner, empty, displayValue, toast } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
+import { deleteButton, editorForm, openEditor } from "../editor.js";
 
 /**
  * The Application Dictionary, as the application actually holds it.
@@ -18482,7 +19453,7 @@ import { setHelp } from "../main.js";
  * seventeen-entity model has several hundred columns and nobody reads them all at
  * once.
  */
-export async function dictionaryView(root) {
+export async function dictionaryView(root, { user } = {}) {
   mount(root, spinner("Reading the dictionary"));
   const [tables, summary, references, refLists, windows, tabs, fields] = await Promise.all([
     api.get("/sys/tables"),
@@ -18552,6 +19523,55 @@ export async function dictionaryView(root) {
 
   const yesNo = (value) => (value ? "Yes" : "No");
 
+  /**
+   * The one dictionary write this application offers, and it had no caller.
+   *
+   * \`PATCH /sys/fields/:id\` has been in \`sys.routes.js\` since the dictionary
+   * was, under a comment calling it "the one dictionary write the application
+   * itself offers, because it is the one that pays off immediately: a column
+   * hidden here disappears from every grid and form without regenerating". It
+   * paid off for nobody: no screen listed the fields, so nothing could reach it.
+   * The Fields panel is where it belongs.
+   *
+   * Administrator-only *as an offer*. \`sys.routes.js\` refuses any non-GET from a
+   * caller who is not one, so this decides what is drawn, never what is allowed
+   * — a reader who is not an administrator sees the value and no control rather
+   * than a control that answers 403.
+   *
+   * The row is updated from the server's response rather than from what was
+   * clicked: the endpoint returns the updated row, and trusting the optimistic
+   * value is how a screen comes to disagree with the database it is describing.
+   */
+  function visibilityCell(field, key, onChanged) {
+    if (!user?.isAdmin) return el("td", yesNo(field[key]));
+
+    const label = key === "is_displayed" ? "the form" : "the list";
+    const button = el(
+      "button.linklike",
+      { type: "button", title: \`\${field[key] ? "Remove from" : "Add to"} \${label}\` },
+      yesNo(field[key])
+    );
+    button.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      button.disabled = true;
+      try {
+        const updated = await api.patch(\`/sys/fields/\${field.sys_field_id}\`, {
+          [key]: !field[key],
+        });
+        Object.assign(field, updated);
+        toast(
+          \`\${field.name} is \${field[key] ? "on" : "off"} \${label}. The screen picks it up next time it loads.\`,
+          "success"
+        );
+        onChanged();
+      } catch (error) {
+        toast(error.message, "error");
+        button.disabled = false;
+      }
+    });
+    return el("td", button);
+  }
+
   async function showFields(tab) {
     const table = tables.find((row) => row.sys_table_id === tab.sys_table_id);
     /* \`/sys/tables\` is scoped to what this caller's roles may read; \`/sys/tabs\`
@@ -18582,7 +19602,11 @@ export async function dictionaryView(root) {
         el(
           "p.lede",
           "“On form” and “In grid” are what the application asks for when it draws this " +
-            "entity’s record screen and its list. Sequence is the order it draws them in."
+            "entity’s record screen and its list. Sequence is the order it draws them in." +
+            (user?.isAdmin
+              ? " Both are editable: click one to hide or show that field. The column stays in the" +
+                " database and the screen stops drawing it — no regeneration, no migration."
+              : "")
         ),
         rows.length === 0
           ? el("p.muted", "No fields are seeded against this tab.")
@@ -18606,8 +19630,8 @@ export async function dictionaryView(root) {
                       "tr",
                       el("td", field.name || "—"),
                       el("td", el("code", columnName.get(field.sys_column_id) || "—")),
-                      el("td", yesNo(field.is_displayed)),
-                      el("td", yesNo(field.is_displayed_grid)),
+                      visibilityCell(field, "is_displayed", () => showFields(tab)),
+                      visibilityCell(field, "is_displayed_grid", () => showFields(tab)),
                       el("td", displayValue(field.seq_no ?? "—")),
                       el("td", displayValue(field.seq_no_grid ?? "—")),
                       el("td", yesNo(field.is_mandatory)),
@@ -18799,12 +19823,62 @@ const entityFor = (name, summary) =>
   Object.keys(summary.records).find((key) => key.toLowerCase() === String(name).replace(/\\s+/g, "").toLowerCase()) ??
   name;
 
-export async function rulesView(root) {
+/**
+ * The rules screen, and the first of the three that can now be edited.
+ *
+ * \`bus.routes.js\` enforces from \`sys_rule_definitions\`, so a rule changed here
+ * governs the next write to its entity — no regeneration, the same bargain the
+ * dictionary's field toggles make. Administrator-only as an offer; the routes
+ * refuse a non-admin write regardless.
+ */
+export async function rulesView(root, { user } = {}) {
   mount(root, spinner("Loading rules"));
-  const rules = await api.get("/rules");
+  const [rules, model] = await Promise.all([api.get("/rules"), api.get("/model")]);
+  const entities = (model.entities || []).map((entity) => entity.name).sort();
+  const editor = el("div.editor-host");
+  const reload = () => rulesView(root, { user });
+
+  const newButton = user?.isAdmin
+    ? el(
+        "button.btn.btn--primary.btn--small",
+        {
+          onclick: () =>
+            openEditor(
+              editor,
+              editorForm({
+                title: "New rule",
+                lede:
+                  "A rule is evaluated against the record being written and nothing else — a condition naming a parent's column or a count of children is undefined at evaluation, and the rule silently never fires.",
+                fields: ruleFields(entities),
+                values: { event: "beforeCreate", operation: "ALL", priority: 100, jdm_content: EMPTY_JDM },
+                saveLabel: "Create rule",
+                onSave: async (values) => {
+                  await api.post("/rules", values);
+                  toast("Rule created", "success");
+                  await reload();
+                },
+                onCancel: () => mount(editor),
+              })
+            ),
+        },
+        "New rule"
+      )
+    : null;
 
   if (!rules.length) {
-    mount(root, panel("Business rules", "", empty("This model declares no rules", "Add a %%rule section to the EML and regenerate.")));
+    mount(
+      root,
+      panel(
+        "Business rules",
+        "",
+        el(
+          "div",
+          newButton,
+          editor,
+          empty("This model declares no rules", "Add a %%rule section to the EML and regenerate — or create one here.")
+        )
+      )
+    );
     return;
   }
 
@@ -18812,7 +19886,11 @@ export async function rulesView(root) {
     root,
     panel(
       "Business rules",
-      "Compiled from the model's %%rule sections into GoRules JDM, and evaluated here by the browser engine.",
+      "Compiled from the model's %%rule sections into GoRules JDM, and evaluated here by the browser engine. An administrator can change one without regenerating: the engine reads these rows on every write.",
+      el(
+        "div",
+        newButton,
+        editor,
       el(
         "div.cards",
         rules.map((rule) =>
@@ -18843,16 +19921,83 @@ export async function rulesView(root) {
                 )
               : el("p.rule__meta", "No branching decisions."),
             el(
-              "button.btn.btn--small",
-              { onclick: () => tryRule(rule) },
-              "Try this rule"
+              "div.rule__actions",
+              el("button.btn.btn--small", { onclick: () => tryRule(rule) }, "Try this rule"),
+              user?.isAdmin
+                ? el(
+                    "button.btn.btn--small",
+                    {
+                      onclick: () =>
+                        openEditor(
+                          editor,
+                          editorForm({
+                            title: \`Edit \${rule.name}\`,
+                            fields: ruleFields(entities),
+                            values: rule,
+                            onSave: async (values) => {
+                              await api.patch(\`/rules/\${rule.sys_rule_definition_id}\`, values);
+                              toast("Rule saved", "success");
+                              await reload();
+                            },
+                            onCancel: () => mount(editor),
+                          })
+                        ),
+                    },
+                    "Edit"
+                  )
+                : null,
+              user?.isAdmin
+                ? deleteButton("Delete", \`Delete \${rule.name}?\`, async () => {
+                    await api.delete(\`/rules/\${rule.sys_rule_definition_id}\`);
+                    toast(\`\${rule.name} deleted\`, "success");
+                    await reload();
+                  })
+                : null
             )
           )
         )
       )
+      )
     )
   );
 }
+
+/**
+ * The fields a rule has, as the routes define them.
+ *
+ * \`event\` and \`operation\` are \`select\`s rather than text because the server
+ * accepts exactly these values — offering a free-text box invites a rule that
+ * is stored, listed, and never evaluated, which is the failure the route's own
+ * validation exists to refuse.
+ */
+function ruleFields(entities) {
+  return [
+    { name: "name", label: "Name", required: true },
+    { name: "entity_name", label: "Entity", type: "select", options: entities, required: true },
+    {
+      name: "event",
+      label: "Runs on",
+      type: "select",
+      options: ["beforeCreate", "afterCreate", "beforeUpdate", "afterUpdate", "beforeDelete", "afterDelete"],
+      hint: "When the engine evaluates it, relative to the write.",
+    },
+    { name: "operation", label: "Operation", type: "select", options: ["ALL", "CREATE", "UPDATE", "DELETE"] },
+    { name: "priority", label: "Priority", type: "number", hint: "Lower runs first." },
+    { name: "description", label: "Description" },
+    { name: "is_active", label: "Active", type: "checkbox" },
+    {
+      name: "jdm_content",
+      label: "Decision graph (JDM)",
+      type: "textarea",
+      rows: 12,
+      required: true,
+      hint: "GoRules JDM: an object with a \`nodes\` array. Refused at save time if it will not parse.",
+    },
+  ];
+}
+
+/** A graph the engine accepts and that decides nothing — a starting point. */
+const EMPTY_JDM = JSON.stringify({ nodes: [], edges: [] }, null, 2);
 
 /** Evaluate a rule against a record the reader types, and show the trace. */
 async function tryRule(rule) {
@@ -18887,12 +20032,53 @@ async function tryRule(rule) {
   }
 }
 
-export async function processesView(root) {
+/**
+ * The processes screen, editable for the same reason the rules screen is.
+ *
+ * Worth knowing what an edit here does and does not do. \`lib/workflows.js\`
+ * reads these rows, so changing a machine's transitions changes which moves the
+ * transition UI offers and which status changes the run log records as
+ * modelled — on the next request, without regenerating. What it does not do is
+ * *move* a record: that is still a PUT to the record, through the guards, hooks
+ * and rules, and there is deliberately no side door.
+ */
+export async function processesView(root, { user } = {}) {
   mount(root, spinner("Loading processes"));
-  const [definitions, runs] = await Promise.all([
+  const [definitions, runs, model] = await Promise.all([
     api.get("/workflows/definitions"),
     api.get("/workflows/runs?limit=25"),
+    api.get("/model"),
   ]);
+  const entities = (model.entities || []).map((entity) => entity.name).sort();
+  const editor = el("div.editor-host");
+  const reload = () => processesView(root, { user });
+
+  const newButton = user?.isAdmin
+    ? el(
+        "button.btn.btn--primary.btn--small",
+        {
+          onclick: () =>
+            openEditor(
+              editor,
+              editorForm({
+                title: "New process",
+                lede:
+                  "A state machine's transitions are the only moves its records may make. A \`saga\` has steps rather than transitions and is never offered as a move.",
+                fields: workflowFields(entities),
+                values: { kind: "state", definition: EMPTY_WORKFLOW },
+                saveLabel: "Create process",
+                onSave: async (values) => {
+                  await api.post("/workflows/definitions", toWorkflowBody(values));
+                  toast("Process created", "success");
+                  await reload();
+                },
+                onCancel: () => mount(editor),
+              })
+            ),
+        },
+        "New process"
+      )
+    : null;
 
   mount(
     root,
@@ -18901,11 +20087,25 @@ export async function processesView(root) {
       "State machines and sagas the model declared. A record moves through one by being updated — there is no side door.",
       el(
         "div",
+        newButton,
+        editor,
         definitions.length
           ? el(
               "div.cards",
               definitions.map((definition) => {
-                const parsed = typeof definition.definition === "string" ? JSON.parse(definition.definition) : definition.definition;
+                /* A definition an administrator has edited may not parse — the
+                   route validates the shape it understands, not every key a
+                   reader might add. One unreadable definition should cost its
+                   own card rather than the whole screen. */
+                let parsed;
+                try {
+                  parsed =
+                    typeof definition.definition === "string"
+                      ? JSON.parse(definition.definition)
+                      : definition.definition;
+                } catch {
+                  parsed = null;
+                }
                 return el(
                   "article.rule",
                   el(
@@ -18913,27 +20113,72 @@ export async function processesView(root) {
                     el("h3.rule__name", definition.name),
                     el("span.badge", \`\${definition.entity_name} · \${definition.kind}\`)
                   ),
-                  parsed.states
+                  parsed === null
+                    ? el("p.rule__meta", "This definition is not readable JSON — edit it to repair it.")
+                    : null,
+                  parsed?.states
                     ? el(
                         "div.states",
-                        parsed.states.map((state) =>
+                        parsed?.states.map((state) =>
                           el(
-                            \`span.state\${state === parsed.initial ? ".state--initial" : ""}\`,
+                            \`span.state\${state === parsed?.initial ? ".state--initial" : ""}\`,
                             typeof state === "string" ? state : state.name
                           )
                         )
                       )
                     : null,
-                  parsed.transitions
+                  parsed?.transitions
                     ? el(
                         "ul.transitions",
-                        parsed.transitions.map((transition) =>
+                        parsed?.transitions.map((transition) =>
                           el("li", \`\${transition.from} → \${transition.to}\`, transition.trigger ? el("span.badge.badge--soft", transition.trigger) : null)
                         )
                       )
                     : null,
-                  parsed.steps
-                    ? el("ol.transitions", parsed.steps.map((step) => el("li", \`\${step.name} (\${step.type})\`)))
+                  parsed?.steps
+                    ? el("ol.transitions", parsed?.steps.map((step) => el("li", \`\${step.name} (\${step.type})\`)))
+                    : null,
+                  user?.isAdmin
+                    ? el(
+                        "div.rule__actions",
+                        el(
+                          "button.btn.btn--small",
+                          {
+                            onclick: () =>
+                              openEditor(
+                                editor,
+                                editorForm({
+                                  title: \`Edit \${definition.name}\`,
+                                  fields: workflowFields(entities),
+                                  values: {
+                                    ...definition,
+                                    definition:
+                                      typeof definition.definition === "string"
+                                        ? prettyJson(definition.definition)
+                                        : JSON.stringify(definition.definition, null, 2),
+                                  },
+                                  onSave: async (values) => {
+                                    await api.patch(
+                                      \`/workflows/definitions/\${definition.sys_workflow_definition_id}\`,
+                                      toWorkflowBody(values)
+                                    );
+                                    toast("Process saved", "success");
+                                    await reload();
+                                  },
+                                  onCancel: () => mount(editor),
+                                })
+                              ),
+                          },
+                          "Edit"
+                        ),
+                        deleteButton("Delete", \`Delete \${definition.name}?\`, async () => {
+                          await api.delete(
+                            \`/workflows/definitions/\${definition.sys_workflow_definition_id}\`
+                          );
+                          toast(\`\${definition.name} deleted — its runs are kept\`, "success");
+                          await reload();
+                        })
+                      )
                     : null
                 );
               })
@@ -19074,6 +20319,74 @@ function statRow(entries) {
     entries.map(([label, value]) => el("div.stat", el("span.stat__value", String(value)), el("span.stat__label", label)))
   );
 }
+
+/**
+ * The fields a workflow definition has.
+ *
+ * \`definition\` is raw JSON on purpose. A form with a row-per-transition would
+ * be friendlier and would also be a second, partial model of what a workflow
+ * is — one that quietly drops the keys it has no widget for. The route
+ * validates the shape it understands (\`state\` needs transitions, each with a
+ * \`from\` and a \`to\`) and preserves everything else, so the textarea is the
+ * honest control: it can express whatever the model could.
+ */
+function workflowFields(entities) {
+  return [
+    { name: "name", label: "Name", required: true },
+    { name: "entity_name", label: "Entity", type: "select", options: entities, required: true },
+    {
+      name: "kind",
+      label: "Kind",
+      type: "select",
+      options: [
+        { value: "state", label: "state — a record's lifecycle" },
+        { value: "saga", label: "saga — a multi-step process" },
+      ],
+    },
+    { name: "is_active", label: "Active", type: "checkbox" },
+    {
+      name: "definition",
+      label: "Definition (JSON)",
+      type: "textarea",
+      rows: 14,
+      required: true,
+      hint: "A \`state\` workflow needs a \`transitions\` array, each entry with a \`from\` and a \`to\`. A \`saga\` has \`steps\`.",
+    },
+  ];
+}
+
+/**
+ * Send \`definition\` as an object, not as a string.
+ *
+ * The route accepts either, but parsing here means a typo is reported as "not
+ * readable JSON" against the field the reader is looking at rather than as a
+ * shape complaint about a string the server could not read either.
+ */
+function toWorkflowBody(values) {
+  let definition;
+  try {
+    definition = JSON.parse(values.definition);
+  } catch (error) {
+    throw new Error(\`Definition is not readable JSON: \${error.message}\`);
+  }
+  return { ...values, definition };
+}
+
+/** Re-indent stored JSON so a textarea shows it readably. */
+function prettyJson(text) {
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2);
+  } catch {
+    return text;
+  }
+}
+
+/** A state machine with one drawn edge — the smallest thing the route accepts. */
+const EMPTY_WORKFLOW = JSON.stringify(
+  { initial: "draft", states: ["draft", "active"], transitions: [{ from: "draft", to: "active" }] },
+  null,
+  2
+);
 `,
   "ui/views/dashboard.js": `/**
  * The dashboard — entities grouped by the categories the model declared.
@@ -21684,6 +22997,7 @@ export async function reportLoginView(root, { project, onSignedIn, onLeave }) {
 import { el, mount, spinner, empty, toast } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
+import { deleteButton, editorForm, openEditor } from "../editor.js";
 
 /** Render one SQL scalar as a cell. */
 function cell(value) {
@@ -21768,7 +23082,7 @@ function chart(result) {
 }
 
 /** The answer to one question, rendered into \`panel\`. */
-async function runReport(panel, name) {
+async function runReport(panel, name, options = {}) {
   mount(panel, spinner("Running"));
 
   let result;
@@ -21784,6 +23098,7 @@ async function runReport(panel, name) {
   }
 
   const parts = [el("h2", result.report.title)];
+  if (options.user?.isAdmin && options.entities) parts.push(reportActions(panel, result.report, options));
   if (result.report.help) parts.push(el("p.muted", result.report.help));
 
   const drawn = chart(result);
@@ -21824,7 +23139,7 @@ async function runReport(panel, name) {
       "button.btn",
       {
         onclick: () => {
-          runReport(panel, name);
+          runReport(panel, name, options);
           toast("Re-running", "info");
         },
       },
@@ -21835,22 +23150,34 @@ async function runReport(panel, name) {
   mount(panel, ...parts);
 }
 
-export async function reportsView(root) {
+export async function reportsView(root, { user } = {}) {
   mount(root, spinner("Loading reports"));
   setHelp(
     "Each of these is a question the model's author wrote into the document with %%report, " +
       "together with the query that answers it. They run against this application's own " +
-      "database, so the answers change as you use it."
+      "database, so the answers change as you use it." +
+      (user?.isAdmin
+        ? " They are rows in sys_report, so you can add a question of your own, change one, or " +
+          "retire it — a report may only ever read, and the query is refused if it does anything else."
+        : "")
   );
 
-  const reports = await api.get("/reports");
+  const [reports, model] = await Promise.all([api.get("/reports"), api.get("/model")]);
+  const entities = (model.entities || []).map((entity) => entity.name).sort();
+  const reload = () => reportsView(root, { user });
 
   if (reports.length === 0) {
     return void mount(
       root,
-      empty(
-        "This model declares no reports",
-        "Add a %%report directive to the model — a title, the entity it is about, and the SQL that answers it — and regenerate."
+      el(
+        "div",
+        user?.isAdmin ? newReportButton(root, entities, reload) : null,
+        empty(
+          "This model declares no reports",
+          user?.isAdmin
+            ? "Add a %%report directive to the model and regenerate — or write one here."
+            : "Add a %%report directive to the model — a title, the entity it is about, and the SQL that answers it — and regenerate."
+        )
       )
     );
   }
@@ -21886,7 +23213,7 @@ export async function reportsView(root) {
                       active.classList.remove("is-active");
                     }
                     event.currentTarget.classList.add("is-active");
-                    runReport(panel, report.name);
+                    runReport(panel, report.name, { user, entities, reload });
                   },
                 },
                 report.title
@@ -21898,11 +23225,149 @@ export async function reportsView(root) {
     )
   );
 
-  mount(root, el("div.report-layout", list, panel));
+  mount(
+    root,
+    el(
+      "div",
+      user?.isAdmin ? newReportButton(root, entities, reload) : null,
+      el("div.report-layout", list, panel)
+    )
+  );
+}
+
+/**
+ * Write a question the model's author did not.
+ *
+ * The form opens in the results panel rather than above the list, because on a
+ * model with a hundred and eighty reports a form at the top is a form the
+ * reader scrolls away from.
+ */
+function newReportButton(root, entities, reload) {
+  return el(
+    "button.btn.btn--primary.btn--small",
+    {
+      onclick: () => {
+        const host = root.querySelector(".report-panel") ?? root;
+        openEditor(
+          host,
+          editorForm({
+            title: "New report",
+            lede:
+              "A report may only read. A statement that writes, or a second statement behind a semicolon, is refused here and again every time the report runs.",
+            fields: reportFields(entities),
+            values: { sql: "SELECT 1 AS example" },
+            saveLabel: "Create report",
+            onSave: async (values) => {
+              await api.post("/reports", values);
+              toast("Report created", "success");
+              await reload();
+            },
+            onCancel: () => reload(),
+          })
+        );
+      },
+    },
+    "New report"
+  );
+}
+
+/**
+ * The fields a report has.
+ *
+ * \`chart\` offers an empty option because most reports are tables — and because
+ * the route refuses a chart without both axes, so "bar" with nothing else
+ * filled in is a refusal rather than a default.
+ */
+function reportFields(entities) {
+  return [
+    {
+      name: "name",
+      label: "Name",
+      required: true,
+      hint: "The report's handle in a URL — letters, digits and hyphens.",
+    },
+    { name: "title", label: "Title", required: true, hint: "The question, as somebody would ask it." },
+    { name: "entity", label: "About", type: "select", options: ["", ...entities], hint: "Which entity this is a question about. Leave empty for a cross-cutting one." },
+    { name: "help", label: "Why it is asked", hint: "Who asks this and what they do with the answer." },
+    {
+      name: "chart",
+      label: "Chart",
+      type: "select",
+      options: [
+        { value: "", label: "None — show a table" },
+        "bar",
+        "line",
+        "pie",
+        "area",
+      ],
+    },
+    { name: "x", label: "Chart: x axis", hint: "A column the query returns." },
+    { name: "y", label: "Chart: y axis", hint: "A column the query returns." },
+    { name: "sortOrder", label: "Sort order", type: "number" },
+    { name: "isActive", label: "Active", type: "checkbox" },
+    {
+      name: "sql",
+      label: "Query",
+      type: "textarea",
+      rows: 12,
+      required: true,
+      hint: "A single SELECT or WITH statement.",
+    },
+  ];
+}
+
+/**
+ * Edit and delete, beside the answer rather than beside the title in the list.
+ *
+ * A reader decides a report is wrong by looking at what it returned, so the
+ * controls belong where they have just read it. Editing fetches the report
+ * again first: the list carries no \`sql\` — \`GET /reports/:name\` hands the
+ * statement to an administrator and the metadata to everyone else — so the form
+ * would otherwise open with an empty query and save it over a working one.
+ */
+function reportActions(panel, report, { user, entities, reload }) {
+  return el(
+    "div.report-actions",
+    el(
+      "button.btn.btn--small",
+      {
+        onclick: async () => {
+          let full;
+          try {
+            full = await api.get(\`/reports/\${encodeURIComponent(report.name)}\`);
+          } catch (error) {
+            return void toast(error.message, "error");
+          }
+          openEditor(
+            panel,
+            editorForm({
+              title: \`Edit \${report.name}\`,
+              fields: reportFields(entities),
+              values: full,
+              onSave: async (values) => {
+                await api.patch(\`/reports/\${encodeURIComponent(report.name)}\`, values);
+                toast("Report saved", "success");
+                await reload();
+              },
+              /* Cancel returns to the answer rather than to the list: the
+                 reader was reading it a moment ago. */
+              onCancel: () => runReport(panel, report.name, { user, entities, reload }),
+            })
+          );
+        },
+      },
+      "Edit"
+    ),
+    deleteButton("Delete", \`Delete \${report.name}?\`, async () => {
+      await api.delete(\`/reports/\${encodeURIComponent(report.name)}\`);
+      toast(\`\${report.name} deleted\`, "success");
+      await reload();
+    })
+  );
 }
 `
 });
-var RUNTIME_BYTES = 438458;
+var RUNTIME_BYTES = 497167;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

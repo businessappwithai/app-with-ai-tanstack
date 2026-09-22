@@ -83,6 +83,7 @@ function seedCounter(model, log) {
     count(model.users) +
     count(model.rules) +
     count(model.workflows) +
+    count(model.reports) +
     accessRuleCount(model) +
     /* The reporting application's own roles and accounts — one of each per
        `%%rbac` role. Counted because the stage ticks, and a progress bar that
@@ -134,6 +135,7 @@ export async function migrate(db, model, readAsset, log = () => {}) {
   await seedRoleUsers(db, model, log, tick);
   await seedRules(db, model, tick);
   await seedWorkflows(db, model, tick);
+  await seedReports(db, model, tick);
   await seedAccess(db, model, tick);
   await seedReporting(db, model, log, tick);
   await seedSampleData(db, model, log, tick);
@@ -559,6 +561,42 @@ async function seedWorkflows(db, model, tick = () => {}) {
       entity_name: saga.entity,
       kind: "saga",
       definition: JSON.stringify(saga),
+    });
+  }
+}
+
+/**
+ * The `%%report` questions, into a table the administrator can edit.
+ *
+ * They used to be read straight out of `model.json` on every request, which is
+ * why they were the one part of this application that could be read and never
+ * changed. Seeded by name, skipped when present — the same shape every other
+ * seed here uses, so a second boot does not overwrite an edited report with the
+ * model's original.
+ *
+ * `sort_order` preserves the model's own order. The reports screen lists them
+ * as the model wrote them, and a model puts the question its users ask most
+ * first.
+ */
+async function seedReports(db, model, tick = () => {}) {
+  const reports = Array.isArray(model.reports) ? model.reports : [];
+  for (const [index, report] of reports.entries()) {
+    const exists = await db.one("SELECT sys_report_id FROM sys_report WHERE name = $1", [
+      report.name,
+    ]);
+    tick();
+    if (exists) continue;
+    await db.insert("sys_report", {
+      name: report.name,
+      title: report.title ?? report.name,
+      entity_name: report.entity ?? null,
+      table_name: report.tableName ?? null,
+      chart: report.chart ?? null,
+      x_axis: report.x ?? null,
+      y_axis: report.y ?? null,
+      help: report.help ?? null,
+      sql_text: report.sql,
+      sort_order: index * 10,
     });
   }
 }

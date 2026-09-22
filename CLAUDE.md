@@ -361,6 +361,116 @@ Two things to keep true when touching that screen:
   pays off without regenerating. The read view added here is where it would hang;
   it is deliberately not wired up yet.
 
+#### The administrator section is writable, and the writes had to be made real first
+
+The browser application's admin screens could read their four subjects and
+change none of them. They now offer create, edit and delete for **rules,
+processes and reports**, plus the field-visibility toggle above. What made this
+more than a UI change is that two of the three would have been decorative:
+
+| | Enforced from | So CRUD needed |
+|---|---|---|
+| Rules | `sys_rule_definitions` — already | the routes only |
+| Workflows | `model.workflows`, the bundled copy | **moving the readers onto the table** |
+| Reports | `model.json` in memory — no table at all | **a table** (`sys_report`) |
+
+**`lib/workflows.js` is the one reader now.** `statusColumn`,
+`recordWorkflowRun` and `GET /workflows/entity/:e/:id/transitions` all go
+through it. Before that, editing `sys_workflow_definitions` changed nothing —
+the definition would have been "seeded, visible in the admin screen, drawn by
+the viewer, and inert", which is the failure this file already records against
+the dance-studio model's sixteen `%%action` lines. It falls back to
+`model.workflows` when the table is empty so an application generated before
+this behaves unchanged.
+
+**`sys_report` mirrors the NestJS stack's migration 018 column for column**, so
+this closed a stack parity gap rather than inventing a second shape. The comment
+in `reports.routes.js` used to argue *against* a table, on the grounds that
+nothing edited a report; that clause was the load-bearing one and the feature
+request removed it.
+
+Four things to keep true:
+
+- **`assertReadOnly` runs at save time *and* on every run**, and it is the same
+  function both times. The run-time check cannot be skipped — `sys_report` is an
+  ordinary table whose rows predate the route. The save-time check is what tells
+  an administrator now rather than at the next reader's click.
+- **`GET /reports/:name` returns `sql` only to an administrator.** Reading a
+  report's statement is a way to learn the schema and the joins behind a screen
+  that otherwise shows only results. The edit form therefore re-fetches before
+  opening — the list carries no SQL, and a form opened from it would save an
+  empty query over a working one.
+- **Writes are gated on the HTTP method, not per route.** There are more write
+  routes than anyone remembers and one added later would default to open.
+  `POST /rules/evaluate` is the one explicit carve-out: it is the dry run.
+- **`/sys/model-summary` counts the three from their tables.** It read the model,
+  which is fine while nothing can edit them and becomes the dictionary
+  describing a different application the moment something can.
+
+`ui/editor.js` is the shared form builder and the two-step delete. **No
+`confirm()` and no `prompt()`** — this application runs in an iframe on the page
+that generated it, where a modal is not guaranteed to appear, which is the same
+reason the dashboard's purge control is two-step. The forms validate almost
+nothing: every rule about what a rule, a workflow or a report may contain lives
+in the routes, and a second copy in the browser is a second answer that drifts.
+What the form does is put the server's refusal beside the field being edited
+rather than in a toast that vanishes.
+
+#### A 204 cannot cross the Service Worker carrying a body
+
+`server/lib/http.js`'s `noContent()` answers 204, and the three delete routes
+are its only callers — so this stack had never returned one before. The host
+serialises every answer as an ArrayBuffer, a zero-byte one for a 204, and
+`sw.js` rebuilt it with `new Response(body, { status })`. **The constructor
+throws** on a body with a null-body status, the fetch handler's promise
+rejects, and the browser reports `net::ERR_FAILED` — a request that never
+reached the application, on a route answering perfectly.
+
+Worth knowing as a shape rather than as an incident. The routes were verified
+over the Node host, which has no such boundary and returned 204 for every
+delete; the failure existed only in the browser, only on the status nothing
+else used, and it looked like the network rather than like code. `sw.js` now
+holds `NULL_BODY_STATUS` (204, 205, 304) and passes `null` for those. Anything
+new that answers 205 or 304 is covered; anything that invents another
+null-body status is not.
+
+#### Enterprise Reporting: one pack, two surfaces, two separate logins
+
+The browser build and the deployable archive must agree about what the reporting
+application *is*, and they do — because neither derives it. `buildReportingPack`
+in `packages/generator/src/reporting/pack.ts` is the single derivation;
+`model-bundle.ts` writes its output into `model.json` for the browser and
+`generateFullStack` writes the same object to `reporting/reporting-pack.json` in
+the archive. Measured on the CRM model, with the same `name` and `description`
+passed to both:
+
+```
+wasm  pack: 133 queries · 116 reports · 84 charts · 1 dashboard (10 widgets) · 9 roles
+zip   pack: 133 queries · 116 reports · 84 charts · 1 dashboard (10 widgets) · 9 roles
+JSON.stringify(wasm) === JSON.stringify(zip)  →  true
+```
+
+That equality is the property worth protecting. If the two ever diverge it will
+be because something grew a second derivation, which is the mistake this
+repository keeps having to undo.
+
+**Both carry a separate sign-in, by different mechanisms.** In the archive the
+platform is a separate product on a separate service (`report`, port 3100) with
+its own database (`enterprise_config`) — a regeneration drops the application's
+tables and the reports have to survive it. In the browser there is one tab and
+one database, so the separation is `rpt_user`, `rpt_role` and `rpt_session`
+beside `sys_user`, a second token, and `#/report` matched in `main.js` **before**
+the application's sign-in gate so reaching it never needs a session in the other
+one. Neither password works on the other side in either build.
+
+**What is not the same, and should not be claimed to be, is the chrome.** The
+archive runs the real Enterprise Reporting platform, cloned at `REPORT_REF` and
+built — SQL editor, NL query, scheduled delivery, the lot. The browser build is a
+read-only mirror over the same pack, because a tab has no second server, and
+`report-app.js` says so on screen rather than offering buttons that answer "not
+in the browser build". Same reports, same roles, same accounts; one of them can
+also author new ones.
+
 #### The sign-in screen names the reporting application
 
 `render()` in `templates/wasm/ui/main.js` matches `#/report` **before** the

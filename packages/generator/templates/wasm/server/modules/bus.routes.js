@@ -18,6 +18,7 @@ import { Router } from "../lib/router.js";
 import { badRequest, json, notFound, readJson } from "../lib/http.js";
 import { ident } from "../lib/db.js";
 import { checkOperationAccess, checkTransitionAccess, requireUser } from "../lib/guards.js";
+import { stateMachineFor } from "../lib/workflows.js";
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
 import { recordAudit } from "./audit.routes.js";
@@ -243,9 +244,17 @@ function validate(entity, values, mode) {
 
 const isBlank = (value) => value == null || String(value).trim() === "";
 
-/** The column a state machine moves, when the entity has one. */
-function statusColumn(entity, model) {
-  const workflow = (model.workflows || []).find((item) => item.entity === entity.name);
+/**
+ * The column a state machine moves, when the entity has one.
+ *
+ * Takes the workflow rather than the model: the definitions live in
+ * `sys_workflow_definitions` and an administrator can now edit them, so an
+ * entity's machine is whatever the table currently says it is. Reading
+ * `model.workflows` here would mean an entity given a machine after generation
+ * never had its status changes recorded, and one whose machine was deleted went
+ * on being treated as having one.
+ */
+function statusColumn(entity, workflow) {
   if (!workflow) return null;
   const candidates = ["status", "state", "workflow_state"];
   return entity.attributes.find((attribute) => candidates.includes(attribute.columnName))?.columnName ?? null;
@@ -456,7 +465,15 @@ export function busRoutes(model) {
     }
     Object.assign(values, applicableMutations(entity, outcome.mutations));
 
-    await checkTransitionAccess(db, user, entity.tableName, current, { ...current, ...values }, statusColumn(entity, model));
+    const machine = await stateMachineFor(db, model, entity.name);
+    await checkTransitionAccess(
+      db,
+      user,
+      entity.tableName,
+      current,
+      { ...current, ...values },
+      statusColumn(entity, machine)
+    );
 
     values.updated_by = user.id;
     values.updated_at = new Date().toISOString();
@@ -539,13 +556,13 @@ function applicableMutations(entity, mutations) {
 
 /** Record a state change against the entity's machine, when it crossed one. */
 async function recordWorkflowRun(db, model, entity, before, after, user) {
-  const column = statusColumn(entity, model);
+  const workflow = await stateMachineFor(db, model, entity.name);
+  const column = statusColumn(entity, workflow);
   if (!column) return;
   const from = before[column];
   const to = after[column];
   if (!to || from === to) return;
 
-  const workflow = (model.workflows || []).find((item) => item.entity === entity.name);
   const transition = (workflow?.transitions || []).find(
     (item) => item.from === String(from) && item.to === String(to)
   );
