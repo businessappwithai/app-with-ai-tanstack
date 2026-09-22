@@ -64,7 +64,18 @@ services:
       - -c
       - wal_level=logical
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app}"]
+      # `-d`, and it is not decoration. Without a database name `pg_isready`
+      # connects as `$DB_USER` to a database of the same name — `app` — which
+      # does not exist here. It still reports the server up, because a server
+      # that refuses a connection is a server that answered, so the check
+      # passes and nothing looks wrong. What it leaves behind is a line in the
+      # postgres log every ten seconds, for the life of the container:
+      #
+      #   FATAL:  database "app" does not exist
+      #
+      # Which is the first thing anyone reads when something else goes wrong,
+      # and it sends them after a database the application never wanted.
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-app} -d {{project.name | replace '-' '_'}}"]
       interval: 10s
       timeout: 5s
       retries: 5
