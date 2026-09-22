@@ -416,6 +416,24 @@ in the routes, and a second copy in the browser is a second answer that drifts.
 What the form does is put the server's refusal beside the field being edited
 rather than in a toast that vanishes.
 
+#### A 204 cannot cross the Service Worker carrying a body
+
+`server/lib/http.js`'s `noContent()` answers 204, and the three delete routes
+are its only callers — so this stack had never returned one before. The host
+serialises every answer as an ArrayBuffer, a zero-byte one for a 204, and
+`sw.js` rebuilt it with `new Response(body, { status })`. **The constructor
+throws** on a body with a null-body status, the fetch handler's promise
+rejects, and the browser reports `net::ERR_FAILED` — a request that never
+reached the application, on a route answering perfectly.
+
+Worth knowing as a shape rather than as an incident. The routes were verified
+over the Node host, which has no such boundary and returned 204 for every
+delete; the failure existed only in the browser, only on the status nothing
+else used, and it looked like the network rather than like code. `sw.js` now
+holds `NULL_BODY_STATUS` (204, 205, 304) and passes `null` for those. Anything
+new that answers 205 or 304 is covered; anything that invents another
+null-body status is not.
+
 #### Enterprise Reporting: one pack, two surfaces, two separate logins
 
 The browser build and the deployable archive must agree about what the reporting
