@@ -17558,6 +17558,38 @@ a { color: var(--primary); }
 }
 .linklike:hover:not(:disabled) { color: var(--text); }
 .linklike:disabled { opacity: 0.5; cursor: progress; text-decoration: none; }
+
+/* ---------------------------------------------------------------------------
+   The admin editors — one form shape for rules, processes and reports.
+
+   Deliberately not a modal. This application runs inside an iframe on the page
+   that generated it, where a dialog is not guaranteed to appear; the same
+   reason the dashboard's purge control is two-step. The form takes the place of
+   what the reader was looking at instead.
+   --------------------------------------------------------------------------- */
+.editor-host:empty { display: none; }
+.editor {
+  display: grid; gap: 12px; margin: 14px 0 18px; padding: 16px;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+}
+.editor .field__input--code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px; line-height: 1.5; resize: vertical;
+}
+.editor__actions { display: flex; gap: 8px; margin-top: 4px; }
+.editor__error {
+  margin: 0; padding: 9px 11px; border-radius: var(--radius-sm);
+  background: var(--destructive-soft, rgba(220, 38, 38, 0.1));
+  border-left: 3px solid var(--destructive);
+  font-size: 13px; white-space: pre-wrap;
+}
+.field__hint { margin: 0; font-size: 12px; color: var(--text-faint); }
+
+/* A delete that arms on the first click. \`is-armed\` is what says so — the label
+   changes too, but colour alone would not reach somebody who cannot see it. */
+.btn.is-armed { background: var(--destructive); border-color: var(--destructive); color: #fff; }
+
+.rule__actions, .report-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .muted { color: var(--text-faint); }
 
 .record__actions { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 20px; border-top: 1px solid var(--border); flex-wrap: wrap; }
@@ -18604,6 +18636,217 @@ export const escapeHtml = (value) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]
   );
 `,
+  "ui/editor.js": `/**
+ * The admin screens' shared editor: one form builder and one two-step delete.
+ *
+ * The dictionary, the rules, the processes and the reports all now offer
+ * create, edit and delete, and all four want the same three things — a form
+ * whose fields come from a description rather than from markup, a save that
+ * reports the server's refusal rather than swallowing it, and a delete that
+ * cannot happen on one misplaced click. Written once here rather than four
+ * times, because four copies is how three of them come to disagree about what
+ * "cancel" does.
+ *
+ * ## No \`confirm()\` and no \`prompt()\`
+ *
+ * This application runs inside an iframe on the page that generated it, and a
+ * modal dialog is not guaranteed to appear there — the same reason the
+ * dashboard's purge control is two-step rather than a \`confirm()\`. So a delete
+ * arms itself on the first click and commits on the second, and anything that
+ * needs typing gets a real field in a real form.
+ *
+ * ## The server is the validator
+ *
+ * These forms check almost nothing. Every rule about what a rule, a workflow or
+ * a report may contain lives in the routes — the six events the engine
+ * dispatches on, the read-only SQL guard, a chart needing both axes — and a
+ * second copy here would be a second answer that drifts. What the form does is
+ * put the server's refusal where the reader can act on it: beside the field
+ * they are editing, not in a toast that vanishes.
+ */
+
+import { el, mount, toast } from "./dom.js";
+
+/**
+ * Build a form from a field description.
+ *
+ * \`fields\` is an array of \`{ name, label, type, options, hint, rows, required }\`.
+ * \`type\` is one of \`text\`, \`number\`, \`textarea\`, \`select\`, \`checkbox\`; anything
+ * else renders as \`text\`, because a typo in a field description should cost a
+ * plain input rather than a blank screen.
+ *
+ * \`onSave\` receives the collected values and may throw — the message is shown
+ * in the form and the form stays open with what the reader typed still in it.
+ * That is the whole reason this returns a node rather than a promise: a save
+ * that fails must not lose the work.
+ */
+export function editorForm({ title, lede, fields, values = {}, saveLabel = "Save", onSave, onCancel }) {
+  const inputs = new Map();
+  const error = el("p.editor__error", { hidden: true });
+
+  const controls = fields.map((field) => {
+    const id = \`editor-\${field.name}\`;
+    const current = values[field.name];
+    let input;
+
+    if (field.type === "textarea") {
+      input = el("textarea.field__input.field__input--code", {
+        id,
+        rows: field.rows ?? 8,
+        spellcheck: "false",
+      });
+      input.value = current == null ? "" : String(current);
+    } else if (field.type === "select") {
+      input = el(
+        "select.field__input",
+        { id },
+        ...(field.options || []).map((option) => {
+          const value = typeof option === "string" ? option : option.value;
+          const label = typeof option === "string" ? option : option.label;
+          const node = el("option", { value }, label);
+          if (String(current ?? "") === String(value)) node.selected = true;
+          return node;
+        })
+      );
+    } else if (field.type === "checkbox") {
+      input = el("input", { id, type: "checkbox" });
+      input.checked = current !== false;
+    } else {
+      input = el("input.field__input", {
+        id,
+        type: field.type === "number" ? "number" : "text",
+      });
+      input.value = current == null ? "" : String(current);
+    }
+
+    inputs.set(field.name, { input, field });
+
+    return el(
+      "div.field",
+      el(
+        "div.field__head",
+        el("label.field__label", { for: id }, field.label),
+        field.required ? el("span.chip.chip--text", "Required") : null
+      ),
+      input,
+      field.hint ? el("p.field__hint", field.hint) : null
+    );
+  });
+
+  function collect() {
+    const out = {};
+    for (const [name, { input, field }] of inputs) {
+      if (field.type === "checkbox") {
+        out[name] = input.checked;
+        continue;
+      }
+      const raw = input.value;
+      if (field.type === "number") {
+        out[name] = raw === "" ? undefined : Number(raw);
+        continue;
+      }
+      const text = typeof raw === "string" ? raw.trim() : raw;
+      /* An empty optional field is sent as "" rather than omitted, so clearing
+         one actually clears it — \`undefined\` would leave the old value in
+         place, which reads as the save having silently failed. */
+      out[name] = field.required && text === "" ? "" : text;
+    }
+    return out;
+  }
+
+  const save = el("button.btn.btn--primary", { type: "submit" }, saveLabel);
+  const form = el(
+    "form.editor",
+    {
+      onsubmit: async (event) => {
+        event.preventDefault();
+        error.hidden = true;
+        save.disabled = true;
+        save.textContent = "Saving…";
+        try {
+          await onSave(collect());
+        } catch (failure) {
+          /* The server's own words. It knows why it refused and this screen
+             does not, so paraphrasing here can only lose information. */
+          error.textContent = failure?.message || String(failure);
+          error.hidden = false;
+          save.disabled = false;
+          save.textContent = saveLabel;
+        }
+      },
+    },
+    el("h3.section-title", title),
+    lede ? el("p.lede", lede) : null,
+    ...controls,
+    error,
+    el(
+      "div.editor__actions",
+      save,
+      el("button.btn", { type: "button", onclick: () => onCancel?.() }, "Cancel")
+    )
+  );
+
+  /* Focus the first field so a keyboard reader can start typing, and so opening
+     the form is visibly *about* that form rather than a section that appeared
+     somewhere on the page. */
+  queueMicrotask(() => inputs.values().next().value?.input?.focus());
+  return form;
+}
+
+/**
+ * A delete that takes two clicks.
+ *
+ * The first arms it and says what will happen; the second does it. A third
+ * click anywhere else disarms it, because a control left armed across a scroll
+ * is a control waiting to be hit by accident.
+ */
+export function deleteButton(label, description, onDelete) {
+  const button = el("button.btn.btn--danger.btn--small", { type: "button" }, label);
+  let armed = false;
+
+  const disarm = () => {
+    armed = false;
+    button.textContent = label;
+    button.classList.remove("is-armed");
+    document.removeEventListener("click", away, true);
+  };
+  const away = (event) => {
+    if (event.target !== button) disarm();
+  };
+
+  button.addEventListener("click", async () => {
+    if (!armed) {
+      armed = true;
+      button.textContent = description || "Really delete?";
+      button.classList.add("is-armed");
+      document.addEventListener("click", away, true);
+      return;
+    }
+    disarm();
+    button.disabled = true;
+    try {
+      await onDelete();
+    } catch (error) {
+      toast(error.message, "error");
+      button.disabled = false;
+    }
+  });
+
+  return button;
+}
+
+/**
+ * Put an editor where the reader is looking.
+ *
+ * The form replaces the panel's contents rather than appearing above or below
+ * it: on a list of thirty reports, a form rendered at the top is a form the
+ * reader has to go and find.
+ */
+export function openEditor(host, form) {
+  mount(host, form);
+  host.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+`,
   "ui/main.js": `/**
  * The shell: masthead, action bar, breadcrumb, and which screen is on show.
  *
@@ -19178,6 +19421,7 @@ if (typeof window.matchMedia === "function") {
 import { el, mount, spinner, empty, displayValue, toast } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
+import { deleteButton, editorForm, openEditor } from "../editor.js";
 
 /**
  * The Application Dictionary, as the application actually holds it.
@@ -19565,12 +19809,62 @@ const entityFor = (name, summary) =>
   Object.keys(summary.records).find((key) => key.toLowerCase() === String(name).replace(/\\s+/g, "").toLowerCase()) ??
   name;
 
-export async function rulesView(root) {
+/**
+ * The rules screen, and the first of the three that can now be edited.
+ *
+ * \`bus.routes.js\` enforces from \`sys_rule_definitions\`, so a rule changed here
+ * governs the next write to its entity — no regeneration, the same bargain the
+ * dictionary's field toggles make. Administrator-only as an offer; the routes
+ * refuse a non-admin write regardless.
+ */
+export async function rulesView(root, { user } = {}) {
   mount(root, spinner("Loading rules"));
-  const rules = await api.get("/rules");
+  const [rules, model] = await Promise.all([api.get("/rules"), api.get("/model")]);
+  const entities = (model.entities || []).map((entity) => entity.name).sort();
+  const editor = el("div.editor-host");
+  const reload = () => rulesView(root, { user });
+
+  const newButton = user?.isAdmin
+    ? el(
+        "button.btn.btn--primary.btn--small",
+        {
+          onclick: () =>
+            openEditor(
+              editor,
+              editorForm({
+                title: "New rule",
+                lede:
+                  "A rule is evaluated against the record being written and nothing else — a condition naming a parent's column or a count of children is undefined at evaluation, and the rule silently never fires.",
+                fields: ruleFields(entities),
+                values: { event: "beforeCreate", operation: "ALL", priority: 100, jdm_content: EMPTY_JDM },
+                saveLabel: "Create rule",
+                onSave: async (values) => {
+                  await api.post("/rules", values);
+                  toast("Rule created", "success");
+                  await reload();
+                },
+                onCancel: () => mount(editor),
+              })
+            ),
+        },
+        "New rule"
+      )
+    : null;
 
   if (!rules.length) {
-    mount(root, panel("Business rules", "", empty("This model declares no rules", "Add a %%rule section to the EML and regenerate.")));
+    mount(
+      root,
+      panel(
+        "Business rules",
+        "",
+        el(
+          "div",
+          newButton,
+          editor,
+          empty("This model declares no rules", "Add a %%rule section to the EML and regenerate — or create one here.")
+        )
+      )
+    );
     return;
   }
 
@@ -19578,7 +19872,11 @@ export async function rulesView(root) {
     root,
     panel(
       "Business rules",
-      "Compiled from the model's %%rule sections into GoRules JDM, and evaluated here by the browser engine.",
+      "Compiled from the model's %%rule sections into GoRules JDM, and evaluated here by the browser engine. An administrator can change one without regenerating: the engine reads these rows on every write.",
+      el(
+        "div",
+        newButton,
+        editor,
       el(
         "div.cards",
         rules.map((rule) =>
@@ -19609,16 +19907,83 @@ export async function rulesView(root) {
                 )
               : el("p.rule__meta", "No branching decisions."),
             el(
-              "button.btn.btn--small",
-              { onclick: () => tryRule(rule) },
-              "Try this rule"
+              "div.rule__actions",
+              el("button.btn.btn--small", { onclick: () => tryRule(rule) }, "Try this rule"),
+              user?.isAdmin
+                ? el(
+                    "button.btn.btn--small",
+                    {
+                      onclick: () =>
+                        openEditor(
+                          editor,
+                          editorForm({
+                            title: \`Edit \${rule.name}\`,
+                            fields: ruleFields(entities),
+                            values: rule,
+                            onSave: async (values) => {
+                              await api.patch(\`/rules/\${rule.sys_rule_definition_id}\`, values);
+                              toast("Rule saved", "success");
+                              await reload();
+                            },
+                            onCancel: () => mount(editor),
+                          })
+                        ),
+                    },
+                    "Edit"
+                  )
+                : null,
+              user?.isAdmin
+                ? deleteButton("Delete", \`Delete \${rule.name}?\`, async () => {
+                    await api.delete(\`/rules/\${rule.sys_rule_definition_id}\`);
+                    toast(\`\${rule.name} deleted\`, "success");
+                    await reload();
+                  })
+                : null
             )
           )
         )
       )
+      )
     )
   );
 }
+
+/**
+ * The fields a rule has, as the routes define them.
+ *
+ * \`event\` and \`operation\` are \`select\`s rather than text because the server
+ * accepts exactly these values — offering a free-text box invites a rule that
+ * is stored, listed, and never evaluated, which is the failure the route's own
+ * validation exists to refuse.
+ */
+function ruleFields(entities) {
+  return [
+    { name: "name", label: "Name", required: true },
+    { name: "entity_name", label: "Entity", type: "select", options: entities, required: true },
+    {
+      name: "event",
+      label: "Runs on",
+      type: "select",
+      options: ["beforeCreate", "afterCreate", "beforeUpdate", "afterUpdate", "beforeDelete", "afterDelete"],
+      hint: "When the engine evaluates it, relative to the write.",
+    },
+    { name: "operation", label: "Operation", type: "select", options: ["ALL", "CREATE", "UPDATE", "DELETE"] },
+    { name: "priority", label: "Priority", type: "number", hint: "Lower runs first." },
+    { name: "description", label: "Description" },
+    { name: "is_active", label: "Active", type: "checkbox" },
+    {
+      name: "jdm_content",
+      label: "Decision graph (JDM)",
+      type: "textarea",
+      rows: 12,
+      required: true,
+      hint: "GoRules JDM: an object with a \`nodes\` array. Refused at save time if it will not parse.",
+    },
+  ];
+}
+
+/** A graph the engine accepts and that decides nothing — a starting point. */
+const EMPTY_JDM = JSON.stringify({ nodes: [], edges: [] }, null, 2);
 
 /** Evaluate a rule against a record the reader types, and show the trace. */
 async function tryRule(rule) {
@@ -19653,12 +20018,53 @@ async function tryRule(rule) {
   }
 }
 
-export async function processesView(root) {
+/**
+ * The processes screen, editable for the same reason the rules screen is.
+ *
+ * Worth knowing what an edit here does and does not do. \`lib/workflows.js\`
+ * reads these rows, so changing a machine's transitions changes which moves the
+ * transition UI offers and which status changes the run log records as
+ * modelled — on the next request, without regenerating. What it does not do is
+ * *move* a record: that is still a PUT to the record, through the guards, hooks
+ * and rules, and there is deliberately no side door.
+ */
+export async function processesView(root, { user } = {}) {
   mount(root, spinner("Loading processes"));
-  const [definitions, runs] = await Promise.all([
+  const [definitions, runs, model] = await Promise.all([
     api.get("/workflows/definitions"),
     api.get("/workflows/runs?limit=25"),
+    api.get("/model"),
   ]);
+  const entities = (model.entities || []).map((entity) => entity.name).sort();
+  const editor = el("div.editor-host");
+  const reload = () => processesView(root, { user });
+
+  const newButton = user?.isAdmin
+    ? el(
+        "button.btn.btn--primary.btn--small",
+        {
+          onclick: () =>
+            openEditor(
+              editor,
+              editorForm({
+                title: "New process",
+                lede:
+                  "A state machine's transitions are the only moves its records may make. A \`saga\` has steps rather than transitions and is never offered as a move.",
+                fields: workflowFields(entities),
+                values: { kind: "state", definition: EMPTY_WORKFLOW },
+                saveLabel: "Create process",
+                onSave: async (values) => {
+                  await api.post("/workflows/definitions", toWorkflowBody(values));
+                  toast("Process created", "success");
+                  await reload();
+                },
+                onCancel: () => mount(editor),
+              })
+            ),
+        },
+        "New process"
+      )
+    : null;
 
   mount(
     root,
@@ -19667,11 +20073,25 @@ export async function processesView(root) {
       "State machines and sagas the model declared. A record moves through one by being updated — there is no side door.",
       el(
         "div",
+        newButton,
+        editor,
         definitions.length
           ? el(
               "div.cards",
               definitions.map((definition) => {
-                const parsed = typeof definition.definition === "string" ? JSON.parse(definition.definition) : definition.definition;
+                /* A definition an administrator has edited may not parse — the
+                   route validates the shape it understands, not every key a
+                   reader might add. One unreadable definition should cost its
+                   own card rather than the whole screen. */
+                let parsed;
+                try {
+                  parsed =
+                    typeof definition.definition === "string"
+                      ? JSON.parse(definition.definition)
+                      : definition.definition;
+                } catch {
+                  parsed = null;
+                }
                 return el(
                   "article.rule",
                   el(
@@ -19679,27 +20099,72 @@ export async function processesView(root) {
                     el("h3.rule__name", definition.name),
                     el("span.badge", \`\${definition.entity_name} · \${definition.kind}\`)
                   ),
-                  parsed.states
+                  parsed === null
+                    ? el("p.rule__meta", "This definition is not readable JSON — edit it to repair it.")
+                    : null,
+                  parsed?.states
                     ? el(
                         "div.states",
-                        parsed.states.map((state) =>
+                        parsed?.states.map((state) =>
                           el(
-                            \`span.state\${state === parsed.initial ? ".state--initial" : ""}\`,
+                            \`span.state\${state === parsed?.initial ? ".state--initial" : ""}\`,
                             typeof state === "string" ? state : state.name
                           )
                         )
                       )
                     : null,
-                  parsed.transitions
+                  parsed?.transitions
                     ? el(
                         "ul.transitions",
-                        parsed.transitions.map((transition) =>
+                        parsed?.transitions.map((transition) =>
                           el("li", \`\${transition.from} → \${transition.to}\`, transition.trigger ? el("span.badge.badge--soft", transition.trigger) : null)
                         )
                       )
                     : null,
-                  parsed.steps
-                    ? el("ol.transitions", parsed.steps.map((step) => el("li", \`\${step.name} (\${step.type})\`)))
+                  parsed?.steps
+                    ? el("ol.transitions", parsed?.steps.map((step) => el("li", \`\${step.name} (\${step.type})\`)))
+                    : null,
+                  user?.isAdmin
+                    ? el(
+                        "div.rule__actions",
+                        el(
+                          "button.btn.btn--small",
+                          {
+                            onclick: () =>
+                              openEditor(
+                                editor,
+                                editorForm({
+                                  title: \`Edit \${definition.name}\`,
+                                  fields: workflowFields(entities),
+                                  values: {
+                                    ...definition,
+                                    definition:
+                                      typeof definition.definition === "string"
+                                        ? prettyJson(definition.definition)
+                                        : JSON.stringify(definition.definition, null, 2),
+                                  },
+                                  onSave: async (values) => {
+                                    await api.patch(
+                                      \`/workflows/definitions/\${definition.sys_workflow_definition_id}\`,
+                                      toWorkflowBody(values)
+                                    );
+                                    toast("Process saved", "success");
+                                    await reload();
+                                  },
+                                  onCancel: () => mount(editor),
+                                })
+                              ),
+                          },
+                          "Edit"
+                        ),
+                        deleteButton("Delete", \`Delete \${definition.name}?\`, async () => {
+                          await api.delete(
+                            \`/workflows/definitions/\${definition.sys_workflow_definition_id}\`
+                          );
+                          toast(\`\${definition.name} deleted — its runs are kept\`, "success");
+                          await reload();
+                        })
+                      )
                     : null
                 );
               })
@@ -19840,6 +20305,74 @@ function statRow(entries) {
     entries.map(([label, value]) => el("div.stat", el("span.stat__value", String(value)), el("span.stat__label", label)))
   );
 }
+
+/**
+ * The fields a workflow definition has.
+ *
+ * \`definition\` is raw JSON on purpose. A form with a row-per-transition would
+ * be friendlier and would also be a second, partial model of what a workflow
+ * is — one that quietly drops the keys it has no widget for. The route
+ * validates the shape it understands (\`state\` needs transitions, each with a
+ * \`from\` and a \`to\`) and preserves everything else, so the textarea is the
+ * honest control: it can express whatever the model could.
+ */
+function workflowFields(entities) {
+  return [
+    { name: "name", label: "Name", required: true },
+    { name: "entity_name", label: "Entity", type: "select", options: entities, required: true },
+    {
+      name: "kind",
+      label: "Kind",
+      type: "select",
+      options: [
+        { value: "state", label: "state — a record's lifecycle" },
+        { value: "saga", label: "saga — a multi-step process" },
+      ],
+    },
+    { name: "is_active", label: "Active", type: "checkbox" },
+    {
+      name: "definition",
+      label: "Definition (JSON)",
+      type: "textarea",
+      rows: 14,
+      required: true,
+      hint: "A \`state\` workflow needs a \`transitions\` array, each entry with a \`from\` and a \`to\`. A \`saga\` has \`steps\`.",
+    },
+  ];
+}
+
+/**
+ * Send \`definition\` as an object, not as a string.
+ *
+ * The route accepts either, but parsing here means a typo is reported as "not
+ * readable JSON" against the field the reader is looking at rather than as a
+ * shape complaint about a string the server could not read either.
+ */
+function toWorkflowBody(values) {
+  let definition;
+  try {
+    definition = JSON.parse(values.definition);
+  } catch (error) {
+    throw new Error(\`Definition is not readable JSON: \${error.message}\`);
+  }
+  return { ...values, definition };
+}
+
+/** Re-indent stored JSON so a textarea shows it readably. */
+function prettyJson(text) {
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2);
+  } catch {
+    return text;
+  }
+}
+
+/** A state machine with one drawn edge — the smallest thing the route accepts. */
+const EMPTY_WORKFLOW = JSON.stringify(
+  { initial: "draft", states: ["draft", "active"], transitions: [{ from: "draft", to: "active" }] },
+  null,
+  2
+);
 `,
   "ui/views/dashboard.js": `/**
  * The dashboard — entities grouped by the categories the model declared.
@@ -22450,6 +22983,7 @@ export async function reportLoginView(root, { project, onSignedIn, onLeave }) {
 import { el, mount, spinner, empty, toast } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
+import { deleteButton, editorForm, openEditor } from "../editor.js";
 
 /** Render one SQL scalar as a cell. */
 function cell(value) {
@@ -22534,7 +23068,7 @@ function chart(result) {
 }
 
 /** The answer to one question, rendered into \`panel\`. */
-async function runReport(panel, name) {
+async function runReport(panel, name, options = {}) {
   mount(panel, spinner("Running"));
 
   let result;
@@ -22550,6 +23084,7 @@ async function runReport(panel, name) {
   }
 
   const parts = [el("h2", result.report.title)];
+  if (options.user?.isAdmin && options.entities) parts.push(reportActions(panel, result.report, options));
   if (result.report.help) parts.push(el("p.muted", result.report.help));
 
   const drawn = chart(result);
@@ -22590,7 +23125,7 @@ async function runReport(panel, name) {
       "button.btn",
       {
         onclick: () => {
-          runReport(panel, name);
+          runReport(panel, name, options);
           toast("Re-running", "info");
         },
       },
@@ -22601,22 +23136,34 @@ async function runReport(panel, name) {
   mount(panel, ...parts);
 }
 
-export async function reportsView(root) {
+export async function reportsView(root, { user } = {}) {
   mount(root, spinner("Loading reports"));
   setHelp(
     "Each of these is a question the model's author wrote into the document with %%report, " +
       "together with the query that answers it. They run against this application's own " +
-      "database, so the answers change as you use it."
+      "database, so the answers change as you use it." +
+      (user?.isAdmin
+        ? " They are rows in sys_report, so you can add a question of your own, change one, or " +
+          "retire it — a report may only ever read, and the query is refused if it does anything else."
+        : "")
   );
 
-  const reports = await api.get("/reports");
+  const [reports, model] = await Promise.all([api.get("/reports"), api.get("/model")]);
+  const entities = (model.entities || []).map((entity) => entity.name).sort();
+  const reload = () => reportsView(root, { user });
 
   if (reports.length === 0) {
     return void mount(
       root,
-      empty(
-        "This model declares no reports",
-        "Add a %%report directive to the model — a title, the entity it is about, and the SQL that answers it — and regenerate."
+      el(
+        "div",
+        user?.isAdmin ? newReportButton(root, entities, reload) : null,
+        empty(
+          "This model declares no reports",
+          user?.isAdmin
+            ? "Add a %%report directive to the model and regenerate — or write one here."
+            : "Add a %%report directive to the model — a title, the entity it is about, and the SQL that answers it — and regenerate."
+        )
       )
     );
   }
@@ -22652,7 +23199,7 @@ export async function reportsView(root) {
                       active.classList.remove("is-active");
                     }
                     event.currentTarget.classList.add("is-active");
-                    runReport(panel, report.name);
+                    runReport(panel, report.name, { user, entities, reload });
                   },
                 },
                 report.title
@@ -22664,11 +23211,149 @@ export async function reportsView(root) {
     )
   );
 
-  mount(root, el("div.report-layout", list, panel));
+  mount(
+    root,
+    el(
+      "div",
+      user?.isAdmin ? newReportButton(root, entities, reload) : null,
+      el("div.report-layout", list, panel)
+    )
+  );
+}
+
+/**
+ * Write a question the model's author did not.
+ *
+ * The form opens in the results panel rather than above the list, because on a
+ * model with a hundred and eighty reports a form at the top is a form the
+ * reader scrolls away from.
+ */
+function newReportButton(root, entities, reload) {
+  return el(
+    "button.btn.btn--primary.btn--small",
+    {
+      onclick: () => {
+        const host = root.querySelector(".report-panel") ?? root;
+        openEditor(
+          host,
+          editorForm({
+            title: "New report",
+            lede:
+              "A report may only read. A statement that writes, or a second statement behind a semicolon, is refused here and again every time the report runs.",
+            fields: reportFields(entities),
+            values: { sql: "SELECT 1 AS example" },
+            saveLabel: "Create report",
+            onSave: async (values) => {
+              await api.post("/reports", values);
+              toast("Report created", "success");
+              await reload();
+            },
+            onCancel: () => reload(),
+          })
+        );
+      },
+    },
+    "New report"
+  );
+}
+
+/**
+ * The fields a report has.
+ *
+ * \`chart\` offers an empty option because most reports are tables — and because
+ * the route refuses a chart without both axes, so "bar" with nothing else
+ * filled in is a refusal rather than a default.
+ */
+function reportFields(entities) {
+  return [
+    {
+      name: "name",
+      label: "Name",
+      required: true,
+      hint: "The report's handle in a URL — letters, digits and hyphens.",
+    },
+    { name: "title", label: "Title", required: true, hint: "The question, as somebody would ask it." },
+    { name: "entity", label: "About", type: "select", options: ["", ...entities], hint: "Which entity this is a question about. Leave empty for a cross-cutting one." },
+    { name: "help", label: "Why it is asked", hint: "Who asks this and what they do with the answer." },
+    {
+      name: "chart",
+      label: "Chart",
+      type: "select",
+      options: [
+        { value: "", label: "None — show a table" },
+        "bar",
+        "line",
+        "pie",
+        "area",
+      ],
+    },
+    { name: "x", label: "Chart: x axis", hint: "A column the query returns." },
+    { name: "y", label: "Chart: y axis", hint: "A column the query returns." },
+    { name: "sortOrder", label: "Sort order", type: "number" },
+    { name: "isActive", label: "Active", type: "checkbox" },
+    {
+      name: "sql",
+      label: "Query",
+      type: "textarea",
+      rows: 12,
+      required: true,
+      hint: "A single SELECT or WITH statement.",
+    },
+  ];
+}
+
+/**
+ * Edit and delete, beside the answer rather than beside the title in the list.
+ *
+ * A reader decides a report is wrong by looking at what it returned, so the
+ * controls belong where they have just read it. Editing fetches the report
+ * again first: the list carries no \`sql\` — \`GET /reports/:name\` hands the
+ * statement to an administrator and the metadata to everyone else — so the form
+ * would otherwise open with an empty query and save it over a working one.
+ */
+function reportActions(panel, report, { user, entities, reload }) {
+  return el(
+    "div.report-actions",
+    el(
+      "button.btn.btn--small",
+      {
+        onclick: async () => {
+          let full;
+          try {
+            full = await api.get(\`/reports/\${encodeURIComponent(report.name)}\`);
+          } catch (error) {
+            return void toast(error.message, "error");
+          }
+          openEditor(
+            panel,
+            editorForm({
+              title: \`Edit \${report.name}\`,
+              fields: reportFields(entities),
+              values: full,
+              onSave: async (values) => {
+                await api.patch(\`/reports/\${encodeURIComponent(report.name)}\`, values);
+                toast("Report saved", "success");
+                await reload();
+              },
+              /* Cancel returns to the answer rather than to the list: the
+                 reader was reading it a moment ago. */
+              onCancel: () => runReport(panel, report.name, { user, entities, reload }),
+            })
+          );
+        },
+      },
+      "Edit"
+    ),
+    deleteButton("Delete", \`Delete \${report.name}?\`, async () => {
+      await api.delete(\`/reports/\${encodeURIComponent(report.name)}\`);
+      toast(\`\${report.name} deleted\`, "success");
+      await reload();
+    })
+  );
 }
 `
 });
-var RUNTIME_BYTES = 470504;
+var RUNTIME_BYTES = 496369;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
