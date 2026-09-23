@@ -423,6 +423,85 @@ test.describe
       await shoot(page, "reports");
     });
 
+    /**
+     * The second application: Enterprise Reporting, drawn in the platform's
+     * own shell, with its own sign-in and a working Administration section.
+     *
+     * What this holds: the platform's sidebar is there; a report runs; the
+     * administrator can narrow a role's tables and the narrowing is enforced on
+     * the next request, not on the next boot; the log records it; and a
+     * reporting role that is not an administrator never sees the section.
+     */
+    test("the reporting application signs in separately and is administered", async () => {
+      await app(page).locator(".masthead__name").click();
+      await app(page).locator(".card--reporting").first().click();
+
+      const frame = app(page);
+      // The frame on this page is narrower than 1024px, so the preview is in
+      // the platform's small-screen layout: the sidebar is a slide-over behind
+      // the menu button, exactly as the platform's own is at that width.
+      const nav = async (label: string) => {
+        const toggle = frame.getByRole("button", { name: "Toggle menu" });
+        if (await toggle.isVisible()) {
+          await toggle.click();
+          await frame.locator(".er-sidebar-mobile .er-nav__item", { hasText: label }).click();
+        } else {
+          await frame.locator(".er-sidebar-desktop .er-nav__item", { hasText: label }).click();
+        }
+      };
+      const adminHeading = frame.locator(".er-sidebar-mobile .er-nav__heading", {
+        hasText: "Administration",
+      });
+
+      await expect(frame.locator(".er-login__title")).toHaveText("Welcome back", {
+        timeout: 30_000,
+      });
+      await frame.locator("button[type=submit]").click(); // the administrator is prefilled
+      await expect(frame.locator(".er-pageheader__title")).toHaveText("Dashboard");
+      await expect(frame.locator(".er-sidebar-mobile .er-sidebar__logo")).toContainText(
+        "Enterprise Reports"
+      );
+      await expect(adminHeading).toHaveCount(1);
+
+      // A report runs against the database in the tab.
+      await nav("Reports");
+      await frame.locator(".er-table tbody tr").first().click();
+      await expect(frame.locator(".er-card__description").first()).toContainText(
+        /\d+ rows? in \d+ms/
+      );
+
+      // Take one table away from the Support Agent, and it is refused at once.
+      await nav("Permissions");
+      await frame.locator(".er-select--inline").selectOption({ label: "Support Agent" });
+      const account = frame.locator(".er-grant", { hasText: "bus_account ·" });
+      await expect(account.locator("input")).toBeChecked();
+      await account.locator("input").uncheck();
+      await frame.getByRole("button", { name: "Save Permissions" }).click();
+      await expect(
+        frame.locator(".er-grant", { hasText: "bus_account ·" }).locator("input")
+      ).not.toBeChecked();
+
+      await nav("System Logs");
+      await expect(frame.locator(".er-table")).toContainText("update permissions");
+      await expect(frame.locator(".er-table")).toContainText("run report");
+      await shoot(page, "reporting-admin");
+
+      // As the Support Agent: no Administration, and the table it lost is gone.
+      await frame.locator(".er-avatar").click();
+      await frame.getByRole("button", { name: "Log out" }).click();
+      await frame.locator(".er-accounts__row", { hasText: "Support Agent" }).click();
+      await frame.locator("button[type=submit]").click();
+      await expect(frame.locator(".er-kpi").first()).toBeVisible();
+      await expect(adminHeading).toHaveCount(0);
+      await expect(frame.locator(".er-card", { hasText: "Data access" })).not.toContainText(
+        "bus_account"
+      );
+
+      // Leave the way a reader would, so the next test finds the application.
+      await frame.locator(".er-avatar").click();
+      await frame.getByRole("button", { name: /Back to/ }).click();
+    });
+
     test("nothing in the console was the page's own fault", async () => {
       expect(problems).toEqual([]);
     });

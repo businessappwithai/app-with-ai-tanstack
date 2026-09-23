@@ -10750,6 +10750,25 @@ CREATE TABLE IF NOT EXISTS rpt_session (
 
 CREATE INDEX IF NOT EXISTS idx_rpt_session_token ON rpt_session(token);
 CREATE INDEX IF NOT EXISTS idx_rpt_user_email ON rpt_user(email);
+
+-- What happened in the reporting application: sign-ins, report and chart runs
+-- (allowed or refused), and every administrator change to its users, roles and
+-- table grants. It is what the reporting side's System Logs screen reads, and
+-- the only record of who ran what — a refusal is logged as well as a run,
+-- because a role's access is only visible in what it was denied.
+CREATE TABLE IF NOT EXISTS rpt_activity_log (
+  rpt_activity_log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  occurred_at TIMESTAMPTZ DEFAULT NOW(),
+  rpt_user_id UUID,
+  email VARCHAR(255),
+  action VARCHAR(50) NOT NULL,
+  target VARCHAR(255),
+  outcome VARCHAR(20) NOT NULL,
+  detail TEXT,
+  duration_ms INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_rpt_activity_log_at ON rpt_activity_log(occurred_at DESC);
 `,
   "boot.js": `/**
  * Starting the application.
@@ -11572,6 +11591,7 @@ import { modelRoutes } from "./modules/model.routes.js";
 import { reportsRoutes } from "./modules/reports.routes.js";
 import { reportAuthRoutes } from "./modules/report-auth.routes.js";
 import { reportingRoutes } from "./modules/reporting.routes.js";
+import { reportAdminRoutes } from "./modules/report-admin.routes.js";
 
 const MIME = {
   html: "text/html; charset=utf-8",
@@ -11642,6 +11662,8 @@ export async function createServer(options) {
    */
   api.mount("/report-auth", reportAuthRoutes(model));
   api.mount("/reporting", reportingRoutes(model));
+  // Its administration: users, roles, table grants, the data source, the log.
+  api.mount("/report-admin", reportAdminRoutes(model));
 
   // \`/workflow-definitions\` is what the dictionary screens ask for; keeping the
   // alias here rather than duplicating handlers means one implementation.
@@ -13217,6 +13239,34 @@ export async function resolveReportSession(db, request) {
 
 export async function destroyReportSession(db, token) {
   if (token) await db.remove("rpt_session", { token });
+}
+`,
+  "server/lib/report-log.js": `/**
+ * The reporting application's activity log — \`rpt_activity_log\`.
+ *
+ * Written by the sign-in, by every report and chart run, and by every
+ * administrator change; read by the System Logs screen. A failure to write it
+ * is swallowed: the log records what happened, and losing a line of it must
+ * never be the reason a report did not run or a sign-in was refused.
+ *
+ * Nothing that could carry business data goes in \`detail\` — no row values, no
+ * passwords, and never a query's result. A refusal names the tables it refused,
+ * which is the one thing the reader needs to see.
+ */
+export async function logReportActivity(db, entry) {
+  try {
+    await db.insert("rpt_activity_log", {
+      rpt_user_id: entry.user?.id ?? null,
+      email: entry.user?.email ?? entry.email ?? null,
+      action: entry.action,
+      target: entry.target ?? null,
+      outcome: entry.outcome,
+      detail: entry.detail ?? null,
+      duration_ms: entry.durationMs ?? null,
+    });
+  } catch {
+    // Deliberately ignored — see above.
+  }
 }
 `,
   "server/lib/router.js": `/**
@@ -15550,6 +15600,340 @@ export function modelRoutes(model, readAsset) {
   return router;
 }
 `,
+  "server/modules/report-admin.routes.js": `/**
+ * The reporting application's administration — \`/report-admin\`.
+ *
+ * The Enterprise Reporting platform gives its administrators Users, Roles,
+ * Permissions, Data Sources and System Logs. In the browser build those are
+ * real here too, over the tables this tab already enforces from:
+ *
+ *   rpt_user, rpt_role     who may sign in, and as which reporting role
+ *   rpt_role_tables        which of the application's tables a role may read —
+ *                          read by \`resolveReportSession\` on every request, so
+ *                          a grant changed here applies to the next query
+ *   rpt_activity_log       sign-ins, runs, refusals and the changes made here
+ *
+ * The seed writes these once, from the model's \`%%rbac\`; after that they are
+ * the administrator's. A change here is not undone by a reload.
+ *
+ * Every route is administrator-only, decided on the server. The client hides
+ * the section from anyone else, and that is a courtesy rather than the control.
+ */
+
+import { Router } from "../lib/router.js";
+import { hashPassword } from "../lib/auth.js";
+import { badRequest, conflict, forbidden, json, notFound, readJson, unauthorized } from "../lib/http.js";
+import { ident } from "../lib/db.js";
+import { logReportActivity } from "../lib/report-log.js";
+
+const EMAIL = /^[^\\s@]+@[^\\s@]+$/;
+const MIN_PASSWORD = 5;
+
+export function reportAdminRoutes(model) {
+  const router = new Router();
+  const pack = model.reporting || {};
+
+  /** The application's tables — the only names a grant may carry. */
+  const entities = (model.entities || []).map((entity) => ({
+    table: entity.tableName,
+    entity: entity.name,
+    displayName: entity.displayName || entity.name,
+    description: entity.description || null,
+    category: entity.category || null,
+  }));
+  const knownTables = new Set(entities.map((entity) => entity.table));
+
+  router.use(async (_request, { reportUser }) => {
+    if (!reportUser) throw unauthorized("Sign in to the reporting application to continue");
+    if (!reportUser.isAdmin) throw forbidden("Only a reporting administrator may do this");
+  });
+
+  const audit = (db, reportUser, action, target, detail) =>
+    logReportActivity(db, { user: reportUser, action, target, outcome: "ok", detail });
+
+  async function roleOr404(db, id) {
+    const role = await db.one("SELECT * FROM rpt_role WHERE rpt_role_id = $1", [id]);
+    if (!role) throw notFound("No such reporting role");
+    return role;
+  }
+
+  async function userOr404(db, id) {
+    const user = await db.one("SELECT * FROM rpt_user WHERE rpt_user_id = $1", [id]);
+    if (!user) throw notFound("No such reporting user");
+    return user;
+  }
+
+  // ── Users ──────────────────────────────────────────────────────────────────
+
+  router.get("/users", async (_request, { db }) => {
+    const rows = await db.query(
+      \`SELECT u.rpt_user_id, u.name, u.email, u.description, u.is_active, u.created_at,
+              r.rpt_role_id, r.name AS role_name, r.is_admin,
+              (SELECT MAX(l.occurred_at) FROM rpt_activity_log l
+                WHERE l.rpt_user_id = u.rpt_user_id AND l.action = 'sign-in' AND l.outcome = 'ok') AS last_sign_in
+         FROM rpt_user u
+         LEFT JOIN rpt_role r ON r.rpt_role_id = u.rpt_role_id
+        ORDER BY r.is_admin DESC NULLS LAST, u.name\`
+    );
+    return json(
+      rows.map((row) => ({
+        id: row.rpt_user_id,
+        name: row.name,
+        email: row.email,
+        description: row.description,
+        isActive: row.is_active !== false,
+        createdAt: row.created_at,
+        lastSignIn: row.last_sign_in,
+        roleId: row.rpt_role_id,
+        role: row.role_name,
+        isAdmin: row.is_admin === true,
+      }))
+    );
+  });
+
+  router.post("/users", async (request, { db, reportUser }) => {
+    const body = await readJson(request);
+    const name = String(body.name ?? "").trim();
+    const email = String(body.email ?? "").trim().toLowerCase();
+    const password = String(body.password ?? "");
+    if (!name) throw badRequest("A user needs a name");
+    if (!EMAIL.test(email)) throw badRequest("That is not an email address");
+    if (password.length < MIN_PASSWORD) {
+      throw badRequest(\`A password needs at least \${MIN_PASSWORD} characters\`);
+    }
+    if (await db.one("SELECT 1 FROM rpt_user WHERE lower(email) = $1", [email])) {
+      throw conflict(\`\${email} already has a reporting account\`);
+    }
+    const roleId = body.roleId ? (await roleOr404(db, body.roleId)).rpt_role_id : null;
+
+    const row = await db.insert("rpt_user", {
+      name,
+      email,
+      password_hash: await hashPassword(password),
+      rpt_role_id: roleId,
+      is_active: true,
+    });
+    await audit(db, reportUser, "create user", email);
+    return json({ id: row.rpt_user_id }, { status: 201 });
+  });
+
+  router.patch("/users/:id", async (request, { db, params, reportUser }) => {
+    const user = await userOr404(db, params.id);
+    const body = await readJson(request);
+    const self = user.rpt_user_id === reportUser.id;
+    const changes = {};
+    const said = [];
+
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) throw badRequest("A user needs a name");
+      changes.name = name;
+      said.push("name");
+    }
+    if (body.roleId !== undefined) {
+      const role = body.roleId ? await roleOr404(db, body.roleId) : null;
+      // Demoting yourself is how an installation ends up with nobody who can
+      // undo it — the platform refuses it for the same reason.
+      if (self && !role?.is_admin) throw badRequest("You cannot remove your own administrator role");
+      changes.rpt_role_id = role ? role.rpt_role_id : null;
+      said.push(\`role → \${role ? role.name : "none"}\`);
+    }
+    if (body.isActive !== undefined) {
+      if (self && !body.isActive) throw badRequest("You cannot deactivate your own account");
+      changes.is_active = !!body.isActive;
+      said.push(body.isActive ? "activated" : "deactivated");
+    }
+    if (body.password !== undefined) {
+      const password = String(body.password);
+      if (password.length < MIN_PASSWORD) {
+        throw badRequest(\`A password needs at least \${MIN_PASSWORD} characters\`);
+      }
+      changes.password_hash = await hashPassword(password);
+      said.push("password");
+    }
+    if (said.length === 0) throw badRequest("Nothing to change");
+
+    await db.update("rpt_user", changes, { rpt_user_id: user.rpt_user_id });
+
+    // A deactivated account, or one whose password changed, keeps no session
+    // it already had — other than the administrator's own current one.
+    if (changes.is_active === false || changes.password_hash) {
+      await db.query("DELETE FROM rpt_session WHERE rpt_user_id = $1 AND token <> $2", [
+        user.rpt_user_id,
+        reportUser.token,
+      ]);
+    }
+    await audit(db, reportUser, "update user", user.email, said.join(", "));
+    return json({ success: true });
+  });
+
+  router.delete("/users/:id", async (_request, { db, params, reportUser }) => {
+    const user = await userOr404(db, params.id);
+    if (user.rpt_user_id === reportUser.id) throw badRequest("You cannot delete your own account");
+    await db.remove("rpt_user", { rpt_user_id: user.rpt_user_id });
+    await audit(db, reportUser, "delete user", user.email);
+    return json({ success: true });
+  });
+
+  // ── Roles and their table grants ───────────────────────────────────────────
+
+  router.get("/roles", async (_request, { db }) => {
+    const roles = await db.query(
+      \`SELECT r.*, (SELECT COUNT(*) FROM rpt_user u WHERE u.rpt_role_id = r.rpt_role_id) AS users
+         FROM rpt_role r
+        ORDER BY r.is_admin DESC, r.name\`
+    );
+    const grants = await db.query("SELECT rpt_role_id, table_name FROM rpt_role_tables ORDER BY table_name");
+    const byRole = new Map();
+    for (const grant of grants) {
+      if (!byRole.has(grant.rpt_role_id)) byRole.set(grant.rpt_role_id, []);
+      byRole.get(grant.rpt_role_id).push(grant.table_name);
+    }
+    return json(
+      roles.map((role) => ({
+        id: role.rpt_role_id,
+        name: role.name,
+        declaredAs: role.declared_as,
+        description: role.description,
+        isAdmin: role.is_admin === true,
+        createdAt: role.created_at,
+        users: Number(role.users ?? 0),
+        tables: role.is_admin === true ? null : byRole.get(role.rpt_role_id) ?? [],
+      }))
+    );
+  });
+
+  router.post("/roles", async (request, { db, reportUser }) => {
+    const body = await readJson(request);
+    const name = String(body.name ?? "").trim();
+    if (!name) throw badRequest("A role needs a name");
+    if (await db.one("SELECT 1 FROM rpt_role WHERE lower(name) = lower($1)", [name])) {
+      throw conflict(\`A role named \${name} already exists\`);
+    }
+    const row = await db.insert("rpt_role", {
+      name,
+      description: String(body.description ?? "").trim() || null,
+      is_admin: false,
+    });
+    await audit(db, reportUser, "create role", name);
+    return json({ id: row.rpt_role_id }, { status: 201 });
+  });
+
+  router.patch("/roles/:id", async (request, { db, params, reportUser }) => {
+    const role = await roleOr404(db, params.id);
+    const body = await readJson(request);
+    const changes = {};
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) throw badRequest("A role needs a name");
+      const clash = await db.one(
+        "SELECT 1 FROM rpt_role WHERE lower(name) = lower($1) AND rpt_role_id <> $2",
+        [name, role.rpt_role_id]
+      );
+      if (clash) throw conflict(\`A role named \${name} already exists\`);
+      changes.name = name;
+    }
+    if (body.description !== undefined) changes.description = String(body.description).trim() || null;
+    if (Object.keys(changes).length === 0) throw badRequest("Nothing to change");
+    await db.update("rpt_role", changes, { rpt_role_id: role.rpt_role_id });
+    await audit(db, reportUser, "update role", role.name, Object.keys(changes).join(", "));
+    return json({ success: true });
+  });
+
+  /**
+   * Replace the tables a role may read. The administrator role has no rows —
+   * an empty scope there means "every table" — so it cannot be narrowed here,
+   * and a name that is not one of the application's tables is refused rather
+   * than stored as a grant that could never match anything.
+   */
+  router.put("/roles/:id/tables", async (request, { db, params, reportUser }) => {
+    const role = await roleOr404(db, params.id);
+    if (role.is_admin) throw badRequest("The administrator role reads every table and is not scoped");
+    const body = await readJson(request);
+    const tables = [...new Set((Array.isArray(body.tables) ? body.tables : []).map(String))];
+    const unknown = tables.filter((table) => !knownTables.has(table));
+    if (unknown.length > 0) throw badRequest(\`Not tables of this application: \${unknown.join(", ")}\`);
+
+    await db.query("DELETE FROM rpt_role_tables WHERE rpt_role_id = $1", [role.rpt_role_id]);
+    for (const table of tables) {
+      await db.query("INSERT INTO rpt_role_tables (rpt_role_id, table_name) VALUES ($1, $2)", [
+        role.rpt_role_id,
+        table,
+      ]);
+    }
+    await audit(db, reportUser, "update permissions", role.name, \`\${tables.length} of \${knownTables.size} tables\`);
+    return json({ success: true, tables: tables.sort() });
+  });
+
+  router.delete("/roles/:id", async (_request, { db, params, reportUser }) => {
+    const role = await roleOr404(db, params.id);
+    if (role.is_admin) throw badRequest("The administrator role cannot be deleted");
+    // Its users are kept and left holding no role — \`ON DELETE SET NULL\` —
+    // which reads nothing, the safe direction for an access change to fail in.
+    await db.remove("rpt_role", { rpt_role_id: role.rpt_role_id });
+    await audit(db, reportUser, "delete role", role.name);
+    return json({ success: true });
+  });
+
+  // ── Data sources ───────────────────────────────────────────────────────────
+
+  /**
+   * The one data source the pack registers: this application's own database.
+   * Row counts are read live, so the screen says what a query would find now.
+   */
+  router.get("/data-sources", async (_request, { db }) => {
+    const tables = [];
+    for (const entity of entities) {
+      let rows = null;
+      try {
+        rows = Number(await db.value(\`SELECT COUNT(*) FROM \${ident(entity.table)}\`));
+      } catch {
+        rows = null;
+      }
+      tables.push({ ...entity, rows });
+    }
+    return json([
+      {
+        name: pack.dataSource?.name ?? model.project?.name ?? "Application database",
+        description: pack.dataSource?.description ?? null,
+        clientType: pack.dataSource?.clientType ?? "pg",
+        database: pack.application?.databaseName ?? null,
+        engine: "PostgreSQL (WebAssembly, in this tab)",
+        status: "connected",
+        tables,
+      },
+    ]);
+  });
+
+  // ── System logs ────────────────────────────────────────────────────────────
+
+  router.get("/logs", async (request, { db }) => {
+    const url = new URL(request.url, "http://localhost");
+    const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || 200, 1), 1000);
+    const outcome = url.searchParams.get("outcome");
+    const rows = outcome
+      ? await db.query(
+          "SELECT * FROM rpt_activity_log WHERE outcome = $1 ORDER BY occurred_at DESC LIMIT $2",
+          [outcome, limit]
+        )
+      : await db.query("SELECT * FROM rpt_activity_log ORDER BY occurred_at DESC LIMIT $1", [limit]);
+    return json(
+      rows.map((row) => ({
+        id: row.rpt_activity_log_id,
+        at: row.occurred_at,
+        email: row.email,
+        action: row.action,
+        target: row.target,
+        outcome: row.outcome,
+        detail: row.detail,
+        durationMs: row.duration_ms,
+      }))
+    );
+  });
+
+  return router;
+}
+`,
   "server/modules/report-auth.routes.js": `/**
  * The reporting application's sign-in — the other login.
  *
@@ -15571,6 +15955,7 @@ import {
   destroyReportSession,
   reportSessionCookie,
 } from "../lib/report-auth.js";
+import { logReportActivity } from "../lib/report-log.js";
 
 /** What a caller may know about itself. Never the token or the hash. */
 function present(reportUser) {
@@ -15616,10 +16001,18 @@ export function reportAuthRoutes(model) {
        * Two messages would say which addresses exist — and on this side of the
        * pair that is a longer list than a reader might expect, because every
        * \`%%rbac\` role has an account. The application's own sign-in makes the
-       * same choice.
+       * same choice. The log records the address that was tried, which is
+       * only ever shown to a reporting administrator.
        */
+      await logReportActivity(db, { email: identifier, action: "sign-in", outcome: "refused" });
       throw unauthorized("Invalid email or password");
     }
+    await logReportActivity(db, {
+      user: { id: user.rpt_user_id, email: user.email },
+      action: "sign-in",
+      outcome: "ok",
+      detail: user.role_name ? \`as \${user.role_name}\` : "holding no reporting role",
+    });
 
     const token = await createReportSession(db, user.rpt_user_id, request.headers.get("user-agent"));
     return json(
@@ -15714,8 +16107,9 @@ export function reportAuthRoutes(model) {
  *
  * What is not: there is no SQL editor, nothing here writes a definition, and
  * the platform's NL→SQL pipeline, scheduled deliveries and knowledge graph need
- * servers this runtime does not have. A read-only mirror is worth more than a
- * set of buttons that answer "not in the browser build".
+ * servers this runtime does not have. The screens say so rather than offering
+ * buttons that fail. Who may read which table *is* editable, by a reporting
+ * administrator, through \`report-admin.routes.js\`.
  *
  * ## Access
  *
@@ -15731,6 +16125,7 @@ export function reportAuthRoutes(model) {
 
 import { Router } from "../lib/router.js";
 import { badRequest, forbidden, json, notFound, unauthorized } from "../lib/http.js";
+import { logReportActivity } from "../lib/report-log.js";
 
 /**
  * The most rows one report returns.
@@ -15830,6 +16225,7 @@ export function reportingRoutes(model) {
         charts: visibleCharts.length,
         chartsTotal: charts.length,
         dashboards: dashboards.length,
+        queries: queries.filter((query) => tablesRefused(reportUser, query).length === 0).length,
       },
     });
   });
@@ -15855,10 +16251,18 @@ export function reportingRoutes(model) {
     json(
       dashboards.map((dashboard) => {
         const chartOf = new Map(charts.map((chart) => [chart.key, chart]));
+        const reportOf = new Map(reports.map((report) => [report.key, report]));
         const widgets = (dashboard.widgets || []).filter((widget) => {
-          const chart = widget.chartKey ? chartOf.get(widget.chartKey) : null;
-          if (!chart) return !widget.chartKey;
-          return readable(reportUser)(chart);
+          // A tile is a chart or a report, and either one reads a query. Both
+          // are held to the role's tables — a report tile used to pass
+          // unchecked, and then refused itself on the dashboard with a 403.
+          const target = widget.chartKey
+            ? chartOf.get(widget.chartKey)
+            : widget.reportKey
+              ? reportOf.get(widget.reportKey)
+              : null;
+          if (!target) return !widget.chartKey && !widget.reportKey;
+          return readable(reportUser)(target);
         });
         return {
           ...dashboard,
@@ -15893,7 +16297,15 @@ export function reportingRoutes(model) {
     }
 
     const refused = tablesRefused(reportUser, query);
+    const action = \`run \${params.kind.replace(/s$/, "")}\`;
     if (refused.length > 0) {
+      await logReportActivity(db, {
+        user: reportUser,
+        action,
+        target: item.name,
+        outcome: "refused",
+        detail: \`may not read \${refused.join(", ")}\`,
+      });
       throw forbidden(
         \`\${reportUser.role ?? "This role"} may not read \${refused.join(", ")}, which "\${item.name}" queries.\`
       );
@@ -15913,10 +16325,27 @@ export function reportingRoutes(model) {
       // The query came out of the model, so this is a defect in the document or
       // in the derivation rather than in the request. Name the report and quote
       // the database — nobody can act on "the report failed".
+      await logReportActivity(db, {
+        user: reportUser,
+        action,
+        target: item.name,
+        outcome: "failed",
+        detail: error?.message || String(error),
+        durationMs: Date.now() - started,
+      });
       throw badRequest(
         \`Report "\${item.name}" failed: \${error?.message || String(error)}\`
       );
     }
+
+    await logReportActivity(db, {
+      user: reportUser,
+      action,
+      target: item.name,
+      outcome: "ok",
+      detail: \`\${Math.min(rows.length, MAX_ROWS)} row\${rows.length === 1 ? "" : "s"}\`,
+      durationMs: Date.now() - started,
+    });
 
     const truncated = rows.length > MAX_ROWS;
     if (truncated) rows = rows.slice(0, MAX_ROWS);
@@ -17833,24 +18262,18 @@ a { color: var(--primary); }
 /* --------------------------------------------------- reporting ---------- */
 
 /*
- * The reporting application, told apart from the one it reports on.
+ * The way into the reporting application, on the application's own screens.
  *
- * The same design system — two applications generated from one model should not
- * look like two products — with one deliberate difference: a slate accent
- * instead of the teal. A reader who is signed into both at once in one tab has
- * to be able to tell, at a glance, which one they are looking at, and the
- * masthead is the only thing always on screen.
+ * The reporting application itself is drawn in the Enterprise Reporting
+ * platform's own design — see the \`.er\` block at the end of this file. What is
+ * here is the slate accent the application uses for the door to it: the sign-in
+ * screen's link and the dashboard's card.
  */
 :root {
   --reporting: #3f4a5a;
   --reporting-soft: #eef1f5;
 }
 
-.login--report .login__aside { background: var(--reporting-soft); }
-.login__mark--report { background: var(--reporting); }
-.login--report .btn--primary { background: var(--reporting); border-color: var(--reporting); }
-.login--report .btn--primary:hover { background: #313a47; border-color: #313a47; }
-.login--report .login__hint { background: var(--reporting-soft); }
 .login__aside-note {
   margin: 18px 0 20px; font-size: 12.5px; line-height: 1.55; color: var(--text-soft);
 }
@@ -17868,48 +18291,449 @@ a { color: var(--primary); }
 }
 .btn--report:hover:not(:disabled) { background: #313a47; border-color: #313a47; }
 
-.masthead--report { border-bottom: 2px solid var(--reporting); }
-.masthead__badge {
-  padding: 4px 9px; border-radius: 999px; background: var(--reporting); color: #fff;
-  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-}
-.avatar--report { background: var(--reporting); }
-.shell--report .actionbar .btn.is-active {
-  background: var(--reporting); border-color: var(--reporting); color: #fff;
-}
-.crumbs__note { color: var(--text-faint); font-size: 12px; }
-
-/* The dashboard's tiles: one chart each, in a grid that collapses on a phone. */
-.report-grid {
-  display: grid; gap: 14px; margin: 14px 0 26px;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-}
-.report-tile {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 14px 16px; min-width: 0;
-}
-.report-tile h3 { margin: 0 0 8px; font-size: 14px; }
-.report-tile .report-chart { color: var(--reporting); width: 100%; height: auto; }
-
-.report-tables {
-  display: grid; gap: 4px; margin: 10px 0 24px; padding: 0; list-style: none;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-}
-.report-tables li { font-size: 12.5px; }
-
-/* A saved query, shown where a reader asks where a number came from. */
-.report-sql { margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 13px; background: var(--surface); }
-.report-sql > summary { cursor: pointer; font-size: 13px; font-weight: 500; }
-.report-sql pre {
-  margin: 10px 0 0; padding: 11px 12px; overflow-x: auto;
-  background: var(--surface-2); border-radius: var(--radius-sm);
-  font-family: var(--mono); font-size: 12px; line-height: 1.5;
-}
-.shell--report .report-chart { color: var(--reporting); }
-
 /* The entry point on the application's own dashboard. */
 .category--reporting .category__count { color: var(--reporting); font-weight: 600; text-transform: none; }
 .card--reporting { border-left: 3px solid var(--reporting); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Enterprise Reporting — the browser preview, in the platform's own design.
+ *
+ * Everything below is scoped to \`.er\` and prefixed \`er-\`, so none of it reaches
+ * the application above. The tokens are the Enterprise Reporting platform's —
+ * \`src/styles/globals.css\` in businessappwithai/enterprise_reporting_tanstack,
+ * the Tremor palette on Tailwind's blue and gray scales — value for value, light
+ * and dark. The sizes are its Tailwind classes turned into pixels: the 256px
+ * sidebar (\`w-64\`, \`w-16\` collapsed), the 56px header (\`h-14\`), 24px page
+ * padding (\`p-6\`), \`rounded-tremor-default\` 8px cards with the \`tremor-card\`
+ * shadow, \`text-tremor-default\` 14px body text.
+ *
+ * When the platform changes a token, change it here. The palette is the part a
+ * reader notices first, and a preview whose blue is not the platform's blue is
+ * one that looks like a different product.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+.er {
+  --t-brand-faint: #eff6ff;
+  --t-brand-muted: #bfdbfe;
+  --t-brand-subtle: #60a5fa;
+  --t-brand: #3b82f6;
+  --t-brand-emphasis: #1d4ed8;
+  --t-brand-inverted: #ffffff;
+  --t-bg-muted: #f9fafb;
+  --t-bg-subtle: #f3f4f6;
+  --t-bg: #ffffff;
+  --t-bg-emphasis: #374151;
+  --t-border: #e5e7eb;
+  --t-ring: #e5e7eb;
+  --t-content-subtle: #9ca3af;
+  --t-content: #6b7280;
+  --t-content-emphasis: #374151;
+  --t-content-strong: #111827;
+  --t-shadow-input: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --t-shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --t-shadow-dropdown: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --t-radius-small: 6px;
+  --t-radius: 8px;
+
+  min-height: 100vh;
+  background: var(--t-bg-muted);
+  color: var(--t-content-strong);
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 14px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+}
+[data-theme="dark"] .er {
+  --t-brand-faint: #0b1229;
+  --t-brand-muted: #172554;
+  --t-brand-subtle: #1e40af;
+  --t-brand: #3b82f6;
+  --t-brand-emphasis: #60a5fa;
+  --t-brand-inverted: #172554;
+  --t-bg-muted: #131a2b;
+  --t-bg-subtle: #1f2937;
+  --t-bg: #111827;
+  --t-bg-emphasis: #d1d5db;
+  --t-border: #1f2937;
+  --t-ring: #1f2937;
+  --t-content-subtle: #4b5563;
+  --t-content: #6b7280;
+  --t-content-emphasis: #e5e7eb;
+  --t-content-strong: #f9fafb;
+}
+.er *, .er *::before, .er *::after { box-sizing: border-box; }
+/* The application styles its headings in a display face; the platform's are
+   the body sans at a heavier weight, so they are reset here rather than
+   inherited from the page around them. */
+.er :is(h1, h2, h3, h4, p) { font-family: inherit; letter-spacing: normal; }
+.er a { color: inherit; text-decoration: none; }
+.er code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px; padding: 1px 6px; border-radius: 4px; background: var(--t-bg-subtle);
+}
+
+/* Icons — lucide at h-4 w-4 unless sized. */
+.er-iconwrap { display: inline-flex; flex-shrink: 0; width: 16px; height: 16px; }
+.er-iconwrap svg { width: 100%; height: 100%; }
+.er-icon--xs { width: 12px; height: 12px; }
+.er-icon--sm { width: 14px; height: 14px; }
+.er-icon--md, .er-icon--lg { width: 20px; height: 20px; }
+.er-icon--xl { width: 40px; height: 40px; }
+.er-brand { color: var(--t-brand); }
+.er-subtle { color: var(--t-content-subtle); }
+
+/* ── Layout: app-shell.tsx ─────────────────────────────────────────────────── */
+.er-sidebar-desktop { display: none; }
+.er-content { display: flex; flex-direction: column; min-height: 100vh; min-width: 0; transition: margin-left 300ms; }
+@media (min-width: 1024px) {
+  .er-sidebar-desktop { display: block; }
+  .er-content { margin-left: 256px; }
+  .er-content.is-collapsed { margin-left: 64px; }
+  .er-mobile-only { display: none !important; }
+}
+.er-mobile-overlay {
+  position: fixed; inset: 0; z-index: 40; background: rgb(17 24 39 / 0.5);
+  opacity: 0; pointer-events: none; transition: opacity 300ms;
+}
+.er-mobile-overlay.is-open { opacity: 1; pointer-events: auto; }
+.er-sidebar-mobile {
+  position: fixed; left: 0; top: 0; z-index: 50; height: 100vh; width: 256px;
+  transform: translateX(-100%); transition: transform 300ms;
+}
+.er-sidebar-mobile.is-open { transform: translateX(0); }
+.er-sidebar-mobile .er-sidebar { position: relative; }
+@media (min-width: 1024px) { .er-mobile-overlay, .er-sidebar-mobile { display: none; } }
+.er-main { flex: 1; overflow: auto; padding: 16px; }
+@media (min-width: 768px) { .er-main { padding: 24px; } }
+
+/* ── sidebar.tsx ───────────────────────────────────────────────────────────── */
+.er-sidebar {
+  position: fixed; left: 0; top: 0; z-index: 40; height: 100vh; width: 256px;
+  border-right: 1px solid var(--t-border); background: var(--t-bg);
+  transition: width 300ms;
+}
+.er-sidebar.is-collapsed { width: 64px; }
+.er-sidebar__brand {
+  display: flex; align-items: center; height: 56px; padding: 0 16px;
+  border-bottom: 1px solid var(--t-border);
+}
+.er-sidebar.is-collapsed .er-sidebar__brand { justify-content: center; }
+.er-sidebar__logo { display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--t-content-strong); }
+.er-sidebar__scroll { height: calc(100vh - 56px); overflow-y: auto; padding: 16px 0; }
+.er-nav__group { padding: 4px 12px; }
+.er-nav__heading {
+  margin: 0 0 8px; padding: 0 8px; font-size: 12px; line-height: 16px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.025em; color: var(--t-content-subtle);
+}
+.er-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
+.er-nav__item {
+  display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px;
+  border-radius: var(--t-radius-small); font-weight: 500; color: var(--t-content);
+  white-space: nowrap; overflow: hidden;
+}
+.er-nav__item:hover { background: var(--t-bg-subtle); color: var(--t-content-emphasis); }
+.er-nav__item.is-active, .er-nav__item.is-active:hover { background: var(--t-brand-faint); color: var(--t-brand); }
+.er-sidebar.is-collapsed .er-nav__item { justify-content: center; padding: 0 8px; }
+.er-nav__label { overflow: hidden; text-overflow: ellipsis; }
+.er-separator { height: 1px; margin: 8px 0; background: var(--t-border); }
+.er-sidebar__collapse {
+  position: absolute; right: -12px; top: 64px; display: inline-flex; align-items: center;
+  justify-content: center; width: 24px; height: 24px; padding: 0; cursor: pointer;
+  border: 1px solid var(--t-border); border-radius: 9999px; background: var(--t-bg);
+  color: var(--t-content); box-shadow: var(--t-shadow-input);
+}
+.er-sidebar__collapse:hover { background: var(--t-bg-muted); }
+
+/* ── header.tsx ────────────────────────────────────────────────────────────── */
+.er-header {
+  position: sticky; top: 0; z-index: 30; display: flex; align-items: center;
+  justify-content: space-between; height: 56px; padding: 0 24px;
+  border-bottom: 1px solid var(--t-border); background: var(--t-bg);
+}
+.er-header__left, .er-header__right { display: flex; align-items: center; gap: 8px; }
+.er-themeselect { width: 192px; }
+@media (max-width: 639px) { .er-themeselect { width: 132px; } }
+.er-menuwrap { position: relative; }
+.er-avatar {
+  display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+  margin: 2px; padding: 0; border: 0; cursor: pointer; border-radius: var(--t-radius-small);
+  background: var(--t-bg-subtle); color: var(--t-content-emphasis); font-size: 12px; font-weight: 500;
+}
+.er-menu {
+  position: absolute; right: 0; top: calc(100% + 4px); z-index: 60; width: 224px; padding: 4px;
+  border: 1px solid var(--t-border); border-radius: var(--t-radius); background: var(--t-bg);
+  box-shadow: var(--t-shadow-dropdown);
+}
+.er-menu--wide { width: 320px; padding: 0; }
+.er-menu__label { padding: 6px 8px; }
+.er-menu__label--split { padding: 16px; border-bottom: 1px solid var(--t-border); font-weight: 600; }
+.er-menu__name { margin: 0 0 4px; font-weight: 500; color: var(--t-content-strong); }
+.er-menu__email { margin: 0; font-size: 12px; line-height: 16px; color: var(--t-content); }
+.er-menu__note { padding: 4px 8px; font-size: 12px; line-height: 16px; color: var(--t-content); }
+.er-menu__note:empty { display: none; }
+.er-menu__separator { height: 1px; margin: 4px -4px; background: var(--t-border); }
+.er-menu__empty { padding: 32px 0; text-align: center; color: var(--t-content); }
+.er-menu__item {
+  display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 8px; border: 0;
+  border-radius: var(--t-radius-small); background: transparent; color: var(--t-content-emphasis);
+  font: inherit; text-align: left; cursor: pointer;
+}
+.er-menu__item:hover { background: var(--t-bg-subtle); }
+.er-menu__item--danger { color: #ef4444; }
+
+/* The one strip the platform does not have: what this is. */
+.er-previewstrip {
+  display: flex; align-items: flex-start; gap: 8px; padding: 8px 24px;
+  border-bottom: 1px solid var(--t-border); background: var(--t-brand-faint);
+  color: var(--t-content-emphasis); font-size: 12px; line-height: 18px;
+}
+.er-previewstrip .er-iconwrap { margin-top: 2px; color: var(--t-brand); }
+.er-previewstrip a { color: var(--t-brand); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ── page-header.tsx, breadcrumb.tsx ───────────────────────────────────────── */
+.er-stack { display: flex; flex-direction: column; gap: 24px; }
+.er-pageheader { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.er-pageheader__lead { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.er-pageheader__text { min-width: 0; }
+.er-pageheader__titlerow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.er-pageheader__title { margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--t-content-strong); }
+.er-pageheader__description { margin: 4px 0 0; color: var(--t-content); }
+.er-pageheader__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.er-breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px; color: var(--t-content); margin-bottom: -12px; }
+.er-breadcrumb a:hover { color: var(--t-content-strong); }
+.er-breadcrumb .is-current { color: var(--t-content-strong); font-weight: 500; }
+.er-sectionhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.er-sectiontitle { margin: 0; font-size: 18px; line-height: 28px; font-weight: 500; color: var(--t-content-strong); }
+.er-label { font-size: 12px; line-height: 16px; color: var(--t-content); }
+.er-text { margin: 0; color: var(--t-content); }
+.er-strong { font-weight: 500; color: var(--t-content-strong); }
+.er-mt { margin-top: 12px; }
+.er-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 42ch; }
+.er-selfstart { align-self: flex-start; }
+
+/* ── Grids ─────────────────────────────────────────────────────────────────── */
+.er-grid { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
+.er-grid--3 { gap: 16px; }
+@media (min-width: 640px) { .er-grid--4, .er-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) {
+  .er-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .er-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .er-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+
+/* ── card.tsx, kpi-card.tsx ────────────────────────────────────────────────── */
+.er-card {
+  position: relative; display: block; width: 100%; min-width: 0; border-radius: var(--t-radius);
+  background: var(--t-bg); box-shadow: 0 0 0 1px var(--t-ring), var(--t-shadow-card);
+  color: var(--t-content-strong);
+}
+a.er-card { transition: box-shadow 150ms; }
+a.er-card:hover { box-shadow: 0 0 0 1px var(--t-ring), var(--t-shadow-dropdown); }
+.er-card__header { display: flex; flex-direction: column; gap: 4px; padding: 24px; }
+.er-card__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.er-card__title { margin: 0; font-size: 18px; line-height: 28px; font-weight: 500; color: var(--t-content-strong); }
+.er-card__title--sm { font-size: 14px; line-height: 20px; }
+.er-card__description { margin: 4px 0 0; color: var(--t-content); }
+.er-card__content { padding: 0 24px 24px; }
+.er-card__footer { display: flex; align-items: center; padding: 0 24px 24px; }
+.er-card__flush { overflow: hidden; border-radius: var(--t-radius); }
+.er-kpi { padding: 24px; }
+.er-kpi__label { display: flex; align-items: center; gap: 8px; color: var(--t-content); }
+.er-kpi__metric { margin: 8px 0 0; font-size: 30px; line-height: 36px; font-weight: 600; color: var(--t-content-strong); }
+.er-module { padding: 24px; }
+.er-module__head { display: flex; align-items: center; gap: 8px; }
+
+/* The "Content by type" bar list. */
+.er-barlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.er-barlist li { position: relative; display: flex; justify-content: space-between; align-items: center; height: 32px; padding: 0 8px; }
+.er-barlist__bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--t-brand-faint); }
+[data-theme="dark"] .er-barlist__bar { background: var(--t-brand-muted); }
+.er-barlist__name, .er-barlist__value { position: relative; display: flex; align-items: center; gap: 8px; }
+.er-barlist__name { color: var(--t-content-strong); }
+.er-barlist__value { font-weight: 500; color: var(--t-content-strong); }
+.er-taglist { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ── table.tsx ─────────────────────────────────────────────────────────────── */
+.er-table-wrap { width: 100%; overflow: auto; }
+.er-table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--t-content); }
+.er-table th {
+  padding: 14px 16px; text-align: left; white-space: nowrap; font-weight: 600;
+  color: var(--t-content-strong); border-bottom: 1px solid var(--t-border);
+}
+.er-table td { padding: 16px; text-align: left; vertical-align: middle; border-top: 1px solid var(--t-border); }
+.er-table tbody tr:first-child td { border-top: 0; }
+.er-table tbody tr { transition: background-color 100ms; }
+.er-table tbody tr:hover { background: var(--t-bg-muted); }
+.er-table tr.is-link { cursor: pointer; }
+
+/* ── button.tsx ────────────────────────────────────────────────────────────── */
+.er-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0;
+  border: 1px solid transparent; font: inherit; font-weight: 500; white-space: nowrap;
+  cursor: pointer; transition: background-color 100ms, border-color 100ms, color 100ms;
+}
+.er-btn:disabled { opacity: 0.5; pointer-events: none; }
+.er-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--t-brand-muted); }
+.er-btn--default {
+  border-radius: var(--t-radius); box-shadow: var(--t-shadow-input); background: var(--t-brand);
+  border-color: var(--t-brand); color: var(--t-brand-inverted);
+}
+.er-btn--default:hover { background: var(--t-brand-emphasis); border-color: var(--t-brand-emphasis); }
+.er-btn--outline {
+  border-radius: var(--t-radius); box-shadow: var(--t-shadow-input); background: var(--t-bg);
+  border-color: var(--t-border); color: var(--t-content-emphasis);
+}
+.er-btn--outline:hover { background: var(--t-bg-muted); }
+.er-btn--secondary {
+  border-radius: var(--t-radius); box-shadow: var(--t-shadow-input); background: var(--t-bg-subtle);
+  border-color: var(--t-border); color: var(--t-content-emphasis);
+}
+.er-btn--ghost { border-radius: var(--t-radius); background: transparent; color: var(--t-content-emphasis); }
+.er-btn--ghost:hover { background: var(--t-bg-subtle); }
+.er-btn--link { background: transparent; color: var(--t-brand); }
+.er-btn--size-default { padding: 8px 16px; font-size: 14px; line-height: 20px; }
+.er-btn--size-sm { padding: 6px 12px; font-size: 12px; line-height: 16px; }
+.er-btn--size-icon { width: 36px; height: 36px; padding: 0; border-radius: var(--t-radius-small); }
+.er-btn--block { width: 100%; }
+
+/* ── badge.tsx ─────────────────────────────────────────────────────────────── */
+.er-badge {
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: max-content;
+  flex-shrink: 0; padding: 2px 8px; border-radius: var(--t-radius-small); white-space: nowrap;
+  font-size: 12px; line-height: 16px; font-weight: 500; box-shadow: inset 0 0 0 1px var(--t-border);
+}
+.er-badge--default { background: var(--t-brand-faint); color: var(--t-brand-emphasis); box-shadow: inset 0 0 0 1px rgb(59 130 246 / 0.2); }
+.er-badge--secondary { background: var(--t-bg-subtle); color: var(--t-content-emphasis); }
+.er-badge--outline { background: transparent; color: var(--t-content-emphasis); }
+.er-badge--neutral { background: rgb(107 114 128 / 0.1); color: var(--t-content-emphasis); box-shadow: inset 0 0 0 1px rgb(107 114 128 / 0.2); }
+.er-badge--warning { background: rgb(245 158 11 / 0.1); color: #b45309; box-shadow: inset 0 0 0 1px rgb(245 158 11 / 0.2); }
+.er-badge--destructive { background: rgb(239 68 68 / 0.1); color: #b91c1c; box-shadow: inset 0 0 0 1px rgb(239 68 68 / 0.2); }
+.er-badge--icon { text-transform: capitalize; }
+
+/* ── input.tsx, label.tsx, select.tsx ──────────────────────────────────────── */
+.er-input, .er-select {
+  display: flex; width: 100%; padding: 8px 12px; border: 1px solid var(--t-border);
+  border-radius: var(--t-radius); background: var(--t-bg); color: var(--t-content-emphasis);
+  box-shadow: var(--t-shadow-input); font: inherit; font-size: 14px; line-height: 20px; outline: none;
+  transition: border-color 100ms, box-shadow 100ms;
+}
+.er-select { height: 38px; padding: 0 12px; cursor: pointer; }
+.er-input::placeholder { color: var(--t-content); }
+.er-input:focus, .er-select:focus { border-color: var(--t-brand-subtle); box-shadow: 0 0 0 2px var(--t-brand-muted); }
+.er-label-strong { font-weight: 500; line-height: 1; color: var(--t-content-strong); }
+.er-field { display: flex; flex-direction: column; gap: 8px; }
+.er-toolbar { display: flex; align-items: center; gap: 16px; }
+.er-searchwrap { position: relative; flex: 1; max-width: 448px; }
+.er-searchicon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--t-content); }
+.er-input--search { padding-left: 40px; }
+
+/* ── alert.tsx ─────────────────────────────────────────────────────────────── */
+.er-alert {
+  display: flex; gap: 12px; padding: 12px 16px; border: 1px solid var(--t-border);
+  border-radius: var(--t-radius); background: var(--t-bg); color: var(--t-content-emphasis);
+}
+.er-alert > .er-iconwrap { margin-top: 2px; color: var(--t-brand); }
+.er-alert--destructive { border-color: rgb(239 68 68 / 0.5); color: #b91c1c; }
+[data-theme="dark"] .er-alert--destructive { color: #f87171; }
+.er-alert--destructive > .er-iconwrap { color: currentColor; }
+.er-alert__title { margin: 0; font-weight: 500; }
+.er-alert__body { margin-top: 2px; font-size: 14px; }
+
+/* Loading and empty states. */
+.er-loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 32px; color: var(--t-content); }
+.er-spinner {
+  width: 20px; height: 20px; border-radius: 9999px; border: 2px solid var(--t-border);
+  border-top-color: var(--t-brand); animation: er-spin 800ms linear infinite;
+}
+.er-spinner--inline { width: 14px; height: 14px; border-color: rgb(255 255 255 / 0.4); border-top-color: #fff; }
+@keyframes er-spin { to { transform: rotate(360deg); } }
+.er-empty { padding: 48px 24px; text-align: center; }
+.er-empty__title { margin: 0; font-weight: 500; color: var(--t-content-strong); }
+.er-empty__detail { margin: 4px 0 0; color: var(--t-content); }
+.er-unavailable { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 24px; max-width: 68ch; }
+.er-code {
+  margin: 0; padding: 16px; overflow-x: auto; border-radius: var(--t-radius); background: var(--t-bg-subtle);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 18px;
+  color: var(--t-content-strong); white-space: pre;
+}
+.er-code code { padding: 0; background: none; }
+
+/* ── Charts (Recharts, as SVG) and the dashboard grid ──────────────────────── */
+.er-chart { display: block; width: 100%; height: auto; }
+.er-chart__grid { stroke: var(--t-border); stroke-dasharray: 3 3; }
+.er-chart__tick, .er-chart__legend { fill: var(--t-content); font-size: 12px; font-family: inherit; }
+.er-chart__legend { fill: var(--t-content-emphasis); }
+.er-chart__bar { fill: var(--t-brand); }
+.er-chart__line { fill: none; stroke: var(--t-brand); stroke-width: 2; }
+.er-chart__area { fill: var(--t-brand); fill-opacity: 0.15; }
+
+/* react-grid-layout: twelve columns, 100px rows, 16px gutters. */
+.er-dashgrid { display: grid; gap: 16px; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 100px; }
+.er-tile { display: flex; flex-direction: column; overflow: hidden; }
+.er-tile__head { padding: 16px 16px 8px; }
+.er-tile__body { flex: 1; min-height: 0; overflow: auto; padding: 0 16px 16px; }
+.er-tile__body:has(> .er-chart) { display: flex; align-items: center; }
+.er-tile__body > .er-chart { height: 100%; max-height: 100%; }
+.er-tile__body .er-table td, .er-tile__body .er-table th { padding: 8px 10px; }
+@media (max-width: 1023px) {
+  .er-dashgrid { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; }
+  .er-tile { grid-column: auto !important; grid-row: auto !important; min-height: 280px; }
+}
+
+/* ── login.tsx ─────────────────────────────────────────────────────────────── */
+.er-login {
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: linear-gradient(to bottom right, var(--t-bg-muted), var(--t-bg-subtle));
+}
+.er-login__column { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; max-width: 448px; padding: 32px 0; }
+.er-login__header { align-items: center; text-align: center; }
+.er-login__mark {
+  display: inline-flex; margin-bottom: 16px; padding: 12px; border-radius: 9999px;
+  background: var(--t-brand); color: var(--t-brand-inverted);
+}
+.er-login__title { margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; color: var(--t-content-strong); }
+.er-login__fields { display: flex; flex-direction: column; gap: 16px; }
+.er-login__accounts { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.er-login__note { display: flex; gap: 8px; margin: 0; font-size: 12px; line-height: 18px; color: var(--t-content); text-align: left; }
+.er-login__note .er-iconwrap { margin-top: 2px; }
+.er-accounts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.er-accounts__row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; width: 100%;
+  padding: 8px 10px; border: 1px solid var(--t-border); border-radius: var(--t-radius-small);
+  background: var(--t-bg); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.er-accounts__row:hover { background: var(--t-bg-muted); border-color: var(--t-brand-muted); }
+.er-accounts__row .er-label { grid-row: 1 / span 2; grid-column: 2; align-self: center; }
+.er-accounts__email { font-size: 12px; line-height: 16px; color: var(--t-content); overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Administration: dialog.tsx, row actions, the table-grant grid ─────────── */
+.er-dialog-overlay {
+  position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: rgb(0 0 0 / 0.5);
+}
+.er-dialog { width: 100%; max-width: 512px; max-height: calc(100vh - 32px); overflow: auto; box-shadow: var(--t-shadow-dropdown); }
+.er-dialog__body { display: flex; flex-direction: column; gap: 16px; }
+.er-dialog__footer { justify-content: flex-end; gap: 8px; }
+.er-rowactions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+.er-btn--danger { color: #ef4444; }
+.er-btn--danger.is-armed { background: #ef4444; color: #fff; }
+.er-titled { display: inline-flex; align-items: center; gap: 8px; }
+.er-inline { display: flex; align-items: center; gap: 8px; }
+.er-select--inline { width: auto; min-width: 180px; }
+.er-block { display: block; }
+.er-grantgroup { margin: 0 0 16px; padding: 0; border: 0; }
+.er-grantgroup legend { padding: 0; margin-bottom: 8px; }
+.er-grantgrid { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+.er-grant {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; cursor: pointer;
+  border: 1px solid var(--t-border); border-radius: var(--t-radius-small); background: var(--t-bg);
+}
+.er-grant:hover { background: var(--t-bg-muted); }
+.er-grant:has(input:checked) { border-color: var(--t-brand-subtle); background: var(--t-brand-faint); }
+.er-grant input { margin-top: 3px; accent-color: var(--t-brand); }
+/* In the slide-over the collapse button is the close button, and it sits inside
+   the panel: hung off the edge as on the desktop, it peeked into the page
+   while the panel was closed. */
+.er-sidebar-mobile .er-sidebar__collapse { right: 12px; top: 16px; }
 `,
   "sw.js": `/**
  * The Service Worker — this application's HTTP layer.
@@ -18399,6 +19223,9 @@ export const api = {
 export const reportApi = {
   get: (path) => request("GET", path, undefined, "report"),
   post: (path, body) => request("POST", path, body ?? {}, "report"),
+  put: (path, body) => request("PUT", path, body ?? {}, "report"),
+  patch: (path, body) => request("PATCH", path, body ?? {}, "report"),
+  delete: (path) => request("DELETE", path, undefined, "report"),
 };
 
 /** \`{ a: 1, b: null }\` -> \`?a=1\`, skipping what is not set. */
@@ -21991,6 +22818,322 @@ function debounce(fn, delay) {
   };
 }
 `,
+  "ui/views/er-kit.js": `/**
+ * The Enterprise Reporting platform's components, as plain DOM.
+ *
+ * The deployed platform (\`businessappwithai/enterprise_reporting_tanstack\`) is
+ * React, shadcn/ui and the Tremor design tokens. This runtime has no build step
+ * and no dependencies, so it cannot run those components — but it can draw the
+ * same ones: the same card, table, button, badge and input, in the same sizes,
+ * on the same tokens (\`.er\` in styles.css carries them, value for value from
+ * the platform's \`src/styles/globals.css\`).
+ *
+ * Each helper names the platform component it stands for. Keep it that way:
+ * when the platform changes a component, this file is where the preview
+ * follows it, and a helper nobody can map back to a component is one that
+ * drifts without anyone noticing.
+ */
+
+import { el } from "../dom.js";
+
+/*
+ * Lucide icons — the set the platform imports from \`lucide-react\` — as their
+ * published path data, drawn at the same 24-unit box and 2px stroke.
+ */
+const ICONS = {
+  barChart3: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  terminal: '<polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/>',
+  database:
+    '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>',
+  fileText:
+    '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+  layoutDashboard:
+    '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+  filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  activity: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  messageSquare: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  layers:
+    '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+  squareTerminal:
+    '<path d="m7 11 2-2-2-2"/><path d="M11 13h4"/><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>',
+  users:
+    '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  shield:
+    '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  settings:
+    '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  helpCircle:
+    '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+  chevronLeft: '<path d="m15 18-6-6 6-6"/>',
+  chevronRight: '<path d="m9 18 6-6-6-6"/>',
+  logOut:
+    '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+  menu: '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+  arrowLeft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  refresh:
+    '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  download:
+    '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  lineChart: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>',
+  pieChart: '<path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',
+  areaChart: '<path d="M3 3v18h18"/><path d="M7 12v5h12V8l-5 5-4-4Z"/>',
+  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+};
+
+/** One Lucide icon, \`h-4 w-4\` unless told otherwise. */
+export function icon(name, className = "er-icon") {
+  const span = document.createElement("span");
+  span.className = \`er-iconwrap \${className}\`;
+  span.setAttribute("aria-hidden", "true");
+  span.innerHTML = \`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\${ICONS[name] ?? ""}</svg>\`;
+  return span;
+}
+
+/** \`components/ui/button.tsx\` — variant: default | outline | secondary | ghost | link. */
+export function button(label, { variant = "default", size = "default", iconName, ...props } = {}) {
+  return el(
+    \`button.er-btn.er-btn--\${variant}.er-btn--size-\${size}\`,
+    { type: "button", ...props },
+    iconName ? icon(iconName) : null,
+    label
+  );
+}
+
+/** \`components/ui/badge.tsx\` — variant: default | secondary | outline | neutral | warning | destructive. */
+export function badge(label, variant = "default") {
+  return el(\`span.er-badge.er-badge--\${variant}\`, label);
+}
+
+/** \`components/ui/card.tsx\`: Card, CardHeader, CardTitle, CardDescription, CardContent. */
+export function card(...children) {
+  return el("div.er-card", ...children);
+}
+export function cardHeader(title, description, extra) {
+  return el(
+    "div.er-card__header",
+    el(
+      "div.er-card__heading",
+      el("div", el("h3.er-card__title", title), description ? el("p.er-card__description", description) : null),
+      extra ?? null
+    )
+  );
+}
+export function cardContent(...children) {
+  return el("div.er-card__content", ...children);
+}
+
+/** \`components/layout/page-header.tsx\`. */
+export function pageHeader(title, description, { actions, badge: badgeNode, back } = {}) {
+  return el(
+    "div.er-pageheader",
+    el(
+      "div.er-pageheader__lead",
+      back ? el("a.er-btn.er-btn--ghost.er-btn--size-icon", { href: back, "aria-label": "Back" }, icon("arrowLeft", "er-icon--lg")) : null,
+      el(
+        "div.er-pageheader__text",
+        el("div.er-pageheader__titlerow", el("h1.er-pageheader__title", title), badgeNode ?? null),
+        description ? el("p.er-pageheader__description", description) : null
+      )
+    ),
+    actions ? el("div.er-pageheader__actions", ...[actions].flat()) : null
+  );
+}
+
+/** \`components/layout/breadcrumb.tsx\`. */
+export function breadcrumb(items) {
+  return el(
+    "nav.er-breadcrumb",
+    { "aria-label": "Breadcrumb" },
+    ...items.flatMap((item, index) => [
+      index > 0 ? icon("chevronRight", "er-icon--sm") : null,
+      item.href ? el("a", { href: item.href }, item.label) : el("span.is-current", item.label),
+    ])
+  );
+}
+
+/**
+ * \`components/ui/table.tsx\`. \`rows\` are arrays of cells; a cell may be a node.
+ * \`onRow\` makes the whole row a link, the way the platform's list screens open
+ * a definition.
+ */
+export function table(headers, rows, { onRow } = {}) {
+  return el(
+    "div.er-table-wrap",
+    el(
+      "table.er-table",
+      el("thead", el("tr", ...headers.map((header) => el("th", header)))),
+      el(
+        "tbody",
+        ...rows.map((cells, index) =>
+          el(
+            "tr",
+            onRow ? { class: "is-link", onclick: (event) => onRow(index, event) } : null,
+            ...cells.map((cellValue) => el("td", cellValue ?? "—"))
+          )
+        )
+      )
+    )
+  );
+}
+
+/** \`components/ui/kpi-card.tsx\`. */
+export function kpiCard(label, value, iconName, href) {
+  return el(
+    "a.er-card.er-kpi",
+    { href },
+    el("div.er-kpi__label", icon(iconName, "er-icon--md er-subtle"), el("span", label)),
+    el("p.er-kpi__metric", Number(value).toLocaleString())
+  );
+}
+
+/** \`components/ui/alert.tsx\`. */
+export function alert(title, body, variant = "default") {
+  return el(
+    \`div.er-alert.er-alert--\${variant}\`,
+    { role: variant === "destructive" ? "alert" : "note" },
+    icon(variant === "destructive" ? "lock" : "info"),
+    el("div", el("p.er-alert__title", title), body ? el("div.er-alert__body", body) : null)
+  );
+}
+
+/** The platform's loading state: a spinner in the middle of the card. */
+export function loading(label = "Loading") {
+  return el("div.er-loading", el("span.er-spinner", { "aria-hidden": "true" }), el("span", label));
+}
+
+/** An empty table body, the way the platform's list screens say it. */
+export function emptyState(title, detail) {
+  return el("div.er-empty", el("p.er-empty__title", title), detail ? el("p.er-empty__detail", detail) : null);
+}
+
+/** One SQL scalar as text. */
+export function cellText(value) {
+  if (value === null || value === undefined) return "—";
+  if (value instanceof Date) return value.toLocaleDateString();
+  if (typeof value === "number") return value.toLocaleString();
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}
+
+/**
+ * A chart from the rows its query returned, in the platform's brand blue.
+ *
+ * The platform draws with Recharts; this draws the same four shapes the pack
+ * asks for — bar, line, area and pie — as SVG, with the axis labels and the
+ * gridlines Recharts puts there, so a tile reads the same at a glance.
+ */
+export function chart(kind, xField, yField, rows) {
+  const points = rows
+    .map((row) => ({ label: cellText(row[xField]), value: Number(row[yField]) }))
+    .filter((point) => Number.isFinite(point.value))
+    .slice(0, 30);
+  if (points.length === 0) return null;
+
+  const ns = "http://www.w3.org/2000/svg";
+  const make = (tag, attrs, text) => {
+    const node = document.createElementNS(ns, tag);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+    if (text !== undefined) node.textContent = text;
+    return node;
+  };
+  const short = (text) => (text.length > 12 ? \`\${text.slice(0, 11)}…\` : text);
+
+  const svg = make("svg", {
+    class: "er-chart",
+    role: "img",
+    "aria-label": \`\${yField} by \${xField}\`,
+    viewBox: "0 0 720 260",
+    preserveAspectRatio: "xMidYMid meet",
+  });
+
+  if (kind === "pie") {
+    const total = points.reduce((sum, point) => sum + Math.max(point.value, 0), 0) || 1;
+    let angle = -Math.PI / 2;
+    const palette = ["#3b82f6", "#06b6d4", "#6366f1", "#8b5cf6", "#d946ef", "#f59e0b", "#10b981", "#f43f5e"];
+    points.slice(0, 8).forEach((point, index) => {
+      const share = Math.max(point.value, 0) / total;
+      const next = angle + share * Math.PI * 2;
+      const large = share > 0.5 ? 1 : 0;
+      const [cx, cy, r] = [180, 130, 110];
+      const path =
+        share >= 0.999
+          ? \`M \${cx} \${cy - r} A \${r} \${r} 0 1 1 \${cx - 0.01} \${cy - r} Z\`
+          : \`M \${cx} \${cy} L \${cx + r * Math.cos(angle)} \${cy + r * Math.sin(angle)} A \${r} \${r} 0 \${large} 1 \${cx + r * Math.cos(next)} \${cy + r * Math.sin(next)} Z\`;
+      svg.appendChild(make("path", { d: path, fill: palette[index % palette.length] }));
+      svg.appendChild(make("rect", { x: 340, y: 40 + index * 24, width: 10, height: 10, rx: 2, fill: palette[index % palette.length] }));
+      svg.appendChild(
+        make("text", { x: 358, y: 49 + index * 24, class: "er-chart__legend" }, \`\${short(point.label)} · \${point.value.toLocaleString()}\`)
+      );
+      angle = next;
+    });
+    return svg;
+  }
+
+  const [left, top, width, height] = [48, 12, 660, 200];
+  // A round axis maximum, as Recharts picks: 1, 2, 2.5 or 5 times a power of
+  // ten, so four ticks land on numbers a reader would write down. An unrounded
+  // maximum of 3 gave ticks of 0.75, 1.5, 2.25 — shown rounded, as 1, 2, 2.
+  const raw = Math.max(...points.map((point) => point.value), 0) || 1;
+  const magnitude = 10 ** Math.floor(Math.log10(raw / 4));
+  const tickStep =
+    [1, 2, 2.5, 5, 10].map((factor) => factor * magnitude).find((candidate) => candidate * 4 >= raw) ??
+    10 * magnitude;
+  const max = tickStep * 4;
+  const step = width / points.length;
+  const y = (value) => top + height - (value / max) * height;
+
+  for (let tick = 0; tick <= 4; tick++) {
+    const value = tickStep * tick;
+    svg.appendChild(make("line", { x1: left, x2: left + width, y1: y(value), y2: y(value), class: "er-chart__grid" }));
+    svg.appendChild(
+      make("text", { x: left - 8, y: y(value) + 4, "text-anchor": "end", class: "er-chart__tick" }, value.toLocaleString(undefined, { maximumFractionDigits: 2 }))
+    );
+  }
+
+  if (kind === "line" || kind === "area") {
+    const coords = points.map((point, index) => [left + index * step + step / 2, y(point.value)]);
+    if (kind === "area") {
+      const first = coords[0];
+      const last = coords[coords.length - 1];
+      svg.appendChild(
+        make("path", {
+          d: \`M \${first[0]} \${top + height} \${coords.map(([cx, cy]) => \`L \${cx} \${cy}\`).join(" ")} L \${last[0]} \${top + height} Z\`,
+          class: "er-chart__area",
+        })
+      );
+    }
+    svg.appendChild(make("polyline", { points: coords.map((pair) => pair.join(",")).join(" "), class: "er-chart__line" }));
+  } else {
+    points.forEach((point, index) => {
+      const barTop = y(Math.max(point.value, 0));
+      svg.appendChild(
+        make("rect", {
+          x: left + index * step + step * 0.15,
+          y: barTop,
+          width: step * 0.7,
+          height: top + height - barTop,
+          rx: 3,
+          class: "er-chart__bar",
+        })
+      );
+    });
+  }
+
+  points.forEach((point, index) => {
+    svg.appendChild(
+      make("text", { x: left + index * step + step / 2, y: top + height + 20, "text-anchor": "middle", class: "er-chart__tick" }, short(point.label))
+    );
+  });
+
+  return svg;
+}
+`,
   "ui/views/login.js": `/**
  * The sign-in screen.
  *
@@ -22203,401 +23346,1514 @@ const initials = (name) =>
     .map((word) => word[0].toUpperCase())
     .join("") || "AP";
 `,
-  "ui/views/report-app.js": `/**
- * The reporting application — its own shell, inside the same tab.
+  "ui/views/report-admin.js": `/**
+ * Enterprise Reporting's Administration section, in the browser preview.
  *
- * Two applications are generated from one model and this is the second of
- * them. Deployed, it is the Enterprise Reporting platform: a separate service,
- * a separate database (\`enterprise_config\`), a separate user table, reached at
- * \`/report\` behind the same proxy. A browser tab cannot run a second server, so
- * here it is a second shell over the same runtime — and everything a reader
- * meets is still separate: its own sign-in, its own accounts, its own roles,
- * and reports scoped to what each role may read.
+ * Users, Roles, Permissions, Data Sources and System Logs — the five of the
+ * platform's seven administration screens that a browser tab can honestly
+ * offer, because the data behind them is here: \`rpt_user\`, \`rpt_role\`,
+ * \`rpt_role_tables\` (enforced on every reporting request) and
+ * \`rpt_activity_log\`. Each is drawn after the platform's own page — its title,
+ * its description, its columns — and each writes through \`/report-admin\`,
+ * which refuses anyone who is not a reporting administrator.
  *
- * What it deliberately does not pretend to be: there is no SQL editor, no
- * report designer, no natural-language query and no scheduled delivery. Those
- * need the platform's servers. A read-only mirror of what the platform would
- * hold is worth more than buttons that answer "not in the browser build".
+ * Trigger Board and Settings are the two that are not here. One is the
+ * platform's job queue and the other its server configuration, and neither
+ * exists in a tab; they open the page that says where the real ones are.
+ *
+ * No \`confirm()\` and no \`prompt()\`: this application runs in an iframe on the
+ * page that generated it, where a modal dialog is not guaranteed to appear. A
+ * delete is two clicks on the same button, and a form is a dialog drawn here.
  */
 
-import { el, empty, mount, spinner, toast } from "../dom.js";
-import { themeControl } from "../theme.js";
+import { el, mount, toast } from "../dom.js";
+import { reportApi } from "../api.js";
+import {
+  alert,
+  badge,
+  button,
+  card,
+  cardContent,
+  cardHeader,
+  emptyState,
+  icon,
+  loading,
+  pageHeader,
+  table,
+} from "./er-kit.js";
+
+const when = (value) => (value ? new Date(value).toLocaleString() : "—");
+const day = (value) => (value ? new Date(value).toLocaleDateString() : "—");
+
+/** A delete that asks twice by changing its own label, then reverts. */
+function deleteButton(onConfirm) {
+  let armed = false;
+  let timer = null;
+  const node = button("Delete", { variant: "ghost", size: "sm" });
+  node.classList.add("er-btn--danger");
+  node.addEventListener("click", async (event) => {
+    event.stopPropagation();
+    if (!armed) {
+      armed = true;
+      node.textContent = "Confirm delete";
+      node.classList.add("is-armed");
+      timer = setTimeout(() => {
+        armed = false;
+        node.textContent = "Delete";
+        node.classList.remove("is-armed");
+      }, 4000);
+      return;
+    }
+    clearTimeout(timer);
+    node.disabled = true;
+    await onConfirm();
+  });
+  return node;
+}
+
+/**
+ * \`components/ui/dialog.tsx\`, as a panel over the page. Returns a closer.
+ * \`fields\` is [{ name, label, type, value, options }]; \`onSubmit\` gets the
+ * values and throws to keep the dialog open with the server's refusal in it.
+ */
+function dialog({ title, description, fields, submitLabel, onSubmit }) {
+  const inputs = new Map();
+  const errorSlot = el("div");
+  const submit = el("button.er-btn.er-btn--default.er-btn--size-default", { type: "submit" }, submitLabel);
+
+  const body = fields.map((field) => {
+    let input;
+    if (field.type === "select") {
+      input = el(
+        "select.er-select",
+        { id: \`erf-\${field.name}\` },
+        ...field.options.map((option) => el("option", { value: option.value }, option.label))
+      );
+      input.value = field.value ?? "";
+    } else {
+      input = el("input.er-input", {
+        id: \`erf-\${field.name}\`,
+        type: field.type || "text",
+        value: field.value ?? "",
+        placeholder: field.placeholder ?? null,
+        autocomplete: field.type === "password" ? "new-password" : "off",
+      });
+    }
+    inputs.set(field.name, input);
+    return el(
+      "div.er-field",
+      el("label.er-label-strong", { for: \`erf-\${field.name}\` }, field.label),
+      input,
+      field.hint ? el("p.er-label", field.hint) : null
+    );
+  });
+
+  const overlay = el("div.er-dialog-overlay");
+  const close = () => overlay.remove();
+  const form = el(
+    "form.er-card.er-dialog",
+    {
+      role: "dialog",
+      "aria-modal": "true",
+      "aria-label": title,
+      onsubmit: async (event) => {
+        event.preventDefault();
+        submit.disabled = true;
+        mount(errorSlot);
+        const values = Object.fromEntries([...inputs].map(([name, input]) => [name, input.value]));
+        try {
+          await onSubmit(values);
+          close();
+        } catch (error) {
+          mount(errorSlot, alert(error.message || String(error), null, "destructive"));
+          submit.disabled = false;
+        }
+      },
+    },
+    el(
+      "div.er-card__header",
+      el("h2.er-card__title", title),
+      description ? el("p.er-card__description", description) : null
+    ),
+    el("div.er-card__content.er-dialog__body", errorSlot, ...body),
+    el(
+      "div.er-card__footer.er-dialog__footer",
+      button("Cancel", { variant: "outline", onclick: close }),
+      submit
+    )
+  );
+  overlay.appendChild(form);
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) close();
+  });
+  (document.querySelector(".er") ?? document.body).appendChild(overlay);
+  inputs.values().next().value?.focus();
+  return close;
+}
+
+function titled(iconName, text) {
+  return el("span.er-titled", icon(iconName, "er-icon--md"), text);
+}
+
+// ─── Users — admin/users/index.tsx ───────────────────────────────────────────
+
+export async function usersPage(main, { me, rerender }) {
+  mount(main, el("div.er-stack", pageHeader("User Management", "Manage user accounts and assign roles"), card(loading())));
+  const [users, roles] = await Promise.all([reportApi.get("/report-admin/users"), reportApi.get("/report-admin/roles")]);
+  const roleOptions = [{ value: "", label: "No role — reads nothing" }, ...roles.map((role) => ({ value: role.id, label: role.name }))];
+
+  const addUser = () =>
+    dialog({
+      title: "Add User",
+      description: "A reporting account. It signs into this reporting application only, never the application it reports on.",
+      submitLabel: "Create User",
+      fields: [
+        { name: "name", label: "Name", placeholder: "Jane Doe" },
+        { name: "email", label: "Email", type: "email", placeholder: "name@example.com" },
+        { name: "password", label: "Password", type: "password", hint: "At least five characters." },
+        { name: "roleId", label: "Role", type: "select", options: roleOptions, value: "" },
+      ],
+      onSubmit: async (values) => {
+        await reportApi.post("/report-admin/users", { ...values, roleId: values.roleId || null });
+        toast("User created", "success");
+        await rerender();
+      },
+    });
+
+  const editUser = (user) =>
+    dialog({
+      title: \`Edit \${user.name}\`,
+      description: user.email,
+      submitLabel: "Save Changes",
+      fields: [
+        { name: "name", label: "Name", value: user.name },
+        { name: "roleId", label: "Role", type: "select", options: roleOptions, value: user.roleId ?? "" },
+        { name: "password", label: "New password", type: "password", hint: "Leave empty to keep the current one." },
+      ],
+      onSubmit: async (values) => {
+        const changes = { name: values.name };
+        if ((values.roleId || null) !== (user.roleId ?? null)) changes.roleId = values.roleId || null;
+        if (values.password) changes.password = values.password;
+        await reportApi.patch(\`/report-admin/users/\${user.id}\`, changes);
+        toast("User updated", "success");
+        await rerender();
+      },
+    });
+
+  const toggleActive = async (user) => {
+    try {
+      await reportApi.patch(\`/report-admin/users/\${user.id}\`, { isActive: !user.isActive });
+      toast(user.isActive ? "User deactivated" : "User activated", "success");
+      await rerender();
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  };
+
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader("User Management", "Manage user accounts and assign roles", {
+        actions: button("Add User", { iconName: "users", onclick: addUser }),
+      }),
+      card(
+        cardHeader(titled("users", \`Users (\${users.length})\`)),
+        el(
+          "div.er-card__flush",
+          table(
+            ["Name", "Email", "Status", "Roles", "Last sign-in", "Created", "Actions"],
+            users.map((user) => [
+              el("span.er-strong", user.name, user.id === me.id ? el("span.er-label", " (you)") : null),
+              user.email,
+              user.isActive ? badge("Active", "default") : badge("Inactive", "neutral"),
+              user.role ? badge(user.role, user.isAdmin ? "default" : "secondary") : badge("No role", "outline"),
+              when(user.lastSignIn),
+              day(user.createdAt),
+              el(
+                "div.er-rowactions",
+                button("Edit", { variant: "ghost", size: "sm", onclick: () => editUser(user) }),
+                user.id === me.id
+                  ? null
+                  : button(user.isActive ? "Deactivate" : "Activate", {
+                      variant: "ghost",
+                      size: "sm",
+                      onclick: () => toggleActive(user),
+                    }),
+                user.id === me.id
+                  ? null
+                  : deleteButton(async () => {
+                      try {
+                        await reportApi.delete(\`/report-admin/users/\${user.id}\`);
+                        toast("User deleted", "success");
+                      } catch (error) {
+                        toast(error.message, "error");
+                      }
+                      await rerender();
+                    })
+              ),
+            ])
+          )
+        )
+      )
+    )
+  );
+}
+
+// ─── Roles — admin/roles/index.tsx ───────────────────────────────────────────
+
+export async function rolesPage(main, { rerender, href, tableTotal }) {
+  mount(main, el("div.er-stack", pageHeader("Role Management", "Manage roles and their granular permissions"), card(loading())));
+  const roles = await reportApi.get("/report-admin/roles");
+
+  const roleForm = (role) =>
+    dialog({
+      title: role ? \`Edit \${role.name}\` : "Create Role",
+      description: role
+        ? null
+        : "A new reporting role reads nothing until it is granted tables under Permissions.",
+      submitLabel: role ? "Save Changes" : "Create Role",
+      fields: [
+        { name: "name", label: "Role Name", value: role?.name ?? "" },
+        { name: "description", label: "Description", value: role?.description ?? "" },
+      ],
+      onSubmit: async (values) => {
+        if (role) await reportApi.patch(\`/report-admin/roles/\${role.id}\`, values);
+        else await reportApi.post("/report-admin/roles", values);
+        toast(role ? "Role updated" : "Role created", "success");
+        await rerender();
+      },
+    });
+
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader("Role Management", "Manage roles and their granular permissions", {
+        actions: button("Create Role", { iconName: "shield", onclick: () => roleForm(null) }),
+      }),
+      alert(
+        "Roles mirror the model",
+        "Each seeded role is one %%rbac role of the application, with the same name. A reporting role decides " +
+          "which of the application's tables its queries may read — change that under Permissions, and it " +
+          "applies to the next query."
+      ),
+      card(
+        cardHeader(titled("shield", \`Roles (\${roles.length})\`)),
+        el(
+          "div.er-card__flush",
+          table(
+            ["Role Name", "Description", "Permissions", "Users", "Actions"],
+            roles.map((role) => [
+              el(
+                "div",
+                el("span.er-strong", role.name),
+                role.declaredAs ? el("div.er-label", \`%%rbac \${role.declaredAs}\`) : null
+              ),
+              el("span.er-clamp", role.description || "-"),
+              role.isAdmin
+                ? badge("All tables · admin:*", "default")
+                : el(
+                    "a.er-badge.er-badge--secondary",
+                    { href: href("permissions", role.id) },
+                    \`\${role.tables.length} of \${tableTotal} tables\`
+                  ),
+              String(role.users),
+              el(
+                "div.er-rowactions",
+                button("Edit", { variant: "ghost", size: "sm", onclick: () => roleForm(role) }),
+                role.isAdmin
+                  ? null
+                  : el("a.er-btn.er-btn--ghost.er-btn--size-sm", { href: href("permissions", role.id) }, "Permissions"),
+                role.isAdmin
+                  ? null
+                  : deleteButton(async () => {
+                      try {
+                        await reportApi.delete(\`/report-admin/roles/\${role.id}\`);
+                        toast("Role deleted — its users now hold no role", "success");
+                      } catch (error) {
+                        toast(error.message, "error");
+                      }
+                      await rerender();
+                    })
+              ),
+            ])
+          )
+        )
+      )
+    )
+  );
+}
+
+// ─── Permissions — admin/permissions/index.tsx ───────────────────────────────
+
+export async function permissionsPage(main, { rerender, href, selectedRoleId }) {
+  mount(main, el("div.er-stack", pageHeader("Permission Management", "Manage resource-level permissions for roles"), card(loading())));
+  const [roles, sources] = await Promise.all([
+    reportApi.get("/report-admin/roles"),
+    reportApi.get("/report-admin/data-sources"),
+  ]);
+  const tables = sources[0]?.tables ?? [];
+  const scoped = roles.filter((role) => !role.isAdmin);
+  const role = scoped.find((candidate) => candidate.id === selectedRoleId) ?? scoped[0] ?? null;
+
+  const header = pageHeader("Permission Management", "Manage resource-level permissions for roles");
+  if (!role) {
+    return void mount(main, el("div.er-stack", header, card(cardContent(emptyState("No scoped roles", "Create a role first.")))));
+  }
+
+  const picker = el(
+    "select.er-select.er-select--inline",
+    {
+      "aria-label": "Role",
+      onchange: (event) => {
+        window.location.hash = href("permissions", event.currentTarget.value);
+      },
+    },
+    ...scoped.map((candidate) => el("option", { value: candidate.id }, candidate.name))
+  );
+  picker.value = role.id;
+
+  const granted = new Set(role.tables);
+  const boxes = new Map();
+  const counter = el("span.er-label");
+  const recount = () => {
+    const count = [...boxes.values()].filter((box) => box.checked).length;
+    counter.textContent = \`\${count} of \${tables.length} tables selected\`;
+  };
+
+  // Grouped by the model's categories, which is how the application's own
+  // dashboard groups the same entities.
+  const groups = new Map();
+  for (const tableInfo of tables) {
+    const key = tableInfo.category || "Other";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(tableInfo);
+  }
+
+  const save = button("Save Permissions", {
+    onclick: async () => {
+      save.disabled = true;
+      try {
+        const chosen = [...boxes].filter(([, box]) => box.checked).map(([name]) => name);
+        await reportApi.put(\`/report-admin/roles/\${role.id}/tables\`, { tables: chosen });
+        toast(\`\${role.name} may now read \${chosen.length} table\${chosen.length === 1 ? "" : "s"}\`, "success");
+        await rerender();
+      } catch (error) {
+        toast(error.message, "error");
+        save.disabled = false;
+      }
+    },
+  });
+
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      header,
+      card(
+        cardHeader(
+          titled("shield", "Table access"),
+          "Which of the application's tables this role's queries may read — permission level select. " +
+            "A report, chart or dashboard tile whose query names any other table is not offered to the role, " +
+            "and is refused if asked for.",
+          el("div.er-inline", el("span.er-label", "Role"), picker)
+        ),
+        cardContent(
+          ...[...groups].map(([group, members]) =>
+            el(
+              "fieldset.er-grantgroup",
+              el("legend.er-nav__heading", group),
+              el(
+                "div.er-grantgrid",
+                ...members.map((tableInfo) => {
+                  const box = el("input", { type: "checkbox", checked: granted.has(tableInfo.table), onchange: recount });
+                  boxes.set(tableInfo.table, box);
+                  return el(
+                    "label.er-grant",
+                    box,
+                    el(
+                      "span",
+                      el("span.er-strong", tableInfo.displayName),
+                      el("span.er-label.er-block", \`\${tableInfo.table} · \${tableInfo.rows ?? "?"} rows\`)
+                    )
+                  );
+                })
+              )
+            )
+          ),
+          el("div.er-toolbar.er-mt", save, counter)
+        )
+      )
+    )
+  );
+  recount();
+}
+
+// ─── Data Sources — data-sources/index.tsx ───────────────────────────────────
+
+export async function dataSourcesPage(main) {
+  const title = "Data Sources";
+  const description = "Manage database connections for reports and queries";
+  mount(main, el("div.er-stack", pageHeader(title, description), card(loading())));
+  const sources = await reportApi.get("/report-admin/data-sources");
+
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader(title, description),
+      card(
+        el(
+          "div.er-card__flush",
+          table(
+            ["Name", "Type", "Description", "Status", "Tables"],
+            sources.map((source) => [
+              el("span.er-strong", source.name),
+              badge("PostgreSQL", "outline"),
+              el("span.er-clamp", source.description || "-"),
+              badge("Connected", "default"),
+              String(source.tables.length),
+            ])
+          )
+        )
+      ),
+      ...sources.map((source) =>
+        card(
+          cardHeader(
+            titled("database", \`\${source.name} — entities\`),
+            \`\${source.engine}. The platform registers this same database as its data source, with its \` +
+              "connection details encrypted; here it is the database in this tab."
+          ),
+          el(
+            "div.er-card__flush",
+            table(
+              ["Entity", "Table", "Category", "Rows", "Description"],
+              source.tables.map((tableInfo) => [
+                el("span.er-strong", tableInfo.displayName),
+                el("code", tableInfo.table),
+                tableInfo.category || "-",
+                tableInfo.rows === null ? "—" : tableInfo.rows.toLocaleString(),
+                el("span.er-clamp", tableInfo.description || "-"),
+              ])
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
+// ─── System Logs — logs.tsx ──────────────────────────────────────────────────
+
+const OUTCOME_BADGE = { ok: ["OK", "default"], refused: ["Refused", "warning"], failed: ["Failed", "destructive"] };
+
+export async function logsPage(main, { rerender }) {
+  const title = "System Logs";
+  const description = "View system logs and debugging information";
+  mount(main, el("div.er-stack", pageHeader(title, description), card(loading())));
+  const filter = new URLSearchParams(window.location.hash.split("?")[1] ?? "").get("outcome") ?? "";
+  const logs = await reportApi.get(\`/report-admin/logs\${filter ? \`?outcome=\${encodeURIComponent(filter)}\` : ""}\`);
+
+  const picker = el(
+    "select.er-select.er-select--inline",
+    {
+      "aria-label": "Outcome",
+      onchange: (event) => {
+        const value = event.currentTarget.value;
+        window.location.hash = \`#/report/logs\${value ? \`?outcome=\${value}\` : ""}\`;
+      },
+    },
+    el("option", { value: "" }, "All outcomes"),
+    el("option", { value: "ok" }, "OK"),
+    el("option", { value: "refused" }, "Refused"),
+    el("option", { value: "failed" }, "Failed")
+  );
+  picker.value = filter;
+
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader(title, description, {
+        actions: [picker, button("Refresh", { variant: "outline", size: "sm", iconName: "refresh", onclick: () => rerender() })],
+      }),
+      card(
+        cardHeader(
+          titled("squareTerminal", \`Reporting activity (\${logs.length})\`),
+          "Sign-ins, report and chart runs — refusals included — and every change made under Administration. " +
+            "The deployed platform's log also carries its server's own messages; this one records what this tab did."
+        ),
+        el(
+          "div.er-card__flush",
+          logs.length === 0
+            ? emptyState("No activity yet")
+            : table(
+                ["Level", "Timestamp", "User", "Action", "Message"],
+                logs.map((entry) => {
+                  const [label, variant] = OUTCOME_BADGE[entry.outcome] ?? [entry.outcome, "secondary"];
+                  return [
+                    badge(label, variant),
+                    when(entry.at),
+                    entry.email || "—",
+                    el("span.er-strong", entry.action),
+                    [entry.target, entry.detail, entry.durationMs != null ? \`\${entry.durationMs}ms\` : null]
+                      .filter(Boolean)
+                      .join(" · ") || "—",
+                  ];
+                })
+              )
+        )
+      )
+    )
+  );
+}
+`,
+  "ui/views/report-app.js": `/**
+ * Enterprise Reporting — the browser preview.
+ *
+ * Two applications are generated from one model and this is the second. Deployed
+ * — from the downloadable archive, or by the orchestrator — it is the real
+ * Enterprise Reporting platform (\`businessappwithai/enterprise_reporting_tanstack\`),
+ * built from its own source and not modified: a separate service, a separate
+ * database, a separate user table.
+ *
+ * A browser tab cannot run that platform. It is a TanStack Start server over
+ * PostgreSQL, and every screen it has calls that server. So this is a preview of
+ * it, and it is built to look like it: the platform's sidebar, header, page
+ * headers, cards, tables and badges, on the platform's own Tremor tokens (see
+ * \`er-kit.js\` and the \`.er\` block in styles.css), over the same reporting pack
+ * the platform is seeded with — the same saved queries, reports, charts,
+ * dashboard and one reporting role per \`%%rbac\` role.
+ *
+ * Its administration is real: an administrator manages reporting users, roles,
+ * each role's table permissions, and reads the data source and the activity
+ * log (\`report-admin.js\`), and a permission changed there applies to the next
+ * query. What it is not, and says so: the SQL editor, NL query, jobs,
+ * monitoring, filters, the report generator, the trigger board and settings
+ * need the platform's servers. They are in the sidebar where the platform puts
+ * them, and each opens a page naming where the real one is, rather than a
+ * button that fails.
+ */
+
+import { el, mount } from "../dom.js";
+import { applyTheme, storedTheme } from "../theme.js";
+import { downloadCsv, toCsv } from "../csv.js";
 import { reportApi, setReportToken } from "../api.js";
 import { reportLoginView } from "./report-login.js";
+import { dataSourcesPage, logsPage, permissionsPage, rolesPage, usersPage } from "./report-admin.js";
+import {
+  alert,
+  badge,
+  breadcrumb,
+  button,
+  card,
+  cardContent,
+  cardHeader,
+  cellText,
+  chart,
+  emptyState,
+  icon,
+  kpiCard,
+  loading,
+  pageHeader,
+  table,
+} from "./er-kit.js";
 
 const state = {
   user: null,
   overview: null,
-  /** Which section is showing: dashboard | reports | charts | queries | access. */
-  section: "dashboard",
+  sidebarCollapsed: false,
+  mobileMenuOpen: false,
+  /** Which header menu is open: null | "user" | "notifications". */
+  menu: null,
 };
 
-/**
- * Repaint the shell.
+/*
+ * The platform's sidebar, item for item (\`src/components/layout/sidebar.tsx\`),
+ * with the permission each one needs. A reporting role seeded from the model
+ * holds \`report:view\`, \`chart:view\`, \`dashboard:view\` and \`nl_query:*\` — that is
+ * what \`scripts/seed-reporting-pack.ts\` grants — so it sees the same six items
+ * here that it sees there, and the administrator sees all of them.
  *
- * Held here rather than threaded through every screen: the shell is a single
- * function and the screens below it only ever want "show the section I just
- * set". Assigned by \`reportAppView\`, which is the only thing that can build it.
+ * \`route\` is the screen the preview has. An item without one is a screen that
+ * needs the platform's servers; it still appears, and opens a page saying so.
  */
-let rerender = async () => {};
+const MAIN_NAV = [
+  { slug: "dashboard", label: "Dashboard", icon: "home", permission: null, route: "dashboard" },
+  { slug: "sql-editor", label: "SQL Editor", icon: "terminal", permission: "query", description: "Write and execute SQL queries" },
+  { slug: "queries", label: "Saved Queries", icon: "database", permission: "query", route: "queries" },
+  { slug: "reports", label: "Reports", icon: "fileText", permission: "report", route: "reports" },
+  { slug: "charts", label: "Charts", icon: "barChart3", permission: "chart", route: "charts" },
+  { slug: "dashboards", label: "Dashboards", icon: "layoutDashboard", permission: "dashboard", route: "dashboards" },
+  { slug: "filters", label: "Filters", icon: "filter", permission: "filter", description: "Define reusable report filters" },
+  { slug: "jobs", label: "Jobs", icon: "play", permission: "job", description: "Schedule and run background jobs" },
+  { slug: "monitoring", label: "Monitoring", icon: "activity", permission: "monitoring_rule", description: "Track thresholds and breaches" },
+  { slug: "nl-query", label: "NL Query", icon: "messageSquare", permission: "nl_query", description: "Ask questions in plain language" },
+  { slug: "report-generator", label: "Report Generator", icon: "fileText", permission: "report", description: "Generate a report from a description" },
+];
 
-/** Render one SQL scalar as a cell. */
-function cell(value) {
-  if (value === null || value === undefined) return "—";
-  if (value instanceof Date) return value.toLocaleDateString();
-  if (typeof value === "number") return value.toLocaleString();
-  if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
+const ADMIN_NAV = [
+  { slug: "data-sources", label: "Data Sources", icon: "database", permission: "data_source", route: "data-sources", description: "Manage database connections" },
+  { slug: "trigger-board", label: "Trigger Board", icon: "layers", permission: "queue", description: "Inspect the job queue" },
+  { slug: "logs", label: "System Logs", icon: "squareTerminal", permission: "log", route: "logs", description: "Review application logs" },
+  { slug: "users", label: "Users", icon: "users", permission: "user", route: "users", description: "Manage user accounts" },
+  { slug: "roles", label: "Roles", icon: "shield", permission: "role", route: "roles", description: "Manage roles and grants" },
+  { slug: "permissions", label: "Permissions", icon: "shield", permission: "user", route: "permissions", description: "Review resource-level grants" },
+  { slug: "settings", label: "Settings", icon: "settings", permission: "setting", description: "Configure the application" },
+];
+
+/**
+ * The administration screens the preview has, by route. Server-checked too:
+ * \`/report-admin\` refuses anyone who is not a reporting administrator.
+ */
+const ADMIN_ROUTES = new Map([
+  ["users", usersPage],
+  ["roles", rolesPage],
+  ["permissions", permissionsPage],
+  ["data-sources", dataSourcesPage],
+  ["logs", logsPage],
+]);
+
+/** What a seeded reporting role may view — the grant the platform's seeder writes. */
+const REPORTING_ROLE_GRANTS = new Set(["report", "chart", "dashboard", "nl_query"]);
+
+function canView(permission) {
+  if (permission === null) return true;
+  if (state.user?.isAdmin) return true;
+  return REPORTING_ROLE_GRANTS.has(permission);
 }
 
-/**
- * A chart, as SVG, from the rows the query already returned.
- *
- * No charting library, for the same reason the application's own reports screen
- * has none: this runtime has no build step and no dependencies, and the drawing
- * is two column names the pack chose plotted against each other. \`pie\` and
- * \`area\` render as bars rather than as nothing — the shape is a presentation
- * preference and refusing to draw would lose the answer.
- */
-function chartSvg(kind, xField, yField, rows) {
-  const points = rows
-    .map((row) => ({ label: cell(row[xField]), value: Number(row[yField]) }))
-    .filter((point) => Number.isFinite(point.value))
-    .slice(0, 30);
-  if (points.length === 0) return null;
-
-  const max = Math.max(...points.map((point) => point.value), 0) || 1;
-  const width = 700;
-  const height = 200;
-  const step = width / points.length;
-  const svgns = "http://www.w3.org/2000/svg";
-
-  const svg = document.createElementNS(svgns, "svg");
-  svg.setAttribute("viewBox", \`0 0 \${width} \${height + 34}\`);
-  svg.setAttribute("class", "report-chart");
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", \`\${yField} by \${xField}\`);
-
-  if (kind === "line") {
-    const line = document.createElementNS(svgns, "polyline");
-    line.setAttribute("fill", "none");
-    line.setAttribute("stroke", "currentColor");
-    line.setAttribute("stroke-width", "2");
-    line.setAttribute(
-      "points",
-      points
-        .map((p, i) => \`\${i * step + step / 2},\${height - (p.value / max) * (height - 16)}\`)
-        .join(" ")
-    );
-    svg.appendChild(line);
-  } else {
-    points.forEach((point, index) => {
-      const barHeight = (point.value / max) * (height - 16);
-      const rect = document.createElementNS(svgns, "rect");
-      rect.setAttribute("x", String(index * step + step * 0.15));
-      rect.setAttribute("y", String(height - barHeight));
-      rect.setAttribute("width", String(step * 0.7));
-      rect.setAttribute("height", String(barHeight));
-      rect.setAttribute("fill", "currentColor");
-      svg.appendChild(rect);
-    });
-  }
-
-  points.forEach((point, index) => {
-    const text = document.createElementNS(svgns, "text");
-    text.setAttribute("x", String(index * step + step / 2));
-    text.setAttribute("y", String(height + 14));
-    text.setAttribute("text-anchor", "middle");
-    text.setAttribute("font-size", "10");
-    text.setAttribute("opacity", "0.7");
-    text.textContent = point.label.length > 12 ? \`\${point.label.slice(0, 11)}…\` : point.label;
-    svg.appendChild(text);
-  });
-
-  return svg;
+/** \`#/report/<a>/<b>\` → ["<a>", "<b>"], decoded. */
+function currentPath() {
+  const route = (window.location.hash || "").replace(/^#\\/report\\/?/, "").split("?")[0];
+  return route.split("/").filter(Boolean).map(decodeURIComponent);
 }
 
-/** Run one definition and render the answer into \`panel\`. */
-async function run(panel, kind, item) {
-  mount(panel, spinner("Running"));
+const href = (...parts) => \`#/report/\${parts.map(encodeURIComponent).join("/")}\`;
 
-  let result;
-  try {
-    result = await reportApi.get(
-      \`/reporting/\${kind}/\${encodeURIComponent(item.key)}/run\`
-    );
-  } catch (error) {
-    /* A 403 here is the reporting role working, not a failure, and it names the
-       table it refused — so it is shown as the answer rather than as an error
-       the reader is meant to do something about. */
-    return void mount(
-      panel,
-      empty(
-        error.status === 403 ? "This role may not read that" : "This report did not run",
-        error.message || String(error)
-      )
-    );
-  }
+const repaint = () => window.dispatchEvent(new HashChangeEvent("hashchange"));
 
-  const parts = [el("h2", item.name)];
-  if (item.description) parts.push(el("p.muted", item.description));
+// ─── The shell: sidebar, header, main ────────────────────────────────────────
 
-  if (kind === "charts") {
-    const svg = chartSvg(item.chartType, item.xField, item.yField, result.rows);
-    if (svg) parts.push(el("div.report-chart-wrap", svg, el("p.muted", \`\${item.yField} by \${item.xField}\`)));
-  }
-
-  parts.push(
-    el(
-      "p.muted",
-      \`\${result.rowCount} row\${result.rowCount === 1 ? "" : "s"} in \${result.durationMs}ms\` +
-        (result.truncated ? " — capped; the query returns more" : "")
-    )
+function navItem(item, activeSlug) {
+  const active = item.slug === activeSlug;
+  return el(
+    "a.er-nav__item",
+    {
+      href: href(item.route ?? \`unavailable\`, ...(item.route ? [] : [item.slug])),
+      class: active ? "is-active" : null,
+      title: state.sidebarCollapsed ? item.label : null,
+      "aria-current": active ? "page" : null,
+      onclick: () => {
+        state.mobileMenuOpen = false;
+      },
+    },
+    icon(item.icon),
+    state.sidebarCollapsed ? null : el("span.er-nav__label", item.label)
   );
+}
 
-  if (result.rowCount === 0) {
-    parts.push(
-      el("p.muted", "No rows. The query is valid; nothing in the application's data answers it yet.")
-    );
-  } else {
-    parts.push(
+function sidebar(activeSlug, { mobile = false } = {}) {
+  const main = MAIN_NAV.filter((item) => canView(item.permission));
+  const admin = ADMIN_NAV.filter((item) => canView(item.permission));
+  const collapsed = state.sidebarCollapsed && !mobile;
+
+  return el(
+    "aside.er-sidebar",
+    { class: collapsed ? "is-collapsed" : null },
+    el(
+      "div.er-sidebar__brand",
       el(
-        "div.table-wrap",
-        el(
-          "table",
-          el("thead", el("tr", ...result.columns.map((column) => el("th", column)))),
-          el(
-            "tbody",
-            ...result.rows.map((row) =>
-              el("tr", ...result.columns.map((column) => el("td", cell(row[column]))))
-            )
+        "a.er-sidebar__logo",
+        { href: href("dashboard") },
+        icon("barChart3", "er-icon--md er-brand"),
+        collapsed ? null : el("span", "Enterprise Reports")
+      )
+    ),
+    el(
+      "div.er-sidebar__scroll",
+      el(
+        "div.er-nav__group",
+        collapsed ? null : el("h2.er-nav__heading", "Main"),
+        el("nav.er-nav", ...main.map((item) => navItem(item, activeSlug)))
+      ),
+      admin.length > 0 ? el("div.er-separator") : null,
+      admin.length > 0
+        ? el(
+            "div.er-nav__group",
+            collapsed ? null : el("h2.er-nav__heading", "Administration"),
+            el("nav.er-nav", ...admin.map((item) => navItem(item, activeSlug)))
           )
-        )
-      )
-    );
-  }
-
-  /* Where the number came from. A reporting user's next question about any
-     figure is always this one, and the platform answers it with the saved query
-     the report is built on. The SQL itself is not in this response — \`/run\`
-     returns the definition without it, so that a client cannot become the place
-     a query is read from — and **Saved queries** is the screen that has it. */
-  parts.push(
+        : null
+    ),
     el(
-      "details.report-sql",
-      el("summary", \`Saved query — \${result.query.name}\`),
-      el("p.muted", result.query.description),
-      el("p.muted", \`Reads \${result.query.tables.join(", ") || "no business table"}.\`),
-      el(
-        "button.link",
-        {
-          onclick: async () => {
-            state.section = "queries";
-            await rerender();
-          },
-        },
-        "See its SQL under Saved queries"
-      )
-    )
-  );
-
-  parts.push(
-    el(
-      "button.btn",
+      "button.er-sidebar__collapse",
       {
+        type: "button",
+        "aria-label": mobile ? "Close navigation menu" : collapsed ? "Expand sidebar" : "Collapse sidebar",
         onclick: () => {
-          run(panel, kind, item);
-          toast("Re-running", "info");
+          if (mobile) state.mobileMenuOpen = false;
+          else state.sidebarCollapsed = !state.sidebarCollapsed;
+          repaint();
         },
       },
-      "Run again"
+      icon(collapsed ? "chevronRight" : "chevronLeft", "er-icon--xs")
     )
   );
-
-  mount(panel, ...parts);
 }
 
-/** A list of definitions on the left, the answer on the right. */
-function browser(items, kind, emptyTitle, emptyDetail) {
-  if (items.length === 0) return empty(emptyTitle, emptyDetail);
+function initials(user) {
+  const source = user.name || user.email || "U";
+  const parts = source.split(/[\\s@.]+/).filter(Boolean);
+  return (parts.length > 1 ? parts[0][0] + parts[1][0] : source[0]).toUpperCase();
+}
 
-  // Grouped by the table the query reads, because that is what a reporting
-  // role is a statement about — and on a scoped role it is the grouping that
-  // shows which half of the application it has.
-  const groups = new Map();
-  for (const item of items) {
-    const key = (item.tables || [])[0] || "Across the application";
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(item);
-  }
+function header({ project, onLeave, signOut }) {
+  const user = state.user;
+  const role = state.overview?.role;
 
-  const panel = el(
-    "div.report-panel",
-    empty("Choose one", "Pick a definition on the left to run it against the application's data.")
+  const themeSelect = el(
+    "select.er-select.er-themeselect",
+    {
+      "aria-label": "Theme",
+      onchange: (event) => applyTheme(event.currentTarget.value),
+    },
+    el("option", { value: "light" }, "☀  Light Theme"),
+    el("option", { value: "dark" }, "☾  Dark Theme"),
+    el("option", { value: "system" }, "◐  System")
   );
+  themeSelect.value = storedTheme();
 
-  const list = el(
-    "nav.report-list",
-    ...[...groups.entries()].map(([group, groupItems]) =>
+  const toggle = (name) => () => {
+    state.menu = state.menu === name ? null : name;
+    repaint();
+  };
+
+  const notifications =
+    state.menu === "notifications"
+      ? el(
+          "div.er-menu.er-menu--wide",
+          el("div.er-menu__label.er-menu__label--split", el("span", "Notifications")),
+          el("div.er-menu__empty", "No notifications")
+        )
+      : null;
+
+  const userMenu =
+    state.menu === "user"
+      ? el(
+          "div.er-menu",
+          el(
+            "div.er-menu__label",
+            el("p.er-menu__name", user.name || user.role || "Reporting user"),
+            el("p.er-menu__email", user.email)
+          ),
+          el("div.er-menu__separator"),
+          el(
+            "div.er-menu__note",
+            role
+              ? role.tables === null
+                ? \`\${role.name ?? "Administrator"} — reads every table (\${role.tableTotal})\`
+                : \`\${role.name ?? "No reporting role"} — reads \${role.tables.length} of \${role.tableTotal} tables\`
+              : null
+          ),
+          el("div.er-menu__separator"),
+          onLeave
+            ? el(
+                "button.er-menu__item",
+                { type: "button", onclick: () => onLeave() },
+                icon("arrowLeft"),
+                el("span", \`Back to \${project.name}\`)
+              )
+            : null,
+          el(
+            "button.er-menu__item.er-menu__item--danger",
+            { type: "button", onclick: signOut },
+            icon("logOut"),
+            el("span", "Log out")
+          )
+        )
+      : null;
+
+  return el(
+    "header.er-header",
+    el(
+      "div.er-header__left",
       el(
-        "section",
-        el("h3", group),
+        "button.er-btn.er-btn--ghost.er-btn--size-icon.er-mobile-only",
+        {
+          type: "button",
+          "aria-label": "Toggle menu",
+          onclick: () => {
+            state.mobileMenuOpen = !state.mobileMenuOpen;
+            repaint();
+          },
+        },
+        icon("menu", "er-icon--lg")
+      )
+    ),
+    el(
+      "div.er-header__right",
+      themeSelect,
+      el(
+        "button.er-btn.er-btn--ghost.er-btn--size-icon",
+        {
+          type: "button",
+          "aria-label": "Help",
+          title: "Help",
+          onclick: () => {
+            window.location.hash = href("about-preview");
+          },
+        },
+        icon("helpCircle", "er-icon--lg")
+      ),
+      el(
+        "div.er-menuwrap",
         el(
-          "ul",
-          ...groupItems.map((item) =>
+          "button.er-btn.er-btn--ghost.er-btn--size-icon",
+          { type: "button", "aria-label": "Notifications", onclick: toggle("notifications") },
+          icon("bell")
+        ),
+        notifications
+      ),
+      el(
+        "div.er-menuwrap",
+        el(
+          "button.er-avatar",
+          { type: "button", "aria-label": "Account", onclick: toggle("user") },
+          initials(user)
+        ),
+        userMenu
+      )
+    )
+  );
+}
+
+/**
+ * The one thing this screen has that the platform does not: a line saying what
+ * it is. Kept to a strip under the header, so the page below it is the
+ * platform's page.
+ */
+function previewStrip() {
+  return el(
+    "div.er-previewstrip",
+    icon("info", "er-icon--sm"),
+    el(
+      "span",
+      el("strong", "Browser preview of Enterprise Reporting."),
+      " The reports, charts, dashboard and roles are the ones the platform is seeded with. " +
+        "The real platform runs from the deployable archive or the orchestrator. ",
+      el("a", { href: href("about-preview") }, "What differs")
+    )
+  );
+}
+
+// ─── Pages ───────────────────────────────────────────────────────────────────
+
+const plural = (count, one, many = \`\${one}s\`) => \`\${count.toLocaleString()} \${count === 1 ? one : many}\`;
+
+async function dashboardPage(main) {
+  const { counts, role } = state.overview;
+  const isAdmin = !!state.user.isAdmin;
+
+  const kpis = [
+    { label: "Reports", value: counts.reports, href: href("reports"), icon: "fileText", key: "report" },
+    { label: "Charts", value: counts.charts, href: href("charts"), icon: "barChart3", key: "chart" },
+    { label: "Dashboards", value: counts.dashboards, href: href("dashboards"), icon: "layoutDashboard", key: "dashboard" },
+    { label: "Scheduled jobs", value: 0, href: href("unavailable", "jobs"), icon: "play", key: "job" },
+  ].filter((kpi) => canView(kpi.key));
+
+  const workspace = MAIN_NAV.filter((item) => item.slug !== "dashboard");
+  const visible = workspace.filter((item) => canView(item.permission));
+  const moduleCard = (item, admin) =>
+    el(
+      "a.er-card.er-module",
+      { href: href(item.route ?? "unavailable", ...(item.route ? [] : [item.slug])) },
+      el(
+        "div.er-module__head",
+        icon(item.icon, admin ? "er-icon er-subtle" : "er-icon er-brand"),
+        el("h3.er-card__title.er-card__title--sm", item.label)
+      ),
+      el("p.er-card__description", item.description ?? moduleDescription(item.slug))
+    );
+
+  const breakdown = [
+    ["Reports", counts.reports, "fileText"],
+    ["Charts", counts.charts, "barChart3"],
+    ["Dashboards", counts.dashboards, "layoutDashboard"],
+    ...(isAdmin ? [["Saved queries", counts.queries ?? 0, "database"]] : []),
+  ];
+  const maxCount = Math.max(1, ...breakdown.map(([, value]) => value));
+
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader(
+        "Dashboard",
+        \`Welcome to the Enterprise Reporting System — \${state.user.email}\`,
+        { actions: badge(isAdmin ? "Administrator" : "Standard access", isAdmin ? "default" : "neutral") }
+      ),
+      kpis.length ? el("div.er-grid.er-grid--4", ...kpis.map((kpi) => kpiCard(kpi.label, kpi.value, kpi.icon, kpi.href))) : null,
+      el(
+        "div.er-grid.er-grid--2",
+        card(
+          cardHeader("Content by type", "What exists in your workspace today"),
+          cardContent(
             el(
-              "li",
-              el(
-                "button.link",
-                {
-                  onclick: (event) => {
-                    for (const active of list.querySelectorAll(".is-active")) {
-                      active.classList.remove("is-active");
-                    }
-                    event.currentTarget.classList.add("is-active");
-                    run(panel, kind, item);
-                  },
-                },
-                item.name
+              "ul.er-barlist",
+              ...breakdown.map(([name, value, iconName]) =>
+                el(
+                  "li",
+                  el("div.er-barlist__bar", { style: { width: \`\${Math.max(4, (value / maxCount) * 100)}%\` } }),
+                  el("span.er-barlist__name", icon(iconName, "er-icon--sm er-subtle"), name),
+                  el("span.er-barlist__value", value.toLocaleString())
+                )
               )
             )
           )
+        ),
+        card(
+          cardHeader(
+            "Data access",
+            role.tables === null
+              ? \`\${role.name ?? "This role"} reads every table of \${state.overview.dataSource?.name ?? "the data source"}\`
+              : \`\${role.name ?? "This role"} reads \${role.tables.length} of \${role.tableTotal} tables of \${state.overview.dataSource?.name ?? "the data source"}\`
+          ),
+          cardContent(
+            role.tables === null
+              ? el("p.er-text", "Every report, chart and dashboard tile is offered.")
+              : el(
+                  "div",
+                  el("div.er-taglist", ...role.tables.map((tableName) => badge(tableName, "secondary"))),
+                  counts.reports < counts.reportsTotal
+                    ? el(
+                        "p.er-text.er-mt",
+                        \`\${counts.reports} of \${counts.reportsTotal} reports are offered to this role — \` +
+                          "a report whose query names any other table is not."
+                      )
+                    : null
+                )
+          )
         )
+      ),
+      el(
+        "div",
+        el(
+          "div.er-sectionhead",
+          el("h2.er-sectiontitle", "Your workspace"),
+          el("span.er-label", \`\${visible.length} of \${workspace.length} modules available\`)
+        ),
+        el("div.er-grid.er-grid--3", ...visible.map((item) => moduleCard(item, false)))
+      ),
+      isAdmin
+        ? el(
+            "div",
+            el(
+              "div.er-sectionhead",
+              el("h2.er-sectiontitle", "Administration"),
+              el("span.er-label", \`\${ADMIN_NAV.length} modules\`)
+            ),
+            el("div.er-grid.er-grid--3", ...ADMIN_NAV.map((item) => moduleCard(item, true)))
+          )
+        : null
+    )
+  );
+}
+
+function moduleDescription(slug) {
+  return {
+    queries: "Reuse queries you have saved",
+    reports: "View and manage reports",
+    charts: "Create data visualisations",
+    dashboards: "Build interactive dashboards",
+  }[slug];
+}
+
+function listCard(content) {
+  return card(el("div.er-card__flush", content));
+}
+
+async function queriesPage(main) {
+  mount(main, el("div.er-stack", pageHeader("Saved Queries", "Manage your saved SQL queries"), card(loading())));
+  const queries = await reportApi.get("/reporting/queries");
+  const source = state.overview.dataSource?.name ?? "—";
+  let term = "";
+
+  const body = el("div");
+  const draw = () => {
+    const needle = term.toLowerCase();
+    const shown = queries.filter(
+      (query) => !needle || \`\${query.name} \${query.description} \${source}\`.toLowerCase().includes(needle)
+    );
+    mount(
+      body,
+      shown.length === 0
+        ? emptyState("No queries found", term ? "Nothing matches that search." : "No saved queries this role may run.")
+        : table(
+            ["Name", "Description", "Data Source", "Created", "Modified", "Actions"],
+            shown.map((query) => [
+              el("span.er-strong", query.name),
+              query.description || "-",
+              badge(source, "outline"),
+              generatedOn(),
+              generatedOn(),
+              button("View", { variant: "ghost", size: "sm", iconName: "eye" }),
+            ]),
+            { onRow: (index) => (window.location.hash = href("queries", shown[index].key)) }
+          )
+    );
+  };
+
+  const search = el("input.er-input.er-input--search", {
+    type: "search",
+    placeholder: "Search by name, description, or data source...",
+    oninput: (event) => {
+      term = event.currentTarget.value;
+      draw();
+    },
+  });
+
+  draw();
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader("Saved Queries", "Manage your saved SQL queries"),
+      el(
+        "div.er-toolbar",
+        el("div.er-searchwrap", icon("search", "er-icon er-searchicon"), search),
+        badge(plural(queries.length, "query", "queries"), "secondary")
+      ),
+      listCard(body)
+    )
+  );
+}
+
+async function queryDetailPage(main, key) {
+  const queries = await reportApi.get("/reporting/queries");
+  const query = queries.find((candidate) => candidate.key === key);
+  if (!query) return notFoundPage(main, "Saved Queries", href("queries"));
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      breadcrumb([{ label: "Saved Queries", href: href("queries") }, { label: query.name }]),
+      pageHeader(query.name, query.description, { back: href("queries") }),
+      card(
+        cardHeader("SQL", \`Reads \${query.tables.join(", ") || "no business table"}\`),
+        cardContent(el("pre.er-code", el("code", query.sql)))
       )
     )
   );
-
-  return el("div.report-layout", list, panel);
 }
 
-async function dashboardSection(outlet) {
-  mount(outlet, spinner("Loading the dashboard"));
-  const [dashboards, charts] = await Promise.all([
+function generatedOn() {
+  const at = state.overview.application?.generatedAt;
+  return at ? new Date(at).toLocaleDateString() : "—";
+}
+
+async function reportsPage(main) {
+  mount(main, el("div.er-stack", pageHeader("Reports", "Create and manage tabular reports"), card(loading())));
+  const [reports, queries] = await Promise.all([
+    reportApi.get("/reporting/reports"),
+    state.user.isAdmin ? reportApi.get("/reporting/queries") : Promise.resolve([]),
+  ]);
+  const queryName = new Map(queries.map((query) => [query.key, query.name]));
+
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader("Reports", "Create and manage tabular reports"),
+      hiddenNote(state.overview.counts.reports, state.overview.counts.reportsTotal, "reports"),
+      listCard(
+        reports.length === 0
+          ? emptyState("No reports yet", "Every report reads a table this reporting role may not.")
+          : table(
+              ["Name", "Description", "Query", "Created", "Modified", "Actions"],
+              reports.map((report) => [
+                el("span.er-strong", report.name),
+                el("span.er-clamp", report.description || "-"),
+                queryName.has(report.queryKey)
+                  ? badge(queryName.get(report.queryKey), "secondary")
+                  : badge("Linked", "secondary"),
+                generatedOn(),
+                generatedOn(),
+                button("View", { variant: "ghost", size: "sm", iconName: "eye" }),
+              ]),
+              { onRow: (index) => (window.location.hash = href("reports", reports[index].key)) }
+            )
+      )
+    )
+  );
+}
+
+function hiddenNote(shown, total, noun) {
+  if (shown >= total) return null;
+  return alert(
+    \`\${total - shown} \${noun} hidden\`,
+    \`\${state.user.role ?? "This role"} may not read the tables behind them. \${shown} of \${total} are offered.\`
+  );
+}
+
+async function run(kind, key) {
+  return reportApi.get(\`/reporting/\${kind}/\${encodeURIComponent(key)}/run\`);
+}
+
+function refusal(error) {
+  return alert(
+    error.status === 403 ? "Access denied" : "This query did not run",
+    error.message || String(error),
+    "destructive"
+  );
+}
+
+async function reportViewerPage(main, key) {
+  const reports = await reportApi.get("/reporting/reports");
+  const report = reports.find((candidate) => candidate.key === key);
+  if (!report) return notFoundPage(main, "Reports", href("reports"));
+
+  const data = card(cardHeader("Report Data"), cardContent(loading("Running the report")));
+  let result = null;
+
+  const exportCsv = () => {
+    if (!result) return;
+    downloadCsv(
+      report.key,
+      toCsv(result.columns, result.rows.map((row) => result.columns.map((column) => cellText(row[column]))))
+    );
+  };
+
+  const draw = async () => {
+    mount(data, cardHeader("Report Data"), cardContent(loading("Running the report")));
+    try {
+      result = await run("reports", report.key);
+    } catch (error) {
+      result = null;
+      return void mount(data, cardHeader("Report Data"), cardContent(refusal(error)));
+    }
+    const labels = new Map((report.columns ?? []).map((column) => [column.field, column.label]));
+    mount(
+      data,
+      cardHeader(
+        "Report Data",
+        \`\${plural(result.rowCount, "row")} in \${result.durationMs}ms\` +
+          (result.truncated ? " — capped; the query returns more" : ""),
+        badge(result.query.name, "outline")
+      ),
+      el(
+        "div.er-card__flush",
+        result.rowCount === 0
+          ? emptyState("No data", "The query is valid; nothing in the application's data answers it yet.")
+          : table(
+              result.columns.map((column) => labels.get(column) ?? column),
+              result.rows.map((row) => result.columns.map((column) => cellText(row[column])))
+            )
+      )
+    );
+  };
+
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      breadcrumb([{ label: "Reports", href: href("reports") }, { label: report.name }]),
+      pageHeader(report.name, report.description, {
+        back: href("reports"),
+        actions: [
+          button("Refresh", { variant: "outline", size: "sm", iconName: "refresh", onclick: () => draw() }),
+          button("CSV", { variant: "outline", size: "sm", iconName: "download", onclick: exportCsv }),
+        ],
+      }),
+      data
+    )
+  );
+  await draw();
+}
+
+const CHART_ICON = { bar: "barChart3", line: "lineChart", area: "areaChart", pie: "pieChart" };
+
+async function chartsPage(main) {
+  mount(main, el("div.er-stack", pageHeader("Charts", "Create and manage data visualizations"), card(loading())));
+  const charts = await reportApi.get("/reporting/charts");
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader("Charts", "Create and manage data visualizations"),
+      hiddenNote(state.overview.counts.charts, state.overview.counts.chartsTotal, "charts"),
+      listCard(
+        charts.length === 0
+          ? emptyState("No charts yet", "Every chart reads a table this reporting role may not.")
+          : table(
+              ["Name", "Type", "Query", "Created", "Actions"],
+              charts.map((item) => [
+                el("span.er-strong", item.name),
+                el("span.er-badge.er-badge--outline.er-badge--icon", icon(CHART_ICON[item.chartType] ?? "barChart3", "er-icon--xs"), item.chartType),
+                badge("Linked", "secondary"),
+                generatedOn(),
+                button("View", { variant: "ghost", size: "sm", iconName: "eye" }),
+              ]),
+              { onRow: (index) => (window.location.hash = href("charts", charts[index].key)) }
+            )
+      )
+    )
+  );
+}
+
+async function chartViewerPage(main, key) {
+  const charts = await reportApi.get("/reporting/charts");
+  const item = charts.find((candidate) => candidate.key === key);
+  if (!item) return notFoundPage(main, "Charts", href("charts"));
+
+  const body = card(cardContent(loading("Running the chart")));
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      breadcrumb([{ label: "Charts", href: href("charts") }, { label: item.name }]),
+      pageHeader(item.name, item.description, { back: href("charts"), badge: badge(item.chartType, "outline") }),
+      body
+    )
+  );
+
+  try {
+    const result = await run("charts", item.key);
+    const svg = chart(item.chartType, item.xField, item.yField, result.rows);
+    mount(
+      body,
+      cardHeader(\`\${item.yField} by \${item.xField}\`, \`\${plural(result.rowCount, "row")} in \${result.durationMs}ms\`),
+      cardContent(svg ?? emptyState("No data", "Nothing in the application's data answers this chart yet."))
+    );
+  } catch (error) {
+    mount(body, cardContent(refusal(error)));
+  }
+}
+
+async function dashboardsPage(main) {
+  mount(main, el("div.er-stack", pageHeader("Dashboards", "Create and manage interactive dashboards"), card(loading())));
+  const dashboards = await reportApi.get("/reporting/dashboards");
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader("Dashboards", "Create and manage interactive dashboards"),
+      listCard(
+        dashboards.length === 0
+          ? emptyState("No dashboards yet")
+          : table(
+              ["Name", "Description", "Visibility", "Created", "Modified", "Actions"],
+              dashboards.map((dashboard) => [
+                el("span.er-strong", dashboard.name),
+                el("span.er-clamp", dashboard.description || "-"),
+                el("span.er-badge.er-badge--outline.er-badge--icon", icon("lock", "er-icon--xs"), "Private"),
+                generatedOn(),
+                generatedOn(),
+                button("View", { variant: "ghost", size: "sm", iconName: "eye" }),
+              ]),
+              { onRow: (index) => (window.location.hash = href("dashboards", dashboards[index].key)) }
+            )
+      )
+    )
+  );
+}
+
+async function dashboardViewerPage(main, key) {
+  const [dashboards, charts, reports] = await Promise.all([
     reportApi.get("/reporting/dashboards"),
     reportApi.get("/reporting/charts"),
+    reportApi.get("/reporting/reports"),
   ]);
+  const dashboard = dashboards.find((candidate) => candidate.key === key);
+  if (!dashboard) return notFoundPage(main, "Dashboards", href("dashboards"));
 
-  const byKey = new Map(charts.map((chart) => [chart.key, chart]));
-  const parts = [];
+  const chartOf = new Map(charts.map((item) => [item.key, item]));
+  const reportOf = new Map(reports.map((item) => [item.key, item]));
 
-  for (const dashboard of dashboards) {
-    parts.push(el("h2", dashboard.name));
-    if (dashboard.description) parts.push(el("p.muted", dashboard.description));
-    if (dashboard.hiddenWidgets > 0) {
-      /* Said rather than left as a gap: a role that may not read a table gets a
-         shorter dashboard, and a shorter dashboard with no explanation looks
-         like a build that half-worked. */
-      parts.push(
-        el(
-          "p.muted",
-          \`\${dashboard.hiddenWidgets} tile\${dashboard.hiddenWidgets === 1 ? "" : "s"} hidden — \` +
-            \`\${state.user.role ?? "this role"} may not read the tables behind them.\`
-        )
-      );
-    }
+  /* The platform lays a dashboard out on react-grid-layout's twelve columns
+     with 100px rows; the pack writes each widget's x, y, w and h in those
+     units, so the same numbers place it here. */
+  const tiles = compact(dashboard.widgets).map((widget) => {
+    const body = el("div.er-tile__body", loading());
+    const tile = el(
+      "div.er-card.er-tile",
+      {
+        style: {
+          gridColumn: \`\${(widget.x ?? 0) + 1} / span \${widget.w ?? 6}\`,
+          gridRow: \`\${(widget.y ?? 0) + 1} / span \${widget.h ?? 3}\`,
+        },
+      },
+      el("div.er-tile__head", el("h3.er-card__title.er-card__title--sm", widget.title)),
+      body
+    );
 
-    if (dashboard.widgets.length === 0) {
-      parts.push(empty("Nothing on this dashboard", "Every tile reads a table this role may not."));
-      continue;
-    }
-
-    const tiles = [];
-    for (const widget of dashboard.widgets) {
-      const chart = widget.chartKey ? byKey.get(widget.chartKey) : null;
-      const tile = el("div.report-tile", el("h3", widget.title), spinner("Loading"));
-      tiles.push(tile);
-      if (!chart) continue;
-
-      /* Each tile runs its own query. Sequential rather than parallel would be
-         tidier to read and slower to watch: six queries against a database in
-         this tab finish in well under a second each, and the reader sees the
-         grid fill in. */
-      reportApi
-        .get(\`/reporting/charts/\${encodeURIComponent(chart.key)}/run\`)
+    const chartSpec = widget.chartKey ? chartOf.get(widget.chartKey) : null;
+    const reportSpec = widget.reportKey ? reportOf.get(widget.reportKey) : null;
+    if (chartSpec) {
+      run("charts", chartSpec.key)
         .then((result) => {
-          const svg = chartSvg(chart.chartType, chart.xField, chart.yField, result.rows);
-          mount(
-            tile,
-            el("h3", widget.title),
-            svg ?? el("p.muted", "No rows yet."),
-            el("p.muted", \`\${result.rowCount} row\${result.rowCount === 1 ? "" : "s"}\`)
-          );
+          const svg = chart(chartSpec.chartType, chartSpec.xField, chartSpec.yField, result.rows);
+          mount(body, svg ?? emptyState("No data"));
         })
-        .catch((error) => {
-          mount(tile, el("h3", widget.title), el("p.muted", error.message || String(error)));
-        });
+        .catch((error) => mount(body, refusal(error)));
+    } else if (reportSpec) {
+      run("reports", reportSpec.key)
+        .then((result) =>
+          mount(
+            body,
+            result.rowCount === 0
+              ? emptyState("No data")
+              : table(result.columns, result.rows.slice(0, 20).map((row) => result.columns.map((column) => cellText(row[column]))))
+          )
+        )
+        .catch((error) => mount(body, refusal(error)));
+    } else {
+      mount(body, emptyState("Nothing to show"));
     }
-    parts.push(el("div.report-grid", ...tiles));
-  }
-
-  mount(outlet, ...parts);
-}
-
-async function accessSection(outlet) {
-  const role = state.overview.role;
-  const tables = role.tables;
+    return tile;
+  });
 
   mount(
-    outlet,
-    el("h2", "What this reporting role may read"),
+    main,
     el(
-      "p.muted",
-      tables === null
-        ? \`\${role.name ?? "This role"} reads every table of the attached application — all \${role.tableTotal}.\`
-        : \`\${role.name ?? "This role"} reads \${tables.length} of the application's \${role.tableTotal} tables. \` +
-            "A report whose query names any other table is not offered, and is refused if asked for."
-    ),
-    el(
-      "p.muted",
-      "This role mirrors a %%rbac role in the model, and only its read rules: the directive also " +
-        "restricts create, update and delete, and none of that means anything to somebody who " +
-        "cannot write through the reporting application at all."
-    ),
-    tables === null
-      ? null
-      : el("ul.report-tables", ...tables.map((table) => el("li", el("code", table)))),
-    el("h3", "This is a mirror, not a shared system"),
-    el(
-      "p.muted",
-      "The application and the reporting application keep their own accounts, and neither " +
-        "password works on the other side. Deployed, they are two services with two databases; " +
-        "the role names line up so an administrator can see which is which, and nothing else is shared."
-    )
-  );
-}
-
-async function queriesSection(outlet) {
-  mount(outlet, spinner("Loading the saved queries"));
-  const queries = await reportApi.get("/reporting/queries");
-  mount(
-    outlet,
-    el("h2", \`\${queries.length} saved quer\${queries.length === 1 ? "y" : "ies"}\`),
-    el(
-      "p.muted",
-      "Every report and chart is a definition over one of these. Only the queries this role may " +
-        "run are listed."
-    ),
-    ...queries.map((query) =>
-      el(
-        "details.report-sql",
-        el("summary", query.name),
-        el("p.muted", query.description),
-        el("p.muted", \`Reads \${query.tables.join(", ") || "no business table"}.\`),
-        el("pre", el("code", query.sql))
-      )
+      "div.er-stack",
+      breadcrumb([{ label: "Dashboards", href: href("dashboards") }, { label: dashboard.name }]),
+      pageHeader(dashboard.name, dashboard.description, { back: href("dashboards") }),
+      dashboard.hiddenWidgets > 0
+        ? alert(
+            \`\${dashboard.hiddenWidgets} tile\${dashboard.hiddenWidgets === 1 ? "" : "s"} hidden — \` +
+              \`\${state.user.role ?? "this role"} may not read the tables behind them.\`,
+            null
+          )
+        : null,
+      tiles.length === 0
+        ? card(cardContent(emptyState("Nothing on this dashboard", "Every tile reads a table this role may not.")))
+        : el("div.er-dashgrid", ...tiles)
     )
   );
 }
 
 /**
- * The reporting application's shell.
- *
- * \`onLeave\` goes back to the application it reports on. It is a link rather
- * than a shared header because the two are not one product with two tabs: a
- * reader leaving here keeps their reporting session, and arriving at the
- * application still has to be signed into *that*.
+ * react-grid-layout's vertical compaction: each tile, in reading order, moves
+ * up until it would overlap one already placed. The platform's grid does this
+ * on every render, which is why a role that may not read some tiles gets a
+ * shorter dashboard rather than one with holes where they were.
+ */
+function compact(widgets) {
+  const placed = [];
+  const overlaps = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+  const ordered = [...widgets]
+    .map((widget) => ({ ...widget, x: widget.x ?? 0, y: widget.y ?? 0, w: widget.w ?? 6, h: widget.h ?? 3 }))
+    .sort((a, b) => a.y - b.y || a.x - b.x);
+  for (const widget of ordered) {
+    let y = widget.y;
+    while (y > 0 && !placed.some((other) => overlaps({ ...widget, y: y - 1 }, other))) y -= 1;
+    placed.push({ ...widget, y });
+  }
+  return placed;
+}
+
+function unavailablePage(main, slug) {
+  const item = [...MAIN_NAV, ...ADMIN_NAV].find((candidate) => candidate.slug === slug);
+  if (!item) return notFoundPage(main, "Dashboard", href("dashboard"));
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader(item.label, item.description),
+      card(
+        cardContent(
+          el(
+            "div.er-unavailable",
+            icon(item.icon, "er-icon--xl er-subtle"),
+            el("h2.er-sectiontitle", \`\${item.label} runs on the platform's server\`),
+            el(
+              "p.er-text",
+              \`This is a browser preview, and \${item.label} needs the Enterprise Reporting platform's own \` +
+                "server — its database, its job runner and its AI services — which a browser tab cannot run."
+            ),
+            el(
+              "p.er-text",
+              "The real platform comes up beside this application from the deployable archive " +
+                "(docker compose up --build, then port 3100), or under /report when the orchestrator runs it. " +
+                "It is built from the platform's own source, unmodified, and seeded with this same pack."
+            ),
+            el("a.er-btn.er-btn--outline.er-btn--size-sm", { href: href("dashboard") }, icon("arrowLeft"), "Back to Dashboard")
+          )
+        )
+      )
+    )
+  );
+}
+
+function aboutPreviewPage(main) {
+  const row = (label, here, deployed) => [el("span.er-strong", label), here, deployed];
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader("About this preview", "What the browser build of Enterprise Reporting is, and what it is not"),
+      card(
+        cardContent(
+          el(
+            "p.er-text",
+            "One model generates two applications. The second is the Enterprise Reporting platform — ",
+            el("code", "businessappwithai/enterprise_reporting_tanstack"),
+            " — and it is a server application over PostgreSQL. Deployed, it runs unmodified beside the " +
+              "application: the downloadable archive builds it from its own source, and the orchestrator " +
+              "does the same under /report. A browser tab cannot run it, so this is a preview drawn in its " +
+              "layout, over the same reporting pack it is seeded with."
+          )
+        )
+      ),
+      listCard(
+        table(
+          ["", "This preview", "The platform, deployed"],
+          [
+            row("Saved queries, reports, charts, dashboard", "The same pack, run against this tab's database", "The same pack, seeded into its own database"),
+            row("Reporting roles and sign-in", "One account per %%rbac role, separate from the application's", "The same accounts, in its own users table"),
+            row("Table-level access", "Enforced on every run", "Enforced on every run"),
+            row("SQL editor, NL query, report generator", "Not available", "Available"),
+            row("Jobs, monitoring, filters, delivery", "Not available", "Available"),
+            row("Users, roles, table permissions", "Available to the administrator — enforced on the next query", "Available to administrators"),
+            row("Data sources, system logs", "The application's database, and this tab's reporting activity", "Every registered source, and the server's logs"),
+            row("Trigger board, settings", "Not available", "Available to administrators"),
+            row("Creating or editing definitions", "Read-only", "Available"),
+          ]
+        )
+      )
+    )
+  );
+}
+
+function notFoundPage(main, label, back) {
+  mount(
+    main,
+    el(
+      "div.er-stack",
+      pageHeader("Not found", "This definition is not in the reporting pack, or this role may not read it."),
+      el("a.er-btn.er-btn--default.er-btn--size-default.er-selfstart", { href: back }, \`Back to \${label}\`)
+    )
+  );
+}
+
+// ─── Entry ───────────────────────────────────────────────────────────────────
+
+/**
+ * The reporting application's shell. \`onLeave\` goes back to the application it
+ * reports on; nothing is signed out, because the two keep separate sessions.
  */
 export async function reportAppView(root, { project, onLeave }) {
+  const signOut = async () => {
+    await reportApi.post("/report-auth/logout").catch(() => {});
+    setReportToken(null);
+    state.user = null;
+    state.overview = null;
+    state.menu = null;
+    await render();
+  };
+
   const render = async () => {
     if (!state.user) {
       await reportLoginView(root, {
@@ -22606,133 +24862,77 @@ export async function reportAppView(root, { project, onLeave }) {
         onSignedIn: async (user) => {
           state.user = user;
           state.overview = null;
-          await render();
+          // The platform lands every sign-in on its dashboard. Staying on the
+          // screen the previous account had open would put a non-administrator
+          // on an administration page it cannot see.
+          if (window.location.hash !== href("dashboard")) window.location.hash = href("dashboard");
+          else await render();
         },
       });
       return;
     }
 
     if (!state.overview) {
-      mount(root, spinner("Loading the reporting layer"));
+      mount(root, el("div.er", loading("Loading Enterprise Reporting")));
       state.overview = await reportApi.get("/reporting");
     }
 
-    const outlet = el("main.outlet");
-    const sections = [
-      ["dashboard", "Dashboard"],
-      ["reports", \`Reports (\${state.overview.counts.reports})\`],
-      ["charts", \`Charts (\${state.overview.counts.charts})\`],
-      ["queries", "Saved queries"],
-      ["access", "Access"],
-    ];
+    const path = currentPath();
+    const [section = "dashboard", key] = path;
+    const activeSlug = section === "unavailable" ? key : section;
 
+    const main = el("main.er-main");
     mount(
       root,
       el(
-        "div.shell.shell--report",
+        "div.er",
+        { onclick: (event) => closeMenus(event) },
+        el("div.er-sidebar-desktop", sidebar(activeSlug)),
         el(
-          "header.masthead.masthead--report",
-          el("span.masthead__badge", "Enterprise Reporting"),
-          el("span.masthead__name", state.overview.application?.name ?? project.name),
-          el("div.masthead__spacer"),
-          // The reporting application is a second sign-in over the same data,
-          // and the theme is one attribute on the shared document — so the
-          // control belongs in both mastheads rather than only the one.
-          themeControl(),
-          el(
-            "div.masthead__user",
-            el("span.avatar.avatar--report", "ER"),
-            el(
-              "div",
-              el("div.masthead__who", state.user.email),
-              el(
-                "div.masthead__roles",
-                state.user.role
-                  ? state.overview.role.tables === null
-                    ? \`\${state.user.role} — every table\`
-                    : \`\${state.user.role} — \${state.overview.role.tables.length} of \${state.overview.role.tableTotal} tables\`
-                  : "no reporting role"
-              )
-            ),
-            el(
-              "button.btn.btn--ghost.btn--icon",
-              {
-                title: "Sign out of reporting",
-                "aria-label": "Sign out of reporting",
-                onclick: async () => {
-                  await reportApi.post("/report-auth/logout").catch(() => {});
-                  setReportToken(null);
-                  state.user = null;
-                  state.overview = null;
-                  await render();
-                },
-              },
-              "⇥"
-            )
-          )
+          "div.er-mobile-overlay",
+          { class: state.mobileMenuOpen ? "is-open" : null, onclick: () => ((state.mobileMenuOpen = false), repaint()) }
         ),
+        el("div.er-sidebar-mobile", { class: state.mobileMenuOpen ? "is-open" : null }, sidebar(activeSlug, { mobile: true })),
         el(
-          "div.actionbar",
-          ...sections.map(([key, label]) =>
-            el(
-              "button.btn",
-              {
-                class: state.section === key ? "is-active" : "",
-                onclick: async () => {
-                  state.section = key;
-                  await render();
-                },
-              },
-              label
-            )
-          ),
-          el("div.actionbar__spacer"),
-          el(
-            "button.btn.btn--ghost",
-            { onclick: () => onLeave() },
-            \`← \${project.name}\`
-          )
-        ),
-        el(
-          "nav.crumbs",
-          el(
-            "span.crumbs__current",
-            \`Reporting on \${state.overview.dataSource?.name ?? project.name}\`
-          ),
-          state.overview.counts.reports < state.overview.counts.reportsTotal
-            ? el(
-                "span.crumbs__note",
-                \` · \${state.overview.counts.reports} of \${state.overview.counts.reportsTotal} reports visible to this role\`
-              )
-            : null
-        ),
-        outlet
+          "div.er-content",
+          { class: state.sidebarCollapsed ? "is-collapsed" : null },
+          header({ project, onLeave, signOut }),
+          previewStrip(),
+          main
+        )
       )
     );
 
     try {
-      if (state.section === "dashboard") await dashboardSection(outlet);
-      else if (state.section === "access") await accessSection(outlet);
-      else if (state.section === "queries") await queriesSection(outlet);
-      else {
-        mount(outlet, spinner("Loading"));
-        const items = await reportApi.get(\`/reporting/\${state.section}\`);
-        mount(
-          outlet,
-          browser(
-            items,
-            state.section,
-            \`No \${state.section} for this role\`,
-            "Every definition reads a table this reporting role may not."
-          )
-        );
-      }
+      if (section === "dashboard") await dashboardPage(main);
+      else if (section === "queries" && canView("query")) {
+        if (key) await queryDetailPage(main, key);
+        else await queriesPage(main);
+      } else if (section === "reports") {
+        if (key) await reportViewerPage(main, key);
+        else await reportsPage(main);
+      } else if (section === "charts") {
+        if (key) await chartViewerPage(main, key);
+        else await chartsPage(main);
+      } else if (section === "dashboards") {
+        if (key) await dashboardViewerPage(main, key);
+        else await dashboardsPage(main);
+      } else if (ADMIN_ROUTES.has(section) && state.user.isAdmin) {
+        const context = {
+          me: state.user,
+          rerender: render,
+          href,
+          tableTotal: state.overview.role.tableTotal,
+          selectedRoleId: key,
+        };
+        await ADMIN_ROUTES.get(section)(main, context);
+      } else if (section === "unavailable") unavailablePage(main, key);
+      else if (section === "about-preview") aboutPreviewPage(main);
+      else notFoundPage(main, "Dashboard", href("dashboard"));
     } catch (error) {
-      mount(outlet, empty("Something went wrong", error.message || String(error)));
+      mount(main, el("div.er-stack", refusal(error)));
     }
   };
-
-  rerender = render;
 
   /* Reattach to a session the reader already has: they may have signed in,
      gone back to the application and returned, and being asked for a password
@@ -22749,9 +24949,19 @@ export async function reportAppView(root, { project, onLeave }) {
   await render();
 }
 
+/** A click anywhere outside an open header menu closes it, as the platform's dropdowns do. */
+function closeMenus(event) {
+  if (!state.menu) return;
+  if (event.target.closest?.(".er-menuwrap")) return;
+  state.menu = null;
+  repaint();
+}
+
 /** Forget the reporting session in memory, without ending it on the server. */
 export function resetReportView() {
   state.overview = null;
+  state.menu = null;
+  state.mobileMenuOpen = false;
 }
 
 /**
@@ -22761,8 +24971,7 @@ export function resetReportView() {
  * \`/report-auth/me\` on every entry to find out whether the reader is already
  * signed in, and a "no" to that probe is an ordinary 401 — not an expired
  * session. Treating the two alike produced a toast per probe *and* a repaint
- * per toast, and the repaint probed again: a reporting sign-in screen buried
- * under an endless column of "your reporting session ended".
+ * per toast, and the repaint probed again.
  *
  * Returns true only when a session really ended, which is the only case worth
  * telling the reader about.
@@ -22777,22 +24986,23 @@ export function reportSessionEnded() {
   "ui/views/report-login.js": `/**
  * The reporting application's sign-in — the second login.
  *
- * It looks like the application's on purpose and is not the same screen: the
- * accounts are different accounts, in different tables, with a different
- * password, and what the numbers beside them count is different too. The
- * application's screen says how many *entities* a role can open; this one says
- * how many *tables* a role's queries may read. That is the whole difference
- * between the two products' idea of a role, stated in the one place a reader
- * meets both.
+ * Drawn as the Enterprise Reporting platform draws its own (\`src/routes/login.tsx\`):
+ * a centred card, the chart mark in a brand circle, "Welcome back", email and
+ * password, one full-width button. The accounts are different accounts from
+ * the application's, in different tables, with a different password.
  *
- * Every seeded account is listed for the same reason the application lists
- * every one of its own: the administrator reads every table, so a reporting
- * platform you can only sign into as the administrator is one whose access
- * control you cannot see. \`support.agent@… — 5 of 17 tables\` is the invitation.
+ * Two things sit below the card that the platform's screen does not have, and
+ * both are there because this is a preview. Every seeded account is listed —
+ * the administrator reads every table, so a reporting platform you can only
+ * sign into as the administrator is one whose access control you cannot see;
+ * \`support.agent@… — 5 of 17 tables\` is the invitation. And a line says what
+ * this is: the platform's reports and roles in the platform's layout, served
+ * from this tab, with the real platform one download away.
  */
 
 import { el, mount, toast } from "../dom.js";
 import { reportApi, setReportToken } from "../api.js";
+import { alert, icon } from "./er-kit.js";
 
 export async function reportLoginView(root, { project, onSignedIn, onLeave }) {
   let config = null;
@@ -22806,15 +25016,16 @@ export async function reportLoginView(root, { project, onSignedIn, onLeave }) {
   const password = config?.password ?? "admin";
   const administrator = accounts.find((account) => account.isAdmin) ?? accounts[0] ?? null;
 
-  const emailInput = el("input.field__input", {
-    type: "text",
+  const emailInput = el("input.er-input", {
+    type: "email",
     id: "report-email",
     name: "email",
-    autocomplete: "username",
+    placeholder: "name@example.com",
+    autocomplete: "email",
     value: administrator?.email ?? "",
     required: true,
   });
-  const passwordInput = el("input.field__input", {
+  const passwordInput = el("input.er-input", {
     type: "password",
     id: "report-password",
     name: "password",
@@ -22822,15 +25033,17 @@ export async function reportLoginView(root, { project, onSignedIn, onLeave }) {
     value: password,
     required: true,
   });
-  const submit = el("button.btn.btn--primary", { type: "submit" }, "Sign in to reporting");
+  const errorSlot = el("div");
+  const submit = el("button.er-btn.er-btn--default.er-btn--size-default.er-btn--block", { type: "submit" }, "Sign In");
 
   const form = el(
-    "form.login__form",
+    "form.er-card.er-login__card",
     {
       onsubmit: async (event) => {
         event.preventDefault();
         submit.disabled = true;
-        submit.textContent = "Signing in…";
+        mount(submit, el("span.er-spinner.er-spinner--inline", { "aria-hidden": "true" }), "Sign In");
+        mount(errorSlot);
         try {
           const result = await reportApi.post("/report-auth/login", {
             email: emailInput.value.trim(),
@@ -22842,137 +25055,107 @@ export async function reportLoginView(root, { project, onSignedIn, onLeave }) {
           setReportToken(result.token);
           onSignedIn(result.user);
         } catch (error) {
+          mount(errorSlot, alert(error.message || "Invalid credentials", null, "destructive"));
           toast(error.message, "error");
           submit.disabled = false;
-          submit.textContent = "Sign in to reporting";
+          mount(submit, "Sign In");
           passwordInput.focus();
         }
       },
     },
     el(
-      "div.field",
-      el(
-        "div.field__head",
-        el("label.field__label", { for: "report-email" }, "Reporting account"),
-        el("span.chip.chip--text", "Text")
-      ),
-      emailInput
+      "div.er-card__header.er-login__header",
+      el("div.er-login__mark", icon("barChart3", "er-icon--lg")),
+      el("h1.er-login__title", "Welcome back"),
+      el("p.er-card__description", "Sign in to your Enterprise Reporting account")
     ),
     el(
-      "div.field",
-      el(
-        "div.field__head",
-        el("label.field__label", { for: "report-password" }, "Password"),
-        el("span.chip.chip--text", "Password")
-      ),
-      passwordInput
+      "div.er-card__content.er-login__fields",
+      errorSlot,
+      el("div.er-field", el("label.er-label-strong", { for: "report-email" }, "Email"), emailInput),
+      el("div.er-field", el("label.er-label-strong", { for: "report-password" }, "Password"), passwordInput)
     ),
-    submit
+    el("div.er-card__footer", submit)
   );
 
-  const counts = config?.counts ?? {};
-
-  mount(
-    root,
-    el(
-      "div.login.login--report",
-      el(
-        "div.login__panel",
-        el("div.login__mark.login__mark--report", "ER"),
-        el("h1.login__title", "Enterprise Reporting"),
-        el(
-          "p.login__subtitle",
-          \`Reporting on \${config?.application?.name ?? project.name}. A separate application, with its own accounts.\`
-        ),
-        form,
-        accounts.length > 0
-          ? el(
-              "div.accounts",
+  const accountList =
+    accounts.length > 0
+      ? el(
+          "div.er-card.er-login__accounts",
+          el(
+            "p.er-text",
+            \`\${accounts.length} reporting account\${accounts.length === 1 ? "" : "s"}, password \`,
+            el("code", password),
+            config?.scoped
+              ? ". A reporting role decides which of the application's tables its queries may read — pick one to try it."
+              : ". Pick one to fill the form."
+          ),
+          el(
+            "ul.er-accounts",
+            ...accounts.map((account) =>
               el(
-                "p.accounts__head",
-                \`\${accounts.length} reporting account\${accounts.length === 1 ? "" : "s"}, password \`,
-                el("code", password),
-                config?.scoped
-                  ? ". A reporting role decides which of the application's tables its queries may read — pick one to try it."
-                  : ". Pick one to fill the form."
-              ),
-              el(
-                "ul.accounts__list",
-                ...accounts.map((account) =>
+                "li",
+                el(
+                  "button.er-accounts__row",
+                  {
+                    type: "button",
+                    onclick: () => {
+                      emailInput.value = account.email;
+                      passwordInput.value = password;
+                      passwordInput.focus();
+                    },
+                  },
+                  el("span.er-strong", account.role ?? account.name),
+                  el("span.er-accounts__email", account.email),
                   el(
-                    "li",
-                    el(
-                      "button.accounts__row",
-                      {
-                        type: "button",
-                        onclick: () => {
-                          emailInput.value = account.email;
-                          passwordInput.value = password;
-                          passwordInput.focus();
-                        },
-                      },
-                      el("span.accounts__role", account.role ?? account.name),
-                      el("span.accounts__email", account.email),
-                      el(
-                        "span.accounts__scope",
-                        account.isAdmin
-                          ? \`all \${account.total} tables\`
-                          : /* Zero is a real answer, not a missing seed: this is
-                               the account holding no functional role, so no
-                               \`read\` rule admits it and its queries may read
-                               nothing. Said plainly, because a row reading
-                               "0 of 17 tables" and nothing else looks like the
-                               generator failed. */
-                            account.tables === 0
-                            ? "no tables — signed in, holding no reporting role"
-                            : \`\${account.tables} of \${account.total} tables\`
-                      )
-                    )
+                    "span.er-label",
+                    account.isAdmin
+                      ? \`all \${account.total} tables\`
+                      : /* Zero is a real answer, not a missing seed: this is
+                           the account holding no functional role, so no
+                           \`read\` rule admits it and its queries may read
+                           nothing. Said plainly, because a row reading
+                           "0 of 17 tables" and nothing else looks like the
+                           generator failed. */
+                        account.tables === 0
+                        ? "no tables — signed in, holding no reporting role"
+                        : \`\${account.tables} of \${account.total} tables\`
                   )
                 )
               )
             )
-          : el(
-              "p.login__hint",
-              "No reporting accounts were seeded, which means this model declares no %%rbac roles. ",
-              el("span.login__hint-note", "Sign in as the administrator to read every table.")
-            )
-      ),
-      el(
-        "div.login__aside",
-        el("h2", "The other half of the model"),
-        el(
-          "ul.login__facts",
-          el(
-            "li",
-            el("strong", \`\${counts.reports ?? 0} reports and \${counts.charts ?? 0} charts\`),
-            " derived from this model — its entities, its enums, its state machines and its own %%report queries"
-          ),
-          el(
-            "li",
-            el("strong", "One reporting role per %%rbac role"),
-            " — the same names, permitted to read exactly the tables that role may see"
-          ),
-          el(
-            "li",
-            el("strong", "A separate sign-in"),
-            " — two applications, two user tables, two sessions. Neither password works on the other side"
-          ),
-          el(
-            "li",
-            el("strong", "Read-only"),
-            " — a reporting role narrows what a query may read; nothing here writes to the application"
           )
-        ),
+        )
+      : el(
+          "p.er-text.er-login__note",
+          "No reporting accounts were seeded, which means this model declares no %%rbac roles. " +
+            "Sign in as the administrator to read every table."
+        );
+
+  mount(
+    root,
+    el(
+      "div.er.er-login",
+      el(
+        "div.er-login__column",
+        form,
+        accountList,
         el(
-          "p.login__aside-note",
-          "Deployed, this is the Enterprise Reporting platform running beside the application as its own service, with its own database. Here it is the same reports and the same roles, served from this tab."
+          "p.er-login__note",
+          icon("info", "er-icon--sm"),
+          el(
+            "span",
+            \`Browser preview of Enterprise Reporting, over \${config?.application?.name ?? project.name}. \` +
+              "Deployed, this is the platform itself — built unmodified from its own source beside the " +
+              "application, from the deployable archive or the orchestrator."
+          )
         ),
         onLeave
           ? el(
-              "button.btn.btn--ghost",
+              "button.er-btn.er-btn--ghost.er-btn--size-sm",
               { type: "button", onclick: () => onLeave() },
-              \`← Back to \${project.name}\`
+              icon("arrowLeft"),
+              \`Back to \${project.name}\`
             )
           : null
       )
@@ -23367,7 +25550,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 497167;
+var RUNTIME_BYTES = 596855;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

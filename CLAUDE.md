@@ -463,13 +463,57 @@ beside `sys_user`, a second token, and `#/report` matched in `main.js` **before*
 the application's sign-in gate so reaching it never needs a session in the other
 one. Neither password works on the other side in either build.
 
-**What is not the same, and should not be claimed to be, is the chrome.** The
-archive runs the real Enterprise Reporting platform, cloned at `REPORT_REF` and
-built — SQL editor, NL query, scheduled delivery, the lot. The browser build is a
-read-only mirror over the same pack, because a tab has no second server, and
-`report-app.js` says so on screen rather than offering buttons that answer "not
-in the browser build". Same reports, same roles, same accounts; one of them can
-also author new ones.
+**What is the same, and what is not.** The archive runs the real Enterprise
+Reporting platform, cloned at `REPORT_REF` and built from its own source,
+unmodified — SQL editor, NL query, scheduled delivery, the lot. A tab has no
+second server, so the browser build is a **preview drawn in the platform's own
+shell**: its sidebar, header, page headers, cards, tables and badges, on its
+Tremor tokens, value for value from `src/styles/globals.css` in
+`enterprise_reporting_tanstack`. Every screen carries a strip saying it is a
+preview, and "What differs" lists the difference.
+
+| File | What it is |
+|---|---|
+| `ui/views/er-kit.js` | The platform's components (Card, Table, Button, Badge, PageHeader, KpiCard, Alert) and its Lucide icons, as plain DOM. Each helper names the component it stands for |
+| `ui/views/report-app.js` | The shell and the Main screens — Dashboard, Saved Queries, Reports, Charts, Dashboards (on a twelve-column grid compacted the way react-grid-layout does) |
+| `ui/views/report-admin.js` | **Administration** — Users, Roles, Permissions, Data Sources, System Logs, after the platform's own pages |
+| `server/modules/report-admin.routes.js` | `/report-admin`, administrator-only on the server |
+| `styles.css`, the `.er` block | The tokens and components. Scoped to `.er`, prefixed `er-`; nothing reaches the application |
+
+**The administration is real, not drawn.** `rpt_user`, `rpt_role` and
+`rpt_role_tables` are what `resolveReportSession` reads on *every* request, so
+a table taken away from a role under Permissions is refused on that role's next
+query, not its next boot. The seed writes them once (`sys_schema_state`), so an
+administrator's change survives a reload. `rpt_activity_log` records sign-ins,
+every run — refusals included — and every change made under Administration;
+System Logs reads it. Trigger Board and Settings are the platform's job queue
+and server configuration, which a tab does not have, and they open a page
+saying where the real ones are. So do SQL Editor, Filters, Jobs, Monitoring,
+NL Query and Report Generator.
+
+Four things to keep true when touching it:
+
+- **Follow the platform, not the other way round.** When the platform changes
+  a token, a component or a page title, change `er-kit.js` or the `.er` block
+  to match. A preview whose blue is not the platform's blue is one that looks
+  like a different product.
+- **A seeded reporting role sees what the platform shows it.** The platform's
+  seeder grants `report:view`, `chart:view`, `dashboard:view` and `nl_query:*`,
+  so the sidebar shows exactly those six items to a non-administrator, and
+  Administration only to the administrator — and `/report-admin` refuses
+  everyone else on the server, which is the control; the hidden section is a
+  courtesy.
+- **An administrator cannot lock themselves out.** Demoting, deactivating or
+  deleting your own account is refused; deactivation and a password change end
+  the other sessions of that account.
+- **Every sign-in lands on the dashboard**, as the platform's does. Staying on
+  the previous account's screen put a non-administrator on an administration
+  page.
+
+`tests/e2e/wasm/browser.e2e.spec.ts` drives it inside chapter 09's frame —
+signs in, runs a report, takes `bus_account` away from the Support Agent,
+reads the log, then signs in as the Support Agent and finds the table gone and
+no Administration section.
 
 #### The sign-in screen names the reporting application
 
@@ -1027,9 +1071,11 @@ application the generator writes:
 Separately, `app-and-report-with-ai-tanstack`'s `reporting-pack.ts` turns the
 same directive into a saved query, a report definition and a chart for the
 Enterprise Reporting platform. **That platform is composed beside a *deployed*
-application by docker-compose — it is in neither the browser application nor the
-downloadable zip**, which is exactly why this repository compiles the directive
-too rather than leaving 85 published reports answered by nothing.
+application by docker-compose and by the downloadable zip's own compose file,
+and previewed in the browser application's reporting shell** — but none of
+those is the application itself, which is why this repository compiles the
+directive too rather than leaving a model's reports answered only by a second
+product.
 
 Three things to keep true when touching it:
 
