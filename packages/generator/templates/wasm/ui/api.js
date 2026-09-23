@@ -159,6 +159,9 @@ export const api = {
 export const reportApi = {
   get: (path) => request("GET", path, undefined, "report"),
   post: (path, body) => request("POST", path, body ?? {}, "report"),
+  put: (path, body) => request("PUT", path, body ?? {}, "report"),
+  patch: (path, body) => request("PATCH", path, body ?? {}, "report"),
+  delete: (path) => request("DELETE", path, undefined, "report"),
 };
 
 /** `{ a: 1, b: null }` -> `?a=1`, skipping what is not set. */

@@ -423,3 +423,22 @@ CREATE TABLE IF NOT EXISTS rpt_session (
 
 CREATE INDEX IF NOT EXISTS idx_rpt_session_token ON rpt_session(token);
 CREATE INDEX IF NOT EXISTS idx_rpt_user_email ON rpt_user(email);
+
+-- What happened in the reporting application: sign-ins, report and chart runs
+-- (allowed or refused), and every administrator change to its users, roles and
+-- table grants. It is what the reporting side's System Logs screen reads, and
+-- the only record of who ran what — a refusal is logged as well as a run,
+-- because a role's access is only visible in what it was denied.
+CREATE TABLE IF NOT EXISTS rpt_activity_log (
+  rpt_activity_log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  occurred_at TIMESTAMPTZ DEFAULT NOW(),
+  rpt_user_id UUID,
+  email VARCHAR(255),
+  action VARCHAR(50) NOT NULL,
+  target VARCHAR(255),
+  outcome VARCHAR(20) NOT NULL,
+  detail TEXT,
+  duration_ms INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_rpt_activity_log_at ON rpt_activity_log(occurred_at DESC);
