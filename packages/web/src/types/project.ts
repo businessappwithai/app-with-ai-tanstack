@@ -17,6 +17,7 @@ export interface Project {
 
   // ERD Design (Step 2)
   erdCode?: string;
+  gitCommit?: string | null;
   erdValidationErrors?: ValidationError[];
 
   // Generation (Step 3)

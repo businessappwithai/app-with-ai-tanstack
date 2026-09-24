@@ -41,6 +41,18 @@ export interface EditableRule {
    * untouched; converting clears it and hands the rule to the table editor.
    */
   sourceFlowchart?: string;
+  /**
+   * How the rule is stored, which decides what the editor can write back.
+   * `actions` means the table was compiled from `%%action` directives and a
+   * save regenerates them; `decision-table` means it is the editor's own
+   * directive; `flowchart` means the rule is only a Mermaid diagram.
+   */
+  sourceKind?: "actions" | "decision-table" | "flowchart";
+  /**
+   * The rule's name in the model when it was loaded. Kept because a rename here
+   * must not change the `%%action` names already written under the old rule.
+   */
+  sourceRuleName?: string;
 }
 
 export function slugifyRuleName(value: string): string {
@@ -61,21 +73,52 @@ export interface RuleEditorProps {
   projectId: string;
   onChange: (patch: Partial<EditableRule>) => void;
   onError: (message: string | null) => void;
+  /**
+   * Show an authored flowchart as the decision table it describes, when it
+   * reads as one, instead of the read-only Mermaid source. Off by default so
+   * the Logic step converts only on request; the enhance page turns it on to
+   * match the generated application's rule editor.
+   */
+  autoConvertFlowchart?: boolean;
 }
 
-export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
+export function RuleEditor({
+  rule,
+  entities,
+  onChange,
+  autoConvertFlowchart = false,
+}: RuleEditorProps) {
   const [showSource, setShowSource] = useState(false);
-  const problems = useMemo(() => validateDecisionTable(rule.table), [rule.table]);
   const entityFields = useMemo(
     () => entities.find((e) => e.name === rule.entity)?.attributes ?? [],
     [entities, rule.entity]
   );
   // Whether the authored flowchart can be read as a table, worked out once so
-  // the banner can say which it is rather than warning about both.
+  // the editor can show it and the banner can say which it is rather than
+  // warning about both.
   const conversion = useMemo(
     () => convertFlowchartToTable(rule.sourceFlowchart ?? "", entityFields),
     [rule.sourceFlowchart, entityFields]
   );
+
+  /**
+   * The table the editor shows.
+   *
+   * A table compiled from `%%action` or read from a `%%decision-table` directive
+   * is shown directly. A rule that is only a flowchart has no table of its own,
+   * so it opens read-only — or, with `autoConvertFlowchart`, as the table it
+   * describes when one can be read out of it. The original Mermaid stays behind
+   * "Show EML".
+   */
+  const showModelTable = rule.sourceKind === "actions" || rule.sourceKind === "decision-table";
+  const authoredFlowchart = !showModelTable && !!rule.sourceFlowchart;
+  const table = authoredFlowchart
+    ? autoConvertFlowchart && conversion.ok
+      ? conversion.table
+      : null
+    : rule.table;
+
+  const problems = useMemo(() => (table ? validateDecisionTable(table) : []), [table]);
 
   return (
     <>
@@ -134,7 +177,36 @@ export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
         </label>
       </div>
 
-      {rule.sourceFlowchart ? (
+      {table ? (
+        <>
+          {authoredFlowchart && (
+            <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              <p>
+                This rule came from your model as a flowchart. It is shown here as the decision
+                table it describes; editing it will save that table. The Mermaid is unchanged until
+                then — open "Show EML" to read it.
+              </p>
+              {conversion.ok && conversion.notes.length > 0 && (
+                <ul className="mt-1 list-disc pl-4">
+                  {conversion.notes.map((note) => (
+                    <li key={note}>{note}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          <RuleTableEditor
+            name={slugifyRuleName(rule.title ?? rule.name)}
+            table={table}
+            onChange={(next) =>
+              authoredFlowchart
+                ? onChange({ sourceFlowchart: undefined, table: next })
+                : onChange({ table: next })
+            }
+            entityFields={entityFields}
+          />
+        </>
+      ) : (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
           <div className="flex items-start gap-1.5 text-xs text-amber-900">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -195,16 +267,9 @@ export function RuleEditor({ rule, entities, onChange }: RuleEditorProps) {
             </>
           )}
         </div>
-      ) : (
-        <RuleTableEditor
-          name={slugifyRuleName(rule.title ?? rule.name)}
-          table={rule.table}
-          onChange={(table) => onChange({ table })}
-          entityFields={entityFields}
-        />
       )}
 
-      {!rule.sourceFlowchart && problems.length > 0 && (
+      {problems.length > 0 && (
         <ul className="mt-3 space-y-1 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           {problems.map((problem) => (
             <li key={problem} className="flex items-start gap-1.5">

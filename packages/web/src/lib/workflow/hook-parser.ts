@@ -212,7 +212,7 @@ export function generateFlowchartFromHooks(
 
   // Add hook comments
   hooks.forEach((hook) => {
-    flowchart += `    %%${generateHookComment(hook)}\n`;
+    flowchart += `    ${generateHookComment(hook)}\n`;
   });
   flowchart += `\n`;
 

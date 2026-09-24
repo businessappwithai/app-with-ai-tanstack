@@ -356,6 +356,137 @@ export function buildActionDecisionTable(
   };
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Reading an edited table back into %%action                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The reverse of `RUNTIME_ACTION`: what the table editor shows, in EML's words.
+ *
+ * A table compiled from `%%action` carries the runtime's `prevent`; the model
+ * it came from says `validation-error`. Writing the round trip back is how the
+ * enhance page can edit a rule's actions without changing its meaning.
+ */
+const EML_ACTION: Record<string, string> = {
+  prevent: "validation-error",
+};
+
+/** Cells the editor shows are zen literals: `'prevent'`. Read the text back. */
+function unquoteCell(value: string | undefined): string {
+  const text = (value ?? "").trim();
+  if (
+    text.length >= 2 &&
+    (text.startsWith("'") || text.startsWith('"')) &&
+    text.endsWith(text[0] as string)
+  ) {
+    return text.slice(1, -1).replace(/\\'/g, "'");
+  }
+  return text;
+}
+
+/** The cell a row carries for the output column with this field. */
+function outputCell(
+  table: EditorDecisionTable,
+  row: Record<string, string>,
+  field: string
+): string {
+  const column = (table.outputs ?? []).find(
+    (candidate) => (candidate.field ?? "").trim() === field
+  );
+  return column ? unquoteCell(row[column.id]) : "";
+}
+
+/** `%%action` names are identifiers; the row's `_id` is the name to keep stable. */
+function actionNameFromId(ruleName: string, id: string | undefined, index: number): string {
+  const raw = (id ?? "").trim();
+  // `buildActionDecisionTable` prefixes every row id with the rule name.
+  const prefix = `${ruleName}-`;
+  const withoutRule = raw.startsWith(prefix) ? raw.slice(prefix.length) : raw;
+  const cleaned = withoutRule.replace(/[^A-Za-z0-9_-]/g, "_");
+  return /^[A-Za-z_]/.test(cleaned) && cleaned ? cleaned : `action${index + 1}`;
+}
+
+/**
+ * The inverse of `buildActionDecisionTable`.
+ *
+ * The enhance page shows a model's `%%action` directives as the decision table
+ * the generated application's rule editor uses. An edit made there has to land
+ * back in the model as the directives the checker and compiler already read, so
+ * each row is walked back to one `%%action` line: the input columns join into
+ * `when:`, and the output cells become the action's properties.
+ *
+ * The runtime vocabulary is translated back to EML's — `prevent` is written
+ * `validation-error` — so the round trip is the identity on an unedited model.
+ */
+export function serializeRuleActions(ruleName: string, table: EditorDecisionTable): string[] {
+  return (table.rules ?? [])
+    .map((row, index) => {
+      const runtimeType = outputCell(table, row, "action");
+      const type = EML_ACTION[runtimeType] ?? runtimeType;
+      if (!type) return null;
+
+      const whens = (table.inputs ?? [])
+        .map((column) => unquoteCell(row[column.id]))
+        .filter(Boolean);
+      const when = whens.length ? whens.join(" and ") : "true";
+
+      const name = actionNameFromId(ruleName, row._id, index);
+      // `buildActionDecisionTable` invents a message for every row that has
+      // none (`<rule>: <action>`). It is not part of the model, so reading it
+      // back would add a property the author never wrote.
+      const messageCell = outputCell(table, row, "message");
+      const message = messageCell === `${ruleName}: ${name}` ? "" : messageCell;
+      const workflow = outputCell(table, row, "workflowName");
+      const field = outputCell(table, row, "field");
+      const value = outputCell(table, row, "value");
+      const targetEntity = outputCell(table, row, "targetEntity");
+      const linkField = outputCell(table, row, "linkField");
+
+      // Emitted in the order the model's own directives use, so re-saving an
+      // untouched rule is a byte-for-byte no-op rather than a reordering.
+      const props: Array<[string, string]> = [];
+      if (workflow) props.push(["workflow", workflow]);
+      if (message) props.push(["message", message]);
+      if (field) props.push(["field", field]);
+      if (value) props.push(["value", value]);
+      if (targetEntity) props.push(["targetEntity", targetEntity]);
+      if (linkField) props.push(["linkField", linkField]);
+
+      // A compiled transform carries its payload in `transformData`; a table the
+      // author typed may carry only that, so read the target back out of it.
+      if (type === "transform" && !field) {
+        const payload = outputCell(table, row, "transformData");
+        if (payload) {
+          try {
+            const pair = Object.entries(JSON.parse(payload) as Record<string, unknown>)[0];
+            if (pair) props.push(["field", pair[0]], ["value", String(pair[1])]);
+          } catch {
+            // Not JSON; leave the row without a target rather than guess one.
+          }
+        }
+      }
+
+      return [
+        `%%action ${name} ${type} when: ${when}`,
+        ...props.map(([key, val]) => `${key}: ${val}`),
+      ].join(" ");
+    })
+    .filter((line): line is string => line !== null);
+}
+
+/**
+ * Replace a rule body's `%%action` lines, leaving its flowchart untouched.
+ *
+ * The flowchart is the rule's visual; the compiler reads the actions when a
+ * rule declares them. So editing the table must not rewrite the diagram the
+ * author drew.
+ */
+export function replaceRuleActions(body: string, actionLines: string[]): string {
+  const kept = (body ?? "").split("\n").filter((line) => !line.trim().startsWith("%%action"));
+  while (kept.length && !(kept[kept.length - 1] ?? "").trim()) kept.pop();
+  return [...kept, ...actionLines].join("\n");
+}
+
 export function compileRules(
   sections: EmlRuleSection[],
   onWarn: (message: string) => void = () => {}

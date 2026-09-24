@@ -13,6 +13,7 @@ export default defineConfig({
       "../core/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "../generator/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "../ai/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
+      "../yamltecture/test/**/*.test.ts",
     ],
     exclude: ["node_modules", "dist", ".next"],
     testTimeout: 10000,

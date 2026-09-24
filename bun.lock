@@ -122,6 +122,7 @@
         "@appwithai/ai": "workspace:*",
         "@appwithai/core": "workspace:*",
         "@appwithai/generator": "workspace:*",
+        "@appwithai/yamltecture": "workspace:*",
         "@copilotkit/react-core": "^1.68.1",
         "@copilotkit/react-ui": "^1.68.1",
         "@copilotkit/runtime": "^1.68.1",
@@ -178,8 +179,20 @@
         "vitest": "^4.1.10",
       },
     },
+    "packages/yamltecture": {
+      "name": "@appwithai/yamltecture",
+      "version": "0.1.0",
+      "dependencies": {
+        "yaml": "^2.8.1",
+        "zod": "^3.25.76"
+      }
+    },
   },
   "packages": {
+    "yaml": ["yaml@2.9.1", "", { "bin": { "yaml": "bin.mjs" } }, "sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw=="],
+
+    "@appwithai/yamltecture": ["@appwithai/yamltecture@workspace:packages/yamltecture"],
+
     "@0no-co/graphql.web": ["@0no-co/graphql.web@1.2.0", "", { "peerDependencies": { "graphql": "^14.0.0 || ^15.0.0 || ^16.0.0" }, "optionalPeers": ["graphql"] }, "sha512-/1iHy9TTr63gE1YcR5idjx8UREz1s0kFhydf3bBLCXyqjhkIc6igAzTOx3zPifCwFR87tsh/4Pa9cNts6d2otw=="],
 
     "@a2a-js/sdk-v0_3": ["@a2a-js/sdk@0.3.14", "", { "dependencies": { "uuid": "^11.1.0" }, "peerDependencies": { "@bufbuild/protobuf": "^2.10.2", "@grpc/grpc-js": "^1.11.0", "express": "^4.21.2 || ^5.1.0" }, "optionalPeers": ["@bufbuild/protobuf", "@grpc/grpc-js", "express"] }, "sha512-F6Ew1AtPzCLhTn8h9yiqTe7DiDf6XVrSnq9V1YqSl9eWqPm6anMveTiKdCSb/76cW0YiJc24rNaUrVezFFHbqQ=="],

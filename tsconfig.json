@@ -45,6 +45,8 @@
 
     /* Path Mapping */
     "paths": {
+      "@appwithai/yamltecture": ["./packages/yamltecture/src/index.ts"],
+      "@appwithai/yamltecture/*": ["./packages/yamltecture/src/*"],
       "@appwithai/core": ["./packages/core/src"],
       "@appwithai/core/*": ["./packages/core/src/*"],
       "@appwithai/generator": ["./packages/generator/src"],
@@ -57,6 +59,7 @@
     }
   },
   "include": [
+    "packages/yamltecture/src/**/*.ts",
     "packages/core/**/*.ts",
     "packages/core/**/*.tsx",
     "packages/generator/src/**/*.ts",

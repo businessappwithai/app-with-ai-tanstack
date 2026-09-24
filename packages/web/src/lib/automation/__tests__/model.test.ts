@@ -3,6 +3,7 @@ import {
   type Automation,
   emptyAutomation,
   newCondition,
+  newHook,
   newStep,
   parseAutomation,
   serializeAutomation,
@@ -248,5 +249,56 @@ describe("validateAutomation", () => {
     const targets = validateAutomation(a).map((p) => p.target);
     expect(targets).toContain("name");
     expect(targets).toContain("trigger");
+  });
+});
+
+/**
+ * A hook is its own workflow: one handler, and the steps that follow it. The
+ * builder used to stop at the rungs and the serializer dropped steps, so an
+ * author could add them and watch them vanish on save.
+ */
+describe("a hook workflow carries its own steps", () => {
+  function hookWorkflow(): Automation {
+    const a = emptyAutomation("Course", "hook");
+    a.name = "beforeUpdateCourse";
+    a.trigger = { entity: "Course", event: "created" };
+    a.hooks = [newHook("beforeUpdate")];
+    const hook = a.hooks[0];
+    if (hook) hook.handler = "beforeUpdateCourse";
+
+    const update = newStep("UpdateEntity");
+    update.props = { entity: "Course", field: "status", value: "published" };
+    a.steps = [update];
+    a.conditions = [{ ...newCondition(), field: "course.status", operator: "eq", value: "draft" }];
+    return a;
+  }
+
+  it("keeps the handler and the steps through a round trip", () => {
+    const reopened = parseAutomation(serializeAutomation(hookWorkflow()), "Course");
+    expect(reopened.kind).toBe("hook");
+    expect(reopened.hooks.map((h) => `${h.event}:${h.handler}`)).toEqual([
+      "beforeUpdate:beforeUpdateCourse",
+    ]);
+    expect(reopened.steps).toHaveLength(1);
+    expect(reopened.steps[0]?.props).toMatchObject({ field: "status", value: "published" });
+    expect(reopened.conditions[0]).toMatchObject({ field: "course.status", value: "draft" });
+  });
+
+  it("does not require steps on a hook that only has handlers", () => {
+    const a = emptyAutomation("Course", "hook");
+    a.name = "beforeCreateCourse";
+    a.hooks = [newHook("beforeCreate")];
+    const hook = a.hooks[0];
+    if (hook) hook.handler = "beforeCreateCourse";
+    a.steps = [];
+    expect(validateAutomation(a).filter((p) => p.target === "steps")).toEqual([]);
+  });
+
+  it("still validates the steps a hook does carry", () => {
+    const a = hookWorkflow();
+    const step = a.steps[0];
+    if (!step) throw new Error("fixture lost its step");
+    step.props = { entity: "Course" };
+    expect(validateAutomation(a).some((p) => p.target === step.id)).toBe(true);
   });
 });

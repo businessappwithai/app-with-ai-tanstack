@@ -15,6 +15,7 @@ vi.mock("@/lib/api/projects", () => ({
     delete: vi.fn(),
   },
   erdVersionsApi: {
+    saveDraft: vi.fn(),
     create: vi.fn(),
     restore: vi.fn(),
   },
@@ -312,31 +313,35 @@ describe("projectStore", () => {
 
   // ── updateErdCode ───────────────────────────────────────────────────────
   describe("updateErdCode", () => {
-    it("creates a version and reloads the project", async () => {
-      const project = makeProject({ erdCode: "erDiagram\n  User {}" });
-      vi.mocked(erdVersionsApi.create).mockResolvedValue({
-        id: "v1",
-        project_id: "proj-1",
-        version_number: 1,
-        mermaid_code: "erDiagram\n  Updated {}",
-        description: null,
-        is_current: true,
-        validation_errors: null,
-        created_by: "user",
-        created_at: "2024-01-01T00:00:00Z",
-      });
-      vi.mocked(projectsApi.getById).mockResolvedValue(project);
-
+    it("saves a draft without creating a named version", async () => {
+      vi.mocked(erdVersionsApi.saveDraft).mockResolvedValue(undefined);
+      vi.mocked(projectsApi.getById).mockResolvedValue(
+        makeProject({ erdCode: "erDiagram\n  User {}" })
+      );
       await act(async () => {
         await useProjectStore.getState().updateErdCode("proj-1", "erDiagram\n  Updated {}");
       });
-
-      expect(erdVersionsApi.create).toHaveBeenCalledWith("proj-1", {
-        mermaidCode: "erDiagram\n  Updated {}",
-        description: undefined,
-        createdBy: "user",
-      });
+      expect(erdVersionsApi.saveDraft).toHaveBeenCalledWith(
+        "proj-1",
+        expect.objectContaining({
+          mermaidCode: "erDiagram\n  Updated {}",
+          requestId: expect.any(String),
+        })
+      );
+      expect(erdVersionsApi.create).not.toHaveBeenCalled();
       expect(projectsApi.getById).toHaveBeenCalledWith("proj-1");
+    });
+    it("reuses the request ID after an uncertain save", async () => {
+      vi.mocked(erdVersionsApi.saveDraft)
+        .mockRejectedValueOnce(new Error("Connection interrupted"))
+        .mockResolvedValueOnce(undefined);
+      vi.mocked(projectsApi.getById).mockResolvedValue(makeProject());
+      await expect(
+        useProjectStore.getState().updateErdCode("retry-project", "model")
+      ).rejects.toThrow("Connection interrupted");
+      await useProjectStore.getState().updateErdCode("retry-project", "model");
+      const calls = vi.mocked(erdVersionsApi.saveDraft).mock.calls;
+      expect(calls[0]?.[1].requestId).toBe(calls[1]?.[1].requestId);
     });
   });
 

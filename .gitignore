@@ -11,6 +11,7 @@ coverage/
 *.spec.ts
 
 # Allow test files inside source packages and generated-projects
+!packages/yamltecture/test/*.test.ts
 !packages/**/__tests__/*.test.ts
 !packages/**/__tests__/*.spec.ts
 !generated-projects/**/*.test.ts
@@ -148,3 +149,7 @@ graphify-out/
 
 # A per-developer profile for a local model endpoint. Personal tooling.
 .openclaude-profile.json
+
+# Local runtime pid file
+.appwithai-web.pid
+language.zip

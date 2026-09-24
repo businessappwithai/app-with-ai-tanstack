@@ -37,6 +37,35 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  project-git:
+    name: Project Git recovery and database consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: appwithai
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APPWITHAI_GIT_TEST_DB: "1"
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/appwithai
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - run: bun install --frozen-lockfile
+      - run: bun run test -- src/lib/server/__tests__/project-repository.test.ts
+
   checks:
     name: Type-check, lint and unit tests
     runs-on: ubuntu-latest

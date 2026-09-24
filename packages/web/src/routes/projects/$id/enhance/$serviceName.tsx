@@ -1,24 +1,55 @@
+import {
+  buildActionDecisionTable,
+  parseRuleActions,
+  replaceRuleActions,
+  serializeRuleActions,
+} from "@appwithai/generator/rules";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
+  Circle,
   Clock,
   Code,
   Download,
   FileCode,
   GitBranch,
   Loader2,
+  Plus,
   Save,
+  Scale,
   Settings,
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
+import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
 import { ProgressStepper } from "@/components/ProgressStepper";
-import { parseAutomation, serializeAutomation } from "@/lib/automation/model";
+import {
+  type Automation,
+  type AutomationStep,
+  type Condition,
+  emptyAutomation,
+  type HookEvent,
+  type Loop,
+  parseAutomation,
+  serializeAutomation,
+} from "@/lib/automation/model";
+import { asDecisionTable } from "@/lib/automation/rule-content";
+import {
+  type DecisionRow,
+  type DecisionTable,
+  emptyDecisionTable,
+  parseTableFromFlowchart,
+  tableToEmlFlowchart,
+} from "@/lib/eml/decision-table";
 import { requestContext } from "@/lib/request-context";
-import { generateFlowchartFromHooks, type ParsedHookDefinition } from "@/lib/workflow/hook-parser";
+import {
+  generateFlowchartFromHooks,
+  type ParsedHookDefinition,
+  validateHookDefinition,
+} from "@/lib/workflow/hook-parser";
 import { useProjectStore } from "@/store/projectStore";
 
 async function checkAuthMe() {
@@ -47,6 +78,18 @@ interface HookDefinition {
   enabled: boolean;
   code?: string;
   order: number;
+  /**
+   * This hook's own Trigger.dev workflow — its own conditions and steps.
+   *
+   * Stored beside the hook in `hook_definitions`, so each hook keeps a
+   * separate ladder and a save round-trips them all. Absent until the hook is
+   * built out; the editor starts one empty.
+   */
+  workflow?: {
+    conditions: Condition[];
+    loops: Loop[];
+    steps: AutomationStep[];
+  };
 }
 
 type HookType =
@@ -282,6 +325,75 @@ const HOOK_TYPES: {
   },
 ];
 
+/**
+ * The automation the builder edits for one hook.
+ *
+ * A hook workflow is the hook's rung plus the steps it owns. Those steps are
+ * stored on the hook itself, so selecting a different hook opens a different
+ * ladder rather than the same one under a new trigger.
+ */
+function automationForHook(hook: HookDefinition, index: number): Automation {
+  const base = emptyAutomation(hook.entity, "hook");
+  return {
+    ...base,
+    id: `hook-workflow-${index}`,
+    name: hook.name || hook.type,
+    kind: "hook",
+    trigger: { entity: hook.entity || "", event: "created" },
+    conditions: hook.workflow?.conditions ?? [],
+    loops: hook.workflow?.loops ?? [],
+    steps: hook.workflow?.steps ?? [],
+    hooks: [{ id: `rung-${index}`, event: hook.type as HookEvent, handler: hook.name }],
+  };
+}
+
+/** Cells the compiler wrote as zen literals, read back for the editor. */
+function unquoteZenCell(value: string): string {
+  const text = (value ?? "").trim();
+  if (
+    text.length >= 2 &&
+    (text.startsWith("'") || text.startsWith('"')) &&
+    text.endsWith(text[0] as string)
+  ) {
+    return text.slice(1, -1).replace(/\\'/g, "'");
+  }
+  return text;
+}
+
+/** The runtime's `prevent` is EML's `validation-error` — the word an author wrote. */
+const RUNTIME_TO_EML_ACTION: Record<string, string> = { prevent: "validation-error" };
+
+/**
+ * The compiled action table, presented the way the editor expects it.
+ *
+ * `buildActionDecisionTable` quotes every cell (`'prevent'`, `''`) and spells
+ * actions in the runtime's vocabulary, which left the action dropdown showing
+ * nothing selected and the grid full of nine quoted columns. Read the cells
+ * back as plain text, translate `prevent`, and drop the columns no row uses —
+ * a two-action rule opens as Action and Message, not nine wide columns.
+ */
+function normalizeActionTable(table: DecisionTable): DecisionTable {
+  const rules = table.rules.map((row) => {
+    const next: DecisionRow = { _id: row._id };
+    for (const column of [...table.inputs, ...table.outputs]) {
+      const raw = unquoteZenCell(row[column.id] ?? "");
+      const value = column.field === "action" ? (RUNTIME_TO_EML_ACTION[raw] ?? raw) : raw;
+      next[column.id] = value;
+    }
+    return next;
+  });
+
+  // `ruleId` repeats the rule's own name on every row — it lives on the
+  // directive, not per row. Other columns are kept only while some row uses
+  // them, so the table reads as what the rule actually does.
+  const outputs = table.outputs.filter(
+    (column) =>
+      column.field !== "ruleId" && rules.some((row) => (row[column.id] ?? "").trim() !== "")
+  );
+
+  return { ...table, rules, outputs };
+}
+
 function ServiceWorkflowPage() {
   const navigate = useNavigate();
   const { id: projectId, serviceName } = Route.useParams();
@@ -314,11 +426,19 @@ function ServiceWorkflowPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [draftSaveError, setDraftSaveError] = useState("");
   const [showHooksList, setShowHooksList] = useState(true);
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedHookFile[]>([]);
   const [selectedFileIndex, setSelectedFileIndex] = useState<number>(0);
   const [showGeneratedCode, setShowGeneratedCode] = useState(false);
-  const [activeTab, setActiveTab] = useState<"hooks" | "workflows">("hooks");
+  const [activeTab, setActiveTab] = useState<"hooks" | "workflows" | "rules">("hooks");
+  const [rules, setRules] = useState<EditableRule[]>([]);
+  const [rulesLoading, setRulesLoading] = useState(false);
+  const [rulesLoaded, setRulesLoaded] = useState(false);
+  const [selectedRuleIndex, setSelectedRuleIndex] = useState(0);
+  const [isSavingRules, setIsSavingRules] = useState(false);
+  const [rulesSavedAt, setRulesSavedAt] = useState<string | null>(null);
+  const [selectedHookIndex, setSelectedHookIndex] = useState(0);
 
   const draftSaveTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const isDirtyRef = useRef(false);
@@ -335,6 +455,47 @@ function ServiceWorkflowPage() {
     [flowchartCode, serviceName]
   );
 
+  /**
+   * The Trigger.dev workflow tab edits one hook's own workflow.
+   *
+   * The hook comes from the hooks list, not from the diagram: its steps live on
+   * the hook in `hook_definitions`, so each hook opens a separate ladder with
+   * its event fixed. With no hooks the tab falls back to the diagram's own
+   * automation.
+   */
+  const selectedHookDefinition = selectedHooks[selectedHookIndex] ?? null;
+  const hookAutomation = useMemo(
+    () =>
+      selectedHookDefinition ? automationForHook(selectedHookDefinition, selectedHookIndex) : null,
+    [selectedHookDefinition, selectedHookIndex]
+  );
+
+  const handleHookAutomationChange = (next: Automation) => {
+    const edited = next.hooks[0];
+    const updated = selectedHooks.map((hook, index) =>
+      index === selectedHookIndex
+        ? {
+            ...hook,
+            name: edited?.handler || hook.name,
+            workflow: { conditions: next.conditions, loops: next.loops, steps: next.steps },
+          }
+        : hook
+    );
+    setSelectedHooks(updated);
+    // The diagram names each handler, so keep it in step when that changes.
+    if (edited && edited.handler !== selectedHookDefinition?.name) {
+      updateFlowchartWithHooks(updated);
+    }
+    setWorkflowState("draft");
+    setValidationErrors([]);
+  };
+
+  useEffect(() => {
+    if (selectedHooks.length > 0 && selectedHookIndex >= selectedHooks.length) {
+      setSelectedHookIndex(selectedHooks.length - 1);
+    }
+  }, [selectedHooks.length, selectedHookIndex]);
+
   const entities = useMemo(() => {
     if (!project?.erdCode) return [];
     const lines = project.erdCode.split("\n");
@@ -343,6 +504,7 @@ function ServiceWorkflowPage() {
 
     lines.forEach((line) => {
       const trimmed = line.trim();
+      if (trimmed.startsWith("%%")) return;
       const entityMatch = trimmed.match(/^(\w+)\s*\{/);
       if (entityMatch?.[1] && !trimmed.startsWith("erDiagram")) {
         currentEntity = {
@@ -353,12 +515,97 @@ function ServiceWorkflowPage() {
         entityList.push({ ...currentEntity });
         currentEntity = null;
       } else if (currentEntity && trimmed && !trimmed.match(/^\{/)) {
-        currentEntity.attributes.push(trimmed);
+        // ERD columns read `type name [PK|FK|OPTIONAL]`; the rule editor needs
+        // the field name, not the whole column line.
+        const attribute = trimmed.match(/^[A-Za-z][\w[\]]*\s+([A-Za-z_]\w*)/);
+        if (attribute?.[1]) currentEntity.attributes.push(attribute[1]);
       }
     });
 
     return entityList;
   }, [project?.erdCode]);
+
+  /**
+   * The Business Rules tab reads the same project model the Logic step edits.
+   * It is loaded lazily — only when the tab is opened — and saving sends only
+   * `rules`, so the route leaves the model's workflows untouched.
+   */
+  useEffect(() => {
+    if (activeTab !== "rules" || rulesLoaded) return;
+    let cancelled = false;
+    setRulesLoading(true);
+
+    async function loadRules() {
+      try {
+        const response = await fetch(`/api/projects/${projectId}/eml`);
+        if (!response.ok) throw new Error(`Could not load the model (${response.status})`);
+        const data = (await response.json()) as {
+          rules?: Array<{
+            name: string;
+            entity: string;
+            event: string;
+            priority?: number;
+            title?: string;
+            flowchart: string;
+          }>;
+        };
+        if (cancelled) return;
+
+        setRules(
+          (data.rules ?? []).map((rule) => {
+            const directiveTable = parseTableFromFlowchart(rule.flowchart);
+            const actions = parseRuleActions(rule.flowchart);
+
+            let table: DecisionTable;
+            let sourceKind: "actions" | "decision-table" | "flowchart";
+            if (directiveTable) {
+              // A table this editor wrote round-trips through `%%decision-table`.
+              table = directiveTable;
+              sourceKind = "decision-table";
+            } else if (actions.length) {
+              // Show the same decision table the generated application's rule
+              // editor edits, compiled from the `%%action` directives, with the
+              // compiler's quoting and runtime vocabulary read back for editing.
+              table = normalizeActionTable(
+                asDecisionTable(buildActionDecisionTable(rule.name, actions))
+              );
+              sourceKind = "actions";
+            } else {
+              // A rule that is only a flowchart. A hand-authored one opens
+              // read-only; a convertible one is shown as the table it describes.
+              table = emptyDecisionTable();
+              sourceKind = "flowchart";
+            }
+
+            return {
+              key: crypto.randomUUID(),
+              name: rule.name,
+              entity: rule.entity,
+              event: rule.event,
+              priority: rule.priority,
+              title: rule.title,
+              table,
+              sourceKind,
+              sourceRuleName: rule.name,
+              // The original body is kept for "Show EML" and, for an actions
+              // rule, to preserve the flowchart when the actions are rewritten.
+              ...(sourceKind === "decision-table" ? {} : { sourceFlowchart: rule.flowchart }),
+            };
+          })
+        );
+        setRulesLoaded(true);
+      } catch (error) {
+        if (!cancelled) console.error("Error loading rules:", error);
+      } finally {
+        if (!cancelled) setRulesLoading(false);
+      }
+    }
+
+    loadRules();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, rulesLoaded, projectId]);
 
   useEffect(() => {
     const loadWorkflow = async () => {
@@ -397,7 +644,7 @@ function ServiceWorkflowPage() {
     loadWorkflow();
   }, [project, serviceName, setCurrentStep]);
 
-  const saveDraft = useCallback(() => {
+  const saveDraft = useCallback(async () => {
     if (!isDirtyRef.current || selectedHooks.length === 0) return;
 
     setIsAutoSaving(true);
@@ -410,10 +657,18 @@ function ServiceWorkflowPage() {
 
     try {
       localStorage.setItem(draftKey, JSON.stringify(draftData));
+      const response = await fetch(`/api/projects/${projectId}/workflows/${serviceName}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...draftData, isDraft: true, requestId: crypto.randomUUID() }),
+      });
+      if (!response.ok)
+        throw new Error((await response.json()).error || "Draft could not be saved to Git");
       setLastSaved(new Date());
+      setDraftSaveError("");
       isDirtyRef.current = false;
     } catch (error) {
-      console.error("Failed to auto-save draft:", error);
+      setDraftSaveError(error instanceof Error ? error.message : "Draft could not be saved to Git");
     } finally {
       setTimeout(() => setIsAutoSaving(false), 500);
     }
@@ -473,6 +728,77 @@ function ServiceWorkflowPage() {
     }
   };
 
+  const activeRule = rules[selectedRuleIndex] ?? null;
+
+  const patchRule = (patch: Partial<EditableRule>) => {
+    setRules((current) =>
+      current.map((rule, index) => (index === selectedRuleIndex ? { ...rule, ...patch } : rule))
+    );
+    setRulesSavedAt(null);
+  };
+
+  const handleAddRule = () => {
+    setRules((current) => [
+      ...current,
+      {
+        key: crypto.randomUUID(),
+        name: `rule${current.length + 1}`,
+        entity: entities[0]?.name ?? "",
+        event: "beforeCreate",
+        priority: 100,
+        table: emptyDecisionTable(),
+      },
+    ]);
+    setSelectedRuleIndex(rules.length);
+    setRulesSavedAt(null);
+  };
+
+  const handleRemoveRule = (index: number) => {
+    setRules((current) => current.filter((_rule, i) => i !== index));
+    setSelectedRuleIndex((current) => (current >= index ? Math.max(0, current - 1) : current));
+    setRulesSavedAt(null);
+  };
+
+  const saveRules = async () => {
+    setIsSavingRules(true);
+    try {
+      const response = await fetch(`/api/projects/${projectId}/eml`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rules: rules.map((rule) => {
+            // An actions rule is stored as `%%action` directives; writing the
+            // table back as one keeps its flowchart and its meaning. Everything
+            // else is already a document the composer reads.
+            const flowchart =
+              rule.sourceKind === "actions"
+                ? replaceRuleActions(
+                    rule.sourceFlowchart ?? "",
+                    serializeRuleActions(rule.sourceRuleName ?? rule.name, rule.table)
+                  )
+                : (rule.sourceFlowchart ?? tableToEmlFlowchart(rule.table));
+            return {
+              name: slugifyRuleName(rule.title ?? rule.name),
+              entity: rule.entity,
+              event: rule.event,
+              priority: rule.priority,
+              title: rule.title,
+              flowchart,
+            };
+          }),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? `Save failed (${response.status})`);
+      setRulesSavedAt(new Date().toLocaleTimeString());
+    } catch (error) {
+      console.error("Save rules error:", error);
+      alert(`Failed to save rules: ${error instanceof Error ? error.message : "Unknown error"}`);
+    } finally {
+      setIsSavingRules(false);
+    }
+  };
+
   const handleAddHook = (hookType: HookType) => {
     const entityName = serviceName.replace("Service", "");
 
@@ -489,6 +815,25 @@ function ServiceWorkflowPage() {
     updateFlowchartWithHooks([...selectedHooks, newHook]);
     setWorkflowState("draft");
     setValidationErrors([]);
+  };
+
+  /**
+   * Pick a hook from the available list and open it in the workflow editor.
+   *
+   * A hook can only be edited once it exists, so choosing one that is not yet
+   * active adds it first — with the default handler name and template — and then
+   * selects it. Choosing one already active selects the existing entry rather
+   * than adding a second.
+   */
+  const selectAvailableHook = (hookType: HookType) => {
+    const existing = selectedHooks.findIndex((hook) => hook.type === hookType);
+    if (existing >= 0) {
+      setSelectedHookIndex(existing);
+    } else {
+      handleAddHook(hookType);
+      setSelectedHookIndex(selectedHooks.length);
+    }
+    setActiveTab("workflows");
   };
 
   const handleRemoveHook = (hookIndex: number) => {
@@ -529,40 +874,28 @@ function ServiceWorkflowPage() {
     setWorkflow({ ...workflow, flowchartCode: flowchart, hooks });
   };
 
-  const handleValidate = async () => {
+  const handleValidate = () => {
     setIsValidating(true);
     setValidationErrors([]);
 
-    try {
-      const response = await fetch(
-        `/api/projects/\${projectId}/workflows/\${serviceName}/validate`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            hooks: selectedHooks,
-            flowchartCode,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setWorkflowState("validated");
-        setTimeout(() => setIsValidating(false), 500);
-      } else {
-        if (data.validationErrors && data.validationErrors.length > 0) {
-          setValidationErrors(data.validationErrors);
-        }
-        throw new Error(data.error || "Validation failed");
+    const errors: string[] = [];
+    if (selectedHooks.length === 0) errors.push("Add at least one hook before validating.");
+    for (const hook of selectedHooks) {
+      const label = hook.name || hook.type;
+      for (const problem of validateHookDefinition({
+        type: hook.type,
+        name: hook.name,
+        entity: hook.entity,
+        rawComment: "",
+        order: hook.order,
+      })) {
+        errors.push(`${label}: ${problem}`);
       }
-    } catch (error) {
-      console.error("Validation error:", error);
-      setIsValidating(false);
-      setWorkflowState("draft");
-      alert(`Validation failed: \${error instanceof Error ? error.message : "Unknown error"}`);
     }
+
+    setValidationErrors(errors);
+    setWorkflowState(errors.length === 0 ? "validated" : "draft");
+    setTimeout(() => setIsValidating(false), 500);
   };
 
   const handleSave = async () => {
@@ -573,13 +906,15 @@ function ServiceWorkflowPage() {
 
     setIsSaving(true);
     try {
-      const response = await fetch(`/api/projects/\${projectId}/workflows/\${serviceName}/apply`, {
-        method: "POST",
+      const response = await fetch(`/api/projects/${projectId}/workflows/${serviceName}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           hooks: selectedHooks,
           flowchartCode,
-          description: `\${serviceName} hooks workflow`,
+          description: `${serviceName} hooks workflow`,
+          isDraft: false,
+          requestId: crypto.randomUUID(),
         }),
       });
 
@@ -598,7 +933,7 @@ function ServiceWorkflowPage() {
         setWorkflowState("saved");
         setLastSaved(new Date());
 
-        const draftKey = `draft-workflow-\${projectId}-\${serviceName}`;
+        const draftKey = `draft-workflow-${projectId}-${serviceName}`;
         localStorage.removeItem(draftKey);
 
         setTimeout(() => setIsSaving(false), 500);
@@ -608,9 +943,7 @@ function ServiceWorkflowPage() {
     } catch (error) {
       console.error("Save error:", error);
       setIsSaving(false);
-      alert(
-        `Failed to save workflow: \${error instanceof Error ? error.message : "Unknown error"}`
-      );
+      alert(`Failed to save workflow: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
@@ -622,17 +955,14 @@ function ServiceWorkflowPage() {
 
     setIsGenerating(true);
     try {
-      const response = await fetch(
-        `/api/projects/\${projectId}/workflows/\${serviceName}/generate`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            hooks: selectedHooks,
-            flowchartCode,
-          }),
-        }
-      );
+      const response = await fetch(`/api/projects/${projectId}/workflows/${serviceName}/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hooks: selectedHooks,
+          flowchartCode,
+        }),
+      });
 
       const data = await response.json();
 
@@ -648,9 +978,7 @@ function ServiceWorkflowPage() {
     } catch (error) {
       console.error("Generation error:", error);
       setIsGenerating(false);
-      alert(
-        `Failed to generate code: \${error instanceof Error ? error.message : "Unknown error"}`
-      );
+      alert(`Failed to generate code: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
@@ -668,7 +996,7 @@ function ServiceWorkflowPage() {
 
     try {
       const response = await fetch(
-        `/api/projects/\${projectId}/workflows/\${serviceName}/files/\${file.fileName}`,
+        `/api/projects/${projectId}/workflows/${serviceName}/files/${file.fileName}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -681,13 +1009,13 @@ function ServiceWorkflowPage() {
       const data = await response.json();
 
       if (data.success) {
-        alert(`File \${file.fileName} saved successfully!`);
+        alert(`File ${file.fileName} saved successfully!`);
       } else {
         throw new Error(data.error || "Failed to save file");
       }
     } catch (error) {
       console.error("Save file error:", error);
-      alert(`Failed to save file: \${error instanceof Error ? error.message : "Unknown error"}`);
+      alert(`Failed to save file: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
@@ -784,6 +1112,11 @@ function ServiceWorkflowPage() {
             <div className="flex items-center gap-3">
               {getStateBadge()}
 
+              {draftSaveError && (
+                <p role="alert" className="text-sm text-destructive">
+                  {draftSaveError}. Your browser backup is retained.
+                </p>
+              )}
               {isAutoSaving && (
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Loader2 className="w-3 h-3 animate-spin" />
@@ -900,7 +1233,7 @@ function ServiceWorkflowPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("hooks")}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors \${
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === "hooks"
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
@@ -913,7 +1246,7 @@ function ServiceWorkflowPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("workflows")}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors \${
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === "workflows"
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
@@ -924,6 +1257,19 @@ function ServiceWorkflowPage() {
               >
                 <Settings className="w-4 h-4 inline mr-2" />
                 Trigger.dev Workflows
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("rules")}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "rules"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+                style={activeTab === "rules" ? { borderColor: "#FF8400", color: "#FF8400" } : {}}
+              >
+                <Scale className="w-4 h-4 inline mr-2" />
+                Business Rules
               </button>
             </div>
           </div>
@@ -962,31 +1308,51 @@ function ServiceWorkflowPage() {
                             <div className="space-y-2">
                               {categoryHooks.map((hook) => {
                                 const isActive = selectedHooks.some((h) => h.type === hook.type);
+                                const isSelected =
+                                  selectedHooks[selectedHookIndex]?.type === hook.type;
                                 return (
-                                  <button
-                                    type="button"
-                                    key={hook.type}
-                                    onClick={() => !isActive && handleAddHook(hook.type)}
-                                    disabled={isActive}
-                                    className={`w-full flex items-start gap-2 px-3 py-2.5 rounded-lg text-sm transition-all \${
-                                  isActive
-                                    ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-                                    : "bg-secondary hover:bg-secondary/80 text-foreground border border-border hover:border-primary/40"
-                                }`}
-                                    title={hook.description}
-                                  >
-                                    <div
-                                      className={`w-2 h-2 rounded-full \${hook.color} flex-shrink-0 mt-1`}
-                                    />
-                                    <div className="text-left flex-1 min-w-0">
-                                      <div className="font-medium text-foreground">
-                                        {hook.label}
+                                  <div key={hook.type} className="flex items-stretch gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() => !isActive && handleAddHook(hook.type)}
+                                      disabled={isActive}
+                                      className={`flex-1 flex items-start gap-2 px-3 py-2.5 rounded-lg text-sm transition-all ${
+                                        isActive
+                                          ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                                          : "bg-secondary hover:bg-secondary/80 text-foreground border border-border hover:border-primary/40"
+                                      }`}
+                                      title={hook.description}
+                                    >
+                                      <div
+                                        className={`w-2 h-2 rounded-full ${hook.color} flex-shrink-0 mt-1`}
+                                      />
+                                      <div className="text-left flex-1 min-w-0">
+                                        <div className="font-medium text-foreground">
+                                          {hook.label}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground line-clamp-2">
+                                          {hook.description}
+                                        </div>
                                       </div>
-                                      <div className="text-xs text-muted-foreground line-clamp-2">
-                                        {hook.description}
-                                      </div>
-                                    </div>
-                                  </button>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => selectAvailableHook(hook.type)}
+                                      aria-label={`Edit the ${hook.label} Trigger.dev workflow`}
+                                      title="Edit this hook's Trigger.dev workflow"
+                                      className={`flex items-center justify-center px-2 rounded-lg border transition-colors ${
+                                        isSelected
+                                          ? "border-primary text-primary bg-primary/5"
+                                          : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
+                                      }`}
+                                    >
+                                      {isSelected ? (
+                                        <CheckCircle2 className="w-4 h-4" />
+                                      ) : (
+                                        <Circle className="w-4 h-4" />
+                                      )}
+                                    </button>
+                                  </div>
                                 );
                               })}
                             </div>
@@ -1010,27 +1376,51 @@ function ServiceWorkflowPage() {
                         const hookDef = HOOK_TYPES.find((h) => h.type === hook.type);
                         return (
                           <div
-                            key={`\${hook.type}-\${index}`}
-                            className="bg-secondary rounded-lg p-3 border border-border"
+                            key={`${hook.type}-${index}`}
+                            className={`bg-secondary rounded-lg p-3 border transition-colors ${
+                              selectedHookIndex === index
+                                ? "border-primary ring-1 ring-primary/30"
+                                : "border-border"
+                            }`}
                           >
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <div
-                                  className={`w-2 h-2 rounded-full \${hookDef?.color || "bg-gray-500"} flex-shrink-0`}
+                                  className={`w-2 h-2 rounded-full ${hookDef?.color || "bg-gray-500"} flex-shrink-0`}
                                 />
                                 <div className="flex-1 min-w-0">
                                   <span className="text-sm font-medium text-foreground block">
                                     {hookDef?.label || hook.type}
                                   </span>
                                   <span className="text-xs text-muted-foreground">
-                                    {hook.name ? `Named: \${hook.name}` : "Unnamed hook"}
+                                    {hook.name ? `Named: ${hook.name}` : "Unnamed hook"}
                                   </span>
                                 </div>
                               </div>
                               <button
                                 type="button"
+                                onClick={() => {
+                                  setSelectedHookIndex(index);
+                                  setActiveTab("workflows");
+                                }}
+                                aria-label={`Edit the ${hook.name || hook.type} Trigger.dev workflow`}
+                                title="Edit this hook's Trigger.dev workflow"
+                                className={`p-1 rounded transition-colors flex-shrink-0 ml-2 ${
+                                  selectedHookIndex === index
+                                    ? "text-primary"
+                                    : "text-muted-foreground hover:text-foreground"
+                                }`}
+                              >
+                                {selectedHookIndex === index ? (
+                                  <CheckCircle2 className="w-4 h-4" />
+                                ) : (
+                                  <Circle className="w-4 h-4" />
+                                )}
+                              </button>
+                              <button
+                                type="button"
                                 onClick={() => handleRemoveHook(index)}
-                                className="p-1 hover:bg-red-100 dark:hover:bg-red-950/30 rounded transition-colors flex-shrink-0 ml-2"
+                                className="p-1 hover:bg-red-100 dark:hover:bg-red-950/30 rounded transition-colors flex-shrink-0 ml-1"
                               >
                                 <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
                               </button>
@@ -1038,7 +1428,7 @@ function ServiceWorkflowPage() {
                             <textarea
                               value={hook.code}
                               onChange={(e) => handleHookCodeChange(index, e.target.value)}
-                              placeholder={`// Implement \${hookDef?.label || hook.type} logic here`}
+                              placeholder={`// Implement ${hookDef?.label || hook.type} logic here`}
                               className="w-full h-24 p-2 text-xs font-mono bg-background border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                           </div>
@@ -1067,13 +1457,127 @@ function ServiceWorkflowPage() {
                 </div>
               </div>
             </>
-          ) : (
+          ) : activeTab === "workflows" ? (
             <AutomationBuilder
-              automation={automation}
-              onChange={(next) => setFlowchartCode(serializeAutomation(next))}
+              key={hookAutomation ? `hook-${selectedHookIndex}` : "automation"}
+              automation={hookAutomation ?? automation}
+              onChange={
+                hookAutomation
+                  ? handleHookAutomationChange
+                  : (next) => setFlowchartCode(serializeAutomation(next))
+              }
               entities={entities.map((e) => e.name)}
               entityFields={Object.fromEntries(entities.map((e) => [e.name, e.attributes]))}
+              lockHook={Boolean(hookAutomation)}
             />
+          ) : (
+            <>
+              <div className="w-72 shrink-0 border-r border-border flex flex-col bg-card">
+                <div className="flex items-center justify-between p-4 border-b border-border">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Scale className="w-4 h-4" />
+                    Business Rules ({rules.length})
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={handleAddRule}
+                    className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
+                  >
+                    <Plus className="h-3 w-3" />
+                    New
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                  {rulesLoading ? (
+                    <div className="flex items-center gap-2 px-2 py-4 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading rules…
+                    </div>
+                  ) : rules.length === 0 ? (
+                    <p className="rounded-md border border-dashed border-border px-2 py-3 text-center text-xs text-muted-foreground">
+                      No rules yet.
+                    </p>
+                  ) : (
+                    rules.map((rule, index) => (
+                      <div
+                        key={rule.key}
+                        className={`group flex items-center gap-1 rounded-md border px-2 py-1.5 text-left text-sm ${
+                          selectedRuleIndex === index
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:bg-muted"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setSelectedRuleIndex(index)}
+                          className="min-w-0 flex-1 text-left"
+                        >
+                          <span className="block truncate font-medium">
+                            {rule.title || rule.name}
+                          </span>
+                          <span className="block truncate text-[11px] text-muted-foreground">
+                            {rule.entity || "no entity"} · {rule.event}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveRule(index)}
+                          aria-label={`Delete ${rule.name}`}
+                          className="opacity-0 transition group-hover:opacity-100"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto bg-muted">
+                <div className="p-6">
+                  {activeRule ? (
+                    <>
+                      <RuleEditor
+                        key={activeRule.key}
+                        rule={activeRule}
+                        entities={entities}
+                        projectId={projectId}
+                        onChange={patchRule}
+                        onError={(message) => setValidationErrors(message ? [message] : [])}
+                        autoConvertFlowchart
+                      />
+                      <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
+                        <button
+                          type="button"
+                          onClick={saveRules}
+                          disabled={isSavingRules}
+                          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+                          style={{ backgroundColor: "#FF8400" }}
+                        >
+                          {isSavingRules ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Save className="h-4 w-4" />
+                          )}
+                          Save rules
+                        </button>
+                        {rulesSavedAt && (
+                          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                            Saved to the model at {rulesSavedAt}
+                          </span>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="rounded-lg border border-dashed border-border py-20 text-center text-sm text-muted-foreground">
+                      Pick a rule on the left, or add one.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
           )}
         </div>
       ) : (
@@ -1090,7 +1594,7 @@ function ServiceWorkflowPage() {
                   type="button"
                   key={index}
                   onClick={() => setSelectedFileIndex(index)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors \${
+                  className={`w-full text-left p-3 rounded-lg transition-colors ${
                     selectedFileIndex === index
                       ? "bg-purple-100 dark:bg-purple-900/30 border-2 border-purple-500"
                       : "bg-slate-50 dark:bg-slate-900 border-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -1101,7 +1605,7 @@ function ServiceWorkflowPage() {
                       {file.fileName}
                     </span>
                     <div
-                      className={`w-2 h-2 rounded-full \${HOOK_TYPES.find((h) => h.type === file.hookType)?.color || "bg-gray-500"}`}
+                      className={`w-2 h-2 rounded-full ${HOOK_TYPES.find((h) => h.type === file.hookType)?.color || "bg-gray-500"}`}
                     />
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400">

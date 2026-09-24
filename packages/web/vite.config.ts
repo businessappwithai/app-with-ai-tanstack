@@ -73,6 +73,15 @@ const config = defineConfig({
       },
       { find: "#", replacement: path.resolve(__dirname, "src") },
       { find: "@", replacement: path.resolve(__dirname, "src") },
+      // `@appwithai/generator` is externalised for SSR and resolved from its
+      // built `dist/index.js` for the client, which has no subpaths. The web
+      // tsconfig only maps `@/*`, so a subpath import of the generator's pure
+      // modules (the rules compiler, used by the enhance page) does not resolve
+      // at runtime. Point it at the source, which is browser-safe.
+      {
+        find: /^@appwithai\/generator\/(.*)$/,
+        replacement: path.resolve(__dirname, "../generator/src/$1"),
+      },
     ],
   },
   plugins: [

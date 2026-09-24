@@ -42,6 +42,7 @@ import { DbOperationsModal } from "@/components/DbOperationsModal";
 import { ErdFlowViewer } from "@/components/ErdFlowViewer";
 import { JourneyArc } from "@/components/JourneyArc";
 import { ProgressStepper } from "@/components/ProgressStepper";
+import { ProjectGitHistory } from "@/components/project/ProjectGitHistory";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
 import type { ERDVersion } from "@/lib/api/projects";
@@ -107,6 +108,8 @@ function DesignPage() {
   const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveNotice, setSaveNotice] = useState("");
+  const [gitRefresh, setGitRefresh] = useState(0);
   const [aiInput, setAiInput] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiStatus, setAiStatus] = useState<{
@@ -469,24 +472,7 @@ function DesignPage() {
   useEffect(() => {
     if (project) {
       setCurrentStep("design");
-      // Try loading canonical .mmd first, fall back to DB erdCode
-      const loadCanonical = async () => {
-        try {
-          const res = await fetch(`/api/mermaid?projectId=${projectId}&canonical=true`);
-          if (res.ok) {
-            const data = await res.json();
-            const canonicalFile = data.files?.[0];
-            if (canonicalFile?.content) {
-              setErdCode(canonicalFile.content);
-              return;
-            }
-          }
-        } catch {
-          // fall through to DB value
-        }
-        setErdCode(project.erdCode || "erDiagram\n");
-      };
-      loadCanonical();
+      setErdCode(project.erdCode || "erDiagram\n");
     }
   }, [project, setCurrentStep, projectId]);
 
@@ -707,49 +693,37 @@ function DesignPage() {
 
   const handleSave = async (saveAsVersion = false) => {
     setIsSaving(true);
+    setSaveNotice("Saving to local Git…");
     try {
-      await updateErdCode(projectId, erdCode);
-
-      // Save canonical .mmd file
-      try {
-        const version = `v${Date.now()}`;
-        const sanitizedName = (project?.name ?? "export").replace(/[^a-z0-9]/gi, "_").toLowerCase();
-        await fetch("/api/mermaid", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            projectId,
-            projectName: project?.name ?? "export",
-            filename: `${sanitizedName}-erd-canonical.mmd`,
-            type: "erd",
-            content: erdCode,
-            canonical: true,
-          }),
-        });
-        void version; // suppress unused warning
-      } catch {
-        // Non-blocking — .mmd save failure should not block the UI save
-        console.error("Failed to save canonical .mmd file");
-      }
-
       if (saveAsVersion) {
         await saveErdVersion(projectId, erdCode, commitMessage || "Manual save");
         setCommitMessage("");
-        if (showVersions) {
-          await loadVersions();
-        }
+        await loadVersions();
+      } else {
+        await updateErdCode(projectId, erdCode);
       }
-
-      setTimeout(() => setIsSaving(false), 500);
+      setSaveNotice(saveAsVersion ? "Version saved to local Git" : "Draft saved to local Git");
+      setGitRefresh((value) => value + 1);
     } catch (error) {
-      console.error("Save error:", error);
+      setSaveNotice(
+        error instanceof Error
+          ? error.message
+          : "Save failed. Your edits are still here. Retry to recover."
+      );
+    } finally {
       setIsSaving(false);
     }
   };
 
   const handleRestoreVersion = async (versionId: string) => {
+    if (erdCode !== (project?.erdCode || "erDiagram\n")) {
+      setSaveNotice("Save your draft before restoring a version.");
+      return;
+    }
     try {
       await restoreErdVersion(projectId, versionId);
+      setGitRefresh((value) => value + 1);
+      setSaveNotice("Model restored in a new Git commit. Regenerate the application to match.");
       await loadVersions();
 
       const version = versions.find((v) => v.id === versionId);
@@ -757,7 +731,7 @@ function DesignPage() {
         setErdCode(version.mermaid_code);
       }
     } catch (error) {
-      console.error("Restore error:", error);
+      setSaveNotice(error instanceof Error ? error.message : "Restore failed");
     }
   };
 
@@ -1233,6 +1207,11 @@ function DesignPage() {
       defaultOpen={false}
     >
       <div className="min-h-screen bg-background flex flex-col">
+        {saveNotice && (
+          <p role="status" className="px-6 py-2 text-sm border-b">
+            {saveNotice}
+          </p>
+        )}
         {!isFullscreen && (
           <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
             <div className="max-w-[1800px] mx-auto px-6 py-3">
@@ -1518,6 +1497,15 @@ function DesignPage() {
                 </div>
               </div>
 
+              <ProjectGitHistory
+                projectId={projectId}
+                refresh={gitRefresh}
+                dirty={erdCode !== (project?.erdCode || "erDiagram\n")}
+                onRestored={() => {
+                  void loadProject(projectId);
+                  void loadVersions();
+                }}
+              />
               <div className="flex-1 overflow-y-auto">
                 {isLoadingVersions ? (
                   <div className="p-4 text-center text-slate-500 text-sm flex items-center justify-center gap-2">
@@ -1591,6 +1579,11 @@ function DesignPage() {
                                 <span>Created:</span>
                                 <span>{formatDate(version.created_at)}</span>
                               </div>
+                              {version.git_commit && (
+                                <div>
+                                  Git: <code>{version.git_commit.slice(0, 8)}</code>
+                                </div>
+                              )}
                               {version.created_by && (
                                 <div className="flex items-center justify-between">
                                   <span>By:</span>
