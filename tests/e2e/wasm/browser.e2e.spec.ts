@@ -443,8 +443,19 @@ test.describe
       const nav = async (label: string) => {
         const toggle = frame.getByRole("button", { name: "Toggle menu" });
         if (await toggle.isVisible()) {
-          await toggle.click();
-          await frame.locator(".er-sidebar-mobile .er-nav__item", { hasText: label }).click();
+          // The slide-over stays open after a selection, so toggling on every
+          // visit closes it and leaves the item translated out of the viewport.
+          const open = await frame
+            .locator(".er-sidebar-mobile")
+            .evaluate((el) => el.classList.contains("is-open"));
+          if (!open) await toggle.click();
+          // The preview frame sits below the fold of the host page, and the
+          // drawer's scroller is nested under a fixed slide-over — Playwright's
+          // auto-scroll reaches neither, so bring both into view first.
+          await page.locator("#frame").evaluate((el) => el.scrollIntoView({ block: "center" }));
+          const item = frame.locator(".er-sidebar-mobile .er-nav__item", { hasText: label });
+          await item.evaluate((el) => el.scrollIntoView({ block: "center" }));
+          await item.click();
         } else {
           await frame.locator(".er-sidebar-desktop .er-nav__item", { hasText: label }).click();
         }
