@@ -88,12 +88,12 @@ function TriggerInspector({
       <header className="flex items-center gap-3 px-4 py-3.5">
         <span
           aria-hidden="true"
-          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-700"
+          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
         >
           ⚡
         </span>
         <div>
-          <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-amber-700">
+          <span className="block text-[10px] font-bold uppercase tracking-[0.1em] text-amber-700 dark:text-amber-300">
             When this happens
           </span>
           <h3 className="text-[15px] font-bold">
@@ -244,11 +244,11 @@ function AddMenu({
         type="button"
         role="menuitem"
         onClick={onAddCondition}
-        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-blue-300 hover:bg-blue-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-blue-300 hover:bg-blue-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:hover:border-blue-800 dark:hover:bg-blue-950/40"
       >
         <span
           aria-hidden="true"
-          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-blue-200 bg-blue-50 text-xs text-blue-600"
+          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-blue-200 bg-blue-50 text-xs text-blue-600 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-400"
         >
           ◇
         </span>
@@ -264,11 +264,11 @@ function AddMenu({
         type="button"
         role="menuitem"
         onClick={onAddLoop}
-        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-teal-300 hover:bg-teal-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-teal-300 hover:bg-teal-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:hover:border-teal-800 dark:hover:bg-teal-950/40"
       >
         <span
           aria-hidden="true"
-          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-teal-200 bg-teal-50 text-xs text-teal-700"
+          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-teal-200 bg-teal-50 text-xs text-teal-700 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300"
         >
           ↻
         </span>
@@ -546,7 +546,7 @@ export function AutomationBuilder({
                 <button
                   type="button"
                   onClick={() => setAddingAt(last ? last.index + 1 : 0)}
-                  className="w-full rounded-lg border border-dashed border-teal-300 bg-card py-2 text-xs font-semibold text-teal-700 hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="w-full rounded-lg border border-dashed border-teal-300 bg-card py-2 text-xs font-semibold text-teal-700 hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-950/40"
                 >
                   ＋ Add a step inside this repeat
                 </button>
@@ -580,7 +580,9 @@ export function AutomationBuilder({
       )}
 
       {problemFor("steps") ? (
-        <p className="mt-3 w-full text-xs text-amber-700">{problemFor("steps")}</p>
+        <p className="mt-3 w-full text-xs text-amber-700 dark:text-amber-300">
+          {problemFor("steps")}
+        </p>
       ) : null}
     </>
   );
@@ -642,7 +644,7 @@ export function AutomationBuilder({
           <p className="mt-1 text-[12.5px] text-muted-foreground">
             Runs on every {automation.trigger.entity || "record"}
             {problems.length > 0 ? (
-              <span className="text-amber-700">
+              <span className="text-amber-700 dark:text-amber-300">
                 {" · "}
                 {problems.length} thing{problems.length === 1 ? "" : "s"} to fix before publishing
               </span>
@@ -689,7 +691,9 @@ export function AutomationBuilder({
               )}
 
               {problemFor("hooks") ? (
-                <p className="mt-3 w-full text-xs text-amber-700">{problemFor("hooks")}</p>
+                <p className="mt-3 w-full text-xs text-amber-700 dark:text-amber-300">
+                  {problemFor("hooks")}
+                </p>
               ) : null}
             </>
           ) : (
@@ -956,7 +960,7 @@ function HookInspector({
         </select>
       </label>
 
-      {problem ? <p className="text-xs text-amber-700">{problem}</p> : null}
+      {problem ? <p className="text-xs text-amber-700 dark:text-amber-300">{problem}</p> : null}
 
       {locked ? null : (
         <>

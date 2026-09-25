@@ -12,7 +12,7 @@
  */
 
 import { createFileRoute } from '@tanstack/react-router';
-import { startTransition, useCallback, useEffect, useMemo, useState } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AutomationBuilder, type RuleTableSummary } from '@/components/automation/AutomationBuilder';
 import { AutomationHelp } from '@/components/automation/AutomationHelp';
 import { useHelp } from '@/components/help/help-toaster';
@@ -89,7 +89,7 @@ function AutomationsPage() {
   const [tables, setTables] = useState<RuleTableRecord[]>([]);
   const [view, setView] = useState<View>({ kind: 'none' });
   const [loading, setLoading] = useState(true);
-  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'drafted' | 'saved' | 'error'>('idle');
   const [autoTotal, setAutoTotal] = useState(0);
   const [tableTotal, setTableTotal] = useState(0);
 
@@ -232,8 +232,56 @@ function AutomationsPage() {
     [showHelp, helpExample]
   );
 
-  const updateAutomation = (next: Automation) =>
+  /**
+   * Persist a draft.
+   *
+   * Publishing was the only write, and it stays disabled until the automation
+   * validates — so everything built before that point lived in this tab and
+   * went away on a reload: steps, name, the lot. Every edit now saves,
+   * debounced, without touching whether it is active, so publishing is still
+   * the thing that makes it run. The modelling tool's automations screen does
+   * the same.
+   */
+  const draftTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  const saveDraft = useCallback(
+    (automation: Automation) => {
+      const storedId = storedIds[automation.id];
+      if (!storedId) return;
+      clearTimeout(draftTimers.current[automation.id]);
+      draftTimers.current[automation.id] = setTimeout(async () => {
+        setSaveState('saving');
+        try {
+          const res = await fetch(`/api/workflow-definitions/${storedId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: automation.name,
+              entityName: automation.trigger.entity,
+              mermaid: serializeAutomation(automation),
+            }),
+          });
+          setSaveState(res.ok ? 'drafted' : 'error');
+        } catch (error) {
+          console.error('Failed to save automation draft:', error);
+          setSaveState('error');
+        }
+      }, 700);
+    },
+    [storedIds]
+  );
+
+  useEffect(() => {
+    const timers = draftTimers.current;
+    return () => {
+      for (const timer of Object.values(timers)) clearTimeout(timer);
+    };
+  }, []);
+
+  const updateAutomation = (next: Automation) => {
     setAutomations((list) => list.map((a) => (a.id === next.id ? next : a)));
+    saveDraft(next);
+  };
 
   const createAutomation = async () => {
     const fresh = emptyAutomation(ENTITIES[0] ?? 'Record');
@@ -250,6 +298,9 @@ function AutomationsPage() {
           entityName: fresh.trigger.entity,
           operation: 'ALL',
           mermaid: serializeAutomation(fresh),
+          // A draft until it is published: an empty automation that is already
+          // live would run on every write to its record type.
+          isActive: false,
         }),
       });
       if (res.ok) {
@@ -311,6 +362,7 @@ function AutomationsPage() {
         <div className="flex-1" />
         {saveState === 'saving' ? <span className="text-xs text-muted-foreground">Saving…</span> : null}
         {saveState === 'saved' ? <span className="text-xs text-emerald-600 dark:text-emerald-400">Published</span> : null}
+        {saveState === 'drafted' ? <span className="text-xs text-muted-foreground">Draft saved</span> : null}
         {saveState === 'error' ? (
           <span className="text-xs text-red-600 dark:text-red-400">Could not save. Try again.</span>
         ) : null}

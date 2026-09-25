@@ -90,6 +90,39 @@ After the fixes, the model saved by the full run of the spec checks with
 **0 errors**. The only two warnings come from binding the test status machine
 to `Room`, which has no status column.
 
+## The generated application's editors
+
+The education model was generated, migrated and run, then its editors were
+driven in Chromium as its administrator. The rule and workflow editors a
+generated application ships are the tool's own components. They had drifted,
+so they are now held byte-identical by `editor-files-identical.test.ts`.
+`AutomationHelp.tsx` is the one deliberate difference: each host renders help
+in its own frame. Screenshots are `gen-before-*` and `gen-after-*`.
+
+| # | Severity | Screen | Finding | Status |
+|---|----------|--------|---------|--------|
+| G1 | High | Automations | The builder's copy of the model split `url: https://…` at `https:`, so a web-service step reopened with no URL. It also wrote hook workflows without the steps after the hooks | **Fixed**: the tool's model ships unchanged |
+| G2 | Critical | Automations | The update endpoint wrote every field but `mermaid_code`, so Publish never saved an automation's steps. There was no draft save either, so everything built there was lost on reload | **Fixed**: the update writes the document, edits save as debounced drafts, and a new automation starts inactive |
+| G3 | High | Business Rules | *Create Business Rule* offered a hard-coded list (Patient, Claim, Account, Opportunity…) and none of the application's own entities | **Fixed**: read from the dictionary (`/sys/tables`, `/sys/columns?tableId=`), with field pickers on new and edit |
+| G4 | Critical | Business Rules | The editor saves a bare decision table; the engine needs a JDM graph, and answered "missing field `nodes`". Every rule created, or re-saved, in the editor refused nothing | **Fixed**: the engine wraps a stored table in a graph, quoting outcome text so `validation-error` is not read as a subtraction |
+| G5 | High | Business Rules | The editor offers EML's `validation-error`, which the engine's `validate()` does not read. It refuses a write only on `prevent` | **Fixed**: the engine translates it |
+| G6 | High | Business Rules | PostgreSQL returns NUMERIC as `"1.500000"`, and an update is checked against the stored row, so `> 0` never fit and a rule that held on create let the same write through on update | **Fixed**: the dictionary's number columns are compared as numbers |
+| G7 | Critical | Report Designs | *Edit Design* changed the address and left the list on screen, because the child route had no `<Outlet />`. No entity's print layout could be customised | **Fixed** |
+| G8 | Medium | Print | Dates printed as midnight timestamps; NUMERIC printed as `1.500000` | **Fixed**: printed by column type |
+| G9 | Low | Dictionary hooks | `useTableColumns` filters with `table_id`, which the backend ignores, so it returns every table's columns | **Open**: outside the editors; the rule editor's new hook uses `tableId` |
+
+Verified end to end in the browser. *Late Fee Guard* was created in Admin →
+Business Rules on Fee Invoice; cancelling an invoice with a balance then
+answers **400 "An invoice with a balance cannot be cancelled."** (it answered
+200 before G4 to G6). An automation built in Admin → Automations comes back
+whole after a reload. The report designer opens, saves a customised layout and
+prints a real record for **all 19** entities.
+
+CI's *Generate an application and build it* job was reproduced locally on
+`drug-discovery.eml.mmd`: the backend, frontend and test-suite builds pass,
+the migration runs, and **61/61** generated suites pass against Postgres with
+these changes.
+
 ## Help, from Markdown files shipped with the application
 
 The editors now carry detailed static help: five `.md` files under

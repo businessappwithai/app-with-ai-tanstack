@@ -36,6 +36,7 @@ const MODEL_OWNED_FIELDS = [
   "entityName",
   "operation",
   "bpmnXml",
+  "mermaid",
   "description",
   "triggerType",
 ] as const;
@@ -175,6 +176,15 @@ export class WorkflowDefinitionsService {
     if (dto.entityName !== undefined) updates.entity_name = dto.entityName;
     if (dto.operation !== undefined) updates.operation = dto.operation;
     if (dto.bpmnXml !== undefined) updates.bpmn_xml = dto.bpmnXml;
+    // The automation builder's whole document. Leaving it out of the update
+    // meant every save — the draft and Publish alike — kept the steps the
+    // automation was created with, which for a new one is none at all.
+    if (dto.mermaid !== undefined) {
+      if (!/^\s*(flowchart|graph)\b/m.test(dto.mermaid)) {
+        throw new BadRequestException("An automation must be a mermaid flowchart");
+      }
+      updates.mermaid_code = dto.mermaid;
+    }
     if (dto.description !== undefined) updates.description = dto.description;
     if (dto.isActive !== undefined) updates.is_active = dto.isActive;
     if (dto.triggerType !== undefined) updates.trigger_type = dto.triggerType;

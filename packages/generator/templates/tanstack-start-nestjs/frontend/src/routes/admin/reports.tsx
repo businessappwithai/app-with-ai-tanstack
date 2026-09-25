@@ -1,13 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-router";
 import { ArrowRight, FileText, Home, Plus } from "lucide-react";
 import { ADSidebar } from "@/components/admin/ad-sidebar";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/admin/reports")({
-  component: ReportsListPage,
+  component: ReportsRoute,
 });
+
+/**
+ * The list, or the designer beneath it.
+ *
+ * `reports.$tableName.tsx` is this route's child, and a parent that renders no
+ * `<Outlet />` renders only itself — so every "Edit Design" link changed the
+ * address and left the list on screen, and no administrator could open the
+ * designer for any entity. A wrapper rather than an early return inside the
+ * list, whose hooks would then run on one render and not the next.
+ */
+function ReportsRoute() {
+  const children = useChildMatches();
+  return children.length > 0 ? <Outlet /> : <ReportsListPage />;
+}
 
 interface SysTable {
   sys_table_id: number;

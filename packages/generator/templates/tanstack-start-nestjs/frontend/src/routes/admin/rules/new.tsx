@@ -14,6 +14,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
 import { asDecisionTable } from "@/lib/automation/rule-content";
+import { emptyDecisionTable } from "@/lib/workflow/bpmn-model";
+import { useRuleEntities, useRuleEntityFields } from "@/hooks/use-rule-entities";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,18 +33,6 @@ export const Route = createFileRoute("/admin/rules/new")({
   component: NewRulePage,
 });
 
-const ENTITIES = [
-  { value: "bus_patient", label: "Patient", table: "bus_patient" },
-  { value: "bus_appointment", label: "Appointment", table: "bus_appointment" },
-  { value: "bus_practitioner", label: "Practitioner", table: "bus_practitioner" },
-  { value: "bus_encounter", label: "Encounter", table: "bus_encounter" },
-  { value: "bus_claim", label: "Claim", table: "bus_claim" },
-  { value: "Account", label: "Account", table: "bus_account" },
-  { value: "Contact", label: "Contact", table: "bus_contact" },
-  { value: "Opportunity", label: "Opportunity", table: "bus_opportunity" },
-  { value: "Activity", label: "Activity", table: "bus_activity" },
-];
-
 const OPERATIONS = [
   { value: "CREATE", label: "Create", description: "Triggered when a new record is created" },
   { value: "UPDATE", label: "Update", description: "Triggered when a record is modified" },
@@ -50,129 +40,13 @@ const OPERATIONS = [
   { value: "ALL", label: "All Operations", description: "Triggered on create, update, and delete" },
 ];
 
-const ENTITY_FIELDS: Record<string, string[]> = {
-  bus_patient: [
-    "patient_id",
-    "first_name",
-    "last_name",
-    "birth_date",
-    "gender",
-    "national_id",
-    "prov_health_number",
-    "email",
-    "phone",
-    "residence_country",
-  ],
-  bus_appointment: [
-    "appointment_id",
-    "patient_id",
-    "practitioner_id",
-    "scheduled_start",
-    "scheduled_end",
-    "current_state",
-  ],
-  bus_practitioner: [
-    "practitioner_id",
-    "npi_number",
-    "billing_number",
-    "license_number",
-    "first_name",
-    "last_name",
-    "specialty",
-  ],
-  bus_encounter: [
-    "encounter_id",
-    "appointment_id",
-    "patient_id",
-    "practitioner_id",
-    "subjective_notes",
-    "objective_notes",
-    "assessment",
-    "plan_notes",
-  ],
-  bus_claim: [
-    "claim_id",
-    "encounter_id",
-    "payer_type",
-    "icd_code",
-    "procedure_code",
-    "total_charge",
-    "claim_state",
-  ],
-  Account: [
-    "name",
-    "email",
-    "phone",
-    "website",
-    "industry",
-    "type",
-    "status",
-    "annual_revenue",
-    "employee_count",
-    "description",
-    "is_active",
-  ],
-  Contact: [
-    "first_name",
-    "last_name",
-    "email",
-    "phone",
-    "title",
-    "department",
-    "status",
-    "is_active",
-  ],
-  Opportunity: [
-    "name",
-    "stage",
-    "amount",
-    "probability",
-    "close_date",
-    "status",
-    "type",
-    "is_active",
-  ],
-  Activity: ["subject", "type", "status", "priority", "due_date", "description", "is_active"],
-};
-
-const DEFAULT_JDM = JSON.stringify(
-  {
-    contentType: "application/vnd.gorules.decision",
-    nodes: [
-      { id: "input-1", name: "Request", type: "inputNode", position: { x: 100, y: 200 } },
-      {
-        id: "dt-1",
-        name: "Decision Table",
-        type: "decisionTableNode",
-        position: { x: 350, y: 200 },
-        content: {
-          hitPolicy: "collect",
-          inputs: [{ id: "cond-1", name: "email", field: "email", type: "expression" }],
-          outputs: [
-            { id: "act-1", name: "action", field: "action", type: "expression" },
-            { id: "act-2", name: "message", field: "message", type: "expression" },
-            { id: "act-3", name: "workflowName", field: "workflowName", type: "expression" },
-          ],
-          rules: [
-            {
-              "cond-1": "== null",
-              "act-1": '"prevent"',
-              "act-2": '"Email is required"',
-              "act-3": "",
-            },
-          ],
-        },
-      },
-      { id: "output-1", name: "Response", type: "outputNode", position: { x: 600, y: 200 } },
-    ],
-    edges: [
-      { id: "e1", sourceId: "input-1", targetId: "dt-1", type: "edge" },
-      { id: "e2", sourceId: "dt-1", targetId: "output-1", type: "edge" },
-    ],
-  },
-  null,
-  2
-);
+/**
+ * A new rule starts as the modelling tool's does: one input, one outcome and
+ * the catch-all row, rather than a sample about an `email` field the chosen
+ * entity may not have — whose action was the runtime's `prevent`, which the
+ * editor's Action picker does not offer, so it showed as unpicked.
+ */
+const DEFAULT_JDM = JSON.stringify(emptyDecisionTable(), null, 2);
 
 function NewRulePage() {
   const navigate = useNavigate();
@@ -221,7 +95,7 @@ function NewRulePage() {
   const dryRunMutation = useMutation({
     mutationFn: async (data: { jdmContent: string; testData: Record<string, unknown> }) => {
       return await apiClient.post("/rules/evaluate", {
-        entityName: entityName || "Account",
+        entityName,
         operation,
         data: data.testData,
       });
@@ -263,7 +137,10 @@ function NewRulePage() {
     }
   };
 
-  const entityFields = entityName ? ENTITY_FIELDS[entityName] : undefined;
+  // This application's own record types, from its dictionary.
+  const { data: entities = [], isLoading: entitiesLoading } = useRuleEntities();
+  const chosen = entities.find((entity) => entity.value === entityName);
+  const { data: entityFields = [] } = useRuleEntityFields(chosen?.tableId);
 
   return (
     <div className="min-h-screen bg-card">
@@ -305,7 +182,12 @@ function NewRulePage() {
                       <SelectValue placeholder="Select entity..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {ENTITIES.map((e) => (
+                      {entitiesLoading ? (
+                        <SelectItem value="__loading" disabled>
+                          Loading…
+                        </SelectItem>
+                      ) : null}
+                      {entities.map((e) => (
                         <SelectItem key={e.value} value={e.value}>
                           {e.label}
                         </SelectItem>
@@ -387,6 +269,7 @@ function NewRulePage() {
               // could not be saved at all — it failed validation as "Invalid
               // JDM content" with nothing on screen to explain why.
               onChange={(next) => setJdmContent(JSON.stringify(next, null, 2))}
+              entityFields={entityFields}
             />
             {errors.jdmContent && (
               <p className="text-xs text-red-600 dark:text-red-400 px-4 pb-2">{errors.jdmContent}</p>

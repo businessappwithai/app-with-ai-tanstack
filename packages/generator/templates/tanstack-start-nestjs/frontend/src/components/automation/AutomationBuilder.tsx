@@ -88,7 +88,7 @@ function TriggerInspector({
       <header className="flex items-center gap-3 px-4 py-3.5">
         <span
           aria-hidden="true"
-          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-amber-200/60 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-sm text-amber-700 dark:text-amber-300"
+          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
         >
           ⚡
         </span>
@@ -244,11 +244,11 @@ function AddMenu({
         type="button"
         role="menuitem"
         onClick={onAddCondition}
-        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-blue-300 dark:hover:border-blue-800 hover:bg-blue-50/50 dark:hover:bg-blue-950/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-blue-300 hover:bg-blue-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:hover:border-blue-800 dark:hover:bg-blue-950/40"
       >
         <span
           aria-hidden="true"
-          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-blue-200/60 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-xs text-blue-600 dark:text-blue-400"
+          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-blue-200 bg-blue-50 text-xs text-blue-600 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-400"
         >
           ◇
         </span>
@@ -264,11 +264,11 @@ function AddMenu({
         type="button"
         role="menuitem"
         onClick={onAddLoop}
-        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-teal-300 dark:hover:border-teal-800 hover:bg-teal-50/50 dark:hover:bg-teal-950/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="mb-2 flex w-full items-start gap-2.5 rounded-lg border border-border p-2.5 text-left hover:border-teal-300 hover:bg-teal-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:hover:border-teal-800 dark:hover:bg-teal-950/40"
       >
         <span
           aria-hidden="true"
-          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-teal-200/60 dark:border-teal-800 bg-teal-50 dark:bg-teal-950/40 text-xs text-teal-700 dark:text-teal-300"
+          className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-md border border-teal-200 bg-teal-50 text-xs text-teal-700 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300"
         >
           ↻
         </span>
@@ -341,6 +341,14 @@ export interface AutomationBuilderProps {
   onOpenRuleTable?: (name: string) => void;
   onOpenHelp?: () => void;
   onPublish?: () => void;
+  /**
+   * Edit a single lifecycle step and nothing else.
+   *
+   * The enhance page selects one hook and opens it here: the rung is fixed (no
+   * add, move or remove) and its event reads as chosen on the hooks list rather
+   * than as another picker.
+   */
+  lockHook?: boolean;
 }
 
 export function AutomationBuilder({
@@ -355,8 +363,13 @@ export function AutomationBuilder({
   onOpenRuleTable,
   onOpenHelp,
   onPublish,
+  lockHook = false,
 }: AutomationBuilderProps) {
-  const [selection, setSelection] = useState<Selection>({ kind: "trigger" });
+  const [selection, setSelection] = useState<Selection>(() =>
+    lockHook && automation.hooks[0]
+      ? { kind: "hook", id: automation.hooks[0].id }
+      : { kind: "trigger" }
+  );
   /** Index in the steps list the add menu is open above, or null when closed. */
   const [addingAt, setAddingAt] = useState<number | null>(null);
 
@@ -471,6 +484,109 @@ export function AutomationBuilder({
   const selectedStepIndex =
     selection?.kind === "step" ? automation.steps.findIndex((s) => s.id === selection.id) : -1;
 
+  /**
+   * The conditions and steps, shared by every workflow kind.
+   *
+   * A hook workflow used to stop at its rungs, so the steps an author had
+   * already built vanished the moment a hook was added. Its trigger is the
+   * hook; what happens after it is the same ladder an automation uses.
+   */
+  const stepsLadder = (
+    <>
+      {automation.conditions.map((c) => (
+        <ConditionRow
+          key={c.id}
+          condition={c}
+          selected={selection?.kind === "condition" && selection.id === c.id}
+          problem={problemFor(c.id)}
+          onSelect={() => setSelection({ kind: "condition", id: c.id })}
+          onRemove={() => removeCondition(c.id)}
+          onAddAbove={() => setAddingAt(0)}
+        />
+      ))}
+
+      {runs.map((run) => {
+        const rows = run.steps.map(({ step, index }) => (
+          <StepRow
+            key={step.id}
+            step={step}
+            index={index}
+            selected={selection?.kind === "step" && selection.id === step.id}
+            problem={problemFor(step.id)}
+            adding={addingAt === index}
+            onSelect={() => setSelection({ kind: "step", id: step.id })}
+            onRemove={() => removeStep(step.id)}
+            onOpenAdd={() => setAddingAt(index)}
+            onCancelAdd={() => setAddingAt(null)}
+            onAddCondition={addCondition}
+            onAddLoop={() => addLoop(index)}
+            onAddStep={(type) => addStep(type, index)}
+          />
+        ));
+
+        if (!run.loop) return rows;
+
+        const last = run.steps[run.steps.length - 1];
+        return (
+          <div key={run.loop.id} className="w-full">
+            <LadderRung onAdd={() => setAddingAt(run.steps[0]?.index ?? 0)} />
+            <LadderCard
+              kind="loop"
+              glyph="↻"
+              title={<LoopTitle loop={run.loop} />}
+              selected={selection?.kind === "loop" && selection.id === run.loop.id}
+              problem={problemFor(run.loop.id)}
+              onSelect={() => setSelection({ kind: "loop", id: run.loop?.id as string })}
+              onRemove={() => removeLoop(run.loop?.id as string)}
+            />
+            <LoopFrame stepCount={run.steps.length} problem={Boolean(problemFor(run.loop.id))}>
+              {rows}
+              <div className="mt-1 flex flex-col items-center">
+                <LadderRung onAdd={() => setAddingAt(last ? last.index + 1 : 0)} />
+                <button
+                  type="button"
+                  onClick={() => setAddingAt(last ? last.index + 1 : 0)}
+                  className="w-full rounded-lg border border-dashed border-teal-300 bg-card py-2 text-xs font-semibold text-teal-700 hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-950/40"
+                >
+                  ＋ Add a step inside this repeat
+                </button>
+              </div>
+            </LoopFrame>
+          </div>
+        );
+      })}
+
+      {addingAt === automation.steps.length ? (
+        <>
+          <LadderRung onAdd={() => setAddingAt(null)} active />
+          <AddMenu
+            onAddCondition={addCondition}
+            onAddLoop={() => addLoop(automation.steps.length)}
+            onAddStep={(type) => addStep(type, automation.steps.length)}
+            onCancel={() => setAddingAt(null)}
+          />
+        </>
+      ) : (
+        <>
+          <LadderRung onAdd={() => setAddingAt(automation.steps.length)} />
+          <button
+            type="button"
+            onClick={() => setAddingAt(automation.steps.length)}
+            className="w-full rounded-xl border border-dashed border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          >
+            ＋ <span className="text-primary">Add a condition or an action</span>
+          </button>
+        </>
+      )}
+
+      {problemFor("steps") ? (
+        <p className="mt-3 w-full text-xs text-amber-700 dark:text-amber-300">
+          {problemFor("steps")}
+        </p>
+      ) : null}
+    </>
+  );
+
   /* ---- hook workflows ---------------------------------------------------- */
 
   const selectedHook =
@@ -543,7 +659,7 @@ export function AutomationBuilder({
                   The order is the order the backend runs them in. */}
               {automation.hooks.map((hook, index) => (
                 <Fragment key={hook.id}>
-                  {index > 0 ? (
+                  {!lockHook && index > 0 ? (
                     <LadderRung onAdd={() => addHookAt(index)} label="Add a lifecycle step here" />
                   ) : null}
                   <LadderCard
@@ -553,25 +669,31 @@ export function AutomationBuilder({
                     selected={selection?.kind === "hook" && selection.id === hook.id}
                     problem={problemFor(hook.id)}
                     onSelect={() => setSelection({ kind: "hook", id: hook.id })}
-                    onRemove={() => removeHook(hook.id)}
+                    onRemove={lockHook ? undefined : () => removeHook(hook.id)}
                   />
                 </Fragment>
               ))}
 
-              <LadderRung
-                onAdd={() => addHookAt(automation.hooks.length)}
-                label="Add a lifecycle step here"
-              />
-              <button
-                type="button"
-                onClick={() => addHookAt(automation.hooks.length)}
-                className="w-full rounded-xl border border-dashed border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                ＋ <span className="text-primary">Add a lifecycle step</span>
-              </button>
+              {lockHook ? null : (
+                <>
+                  <LadderRung
+                    onAdd={() => addHookAt(automation.hooks.length)}
+                    label="Add a lifecycle step here"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addHookAt(automation.hooks.length)}
+                    className="w-full rounded-xl border border-dashed border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  >
+                    ＋ <span className="text-primary">Add a lifecycle step</span>
+                  </button>
+                </>
+              )}
 
               {problemFor("hooks") ? (
-                <p className="mt-3 w-full text-xs text-amber-700 dark:text-amber-300">{problemFor("hooks")}</p>
+                <p className="mt-3 w-full text-xs text-amber-700 dark:text-amber-300">
+                  {problemFor("hooks")}
+                </p>
               ) : null}
             </>
           ) : (
@@ -596,101 +718,9 @@ export function AutomationBuilder({
                 problem={problemFor("trigger")}
                 onSelect={() => setSelection({ kind: "trigger" })}
               />
-
-              {automation.conditions.map((c) => (
-                <ConditionRow
-                  key={c.id}
-                  condition={c}
-                  selected={selection?.kind === "condition" && selection.id === c.id}
-                  problem={problemFor(c.id)}
-                  onSelect={() => setSelection({ kind: "condition", id: c.id })}
-                  onRemove={() => removeCondition(c.id)}
-                  onAddAbove={() => setAddingAt(0)}
-                />
-              ))}
-
-              {runs.map((run) => {
-                const rows = run.steps.map(({ step, index }) => (
-                  <StepRow
-                    key={step.id}
-                    step={step}
-                    index={index}
-                    selected={selection?.kind === "step" && selection.id === step.id}
-                    problem={problemFor(step.id)}
-                    adding={addingAt === index}
-                    onSelect={() => setSelection({ kind: "step", id: step.id })}
-                    onRemove={() => removeStep(step.id)}
-                    onOpenAdd={() => setAddingAt(index)}
-                    onCancelAdd={() => setAddingAt(null)}
-                    onAddCondition={addCondition}
-                    onAddLoop={() => addLoop(index)}
-                    onAddStep={(type) => addStep(type, index)}
-                  />
-                ));
-
-                if (!run.loop) return rows;
-
-                const last = run.steps[run.steps.length - 1];
-                return (
-                  <div key={run.loop.id} className="w-full">
-                    <LadderRung onAdd={() => setAddingAt(run.steps[0]?.index ?? 0)} />
-                    <LadderCard
-                      kind="loop"
-                      glyph="↻"
-                      title={<LoopTitle loop={run.loop} />}
-                      selected={selection?.kind === "loop" && selection.id === run.loop.id}
-                      problem={problemFor(run.loop.id)}
-                      onSelect={() => setSelection({ kind: "loop", id: run.loop?.id as string })}
-                      onRemove={() => removeLoop(run.loop?.id as string)}
-                    />
-                    <LoopFrame
-                      stepCount={run.steps.length}
-                      problem={Boolean(problemFor(run.loop.id))}
-                    >
-                      {rows}
-                      <div className="mt-1 flex flex-col items-center">
-                        <LadderRung onAdd={() => setAddingAt(last ? last.index + 1 : 0)} />
-                        <button
-                          type="button"
-                          onClick={() => setAddingAt(last ? last.index + 1 : 0)}
-                          className="w-full rounded-lg border border-dashed border-teal-300 dark:border-teal-800 bg-card py-2 text-xs font-semibold text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                        >
-                          ＋ Add a step inside this repeat
-                        </button>
-                      </div>
-                    </LoopFrame>
-                  </div>
-                );
-              })}
-
-              {addingAt === automation.steps.length ? (
-                <>
-                  <LadderRung onAdd={() => setAddingAt(null)} active />
-                  <AddMenu
-                    onAddCondition={addCondition}
-                    onAddLoop={() => addLoop(automation.steps.length)}
-                    onAddStep={(type) => addStep(type, automation.steps.length)}
-                    onCancel={() => setAddingAt(null)}
-                  />
-                </>
-              ) : (
-                <>
-                  <LadderRung onAdd={() => setAddingAt(automation.steps.length)} />
-                  <button
-                    type="button"
-                    onClick={() => setAddingAt(automation.steps.length)}
-                    className="w-full rounded-xl border border-dashed border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                  >
-                    ＋ <span className="text-primary">Add a condition or an action</span>
-                  </button>
-                </>
-              )}
-
-              {problemFor("steps") ? (
-                <p className="mt-3 w-full text-xs text-amber-700 dark:text-amber-300">{problemFor("steps")}</p>
-              ) : null}
             </>
           )}
+          {stepsLadder}
         </div>
       </div>
 
@@ -802,6 +832,7 @@ export function AutomationBuilder({
               onChange={updateStep}
               onRerun={onRerunStep ? () => onRerunStep(selection.id) : undefined}
               onOpenRuleTable={onOpenRuleTable}
+              ownEntity={automation.trigger.entity}
             />
           ) : null}
 
@@ -812,6 +843,7 @@ export function AutomationBuilder({
               count={automation.hooks.length}
               fields={fieldsFor(automation.trigger.entity)}
               problem={problemFor(selectedHook.id)}
+              locked={lockHook}
               onChange={updateHook}
               onMove={(delta) => moveHook(selectedHook.id, delta)}
               onRemove={() => removeHook(selectedHook.id)}
@@ -852,6 +884,7 @@ function HookInspector({
   count,
   fields,
   problem,
+  locked = false,
   onChange,
   onMove,
   onRemove,
@@ -861,6 +894,8 @@ function HookInspector({
   count: number;
   fields: string[];
   problem?: string;
+  /** Chosen on the hooks list, not here: no picker, no move, no remove. */
+  locked?: boolean;
   onChange: (next: AutomationHook) => void;
   onMove: (delta: number) => void;
   onRemove: () => void;
@@ -869,7 +904,7 @@ function HookInspector({
     <div className="space-y-4 p-4">
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          Step {index + 1} of {count}
+          {locked ? "Lifecycle step" : `Step ${index + 1} of ${count}`}
         </p>
         <h2 className="text-base font-bold tracking-tight">Lifecycle step</h2>
         <p className="mt-1 text-[12.5px] text-muted-foreground">{HOOK_EVENT_HINTS[hook.event]}</p>
@@ -878,8 +913,9 @@ function HookInspector({
       <label className="block">
         <span className="mb-1 block text-xs font-medium">When</span>
         <select
-          className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+          className="w-full rounded-md border border-border px-2 py-1.5 text-sm disabled:bg-muted disabled:text-muted-foreground"
           value={hook.event}
+          disabled={locked}
           onChange={(e) => onChange({ ...hook, event: e.target.value as HookEvent })}
         >
           {HOOK_EVENTS.map((event) => (
@@ -888,6 +924,11 @@ function HookInspector({
             </option>
           ))}
         </select>
+        {locked ? (
+          <span className="mt-1 block text-[11.5px] text-muted-foreground">
+            Set by the hook selected on the hooks list.
+          </span>
+        ) : null}
       </label>
 
       <label className="block">
@@ -921,32 +962,36 @@ function HookInspector({
 
       {problem ? <p className="text-xs text-amber-700 dark:text-amber-300">{problem}</p> : null}
 
-      <div className="flex gap-2">
-        <button
-          type="button"
-          disabled={index <= 0}
-          onClick={() => onMove(-1)}
-          className="flex-1 rounded-md border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-40"
-        >
-          ↑ Move up
-        </button>
-        <button
-          type="button"
-          disabled={index >= count - 1}
-          onClick={() => onMove(1)}
-          className="flex-1 rounded-md border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-40"
-        >
-          ↓ Move down
-        </button>
-      </div>
+      {locked ? null : (
+        <>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={index <= 0}
+              onClick={() => onMove(-1)}
+              className="flex-1 rounded-md border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-40"
+            >
+              ↑ Move up
+            </button>
+            <button
+              type="button"
+              disabled={index >= count - 1}
+              onClick={() => onMove(1)}
+              className="flex-1 rounded-md border border-border px-3 py-1.5 text-sm font-medium disabled:opacity-40"
+            >
+              ↓ Move down
+            </button>
+          </div>
 
-      <button
-        type="button"
-        onClick={onRemove}
-        className="w-full rounded-md border border-border px-3 py-1.5 text-sm font-medium text-destructive"
-      >
-        Remove step
-      </button>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="w-full rounded-md border border-border px-3 py-1.5 text-sm font-medium text-destructive"
+          >
+            Remove step
+          </button>
+        </>
+      )}
     </div>
   );
 }
@@ -1039,9 +1084,11 @@ function ConditionRow({
 /**
  * The clause on a repeat's card.
  *
- * Worded as the stopping rule rather than the continuing one — "until … stops
- * being true" is how people describe a loop they are debugging, and it puts the
- * end condition, which is the part that goes wrong, in the reader's mind.
+ * Worded as the continuing rule and then the stopping one. It used to read
+ * "until X stops being true", which is a double negative the moment X is
+ * itself a negation — "until status is not paid stops being true". "While"
+ * is also the word the saved EML uses (`Repeat while …`), and the stopping
+ * clause still puts the end condition, the part that goes wrong, in view.
  */
 function LoopTitle({ loop }: { loop: Loop }) {
   if (!loop.condition.field) {
@@ -1049,7 +1096,8 @@ function LoopTitle({ loop }: { loop: Loop }) {
   }
   return (
     <>
-      until <Token value>{describeCondition(loop.condition)}</Token> stops being true
+      while <Token value>{describeCondition(loop.condition)}</Token>, and stops once that is no
+      longer true
     </>
   );
 }

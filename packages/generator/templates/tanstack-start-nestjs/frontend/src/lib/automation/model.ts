@@ -642,8 +642,9 @@ export function validateAutomation(automation: Automation): Problem[] {
     problems.push({ target: "trigger", message: "Pick the record type this watches." });
   }
 
-  // A hook workflow is its rungs. It has no conditions, loops or steps to
-  // check, so validate the handlers and stop.
+  // A hook workflow starts from one or more lifecycle rungs. It has no single
+  // `trigger.event`, so validate the handlers, then fall through to check any
+  // conditions and steps the author added after them.
   if (automation.kind === "hook") {
     if (automation.hooks.length === 0) {
       problems.push({ target: "hooks", message: "Add at least one lifecycle step." });
@@ -665,7 +666,6 @@ export function validateAutomation(automation: Automation): Problem[] {
       }
       seen.add(key);
     }
-    return problems;
   }
 
   for (const c of automation.conditions) {
@@ -679,7 +679,9 @@ export function validateAutomation(automation: Automation): Problem[] {
     }
   }
 
-  if (automation.steps.length === 0) {
+  // A hook's rungs are what it does, so an empty step list is not a problem
+  // there the way it is for an automation — but steps it does carry are checked.
+  if (automation.kind !== "hook" && automation.steps.length === 0) {
     problems.push({ target: "steps", message: "Add at least one thing for this to do." });
   }
 
@@ -846,6 +848,15 @@ function humanField(field: string): string {
  * artifact stays valid, renderable mermaid.
  */
 /**
+ * Write a hook workflow.
+ *
+ * Byte-for-byte the shape a hand-written workflow uses, because the generator
+ * reads these directives directly: the chain is drawn in run order so a reader
+ * sees the sequence, and the `%%hook` lines carry the meaning. The diagram is
+ * generated from the hooks rather than edited alongside them, so the picture
+ * and the directives cannot disagree.
+ */
+/**
  * A Create step's values, as the JSON map the generated runtime parses.
  *
  * The inspector takes one `column: value` per line, and those lines used to be
@@ -936,31 +947,39 @@ function directiveValue(key: string, value: string): string {
   }
 }
 
-/**
- * Write a hook workflow.
- *
- * Byte-for-byte the shape a hand-written workflow uses, because the generator
- * reads these directives directly: the chain is drawn in run order so a reader
- * sees the sequence, and the `%%hook` lines carry the meaning. The diagram is
- * generated from the hooks rather than edited alongside them, so the picture
- * and the directives cannot disagree.
- */
+/** The `%%step` directives that describe one step, wherever it is emitted. */
+function stepDirectives(step: AutomationStep, nodeId: string): string[] {
+  const out = [
+    `%%step ${nodeId} type: ${step.type}${step.resultName ? ` as: ${step.resultName}` : ""}`,
+  ];
+  for (const [k, v] of Object.entries(step.props)) {
+    if (v) out.push(`%%step ${nodeId} ${k}: ${directiveValue(k, v)}`);
+  }
+  if (step.table) out.push(`%%step ${nodeId} table: ${JSON.stringify(step.table)}`);
+  if (step.loopId) out.push(`%%step ${nodeId} in: ${step.loopId}`);
+  return out;
+}
+
 function serializeHookWorkflow(a: Automation): string {
   const entity = a.trigger.entity || "Record";
   const lines = ["flowchart TD", `    request[Request] --> validate[Validate ${entity}]`];
 
   let previous = "validate";
   a.hooks.forEach((hook, index) => {
-    const id = `step${index + 1}`;
+    const id = `hook${index + 1}`;
     lines.push(`    ${previous} --> ${id}[${hook.event}: ${hook.handler}]`);
     previous = id;
   });
 
-  lines.push(
-    `    ${previous} --> persist[Persist ${entity}]`,
-    "    persist --> done[Response]",
-    ""
-  );
+  // The steps follow the hook chain, so the diagram reads as one run rather
+  // than a trigger floating beside it.
+  a.steps.forEach((step, index) => {
+    const id = `s${index + 1}`;
+    lines.push(`    ${previous} --> ${id}[${describeStep(step)}]`);
+    previous = id;
+  });
+
+  lines.push(`    ${previous} --> done[Response]`, "");
 
   for (const hook of a.hooks) {
     lines.push(
@@ -968,6 +987,22 @@ function serializeHookWorkflow(a: Automation): string {
         (hook.field ? `[field: ${hook.field}]` : "")
     );
   }
+
+  for (const c of a.conditions) {
+    lines.push(`    %%guard ${c.field} ${c.operator} ${JSON.stringify(c.value)}`);
+  }
+
+  for (const loop of loopsOf(a)) {
+    if (stepsInLoop(a, loop.id).length === 0) continue;
+    const c = loop.condition;
+    lines.push(
+      `    %%loop ${loop.id} while: ${c.field} ${c.operator} ${JSON.stringify(c.value)} max: ${loop.maxPasses}`
+    );
+  }
+
+  a.steps.forEach((step, index) => {
+    for (const line of stepDirectives(step, `s${index + 1}`)) lines.push(`    ${line}`);
+  });
 
   return lines.join("\n");
 }
@@ -1055,14 +1090,7 @@ export function serializeAutomation(a: Automation, options: SerializeOptions = {
   /** Directives for one step, kept out of the node loop so the subgraph body stays clean. */
   const directives: string[] = [];
   const emit = (step: AutomationStep, nodeId: string) => {
-    directives.push(
-      `%%step ${nodeId} type: ${step.type}${step.resultName ? ` as: ${step.resultName}` : ""}`
-    );
-    for (const [k, v] of Object.entries(step.props)) {
-      if (v) directives.push(`%%step ${nodeId} ${k}: ${directiveValue(k, v)}`);
-    }
-    if (step.table) directives.push(`%%step ${nodeId} table: ${JSON.stringify(step.table)}`);
-    if (step.loopId) directives.push(`%%step ${nodeId} in: ${step.loopId}`);
+    directives.push(...stepDirectives(step, nodeId));
   };
 
   let openLoop: string | null = null;
@@ -1136,7 +1164,11 @@ const SAGA_OPERATION_EVENTS: Record<string, TriggerEvent> = {
  */
 function parseSagaProps(rest: string): Record<string, string> {
   const props: Record<string, string> = {};
-  for (const part of rest.trim().split(/\s+(?=[A-Za-z_]\w*:)/)) {
+  // The `(?!\/\/)` is what keeps a URL whole: `url: https://host/path` would
+  // otherwise split at `https:`, so a REST step opened in the builder with an
+  // empty url. Kept identical in language/checker.ts (parseStepProps) and
+  // packages/generator/src/workflows/steps.ts (PROP_SPLIT).
+  for (const part of rest.trim().split(/\s+(?=[A-Za-z_]\w*:(?!\/\/))/)) {
     const match = part.match(/^([A-Za-z_]\w*):\s*(.*)$/s);
     if (match?.[1]) props[match[1]] = (match[2] ?? "").trim();
   }

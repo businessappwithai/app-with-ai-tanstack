@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
 import { asDecisionTable } from "@/lib/automation/rule-content";
+import { useRuleEntities, useRuleEntityFields } from "@/hooks/use-rule-entities";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,6 +80,11 @@ function EditRulePage() {
     description: wf.description,
   }));
 
+  // The rule's entity's own columns, for the table's input pickers.
+  const { data: entities = [] } = useRuleEntities();
+  const ruleTableId = entities.find((entity) => entity.value === rule?.entityName)?.tableId;
+  const { data: entityFields = [] } = useRuleEntityFields(ruleTableId);
+
   useEffect(() => {
     if (rule) {
       try {
@@ -107,7 +113,7 @@ function EditRulePage() {
   const dryRunMutation = useMutation({
     mutationFn: async (data: { testData: Record<string, unknown> }) => {
       return await apiClient.post("/rules/evaluate", {
-        entityName: rule?.entityName || "Account",
+        entityName: rule?.entityName ?? "",
         operation: rule?.operation || "CREATE",
         data: data.testData,
       });
@@ -296,6 +302,7 @@ function EditRulePage() {
               // could not be saved at all — it failed validation as "Invalid
               // JDM content" with nothing on screen to explain why.
               onChange={(next) => setJdmContent(JSON.stringify(next, null, 2))}
+              entityFields={entityFields}
             />
             {errors.jdmContent && (
               <p className="text-xs text-red-600 dark:text-red-400 px-4 pb-2">{errors.jdmContent}</p>

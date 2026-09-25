@@ -106,7 +106,7 @@ export class RulesEngine implements OnModuleDestroy {
     this.logger.log(`Evaluating rules for ${entityType}:${action}`);
 
     try {
-      const decision = this.engine.createDecision(Buffer.from(jdmContent));
+      const decision = this.engine.createDecision(Buffer.from(this.asJdmGraph(jdmContent)));
       // `_operation` carries the CRUD verb. It is deliberately not called
       // `action`: that name belongs to the record. A model with an `action`
       // column could never fire its own rules against it, because the engine
@@ -129,7 +129,7 @@ export class RulesEngine implements OnModuleDestroy {
         ruleId: dbRuleName || v.ruleId || v.rule_id || 'unknown',
         ruleName: dbRuleName || v.ruleId || v.rule_id || 'unknown',
         matched: true,
-        actions: [{ type: v.action as RuleAction['type'], config: this.toActionConfig(v) }],
+        actions: [{ type: this.actionType(v.action), config: this.toActionConfig(v) }],
       }));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -213,8 +213,107 @@ export class RulesEngine implements OnModuleDestroy {
       ruleId: v.ruleId,
       ruleName: v.ruleId,
       matched: true,
-      actions: [{ type: v.action as RuleAction['type'], config: this.toActionConfig(v) }],
+      actions: [{ type: this.actionType(v.action), config: this.toActionConfig(v) }],
     }));
+  }
+
+  /**
+   * A stored rule, as the graph the engine evaluates.
+   *
+   * The rule editor saves what it edits — a bare decision table, `{ inputs,
+   * outputs, rules }` — while the engine needs a JDM graph with `nodes`. Every
+   * rule created in the editor, and every model rule re-saved there, was
+   * therefore reported as "missing field `nodes`" and refused nothing. A graph
+   * is passed through untouched; a table is wrapped in one here, which also
+   * mends the rows already saved that way.
+   *
+   * The editor writes cells as an author reads them: `"cancelled"` or `> 0`
+   * under an input, and plain words under an outcome — `validation-error`, a
+   * sentence of message. An input cell is a unary test against its field, so
+   * a bare word is quoted to mean equality. An outcome cell is an expression,
+   * where `validation-error` is a subtraction, so text is written as a string
+   * literal unless it already is one or is a number, a boolean or an object.
+   */
+  private asJdmGraph(jdmContent: string): string {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(jdmContent);
+    } catch {
+      return jdmContent;
+    }
+    const table = parsed as {
+      nodes?: unknown;
+      hitPolicy?: string;
+      inputs?: Array<{ id: string; name?: string; field?: string }>;
+      outputs?: Array<{ id: string; name?: string; field?: string }>;
+      rules?: Array<Record<string, string>>;
+    };
+    if (!table || typeof table !== 'object' || table.nodes) return jdmContent;
+    if (!Array.isArray(table.inputs) || !Array.isArray(table.outputs) || !Array.isArray(table.rules)) {
+      return jdmContent;
+    }
+
+    const quote = (text: string) => `'${text.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+    const isLiteral = (text: string) =>
+      /^'.*'$|^".*"$/.test(text) ||
+      /^-?\d+(\.\d+)?$/.test(text) ||
+      /^(true|false|null)$/.test(text) ||
+      /^[[{]/.test(text);
+    const inputCell = (raw: string) => {
+      const text = (raw ?? '').trim();
+      if (!text || isLiteral(text)) return text;
+      return /^[A-Za-z_][\w-]*$/.test(text) ? quote(text) : text;
+    };
+    const outputCell = (raw: string) => {
+      const text = (raw ?? '').trim();
+      if (!text) return "''";
+      return isLiteral(text) ? text : quote(text);
+    };
+
+    const rules = table.rules.map((row) => {
+      const next: Record<string, string> = { _id: row._id ?? '' };
+      for (const column of table.inputs ?? []) next[column.id] = inputCell(row[column.id] ?? '');
+      for (const column of table.outputs ?? []) next[column.id] = outputCell(row[column.id] ?? '');
+      return next;
+    });
+
+    return JSON.stringify({
+      nodes: [
+        { id: 'input', type: 'inputNode', name: 'Input', position: { x: 0, y: 0 } },
+        {
+          id: 'table',
+          type: 'decisionTableNode',
+          name: 'Decision table',
+          position: { x: 300, y: 0 },
+          content: {
+            hitPolicy: table.hitPolicy === 'first' ? 'first' : 'collect',
+            inputs: table.inputs.map((c) => ({ id: c.id, name: c.name ?? c.field ?? c.id, field: c.field ?? '' })),
+            outputs: table.outputs.map((c) => ({ id: c.id, name: c.name ?? c.field ?? c.id, field: c.field || c.name || c.id })),
+            rules,
+          },
+        },
+        { id: 'output', type: 'outputNode', name: 'Output', position: { x: 600, y: 0 } },
+      ],
+      edges: [
+        { id: 'e1', sourceId: 'input', targetId: 'table', type: 'edge' },
+        { id: 'e2', sourceId: 'table', targetId: 'output', type: 'edge' },
+      ],
+    });
+  }
+
+  /**
+   * A row's action, in this engine's vocabulary.
+   *
+   * The rule editor offers EML's words — the ones a model is written in and
+   * the modelling tool's editor writes — and EML says `validation-error` where
+   * this engine says `prevent`. The generator translates when it compiles a
+   * model's rules, but a rule written in this application's own editor goes
+   * straight into `sys_rule_definitions`, so an untranslated row matched and
+   * was then dropped by `validate()`: the rule refused nothing. Accept both.
+   */
+  private actionType(raw: unknown): RuleAction['type'] {
+    const type = typeof raw === 'string' ? raw.trim() : '';
+    return (type === 'validation-error' ? 'prevent' : type) as RuleAction['type'];
   }
 
   /**

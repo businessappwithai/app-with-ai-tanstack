@@ -355,10 +355,11 @@ export function RuleTableEditor({
           ) : (
             <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12.5px] text-emerald-800">
               <b>Row {result.rowIndex + 1} fits.</b>{" "}
+              {/* A message usually ends in its own full stop; do not add a second. */}
               {Object.entries(result.outputs)
                 .map(([k, v]) => `${k} = ${v || "(empty)"}`)
-                .join(", ")}
-              .
+                .join(", ")
+                .replace(/([^.!?])$/, "$1.")}
             </p>
           )}
         </section>

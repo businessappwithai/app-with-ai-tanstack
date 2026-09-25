@@ -17247,6 +17247,10 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/hooks/use-bus-entity-level.ts"
       },
       {
+        src: "src/hooks/use-rule-entities.ts",
+        dest: "src/hooks/use-rule-entities.ts"
+      },
+      {
         src: "src/components/ui/breadcrumb.tsx",
         dest: "src/components/ui/breadcrumb.tsx"
       },
