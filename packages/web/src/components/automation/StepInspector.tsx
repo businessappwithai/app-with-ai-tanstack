@@ -207,6 +207,8 @@ interface StepInspectorProps {
   onChange: (next: AutomationStep) => void;
   onRerun?: () => void;
   onOpenRuleTable?: (name: string) => void;
+  /** The record type the automation runs on — what a write naming none acts on. */
+  ownEntity?: string;
 }
 
 export function StepInspector({
@@ -220,9 +222,25 @@ export function StepInspector({
   onChange,
   onRerun,
   onOpenRuleTable,
+  ownEntity = "",
 }: StepInspectorProps) {
   const setProp = (key: string, value: string) =>
     onChange({ ...step, props: { ...step.props, [key]: value } });
+
+  // An update or delete that names no record type acts on the record the
+  // automation runs on — the executor's reading, the checker's, and the one the
+  // model's own sagas are written in. So that is what the picker shows, and
+  // choosing it stores no entity: naming it drew EML265 ("targets FeeInvoice
+  // without saying which row") for a write that was never ambiguous.
+  const writesOwnRecord = step.type === "UpdateEntity" || step.type === "DeleteEntity";
+  const shownEntity = step.props.entity || (writesOwnRecord ? ownEntity : "");
+  const setEntity = (value: string) => {
+    if (writesOwnRecord && value === ownEntity) {
+      const props = { ...step.props };
+      delete props.entity;
+      onChange({ ...step, props });
+    } else setProp("entity", value);
+  };
 
   const table = useMemo(
     () => ruleTables.find((t) => t.name === step.props.ruleTable),
@@ -308,8 +326,8 @@ export function StepInspector({
           <Field label="Record type">
             <select
               className={inputClass}
-              value={step.props.entity ?? ""}
-              onChange={(e) => setProp("entity", e.target.value)}
+              value={shownEntity}
+              onChange={(e) => setEntity(e.target.value)}
             >
               <option value="">Choose a record type…</option>
               {entities.map((e) => (
@@ -344,10 +362,19 @@ export function StepInspector({
           <Field
             label="Which record"
             hint={
-              <>
-                The record to delete, usually a reference from an earlier step —{" "}
-                <Ref>{"{{invoiceId}}"}</Ref>.
-              </>
+              step.type === "UpdateEntity" ? (
+                <>
+                  Only for another record type: a reference from an earlier step like{" "}
+                  <Ref>{"{{invoiceId}}"}</Ref>, or the column on that record pointing back to this
+                  one, like <code className="font-mono text-[11px]">order_id</code>. Leave it empty
+                  to write this record.
+                </>
+              ) : (
+                <>
+                  The record to delete, usually a reference from an earlier step —{" "}
+                  <Ref>{"{{invoiceId}}"}</Ref>.
+                </>
+              )
             }
           >
             <input
@@ -367,7 +394,7 @@ export function StepInspector({
               onChange={(e) => setProp("field", e.target.value)}
             >
               <option value="">Choose a field…</option>
-              {fieldsFor(step.props.entity ?? "").map((f) => (
+              {fieldsFor(shownEntity).map((f) => (
                 <option key={f} value={f}>
                   {f}
                 </option>

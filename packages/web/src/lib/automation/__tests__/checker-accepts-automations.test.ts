@@ -33,7 +33,6 @@ import {
   newHook,
   newLoop,
   newStep,
-  parseAutomation,
   serializeAutomation,
 } from "../model";
 
@@ -146,25 +145,6 @@ describe("the checker accepts what the automation builder writes", () => {
     a.steps = [formula];
 
     expect(errorsOf(a)).toEqual([]);
-  });
-
-  // Found on the Logic step: a process that updated the record it runs on
-  // picked that record type in the inspector, which wrote `entity: ClassPack`
-  // with no target — read by the checker as a cross-entity write it cannot
-  // aim (EML265). The executor treats it as this record, as the model's own
-  // sagas write it, by leaving the entity out.
-  it("takes a saga step that updates the record the saga runs on", () => {
-    const a = emptyAutomation("ClassPack", "saga");
-    a.name = "Exhaust pack";
-    a.sagaTrigger = "automatic";
-    a.sagaOperation = "UPDATE";
-    const update = newStep("UpdateEntity");
-    update.props = { entity: "ClassPack", field: "status", value: "exhausted" };
-    a.steps = [update];
-
-    expect(errorsOf(a)).toEqual([]);
-    const reread = parseAutomation(serializeAutomation(a), "ClassPack");
-    expect(reread.steps[0]?.props.entity).toBe("ClassPack");
   });
 
   it("names the entity from %%hook, so a bad one is still reported", () => {

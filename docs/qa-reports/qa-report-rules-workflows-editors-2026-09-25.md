@@ -53,21 +53,21 @@ three kinds:
 | 4 | Low | Process | A repeat read *"until feeinvoice.status is not paid stops being true"*, a double negative | **Fixed** |
 | 5 | High | Process | *Create a record* wrote its values as typed. Every line after the first fell outside the `%%step` directive (invalid Mermaid, dropped on reload), and the first was not JSON, which the generated `executeCreateEntity` requires, so the step was skipped at run time as "invalid fields JSON". A multi-line web-service body had the same line-escaping problem | **Fixed**, in both the tool and the builder copy it ships to generated apps |
 | 6 | Medium | Rule | Saving an `%%action` rule moved its actions below the next section's heading (`%% ---- Business rules — the student record`), because a rule's body runs to the next `%%rule` and the actions were appended at its end | **Fixed** |
-| 7 | High | Process | *Update a field* on the record the process runs on wrote `entity: FeeInvoice` with no target. The checker the generator runs reads that as a cross-entity write it cannot aim (EML265, an error), so the process failed the check. The executor treats a write with no entity as "this record", which is how the model's own sagas write it | **Fixed** |
-| 8 | Medium | Process | *Update a field* on a **different** record type has no "Which record" input, so it can never be aimed at a row. The checker rejects it (EML265) and the executor skips it | **Open.** See below |
+| 7 | High | Process | *Update a field* on the record the process runs on wrote `entity: FeeInvoice` with no target. The checker the generator runs reads that as a cross-entity write it cannot aim (EML265, an error), so the process failed the check. The executor treats a write with no entity as "this record", which is how the model's own sagas write it. The inspector now shows the own record type for a step that names none, and picking it stores no entity | **Fixed** |
+| 8 | Medium | Process | *Update a field* on a **different** record type had no "Which record" input, so it could never be aimed at a row. The checker rejected it (EML265) and the executor skipped it | **Fixed**: `target` added to the step in the tool's builder, the generated app's copy and `appwithai-language.json`; the builder reports a cross-entity write that does not say which row |
 | 9 | — | Status | A drag that starts within 200 ms of *Add state* misses, because the canvas is re-fitting | **Not a defect.** No person moves that fast; the spec waits for the canvas to settle |
 | 10 | Low | Checker | On a status machine bound to an entity with no status column, EML426 names an unrelated enum (`AssessmentStatus`) | **Open.** `language/**`, outside this change |
 
-### Why finding 8 is open
+### How finding 8 was closed
 
-The fix is to add `target` to `UpdateEntity` in `STEP_FIELDS`. That list is
-held equal between this tool and the builder copy shipped to generated
-applications (`generated-app-parity.test.ts`) and against
-`appwithai-language.json` (`language-parity.test.ts`). The change therefore
-belongs in all three at once, alongside a checker case. The proposal: show
-*Which record* for Update exactly as Delete already does, write it as `target:
-{{id}}`, and have `validateAutomation` report a cross-entity update without one
-before it reaches the checker.
+`target` was added to `UpdateEntity` in `STEP_FIELDS`, in both builder
+copies (held equal by `generated-app-parity.test.ts`), and in
+`appwithai-language.json` (held equal by `language-parity.test.ts`). The
+generator and the checker already read `target:` in both of its forms: a
+`{{reference}}` becomes the row id, a bare column a foreign key to match. So
+the change is the input, the validation that asks for it, and the help that
+explains it. `update-target.test.ts` holds the builder's validation and the
+published checker to the same answer.
 
 ## Evidence
 

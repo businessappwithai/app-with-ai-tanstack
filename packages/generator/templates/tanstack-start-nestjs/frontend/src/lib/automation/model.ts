@@ -198,7 +198,7 @@ export interface AutomationStep {
 export const STEP_FIELDS: Record<StepType, readonly string[]> = {
   Decision: ["ruleTable", "inputs"],
   CreateEntity: ["entity", "values"],
-  UpdateEntity: ["entity", "field", "value"],
+  UpdateEntity: ["entity", "target", "field", "value"],
   DeleteEntity: ["entity", "target"],
   Formula: ["operation", "left", "right"],
   REST: ["method", "url", "body"],
@@ -693,6 +693,19 @@ export function validateAutomation(automation: Automation): Problem[] {
       // either told authors their working process was broken.
       if (field === "ruleTable" && step.table) continue;
       if (field === "entity" && step.type === "UpdateEntity") continue;
+      // Which row to write is only a question when the step writes another
+      // record type: the executor refuses to guess one, and the checker says so
+      // (EML265). On this record, or with no record type, there is no question.
+      if (field === "target" && step.type === "UpdateEntity") {
+        const entity = (step.props.entity ?? "").trim();
+        if (entity && entity !== automation.trigger.entity && !(step.props.target ?? "").trim()) {
+          problems.push({
+            target: step.id,
+            message: `Step ${i + 1} writes a ${entity} but does not say which one. Set Which record.`,
+          });
+        }
+        continue;
+      }
       if (!(step.props[field] ?? "").trim()) {
         problems.push({
           target: step.id,
@@ -924,26 +937,6 @@ function directiveValue(key: string, value: string): string {
 }
 
 /**
- * Whether a step changes the record the automation runs on.
- *
- * The executor updates or deletes "this record" when a step names no entity,
- * which is how the model's own sagas write it (`%%step C UpdateEntity field:
- * student_id …`). Naming the automation's own entity says the same thing, but
- * the checker reads a named entity with no target as a cross-entity write it
- * cannot aim (EML265), so a process built here that updated its own record
- * failed the check the generator runs. It is written without the entity, and
- * read back with it filled in so the inspector still shows the record type.
- */
-function isSelfWrite(step: AutomationStep, ownEntity: string): boolean {
-  return (
-    (step.type === "UpdateEntity" || step.type === "DeleteEntity") &&
-    !!ownEntity &&
-    (step.props.entity ?? "").trim() === ownEntity &&
-    !(step.props.target ?? "").trim()
-  );
-}
-
-/**
  * Write a hook workflow.
  *
  * Byte-for-byte the shape a hand-written workflow uses, because the generator
@@ -1065,9 +1058,7 @@ export function serializeAutomation(a: Automation, options: SerializeOptions = {
     directives.push(
       `%%step ${nodeId} type: ${step.type}${step.resultName ? ` as: ${step.resultName}` : ""}`
     );
-    const selfWrite = isSelfWrite(step, a.trigger.entity);
     for (const [k, v] of Object.entries(step.props)) {
-      if (k === "entity" && selfWrite) continue;
       if (v) directives.push(`%%step ${nodeId} ${k}: ${directiveValue(k, v)}`);
     }
     if (step.table) directives.push(`%%step ${nodeId} table: ${JSON.stringify(step.table)}`);
@@ -1390,16 +1381,6 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
   }
 
   a.steps = order.map((id) => stepsById.get(id)).filter((s): s is AutomationStep => Boolean(s));
-  // A write that names no entity is a write to this record; show it as one.
-  for (const step of a.steps) {
-    if (
-      (step.type === "UpdateEntity" || step.type === "DeleteEntity") &&
-      !step.props.entity &&
-      a.trigger.entity
-    ) {
-      step.props.entity = a.trigger.entity;
-    }
-  }
 
   // A membership naming a loop that was never declared would render as a box
   // with no repeat count and execute once, which is not what the document says.

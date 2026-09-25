@@ -89,9 +89,14 @@ map already written as JSON in the model opens as lines.
 
 | Field | Meaning |
 | ----- | ------- |
-| **Record type** | The record to change, usually the one the process runs on. |
+| **Record type** | The record to change. It shows the process's own record type until you pick another. |
+| **Which record** | Only for another record type: a reference such as `{{invoiceId}}` published by an earlier step, or the column on that record that points back to this one, such as `order_id` (which updates every row it links). Leave it empty to write this record. |
 | **Field to write** | Picked from that record type's columns. |
 | **New value** | A fixed value (`overdue`) or a reference (`{{newBalance}}`). |
+
+Writing another record type without saying which row is reported as a problem
+(*"Step 4 writes a FeeInvoiceLine but does not say which one"*). The application refuses to
+guess a row, so the step would otherwise never run.
 
 ### ✕ Delete a record
 

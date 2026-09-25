@@ -828,6 +828,7 @@ export function AutomationBuilder({
               onChange={updateStep}
               onRerun={onRerunStep ? () => onRerunStep(selection.id) : undefined}
               onOpenRuleTable={onOpenRuleTable}
+              ownEntity={automation.trigger.entity}
             />
           ) : null}
 

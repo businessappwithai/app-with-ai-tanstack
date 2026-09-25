@@ -48,7 +48,8 @@ test.beforeAll(async ({ playwright }) => {
 async function openLogic(page: Page): Promise<void> {
   await page.goto(`/projects/${projectId}/logic`);
   await expect(page.getByRole("heading", { name: "Rules and processes" })).toBeVisible();
-  await expect(page.getByText("Loading the model…")).toHaveCount(0);
+  // A cold dev server compiles the route on first request; allow for it.
+  await expect(page.getByText("Loading the model…")).toHaveCount(0, { timeout: 60_000 });
 }
 
 /** The builder's work area; its controls read in document order. */
@@ -163,8 +164,10 @@ test("rules, lifecycle, status and process editors round-trip through the model"
   await control(area, 3).fill("incidentId");
   await add("Update a field");
   await control(area, 1).selectOption("FeeInvoice");
-  await control(area, 2).selectOption("status");
-  await control(area, 3).fill("overdue");
+  // Record type, Which record, Field to write, New value. Left empty, Which
+  // record writes the invoice the process runs on.
+  await control(area, 3).selectOption("status");
+  await control(area, 4).fill("overdue");
   await add("Delete a record");
   await control(area, 1).selectOption("FeeInvoiceLine");
   await control(area, 2).fill("{{incidentId}}");
@@ -186,8 +189,8 @@ test("rules, lifecycle, status and process editors round-trip through the model"
   await expect(area.getByText(/and stops once that is no longer true/)).toBeVisible();
   await area.locator("button", { hasText: "Set a field to" }).first().click();
   await control(area, 1).selectOption("FeeInvoice");
-  await control(area, 2).selectOption("amount_paid");
-  await control(area, 3).fill("{{newBalance}}");
+  await control(area, 3).selectOption("amount_paid");
+  await control(area, 4).fill("{{newBalance}}");
 
   // ---- Save, reload, and read it all back ----------------------------------
   await page.getByRole("button", { name: "Save", exact: true }).click();
@@ -211,7 +214,7 @@ test("rules, lifecycle, status and process editors round-trip through the model"
   for (const text of [
     "Look up lateFeeGuard",
     "Create a DisciplineIncident",
-    "Set FeeInvoice.status to overdue",
+    "Set status to overdue",
     "Delete a FeeInvoiceLine",
     "newBalance",
     "chaseResponse",

@@ -1091,8 +1091,8 @@ var appwithai_language_default = {
         },
         {
           type: "UpdateEntity",
-          purpose: "Write a field, by default on the triggering record.",
-          properties: ["entity", "field", "value"],
+          purpose: "Write a field, by default on the triggering record. To write another entity, name it and say which row: `target: {{id}}` (a value an earlier step published) or `target: <fk_column>` (a column on that entity matched against the triggering record).",
+          properties: ["entity", "target", "field", "value"],
           example: `%%step s3 type: UpdateEntity
 %%step s3 field: status
 %%step s3 value: {{tier}}`

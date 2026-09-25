@@ -343,10 +343,19 @@ export function StepInspector({
           <Field
             label="Which record"
             hint={
-              <>
-                The record to delete, usually a reference from an earlier step —{" "}
-                <Ref>{"{{invoiceId}}"}</Ref>.
-              </>
+              step.type === "UpdateEntity" ? (
+                <>
+                  Only for another record type: a reference from an earlier step like{" "}
+                  <Ref>{"{{invoiceId}}"}</Ref>, or the column on that record pointing back to this
+                  one, like <code className="font-mono text-[11px]">order_id</code>. Leave it empty
+                  to write this record.
+                </>
+              ) : (
+                <>
+                  The record to delete, usually a reference from an earlier step —{" "}
+                  <Ref>{"{{invoiceId}}"}</Ref>.
+                </>
+              )
             }
           >
             <input
