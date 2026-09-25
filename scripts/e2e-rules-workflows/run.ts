@@ -49,10 +49,37 @@ process.on("SIGINT", () => {
   process.exit(130);
 });
 
-async function run(cmd: string[], cwd: string, env: Record<string, string> = {}): Promise<void> {
+/**
+ * The environment a generated application runs in: this process's, minus
+ * everything that configures the modelling tool. Run from a shell that has
+ * sourced the tool's `.env`, the app inherited `VITE_API_URL` pointing at the
+ * tool (:3000) — Vite prefers a process variable to the app's own `.env` — so
+ * every dictionary call went to the wrong server and the rule editor offered
+ * no entities. `DATABASE_URL` and the ports are the app's own, in its `.env`.
+ */
+function appEnv(): Record<string, string | undefined> {
+  const env = { ...process.env };
+  for (const key of Object.keys(env)) {
+    if (
+      key.startsWith("VITE_") ||
+      key.startsWith("BETTER_AUTH_") ||
+      key.startsWith("PG") ||
+      ["DATABASE_URL", "PORT", "HOST", "BACKEND_URL", "CORS_ORIGIN", "NODE_ENV"].includes(key)
+    ) {
+      delete env[key];
+    }
+  }
+  return env;
+}
+
+async function run(
+  cmd: string[],
+  cwd: string,
+  env: Record<string, string | undefined> = process.env
+): Promise<void> {
   const child = spawn(cmd, {
     cwd,
-    env: { ...process.env, ...env },
+    env,
     stdout: "inherit",
     stderr: "inherit",
   });
@@ -119,7 +146,7 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
     ],
     ROOT
   );
-  await run(["bun", "install"], out);
+  await run(["bun", "install"], out, appEnv());
 
   const databaseUrl = await freshDatabase();
   const password = "admin123";
@@ -142,12 +169,13 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
     ].join("\n")
   );
   console.log("\n▸ Migrating and seeding");
-  await run(["bun", "run", "migrate"], path.join(out, "backend"));
+  await run(["bun", "run", "migrate"], path.join(out, "backend"), appEnv());
 
   console.log("\n▸ Starting the generated backend and front end");
   children.push(
     spawn(["bun", "run", "start"], {
       cwd: path.join(out, "backend"),
+      env: appEnv(),
       stdout: "ignore",
       stderr: "inherit",
     })
@@ -155,6 +183,7 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
   children.push(
     spawn(["bun", "run", "dev"], {
       cwd: path.join(out, "frontend"),
+      env: appEnv(),
       stdout: "ignore",
       stderr: "inherit",
     })

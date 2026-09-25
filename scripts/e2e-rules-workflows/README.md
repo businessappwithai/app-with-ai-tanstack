@@ -14,7 +14,11 @@ bun scripts/e2e-rules-workflows/run.ts -- --grep "Report Designs"   # after `--`
 
 `--generated` needs `DATABASE_URL`. It creates `<db>_rules_workflows_e2e`
 beside it, generates the model with the real pipeline, migrates and seeds, and
-starts the generated backend (4701) and front end (4700). `--no-server` uses a
+starts the generated backend (4701) and front end (4700). The app runs without
+the modelling tool's `VITE_*`, `DATABASE_URL`, `PORT` and auth variables, even
+from a shell that has sourced the tool's `.env`: Vite prefers a process variable
+to the app's own `.env`, and an inherited `VITE_API_URL` once sent every
+dictionary call to the tool. `--no-server` uses a
 modelling tool that is already running. `PLAYWRIGHT_CHROMIUM_PATH` points at a
 Chromium on the machine when Playwright cannot download its own.
 

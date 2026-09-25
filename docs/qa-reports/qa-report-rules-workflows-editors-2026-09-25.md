@@ -147,3 +147,133 @@ bite by removing one label from `process.md` and watching it fail.
 | All five `--check` artifact comparisons, under bun 1.4.0 on linux-x64 (CI's) | up to date |
 | Generated app from `examples/drug-discovery.eml.mmd`: install and frontend build | passed |
 | `bun install --frozen-lockfile` under bun 1.4.0 | no changes |
+
+## Second pass: gstack `/qa`, health 77 → 91
+
+A structured `/qa` run over the same two surfaces, after everything above had
+landed: edge cases (empty and invalid inputs, duplicates, deletion), a 390px
+viewport, and the generated application's Admin → Business Rules, Automations
+and Report Designs. Each fix is its own `fix(qa): ISSUE-NNN` commit with a
+regression test. Screenshots are in `screenshots/rules-workflows/qa-pass/`.
+
+### Health Score: 77 → 91
+
+| Category | Baseline | Final |
+|----------|---------:|------:|
+| Console | 40 | 40 |
+| Links | 100 | 100 |
+| Visual | 89 | 100 |
+| Functional | 44 | 100 |
+| UX | 92 | 100 |
+| Performance | 100 | 100 |
+| Content | 97 | 97 |
+| Accessibility | 100 | 100 |
+
+Console stays at 40 because neither source is in scope. One is a CopilotKit
+hydration mismatch (third-party `CopilotModal`, also on main). The other is
+503s from `/api/v1/shape`, the ElectricSQL sync endpoint, which has no
+Electric service in this environment.
+
+### Top 3 fixed
+
+1. **ISSUE-007:** The generated app could not edit any rule its model declares. The Action picker opened blank, and the backend refused every save.
+2. **ISSUE-005:** The editor advised adding a catch-all row to `%%action` rules. Under `collect` that row acts on every record.
+3. **ISSUE-001:** A rule saved with no entity became a rule on an entity called "event". The model still checked clean, and the rule never fired.
+
+### Summary
+
+| Severity | Found | Fixed | Deferred |
+|----------|------:|------:|---------:|
+| Critical | 0 | 0 | 0 |
+| High | 3 | 3 | 0 |
+| Medium | 3 | 3 | 0 |
+| Low | 3 | 2 | 1 |
+| **Total** | **9** | **8** | **1** |
+
+### Issues
+
+#### ISSUE-001: A rule saved with no entity (high, functional) — verified
+With Entity at "Choose…", Save wrote `%%rule rule11 on  event: beforeCreate`.
+The checker read that as a rule on the entity `event` (EML251/EML307 warnings
+only), so the model still checked clean.
+
+- **Fix (36b2d3b):** `lib/eml/section-problems.ts` holds the rule. The Logic page names the incomplete section and selects it, and `PUT /api/projects/:id/eml` answers 400 for the same reason.
+- **Evidence:** [`issue-new-rule-no-entity.png`](screenshots/rules-workflows/qa-pass/issue-new-rule-no-entity.png) (before), [`issue-001-after.png`](screenshots/rules-workflows/qa-pass/issue-001-after.png).
+- **Test:** `lib/eml/__tests__/section-problems.test.ts`.
+
+#### ISSUE-002: Fractional priority (low, functional) — verified
+The Priority input accepted 2.5, and both runtimes store priority as INTEGER.
+
+- **Fix (230b7e5):** `step=1` on the input, and the value is truncated.
+- **Test:** `components/eml/__tests__/rule-priority.test.tsx`.
+
+#### ISSUE-003: Two states with one value (medium, functional) — verified
+The saved diagram names states by value, so two "draft" states merged into one
+node and the second one's transitions joined the first.
+
+- **Fix (6fbd843):** the editor warns beside its other state-machine notices.
+- **Evidence:** [`status-duplicate.png`](screenshots/rules-workflows/qa-pass/status-duplicate.png), [`issue-003-after.png`](screenshots/rules-workflows/qa-pass/issue-003-after.png).
+- **Test:** `lib/eml/__tests__/state-flow-duplicates.test.ts`.
+
+#### ISSUE-004: Logic page unusable on a phone (medium, visual) — verified
+At 390px the 256px rail stayed beside the editor and left it about 70px.
+
+- **Fix (acf715f):** below md the rail stacks above the editor, capped in height and scrolling. Desktop is unchanged (256 + 1296px).
+- **Evidence:** [`mobile-help.png`](screenshots/rules-workflows/qa-pass/mobile-help.png) (before), [`issue-004-after-mobile.png`](screenshots/rules-workflows/qa-pass/issue-004-after-mobile.png).
+
+#### ISSUE-005: `%%action` rules edited as first-match tables (high, functional/UX) — verified
+An `%%action` rule is a `collect` table, where every row that fits runs. The
+editor treated it as first-match:
+
+- It told the author to add a catch-all row. A blank `prevent` row would refuse every write.
+- It warned that the whole-record input "reads no field".
+- It offered one "Record" test box that could never match.
+- It offered a field picker and "+ input", which the serialiser cannot write back.
+
+- **Fix (02630f1):** wording, coverage, validation and Test with values all follow the hit policy. Test with values evaluates `field op value` checks joined by and/or, offers boxes for the fields they read, and lists every row that fits.
+- **Evidence:** [`issue-005-after.png`](screenshots/rules-workflows/qa-pass/issue-005-after.png).
+- **Test:** `lib/eml/__tests__/action-table-collect.test.ts`.
+
+#### ISSUE-006: Entity chip overlapping the Operation column (low, visual) — verified
+This was in the generated app's rules list, on `bus_admission_application`.
+
+- **Fix (06dfd4c):** `min-w-0` plus `truncate` with a title.
+- **Evidence:** [`gen-admin-rules.png`](screenshots/rules-workflows/qa-pass/gen-admin-rules.png) (before), [`issue-006-after.png`](screenshots/rules-workflows/qa-pass/issue-006-after.png).
+- **Test:** an assertion in `rule-editor-generated-app.test.ts`.
+
+#### ISSUE-007: Generated app cannot edit the model's own rules (high, functional) — verified
+The generated app opened a compiled `%%action` graph with the Action picker
+blank, zen-quoted cells and nine columns. `rules.service` then refused any save
+with "Column Record does not say which field it reads". This predates this PR.
+
+- **Fix (f6526f1):** shared `rule-content.ts` reads graph outcome cells as plain text and maps `prevent` back to `validation-error`. The shared `RuleTableEditor` is collect-aware, the evaluator moved to shared `bpmn-model.ts`, and the backend accepts a collect table's field-less input.
+- **Verified:** an edited rule saved as v2, and `PATCH /api/bus/enrollment/:id {final_grade:null}` answered 400 with the edited message.
+- **Evidence:** [`gen-rule-edit.png`](screenshots/rules-workflows/qa-pass/gen-rule-edit.png) (before), [`issue-007-after.png`](screenshots/rules-workflows/qa-pass/issue-007-after.png).
+- **Test:** `lib/automation/__tests__/action-graph-editable.test.ts`.
+
+#### ISSUE-008: Automations could not be deleted (medium, UX) — verified
+Every "+ New automation" stores a draft, and nothing removed one, so the rail
+filled with "Untitled automation".
+
+- **Fix (127291a):** a two-step "Delete this automation" (no `confirm()`), which shows the backend's refusal for model-owned workflows.
+- **Evidence:** [`gen-automations.png`](screenshots/rules-workflows/qa-pass/gen-automations.png), [`issue-008-armed.png`](screenshots/rules-workflows/qa-pass/issue-008-armed.png).
+- **Test:** an assertion in `rule-editor-generated-app.test.ts`.
+
+#### DEFERRED-1: Section headings travel with the preceding section (low, content)
+`extractSections` in `language/composer.ts` keeps a section's trailing prose.
+That prose is the next section's `%% ---- …` heading, so Admission Assessment's
+read-only flowchart ends with "admission banding". Deleting a rule deletes the
+next rule's heading too. The rules themselves are unaffected.
+
+The fix needs a "leading prose" field on `EmlRuleSection`/`EmlWorkflowSection`
+that every editor carries through, in a file that feeds five committed bundles.
+That is out of scope for a QA pass.
+
+### Verification
+
+| Check | Result |
+|-------|--------|
+| `bun run test` | 936 passed, 12 skipped |
+| `bun run type-check`, `biome check . --diagnostic-level=error` | clean |
+| Five `--check` artifact comparisons (bun 1.4.0, linux-x64) | all up to date |
+| `scripts/e2e-rules-workflows` with `--generated` | 23 passed (01–06, fresh generated app), after two suite fixes: the runner now gives the app a clean environment, and 06 clicks the designer's real Save control |
