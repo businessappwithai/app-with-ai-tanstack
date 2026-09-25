@@ -697,6 +697,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/hooks/use-rule-entities.ts",
         dest: "src/hooks/use-rule-entities.ts",
       },
+      {
+        src: "src/hooks/use-dictionary-windows.ts",
+        dest: "src/hooks/use-dictionary-windows.ts",
+      },
       // UI components
       {
         src: "src/components/ui/breadcrumb.tsx",

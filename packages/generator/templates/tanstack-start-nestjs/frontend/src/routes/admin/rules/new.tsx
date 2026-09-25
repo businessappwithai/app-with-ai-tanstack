@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
 import { asDecisionTable } from "@/lib/automation/rule-content";
 import { emptyDecisionTable } from "@/lib/workflow/bpmn-model";
-import { useRuleEntities, useRuleEntityFields } from "@/hooks/use-rule-entities";
+import { useRuleEntities } from "@/hooks/use-rule-entities";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -140,7 +140,7 @@ function NewRulePage() {
   // This application's own record types, from its dictionary.
   const { data: entities = [], isLoading: entitiesLoading } = useRuleEntities();
   const chosen = entities.find((entity) => entity.value === entityName);
-  const { data: entityFields = [] } = useRuleEntityFields(chosen?.tableId);
+  const entityFields = chosen?.fields ?? [];
 
   return (
     <div className="min-h-screen bg-card">

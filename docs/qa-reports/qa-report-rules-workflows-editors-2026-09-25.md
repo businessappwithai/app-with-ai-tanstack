@@ -277,3 +277,23 @@ That is out of scope for a QA pass.
 | `bun run type-check`, `biome check . --diagnostic-level=error` | clean |
 | Five `--check` artifact comparisons (bun 1.4.0, linux-x64) | all up to date |
 | `scripts/e2e-rules-workflows` with `--generated` | 23 passed (01–06, fresh generated app), after two suite fixes: the runner now gives the app a clean environment, and 06 clicks the designer's real Save control |
+
+### Windows, tabs and fields, not tables and columns
+
+The generated app's rule and report screens named things by storage:
+`bus_fee_invoice` in the rules list and as the designer's title, `balance_due`
+in the rule editor's field pickers, and print labels guessed from column
+names. They now read windows, tabs and fields
+(`hooks/use-dictionary-windows.ts`) and show each record type and field under
+the label its window uses. The storage keys are still what gets stored and
+evaluated. The seeded default print layouts take the form's own fields, in
+form order, from `sys_field`.
+
+Evidence: [`view-layer-rules-list.png`](screenshots/rules-workflows/qa-pass/view-layer-rules-list.png),
+[`view-layer-reports.png`](screenshots/rules-workflows/qa-pass/view-layer-reports.png),
+[`view-layer-designer.png`](screenshots/rules-workflows/qa-pass/view-layer-designer.png).
+Spec 06 passes 4/4 against a freshly generated app.
+
+Still showing storage names:
+- The seeded validation rules are named `<table>_validation`. The seed also uses that name as its idempotency key.
+- AnkaReport draws a bound cell in the designer as `[column_name]`.

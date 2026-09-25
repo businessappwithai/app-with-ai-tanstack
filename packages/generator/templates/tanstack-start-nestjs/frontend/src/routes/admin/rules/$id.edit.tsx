@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
 import { asDecisionTable } from "@/lib/automation/rule-content";
-import { useRuleEntities, useRuleEntityFields } from "@/hooks/use-rule-entities";
+import { ruleEntityLabel, useRuleEntities } from "@/hooks/use-rule-entities";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,8 +82,8 @@ function EditRulePage() {
 
   // The rule's entity's own columns, for the table's input pickers.
   const { data: entities = [] } = useRuleEntities();
-  const ruleTableId = entities.find((entity) => entity.value === rule?.entityName)?.tableId;
-  const { data: entityFields = [] } = useRuleEntityFields(ruleTableId);
+  const entityFields = entities.find((entity) => entity.value === rule?.entityName)?.fields ?? [];
+  const entityLabel = ruleEntityLabel(entities, rule?.entityName);
 
   useEffect(() => {
     if (rule) {
@@ -203,7 +203,7 @@ function EditRulePage() {
                 {rule.operation}
               </Badge>
               <Badge variant="secondary" className="text-xs">
-                {rule.entityName}
+                {entityLabel}
               </Badge>
             </div>
           </div>
@@ -223,7 +223,7 @@ function EditRulePage() {
                   <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
                     Entity
                   </Label>
-                  <p className="mt-1 font-medium">{rule.entityName}</p>
+                  <p className="mt-1 font-medium">{entityLabel}</p>
                 </div>
                 <div>
                   <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">

@@ -202,8 +202,12 @@ export interface RuleTableEditorProps {
   onChange: (next: DecisionTable) => void;
   /** Automations that look this table up, so a change's blast radius is visible. */
   usedBy?: { name: string; where: string }[];
-  /** Entity field names for the input column dropdowns. */
-  entityFields?: string[];
+  /**
+   * The fields an input column may read. A plain string is its own label; the
+   * generated application passes `{ value, label }` — the key the engine reads
+   * as the value, the field's label from the window as what is shown.
+   */
+  entityFields?: Array<string | { value: string; label: string }>;
 }
 
 export function RuleTableEditor({
@@ -217,6 +221,13 @@ export function RuleTableEditor({
 
   const result = useMemo(() => evaluateTable(table, testValues), [table, testValues]);
   const coverage = useMemo(() => checkCoverage(table), [table]);
+  const fieldOptions = useMemo(
+    () => entityFields.map((f) => (typeof f === "string" ? { value: f, label: f } : f)),
+    [entityFields]
+  );
+  /** What a field key is shown as: its label, when the caller gave one. */
+  const fieldLabel = (key: string) => fieldOptions.find((o) => o.value === key)?.label ?? key;
+  const inputLabel = (c: DecisionColumn) => (c.field ? fieldLabel(c.field) : c.name);
   // `%%action` compiles to a `collect` table: every row that fits runs, so a
   // blank row is not an "otherwise" and the order does not pick a winner.
   const collect = table.hitPolicy === "collect";
@@ -224,11 +235,12 @@ export function RuleTableEditor({
   const testFields = useMemo(() => {
     const read = expressionFields(table);
     const own = table.inputs.filter((c) => c.field.trim() || read.length === 0);
+    const label = (key: string) => fieldOptions.find((o) => o.value === key)?.label ?? key;
     return [
-      ...own.map((c) => ({ key: c.field, label: c.field || c.name })),
-      ...read.map((f) => ({ key: f, label: f })),
+      ...own.map((c) => ({ key: c.field, label: c.field ? label(c.field) : c.name })),
+      ...read.map((f) => ({ key: f, label: label(f) })),
     ];
-  }, [table]);
+  }, [table, fieldOptions]);
 
   const setCell = (rowIndex: number, colId: string, value: string) => {
     const rules = table.rules.map((r, i) => (i === rowIndex ? { ...r, [colId]: value } : r));
@@ -315,9 +327,9 @@ export function RuleTableEditor({
                 className="mx-0.5 w-[9.5rem] rounded-md border border-border bg-muted px-2 py-1 text-sm font-semibold focus-visible:outline-none focus-visible:border-primary"
               >
                 <option value="">— pick field —</option>
-                {entityFields.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
+                {fieldOptions.map((f) => (
+                  <option key={f.value} value={f.value}>
+                    {f.label}
                   </option>
                 ))}
               </select>
@@ -397,7 +409,7 @@ export function RuleTableEditor({
                   key={c.id}
                   className="border-b border-border bg-muted/40 px-3 py-2 text-left text-[10.5px] font-bold uppercase tracking-[0.07em] text-blue-600 dark:text-blue-400"
                 >
-                  {c.field || c.name}
+                  {inputLabel(c)}
                 </th>
               ))}
               {table.outputs.map((c, i) => (
@@ -434,7 +446,7 @@ export function RuleTableEditor({
                     table.inputs.map((c) => (
                       <td key={c.id} className="border-b border-border px-2 py-2">
                         <input
-                          aria-label={`Row ${rowIndex + 1}, ${c.field || c.name}`}
+                          aria-label={`Row ${rowIndex + 1}, ${inputLabel(c)}`}
                           className={cellClass}
                           value={row[c.id] ?? ""}
                           onChange={(e) => setCell(rowIndex, c.id, e.target.value)}

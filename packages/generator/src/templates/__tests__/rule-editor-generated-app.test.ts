@@ -43,16 +43,69 @@ describe("the generated rule editor", () => {
     expect(editRule).toContain("entityFields={entityFields}");
   });
 
-  // ISSUE-006 (/qa, 2026-09-25): bus_admission_application ran over the
-  // Operation column of the rules list.
-  it("keeps a long table name inside its column in the rules list", () => {
+  // ISSUE-006 (/qa, 2026-09-25): a long name ran over the Operation column of
+  // the rules list.
+  it("keeps a long name inside its column in the rules list", () => {
     const list = read("frontend/src/routes/admin/rules/index.tsx");
-    expect(list).toMatch(/col-span-2 min-w-0">\s*<code\s+className="block truncate/);
+    expect(list).toMatch(/col-span-2 min-w-0">\s*<span\s+className="block truncate/);
   });
 
-  it("ships the hook those screens import", () => {
-    expect(read("frontend/src/hooks/use-rule-entities.ts")).toContain("tableId=");
+  it("ships the hooks those screens import", () => {
     expect(GENERATOR).toContain('src: "src/hooks/use-rule-entities.ts"');
+    expect(GENERATOR).toContain('src: "src/hooks/use-dictionary-windows.ts"');
+  });
+});
+
+/**
+ * The dictionary a person sees is windows, tabs and fields. `sys_table` and
+ * `sys_column` are where values are stored, and a screen that names a record
+ * type or a field names it from the view layer. Storage keys still travel as
+ * values, because the engine and the report bindings read them, but are never
+ * the label.
+ */
+describe("rule and report screens name things from windows, tabs and fields", () => {
+  const screens = {
+    "hooks/use-rule-entities.ts": read("frontend/src/hooks/use-rule-entities.ts"),
+    "hooks/use-dictionary-windows.ts": read("frontend/src/hooks/use-dictionary-windows.ts"),
+    "routes/admin/rules/index.tsx": read("frontend/src/routes/admin/rules/index.tsx"),
+    "routes/admin/rules/new.tsx": read("frontend/src/routes/admin/rules/new.tsx"),
+    "routes/admin/rules/$id.edit.tsx": read("frontend/src/routes/admin/rules/$id.edit.tsx"),
+    "routes/admin/reports.tsx": read("frontend/src/routes/admin/reports.tsx"),
+    "routes/admin/reports.$tableName.tsx": read("frontend/src/routes/admin/reports.$tableName.tsx"),
+    "components/reports/ReportDesigner.tsx": read(
+      "frontend/src/components/reports/ReportDesigner.tsx"
+    ),
+  };
+
+  it("reads no table or column list", () => {
+    for (const [file, source] of Object.entries(screens)) {
+      expect(source, `${file} reads /sys/tables`).not.toContain("/sys/tables");
+      expect(source, `${file} reads /sys/columns`).not.toContain("/sys/columns");
+    }
+  });
+
+  it("reads the windows, their tabs and their fields", () => {
+    const hook = screens["hooks/use-dictionary-windows.ts"];
+    for (const path of ["/sys/windows", "/sys/tabs", "/sys/fields"]) expect(hook).toContain(path);
+  });
+
+  it("shows labels, not storage names", () => {
+    const list = screens["routes/admin/rules/index.tsx"];
+    expect(list).toContain("{entityLabel(rule.entityName)}");
+    expect(list).not.toMatch(/>\s*\{rule\.entityName\}\s*</);
+    expect(screens["routes/admin/rules/$id.edit.tsx"]).not.toMatch(/>\s*\{rule\.entityName\}\s*</);
+    expect(screens["routes/admin/reports.tsx"]).not.toContain("{table.table_name}");
+    expect(screens["routes/admin/reports.$tableName.tsx"]).not.toMatch(/>\s*\{tableName\}\s*</);
+    expect(screens["components/reports/ReportDesigner.tsx"]).not.toContain("toLabel(");
+  });
+
+  it("seeds each default print layout from the window's own fields", () => {
+    const seed = readFileSync(
+      path.resolve(__dirname, "../../../templates/common/seeds/report-designs.ts.hbs"),
+      "utf8"
+    );
+    expect(seed).toContain(".selectFrom('sys_field as f')");
+    expect(seed).toContain(".where('f.is_displayed', '=', true)");
   });
 });
 
