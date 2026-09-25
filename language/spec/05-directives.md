@@ -293,6 +293,16 @@ Three codes police it, all warnings:
 | `EML153` | an entity has columns with no `%%field … help:` — reported once, naming them |
 | `EML151` | help that restates its own subject rather than describing it |
 
+They are three of the six **dictionary-completeness** codes. The other three are
+`EML119` (a reference column with no `FK` modifier), `EML146` (a status, state or
+stage column with no `%%field … enum:` binding) and `EML154` (a `%%category` with
+no `name:`). The six are warnings by severity and gaps by consequence. Every
+Application Dictionary value is mandatory in the model, `audit-model.mjs` fails a
+model that carries any of the six, and the checker's closing verdict names them
+separately from the advisory warnings. Plan each value before writing it, and
+review the whole file again after a clean run: a delivered model carries none of
+them (`applicationDictionary.completeness` in `appwithai-language.json`).
+
 `EML151` is the one worth dwelling on, because coverage can be complete and the
 help still worthless. A published model once carried 642 field descriptions of
 which 699 lines in total were of this kind:
