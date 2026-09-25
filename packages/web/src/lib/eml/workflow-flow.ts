@@ -269,6 +269,15 @@ export function validateStateFlow(flow: StateFlow): string[] {
       problems.push(`"${state.name}" is not a valid status value (letters, digits, underscore).`);
     }
   }
+  // Two states with one value are one node in the saved diagram: the second
+  // one's transitions would silently join the first.
+  const seen = new Set<string>();
+  for (const state of flow.states) {
+    if (seen.has(state.name)) {
+      problems.push(`Two states are called "${state.name}" — give each state its own value.`);
+    }
+    seen.add(state.name);
+  }
   return problems;
 }
 
