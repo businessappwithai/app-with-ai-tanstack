@@ -17,6 +17,7 @@ import {
   type DecisionRow,
   type DecisionTable,
   evaluateTable,
+  expressionFields,
   getColumnOptions,
   KNOWN_OUTPUT_FIELDS,
   newRowId,
@@ -44,6 +45,18 @@ export function RuleTableEditor({
 
   const result = useMemo(() => evaluateTable(table, testValues), [table, testValues]);
   const coverage = useMemo(() => checkCoverage(table), [table]);
+  // `%%action` compiles to a `collect` table: every row that fits runs, so a
+  // blank row is not an "otherwise" and the order does not pick a winner.
+  const collect = table.hitPolicy === "collect";
+  // A whole-record input is tested through the fields its checks read.
+  const testFields = useMemo(() => {
+    const read = expressionFields(table);
+    const own = table.inputs.filter((c) => c.field.trim() || read.length === 0);
+    return [
+      ...own.map((c) => ({ key: c.field, label: c.field || c.name })),
+      ...read.map((f) => ({ key: f, label: f })),
+    ];
+  }, [table]);
 
   const setCell = (rowIndex: number, colId: string, value: string) => {
     const rules = table.rules.map((r, i) => (i === rowIndex ? { ...r, [colId]: value } : r));
@@ -86,6 +99,7 @@ export function RuleTableEditor({
 
   const isCatchAll = (row: DecisionRow) => table.inputs.every((c) => !(row[c.id] ?? "").trim());
   const lastCatchAllIndex = (() => {
+    if (collect) return -1;
     for (let i = table.rules.length - 1; i >= 0; i--) {
       if (isCatchAll(table.rules[i]!)) return i;
     }
@@ -98,7 +112,9 @@ export function RuleTableEditor({
         <h2 className="text-base font-bold tracking-tight">{name}</h2>
       </div>
       <p className="mb-4 text-[13px] text-muted-foreground">
-        Rows are read top to bottom. The first row where every check fits is the answer.
+        {collect
+          ? "Every row whose check fits runs its action. Rows are not alternatives, and their order does not change which ones run."
+          : "Rows are read top to bottom. The first row where every check fits is the answer."}
       </p>
 
       {/* declaration sentence */}
@@ -107,7 +123,11 @@ export function RuleTableEditor({
         {table.inputs.map((c, i) => (
           <span key={c.id}>
             {i > 0 ? " and " : ""}
-            {entityFields.length > 0 ? (
+            {collect && !c.field ? (
+              // Its cells are whole-record checks; giving it a field would
+              // turn each into an equality test against that one field.
+              <b className="mx-0.5">the record</b>
+            ) : entityFields.length > 0 ? (
               <select
                 aria-label={`Input ${i + 1} field`}
                 value={c.field}
@@ -151,13 +171,17 @@ export function RuleTableEditor({
             </select>
           </span>
         ))}
-        <button
-          type="button"
-          onClick={() => addColumn("inputs")}
-          className="ml-3 text-[13px] font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        >
-          ＋ input
-        </button>
+        {/* An action row's check is one expression; `%%action` has no second
+            input to write a column into. Join conditions with "and" instead. */}
+        {!collect && (
+          <button
+            type="button"
+            onClick={() => addColumn("inputs")}
+            className="ml-3 text-[13px] font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            ＋ input
+          </button>
+        )}
         <button
           type="button"
           onClick={() => addColumn("outputs")}
@@ -325,7 +349,9 @@ export function RuleTableEditor({
           ＋ Add row
         </button>
         <span className="text-[12.5px] text-muted-foreground">
-          Move rows with ↑ ↓. A row with every check left blank is the catch-all — keep it last.
+          {collect
+            ? "A row with its check left blank runs on every record."
+            : "Move rows with ↑ ↓. A row with every check left blank is the catch-all — keep it last."}
         </span>
       </div>
 
@@ -335,23 +361,42 @@ export function RuleTableEditor({
             Test with values
           </h2>
           <div className="mb-3 grid gap-2.5 sm:grid-cols-2">
-            {table.inputs.map((c) => (
-              <label key={c.id} className="block">
-                <span className="mb-1 block text-[11.5px] text-muted-foreground">
-                  {c.field || c.name}
-                </span>
+            {testFields.map((f) => (
+              <label key={f.key || f.label} className="block">
+                <span className="mb-1 block text-[11.5px] text-muted-foreground">{f.label}</span>
                 <input
                   className={cellClass}
-                  value={testValues[c.field] ?? ""}
-                  onChange={(e) => setTestValues((v) => ({ ...v, [c.field]: e.target.value }))}
+                  value={testValues[f.key] ?? ""}
+                  onChange={(e) => setTestValues((v) => ({ ...v, [f.key]: e.target.value }))}
                 />
               </label>
             ))}
           </div>
           {result.rowIndex === null ? (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12.5px] text-amber-800">
-              No row fits these values — this table would return nothing.
+              {collect
+                ? "No row fits these values — the record passes and nothing runs."
+                : "No row fits these values — this table would return nothing."}
             </p>
+          ) : collect ? (
+            <div className="space-y-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12.5px] text-emerald-800">
+              <p>
+                <b>
+                  {result.matches.length === 1
+                    ? `Row ${result.rowIndex + 1} fits.`
+                    : `Rows ${result.matches.map((m) => m.rowIndex + 1).join(", ")} fit, and each runs.`}
+                </b>
+              </p>
+              {result.matches.map((m) => (
+                <p key={m.rowIndex}>
+                  Row {m.rowIndex + 1}:{" "}
+                  {Object.entries(m.outputs)
+                    .filter(([, v]) => v)
+                    .map(([k, v]) => `${k} = ${v}`)
+                    .join(", ")}
+                </p>
+              ))}
+            </div>
           ) : (
             <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12.5px] text-emerald-800">
               <b>Row {result.rowIndex + 1} fits.</b>{" "}

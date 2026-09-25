@@ -89,7 +89,11 @@ export function validateDecisionTable(table: DecisionTable): string[] {
   }
   if (table.rules.length === 0) problems.push("Add at least one row.");
   for (const input of table.inputs) {
-    if (!input.field.trim()) problems.push(`Input "${input.name || input.id}" reads no field.`);
+    // A `collect` table is the one `%%action` compiles to: its input reads the
+    // whole record and each cell is an expression, so no field is correct.
+    if (!input.field.trim() && table.hitPolicy !== "collect") {
+      problems.push(`Input "${input.name || input.id}" reads no field.`);
+    }
   }
   for (const output of table.outputs) {
     if (!output.field.trim()) {
@@ -104,29 +108,131 @@ export function validateDecisionTable(table: DecisionTable): string[] {
 /* -------------------------------------------------------------------------- */
 
 export interface TableTestResult {
+  /** The first row that fits — under `first`, the answer. */
   rowIndex: number | null;
   outputs: Record<string, string>;
+  /** Every row that fits, in order. Under `collect` each of them runs. */
+  matches: Array<{ rowIndex: number; outputs: Record<string, string> }>;
 }
 
 export function evaluateTable(
   table: DecisionTable,
   values: Record<string, string>
 ): TableTestResult {
+  const matches: TableTestResult["matches"] = [];
   for (let i = 0; i < table.rules.length; i++) {
     const row = table.rules[i];
     if (!row) continue;
     const fits = table.inputs.every((col) => {
       const cell = (row[col.id] ?? "").trim();
       if (!cell) return true;
+      // An input with no field holds whole-record checks, as `%%action`
+      // writes them: `status == "withdrawn" and withdrawn_on == null`.
+      if (!col.field.trim()) {
+        const verdict = evaluateExpression(cell, values);
+        if (verdict !== undefined) return verdict;
+      }
       return cellMatches(cell, values[col.field] ?? "");
     });
-    if (fits) {
-      const outputs: Record<string, string> = {};
-      for (const col of table.outputs) outputs[col.field || col.name] = unquote(row[col.id] ?? "");
-      return { rowIndex: i, outputs };
+    if (!fits) continue;
+    const outputs: Record<string, string> = {};
+    for (const col of table.outputs) outputs[col.field || col.name] = unquote(row[col.id] ?? "");
+    matches.push({ rowIndex: i, outputs });
+    if (table.hitPolicy !== "collect") break;
+  }
+  const first = matches[0];
+  return { rowIndex: first?.rowIndex ?? null, outputs: first?.outputs ?? {}, matches };
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Whole-record checks                                                         */
+/* -------------------------------------------------------------------------- */
+
+type Scalar = string | number | boolean | null;
+
+const IDENTIFIER = /^[A-Za-z_][\w.]*$/;
+const COMPARISON = /^\s*([A-Za-z_][\w.]*)\s*(==|!=|>=|<=|>|<)\s*(.+?)\s*$/;
+const KEYWORDS = new Set(["true", "false", "null", "and", "or"]);
+
+/** What a test box holds: blank is null, and numbers and booleans are read as such. */
+function typedValue(raw: string | undefined): Scalar {
+  const text = (raw ?? "").trim();
+  if (!text || text === "null") return null;
+  if (text === "true") return true;
+  if (text === "false") return false;
+  if (/^-?\d+(\.\d+)?$/.test(text)) return Number(text);
+  return unquote(text);
+}
+
+function operand(text: string, values: Record<string, string>): Scalar | undefined {
+  const t = text.trim();
+  if (/^(["']).*\1$/.test(t)) return t.slice(1, -1);
+  if (t === "null") return null;
+  if (t === "true") return true;
+  if (t === "false") return false;
+  if (/^-?\d+(\.\d+)?$/.test(t)) return Number(t);
+  if (IDENTIFIER.test(t)) return typedValue(values[t]);
+  return undefined;
+}
+
+function compare(left: Scalar, op: string, right: Scalar): boolean {
+  switch (op) {
+    case "==":
+      return left === right;
+    case "!=":
+      return left !== right;
+    default: {
+      if (typeof left !== "number" || typeof right !== "number") return false;
+      if (op === ">") return left > right;
+      if (op === ">=") return left >= right;
+      if (op === "<") return left < right;
+      return left <= right;
     }
   }
-  return { rowIndex: null, outputs: {} };
+}
+
+/**
+ * Evaluate a check of the form `field op value`, joined by `and` / `or`
+ * (`and` binding tighter), against typed test values. Returns `undefined`
+ * for anything outside that shape, so the caller never claims a verdict on
+ * an expression it could not read.
+ */
+export function evaluateExpression(
+  expression: string,
+  values: Record<string, string>
+): boolean | undefined {
+  let any = false;
+  for (const clause of expression.split(/\s+or\s+/)) {
+    let all = true;
+    for (const part of clause.split(/\s+and\s+/)) {
+      const m = part.match(COMPARISON);
+      if (!m) return undefined;
+      const right = operand(m[3] ?? "", values);
+      if (right === undefined) return undefined;
+      all = compare(typedValue(values[m[1] ?? ""]), m[2] ?? "==", right) && all;
+    }
+    any = any || all;
+  }
+  return any;
+}
+
+/** The fields a table's whole-record checks read, in the order they appear. */
+export function expressionFields(table: DecisionTable): string[] {
+  const fields = new Set<string>();
+  for (const col of table.inputs) {
+    if (col.field.trim()) continue;
+    for (const row of table.rules) {
+      const cell = row[col.id] ?? "";
+      for (const part of cell.split(/\s+(?:and|or)\s+/)) {
+        const m = part.match(COMPARISON);
+        if (!m) continue;
+        if (m[1]) fields.add(m[1]);
+        const right = (m[3] ?? "").trim();
+        if (IDENTIFIER.test(right) && !KEYWORDS.has(right)) fields.add(right);
+      }
+    }
+  }
+  return [...fields];
 }
 
 function cellMatches(cell: string, typed: string): boolean {
@@ -178,6 +284,25 @@ export interface CoverageNote {
 
 export function checkCoverage(table: DecisionTable): CoverageNote[] {
   const notes: CoverageNote[] = [];
+  // Under `collect` every row that fits runs. A row with no check is not a
+  // safety net there — it runs on every record, which is worth saying loudly.
+  if (table.hitPolicy === "collect") {
+    const blank = table.rules.findIndex((row) =>
+      table.inputs.every((c) => !(row[c.id] ?? "").trim())
+    );
+    return [
+      blank >= 0
+        ? {
+            level: "warn",
+            message: `Row ${blank + 1} has no check, so its action runs on every record.`,
+          }
+        : {
+            level: "ok",
+            message:
+              "Each row runs on its own when its check fits. A record that no row fits passes untouched.",
+          },
+    ];
+  }
   const hasCatchAll = table.rules.some((row) =>
     table.inputs.every((c) => !(row[c.id] ?? "").trim())
   );
