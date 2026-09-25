@@ -1079,9 +1079,11 @@ function ConditionRow({
 /**
  * The clause on a repeat's card.
  *
- * Worded as the stopping rule rather than the continuing one — "until … stops
- * being true" is how people describe a loop they are debugging, and it puts the
- * end condition, which is the part that goes wrong, in the reader's mind.
+ * Worded as the continuing rule and then the stopping one. It used to read
+ * "until X stops being true", which is a double negative the moment X is
+ * itself a negation — "until status is not paid stops being true". "While"
+ * is also the word the saved EML uses (`Repeat while …`), and the stopping
+ * clause still puts the end condition, the part that goes wrong, in view.
  */
 function LoopTitle({ loop }: { loop: Loop }) {
   if (!loop.condition.field) {
@@ -1089,7 +1091,8 @@ function LoopTitle({ loop }: { loop: Loop }) {
   }
   return (
     <>
-      until <Token value>{describeCondition(loop.condition)}</Token> stops being true
+      while <Token value>{describeCondition(loop.condition)}</Token>, and stops once that is no
+      longer true
     </>
   );
 }

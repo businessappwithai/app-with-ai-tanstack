@@ -129,11 +129,14 @@ export function evaluateTable(
   return { rowIndex: null, outputs: {} };
 }
 
-function cellMatches(cell: string, value: string): boolean {
+function cellMatches(cell: string, typed: string): boolean {
   const m = cell.match(/^\s*(>=|<=|!=|=|>|<)?\s*(.+)$/);
   if (!m) return false;
   const op = m[1] ?? "=";
   const raw = unquote((m[2] ?? "").trim());
+  // The cell is unquoted, so the value typed to test it must be too: a tester
+  // copying the cell's own `"cancelled"` was told no row fits it.
+  const value = unquote(typed);
   const a = Number(value);
   const b = Number(raw);
   const numeric = !Number.isNaN(a) && !Number.isNaN(b) && value.trim() !== "";

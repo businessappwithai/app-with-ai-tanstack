@@ -843,13 +843,126 @@ function humanField(field: string): string {
  * generated from the hooks rather than edited alongside them, so the picture
  * and the directives cannot disagree.
  */
+/**
+ * A Create step's values, as the JSON map the generated runtime parses.
+ *
+ * The inspector takes one `column: value` per line, and those lines used to be
+ * written into the directive as they were typed. Every line after the first
+ * then fell outside any `%%` directive — invalid Mermaid, dropped by every
+ * reader — and the one that survived was not JSON, which `executeCreateEntity`
+ * requires, so the step was skipped at run time as "invalid fields JSON". The
+ * model's own sagas write the map (`fields: {"status":"draft"}`), which is what
+ * is emitted here. `{{name}}` becomes `name`, the runtime's reference to a value
+ * in the run; `true`, `false`, `null` and numbers are written as themselves.
+ */
+export function encodeCreateValues(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+  if (trimmed.startsWith("{")) {
+    try {
+      const parsed: unknown = JSON.parse(trimmed);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        return JSON.stringify(parsed);
+      }
+    } catch {
+      /* not JSON: read it as lines below */
+    }
+  }
+  const map: Record<string, unknown> = {};
+  for (const line of trimmed.split(/\r?\n/)) {
+    const match = line.match(/^\s*([A-Za-z_][\w.]*)\s*[:=]\s*(.*?)\s*$/);
+    if (!match?.[1]) continue;
+    map[match[1]] = literalOf(match[2] ?? "");
+  }
+  return JSON.stringify(map);
+}
+
+function literalOf(raw: string): unknown {
+  const reference = raw.match(/^\{\{\s*([^}]+?)\s*\}\}$/);
+  if (reference?.[1]) return reference[1];
+  if (/^(?:true|false|null)$/.test(raw) || /^-?\d+(?:\.\d+)?$/.test(raw)) {
+    return JSON.parse(raw) as unknown;
+  }
+  if (raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"')) {
+    try {
+      return JSON.parse(raw) as unknown;
+    } catch {
+      return raw.slice(1, -1);
+    }
+  }
+  return raw;
+}
+
+/**
+ * The stored map, back as the lines the inspector edits. A string that would
+ * read back as something else — `"42"`, `"true"` — keeps its quotes, so a
+ * round trip does not change its type.
+ */
+export function decodeCreateValues(stored: string): string {
+  const trimmed = stored.trim();
+  if (!trimmed.startsWith("{")) return stored;
+  try {
+    const parsed: unknown = JSON.parse(trimmed);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return stored;
+    return Object.entries(parsed as Record<string, unknown>)
+      .map(([column, value]) => {
+        if (typeof value !== "string") return `${column}: ${JSON.stringify(value)}`;
+        return `${column}: ${literalOf(value) === value ? value : JSON.stringify(value)}`;
+      })
+      .join("\n");
+  } catch {
+    return stored;
+  }
+}
+
+/**
+ * One property, on one line. A directive ends at the newline, so anything typed
+ * across several — a JSON body laid out for reading — is written compact when
+ * it parses and joined with spaces when it does not.
+ */
+function directiveValue(key: string, value: string): string {
+  if (key === "values") return encodeCreateValues(value);
+  if (!/[\r\n]/.test(value)) return value;
+  try {
+    return JSON.stringify(JSON.parse(value));
+  } catch {
+    return value
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .join(" ");
+  }
+}
+
+/**
+ * Whether a step changes the record the automation runs on.
+ *
+ * The executor updates or deletes "this record" when a step names no entity,
+ * which is how the model's own sagas write it (`%%step C UpdateEntity field:
+ * student_id …`). Naming the automation's own entity says the same thing, but
+ * the checker reads a named entity with no target as a cross-entity write it
+ * cannot aim (EML265), so a process built here that updated its own record
+ * failed the check the generator runs. It is written without the entity, and
+ * read back with it filled in so the inspector still shows the record type.
+ */
+function isSelfWrite(step: AutomationStep, ownEntity: string): boolean {
+  return (
+    (step.type === "UpdateEntity" || step.type === "DeleteEntity") &&
+    !!ownEntity &&
+    (step.props.entity ?? "").trim() === ownEntity &&
+    !(step.props.target ?? "").trim()
+  );
+}
+
 /** The `%%step` directives that describe one step, wherever it is emitted. */
-function stepDirectives(step: AutomationStep, nodeId: string): string[] {
+function stepDirectives(step: AutomationStep, nodeId: string, ownEntity = ""): string[] {
   const out = [
     `%%step ${nodeId} type: ${step.type}${step.resultName ? ` as: ${step.resultName}` : ""}`,
   ];
+  const selfWrite = isSelfWrite(step, ownEntity);
   for (const [k, v] of Object.entries(step.props)) {
-    if (v) out.push(`%%step ${nodeId} ${k}: ${v}`);
+    if (k === "entity" && selfWrite) continue;
+    if (v) out.push(`%%step ${nodeId} ${k}: ${directiveValue(k, v)}`);
   }
   if (step.table) out.push(`%%step ${nodeId} table: ${JSON.stringify(step.table)}`);
   if (step.loopId) out.push(`%%step ${nodeId} in: ${step.loopId}`);
@@ -897,7 +1010,9 @@ function serializeHookWorkflow(a: Automation): string {
   }
 
   a.steps.forEach((step, index) => {
-    for (const line of stepDirectives(step, `s${index + 1}`)) lines.push(`    ${line}`);
+    for (const line of stepDirectives(step, `s${index + 1}`, a.trigger.entity)) {
+      lines.push(`    ${line}`);
+    }
   });
 
   return lines.join("\n");
@@ -986,7 +1101,7 @@ export function serializeAutomation(a: Automation, options: SerializeOptions = {
   /** Directives for one step, kept out of the node loop so the subgraph body stays clean. */
   const directives: string[] = [];
   const emit = (step: AutomationStep, nodeId: string) => {
-    directives.push(...stepDirectives(step, nodeId));
+    directives.push(...stepDirectives(step, nodeId, a.trigger.entity));
   };
 
   let openLoop: string | null = null;
@@ -1116,7 +1231,7 @@ function applySagaProps(entry: AutomationStep, props: Record<string, string>): v
     if (operand !== undefined) entry.props.right = operand;
   } else if (entry.type === "CreateEntity") {
     const fields = take("fields");
-    if (fields !== undefined) entry.props.values = fields;
+    if (fields !== undefined) entry.props.values = decodeCreateValues(fields);
   } else if (entry.type === "UpdateEntity") {
     // `source:` reads another step's published value; `value:` is a literal.
     const source = take("source");
@@ -1300,6 +1415,8 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
         }
       } else if (key === "in") {
         entry.loopId = value;
+      } else if (key === "values") {
+        entry.props[key] = decodeCreateValues(value);
       } else {
         entry.props[key] = value;
       }
@@ -1307,6 +1424,16 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
   }
 
   a.steps = order.map((id) => stepsById.get(id)).filter((s): s is AutomationStep => Boolean(s));
+  // A write that names no entity is a write to this record; show it as one.
+  for (const step of a.steps) {
+    if (
+      (step.type === "UpdateEntity" || step.type === "DeleteEntity") &&
+      !step.props.entity &&
+      a.trigger.entity
+    ) {
+      step.props.entity = a.trigger.entity;
+    }
+  }
 
   // A membership naming a loop that was never declared would render as a box
   // with no repeat count and execute once, which is not what the document says.

@@ -1,0 +1,116 @@
+# QA Report: the Logic step's rule and process editors, on the education model
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-09-25 |
+| **URL** | `http://localhost:3000/projects/:id/logic` (the modelling tool, `bun run dev`) |
+| **Branch** | `claude/test-rules-workflows-editor-3d0gqi` |
+| **Model** | `docs/eml-sessions/education-management-system/education-management-system.mmd` (19 entities, 10 rules, 22 processes) |
+| **Scope** | Every input of the business-rule editor and the three process editors (Lifecycle, Status, Process), added through the browser, saved, reloaded, and the saved model checked |
+| **Framework** | TanStack Start + React 19, React Flow for the status canvas, PostgreSQL 16 + pgvector |
+| **Screenshots** | 14, under `screenshots/rules-workflows/` |
+
+## Method
+
+The run used **Chromium through Playwright**, not gstack's `$B` browser, for the
+same reason as the 2026-09-09 report: gstack's installer is not available in this
+session. It collects the same evidence and produces the same report with a
+different driver. An ordinary approved account owned the project, not the
+administrator, because the project routes refuse administrators.
+
+Everything was entered through the page itself, with clicks, typing,
+selections, and dragging on the status canvas. The API was used only to create
+the project and to read back what was saved. The run is now a spec,
+`tests/e2e/05b-logic-editors.e2e.spec.ts`, so CI repeats it on every pull
+request.
+
+## What the two editors are for
+
+**The business-rule editor** records a decision the application makes on every
+write to one entity. It is a decision table: inputs are the record's fields,
+outcomes are what happens (`validation-error` refuses the write, `transform`
+sets a field, `trigger-workflow` starts a process), and the first row that fits
+wins. It compiles to a GoRules decision graph that runs inside the write.
+
+**The workflow editors** record what happens around those decisions. There are
+three kinds:
+
+- **Lifecycle**: named handlers at fixed moments (`beforeCreate`, `afterUpdate`…),
+  generated as stubs in `backend/src/modules/hooks/handlers/`.
+- **Status**: the statuses a record moves through and the moves allowed. The
+  generated guard refuses any other move.
+- **Process**: ordered steps (check, repeat, look up a rule, create, update,
+  delete, work out a value, call a web service), started by a rule or by the
+  record's own lifecycle.
+
+## Findings
+
+| # | Severity | Editor | Finding | Status |
+|---|----------|--------|---------|--------|
+| 1 | High | Rule | A rule written as `%%action` lines (six of the education model's ten) opened read-only as a flowchart. The only offer was *Start an empty table instead*, which discards the actions. The Enhance page already read them as a table; the Logic page did not | **Fixed** |
+| 2 | Medium | Rule | *Test with values* never matched a quoted value. The cell `"cancelled"` was unquoted before comparing and the typed `"cancelled"` was not, so the panel reported the catch-all row. The same bug was in the automation screen's table editor | **Fixed** |
+| 3 | High | Process | The *Look up a rule table* picker was empty on the Logic page, so no process built there could consult any of the model's rules | **Fixed** |
+| 4 | Low | Process | A repeat read *"until feeinvoice.status is not paid stops being true"*, a double negative | **Fixed** |
+| 5 | High | Process | *Create a record* wrote its values as typed. Every line after the first fell outside the `%%step` directive (invalid Mermaid, dropped on reload), and the first was not JSON, which the generated `executeCreateEntity` requires, so the step was skipped at run time as "invalid fields JSON". A multi-line web-service body had the same line-escaping problem | **Fixed**, in both the tool and the builder copy it ships to generated apps |
+| 6 | Medium | Rule | Saving an `%%action` rule moved its actions below the next section's heading (`%% ---- Business rules — the student record`), because a rule's body runs to the next `%%rule` and the actions were appended at its end | **Fixed** |
+| 7 | High | Process | *Update a field* on the record the process runs on wrote `entity: FeeInvoice` with no target. The checker the generator runs reads that as a cross-entity write it cannot aim (EML265, an error), so the process failed the check. The executor treats a write with no entity as "this record", which is how the model's own sagas write it | **Fixed** |
+| 8 | Medium | Process | *Update a field* on a **different** record type has no "Which record" input, so it can never be aimed at a row. The checker rejects it (EML265) and the executor skips it | **Open.** See below |
+| 9 | — | Status | A drag that starts within 200 ms of *Add state* misses, because the canvas is re-fitting | **Not a defect.** No person moves that fast; the spec waits for the canvas to settle |
+| 10 | Low | Checker | On a status machine bound to an entity with no status column, EML426 names an unrelated enum (`AssessmentStatus`) | **Open.** `language/**`, outside this change |
+
+### Why finding 8 is open
+
+The fix is to add `target` to `UpdateEntity` in `STEP_FIELDS`. That list is
+held equal between this tool and the builder copy shipped to generated
+applications (`generated-app-parity.test.ts`) and against
+`appwithai-language.json` (`language-parity.test.ts`). The change therefore
+belongs in all three at once, alongside a checker case. The proposal: show
+*Which record* for Update exactly as Delete already does, write it as `target:
+{{id}}`, and have `validateAutomation` report a cross-entity update without one
+before it reaches the checker.
+
+## Evidence
+
+| Before | After |
+|--------|-------|
+| `02-banding-actions-read-only.png`: Admission Banding as a read-only flowchart | `20-fixed-banding-table.png`: the same rule as its six-row table |
+| `04-rule-table.png`: *Row 2 fits* for `"cancelled"` / `50` | `21-fixed-test-values.png`: *Row 1 fits* |
+| `11-process-all-steps.png`: *Missing a rule table*, *"until … stops being true"* | `22-fixed-process.png`: `lateFeeGuard` picked, *"while …"* |
+
+The saved model, before and after (the Create step's values):
+
+```
+%%step s3 values: status: reported              ← before: second line escapes
+student_id: {{feeinvoice.student_id}}
+
+%%step s2 values: {"status":"reported","student_id":"student_id","severity":2}   ← after
+```
+
+After the fixes, the model saved by the full run of the spec checks with
+**0 errors**. The only two warnings come from binding the test status machine
+to `Room`, which has no status column.
+
+## Help, from Markdown files shipped with the application
+
+The editors now carry detailed static help: five `.md` files under
+`packages/web/src/content/help/`, inlined at build time and rendered in a side
+panel (`31-help-rules.png`, `33-help-process.png`). The **Help** button opens
+the overview. A link above each editor (*How business rules work*, *How status
+machines work*, …) opens the page for the editor in use. The panel sits beside
+the editor rather than over it, so the table being explained stays visible.
+
+`help-content.test.ts` holds each page to its editor. Every event, outcome,
+action, step type, check and inspector field the editor offers must appear on
+its page, so a control added without help fails CI. The test was confirmed to
+bite by removing one label from `process.md` and watching it fail.
+
+## Verification
+
+| Check | Result |
+|-------|--------|
+| `tests/e2e/05b-logic-editors.e2e.spec.ts` (new) | 2 passed |
+| `bun run test` | 893 passed, 12 skipped |
+| `bun run type-check`, `biome check . --diagnostic-level=error` | clean |
+| All five `--check` artifact comparisons, under bun 1.4.0 on linux-x64 (CI's) | up to date |
+| Generated app from `examples/drug-discovery.eml.mmd`: install and frontend build | passed |
+| `bun install --frozen-lockfile` under bun 1.4.0 | no changes |

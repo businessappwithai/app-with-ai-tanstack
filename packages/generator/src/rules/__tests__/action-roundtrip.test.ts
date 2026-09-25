@@ -100,3 +100,40 @@ describe("replaceRuleActions keeps the diagram", () => {
     ]);
   });
 });
+
+/**
+ * A rule's body runs to the next `%%rule`, so it can end in the prose that
+ * introduces the following section. Found on the Logic step against the
+ * education model: saving Admission Banding moved its six actions under the
+ * "the student record" heading that belongs to the next rule.
+ */
+describe("replaceRuleActions keeps the actions with their rule", () => {
+  const body = [
+    "flowchart TD",
+    "    A([Received]) --> B[Banded]",
+    "",
+    "    %%action bandOnSibling transform when: sibling == true field: band value: priority",
+    "",
+    "%% ---- Business rules — the student record ----",
+    "%%meta name: Student Record Control",
+  ].join("\n");
+
+  it("writes the new actions where the old ones were, at their indentation", () => {
+    const replaced = replaceRuleActions(body, ["%%action bandAll transform when: true"]);
+    const lines = replaced.split("\n");
+    expect(lines[3]).toBe("    %%action bandAll transform when: true");
+    expect(lines.indexOf("    %%action bandAll transform when: true")).toBeLessThan(
+      lines.indexOf("%% ---- Business rules — the student record ----")
+    );
+  });
+
+  it("adds a rule's first actions ahead of the trailing prose", () => {
+    const withoutActions = body.replace(/^.*%%action.*$\n/m, "");
+    const replaced = replaceRuleActions(withoutActions, ["%%action bandAll transform when: true"]);
+    const lines = replaced.split("\n");
+    expect(lines.indexOf("%%action bandAll transform when: true")).toBeLessThan(
+      lines.indexOf("%% ---- Business rules — the student record ----")
+    );
+    expect(lines.at(-1)).toBe("%%meta name: Student Record Control");
+  });
+});
