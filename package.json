@@ -26,6 +26,7 @@
     "test": "bun --filter @appwithai/web test",
     "test:watch": "bun --filter @appwithai/web test:watch",
     "test:e2e:server": "playwright test",
+    "test:e2e:rules-workflows": "bun scripts/e2e-rules-workflows/run.ts",
     "test:playwright": "playwright test",
     "test:playwright:ui": "playwright test --ui",
     "test:playwright:debug": "playwright test --debug",

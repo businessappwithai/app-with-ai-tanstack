@@ -687,7 +687,20 @@ every variable an earlier step published (`as` on `CreateEntity`, `target` on
 `Formula`). `source`/`targetSource` is how a later step reaches an earlier
 step's row.
 
-**`fields` carries JSON and must be the last key on a `%%step` line.**
+**`fields` carries JSON and must be the last key on a `%%step` line.** It is one
+object on one line, `{"column": value}`: a value naming a context key is copied
+from it, and anything else is written as it stands. A directive ends at its line
+break, so a map laid out over several lines loses everything after the first.
+
+**Say which row an `UpdateEntity` or `DeleteEntity` writes.** Leave `entity:` out
+and the step writes the record that started the run, as `%%step F` does. Name
+another entity and say which of its rows as well: `targetSource: <key>`, a
+context key holding the row's id (usually an earlier step's `as:`), or
+`targetField: <fk_column>`, a column on that entity matched against the
+triggering record's id, as `%%step G` does. With neither, the checker refuses
+the step (`EML265`) and the executor would skip it rather than guess. The
+workflow builder writes both forms as one `target:` (`{{key}}` for the first,
+a bare column for the second), and the compiler reads either.
 
 A workflow declared in the model has `source: 'model'`: the generated Workflow
 Designer shows it read-only and regeneration rewrites it. Workflows authored in

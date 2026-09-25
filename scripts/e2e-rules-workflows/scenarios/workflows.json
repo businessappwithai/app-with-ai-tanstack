@@ -1,0 +1,91 @@
+{
+  "$comment": "Workflows the suite creates through the Logic step, one object per workflow. `kind` is lifecycle, status or process. A lifecycle lists hooks; a status machine lists states (the first is where records start), transitions and end states; a process lists steps in order, each with the fields its inspector shows. `expectAfterReload` is text the ladder must still show after saving and reloading.",
+  "workflows": [
+    {
+      "kind": "lifecycle",
+      "name": "Fee Invoice Hooks",
+      "entity": "FeeInvoice",
+      "hooks": [
+        { "when": "beforeUpdate", "handler": "stampIssueDate", "field": "issued_on" },
+        { "when": "afterUpdate", "handler": "recalcBalance" }
+      ],
+      "expectAfterReload": ["stampIssueDate", "recalcBalance"]
+    },
+    {
+      "kind": "status",
+      "name": "Room Booking Status",
+      "entity": "Room",
+      "states": ["draft", "booked", "released"],
+      "transitions": [
+        { "from": "draft", "to": "booked", "trigger": "book" },
+        { "from": "booked", "to": "released" }
+      ],
+      "end": ["released"],
+      "expectEml": ["draft --> booked : book", "booked --> released", "released --> [*]"]
+    },
+    {
+      "kind": "process",
+      "name": "Overdue Invoice Chase",
+      "entity": "FeeInvoice",
+      "startsFrom": "automatic",
+      "operation": "UPDATE",
+      "steps": [
+        { "type": "A check", "field": "feeinvoice.balance_due", "test": "gt", "value": "0" },
+        { "type": "Look up a rule table", "rule": "lateFeeGuard" },
+        {
+          "type": "Create a record",
+          "entity": "DisciplineIncident",
+          "values": "status: reported\nstudent_id: {{student_id}}\nseverity: 2",
+          "saveAs": "incidentId"
+        },
+        { "type": "Update a field", "entity": "FeeInvoice", "field": "status", "value": "overdue" },
+        {
+          "type": "Update a field",
+          "entity": "Payment",
+          "target": "fee_invoice_id",
+          "field": "amount",
+          "value": "0"
+        },
+        { "type": "Delete a record", "entity": "FeeInvoiceLine", "target": "{{incidentId}}" },
+        {
+          "type": "Work out a value",
+          "operation": "add",
+          "left": "{{feeinvoice.balance_due}}",
+          "right": "25",
+          "saveAs": "newBalance"
+        },
+        {
+          "type": "Call a web service",
+          "method": "POST",
+          "url": "https://example.com/hooks/overdue",
+          "body": "{\n  \"invoice\": \"{{feeinvoice.id}}\"\n}",
+          "saveAs": "chaseResponse"
+        },
+        {
+          "type": "A repeat",
+          "field": "feeinvoice.status",
+          "test": "neq",
+          "value": "paid",
+          "max": "3",
+          "inside": { "entity": "FeeInvoice", "field": "amount_paid", "value": "{{newBalance}}" }
+        }
+      ],
+      "expectAfterReload": [
+        "Look up lateFeeGuard",
+        "Create a DisciplineIncident",
+        "Set status to overdue",
+        "Set Payment.amount to 0",
+        "Delete a FeeInvoiceLine",
+        "newBalance",
+        "chaseResponse",
+        "and stops once that is no longer true"
+      ],
+      "expectStored": [
+        "%%step s2 values: {\"status\":\"reported\",\"student_id\":\"student_id\",\"severity\":2}",
+        "%%step s4 target: fee_invoice_id",
+        "%%step s7 url: https://example.com/hooks/overdue",
+        "%%step s7 body: {\"invoice\":\"{{feeinvoice.id}}\"}"
+      ]
+    }
+  ]
+}
