@@ -99,6 +99,14 @@ describe("the generated automations screen keeps what is built in it", () => {
     expect(page).toContain("saveDraft(next);");
     expect(page).toContain("isActive: false,");
   });
+
+  // ISSUE-008 (/qa, 2026-09-25): every "+ New automation" stores a draft and
+  // nothing could remove one, so the rail filled with "Untitled automation".
+  it("can delete an automation, in two clicks", () => {
+    expect(page).toContain("method: 'DELETE'");
+    expect(page).toContain("Click again to delete");
+    expect(page).not.toMatch(/\bconfirm\(['"`]/);
+  });
 });
 
 describe("the generated report designer", () => {
