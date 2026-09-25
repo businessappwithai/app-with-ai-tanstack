@@ -1,8 +1,10 @@
 /**
  * A rule table: the conditions on the left, the answer on the right.
  *
- * Rows are read top to bottom and the first one that fits wins. That ordering
- * is the whole semantics, so the editor makes it visible — rows are numbered,
+ * Rows are read top to bottom and the first one that fits wins — except in a
+ * `collect` table, which is what `%%action` compiles to, where every row that
+ * fits runs. Under `first` that ordering is the whole semantics, so the editor
+ * makes it visible — rows are numbered,
  * draggable, and the catch-all is pinned last and worded as "Otherwise" rather
  * than left as a row of empty cells the author has to recognise.
  *
@@ -16,6 +18,8 @@ import {
   type DecisionColumn,
   type DecisionRow,
   type DecisionTable,
+  evaluateExpression,
+  expressionFields,
   getColumnOptions,
   KNOWN_OUTPUT_FIELDS,
   newRowId,
@@ -29,8 +33,11 @@ const cellClass =
 /* -------------------------------------------------------------------------- */
 
 export interface TableTestResult {
+  /** The first row that fits — under `first`, the answer. */
   rowIndex: number | null;
   outputs: Record<string, string>;
+  /** Every row that fits, in order. Under `collect` each of them runs. */
+  matches: Array<{ rowIndex: number; outputs: Record<string, string> }>;
 }
 
 /**
@@ -46,21 +53,29 @@ export function evaluateTable(
   table: DecisionTable,
   values: Record<string, string>
 ): TableTestResult {
+  const matches: TableTestResult["matches"] = [];
   for (let i = 0; i < table.rules.length; i++) {
     const row = table.rules[i];
     if (!row) continue;
     const fits = table.inputs.every((col) => {
       const cell = (row[col.id] ?? "").trim();
       if (!cell) return true;
+      // An input with no field holds whole-record checks, as `%%action`
+      // writes them: `status == "withdrawn" and withdrawn_on == null`.
+      if (!col.field.trim()) {
+        const verdict = evaluateExpression(cell, values);
+        if (verdict !== undefined) return verdict;
+      }
       return cellMatches(cell, values[col.field] ?? "");
     });
-    if (fits) {
-      const outputs: Record<string, string> = {};
-      for (const col of table.outputs) outputs[col.field || col.name] = unquote(row[col.id] ?? "");
-      return { rowIndex: i, outputs };
-    }
+    if (!fits) continue;
+    const outputs: Record<string, string> = {};
+    for (const col of table.outputs) outputs[col.field || col.name] = unquote(row[col.id] ?? "");
+    matches.push({ rowIndex: i, outputs });
+    if (table.hitPolicy !== "collect") break;
   }
-  return { rowIndex: null, outputs: {} };
+  const first = matches[0];
+  return { rowIndex: first?.rowIndex ?? null, outputs: first?.outputs ?? {}, matches };
 }
 
 function cellMatches(cell: string, typed: string): boolean {
@@ -121,6 +136,25 @@ export interface CoverageNote {
  */
 export function checkCoverage(table: DecisionTable): CoverageNote[] {
   const notes: CoverageNote[] = [];
+  // Under `collect` every row that fits runs. A row with no check is not a
+  // safety net there — it runs on every record, which is worth saying loudly.
+  if (table.hitPolicy === "collect") {
+    const blank = table.rules.findIndex((row) =>
+      table.inputs.every((c) => !(row[c.id] ?? "").trim())
+    );
+    return [
+      blank >= 0
+        ? {
+            level: "warn",
+            message: `Row ${blank + 1} has no check, so its action runs on every record.`,
+          }
+        : {
+            level: "ok",
+            message:
+              "Each row runs on its own when its check fits. A record that no row fits passes untouched.",
+          },
+    ];
+  }
   const hasCatchAll = table.rules.some((row) =>
     table.inputs.every((c) => !(row[c.id] ?? "").trim())
   );
@@ -183,6 +217,18 @@ export function RuleTableEditor({
 
   const result = useMemo(() => evaluateTable(table, testValues), [table, testValues]);
   const coverage = useMemo(() => checkCoverage(table), [table]);
+  // `%%action` compiles to a `collect` table: every row that fits runs, so a
+  // blank row is not an "otherwise" and the order does not pick a winner.
+  const collect = table.hitPolicy === "collect";
+  // A whole-record input is tested through the fields its checks read.
+  const testFields = useMemo(() => {
+    const read = expressionFields(table);
+    const own = table.inputs.filter((c) => c.field.trim() || read.length === 0);
+    return [
+      ...own.map((c) => ({ key: c.field, label: c.field || c.name })),
+      ...read.map((f) => ({ key: f, label: f })),
+    ];
+  }, [table]);
 
   const setCell = (rowIndex: number, colId: string, value: string) => {
     const rules = table.rules.map((r, i) => (i === rowIndex ? { ...r, [colId]: value } : r));
@@ -225,6 +271,7 @@ export function RuleTableEditor({
 
   const isCatchAll = (row: DecisionRow) => table.inputs.every((c) => !(row[c.id] ?? "").trim());
   const lastCatchAllIndex = (() => {
+    if (collect) return -1;
     for (let i = table.rules.length - 1; i >= 0; i--) {
       // Narrowed rather than asserted: noUncheckedIndexedAccess types this as
       // possibly undefined, and the assertion was the file's only lint warning.
@@ -245,7 +292,9 @@ export function RuleTableEditor({
         ) : null}
       </div>
       <p className="mb-4 mt-1 text-[13px] text-muted-foreground">
-        Rows are read top to bottom. The first row where every check fits is the answer.
+        {collect
+          ? "Every row whose check fits runs its action. Rows are not alternatives, and their order does not change which ones run."
+          : "Rows are read top to bottom. The first row where every check fits is the answer."}
       </p>
 
       {/* the table's declaration, as a sentence */}
@@ -254,7 +303,11 @@ export function RuleTableEditor({
         {table.inputs.map((c, i) => (
           <span key={c.id}>
             {i > 0 ? " and " : ""}
-            {entityFields.length > 0 ? (
+            {collect && !c.field ? (
+              // Its cells are whole-record checks; giving it a field would
+              // turn each into an equality test against that one field.
+              <b className="mx-0.5">the record</b>
+            ) : entityFields.length > 0 ? (
               <select
                 aria-label={`Input ${i + 1} field`}
                 value={c.field}
@@ -298,13 +351,17 @@ export function RuleTableEditor({
             </select>
           </span>
         ))}
-        <button
-          type="button"
-          onClick={() => addColumn("inputs")}
-          className="ml-3 text-[13px] font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        >
-          ＋ input
-        </button>
+        {/* An action row's check is one expression; `%%action` has no second
+            input to write a column into. Join conditions with "and" instead. */}
+        {!collect && (
+          <button
+            type="button"
+            onClick={() => addColumn("inputs")}
+            className="ml-3 text-[13px] font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            ＋ input
+          </button>
+        )}
         <button
           type="button"
           onClick={() => addColumn("outputs")}
@@ -472,7 +529,9 @@ export function RuleTableEditor({
           ＋ Add row
         </button>
         <span className="text-[12.5px] text-muted-foreground">
-          Move rows with ↑ ↓. A row with every check left blank is the catch-all — keep it last.
+          {collect
+            ? "A row with its check left blank runs on every record."
+            : "Move rows with ↑ ↓. A row with every check left blank is the catch-all — keep it last."}
         </span>
       </div>
 
@@ -482,23 +541,42 @@ export function RuleTableEditor({
             Test with values
           </h2>
           <div className="mb-3 grid gap-2.5 sm:grid-cols-2">
-            {table.inputs.map((c) => (
-              <label key={c.id} className="block">
-                <span className="mb-1 block text-[11.5px] text-muted-foreground">
-                  {c.field || c.name}
-                </span>
+            {testFields.map((f) => (
+              <label key={f.key || f.label} className="block">
+                <span className="mb-1 block text-[11.5px] text-muted-foreground">{f.label}</span>
                 <input
                   className={cellClass}
-                  value={testValues[c.field] ?? ""}
-                  onChange={(e) => setTestValues((v) => ({ ...v, [c.field]: e.target.value }))}
+                  value={testValues[f.key] ?? ""}
+                  onChange={(e) => setTestValues((v) => ({ ...v, [f.key]: e.target.value }))}
                 />
               </label>
             ))}
           </div>
           {result.rowIndex === null ? (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12.5px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-              No row fits these values, so this table would return nothing.
+              {collect
+                ? "No row fits these values, so the record passes and nothing runs."
+                : "No row fits these values, so this table would return nothing."}
             </p>
+          ) : collect ? (
+            <div className="space-y-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12.5px] text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+              <p>
+                <b>
+                  {result.matches.length === 1
+                    ? `Row ${result.rowIndex + 1} fits.`
+                    : `Rows ${result.matches.map((m) => m.rowIndex + 1).join(", ")} fit, and each runs.`}
+                </b>
+              </p>
+              {result.matches.map((m) => (
+                <p key={m.rowIndex}>
+                  Row {m.rowIndex + 1}:{" "}
+                  {Object.entries(m.outputs)
+                    .filter(([, v]) => v)
+                    .map(([k, v]) => `${k} = ${v}`)
+                    .join(", ")}
+                </p>
+              ))}
+            </div>
           ) : (
             <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[12.5px] text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
               <b>Row {result.rowIndex + 1} fits.</b>{" "}

@@ -7,6 +7,9 @@
  * compiles it to a GoRules JDM decision graph for the generated app.
  */
 
+// Whole-record checks are evaluated by the copy the generated app ships too.
+import { evaluateExpression, expressionFields } from "@/lib/workflow/bpmn-model";
+
 export interface DecisionColumn {
   id: string;
   name: string;
@@ -115,6 +118,8 @@ export interface TableTestResult {
   matches: Array<{ rowIndex: number; outputs: Record<string, string> }>;
 }
 
+export { evaluateExpression, expressionFields };
+
 export function evaluateTable(
   table: DecisionTable,
   values: Record<string, string>
@@ -142,97 +147,6 @@ export function evaluateTable(
   }
   const first = matches[0];
   return { rowIndex: first?.rowIndex ?? null, outputs: first?.outputs ?? {}, matches };
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Whole-record checks                                                         */
-/* -------------------------------------------------------------------------- */
-
-type Scalar = string | number | boolean | null;
-
-const IDENTIFIER = /^[A-Za-z_][\w.]*$/;
-const COMPARISON = /^\s*([A-Za-z_][\w.]*)\s*(==|!=|>=|<=|>|<)\s*(.+?)\s*$/;
-const KEYWORDS = new Set(["true", "false", "null", "and", "or"]);
-
-/** What a test box holds: blank is null, and numbers and booleans are read as such. */
-function typedValue(raw: string | undefined): Scalar {
-  const text = (raw ?? "").trim();
-  if (!text || text === "null") return null;
-  if (text === "true") return true;
-  if (text === "false") return false;
-  if (/^-?\d+(\.\d+)?$/.test(text)) return Number(text);
-  return unquote(text);
-}
-
-function operand(text: string, values: Record<string, string>): Scalar | undefined {
-  const t = text.trim();
-  if (/^(["']).*\1$/.test(t)) return t.slice(1, -1);
-  if (t === "null") return null;
-  if (t === "true") return true;
-  if (t === "false") return false;
-  if (/^-?\d+(\.\d+)?$/.test(t)) return Number(t);
-  if (IDENTIFIER.test(t)) return typedValue(values[t]);
-  return undefined;
-}
-
-function compare(left: Scalar, op: string, right: Scalar): boolean {
-  switch (op) {
-    case "==":
-      return left === right;
-    case "!=":
-      return left !== right;
-    default: {
-      if (typeof left !== "number" || typeof right !== "number") return false;
-      if (op === ">") return left > right;
-      if (op === ">=") return left >= right;
-      if (op === "<") return left < right;
-      return left <= right;
-    }
-  }
-}
-
-/**
- * Evaluate a check of the form `field op value`, joined by `and` / `or`
- * (`and` binding tighter), against typed test values. Returns `undefined`
- * for anything outside that shape, so the caller never claims a verdict on
- * an expression it could not read.
- */
-export function evaluateExpression(
-  expression: string,
-  values: Record<string, string>
-): boolean | undefined {
-  let any = false;
-  for (const clause of expression.split(/\s+or\s+/)) {
-    let all = true;
-    for (const part of clause.split(/\s+and\s+/)) {
-      const m = part.match(COMPARISON);
-      if (!m) return undefined;
-      const right = operand(m[3] ?? "", values);
-      if (right === undefined) return undefined;
-      all = compare(typedValue(values[m[1] ?? ""]), m[2] ?? "==", right) && all;
-    }
-    any = any || all;
-  }
-  return any;
-}
-
-/** The fields a table's whole-record checks read, in the order they appear. */
-export function expressionFields(table: DecisionTable): string[] {
-  const fields = new Set<string>();
-  for (const col of table.inputs) {
-    if (col.field.trim()) continue;
-    for (const row of table.rules) {
-      const cell = row[col.id] ?? "";
-      for (const part of cell.split(/\s+(?:and|or)\s+/)) {
-        const m = part.match(COMPARISON);
-        if (!m) continue;
-        if (m[1]) fields.add(m[1]);
-        const right = (m[3] ?? "").trim();
-        if (IDENTIFIER.test(right) && !KEYWORDS.has(right)) fields.add(right);
-      }
-    }
-  }
-  return [...fields];
 }
 
 function cellMatches(cell: string, typed: string): boolean {

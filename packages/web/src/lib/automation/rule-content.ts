@@ -8,7 +8,7 @@
  * and visibly empty is the failure an author can actually see and fix.
  */
 
-import { type DecisionTable, emptyDecisionTable } from "../workflow/bpmn-model";
+import { type DecisionRow, type DecisionTable, emptyDecisionTable } from "../workflow/bpmn-model";
 
 /** What the rules API round-trips. Kept loose because older rows vary. */
 export type StoredRuleContent = DecisionTable | Record<string, unknown>;
@@ -57,20 +57,53 @@ export function asDecisionTable(content: unknown): DecisionTable {
         (node as Record<string, unknown>).type === "decisionTableNode"
       ) {
         const tableContent = (node as Record<string, unknown>).content;
-        if (isDecisionTable(tableContent)) {
-          const t = tableContent as DecisionTable;
-          return {
-            hitPolicy: t.hitPolicy === "collect" ? "collect" : "first",
-            inputs: t.inputs,
-            outputs: t.outputs,
-            rules: t.rules,
-          };
-        }
+        if (isDecisionTable(tableContent)) return editableGraphTable(tableContent as DecisionTable);
       }
     }
   }
 
   return emptyDecisionTable();
+}
+
+/** A whole zen string literal — `'prevent'`, `"a \"b\""` — and nothing after it. */
+const ZEN_STRING = /^'(?:[^'\\]|\\.)*'$|^"(?:[^"\\]|\\.)*"$/;
+
+/** The runtime's words for an action, in the editor's (EML's). */
+const EDITOR_ACTION: Record<string, string> = { prevent: "validation-error" };
+
+/**
+ * A graph's table, as the editor edits it.
+ *
+ * A graph holds zen literals — `'prevent'`, `''` — because the engine reads
+ * every cell as an expression. The editor edits plain text, and the engine
+ * quotes a bare table's outcome cells again on the way in, so they are read
+ * back unquoted here. Without this, a rule compiled from `%%action` opened
+ * with its Action picker blank and nine quoted columns, and saving it after
+ * any change wrote the blank back. Input cells are expressions and are left
+ * as they are. `ruleId` and columns no row uses are dropped: the engine names
+ * a violation after the stored rule, and the rest is noise.
+ */
+function editableGraphTable(t: DecisionTable): DecisionTable {
+  const rules = t.rules.map((row) => {
+    const next: DecisionRow = { _id: row._id };
+    for (const column of t.inputs) next[column.id] = row[column.id] ?? "";
+    for (const column of t.outputs) {
+      const raw = String(row[column.id] ?? "").trim();
+      const text = ZEN_STRING.test(raw) ? raw.slice(1, -1).replace(/\\(.)/g, "$1") : raw;
+      next[column.id] = column.field === "action" ? (EDITOR_ACTION[text] ?? text) : text;
+    }
+    return next;
+  });
+  const outputs = t.outputs.filter(
+    (column) =>
+      column.field !== "ruleId" && rules.some((row) => (row[column.id] ?? "").trim() !== "")
+  );
+  return {
+    hitPolicy: t.hitPolicy === "collect" ? "collect" : "first",
+    inputs: t.inputs,
+    outputs: outputs.length ? outputs : t.outputs,
+    rules,
+  };
 }
 
 /** The older decision-graph shape, still accepted on write for existing tooling. */
@@ -102,7 +135,10 @@ export function validateStoredRuleContent(content: unknown): string[] {
       problems.push("Add at least one outcome column — a table that decides nothing does nothing.");
     }
     if (table.rules.length === 0) problems.push("Add at least one row.");
-    for (const column of [...table.inputs, ...table.outputs]) {
+    // A `collect` table's field-less input reads the whole record (`%%action`).
+    const named =
+      table.hitPolicy === "collect" ? table.outputs : [...table.inputs, ...table.outputs];
+    for (const column of named) {
       if (!String(column.field ?? "").trim()) {
         problems.push(`Column "${column.name || column.id}" does not say which field it reads.`);
       }
