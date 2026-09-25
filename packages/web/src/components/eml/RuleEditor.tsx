@@ -170,9 +170,13 @@ export function RuleEditor({
           <span className="mb-1 block text-xs font-medium">Priority</span>
           <input
             type="number"
+            step={1}
             className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
             value={rule.priority ?? 100}
-            onChange={(event) => onChange({ priority: Number(event.target.value) || 0 })}
+            // Both runtimes store it as an integer; 2.5 would be rounded silently.
+            onChange={(event) =>
+              onChange({ priority: Math.trunc(Number(event.target.value)) || 0 })
+            }
           />
         </label>
       </div>
