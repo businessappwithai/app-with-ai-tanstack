@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { RuleTableEditor } from "@/components/automation/RuleTableEditor";
 import { asDecisionTable } from "@/lib/automation/rule-content";
+import { ruleEntityLabel, useRuleEntities } from "@/hooks/use-rule-entities";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,6 +80,11 @@ function EditRulePage() {
     description: wf.description,
   }));
 
+  // The rule's entity's own columns, for the table's input pickers.
+  const { data: entities = [] } = useRuleEntities();
+  const entityFields = entities.find((entity) => entity.value === rule?.entityName)?.fields ?? [];
+  const entityLabel = ruleEntityLabel(entities, rule?.entityName);
+
   useEffect(() => {
     if (rule) {
       try {
@@ -107,7 +113,7 @@ function EditRulePage() {
   const dryRunMutation = useMutation({
     mutationFn: async (data: { testData: Record<string, unknown> }) => {
       return await apiClient.post("/rules/evaluate", {
-        entityName: rule?.entityName || "Account",
+        entityName: rule?.entityName ?? "",
         operation: rule?.operation || "CREATE",
         data: data.testData,
       });
@@ -197,7 +203,7 @@ function EditRulePage() {
                 {rule.operation}
               </Badge>
               <Badge variant="secondary" className="text-xs">
-                {rule.entityName}
+                {entityLabel}
               </Badge>
             </div>
           </div>
@@ -217,7 +223,7 @@ function EditRulePage() {
                   <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
                     Entity
                   </Label>
-                  <p className="mt-1 font-medium">{rule.entityName}</p>
+                  <p className="mt-1 font-medium">{entityLabel}</p>
                 </div>
                 <div>
                   <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
@@ -296,6 +302,7 @@ function EditRulePage() {
               // could not be saved at all — it failed validation as "Invalid
               // JDM content" with nothing on screen to explain why.
               onChange={(next) => setJdmContent(JSON.stringify(next, null, 2))}
+              entityFields={entityFields}
             />
             {errors.jdmContent && (
               <p className="text-xs text-red-600 dark:text-red-400 px-4 pb-2">{errors.jdmContent}</p>

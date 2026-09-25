@@ -3,6 +3,7 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowRight,
+  BookOpen,
   CheckCircle2,
   GitBranch,
   ListOrdered,
@@ -13,7 +14,10 @@ import {
   Workflow as WorkflowIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
+import {
+  AutomationBuilder,
+  type RuleTableSummary,
+} from "@/components/automation/AutomationBuilder";
 import { CopilotProvider } from "@/components/CopilotProvider";
 import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
 import { emptyStateFlow } from "@/components/eml/StateFlowCanvas";
@@ -25,15 +29,15 @@ import {
   WorkflowEditor,
   type WorkflowKind,
 } from "@/components/eml/WorkflowEditor";
+import { HelpLink, HelpPanel } from "@/components/help/HelpPanel";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
+import type { HelpTopicId } from "@/content/help";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
 import { parseAutomation } from "@/lib/automation/model";
-import {
-  emptyDecisionTable,
-  parseTableFromFlowchart,
-  tableToEmlFlowchart,
-} from "@/lib/eml/decision-table";
+import { emptyDecisionTable } from "@/lib/eml/decision-table";
+import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
+import { sectionProblems } from "@/lib/eml/section-problems";
 import {
   emptySagaFlow,
   parseHookWorkflow,
@@ -167,6 +171,13 @@ function LogicPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpTopicId, setHelpTopicId] = useState<HelpTopicId>("overview");
+  const openHelp = useCallback((topic: HelpTopicId) => {
+    setHelpTopicId(topic);
+    setHelpOpen(true);
+  }, []);
+  const closeHelp = useCallback(() => setHelpOpen(false), []);
 
   useEffect(() => {
     if (id) void loadProject(id);
@@ -188,23 +199,10 @@ function LogicPage() {
 
         setErd(data.eml ?? "");
         setRules(
-          (data.rules ?? []).map((rule) => {
-            // Only tables this editor wrote round-trip through the
-            // %%decision-table directive. A hand-authored flowchart parses to
-            // null, and blanking it here would hand the save path an empty
-            // table to overwrite the real logic with — so keep the source.
-            const table = parseTableFromFlowchart(rule.flowchart);
-            return {
-              key: nextKey(),
-              name: rule.name,
-              entity: rule.entity,
-              event: rule.event,
-              priority: rule.priority,
-              title: rule.title,
-              table: table ?? emptyDecisionTable(),
-              ...(table ? {} : { sourceFlowchart: rule.flowchart }),
-            };
-          })
+          // The same reader the Enhance page uses, so a rule written as
+          // `%%action` directives opens as the table it compiles to rather
+          // than as a read-only flowchart whose only offer discards them.
+          (data.rules ?? []).map((rule) => toEditableRule(rule, nextKey()))
         );
         setWorkflows(
           (data.workflows ?? []).map((workflow) => {
@@ -291,6 +289,19 @@ function LogicPage() {
     () => rules.map((rule) => slugifyRuleName(rule.title ?? rule.name)),
     [rules]
   );
+  // What a "Look up a rule table" step picks from. Without it the step's
+  // picker was empty on this screen, so no process built here could consult
+  // any of the model's rules.
+  const ruleTables: RuleTableSummary[] = useMemo(
+    () =>
+      rules.map((rule) => ({
+        id: rule.key,
+        name: slugifyRuleName(rule.title ?? rule.name),
+        rowCount: rule.table.rules.length,
+        outputs: rule.table.outputs.map((output) => output.field || output.name),
+      })),
+    [rules]
+  );
 
   // What is on this screen is names and canvases; the decision tables, step
   // properties and directive syntax the assistant needs to answer a question
@@ -371,6 +382,13 @@ function LogicPage() {
 
   /** One write, both halves — the document is edited once. */
   const save = async () => {
+    const problems = sectionProblems(rules, workflows);
+    const first = problems[0];
+    if (first) {
+      setError(problems.map((p) => p.message).join(" "));
+      setSelected({ kind: first.kind, index: first.index });
+      return;
+    }
     setIsSaving(true);
     setError(null);
     try {
@@ -378,16 +396,7 @@ function LogicPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rules: rules.map((rule) => ({
-            name: slugifyRuleName(rule.title ?? rule.name),
-            entity: rule.entity,
-            event: rule.event,
-            priority: rule.priority,
-            title: rule.title,
-            // An unconverted hand-authored rule goes back exactly as it came
-            // in. Re-emitting from `table` would write a blank table over it.
-            flowchart: rule.sourceFlowchart ?? tableToEmlFlowchart(rule.table),
-          })),
+          rules: rules.map(ruleForSave),
           workflows: workflows.map((workflow) => ({
             name: pascalWorkflowName(workflow.title ?? workflow.name),
             entity: workflow.entity,
@@ -419,6 +428,17 @@ function LogicPage() {
   const kindIcon = (kind: WorkflowKind) =>
     kind === "saga" ? ListOrdered : kind === "state" ? GitBranch : WorkflowIcon;
 
+  /** The help page for whatever the editor is showing, and how to ask for it. */
+  const editorHelp: { topic: HelpTopicId; label: string } = activeRule
+    ? { topic: "rules", label: "How business rules work" }
+    : activeWorkflow?.kind === "state"
+      ? { topic: "status", label: "How status machines work" }
+      : activeWorkflow?.kind === "hook"
+        ? { topic: "lifecycle", label: "How lifecycle processes work" }
+        : activeWorkflow
+          ? { topic: "process", label: "How processes and their steps work" }
+          : { topic: "overview", label: "Which one should I use?" };
+
   return (
     <div className="min-h-screen bg-background">
       <ProgressStepper currentStep="logic" projectId={id} />
@@ -430,6 +450,24 @@ function LogicPage() {
           subtitle={currentProject?.name}
           title="Rules and processes"
           description="The decisions your application makes, and what happens around them. A rule compiles to a GoRules decision graph; a process runs steps in order and can carry a decision table inside one of them."
+        />
+
+        <div className="-mt-2 mb-4 flex justify-end">
+          <button
+            type="button"
+            onClick={() => openHelp(helpOpen ? helpTopicId : "overview")}
+            className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted"
+          >
+            <BookOpen className="h-4 w-4" />
+            Help
+          </button>
+        </div>
+
+        <HelpPanel
+          open={helpOpen}
+          topic={helpTopicId}
+          onTopicChange={setHelpTopicId}
+          onClose={closeHelp}
         />
 
         {error && (
@@ -445,8 +483,10 @@ function LogicPage() {
             Loading the model…
           </div>
         ) : (
-          <div className="flex gap-4">
-            <aside className="w-64 shrink-0 space-y-5">
+          // Side by side from md up; stacked on a phone, where a 256px rail
+          // left the editor a column about 70px wide.
+          <div className="flex flex-col gap-4 md:flex-row">
+            <aside className="max-h-80 w-full space-y-5 overflow-y-auto md:max-h-none md:w-64 md:shrink-0 md:overflow-visible">
               {/* Rules */}
               <div>
                 <div className="mb-2 flex items-center justify-between">
@@ -580,6 +620,9 @@ function LogicPage() {
             </aside>
 
             <div className="min-w-0 flex-1">
+              <div className="mb-2 flex justify-end">
+                <HelpLink onClick={() => openHelp(editorHelp.topic)}>{editorHelp.label}</HelpLink>
+              </div>
               {activeRule ? (
                 <RuleEditor
                   key={activeRule.key}
@@ -607,6 +650,13 @@ function LogicPage() {
                     }
                     entities={entityNames}
                     entityFields={entityFieldMap}
+                    ruleTables={ruleTables}
+                    onOpenRuleTable={(name) => {
+                      const index = rules.findIndex(
+                        (rule) => slugifyRuleName(rule.title ?? rule.name) === name
+                      );
+                      if (index >= 0) setSelected({ kind: "rule", index });
+                    }}
                   />
                 </div>
               ) : activeWorkflow ? (

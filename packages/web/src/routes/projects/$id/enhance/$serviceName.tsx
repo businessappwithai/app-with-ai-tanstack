@@ -1,9 +1,3 @@
-import {
-  buildActionDecisionTable,
-  parseRuleActions,
-  replaceRuleActions,
-  serializeRuleActions,
-} from "@appwithai/generator/rules";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
@@ -24,7 +18,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
-import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
+import { type EditableRule, RuleEditor } from "@/components/eml/RuleEditor";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import {
   type Automation,
@@ -36,14 +30,8 @@ import {
   parseAutomation,
   serializeAutomation,
 } from "@/lib/automation/model";
-import { asDecisionTable } from "@/lib/automation/rule-content";
-import {
-  type DecisionRow,
-  type DecisionTable,
-  emptyDecisionTable,
-  parseTableFromFlowchart,
-  tableToEmlFlowchart,
-} from "@/lib/eml/decision-table";
+import { emptyDecisionTable } from "@/lib/eml/decision-table";
+import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
 import { requestContext } from "@/lib/request-context";
 import {
   generateFlowchartFromHooks,
@@ -347,53 +335,6 @@ function automationForHook(hook: HookDefinition, index: number): Automation {
   };
 }
 
-/** Cells the compiler wrote as zen literals, read back for the editor. */
-function unquoteZenCell(value: string): string {
-  const text = (value ?? "").trim();
-  if (
-    text.length >= 2 &&
-    (text.startsWith("'") || text.startsWith('"')) &&
-    text.endsWith(text[0] as string)
-  ) {
-    return text.slice(1, -1).replace(/\\'/g, "'");
-  }
-  return text;
-}
-
-/** The runtime's `prevent` is EML's `validation-error` — the word an author wrote. */
-const RUNTIME_TO_EML_ACTION: Record<string, string> = { prevent: "validation-error" };
-
-/**
- * The compiled action table, presented the way the editor expects it.
- *
- * `buildActionDecisionTable` quotes every cell (`'prevent'`, `''`) and spells
- * actions in the runtime's vocabulary, which left the action dropdown showing
- * nothing selected and the grid full of nine quoted columns. Read the cells
- * back as plain text, translate `prevent`, and drop the columns no row uses —
- * a two-action rule opens as Action and Message, not nine wide columns.
- */
-function normalizeActionTable(table: DecisionTable): DecisionTable {
-  const rules = table.rules.map((row) => {
-    const next: DecisionRow = { _id: row._id };
-    for (const column of [...table.inputs, ...table.outputs]) {
-      const raw = unquoteZenCell(row[column.id] ?? "");
-      const value = column.field === "action" ? (RUNTIME_TO_EML_ACTION[raw] ?? raw) : raw;
-      next[column.id] = value;
-    }
-    return next;
-  });
-
-  // `ruleId` repeats the rule's own name on every row — it lives on the
-  // directive, not per row. Other columns are kept only while some row uses
-  // them, so the table reads as what the rule actually does.
-  const outputs = table.outputs.filter(
-    (column) =>
-      column.field !== "ruleId" && rules.some((row) => (row[column.id] ?? "").trim() !== "")
-  );
-
-  return { ...table, rules, outputs };
-}
-
 function ServiceWorkflowPage() {
   const navigate = useNavigate();
   const { id: projectId, serviceName } = Route.useParams();
@@ -551,48 +492,7 @@ function ServiceWorkflowPage() {
         };
         if (cancelled) return;
 
-        setRules(
-          (data.rules ?? []).map((rule) => {
-            const directiveTable = parseTableFromFlowchart(rule.flowchart);
-            const actions = parseRuleActions(rule.flowchart);
-
-            let table: DecisionTable;
-            let sourceKind: "actions" | "decision-table" | "flowchart";
-            if (directiveTable) {
-              // A table this editor wrote round-trips through `%%decision-table`.
-              table = directiveTable;
-              sourceKind = "decision-table";
-            } else if (actions.length) {
-              // Show the same decision table the generated application's rule
-              // editor edits, compiled from the `%%action` directives, with the
-              // compiler's quoting and runtime vocabulary read back for editing.
-              table = normalizeActionTable(
-                asDecisionTable(buildActionDecisionTable(rule.name, actions))
-              );
-              sourceKind = "actions";
-            } else {
-              // A rule that is only a flowchart. A hand-authored one opens
-              // read-only; a convertible one is shown as the table it describes.
-              table = emptyDecisionTable();
-              sourceKind = "flowchart";
-            }
-
-            return {
-              key: crypto.randomUUID(),
-              name: rule.name,
-              entity: rule.entity,
-              event: rule.event,
-              priority: rule.priority,
-              title: rule.title,
-              table,
-              sourceKind,
-              sourceRuleName: rule.name,
-              // The original body is kept for "Show EML" and, for an actions
-              // rule, to preserve the flowchart when the actions are rewritten.
-              ...(sourceKind === "decision-table" ? {} : { sourceFlowchart: rule.flowchart }),
-            };
-          })
-        );
+        setRules((data.rules ?? []).map((rule) => toEditableRule(rule, crypto.randomUUID())));
         setRulesLoaded(true);
       } catch (error) {
         if (!cancelled) console.error("Error loading rules:", error);
@@ -766,26 +666,7 @@ function ServiceWorkflowPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rules: rules.map((rule) => {
-            // An actions rule is stored as `%%action` directives; writing the
-            // table back as one keeps its flowchart and its meaning. Everything
-            // else is already a document the composer reads.
-            const flowchart =
-              rule.sourceKind === "actions"
-                ? replaceRuleActions(
-                    rule.sourceFlowchart ?? "",
-                    serializeRuleActions(rule.sourceRuleName ?? rule.name, rule.table)
-                  )
-                : (rule.sourceFlowchart ?? tableToEmlFlowchart(rule.table));
-            return {
-              name: slugifyRuleName(rule.title ?? rule.name),
-              entity: rule.entity,
-              event: rule.event,
-              priority: rule.priority,
-              title: rule.title,
-              flowchart,
-            };
-          }),
+          rules: rules.map(ruleForSave),
         }),
       });
       const data = await response.json();

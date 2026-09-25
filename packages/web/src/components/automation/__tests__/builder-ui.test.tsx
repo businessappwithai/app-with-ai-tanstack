@@ -179,6 +179,60 @@ describe("AutomationBuilder", () => {
   });
 });
 
+/**
+ * Found on the Logic step: picking the process's own record type for an Update
+ * step wrote `entity: <own>` with no target, which the checker refuses as a
+ * cross-entity write it cannot aim (EML265) — though the executor, and the
+ * model's own sagas, read a write naming no entity as "this record".
+ */
+describe("a write to the record the automation runs on", () => {
+  function Recording({ initial, seen }: { initial: Automation; seen: Automation[] }) {
+    const [automation, setAutomation] = useState(initial);
+    return (
+      <AutomationBuilder
+        automation={automation}
+        onChange={(next) => {
+          seen.push(next);
+          setAutomation(next);
+        }}
+        entities={ENTITIES}
+        entityFields={ENTITY_FIELDS}
+      />
+    );
+  }
+
+  function selfUpdate(): Automation {
+    const a = emptyAutomation("Experiment");
+    a.name = "Mark failed";
+    a.trigger = { entity: "Experiment", event: "updated" };
+    const update = newStep("UpdateEntity");
+    update.props = { field: "status", value: "failed" };
+    a.steps = [update];
+    return a;
+  }
+
+  it("shows the automation's own record type when the step names none", () => {
+    render(<Recording initial={selfUpdate()} seen={[]} />);
+    fireEvent.click(screen.getByText(/Set status to failed/));
+
+    expect(screen.getByDisplayValue("Experiment")).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "run_count" })).toBeInTheDocument();
+  });
+
+  it("stores no entity when the own record type is picked, and one otherwise", () => {
+    const seen: Automation[] = [];
+    render(<Recording initial={selfUpdate()} seen={seen} />);
+    fireEvent.click(screen.getByText(/Set status to failed/));
+    const picker = screen.getByDisplayValue("Experiment");
+
+    fireEvent.change(picker, { target: { value: "Sample" } });
+    expect(seen.at(-1)?.steps[0]?.props.entity).toBe("Sample");
+
+    fireEvent.change(screen.getByDisplayValue("Sample"), { target: { value: "Experiment" } });
+    expect(seen.at(-1)?.steps[0]?.props).toEqual({ field: "status", value: "failed" });
+  });
+});
+
 describe("RuleTableEditor", () => {
   function TableHarness() {
     const [table, setTable] = useState({

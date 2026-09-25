@@ -7,6 +7,9 @@
  * compiles it to a GoRules JDM decision graph for the generated app.
  */
 
+// Whole-record checks are evaluated by the copy the generated app ships too.
+import { evaluateExpression, expressionFields } from "@/lib/workflow/bpmn-model";
+
 export interface DecisionColumn {
   id: string;
   name: string;
@@ -89,7 +92,11 @@ export function validateDecisionTable(table: DecisionTable): string[] {
   }
   if (table.rules.length === 0) problems.push("Add at least one row.");
   for (const input of table.inputs) {
-    if (!input.field.trim()) problems.push(`Input "${input.name || input.id}" reads no field.`);
+    // A `collect` table is the one `%%action` compiles to: its input reads the
+    // whole record and each cell is an expression, so no field is correct.
+    if (!input.field.trim() && table.hitPolicy !== "collect") {
+      problems.push(`Input "${input.name || input.id}" reads no field.`);
+    }
   }
   for (const output of table.outputs) {
     if (!output.field.trim()) {
@@ -104,36 +111,52 @@ export function validateDecisionTable(table: DecisionTable): string[] {
 /* -------------------------------------------------------------------------- */
 
 export interface TableTestResult {
+  /** The first row that fits — under `first`, the answer. */
   rowIndex: number | null;
   outputs: Record<string, string>;
+  /** Every row that fits, in order. Under `collect` each of them runs. */
+  matches: Array<{ rowIndex: number; outputs: Record<string, string> }>;
 }
+
+export { evaluateExpression, expressionFields };
 
 export function evaluateTable(
   table: DecisionTable,
   values: Record<string, string>
 ): TableTestResult {
+  const matches: TableTestResult["matches"] = [];
   for (let i = 0; i < table.rules.length; i++) {
     const row = table.rules[i];
     if (!row) continue;
     const fits = table.inputs.every((col) => {
       const cell = (row[col.id] ?? "").trim();
       if (!cell) return true;
+      // An input with no field holds whole-record checks, as `%%action`
+      // writes them: `status == "withdrawn" and withdrawn_on == null`.
+      if (!col.field.trim()) {
+        const verdict = evaluateExpression(cell, values);
+        if (verdict !== undefined) return verdict;
+      }
       return cellMatches(cell, values[col.field] ?? "");
     });
-    if (fits) {
-      const outputs: Record<string, string> = {};
-      for (const col of table.outputs) outputs[col.field || col.name] = unquote(row[col.id] ?? "");
-      return { rowIndex: i, outputs };
-    }
+    if (!fits) continue;
+    const outputs: Record<string, string> = {};
+    for (const col of table.outputs) outputs[col.field || col.name] = unquote(row[col.id] ?? "");
+    matches.push({ rowIndex: i, outputs });
+    if (table.hitPolicy !== "collect") break;
   }
-  return { rowIndex: null, outputs: {} };
+  const first = matches[0];
+  return { rowIndex: first?.rowIndex ?? null, outputs: first?.outputs ?? {}, matches };
 }
 
-function cellMatches(cell: string, value: string): boolean {
+function cellMatches(cell: string, typed: string): boolean {
   const m = cell.match(/^\s*(>=|<=|!=|=|>|<)?\s*(.+)$/);
   if (!m) return false;
   const op = m[1] ?? "=";
   const raw = unquote((m[2] ?? "").trim());
+  // The cell is unquoted, so the value typed to test it must be too: a tester
+  // copying the cell's own `"cancelled"` was told no row fits it.
+  const value = unquote(typed);
   const a = Number(value);
   const b = Number(raw);
   const numeric = !Number.isNaN(a) && !Number.isNaN(b) && value.trim() !== "";
@@ -175,6 +198,25 @@ export interface CoverageNote {
 
 export function checkCoverage(table: DecisionTable): CoverageNote[] {
   const notes: CoverageNote[] = [];
+  // Under `collect` every row that fits runs. A row with no check is not a
+  // safety net there — it runs on every record, which is worth saying loudly.
+  if (table.hitPolicy === "collect") {
+    const blank = table.rules.findIndex((row) =>
+      table.inputs.every((c) => !(row[c.id] ?? "").trim())
+    );
+    return [
+      blank >= 0
+        ? {
+            level: "warn",
+            message: `Row ${blank + 1} has no check, so its action runs on every record.`,
+          }
+        : {
+            level: "ok",
+            message:
+              "Each row runs on its own when its check fits. A record that no row fits passes untouched.",
+          },
+    ];
+  }
   const hasCatchAll = table.rules.some((row) =>
     table.inputs.every((c) => !(row[c.id] ?? "").trim())
   );

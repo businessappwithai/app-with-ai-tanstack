@@ -18,13 +18,13 @@ export type LadderKind = "when" | "if" | "action" | "loop";
 
 const KIND_STYLES: Record<LadderKind, { icon: string; kicker: string; label: string }> = {
   when: {
-    icon: "bg-amber-50 text-amber-700 border-amber-200",
-    kicker: "text-amber-700",
+    icon: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800",
+    kicker: "text-amber-700 dark:text-amber-300",
     label: "When this happens",
   },
   if: {
-    icon: "bg-blue-50 text-blue-600 border-blue-200",
-    kicker: "text-blue-600",
+    icon: "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-800",
+    kicker: "text-blue-600 dark:text-blue-400",
     label: "Only continue if",
   },
   action: {
@@ -35,8 +35,8 @@ const KIND_STYLES: Record<LadderKind, { icon: string; kicker: string; label: str
   // Teal rather than another shade of the accent: a repeat is control flow, not
   // a fourth kind of action, and it should not read as one at a glance.
   loop: {
-    icon: "bg-teal-50 text-teal-700 border-teal-200",
-    kicker: "text-teal-700",
+    icon: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800",
+    kicker: "text-teal-700 dark:text-teal-300",
     label: "Keep repeating",
   },
 };
@@ -73,7 +73,7 @@ export function LadderCard({
         selected
           ? "border-primary ring-[3px] ring-primary/10"
           : "border-border hover:border-primary/40",
-        problem && !selected && "border-amber-300"
+        problem && !selected && "border-amber-300 dark:border-amber-800"
       )}
     >
       <div className="flex items-center gap-3">
@@ -115,7 +115,9 @@ export function LadderCard({
         ) : null}
       </div>
 
-      {problem ? <p className="mt-2 pl-[42px] text-xs text-amber-700">{problem}</p> : null}
+      {problem ? (
+        <p className="mt-2 pl-[42px] text-xs text-amber-700 dark:text-amber-300">{problem}</p>
+      ) : null}
     </div>
   );
 }
@@ -163,12 +165,12 @@ export function LoopFrame({
   return (
     <div
       className={cn(
-        "relative rounded-xl border-l-[3px] bg-teal-50/30 py-2 pl-4 pr-1",
+        "relative rounded-xl border-l-[3px] bg-teal-50/30 py-2 pl-4 pr-1 dark:bg-teal-950/40",
         problem ? "border-l-amber-400" : "border-l-teal-300"
       )}
     >
       {children}
-      <p className="mt-2 pl-1 text-[11px] text-teal-700">
+      <p className="mt-2 pl-1 text-[11px] text-teal-700 dark:text-teal-300">
         ↻ {stepCount === 1 ? "This step repeats" : `These ${stepCount} steps repeat`} until the
         check above fails
       </p>

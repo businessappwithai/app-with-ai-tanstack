@@ -1,0 +1,35 @@
+{
+  "$comment": "Business rules the suite creates through the Logic step's rule editor, one object per rule. Add a rule here to have it built, tested with values, saved, reloaded and checked. `inputs` are field names of `entity`; `outcomes` are the editor's outcome labels; each row's `when` and `then` line up with them. A row with every `when` blank is the catch-all. `tests` type `values` into Test with values and expect the row number that fits.",
+  "rules": [
+    {
+      "name": "Late Fee Guard",
+      "entity": "FeeInvoice",
+      "event": "beforeUpdate",
+      "priority": 25,
+      "inputs": ["status", "balance_due"],
+      "outcomes": ["Action", "Message"],
+      "rows": [
+        {
+          "when": ["\"cancelled\"", "> 0"],
+          "then": ["validation-error", "An invoice with a balance cannot be cancelled."]
+        }
+      ],
+      "tests": [
+        { "values": ["\"cancelled\"", "50"], "expectRow": 1 },
+        { "values": ["cancelled", "50"], "expectRow": 1 },
+        { "values": ["\"cancelled\"", "0"], "expectRow": 2 },
+        { "values": ["\"issued\"", "50"], "expectRow": 2 }
+      ]
+    },
+    {
+      "name": "Attendance Late Flag",
+      "entity": "AttendanceRecord",
+      "event": "beforeCreate",
+      "priority": 40,
+      "inputs": ["minutes_late"],
+      "outcomes": ["Action", "Field", "Value"],
+      "rows": [{ "when": [">= 15"], "then": ["transform", "status", "late"] }],
+      "tests": [{ "values": ["20"], "expectRow": 1 }, { "values": ["5"], "expectRow": 2 }]
+    }
+  ]
+}

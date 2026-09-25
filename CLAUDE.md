@@ -361,6 +361,26 @@ Two things to keep true when touching that screen:
   pays off without regenerating. The read view added here is where it would hang;
   it is deliberately not wired up yet.
 
+#### Screens name things from windows, tabs and fields — never tables and columns
+
+`sys_window`, `sys_tab` and `sys_field` are the dictionary's **view layer**:
+what a person sees and works with. `sys_table` and `sys_column` are the
+**storage layer** beneath it. Any screen that names a record type or a field
+to a user — the rule editor, Report Designs, the document designer, the print
+layout's seeded labels — names it from the view layer, under the label the
+window shows, in the window's order.
+
+Storage keys (`table_name`, `column_name`) still travel as **values**: rules
+are filed under the table name and read columns by name, and report bindings
+name the column the record carries, because that is what the engine
+evaluates. They are never the label. In the NestJS stack
+`frontend/src/hooks/use-dictionary-windows.ts` is the one reader; its fields
+carry both the label and the key. `rule-editor-generated-app.test.ts` fails if
+any of those screens reads `/sys/tables` or `/sys/columns`. Two gaps remain:
+the seeded validation rules are named `<table>_validation`, a name the seed
+also uses as its idempotency key, and AnkaReport draws a bound cell in the
+designer as `[column_name]`.
+
 #### The administrator section is writable, and the writes had to be made real first
 
 The browser application's admin screens could read their four subjects and

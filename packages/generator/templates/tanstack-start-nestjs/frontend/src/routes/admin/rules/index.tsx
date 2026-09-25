@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ruleEntityLabel, useRuleEntities } from "@/hooks/use-rule-entities";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -94,12 +95,17 @@ function AdminRulesPage() {
     },
   });
 
+  // Rules are filed under a storage key; people know the record type by the
+  // name its window shows. Every label on this screen comes from there.
+  const { data: entities = [] } = useRuleEntities();
+  const entityLabel = (tableName: string) => ruleEntityLabel(entities, tableName);
+
   const filteredRules =
     rules?.filter((rule) => {
       const matchesSearch =
         searchQuery === "" ||
         rule.ruleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        rule.entityName.toLowerCase().includes(searchQuery.toLowerCase());
+        entityLabel(rule.entityName).toLowerCase().includes(searchQuery.toLowerCase());
 
       return matchesSearch;
     }) || [];
@@ -215,7 +221,7 @@ function AdminRulesPage() {
               <option value="">All Entities</option>
               {entityNames.map((entity) => (
                 <option key={entity} value={entity}>
-                  {entity}
+                  {entityLabel(entity)}
                 </option>
               ))}
             </select>
@@ -273,13 +279,20 @@ function AdminRulesPage() {
                 key={rule.id}
                 className="grid grid-cols-12 gap-4 px-6 py-4 border-t border-border hover:bg-muted/40 items-center"
               >
-                <div className="col-span-3">
-                  <div className="font-semibold text-foreground">{rule.ruleName}</div>
+                <div className="col-span-3 min-w-0">
+                  <div className="font-semibold text-foreground break-words">{rule.ruleName}</div>
                   <div className="text-xs text-muted-foreground font-mono">{rule.id.slice(0, 8)}</div>
                 </div>
 
-                <div className="col-span-2">
-                  <code className="text-sm bg-muted px-2 py-1 font-mono">{rule.entityName}</code>
+                {/* A grid cell will not shrink below its content without min-w-0,
+                    and a long name ran over the Operation column. */}
+                <div className="col-span-2 min-w-0">
+                  <span
+                    className="block truncate text-sm font-medium"
+                    title={entityLabel(rule.entityName)}
+                  >
+                    {entityLabel(rule.entityName)}
+                  </span>
                 </div>
 
                 <div className="col-span-2">

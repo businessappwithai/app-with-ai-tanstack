@@ -98,6 +98,15 @@ export const Route = createFileRoute("/api/projects/$id/eml")({
             ? (body.workflows as ReturnType<typeof extractWorkflowSections>)
             : extractWorkflowSections(existing);
 
+          const { sectionProblems } = await import("@/lib/eml/section-problems");
+          const problems = sectionProblems(
+            Array.isArray(body.rules) ? rules : [],
+            Array.isArray(body.workflows) ? workflows : []
+          );
+          if (problems.length > 0) {
+            return json({ error: problems.map((p) => p.message).join(" "), problems }, 400);
+          }
+
           const eml = mergeSections(existing, { rules, workflows });
 
           // The model is versioned, so editing rules leaves the previous document

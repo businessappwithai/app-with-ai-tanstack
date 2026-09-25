@@ -482,9 +482,32 @@ export function serializeRuleActions(ruleName: string, table: EditorDecisionTabl
  * author drew.
  */
 export function replaceRuleActions(body: string, actionLines: string[]): string {
-  const kept = (body ?? "").split("\n").filter((line) => !line.trim().startsWith("%%action"));
-  while (kept.length && !(kept[kept.length - 1] ?? "").trim()) kept.pop();
-  return [...kept, ...actionLines].join("\n");
+  const lines = (body ?? "").split("\n");
+  const isAction = (line: string) => line.trim().startsWith("%%action");
+  const first = lines.findIndex(isAction);
+
+  // The rewritten actions go where the old ones were, at their indentation. A
+  // rule's body runs to the next `%%rule`, so it can end in the prose that
+  // introduces the next section — "%% ---- Business rules — the student
+  // record". Appending after that moved this rule's actions under the next
+  // rule's heading, which every reader then attributed to the wrong rule.
+  if (first >= 0) {
+    const indent = (lines[first] ?? "").match(/^\s*/)?.[0] ?? "";
+    const before = lines.slice(0, first);
+    const after = lines.slice(first).filter((line) => !isAction(line));
+    return [...before, ...actionLines.map((line) => indent + line), ...after].join("\n");
+  }
+
+  // No actions yet: add them after the diagram, ahead of any trailing prose.
+  const kept = [...lines];
+  const trailing: string[] = [];
+  while (kept.length) {
+    const last = (kept[kept.length - 1] ?? "").trim();
+    if (last && !last.startsWith("%%")) break;
+    trailing.unshift(kept.pop() as string);
+  }
+  while (trailing.length && !(trailing[0] ?? "").trim()) trailing.shift();
+  return [...kept, ...actionLines, ...(trailing.length ? ["", ...trailing] : [])].join("\n");
 }
 
 export function compileRules(

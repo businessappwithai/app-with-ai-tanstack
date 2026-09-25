@@ -102,9 +102,10 @@ export class BusService {
    */
   private async enforceBusinessRules(
     tableName: string,
-    data: Record<string, any>,
+    record: Record<string, any>,
     action: 'create' | 'update' | 'delete',
   ): Promise<void> {
+    const data = await this.withNumericValues(tableName, record);
     let result: { valid: boolean; errors: string[]; warnings: string[] };
     try {
       result = await this.rulesService.validate(tableName, data, action);
@@ -120,6 +121,42 @@ export class BusService {
     if (!result.valid) {
       throw new BadRequestException({ message: 'Business rule validation failed', errors: result.errors });
     }
+  }
+
+  /**
+   * The record as rules compare it: numbers as numbers.
+   *
+   * PostgreSQL hands NUMERIC and BIGINT columns back as strings — "1.500000" —
+   * and an update is checked against the stored row merged with the change. A
+   * rule's `> 0` never fits a string, so every rule over an existing amount,
+   * score or count stopped matching the moment the record was saved once: a
+   * refusal that held on create quietly let the same write through on update.
+   * Only columns the dictionary declares as numbers (references 11 and 12) are
+   * converted, so a code like "0042" in a text column stays text.
+   */
+  private async withNumericValues(
+    tableName: string,
+    record: Record<string, any>,
+  ): Promise<Record<string, any>> {
+    let numeric: Set<string>;
+    try {
+      const metadata = await this.getEntityMetadata(tableName);
+      numeric = new Set(
+        metadata.columns
+          .filter((column) => column.sys_reference_id === 11 || column.sys_reference_id === 12)
+          .map((column) => column.column_name),
+      );
+    } catch {
+      return record;
+    }
+    const out: Record<string, any> = { ...record };
+    for (const name of numeric) {
+      const value = out[name];
+      if (typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value))) {
+        out[name] = Number(value);
+      }
+    }
+    return out;
   }
 
   private singularize(word: string): string {

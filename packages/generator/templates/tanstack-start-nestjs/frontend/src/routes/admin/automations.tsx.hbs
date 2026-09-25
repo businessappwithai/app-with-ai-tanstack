@@ -12,7 +12,7 @@
  */
 
 import { createFileRoute } from '@tanstack/react-router';
-import { startTransition, useCallback, useEffect, useMemo, useState } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AutomationBuilder, type RuleTableSummary } from '@/components/automation/AutomationBuilder';
 import { AutomationHelp } from '@/components/automation/AutomationHelp';
 import { useHelp } from '@/components/help/help-toaster';
@@ -89,9 +89,13 @@ function AutomationsPage() {
   const [tables, setTables] = useState<RuleTableRecord[]>([]);
   const [view, setView] = useState<View>({ kind: 'none' });
   const [loading, setLoading] = useState(true);
-  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'drafted' | 'saved' | 'error'>('idle');
   const [autoTotal, setAutoTotal] = useState(0);
   const [tableTotal, setTableTotal] = useState(0);
+  // Deleting is two clicks, not a confirm(): the same pattern as the other
+  // admin screens, and a modal is not guaranteed to appear in every host.
+  const [deleteArmed, setDeleteArmed] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -232,8 +236,56 @@ function AutomationsPage() {
     [showHelp, helpExample]
   );
 
-  const updateAutomation = (next: Automation) =>
+  /**
+   * Persist a draft.
+   *
+   * Publishing was the only write, and it stays disabled until the automation
+   * validates — so everything built before that point lived in this tab and
+   * went away on a reload: steps, name, the lot. Every edit now saves,
+   * debounced, without touching whether it is active, so publishing is still
+   * the thing that makes it run. The modelling tool's automations screen does
+   * the same.
+   */
+  const draftTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  const saveDraft = useCallback(
+    (automation: Automation) => {
+      const storedId = storedIds[automation.id];
+      if (!storedId) return;
+      clearTimeout(draftTimers.current[automation.id]);
+      draftTimers.current[automation.id] = setTimeout(async () => {
+        setSaveState('saving');
+        try {
+          const res = await fetch(`/api/workflow-definitions/${storedId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: automation.name,
+              entityName: automation.trigger.entity,
+              mermaid: serializeAutomation(automation),
+            }),
+          });
+          setSaveState(res.ok ? 'drafted' : 'error');
+        } catch (error) {
+          console.error('Failed to save automation draft:', error);
+          setSaveState('error');
+        }
+      }, 700);
+    },
+    [storedIds]
+  );
+
+  useEffect(() => {
+    const timers = draftTimers.current;
+    return () => {
+      for (const timer of Object.values(timers)) clearTimeout(timer);
+    };
+  }, []);
+
+  const updateAutomation = (next: Automation) => {
     setAutomations((list) => list.map((a) => (a.id === next.id ? next : a)));
+    saveDraft(next);
+  };
 
   const createAutomation = async () => {
     const fresh = emptyAutomation(ENTITIES[0] ?? 'Record');
@@ -250,6 +302,9 @@ function AutomationsPage() {
           entityName: fresh.trigger.entity,
           operation: 'ALL',
           mermaid: serializeAutomation(fresh),
+          // A draft until it is published: an empty automation that is already
+          // live would run on every write to its record type.
+          isActive: false,
         }),
       });
       if (res.ok) {
@@ -260,6 +315,34 @@ function AutomationsPage() {
     } catch (error) {
       console.error('Failed to create automation:', error);
     }
+  };
+
+  /**
+   * Remove an automation. Every "+ New automation" stores a draft at once, so
+   * without this the drafts only ever accumulated. The backend refuses one the
+   * model declares, and says why; that answer is shown beside the button.
+   */
+  const deleteAutomation = async (automation: Automation) => {
+    if (deleteArmed !== automation.id) {
+      setDeleteArmed(automation.id);
+      setDeleteError(null);
+      return;
+    }
+    setDeleteArmed(null);
+    const storedId = storedIds[automation.id];
+    if (storedId) {
+      clearTimeout(draftTimers.current[automation.id]);
+      const res = await fetch(`/api/workflow-definitions/${storedId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { message?: string };
+        setDeleteError(body.message ?? `Could not delete (${res.status}).`);
+        return;
+      }
+    }
+    setAutomations((list) => list.filter((a) => a.id !== automation.id));
+    setStoredIds(({ [automation.id]: _gone, ...rest }) => rest);
+    setAutoTotal((n) => Math.max(0, n - 1));
+    setView({ kind: 'none' });
   };
 
   const publish = async (automation: Automation) => {
@@ -311,6 +394,7 @@ function AutomationsPage() {
         <div className="flex-1" />
         {saveState === 'saving' ? <span className="text-xs text-muted-foreground">Saving…</span> : null}
         {saveState === 'saved' ? <span className="text-xs text-emerald-600 dark:text-emerald-400">Published</span> : null}
+        {saveState === 'drafted' ? <span className="text-xs text-muted-foreground">Draft saved</span> : null}
         {saveState === 'error' ? (
           <span className="text-xs text-red-600 dark:text-red-400">Could not save. Try again.</span>
         ) : null}
@@ -367,7 +451,26 @@ function AutomationsPage() {
             onSelect={(id) => setView({ kind: 'table', id })}
           />
 
-          <div className="mt-auto border-t border-border p-3">
+          <div className="mt-auto space-y-2 border-t border-border p-3">
+            {view.kind === 'automation' && current ? (
+              <button
+                type="button"
+                onClick={() => void deleteAutomation(current)}
+                onBlur={() => setDeleteArmed(null)}
+                className={
+                  deleteArmed === current.id
+                    ? 'w-full rounded-lg border border-red-600 bg-red-600 py-2 text-[13px] font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600'
+                    : 'w-full rounded-lg border border-border bg-card py-2 text-[13px] font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 dark:hover:bg-red-950/40'
+                }
+              >
+                {deleteArmed === current.id ? 'Click again to delete' : 'Delete this automation'}
+              </button>
+            ) : null}
+            {deleteError ? (
+              <p role="alert" className="text-[12px] text-red-600 dark:text-red-400">
+                {deleteError}
+              </p>
+            ) : null}
             <button
               type="button"
               onClick={createAutomation}

@@ -85,7 +85,7 @@ function RunOutput({
             result.status === "ok"
               ? "border-primary/30 bg-primary/10 text-primary"
               : result.status === "failed"
-                ? "border-red-200/60 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400"
+                ? "border-red-200 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400"
                 : "border-border bg-muted text-muted-foreground"
           )}
         >
@@ -101,7 +101,7 @@ function RunOutput({
       </div>
 
       {result.status === "failed" && result.error ? (
-        <p className="mb-2 rounded-lg border border-red-200/60 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-3 py-2 text-xs text-red-700 dark:text-red-300">
+        <p className="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
           {result.error}
         </p>
       ) : null}
@@ -116,7 +116,7 @@ function RunOutput({
       ) : null}
 
       {result.note ? (
-        <p className="mb-2 rounded-lg border border-emerald-200/60 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2 text-xs text-emerald-800 dark:text-emerald-300">
+        <p className="mb-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
           {result.note}
         </p>
       ) : null}
@@ -168,6 +168,7 @@ function Field({
   // it the selects announce as "combobox" with no name at all, which is the
   // difference between a usable panel and an unusable one on a screen reader.
   return (
+    // biome-ignore lint/a11y/noLabelWithoutControl: the control is the `children` this wrapper renders inside the label.
     <label className="mb-3.5 block">
       <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
         {label}
@@ -206,6 +207,8 @@ interface StepInspectorProps {
   onChange: (next: AutomationStep) => void;
   onRerun?: () => void;
   onOpenRuleTable?: (name: string) => void;
+  /** The record type the automation runs on — what a write naming none acts on. */
+  ownEntity?: string;
 }
 
 export function StepInspector({
@@ -219,9 +222,25 @@ export function StepInspector({
   onChange,
   onRerun,
   onOpenRuleTable,
+  ownEntity = "",
 }: StepInspectorProps) {
   const setProp = (key: string, value: string) =>
     onChange({ ...step, props: { ...step.props, [key]: value } });
+
+  // An update or delete that names no record type acts on the record the
+  // automation runs on — the executor's reading, the checker's, and the one the
+  // model's own sagas are written in. So that is what the picker shows, and
+  // choosing it stores no entity: naming it drew EML265 ("targets FeeInvoice
+  // without saying which row") for a write that was never ambiguous.
+  const writesOwnRecord = step.type === "UpdateEntity" || step.type === "DeleteEntity";
+  const shownEntity = step.props.entity || (writesOwnRecord ? ownEntity : "");
+  const setEntity = (value: string) => {
+    if (writesOwnRecord && value === ownEntity) {
+      const props = { ...step.props };
+      delete props.entity;
+      onChange({ ...step, props });
+    } else setProp("entity", value);
+  };
 
   const table = useMemo(
     () => ruleTables.find((t) => t.name === step.props.ruleTable),
@@ -307,8 +326,8 @@ export function StepInspector({
           <Field label="Record type">
             <select
               className={inputClass}
-              value={step.props.entity ?? ""}
-              onChange={(e) => setProp("entity", e.target.value)}
+              value={shownEntity}
+              onChange={(e) => setEntity(e.target.value)}
             >
               <option value="">Choose a record type…</option>
               {entities.map((e) => (
@@ -343,10 +362,19 @@ export function StepInspector({
           <Field
             label="Which record"
             hint={
-              <>
-                The record to delete, usually a reference from an earlier step —{" "}
-                <Ref>{"{{invoiceId}}"}</Ref>.
-              </>
+              step.type === "UpdateEntity" ? (
+                <>
+                  Only for another record type: a reference from an earlier step like{" "}
+                  <Ref>{"{{invoiceId}}"}</Ref>, or the column on that record pointing back to this
+                  one, like <code className="font-mono text-[11px]">order_id</code>. Leave it empty
+                  to write this record.
+                </>
+              ) : (
+                <>
+                  The record to delete, usually a reference from an earlier step —{" "}
+                  <Ref>{"{{invoiceId}}"}</Ref>.
+                </>
+              )
             }
           >
             <input
@@ -366,7 +394,7 @@ export function StepInspector({
               onChange={(e) => setProp("field", e.target.value)}
             >
               <option value="">Choose a field…</option>
-              {fieldsFor(step.props.entity ?? "").map((f) => (
+              {fieldsFor(shownEntity).map((f) => (
                 <option key={f} value={f}>
                   {f}
                 </option>
@@ -523,7 +551,7 @@ export function ConditionInspector({
       <header className="flex items-center gap-3 px-4 py-3.5">
         <span
           aria-hidden="true"
-          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-blue-200/60 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 text-sm text-blue-600 dark:text-blue-400"
+          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-600 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-400"
         >
           ◇
         </span>
@@ -617,7 +645,7 @@ export function LoopInspector({
       <header className="flex items-center gap-3 px-4 py-3.5">
         <span
           aria-hidden="true"
-          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-teal-200/60 dark:border-teal-800 bg-teal-50 dark:bg-teal-950/40 text-sm text-teal-700 dark:text-teal-300"
+          className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-lg border border-teal-200 bg-teal-50 text-sm text-teal-700 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300"
         >
           ↻
         </span>
@@ -690,7 +718,7 @@ export function LoopInspector({
           />
         </Field>
 
-        <div className="mb-4 rounded-lg border border-teal-200/60 dark:border-teal-800 bg-teal-50/60 dark:bg-teal-950/40 p-3">
+        <div className="mb-4 rounded-lg border border-teal-200 bg-teal-50/60 p-3 dark:border-teal-800 dark:bg-teal-950/40">
           <p className="text-[11.5px] font-semibold text-teal-800 dark:text-teal-300">
             Inside the repeat you can use {`{{${loop.id}.iteration}}`}
           </p>
@@ -700,7 +728,7 @@ export function LoopInspector({
           </p>
         </div>
 
-        <div className="mb-4 rounded-lg border border-amber-200/60 dark:border-amber-800 bg-amber-50/60 dark:bg-amber-950/40 p-3">
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-800 dark:bg-amber-950/40">
           <p className="text-[11.5px] font-semibold text-amber-900 dark:text-amber-200">
             If the check never fails, the run is stopped at{" "}
             {loop.maxPasses.trim() ? `${loop.maxPasses} passes` : "the limit you set"}
