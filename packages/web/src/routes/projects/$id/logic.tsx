@@ -483,8 +483,10 @@ function LogicPage() {
             Loading the model…
           </div>
         ) : (
-          <div className="flex gap-4">
-            <aside className="w-64 shrink-0 space-y-5">
+          // Side by side from md up; stacked on a phone, where a 256px rail
+          // left the editor a column about 70px wide.
+          <div className="flex flex-col gap-4 md:flex-row">
+            <aside className="max-h-80 w-full space-y-5 overflow-y-auto md:max-h-none md:w-64 md:shrink-0 md:overflow-visible">
               {/* Rules */}
               <div>
                 <div className="mb-2 flex items-center justify-between">
