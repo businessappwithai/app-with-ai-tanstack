@@ -37,6 +37,7 @@ import { useModelAssistant } from "@/hooks/useModelAssistant";
 import { parseAutomation } from "@/lib/automation/model";
 import { emptyDecisionTable } from "@/lib/eml/decision-table";
 import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
+import { sectionProblems } from "@/lib/eml/section-problems";
 import {
   emptySagaFlow,
   parseHookWorkflow,
@@ -381,6 +382,13 @@ function LogicPage() {
 
   /** One write, both halves — the document is edited once. */
   const save = async () => {
+    const problems = sectionProblems(rules, workflows);
+    const first = problems[0];
+    if (first) {
+      setError(problems.map((p) => p.message).join(" "));
+      setSelected({ kind: first.kind, index: first.index });
+      return;
+    }
     setIsSaving(true);
     setError(null);
     try {
