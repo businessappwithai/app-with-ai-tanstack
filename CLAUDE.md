@@ -376,10 +376,11 @@ name the column the record carries, because that is what the engine
 evaluates. They are never the label. In the NestJS stack
 `frontend/src/hooks/use-dictionary-windows.ts` is the one reader; its fields
 carry both the label and the key. `rule-editor-generated-app.test.ts` fails if
-any of those screens reads `/sys/tables` or `/sys/columns`. Two gaps remain:
-the seeded validation rules are named `<table>_validation`, a name the seed
-also uses as its idempotency key, and AnkaReport draws a bound cell in the
-designer as `[column_name]`.
+any of those screens reads `/sys/tables` or `/sys/columns`. The seeded
+validation rules are named after their window ("Fee Invoice validation"); the
+seed renames a `<table>_validation` row from an older generation in place,
+because inserting beside it would run every check twice. One gap remains:
+AnkaReport draws a bound cell in the designer as `[column_name]`.
 
 #### The administrator section is writable, and the writes had to be made real first
 

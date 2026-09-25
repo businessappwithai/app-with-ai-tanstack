@@ -99,6 +99,19 @@ describe("rule and report screens name things from windows, tabs and fields", ()
     expect(screens["components/reports/ReportDesigner.tsx"]).not.toContain("toLabel(");
   });
 
+  it("names each seeded validation rule after its window, renaming the old row in place", () => {
+    const seed = readFileSync(
+      path.resolve(__dirname, "../../../templates/common/seeds/business-rules.ts.hbs"),
+      "utf8"
+    );
+    expect(seed).toContain("ruleName: '{{displayName}} validation'");
+    // A database seeded before this has `bus_x_validation` rows. The seed must
+    // find and rename them; inserting beside them would run every check twice.
+    expect(seed).toContain("legacyRuleName: '{{tableName}}_validation'");
+    expect(seed).toMatch(/eb\('rule_name', '=', rule\.legacyRuleName\)/);
+    expect(seed).toMatch(/\.set\(\{\s*rule_name: rule\.ruleName,/);
+  });
+
   it("seeds each default print layout from the window's own fields", () => {
     const seed = readFileSync(
       path.resolve(__dirname, "../../../templates/common/seeds/report-designs.ts.hbs"),
