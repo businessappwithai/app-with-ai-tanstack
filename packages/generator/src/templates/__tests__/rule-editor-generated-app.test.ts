@@ -43,6 +43,13 @@ describe("the generated rule editor", () => {
     expect(editRule).toContain("entityFields={entityFields}");
   });
 
+  // ISSUE-006 (/qa, 2026-09-25): bus_admission_application ran over the
+  // Operation column of the rules list.
+  it("keeps a long table name inside its column in the rules list", () => {
+    const list = read("frontend/src/routes/admin/rules/index.tsx");
+    expect(list).toMatch(/col-span-2 min-w-0">\s*<code\s+className="block truncate/);
+  });
+
   it("ships the hook those screens import", () => {
     expect(read("frontend/src/hooks/use-rule-entities.ts")).toContain("tableId=");
     expect(GENERATOR).toContain('src: "src/hooks/use-rule-entities.ts"');

@@ -273,13 +273,21 @@ function AdminRulesPage() {
                 key={rule.id}
                 className="grid grid-cols-12 gap-4 px-6 py-4 border-t border-border hover:bg-muted/40 items-center"
               >
-                <div className="col-span-3">
-                  <div className="font-semibold text-foreground">{rule.ruleName}</div>
+                <div className="col-span-3 min-w-0">
+                  <div className="font-semibold text-foreground break-words">{rule.ruleName}</div>
                   <div className="text-xs text-muted-foreground font-mono">{rule.id.slice(0, 8)}</div>
                 </div>
 
-                <div className="col-span-2">
-                  <code className="text-sm bg-muted px-2 py-1 font-mono">{rule.entityName}</code>
+                {/* A grid cell will not shrink below its content without min-w-0,
+                    and a table name like bus_admission_application ran over the
+                    Operation column. */}
+                <div className="col-span-2 min-w-0">
+                  <code
+                    className="block truncate text-sm bg-muted px-2 py-1 font-mono"
+                    title={rule.entityName}
+                  >
+                    {rule.entityName}
+                  </code>
                 </div>
 
                 <div className="col-span-2">
