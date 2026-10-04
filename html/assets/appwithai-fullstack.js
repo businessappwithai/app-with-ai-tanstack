@@ -17162,6 +17162,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     await writeFile(join(outputDir, "src/lib/api-client.ts"), apiClientContent);
     const csvContent = await this.component("src/lib/csv.ts");
     await writeFile(join(outputDir, "src/lib/csv.ts"), csvContent);
+    const versionConflictContent = await this.component("src/lib/version-conflict.ts");
+    await writeFile(join(outputDir, "src/lib/version-conflict.ts"), versionConflictContent);
     try {
       const viteEnv = await this.renderTemplate("src/vite-env.d.ts.hbs", context);
       await writeFile(join(outputDir, "src/vite-env.d.ts"), viteEnv);
@@ -17404,6 +17406,10 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/admin/entity-window-shell.tsx",
         dest: "src/components/admin/entity-window-shell.tsx"
+      },
+      {
+        src: "src/components/admin/version-conflict-dialog.tsx",
+        dest: "src/components/admin/version-conflict-dialog.tsx"
       },
       {
         src: "src/components/admin/unified-field-layout.tsx",
@@ -17787,6 +17793,7 @@ var SHARED_SUITES = [
   "19-window-list-defaults.test.ts",
   "20-transaction-notifications.test.ts",
   "21-reports.test.ts",
+  "22-optimistic-locking.test.ts",
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",
   "11-performance-budget.test.ts"
@@ -18871,14 +18878,15 @@ ORDER BY 1`
   if (wf && statusCol) {
     const states = declaredStates(wf);
     if (states.length > 0) {
-      const valuesList = states.map((s, i) => `(${lit(s)}, ${i})`).join(", ");
+      const valuesList = states.map((s, i) => i === 0 ? `SELECT ${lit(s)} AS state, ${i} AS position` : `SELECT ${lit(s)}, ${i}`).join(`
+  UNION ALL `);
       const key = `${slug}__lifecycle`;
       const q = addQuery(ctx, {
         key,
         name: `${titleOf(e)} lifecycle — ${wf.name}`,
         description: `Where ${pluralTitle(e).toLowerCase()} sit in the ${wf.name} state machine. Every state the model declares appears, including the ones nothing has reached.`,
-        sql: `WITH declared(state, position) AS (
-  VALUES ${valuesList}
+        sql: `WITH declared AS (
+  ${valuesList}
 )
 SELECT d.state, COALESCE(c.records, 0) AS records
 FROM declared d

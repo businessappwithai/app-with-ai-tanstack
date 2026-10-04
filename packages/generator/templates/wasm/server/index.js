@@ -197,7 +197,7 @@ export async function createServer(options) {
       if (asset) return asset;
       return errorResponse(notFound(`Nothing at ${pathname}`));
     } catch (error) {
-      return errorResponse(error);
+      return errorResponse(error, request.method);
     }
   }
 

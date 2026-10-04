@@ -39,6 +39,22 @@ export class Database {
     return result.rows || [];
   }
 
+  /**
+   * Run one statement and name its NUMERIC columns.
+   *
+   * Postgres returns NUMERIC (and DECIMAL, which money compiles to) as a string
+   * so no digit is lost, and a string is indistinguishable from a text column
+   * holding digits — so a screen that wants to format a number has to be told
+   * which columns are numbers. OID 1700 is NUMERIC.
+   */
+  async queryWithNumeric(sql, params = []) {
+    const result = await this.pg.query(sql, params);
+    const numeric = (result.fields || [])
+      .filter((field) => field.dataTypeID === 1700)
+      .map((field) => field.name);
+    return { rows: result.rows || [], numeric };
+  }
+
   async one(sql, params = []) {
     const rows = await this.query(sql, params);
     return rows[0] || null;

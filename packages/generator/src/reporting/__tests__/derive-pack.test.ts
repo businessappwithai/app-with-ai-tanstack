@@ -17,6 +17,7 @@
  *     to read the whole schema.
  */
 
+import { PGlite } from "@electric-sql/pglite";
 import { describe, expect, it } from "vitest";
 import { tableNameFor } from "../../naming/tables";
 import { parseModel } from "../../pipeline/parse-model";
@@ -100,11 +101,37 @@ describe("buildReportingPack", () => {
     const pack = await build();
     const query = pack.queries.find((q) => q.key === "ticket__lifecycle");
     expect(query).toBeDefined();
-    // Positions, not an alphabetical sort: a lifecycle sorted by name says
-    // nothing about where work is piling up.
-    expect(query?.sql).toContain("('new', 0), ('assigned', 1), ('resolved', 2)");
-    // LEFT JOINed, so a state nothing has reached is a zero rather than absent.
-    expect(query?.sql).toContain("LEFT JOIN");
+    // Run it, rather than reading it: positions, not an alphabetical sort — a
+    // lifecycle sorted by name says nothing about where work is piling up —
+    // and LEFT JOINed, so a state nothing has reached is a zero, not absent.
+    const pg = await PGlite.create();
+    try {
+      await pg.exec(`
+        CREATE TABLE bus_ticket (status text, deleted_at timestamptz);
+        INSERT INTO bus_ticket VALUES ('resolved', NULL), ('resolved', NULL), ('new', NULL),
+          ('new', now());
+      `);
+      const result = await pg.query<{ state: string; records: number | string }>(query?.sql ?? "");
+      expect(result.rows.map((row) => [row.state, Number(row.records)])).toEqual([
+        ["new", 1],
+        ["assigned", 0],
+        ["resolved", 2],
+      ]);
+    } finally {
+      await pg.close();
+    }
+  });
+
+  // The Enterprise Reporting platform parses every query to decide which tables
+  // a role may read, and refuses — to everyone but its administrator — a query
+  // it cannot parse. Its parser has no CTE column list, so the form this used to
+  // emit, `WITH declared(state, position) AS (VALUES …)`, left every lifecycle
+  // report unreadable to every role.
+  it("writes no CTE column list, which the reporting platform cannot parse", async () => {
+    const pack = await build();
+    for (const query of pack.queries) {
+      expect(query.sql, query.key).not.toMatch(/\bWITH\s+\w+\s*\(/i);
+    }
   });
 
   it("names the tables the generated application actually creates", async () => {

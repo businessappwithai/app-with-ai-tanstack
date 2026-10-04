@@ -473,6 +473,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const csvContent = await this.component("src/lib/csv.ts");
     await fs.writeFile(path.join(outputDir, "src/lib/csv.ts"), csvContent);
 
+    // Optimistic locking: the If-Match header, recognising a stale save, and
+    // which fields the other save changed. The record window and the update
+    // hook both import it, so leaving it out fails the generated build.
+    const versionConflictContent = await this.component("src/lib/version-conflict.ts");
+    await fs.writeFile(path.join(outputDir, "src/lib/version-conflict.ts"), versionConflictContent);
+
     // Vite's asset-import suffixes (`?url`, `?raw`), which the compiler cannot
     // resolve on its own — without these the root route fails to typecheck on a
     // freshly generated app over an import that is perfectly correct.
@@ -797,6 +803,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/admin/entity-window-shell.tsx",
         dest: "src/components/admin/entity-window-shell.tsx",
+      },
+      {
+        // The reload-or-overwrite choice the record window offers when
+        // someone else saved the record first.
+        src: "src/components/admin/version-conflict-dialog.tsx",
+        dest: "src/components/admin/version-conflict-dialog.tsx",
       },
       {
         src: "src/components/admin/unified-field-layout.tsx",

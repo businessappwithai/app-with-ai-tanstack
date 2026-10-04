@@ -94,6 +94,7 @@ export class ApiError extends Error {
     this.body = body;
     this.detail = body?.detail;
     this.violations = body?.violations;
+    this.details = body?.details;
   }
 }
 
@@ -106,8 +107,8 @@ export class ApiError extends Error {
  * application because a reporting call expired, which is the confusion the two
  * sessions exist to prevent.
  */
-async function request(method, path, body, audience = "app") {
-  const headers = {};
+async function request(method, path, body, audience = "app", extraHeaders = {}) {
+  const headers = { ...extraHeaders };
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (audience === "report") {
     if (reportToken) headers[REPORT_HEADER] = `Bearer ${reportToken}`;
@@ -150,8 +151,10 @@ async function request(method, path, body, audience = "app") {
 export const api = {
   get: (path) => request("GET", path),
   post: (path, body) => request("POST", path, body ?? {}),
-  put: (path, body) => request("PUT", path, body ?? {}),
-  patch: (path, body) => request("PATCH", path, body ?? {}),
+  // `headers` is how a save sends If-Match — the version the form opened the
+  // record at — so the server can refuse it if someone saved in between.
+  put: (path, body, headers) => request("PUT", path, body ?? {}, "app", headers),
+  patch: (path, body, headers) => request("PATCH", path, body ?? {}, "app", headers),
   delete: (path) => request("DELETE", path),
 };
 

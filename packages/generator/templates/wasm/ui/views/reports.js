@@ -10,15 +10,19 @@
  * help text and chart axes; `/reports/:name/run` is what holds the SQL.
  */
 
-import { el, mount, spinner, empty, toast } from "../dom.js";
+import { el, mount, spinner, empty, toast, formatNumeric } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
 import { deleteButton, editorForm, openEditor } from "../editor.js";
 
-/** Render one SQL scalar as a cell. */
-function cell(value) {
+/**
+ * Render one SQL scalar as a cell. `numeric` says the column is a Postgres
+ * NUMERIC, which arrives as a string — money read `25955.7000` until this.
+ */
+function cell(value, numeric = false) {
   if (value === null || value === undefined) return "—";
   if (value instanceof Date) return value.toLocaleDateString();
+  if (numeric) return formatNumeric(value);
   if (typeof value === "number") return value.toLocaleString();
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
@@ -142,7 +146,7 @@ async function runReport(panel, name, options = {}) {
           el(
             "tbody",
             ...result.rows.map((row) =>
-              el("tr", ...result.columns.map((column) => el("td", cell(row[column]))))
+              el("tr", ...result.columns.map((column) => el("td", cell(row[column], (result.numeric ?? []).includes(column)))))
             )
           )
         )

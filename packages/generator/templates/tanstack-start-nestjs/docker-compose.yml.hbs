@@ -325,6 +325,14 @@ services:
       REPORTING_PACK: /pack/reporting-pack.json
       ENCRYPTION_KEY: ${REPORT_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
       AUTH_SECRET: ${REPORT_AUTH_SECRET:-change-me-in-production-at-least-32-chars}
+      # The reporting administrator's password — the one reporting/README.md
+      # lists. The platform will not take an ADMIN_PASSWORD under eight
+      # characters and otherwise generates a random one, so without this the
+      # administrator was the one documented account that could not sign in.
+      # The seeder sets it on first start only; a password changed later in the
+      # platform survives every restart. Set REPORT_ADMIN_PASSWORD in `.env`
+      # before this is reachable by anyone else.
+      SEED_ADMIN_PASSWORD: ${REPORT_ADMIN_PASSWORD:-admin}
     volumes:
       # The pack, read-only. It is the one reporting artefact this project
       # contains, and it is derived entirely from the model.

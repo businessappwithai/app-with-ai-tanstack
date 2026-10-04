@@ -339,6 +339,9 @@ function previewStrip() {
 
 // ─── Pages ───────────────────────────────────────────────────────────────────
 
+/** Whether the run endpoint named `column` as a NUMERIC — see `cellText`. */
+const isNumeric = (result, column) => (result.numeric ?? []).includes(column);
+
 const plural = (count, one, many = `${one}s`) => `${count.toLocaleString()} ${count === 1 ? one : many}`;
 
 async function dashboardPage(main) {
@@ -637,7 +640,7 @@ async function reportViewerPage(main, key) {
           ? emptyState("No data", "The query is valid; nothing in the application's data answers it yet.")
           : table(
               result.columns.map((column) => labels.get(column) ?? column),
-              result.rows.map((row) => result.columns.map((column) => cellText(row[column])))
+              result.rows.map((row) => result.columns.map((column) => cellText(row[column], isNumeric(result, column))))
             )
       )
     );
@@ -793,7 +796,7 @@ async function dashboardViewerPage(main, key) {
             body,
             result.rowCount === 0
               ? emptyState("No data")
-              : table(result.columns, result.rows.slice(0, 20).map((row) => result.columns.map((column) => cellText(row[column]))))
+              : table(result.columns, result.rows.slice(0, 20).map((row) => result.columns.map((column) => cellText(row[column], isNumeric(result, column)))))
           )
         )
         .catch((error) => mount(body, refusal(error)));

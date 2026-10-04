@@ -164,6 +164,9 @@ const SHARED_SUITES = [
   // model's own SQL, and the checker that validated the directive never saw
   // the schema the query has to match.
   "21-reports.test.ts",
+  // Optimistic locking: a stale save is a 409 the form can offer "reload or
+  // overwrite" on, and two saves racing from one version produce one winner.
+  "22-optimistic-locking.test.ts",
   // Last, so they measure the fullest the tables will be this run.
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",
