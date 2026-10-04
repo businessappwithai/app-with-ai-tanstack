@@ -154,10 +154,11 @@ export function reportsRoutes(model) {
     // means. One row past the cap distinguishes a full page from a truncated
     // one without counting the whole thing twice.
     let rows;
+    let numeric;
     try {
-      rows = await db.query(
+      ({ rows, numeric } = await db.queryWithNumeric(
         `SELECT * FROM (${body}) AS report_body LIMIT ${MAX_ROWS + 1}`
-      );
+      ));
     } catch (error) {
       // The query came out of the model, so this is a defect in the document
       // rather than in the request. Name the report and quote the database —
@@ -173,6 +174,8 @@ export function reportsRoutes(model) {
       // Off the first row rather than a driver field list, so the column order
       // the report's own SELECT declares is the order it renders in.
       columns: rows.length > 0 ? Object.keys(rows[0]) : [],
+      // Which of those are NUMERIC, which arrives as a string — see queryWithNumeric.
+      numeric,
       rows,
       rowCount: rows.length,
       truncated,

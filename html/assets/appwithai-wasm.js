@@ -12057,6 +12057,22 @@ export class Database {
     return result.rows || [];
   }
 
+  /**
+   * Run one statement and name its NUMERIC columns.
+   *
+   * Postgres returns NUMERIC (and DECIMAL, which money compiles to) as a string
+   * so no digit is lost, and a string is indistinguishable from a text column
+   * holding digits — so a screen that wants to format a number has to be told
+   * which columns are numbers. OID 1700 is NUMERIC.
+   */
+  async queryWithNumeric(sql, params = []) {
+    const result = await this.pg.query(sql, params);
+    const numeric = (result.fields || [])
+      .filter((field) => field.dataTypeID === 1700)
+      .map((field) => field.name);
+    return { rows: result.rows || [], numeric };
+  }
+
   async one(sql, params = []) {
     const rows = await this.query(sql, params);
     return rows[0] || null;
@@ -16402,8 +16418,9 @@ export function reportingRoutes(model) {
     // means. One row past the cap distinguishes a full page from a truncated
     // one without counting the whole thing twice.
     let rows;
+    let numeric;
     try {
-      rows = await db.query(\`SELECT * FROM (\${body}) AS report_body LIMIT \${MAX_ROWS + 1}\`);
+      ({ rows, numeric } = await db.queryWithNumeric(\`SELECT * FROM (\${body}) AS report_body LIMIT \${MAX_ROWS + 1}\`));
     } catch (error) {
       // The query came out of the model, so this is a defect in the document or
       // in the derivation rather than in the request. Name the report and quote
@@ -16439,6 +16456,8 @@ export function reportingRoutes(model) {
       // Off the first row rather than a driver field list, so the column order
       // the query's own SELECT declares is the order it renders in.
       columns: rows.length > 0 ? Object.keys(rows[0]) : [],
+      // Which of those are NUMERIC, which arrives as a string — see queryWithNumeric.
+      numeric,
       rows,
       rowCount: rows.length,
       truncated,
@@ -16622,10 +16641,11 @@ export function reportsRoutes(model) {
     // means. One row past the cap distinguishes a full page from a truncated
     // one without counting the whole thing twice.
     let rows;
+    let numeric;
     try {
-      rows = await db.query(
+      ({ rows, numeric } = await db.queryWithNumeric(
         \`SELECT * FROM (\${body}) AS report_body LIMIT \${MAX_ROWS + 1}\`
-      );
+      ));
     } catch (error) {
       // The query came out of the model, so this is a defect in the document
       // rather than in the request. Name the report and quote the database —
@@ -16641,6 +16661,8 @@ export function reportsRoutes(model) {
       // Off the first row rather than a driver field list, so the column order
       // the report's own SELECT declares is the order it renders in.
       columns: rows.length > 0 ? Object.keys(rows[0]) : [],
+      // Which of those are NUMERIC, which arrives as a string — see queryWithNumeric.
+      numeric,
       rows,
       rowCount: rows.length,
       truncated,
@@ -19559,6 +19581,25 @@ export const escapeHtml = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (character) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]
   );
+
+/**
+ * A NUMERIC as text: grouped, with two decimals when it has a fraction.
+ *
+ * Postgres hands NUMERIC over as a string so no digit is lost, and money is
+ * DECIMAL(18,4) — printed as it arrived, an amount read \`25955.7000\`. Formatted
+ * from the string rather than a parsed Number, which \`Intl\` treats as an exact
+ * decimal, so a value past 2^53 keeps its digits. Up to four decimals survive,
+ * which is the scale money is stored at; trailing zeros past the second do not.
+ */
+export function formatNumeric(value) {
+  const text = String(value);
+  if (!/^-?\\d+(\\.\\d+)?$/.test(text)) return text;
+  const fraction = /\\.\\d*[1-9]/.test(text);
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: fraction ? 2 : 0,
+    maximumFractionDigits: 4,
+  }).format(text);
+}
 `,
   "ui/editor.js": `/**
  * The admin screens' shared editor: one form builder and one two-step delete.
@@ -22917,7 +22958,7 @@ function debounce(fn, delay) {
  * drifts without anyone noticing.
  */
 
-import { el } from "../dom.js";
+import { el, formatNumeric } from "../dom.js";
 
 /*
  * Lucide icons — the set the platform imports from \`lucide-react\` — as their
@@ -23095,10 +23136,15 @@ export function emptyState(title, detail) {
   return el("div.er-empty", el("p.er-empty__title", title), detail ? el("p.er-empty__detail", detail) : null);
 }
 
-/** One SQL scalar as text. */
-export function cellText(value) {
+/**
+ * One SQL scalar as text. \`numeric\` says the column is a Postgres NUMERIC —
+ * the run endpoints name those columns, because a string of digits in a text
+ * column (a code, a phone number) must not be regrouped.
+ */
+export function cellText(value, numeric = false) {
   if (value === null || value === undefined) return "—";
   if (value instanceof Date) return value.toLocaleDateString();
+  if (numeric) return formatNumeric(value);
   if (typeof value === "number") return value.toLocaleString();
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
@@ -24333,6 +24379,9 @@ function previewStrip() {
 
 // ─── Pages ───────────────────────────────────────────────────────────────────
 
+/** Whether the run endpoint named \`column\` as a NUMERIC — see \`cellText\`. */
+const isNumeric = (result, column) => (result.numeric ?? []).includes(column);
+
 const plural = (count, one, many = \`\${one}s\`) => \`\${count.toLocaleString()} \${count === 1 ? one : many}\`;
 
 async function dashboardPage(main) {
@@ -24631,7 +24680,7 @@ async function reportViewerPage(main, key) {
           ? emptyState("No data", "The query is valid; nothing in the application's data answers it yet.")
           : table(
               result.columns.map((column) => labels.get(column) ?? column),
-              result.rows.map((row) => result.columns.map((column) => cellText(row[column])))
+              result.rows.map((row) => result.columns.map((column) => cellText(row[column], isNumeric(result, column))))
             )
       )
     );
@@ -24787,7 +24836,7 @@ async function dashboardViewerPage(main, key) {
             body,
             result.rowCount === 0
               ? emptyState("No data")
-              : table(result.columns, result.rows.slice(0, 20).map((row) => result.columns.map((column) => cellText(row[column]))))
+              : table(result.columns, result.rows.slice(0, 20).map((row) => result.columns.map((column) => cellText(row[column], isNumeric(result, column)))))
           )
         )
         .catch((error) => mount(body, refusal(error)));
@@ -25260,15 +25309,19 @@ export async function reportLoginView(root, { project, onSignedIn, onLeave }) {
  * help text and chart axes; \`/reports/:name/run\` is what holds the SQL.
  */
 
-import { el, mount, spinner, empty, toast } from "../dom.js";
+import { el, mount, spinner, empty, toast, formatNumeric } from "../dom.js";
 import { api } from "../api.js";
 import { setHelp } from "../main.js";
 import { deleteButton, editorForm, openEditor } from "../editor.js";
 
-/** Render one SQL scalar as a cell. */
-function cell(value) {
+/**
+ * Render one SQL scalar as a cell. \`numeric\` says the column is a Postgres
+ * NUMERIC, which arrives as a string — money read \`25955.7000\` until this.
+ */
+function cell(value, numeric = false) {
   if (value === null || value === undefined) return "—";
   if (value instanceof Date) return value.toLocaleDateString();
+  if (numeric) return formatNumeric(value);
   if (typeof value === "number") return value.toLocaleString();
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
@@ -25392,7 +25445,7 @@ async function runReport(panel, name, options = {}) {
           el(
             "tbody",
             ...result.rows.map((row) =>
-              el("tr", ...result.columns.map((column) => el("td", cell(row[column]))))
+              el("tr", ...result.columns.map((column) => el("td", cell(row[column], (result.numeric ?? []).includes(column)))))
             )
           )
         )
@@ -25633,7 +25686,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 596855;
+var RUNTIME_BYTES = 599304;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

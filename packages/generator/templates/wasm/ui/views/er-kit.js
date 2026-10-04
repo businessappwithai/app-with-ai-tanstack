@@ -14,7 +14,7 @@
  * drifts without anyone noticing.
  */
 
-import { el } from "../dom.js";
+import { el, formatNumeric } from "../dom.js";
 
 /*
  * Lucide icons — the set the platform imports from `lucide-react` — as their
@@ -192,10 +192,15 @@ export function emptyState(title, detail) {
   return el("div.er-empty", el("p.er-empty__title", title), detail ? el("p.er-empty__detail", detail) : null);
 }
 
-/** One SQL scalar as text. */
-export function cellText(value) {
+/**
+ * One SQL scalar as text. `numeric` says the column is a Postgres NUMERIC —
+ * the run endpoints name those columns, because a string of digits in a text
+ * column (a code, a phone number) must not be regrouped.
+ */
+export function cellText(value, numeric = false) {
   if (value === null || value === undefined) return "—";
   if (value instanceof Date) return value.toLocaleDateString();
+  if (numeric) return formatNumeric(value);
   if (typeof value === "number") return value.toLocaleString();
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
