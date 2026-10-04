@@ -964,6 +964,13 @@ that went missing. Both editions are held to asking for the file first, refusing
 to reconstruct a model from memory, inventorying before editing, and comparing
 against that inventory at the end.
 
+**§5.8 is the reporting application, and the language definition carries it too.**
+`generatorContract.reportingApplication` in `language/appwithai-language.json` and §5.8
+of `llms-full.txt`/`llmdetailed.txt` state what `buildReportingPack` derives, the three
+surfaces that serve it, and the two sign-ins. Edit `reporting/pack.ts` and check both:
+the table there is a description of that file. The JSON is inlined in five bundles, so
+a change to it is a rebuild of all of them.
+
 ## What a diagnostic hands back — the line, its text, and the steps
 
 `language/browser/checker.entry.ts` and `fixer.entry.ts` are what a language
