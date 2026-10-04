@@ -54,6 +54,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run test` | Vitest unit tests (runs `packages/web/vitest.config.ts`) |
 | `bun run test:e2e:server` | Playwright E2E with server startup |
 | `bun run test:wasm` | WASM stack end-to-end |
+| `bun run test:e2e:rules-workflows` | The rule and workflow editors, driven in Chromium (`-- --generated` adds the generated app) |
 | `bun run seed:admin -- --email you@example.com` | Run migrations + make admin |
 | `bun run wasm generate -i <model> -o <dir>` | Generate NestJS/TanStack on WASM Postgres |
 | `bun run wasm generate … --standalone` | Self-contained browser app |
@@ -606,6 +607,52 @@ Whatever the builder can write, `language/checker.ts` must accept — a checker
 that rejects the application's own output discredits both. That pairing is held
 by `packages/web/src/lib/automation/__tests__/checker-accepts-automations.test.ts`.
 
+### The rule and workflow editors ship twice, byte for byte
+
+The generated application's Admin → Business Rules and Automations screens use
+the **same files** as the modelling tool's Logic step. Eight live in both
+`packages/web/src/` and `packages/generator/templates/tanstack-start-nestjs/frontend/src/`:
+
+`components/automation/{AutomationBuilder,StepInspector,RuleTableEditor,LadderCard,RailList}.tsx`,
+`lib/automation/{model,rule-content}.ts`, `lib/workflow/bpmn-model.ts`
+
+`components/automation/__tests__/editor-files-identical.test.ts` fails on any
+byte of difference, so an edit to one is an edit to both: change the web copy,
+then `cp` it over the template's. A fix made in one place only is how the
+generated app came to edit a different rule table from the tool.
+
+Four things those editors have to keep true:
+
+- **An `%%action` rule is a `collect` table: every row that fits runs.** The
+  first-match wording, the "add a catch-all row" advice and the shadowed-row
+  check all belong to `first` tables only — under `collect` a row with no check
+  acts on *every* record (a blank `prevent` row refuses every write).
+  `checkCoverage`, `validateDecisionTable`, `evaluateTable` and the editor's
+  copy all branch on `hitPolicy`. The table's single input has no field: each
+  cell is a whole-record check (`status == "withdrawn" and withdrawn_on ==
+  null`), evaluated by `evaluateExpression` in `bpmn-model.ts` — the one copy
+  both editors and `lib/eml/decision-table.ts` use. It returns `undefined` for
+  anything outside `field op value` joined by `and`/`or`, and the caller then
+  claims no verdict.
+- **A compiled rule is a JDM graph of zen literals** (`'prevent'`, `''`).
+  `asDecisionTable` in `rule-content.ts` reads a graph's outcome cells back as
+  plain text, maps `prevent` to the editor's `validation-error`, and drops
+  `ruleId` and unused columns. The engine's `asJdmGraph` quotes a bare table's
+  cells again on the way in, so an edited rule round-trips. Input cells are
+  expressions and are never unquoted.
+- **The backend accepts a `collect` table's field-less input** —
+  `rules.service.ts.hbs` checks fields on outputs only for `collect`, as
+  `validateStoredRuleContent` does. Requiring one refused every edit to a rule
+  the model declared.
+- **The Logic page refuses a rule or process with no entity or no name**
+  (`lib/eml/section-problems.ts`), and so does `PUT /api/projects/:id/eml`. Saved
+  without one it became `%%rule x on  event: …`, which the checker reads as a
+  rule on an entity called `event` — a warning, so the model still checked clean.
+
+The editors' help is Markdown under `packages/web/src/content/help/`, inlined
+with `?raw`. `help-content.test.ts` fails when an editor offers an event,
+outcome, step type, check or inspector field its page does not name.
+
 ### AI package (packages/ai/)
 
 Mastra instance (`src/mastra/index.ts`) registers `codeAgent` only. The four agents in `src/agents/*` are used directly by the converter and ERD workflow — not on the Mastra instance. RAG uses one pgvector HNSW index (`model_context`) keyed by `projectId`; spec chunks use `SPEC_PROJECT_ID = "__eml_spec__"`.
@@ -893,6 +940,19 @@ this repository's system edition, §1 in the site's language-only `llms-full.txt
 — so the sources use a `{{N}}` token and never quote another document's section
 number. A source that says "`llms-full.txt` §1" is correct on the website and
 wrong here.
+
+**Every protocol section requires a complete Application Dictionary.** Each
+of the four now carries the same three blocks: plan every dictionary value in
+writing before the first line of Mermaid (or before the first edit); the six
+dictionary-completeness codes (`EML119`, `EML146`, `EML151`–`EML154`) tabled as
+gaps the delivered file carries none of; and a review that re-runs the checker
+and the audit from zero until a full pass finds nothing to change. In the
+interactive editions the review block and the `EML265` checklist row sit inside
+`#### The tools`, which the deriver copies across by itself — so its source
+carries only the planning and dictionary blocks. Change a block here and change
+`scripts/llmtext/protocol-*.md` in the website repository to match: derived
+against these bases, those sources reproduce this repository's two enhancement
+editions byte for byte, and they must keep doing so.
 
 **What the enhancement protocols add, and why `test:llmtext` checks for it.**
 Authoring fails one way: model the business badly. Enhancement fails three ways,
@@ -1217,6 +1277,31 @@ Three constraints are worth knowing before adding cases:
 
 The suites deliberately leave their rows behind, so **a re-run against a populated database is the normal case**. Unique values are salted with a per-run token (`E2E_RUN_TOKEN`, printed by the runner) folded into any caller-supplied salt; replacing it rather than folding into it makes every insert of the second run collide.
 
+### The rule and workflow editors' own E2E suite — `scripts/e2e-rules-workflows/`
+
+Separate from `tests/e2e/`, and only for these editors. Scenarios are JSON
+(`scenarios/business-rules.json`, `scenarios/workflows.json`), so a new rule or
+workflow is tested by adding an object, not code; controls are found by their
+on-screen labels (`lib/logic-page.ts`), never by position.
+
+```bash
+bun run test:e2e:rules-workflows                  # the modelling tool, specs 01–05
+bun run test:e2e:rules-workflows -- --generated   # also generate, boot and drive the app (06)
+```
+
+`--generated` needs `DATABASE_URL`, creates `<db>_rules_workflows_e2e` beside it,
+and starts the generated backend and front end on 4701/4700. Two things it has
+to keep doing:
+
+- **It runs the generated app without the tool's environment** (`appEnv()` in
+  `run.ts`). From a shell that had sourced this repository's `.env`, the app
+  inherited `VITE_API_URL=…:3000` — Vite prefers a process variable to the app's
+  own `.env` — so every dictionary call reached the modelling tool and the rule
+  editor offered no entities, with nothing on screen saying why.
+- **Spec 06 waits for data the page loads after it renders** (the entity list,
+  the dictionary labels) instead of reading it once. A freshly started app
+  answers seconds later than a warm one.
+
 ### WASM E2E
 `tests/e2e/wasm/` has its own Playwright config (serves `html/` not the modelling
 tool). It needs two things placed beside the page first, both generated rather
@@ -1255,6 +1340,11 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 | `.../backend/src/modules/bus/bus.service.ts.hbs` | ⭐ `getEntityMetadata` — column → control |
 | `packages/web/src/types/project.ts` | ⭐ Wizard step vocabulary |
 | `packages/web/src/lib/automation/model.ts` | ⭐ The automation builder — second reader/writer of EML |
+| `packages/web/src/lib/automation/rule-content.ts` | ⭐ What the rules API stores, read as an editable table — shipped to generated apps byte for byte |
+| `packages/web/src/lib/workflow/bpmn-model.ts` | Decision-table model and `evaluateExpression` (whole-record checks) — shared with generated apps |
+| `packages/web/src/lib/eml/section-problems.ts` | What a rule or process must carry before the model is saved |
+| `.../frontend/src/hooks/use-dictionary-windows.ts` | ⭐ The generated app's one reader of windows, tabs and fields |
+| `scripts/e2e-rules-workflows/run.ts` | The editors' E2E runner — boots a generated app with a clean environment |
 | `.../frontend/src/routes/api/$.ts.hbs` | ⭐ `Route` **and** `APIRoute`, two calls, neither an alias |
 | `tests/test-data/dance-studio-workflows.eml.mmd` | The model carrying all 25 behaviour constructs |
 | `.github/workflows/ci.yml` | ⭐ The four jobs that gate a PR |
