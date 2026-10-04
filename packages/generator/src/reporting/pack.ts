@@ -524,13 +524,24 @@ function deriveEntity(ctx: Ctx, e: Entity): void {
       // The states come from the diagram, LEFT JOINed to the counts, so a state
       // the application has never reached shows as zero rather than vanishing.
       // A missing row and a zero row mean very different things here.
-      const valuesList = states.map((s, i) => `(${lit(s)}, ${i})`).join(", ");
+      // One SELECT per state, joined by UNION ALL — not `WITH declared(state,
+      // position) AS (VALUES …)`. Postgres runs either, but the Enterprise
+      // Reporting platform parses every query to decide which tables a role
+      // may read, its parser has no CTE column list, and a query it cannot
+      // parse is refused to every role but the administrator. So the lifecycle
+      // reports — one per state machine — ran for nobody who signed in as a
+      // role. The first row names the columns; the rest follow them.
+      const valuesList = states
+        .map((s, i) =>
+          i === 0 ? `SELECT ${lit(s)} AS state, ${i} AS position` : `SELECT ${lit(s)}, ${i}`
+        )
+        .join("\n  UNION ALL ");
       const key = `${slug}__lifecycle`;
       const q = addQuery(ctx, {
         key,
         name: `${titleOf(e)} lifecycle — ${wf.name}`,
         description: `Where ${pluralTitle(e).toLowerCase()} sit in the ${wf.name} state machine. Every state the model declares appears, including the ones nothing has reached.`,
-        sql: `WITH declared(state, position) AS (\n  VALUES ${valuesList}\n)\nSELECT d.state, COALESCE(c.records, 0) AS records\nFROM declared d\nLEFT JOIN (\n  SELECT ${statusCol} AS state, COUNT(*) AS records\n  FROM ${table}\n  WHERE ${live}\n  GROUP BY 1\n) c ON c.state = d.state\nORDER BY d.position`,
+        sql: `WITH declared AS (\n  ${valuesList}\n)\nSELECT d.state, COALESCE(c.records, 0) AS records\nFROM declared d\nLEFT JOIN (\n  SELECT ${statusCol} AS state, COUNT(*) AS records\n  FROM ${table}\n  WHERE ${live}\n  GROUP BY 1\n) c ON c.state = d.state\nORDER BY d.position`,
       });
       ctx.reports.push({
         key,

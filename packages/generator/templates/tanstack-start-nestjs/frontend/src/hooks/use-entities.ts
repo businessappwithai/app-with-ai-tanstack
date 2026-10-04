@@ -12,6 +12,7 @@ import {
 import { apiClient, type PaginatedResponse, type ApiError } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { translate } from '@/lib/translations';
+import { ifMatchHeader } from '@/lib/version-conflict';
 
 // ============================================================================
 // Types
@@ -355,7 +356,7 @@ export function useUpdateEntity<T extends EntityRecord = EntityRecord>(
   return useMutation<T, ApiError, MutationVariables, MutationContext>({
     mutationFn: ({ id, data, version }) =>
       apiClient.patch<T>(`/bus/${entity}/${id}`, data, {
-        headers: version ? { 'If-Match': `"v${version}"` } : undefined,
+        headers: ifMatchHeader(version),
       }),
     onMutate: async ({ id, data, version }) => {
       // Cancel outgoing refetches

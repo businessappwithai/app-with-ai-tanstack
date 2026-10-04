@@ -420,6 +420,21 @@ export class BusService {
     return { ...row, promotion };
   }
 
+  /**
+   * The 409 a stale save receives. `details.code` is what the form keys its
+   * reload-or-overwrite dialog on, and the two versions let it say how far the
+   * record moved. The record itself is deliberately not included: the form
+   * re-reads it through GET, which applies the caller's field-level access —
+   * echoing the row here would hand back columns that route would withhold.
+   */
+  private versionConflict(entity: string, id: string, expectedVersion: number, currentVersion: number) {
+    return new ConflictException({
+      message: 'This record was changed by someone else after you opened it.',
+      error: 'Conflict',
+      details: { code: 'VERSION_CONFLICT', entity, id, expectedVersion, currentVersion },
+    });
+  }
+
   async update(
     entity: string,
     id: string,
@@ -440,18 +455,30 @@ export class BusService {
       await this.enforceBusinessRules(tableName, merged, 'update');
     }
 
+    // Optimistic locking. The form sends the version it loaded the record at
+    // (If-Match), and the write is refused with 409 if anyone has saved since.
+    //
+    // Comparing and then updating is not enough on its own: two saves that both
+    // read version 3 both pass the comparison and the second silently replaces
+    // the first. So the row is locked for the length of this transaction
+    // (`FOR UPDATE` — a parallel save waits here, then reads the version the
+    // first one wrote), and the UPDATE itself is conditioned on the version it
+    // checked. Either alone closes the race; both are kept so neither a change
+    // of isolation level nor a removed lock reopens it.
     const result = await this.db.transaction(async (trx) => {
       const existing = await trx
         .selectFrom(tableName as any)
         .selectAll()
         .where('id' as any, '=', id)
         .where('deleted_at' as any, 'is', null)
+        .forUpdate()
         .executeTakeFirst();
 
       if (!existing) return null;
 
-      if (expectedVersion !== undefined && (existing as any).version !== expectedVersion) {
-        throw new ConflictException('Record was modified by another user. Please reload and try again.');
+      const currentVersion = Number((existing as any).version ?? 0);
+      if (expectedVersion !== undefined && currentVersion !== expectedVersion) {
+        throw this.versionConflict(entity, id, expectedVersion, currentVersion);
       }
 
       const rows = await trx
@@ -459,7 +486,7 @@ export class BusService {
         .set({
           ...processedData,
           updated_at: new Date(),
-          version: ((existing as any).version || 0) + 1,
+          version: currentVersion + 1,
           // An edited record is a draft again until its rules and workflows
           // have been re-run against the new values. Left `final`, a record
           // that was finalised once would keep that badge through every later
@@ -470,8 +497,18 @@ export class BusService {
           doc_status_message: null,
         } as any)
         .where('id' as any, '=', id)
+        .where((eb: any) =>
+          (existing as any).version == null
+            ? eb('version' as any, 'is', null)
+            : eb('version' as any, '=', currentVersion),
+        )
         .returningAll()
         .execute();
+      // The row is locked, so this only happens if the lock was not honoured;
+      // it is still a conflict rather than a missing record.
+      if (rows.length === 0) {
+        throw this.versionConflict(entity, id, expectedVersion ?? currentVersion, currentVersion + 1);
+      }
       return rows[0] ?? null;
     });
 

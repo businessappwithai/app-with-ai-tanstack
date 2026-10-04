@@ -121,6 +121,10 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
   }
 
   const editable = fields.filter((field) => !["id", "version"].includes(field.column_name));
+  // Optimistic locking: the version this form opened the record at. A save
+  // sends it as If-Match and the server refuses it with 409 if someone has
+  // saved since; "Overwrite" moves it to the version that conflict reported.
+  let openedVersion = record.version;
   const requiredCount = editable.filter((field) => field.is_mandatory).length;
 
   const inputs = new Map();
@@ -149,7 +153,11 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     try {
       const saved = isNew
         ? await api.post(`/bus/${entity.routeName}`, payload)
-        : await api.put(`/bus/${entity.routeName}/${id}`, payload);
+        : await api.put(
+            `/bus/${entity.routeName}/${id}`,
+            payload,
+            openedVersion == null ? {} : { "If-Match": `"${openedVersion}"` }
+          );
       toast(isNew ? `${entity.singularName} created` : "Saved", "success");
       /* This row may be what some other entity's lookup is missing, and its
          label may be what an existing option now reads as. Neither is worth a
@@ -158,7 +166,22 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
       await onSaved(saved);
       if (isNew) navigate(`/entity/${entity.routeName}/${saved.id}`, { replace: true });
     } catch (error) {
-      showProblem(violationBox, error);
+      if (error.status === 409 && error.details?.code === "VERSION_CONFLICT") {
+        await showConflict(violationBox, {
+          entity,
+          id,
+          fields: editable,
+          base: record,
+          mine: payload,
+          onReload: () => recordPanel(root, { entity, id, onClose, onSaved, navigate }),
+          onOverwrite: (theirs) => {
+            openedVersion = theirs.version;
+            submit();
+          },
+        });
+      } else {
+        showProblem(violationBox, error);
+      }
     } finally {
       setActions({ ...currentActions, busy: false });
     }
@@ -733,6 +756,88 @@ function normalizeForInput(value, type) {
   if (type === "date") return String(value).slice(0, 10);
   if (type === "datetime") return String(value).slice(0, 16);
   return String(value);
+}
+
+/** Same value across the shapes a field takes: a NUMERIC string and a number. */
+function sameValue(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null || a === "" || b === "") return (a ?? "") === (b ?? "");
+  if (Number.isFinite(Number(a)) && Number.isFinite(Number(b)) && Number(a) === Number(b)) return true;
+  return String(a) === String(b);
+}
+
+/**
+ * Someone else saved this record after the form opened it.
+ *
+ * Inline, not a modal: this application runs in an iframe on the page that
+ * generated it, where `confirm()` is not guaranteed to appear — the same reason
+ * the delete and purge controls are two-step. Lists the fields the other save
+ * changed (marking the ones this user changed too), then offers the two ways
+ * out: reload their version, or overwrite it with this one. Overwrite is still
+ * checked, against the version just read, so a third save is caught again.
+ */
+async function showConflict(box, { entity, id, fields, base, mine, onReload, onOverwrite }) {
+  let theirs;
+  try {
+    theirs = await api.get(`/bus/${entity.routeName}/${id}`);
+  } catch (error) {
+    showProblem(box, error);
+    return;
+  }
+  const rows = fields
+    .map((field) => {
+      const column = field.column_name;
+      if (sameValue(base[column], theirs[column])) return null;
+      const mineValue = column in mine ? mine[column] : base[column];
+      const clash = !sameValue(base[column], mineValue) && !sameValue(mineValue, theirs[column]);
+      return { field, theirs: theirs[column], mine: mineValue, clash };
+    })
+    .filter(Boolean)
+    .sort((a, b) => Number(b.clash) - Number(a.clash));
+  const shown = (value) => (value == null || value === "" ? "—" : displayValue(value));
+  const clashes = rows.filter((row) => row.clash).length;
+
+  mount(
+    box,
+    el("h4.violations__title", `This ${entity.singularName.toLowerCase()} was changed while you were editing`),
+    el(
+      "p",
+      `Someone else saved it first (it is now at version ${theirs.version ?? "?"}). ` +
+        (rows.length === 0
+          ? "None of the fields on this form differ."
+          : clashes
+            ? `${clashes} of the fields below were changed by both of you.`
+            : "They changed the fields below; you did not.")
+    ),
+    rows.length
+      ? el(
+          "table.conflict",
+          el("thead", el("tr", el("th", "Field"), el("th", "Their saved value"), el("th", "Your value"))),
+          el(
+            "tbody",
+            rows.map((row) =>
+              el(
+                row.clash ? "tr.conflict__clash" : "tr",
+                el("td", row.field.name || row.field.column_name, row.clash ? el("small", " · both changed") : null),
+                el("td", shown(row.theirs)),
+                el("td", shown(row.mine))
+              )
+            )
+          )
+        )
+      : null,
+    el(
+      "div.conflict__actions",
+      el("button.btn", { type: "button", "data-action": "conflict-reload", onclick: () => onReload() }, "Reload their version"),
+      el(
+        "button.btn.btn--primary",
+        { type: "button", "data-action": "conflict-overwrite", onclick: () => onOverwrite(theirs) },
+        "Overwrite with mine"
+      )
+    )
+  );
+  box.hidden = false;
+  box.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function showProblem(box, error) {

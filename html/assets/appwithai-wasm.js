@@ -11842,7 +11842,7 @@ export async function createServer(options) {
       if (asset) return asset;
       return errorResponse(notFound(\`Nothing at \${pathname}\`));
     } catch (error) {
-      return errorResponse(error);
+      return errorResponse(error, request.method);
     }
   }
 
@@ -12935,7 +12935,60 @@ export function text(body, init = {}) {
  * in the user's own browser against the user's own data, so hiding the message
  * would only make the app harder to debug without protecting anyone.
  */
-export function errorResponse(error) {
+/** \`Key (account_number)=(ACC-1) already exists.\` → \`account number\` */
+function columnsFromDetail(detail) {
+  const named = /^Key \\(([^)]+)\\)=/.exec(detail ?? "");
+  return named ? named[1].split(/\\s*,\\s*/).map((column) => column.replace(/_/g, " ")).join(" and ") : null;
+}
+
+/**
+ * A database constraint violation, as the status it deserves.
+ *
+ * PGlite raises these as plain errors carrying Postgres's SQLSTATE, so without
+ * this every one was a 500 quoting the raw message: a duplicate account number
+ * told the caller the server had broken, and a malformed id leaked
+ * \`invalid input syntax for type uuid\`. The NestJS stack maps the same codes in
+ * its exception filter (http-exception.filter.ts.hbs), and this follows it so
+ * the two stacks answer a conflicting write the same way. Values are never
+ * echoed back — only column names — since the conflicting value can be someone
+ * else's data.
+ */
+function databaseError(error, method) {
+  const code = typeof error?.code === "string" ? error.code : "";
+  if (!/^(23|22)/.test(code)) return null;
+  const columns = columnsFromDetail(error.detail);
+  const where = columns ? \` (\${columns})\` : "";
+  switch (code) {
+    case "23505":
+      return new HttpError(409, \`A record with the same value\${where} already exists.\`);
+    case "23503":
+      return method === "DELETE"
+        ? new HttpError(409, "This record is still referenced by other records.")
+        : new HttpError(400, \`A referenced record\${where} does not exist.\`);
+    case "23502": {
+      const field = error.column ? \` (\${String(error.column).replace(/_/g, " ")})\` : where;
+      return new HttpError(400, \`A required field\${field} was missing.\`);
+    }
+    case "23514":
+      return new HttpError(400, \`A value\${where} failed a database constraint.\`);
+    case "23P01":
+      return new HttpError(409, \`A record with an overlapping value\${where} already exists.\`);
+    case "22001":
+      return new HttpError(400, "A value was too long for its column.");
+    case "22P02":
+    case "22007":
+    case "22008":
+      return new HttpError(400, "A value was not valid for its column type.");
+    default:
+      return null;
+  }
+}
+
+export function errorResponse(error, method) {
+  if (!(error instanceof HttpError)) {
+    const mapped = databaseError(error, method);
+    if (mapped) error = mapped;
+  }
   const status = error instanceof HttpError ? error.status : 500;
   const body = {
     statusCode: status,
@@ -13516,7 +13569,7 @@ export class Router {
       const result = await matched.route.handler(request, ctx);
       return result instanceof Response ? result : errorResponse(new Error("Handler returned no Response"));
     } catch (error) {
-      return errorResponse(error);
+      return errorResponse(error, request.method);
     }
   }
 }
@@ -15286,6 +15339,35 @@ async function rulesFor(db, entity, operation) {
   );
 }
 
+/**
+ * The record version an \`If-Match\` header names: \`"3"\`, \`"v3"\`, \`3\` or a weak
+ * \`W/"3"\`. Anything else is refused with 400 rather than read as \`NaN\`, which
+ * would never equal a version and turn every save into a false conflict.
+ */
+function parseIfMatch(header) {
+  if (header == null || header.trim() === "" || header.trim() === "*") return undefined;
+  const match = /^(?:W\\/)?"?v?(\\d+)"?$/i.exec(header.trim());
+  if (!match) throw badRequest(\`If-Match must name a record version, such as "3"; got \${header}\`);
+  return Number(match[1]);
+}
+
+/**
+ * The 409 a stale save gets — the same body the NestJS stack sends, so one
+ * form can key its reload-or-overwrite dialog on \`details.code\`. The record is
+ * not included: the form re-reads it through GET, which applies field access.
+ */
+function versionConflict(entity, id, expectedVersion, currentVersion) {
+  return json(
+    {
+      statusCode: 409,
+      error: "Conflict",
+      message: "This record was changed by someone else after you opened it.",
+      details: { code: "VERSION_CONFLICT", entity: entity.name, id, expectedVersion, currentVersion },
+    },
+    { status: 409 }
+  );
+}
+
 export function busRoutes(model) {
   const router = new Router();
 
@@ -15459,6 +15541,14 @@ export function busRoutes(model) {
     );
     if (!current) throw notFound(\`No \${entity.name} with id \${params.id}\`);
 
+    // Optimistic locking, as the NestJS stack does it: the form sends the
+    // version it opened the record at, and a save against a version someone
+    // has since moved past is refused before anything else runs.
+    const expectedVersion = parseIfMatch(request.headers.get("if-match"));
+    if (expectedVersion !== undefined && Number(current.version ?? 0) !== expectedVersion) {
+      return versionConflict(entity, params.id, expectedVersion, Number(current.version ?? 0));
+    }
+
     const body = await readJson(request);
     let values = sanitize(entity, body);
 
@@ -15496,7 +15586,18 @@ export function busRoutes(model) {
     values.updated_at = new Date().toISOString();
     values.version = (current.version ?? 1) + 1;
 
-    const updated = await db.update(entity.tableName, values, { id: params.id });
+    // Conditioned on the version read above. Requests share one PGlite and
+    // interleave at every await, so two saves can both pass the check before
+    // either writes; this makes the second one match no row instead of
+    // replacing the first.
+    const updated = await db.update(entity.tableName, values, {
+      id: params.id,
+      version: current.version ?? null,
+    });
+    if (!updated) {
+      const now = await db.one(\`SELECT version FROM \${ident(entity.tableName)} WHERE id = $1\`, [params.id]);
+      return versionConflict(entity, params.id, expectedVersion ?? Number(current.version ?? 0), Number(now?.version ?? 0));
+    }
     const after = await runHooks(model.hooks, "afterUpdate", entity.name, updated, { previous: current });
 
     await recordWorkflowRun(db, model, entity, current, updated, user);
@@ -18135,6 +18236,12 @@ a { color: var(--primary); }
 }
 .violations__title { margin: 0 0 5px; font-size: 13.5px; color: var(--destructive); font-family: var(--sans); font-weight: 650; }
 .violations__list { margin: 0; padding-left: 18px; font-size: 13px; }
+.conflict { width: 100%; margin: 8px 0; border-collapse: collapse; font-size: 13px; }
+.conflict th, .conflict td { padding: 5px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.conflict th { font-weight: 600; }
+.conflict__clash td { background: color-mix(in srgb, var(--destructive) 8%, transparent); }
+.conflict small { color: var(--destructive); }
+.conflict__actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
 
 /* ------------------------------------------------------------- buttons --- */
 
@@ -19263,6 +19370,7 @@ export class ApiError extends Error {
     this.body = body;
     this.detail = body?.detail;
     this.violations = body?.violations;
+    this.details = body?.details;
   }
 }
 
@@ -19275,8 +19383,8 @@ export class ApiError extends Error {
  * application because a reporting call expired, which is the confusion the two
  * sessions exist to prevent.
  */
-async function request(method, path, body, audience = "app") {
-  const headers = {};
+async function request(method, path, body, audience = "app", extraHeaders = {}) {
+  const headers = { ...extraHeaders };
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (audience === "report") {
     if (reportToken) headers[REPORT_HEADER] = \`Bearer \${reportToken}\`;
@@ -19319,8 +19427,10 @@ async function request(method, path, body, audience = "app") {
 export const api = {
   get: (path) => request("GET", path),
   post: (path, body) => request("POST", path, body ?? {}),
-  put: (path, body) => request("PUT", path, body ?? {}),
-  patch: (path, body) => request("PATCH", path, body ?? {}),
+  // \`headers\` is how a save sends If-Match — the version the form opened the
+  // record at — so the server can refuse it if someone saved in between.
+  put: (path, body, headers) => request("PUT", path, body ?? {}, "app", headers),
+  patch: (path, body, headers) => request("PATCH", path, body ?? {}, "app", headers),
   delete: (path) => request("DELETE", path),
 };
 
@@ -21765,6 +21875,10 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
   }
 
   const editable = fields.filter((field) => !["id", "version"].includes(field.column_name));
+  // Optimistic locking: the version this form opened the record at. A save
+  // sends it as If-Match and the server refuses it with 409 if someone has
+  // saved since; "Overwrite" moves it to the version that conflict reported.
+  let openedVersion = record.version;
   const requiredCount = editable.filter((field) => field.is_mandatory).length;
 
   const inputs = new Map();
@@ -21793,7 +21907,11 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     try {
       const saved = isNew
         ? await api.post(\`/bus/\${entity.routeName}\`, payload)
-        : await api.put(\`/bus/\${entity.routeName}/\${id}\`, payload);
+        : await api.put(
+            \`/bus/\${entity.routeName}/\${id}\`,
+            payload,
+            openedVersion == null ? {} : { "If-Match": \`"\${openedVersion}"\` }
+          );
       toast(isNew ? \`\${entity.singularName} created\` : "Saved", "success");
       /* This row may be what some other entity's lookup is missing, and its
          label may be what an existing option now reads as. Neither is worth a
@@ -21802,7 +21920,22 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
       await onSaved(saved);
       if (isNew) navigate(\`/entity/\${entity.routeName}/\${saved.id}\`, { replace: true });
     } catch (error) {
-      showProblem(violationBox, error);
+      if (error.status === 409 && error.details?.code === "VERSION_CONFLICT") {
+        await showConflict(violationBox, {
+          entity,
+          id,
+          fields: editable,
+          base: record,
+          mine: payload,
+          onReload: () => recordPanel(root, { entity, id, onClose, onSaved, navigate }),
+          onOverwrite: (theirs) => {
+            openedVersion = theirs.version;
+            submit();
+          },
+        });
+      } else {
+        showProblem(violationBox, error);
+      }
     } finally {
       setActions({ ...currentActions, busy: false });
     }
@@ -22377,6 +22510,88 @@ function normalizeForInput(value, type) {
   if (type === "date") return String(value).slice(0, 10);
   if (type === "datetime") return String(value).slice(0, 16);
   return String(value);
+}
+
+/** Same value across the shapes a field takes: a NUMERIC string and a number. */
+function sameValue(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null || a === "" || b === "") return (a ?? "") === (b ?? "");
+  if (Number.isFinite(Number(a)) && Number.isFinite(Number(b)) && Number(a) === Number(b)) return true;
+  return String(a) === String(b);
+}
+
+/**
+ * Someone else saved this record after the form opened it.
+ *
+ * Inline, not a modal: this application runs in an iframe on the page that
+ * generated it, where \`confirm()\` is not guaranteed to appear — the same reason
+ * the delete and purge controls are two-step. Lists the fields the other save
+ * changed (marking the ones this user changed too), then offers the two ways
+ * out: reload their version, or overwrite it with this one. Overwrite is still
+ * checked, against the version just read, so a third save is caught again.
+ */
+async function showConflict(box, { entity, id, fields, base, mine, onReload, onOverwrite }) {
+  let theirs;
+  try {
+    theirs = await api.get(\`/bus/\${entity.routeName}/\${id}\`);
+  } catch (error) {
+    showProblem(box, error);
+    return;
+  }
+  const rows = fields
+    .map((field) => {
+      const column = field.column_name;
+      if (sameValue(base[column], theirs[column])) return null;
+      const mineValue = column in mine ? mine[column] : base[column];
+      const clash = !sameValue(base[column], mineValue) && !sameValue(mineValue, theirs[column]);
+      return { field, theirs: theirs[column], mine: mineValue, clash };
+    })
+    .filter(Boolean)
+    .sort((a, b) => Number(b.clash) - Number(a.clash));
+  const shown = (value) => (value == null || value === "" ? "—" : displayValue(value));
+  const clashes = rows.filter((row) => row.clash).length;
+
+  mount(
+    box,
+    el("h4.violations__title", \`This \${entity.singularName.toLowerCase()} was changed while you were editing\`),
+    el(
+      "p",
+      \`Someone else saved it first (it is now at version \${theirs.version ?? "?"}). \` +
+        (rows.length === 0
+          ? "None of the fields on this form differ."
+          : clashes
+            ? \`\${clashes} of the fields below were changed by both of you.\`
+            : "They changed the fields below; you did not.")
+    ),
+    rows.length
+      ? el(
+          "table.conflict",
+          el("thead", el("tr", el("th", "Field"), el("th", "Their saved value"), el("th", "Your value"))),
+          el(
+            "tbody",
+            rows.map((row) =>
+              el(
+                row.clash ? "tr.conflict__clash" : "tr",
+                el("td", row.field.name || row.field.column_name, row.clash ? el("small", " · both changed") : null),
+                el("td", shown(row.theirs)),
+                el("td", shown(row.mine))
+              )
+            )
+          )
+        )
+      : null,
+    el(
+      "div.conflict__actions",
+      el("button.btn", { type: "button", "data-action": "conflict-reload", onclick: () => onReload() }, "Reload their version"),
+      el(
+        "button.btn.btn--primary",
+        { type: "button", "data-action": "conflict-overwrite", onclick: () => onOverwrite(theirs) },
+        "Overwrite with mine"
+      )
+    )
+  );
+  box.hidden = false;
+  box.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function showProblem(box, error) {
@@ -25686,7 +25901,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 599304;
+var RUNTIME_BYTES = 608738;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -26603,14 +26818,15 @@ ORDER BY 1`
   if (wf && statusCol) {
     const states = declaredStates(wf);
     if (states.length > 0) {
-      const valuesList = states.map((s, i) => `(${lit(s)}, ${i})`).join(", ");
+      const valuesList = states.map((s, i) => i === 0 ? `SELECT ${lit(s)} AS state, ${i} AS position` : `SELECT ${lit(s)}, ${i}`).join(`
+  UNION ALL `);
       const key = `${slug}__lifecycle`;
       const q = addQuery(ctx, {
         key,
         name: `${titleOf(e)} lifecycle — ${wf.name}`,
         description: `Where ${pluralTitle(e).toLowerCase()} sit in the ${wf.name} state machine. Every state the model declares appears, including the ones nothing has reached.`,
-        sql: `WITH declared(state, position) AS (
-  VALUES ${valuesList}
+        sql: `WITH declared AS (
+  ${valuesList}
 )
 SELECT d.state, COALESCE(c.records, 0) AS records
 FROM declared d

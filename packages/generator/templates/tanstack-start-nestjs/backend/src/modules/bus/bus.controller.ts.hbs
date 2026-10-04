@@ -8,6 +8,7 @@
  */
 
 import {
+  BadRequestException,
   ConflictException,
   Controller,
   Get,
@@ -30,6 +31,25 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@ne
 import { BusService } from './bus.service';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { EntityAccessGuard } from '../auth/guards/entity-access.guard';
+
+/**
+ * The record version an `If-Match` header names, for optimistic locking.
+ *
+ * The form sends the version it loaded the record at; the update is refused
+ * with 409 if anyone has saved the record since. Accepts the shapes clients
+ * actually send — `"v3"`, `"3"`, `3`, and a weak `W/"3"` — and refuses anything
+ * else with 400. It used to `parseInt` whatever arrived, so a malformed header
+ * became `NaN`, which never equals a version, and every save with it was
+ * reported as somebody else's edit.
+ */
+function parseIfMatch(ifMatch?: string): number | undefined {
+  if (ifMatch === undefined || ifMatch.trim() === '' || ifMatch.trim() === '*') return undefined;
+  const match = /^(?:W\/)?"?v?(\d+)"?$/i.exec(ifMatch.trim());
+  if (!match) {
+    throw new BadRequestException(`If-Match must name a record version, such as "3"; got ${ifMatch}`);
+  }
+  return Number(match[1]);
+}
 
 @ApiTags('bus')
 @ApiBearerAuth()
@@ -275,10 +295,7 @@ export class BusController {
     @Req() req?: any,
   ) {
     const methodName = 'update';
-    // Extract version from If-Match header
-    const version = ifMatch
-      ? parseInt(ifMatch.replace(/"/g, '').replace('v', ''), 10)
-      : undefined;
+    const version = parseIfMatch(ifMatch);
 
     this.logger.log(`[${methodName}] Request - entity: ${entity}, id: ${id}, expectedVersion: ${version}`);
     this.logger.debug(`[${methodName}] Request body: ${JSON.stringify(data)}`);
@@ -328,9 +345,7 @@ export class BusController {
     @Req() req?: any,
   ) {
     const methodName = 'patch';
-    const version = ifMatch
-      ? parseInt(ifMatch.replace(/"/g, '').replace('v', ''), 10)
-      : undefined;
+    const version = parseIfMatch(ifMatch);
 
     this.logger.log(`[${methodName}] Request - entity: ${entity}, id: ${id}, expectedVersion: ${version}`);
     this.logger.debug(`[${methodName}] Request body: ${JSON.stringify(data)}`);

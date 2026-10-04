@@ -29,14 +29,23 @@ const STACK = stackIndex >= 0 ? process.argv[stackIndex + 1] : "standalone";
 const IS_NEST = STACK === "nestjs";
 
 let cookie = "";
+/** The standalone runtime's session is a bearer token, not a cookie. */
+let bearer = "";
 let failures = 0;
 
-async function call(method: string, path: string, body?: unknown) {
+async function call(
+  method: string,
+  path: string,
+  body?: unknown,
+  headers: Record<string, string> = {}
+) {
   const response = await fetch(`${BASE}${path}`, {
     method,
     headers: {
       ...(body === undefined ? {} : { "Content-Type": "application/json" }),
       ...(cookie ? { cookie } : {}),
+      ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
+      ...headers,
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
@@ -104,6 +113,7 @@ await check("the seeded administrator can sign in", async () => {
   expect(status === 200, `status ${status}: ${JSON.stringify(body).slice(0, 200)}`);
   const user = body.user as Record<string, unknown>;
   expect(!!user, "no user in the sign-in response");
+  if (typeof body.token === "string") bearer = body.token;
   // Kept for the reference columns below: `owner_id` and friends are validated
   // as UUIDs, and inventing one would fail a foreign key on a stricter model.
   adminId = String(user.sysUserId ?? user.id ?? "");
@@ -293,6 +303,98 @@ if (IS_NEST) {
     );
   });
 }
+
+/*
+ * Optimistic locking. The record form sends the version it opened the record at
+ * as If-Match; a save against a version someone has moved past is a 409 the
+ * form offers "reload or overwrite" on. Both stacks answer the same way, which
+ * is what lets one description of the behaviour hold for both.
+ */
+const versionOf = async () => {
+  const { body } = await call("GET", `/bus/account/${accountId}`);
+  return Number(
+    (body as { version?: number; data?: { version?: number } }).version ?? body.data?.version
+  );
+};
+const conflictCode = (body: unknown) => (body as { details?: { code?: string } }).details?.code;
+
+await check("a save against a version someone moved past is a 409", async () => {
+  const opened = await versionOf();
+  const first = await call(
+    "PATCH",
+    `/bus/account/${accountId}`,
+    { name: "CI Account first" },
+    { "If-Match": `"${opened}"` }
+  );
+  expect(
+    first.status === 200,
+    `the first save failed: ${first.status} ${JSON.stringify(first.body).slice(0, 200)}`
+  );
+  const stale = await call(
+    "PATCH",
+    `/bus/account/${accountId}`,
+    { name: "CI Account stale" },
+    { "If-Match": `"${opened}"` }
+  );
+  expect(stale.status === 409, `expected 409, got ${stale.status}`);
+  expect(
+    conflictCode(stale.body) === "VERSION_CONFLICT",
+    `no VERSION_CONFLICT: ${JSON.stringify(stale.body).slice(0, 200)}`
+  );
+});
+
+await check("two parallel saves from one version produce exactly one winner", async () => {
+  const opened = await versionOf();
+  const results = await Promise.all(
+    ["CI Account a", "CI Account b"].map((name) =>
+      call("PATCH", `/bus/account/${accountId}`, { name }, { "If-Match": `"${opened}"` })
+    )
+  );
+  const statuses = results.map((r) => r.status).sort();
+  expect(
+    JSON.stringify(statuses) === "[200,409]",
+    `expected [200,409], got ${JSON.stringify(statuses)}`
+  );
+  expect((await versionOf()) === opened + 1, "the version moved more than once");
+});
+
+await check(
+  "overwrite — saving against the version the conflict reported — goes through",
+  async () => {
+    const opened = await versionOf();
+    await call(
+      "PATCH",
+      `/bus/account/${accountId}`,
+      { name: "CI Account theirs" },
+      { "If-Match": `"${opened}"` }
+    );
+    const stale = await call(
+      "PATCH",
+      `/bus/account/${accountId}`,
+      { name: "CI Account mine" },
+      { "If-Match": `"${opened}"` }
+    );
+    const reported = (stale.body as { details?: { currentVersion?: number } }).details
+      ?.currentVersion;
+    const overwrite = await call(
+      "PATCH",
+      `/bus/account/${accountId}`,
+      { name: "CI Account mine" },
+      { "If-Match": `"${reported}"` }
+    );
+    expect(overwrite.status === 200, `overwrite failed: ${overwrite.status}`);
+  }
+);
+
+await check("a malformed If-Match is a 400", async () => {
+  const { status } = await call(
+    "PATCH",
+    `/bus/account/${accountId}`,
+    { name: "CI Account" },
+    { "If-Match": "nonsense" }
+  );
+  expect(status === 400, `expected 400, got ${status}`);
+});
 
 await check("the record can be deleted", async () => {
   const { status } = await call("DELETE", `/bus/account/${accountId}`);

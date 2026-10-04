@@ -547,6 +547,12 @@ a { color: var(--primary); }
 }
 .violations__title { margin: 0 0 5px; font-size: 13.5px; color: var(--destructive); font-family: var(--sans); font-weight: 650; }
 .violations__list { margin: 0; padding-left: 18px; font-size: 13px; }
+.conflict { width: 100%; margin: 8px 0; border-collapse: collapse; font-size: 13px; }
+.conflict th, .conflict td { padding: 5px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.conflict th { font-weight: 600; }
+.conflict__clash td { background: color-mix(in srgb, var(--destructive) 8%, transparent); }
+.conflict small { color: var(--destructive); }
+.conflict__actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
 
 /* ------------------------------------------------------------- buttons --- */
 

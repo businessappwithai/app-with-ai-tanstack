@@ -269,6 +269,35 @@ async function rulesFor(db, entity, operation) {
   );
 }
 
+/**
+ * The record version an `If-Match` header names: `"3"`, `"v3"`, `3` or a weak
+ * `W/"3"`. Anything else is refused with 400 rather than read as `NaN`, which
+ * would never equal a version and turn every save into a false conflict.
+ */
+function parseIfMatch(header) {
+  if (header == null || header.trim() === "" || header.trim() === "*") return undefined;
+  const match = /^(?:W\/)?"?v?(\d+)"?$/i.exec(header.trim());
+  if (!match) throw badRequest(`If-Match must name a record version, such as "3"; got ${header}`);
+  return Number(match[1]);
+}
+
+/**
+ * The 409 a stale save gets — the same body the NestJS stack sends, so one
+ * form can key its reload-or-overwrite dialog on `details.code`. The record is
+ * not included: the form re-reads it through GET, which applies field access.
+ */
+function versionConflict(entity, id, expectedVersion, currentVersion) {
+  return json(
+    {
+      statusCode: 409,
+      error: "Conflict",
+      message: "This record was changed by someone else after you opened it.",
+      details: { code: "VERSION_CONFLICT", entity: entity.name, id, expectedVersion, currentVersion },
+    },
+    { status: 409 }
+  );
+}
+
 export function busRoutes(model) {
   const router = new Router();
 
@@ -442,6 +471,14 @@ export function busRoutes(model) {
     );
     if (!current) throw notFound(`No ${entity.name} with id ${params.id}`);
 
+    // Optimistic locking, as the NestJS stack does it: the form sends the
+    // version it opened the record at, and a save against a version someone
+    // has since moved past is refused before anything else runs.
+    const expectedVersion = parseIfMatch(request.headers.get("if-match"));
+    if (expectedVersion !== undefined && Number(current.version ?? 0) !== expectedVersion) {
+      return versionConflict(entity, params.id, expectedVersion, Number(current.version ?? 0));
+    }
+
     const body = await readJson(request);
     let values = sanitize(entity, body);
 
@@ -479,7 +516,18 @@ export function busRoutes(model) {
     values.updated_at = new Date().toISOString();
     values.version = (current.version ?? 1) + 1;
 
-    const updated = await db.update(entity.tableName, values, { id: params.id });
+    // Conditioned on the version read above. Requests share one PGlite and
+    // interleave at every await, so two saves can both pass the check before
+    // either writes; this makes the second one match no row instead of
+    // replacing the first.
+    const updated = await db.update(entity.tableName, values, {
+      id: params.id,
+      version: current.version ?? null,
+    });
+    if (!updated) {
+      const now = await db.one(`SELECT version FROM ${ident(entity.tableName)} WHERE id = $1`, [params.id]);
+      return versionConflict(entity, params.id, expectedVersion ?? Number(current.version ?? 0), Number(now?.version ?? 0));
+    }
     const after = await runHooks(model.hooks, "afterUpdate", entity.name, updated, { previous: current });
 
     await recordWorkflowRun(db, model, entity, current, updated, user);

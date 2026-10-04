@@ -13,6 +13,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type FieldMetadata, useEntityMetadata } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
+import {
+  type AnyRecord as ConflictRecord,
+  type ConflictField,
+  changedByOthers,
+  ifMatchHeader,
+  isVersionConflict,
+} from "@/lib/version-conflict";
 import { ADRecordNav } from "./ad-record-nav";
 import { ADToolbar } from "./ad-toolbar";
 import {
@@ -23,6 +30,7 @@ import {
   type ParentContext,
 } from "./ad-window-configs";
 import { DocStatusBadge } from "./doc-status-badge";
+import { VersionConflictDialog } from "./version-conflict-dialog";
 import { helpTableNameFromEndpoint, WindowHelpButton } from "./window-help-button";
 import { format } from "date-fns";
 
@@ -546,6 +554,19 @@ export function ADDetailShell({
   const [isEditing, setIsEditing] = useState(initialMode === "edit");
   const [saveErrors, setSaveErrors] = useState<string[]>([]);
   const [isPrintOpen, setIsPrintOpen] = useState(false);
+  // Optimistic locking. `editBase` is the record as it stood when editing
+  // began. The form is drawn from it while editing — DynamicForm rewrites every
+  // field whenever its initialData changes, so drawing from the live list let a
+  // background refetch replace what the user was typing — and its version is
+  // what a save sends as If-Match, so a save made after someone else's is a
+  // 409 with a choice instead of a silent overwrite.
+  const [editBase, setEditBase] = useState<AnyRecord | null>(null);
+  const [conflict, setConflict] = useState<{
+    mine: AnyRecord;
+    theirs: AnyRecord;
+    fields: ConflictField[];
+  } | null>(null);
+  const [formNonce, setFormNonce] = useState(0);
 
   // Fetch entity metadata to resolve summary fields — skip for sys-level windows that supply static fields
   const hasDynamicFields = !level.formFields || level.formFields.length === 0;
@@ -645,35 +666,72 @@ export function ADDetailShell({
     const idx = records.findIndex((r) => String(r[level.idField]) === String(recordId));
     if (idx !== -1) {
       setCurrentIndex(idx);
-      setFormData(records[idx]);
-      setHasChanges(false);
+      if (!isEditing) {
+        setFormData(records[idx]);
+        setHasChanges(false);
+      }
     }
-  }, [records, recordId, level.idField]);
+  }, [records, recordId, level.idField, isEditing]);
 
   const currentRecord = records.find((r) => String(r[level.idField]) === String(recordId)) ?? null;
   const globalIndex = (page - 1) * 100 + currentIndex;
   const canGoPrev = globalIndex > 0;
   const canGoNext = globalIndex < totalCount - 1;
 
-  // Reset form when record changes
+  // Reset form when record changes — but not mid-edit (see `editBase`).
   useEffect(() => {
-    if (currentRecord) {
+    if (currentRecord && !isEditing) {
       setFormData(currentRecord);
       setHasChanges(false);
     }
-  }, [currentRecord]);
+  }, [currentRecord, isEditing]);
+
+  // A window opened straight into edit mode takes its snapshot once the record
+  // arrives.
+  useEffect(() => {
+    if (isEditing && !editBase && currentRecord) setEditBase(currentRecord);
+  }, [isEditing, editBase, currentRecord]);
 
   const saveMutation = useMutation({
-    mutationFn: (data: AnyRecord) => apiClient.patch(`${level.endpoint}/${recordId}`, data),
-    onSuccess: () => {
+    mutationFn: ({ data, version }: { data: AnyRecord; version?: unknown }) =>
+      apiClient.patch<AnyRecord>(`${level.endpoint}/${recordId}`, data, {
+        headers: ifMatchHeader(version ?? editBase?.version ?? currentRecord?.version),
+      }),
+    onSuccess: (saved) => {
       toast.success("Saved");
       setHasChanges(false);
       setSaveErrors([]);
-      if (initialMode === "view") setIsEditing(false);
+      setConflict(null);
+      // Still editing (a window opened in edit mode): continue from the record
+      // just saved, whose version is the one the next save must name.
+      if (initialMode === "view") {
+        setIsEditing(false);
+        setEditBase(null);
+      } else {
+        setEditBase(saved && typeof saved === "object" ? (saved as AnyRecord) : null);
+      }
       queryClient.invalidateQueries({ queryKey: ["ad-detail-list", level.endpoint] });
       refetch();
     },
-    onError: (err: any) => {
+    onError: async (err: any, variables) => {
+      if (isVersionConflict(err)) {
+        // Read the record as it stands now, through the GET that applies this
+        // user's field access, and show what the other save changed.
+        try {
+          const theirs = await apiClient.get<AnyRecord>(`${level.endpoint}/${recordId}`);
+          const base = editBase ?? currentRecord ?? {};
+          const visible = new Set((level.formFields ?? []).map((f) => f.column_name));
+          const fields = changedByOthers(
+            base as ConflictRecord,
+            variables.data as ConflictRecord,
+            theirs as ConflictRecord
+          ).filter((f) => visible.size === 0 || visible.has(f.field));
+          setConflict({ mine: variables.data, theirs, fields });
+        } catch {
+          toast.error("This record was changed by someone else, and could not be reloaded.");
+        }
+        return;
+      }
       const specific = Array.isArray(err?.errors) ? (err.errors as string[]) : null;
       const fallback = Array.isArray(err?.message)
         ? err.message.join(", ")
@@ -682,6 +740,31 @@ export function ADDetailShell({
       toast.error(specific?.[0] ?? fallback);
     },
   });
+
+  const handleConflictReload = () => {
+    if (!conflict) return;
+    setFormData(conflict.theirs);
+    setEditBase(initialMode === "view" ? null : conflict.theirs);
+    if (initialMode === "view") setIsEditing(false);
+    setHasChanges(false);
+    setSaveErrors([]);
+    setConflict(null);
+    setFormNonce((n) => n + 1);
+    queryClient.invalidateQueries({ queryKey: ["ad-detail-list", level.endpoint] });
+    refetch();
+    toast.info("Showing the record as it was last saved.");
+  };
+
+  const handleConflictOverwrite = () => {
+    if (!conflict) return;
+    // Against the version just read, not the one editing began at: a third save
+    // in the meantime is refused again rather than overwritten as well.
+    setEditBase(conflict.theirs);
+    saveMutation.mutate({ data: conflict.mine, version: conflict.theirs.version });
+  };
+
+  const labelOf = (field: string) =>
+    (level.formFields ?? []).find((f) => f.column_name === field)?.name ?? field.replace(/_/g, " ");
 
   const deleteMutation = useMutation({
     mutationFn: () => apiClient.delete(`${level.endpoint}/${recordId}`),
@@ -747,7 +830,7 @@ export function ADDetailShell({
   return (
     <div className="flex flex-col h-full">
       <ADToolbar
-        onSave={() => saveMutation.mutate(formData)}
+        onSave={() => saveMutation.mutate({ data: formData })}
         onDelete={() => deleteMutation.mutate()}
         onUndo={() => {
           if (currentRecord) {
@@ -756,9 +839,13 @@ export function ADDetailShell({
           }
         }}
         onRefresh={() => refetch()}
-        onEdit={() => setIsEditing(true)}
+        onEdit={() => {
+          setEditBase(currentRecord);
+          setIsEditing(true);
+        }}
         onCancelEdit={() => {
           setIsEditing(false);
+          setEditBase(null);
           if (currentRecord) {
             setFormData(currentRecord);
             setHasChanges(false);
@@ -897,14 +984,15 @@ export function ADDetailShell({
             {/* Detail form */}
             <div className="p-6 border-b border-border">
               <DynamicForm
+                key={`${recordId}:${formNonce}`}
                 tableName={level.id}
                 idField={level.idField}
                 fields={level.formFields}
-                initialData={currentRecord}
+                initialData={isEditing && editBase ? editBase : currentRecord}
                 onSubmit={(fd) => {
                   setFormData(fd);
                   setHasChanges(false);
-                  saveMutation.mutate(fd);
+                  saveMutation.mutate({ data: fd });
                 }}
                 onChange={(fd) => {
                   setFormData(fd);
@@ -915,6 +1003,17 @@ export function ADDetailShell({
                 readOnly={!isEditing}
                 isSaving={saveMutation.isPending}
                 parentContext={immediateParentData}
+              />
+              <VersionConflictDialog
+                open={conflict !== null}
+                entityLabel={level.label ?? "record"}
+                fields={conflict?.fields ?? []}
+                labelOf={labelOf}
+                theirVersion={Number(conflict?.theirs.version) || undefined}
+                isSaving={saveMutation.isPending}
+                onReload={handleConflictReload}
+                onOverwrite={handleConflictOverwrite}
+                onCancel={() => setConflict(null)}
               />
               {saveErrors.length > 0 && (
                 <div className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-3">
