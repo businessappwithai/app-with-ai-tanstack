@@ -282,6 +282,14 @@ function parseIfMatch(header) {
 }
 
 /**
+ * A record's version as an ETag — what a client sends back as `If-Match` to
+ * save against the version it read.
+ */
+function etagHeader(row) {
+  return row?.version != null ? { ETag: `"${row.version}"` } : {};
+}
+
+/**
  * The 409 a stale save gets — the same body the NestJS stack sends, so one
  * form can key its reload-or-overwrite dialog on `details.code`. The record is
  * not included: the form re-reads it through GET, which applies field access.
@@ -412,7 +420,7 @@ export function busRoutes(model) {
       [params.id]
     );
     if (!row) throw notFound(`No ${entity.name} with id ${params.id}`);
-    return json(row);
+    return json(row, { headers: etagHeader(row) });
   });
 
   router.post("/:entity", async (request, { db, params, user }) => {
@@ -540,7 +548,10 @@ export function busRoutes(model) {
       after: updated,
     });
 
-    return json({ ...updated, _hooks: [...before.log, ...after.log], _notifications: outcome.notifications });
+    return json(
+      { ...updated, _hooks: [...before.log, ...after.log], _notifications: outcome.notifications },
+      { headers: etagHeader(updated) }
+    );
   };
 
   router.put("/:entity/:id", write);

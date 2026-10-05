@@ -26,6 +26,7 @@ import {
   Logger,
   UseGuards,
   Req,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { BusService } from './bus.service';
@@ -49,6 +50,14 @@ function parseIfMatch(ifMatch?: string): number | undefined {
     throw new BadRequestException(`If-Match must name a record version, such as "3"; got ${ifMatch}`);
   }
   return Number(match[1]);
+}
+
+/**
+ * A record answered with its version as an ETag — the value a client sends
+ * back as `If-Match` to save against the version it read.
+ */
+function setEtag(reply: any, record: any): void {
+  if (reply && record && record.version != null) reply.header('ETag', `"${record.version}"`);
 }
 
 @ApiTags('bus')
@@ -241,11 +250,13 @@ export class BusController {
   async findOne(
     @Param('entity') entity: string,
     @Param('id', ParseUUIDPipe) id: string,
+    @Res({ passthrough: true }) reply?: any,
   ) {
     const methodName = 'findOne';
     this.logger.debug(`[${methodName}] Request - entity: ${entity}, id: ${id}`);
 
     const result = await this.busService.findById(entity, id);
+    setEtag(reply, result);
 
     this.logger.log(`[${methodName}] Success - entity: ${entity}, id: ${id}`);
     return result;
@@ -293,6 +304,7 @@ export class BusController {
     @Body() data: Record<string, any>,
     @Headers('if-match') ifMatch?: string,
     @Req() req?: any,
+    @Res({ passthrough: true }) reply?: any,
   ) {
     const methodName = 'update';
     const version = parseIfMatch(ifMatch);
@@ -308,6 +320,7 @@ export class BusController {
     // Validate data against dictionary metadata
     await this.busService.validateData(entity, data, 'update');
     const result = await this.busService.update(entity, id, data, version);
+    setEtag(reply, result);
 
     this.logger.log(`[${methodName}] Success - entity: ${entity}, id: ${id}, new version: ${result.version}`);
     return result;
@@ -343,6 +356,7 @@ export class BusController {
     @Body() data: Record<string, any>,
     @Headers('if-match') ifMatch?: string,
     @Req() req?: any,
+    @Res({ passthrough: true }) reply?: any,
   ) {
     const methodName = 'patch';
     const version = parseIfMatch(ifMatch);
@@ -358,6 +372,7 @@ export class BusController {
     // Validate partial data against dictionary metadata
     await this.busService.validateData(entity, data, 'patch');
     const result = await this.busService.update(entity, id, data, version);
+    setEtag(reply, result);
 
     this.logger.log(`[${methodName}] Success - entity: ${entity}, id: ${id}, new version: ${result.version}`);
     return result;
