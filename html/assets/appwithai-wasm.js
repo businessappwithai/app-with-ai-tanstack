@@ -475,6 +475,24 @@ var appwithai_language_default = {
         EML103: "A column the generator manages, declared in the model - the declaration is ignored."
       }
     },
+    optimisticLocking: {
+      description: "Every generated stack refuses a save made against a record version someone else has already moved past, instead of letting the second save silently overwrite the first. It rides on the managed `version` column, so a model declares nothing to get it.",
+      contract: {
+        version: "Starts at 1 on insert and is raised by one on every update, by the application - a `version` supplied in a request body is ignored.",
+        read: 'GET of one record answers with `ETag: "<version>"`; the record body carries `version` too.',
+        write: 'PUT and PATCH take `If-Match: "<version>"` - the version the caller read. `"3"`, `3`, `W/"3"` and `v3` are accepted; a value naming no version is a 400. With no header, or `*`, the save is unconditional.',
+        conflict: 'A save whose If-Match is older than the stored version is refused with 409 and `details: { code: "VERSION_CONFLICT", entity, id, expectedVersion, currentVersion }`. The record itself is not in the body: the client re-reads it through GET, which applies field access.',
+        atomicity: "The comparison and the write are one step - the NestJS stack locks the row (SELECT ... FOR UPDATE) and updates WHERE version = the version it read, the browser stack updates WHERE version = ..., and the node-rest runtime checks and writes synchronously. Two saves of one version therefore produce exactly one 200 and one 409, never two 200s."
+      },
+      form: "The record form sends the version it opened. On VERSION_CONFLICT it lists the fields the other save changed - theirs beside yours, marking fields both changed - and offers Reload their version (discard my edits), Overwrite with mine (save again against the version just read, itself checked) or Keep editing. The NestJS front end draws it as a dialog; the browser build as an inline panel, because it runs inside an iframe where a modal is not guaranteed.",
+      stacks: {
+        "tanstack-nestjs": "bus.controller (If-Match, ETag) and bus.service (row lock + versioned UPDATE); frontend lib/version-conflict.ts and components/admin/version-conflict-dialog.tsx; generated test suite 22-optimistic-locking.",
+        browser: "server/modules/bus.routes.js and ui/views/entity-form.js in the standalone runtime; the same 409 body as the NestJS stack.",
+        "node-rest": "services.js and server.js in the zero-dependency runtime: version, ETag, If-Match and the same 409 body.",
+        "enterprise-reporting": "The generated update server function takes the version the form read and refuses a stale one with VERSION_CONFLICT."
+      },
+      manual: "The generated manual carries a section, When two people change the same record, naming the three choices."
+    },
     alsoDerived: [
       "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
       "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
@@ -15352,6 +15370,14 @@ function parseIfMatch(header) {
 }
 
 /**
+ * A record's version as an ETag — what a client sends back as \`If-Match\` to
+ * save against the version it read.
+ */
+function etagHeader(row) {
+  return row?.version != null ? { ETag: \`"\${row.version}"\` } : {};
+}
+
+/**
  * The 409 a stale save gets — the same body the NestJS stack sends, so one
  * form can key its reload-or-overwrite dialog on \`details.code\`. The record is
  * not included: the form re-reads it through GET, which applies field access.
@@ -15482,7 +15508,7 @@ export function busRoutes(model) {
       [params.id]
     );
     if (!row) throw notFound(\`No \${entity.name} with id \${params.id}\`);
-    return json(row);
+    return json(row, { headers: etagHeader(row) });
   });
 
   router.post("/:entity", async (request, { db, params, user }) => {
@@ -15610,7 +15636,10 @@ export function busRoutes(model) {
       after: updated,
     });
 
-    return json({ ...updated, _hooks: [...before.log, ...after.log], _notifications: outcome.notifications });
+    return json(
+      { ...updated, _hooks: [...before.log, ...after.log], _notifications: outcome.notifications },
+      { headers: etagHeader(updated) }
+    );
   };
 
   router.put("/:entity/:id", write);
@@ -25901,7 +25930,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 608738;
+var RUNTIME_BYTES = 609041;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -27793,6 +27822,7 @@ ${entities.map((entity2) => `              <li><a href="#entity-${slug(entity2.n
 `)}
             </ul>
           </li>
+          <li><a href="#concurrent-edits">When two people change the same record</a></li>
 ${model.rules.length ? `          <li><a href="#rules">The decisions it makes</a></li>
 ` : ""}${model.sagas.length ? `          <li><a href="#processes">The processes it runs</a></li>
 ` : ""}          <li><a href="#how-it-was-built">How this application was built</a></li>
@@ -27984,6 +28014,22 @@ ${options.adminPassword ? `    <p>Every seeded account uses the password <code>$
     <p>One section per record type. For each: what it is, every field it has and what that field is for, the records it connects to, the states it moves through, and who may use it.</p>
 
 ${entitySections}
+  </section>
+
+  <section id="concurrent-edits">
+    <h2>When two people change the same record</h2>
+    <p>Every record carries a version number, and every save raises it by one. When you open a record to edit it, the form remembers the version you opened. Saving sends that version back, and the save goes through only if nobody has saved the record since.</p>
+    <p>If somebody has, your save is not applied &mdash; neither of you loses a change without seeing it. The ${options.stack === "browser" ? "form shows a panel" : "form opens a dialog"} listing the fields the other person changed, with their value and yours side by side, and marks the fields you both changed. It offers three choices:</p>
+    <table>
+      <thead><tr><th>Choice</th><th>What happens</th></tr></thead>
+      <tbody>
+        <tr><td>Reload their version</td><td>Your unsaved edits are discarded and the form shows the record as it now stands.</td></tr>
+        <tr><td>Overwrite with mine</td><td>Your values are saved over theirs. It is checked again against the version you have just been shown, so a third person saving in the meantime is caught the same way.</td></tr>
+        <tr><td>Keep editing</td><td>Nothing is saved yet; the form stays open with your edits so you can change them first.</td></tr>
+      </tbody>
+    </table>
+    <p>Two saves of the same version arriving at the same moment cannot both win: exactly one is applied and the other is offered the same three choices.</p>
+    <p class="back"><a href="#top">Back to contents</a></p>
   </section>
 
 ${rulesSection}

@@ -318,6 +318,30 @@ guard finds no edge out of a state the model never declared, and every rule
 keyed on a real status value never fired. A generated application could not
 demonstrate the workflows it was generated from.
 
+### Optimistic locking — one contract, every target
+
+Every generated table carries the managed `version` column, and every target
+the generator or the `eml` CLI writes uses it the same way: a read answers with
+`ETag: "<version>"`, a `PUT`/`PATCH` with `If-Match` is refused with **409**
+`details.code: "VERSION_CONFLICT"` when someone saved first, a malformed header
+is a 400, and no header is an unconditional save. The record form answers the
+409 with **Reload their version / Overwrite with mine / Keep editing**.
+
+| Target | Where it lives |
+|---|---|
+| NestJS (and the wasm overlay, and the zip) | `bus.controller.ts.hbs` (`parseIfMatch`, `setEtag`), `bus.service.ts.hbs` (row lock + `WHERE version =`), `frontend/src/lib/version-conflict.ts`, `components/admin/version-conflict-dialog.tsx`, `ad-detail-shell.tsx` |
+| Browser (`--standalone`) | `templates/wasm/server/modules/bus.routes.js`, `ui/views/entity-form.js` (an inline panel — no modal in an iframe) |
+| `eml --stack node-rest` | `language/cli/runtime/src/{services,server}.js` |
+
+Two things to keep true: **the comparison and the write are one step** (two
+saves of one version must give one 200 and one 409 — the old compare-then-update
+gave two 200s), and **the 409 carries no record** (the form re-reads through
+`GET`, which applies field access). `generatorContract`'s
+`applicationDictionary.optimisticLocking` in `appwithai-language.json` and §5.4.1
+of the system-edition `llmtext` documents describe it; generated suite
+`22-optimistic-locking` and `scripts/ci/wasm-smoke.ts` hold the API to it, and
+`manual/index.ts` tells the person using the application.
+
 ### State machines
 
 `%%workflow … kind: state` compiles to rows in `sys_workflow_transitions`, seeded by `05b_workflow_transitions.ts`. `entity-access.guard.ts` reads them and refuses a status write with no matching edge — **for every caller, master role included**: an edge the diagram never drew is not a permission an administrator lacks, it is a move that does not exist. Who may cross an edge is the separate question, answered from `sys_transition_access` — compiled from `%%rbac` by `packages/generator/src/rbac/index.ts`, **not** from `%%guard`, which now means only an automation condition — and *that* one the master role does bypass. Keep the two apart; merging them is how topology enforcement came to run only on edges that happened to carry a role rule.

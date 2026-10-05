@@ -526,6 +526,7 @@ ${entities
   .join("\n")}
             </ul>
           </li>
+          <li><a href="#concurrent-edits">When two people change the same record</a></li>
 ${model.rules.length ? '          <li><a href="#rules">The decisions it makes</a></li>\n' : ""}${
   model.sagas.length ? '          <li><a href="#processes">The processes it runs</a></li>\n' : ""
 }          <li><a href="#how-it-was-built">How this application was built</a></li>
@@ -765,6 +766,24 @@ ${
     <p>One section per record type. For each: what it is, every field it has and what that field is for, the records it connects to, the states it moves through, and who may use it.</p>
 
 ${entitySections}
+  </section>
+
+  <section id="concurrent-edits">
+    <h2>When two people change the same record</h2>
+    <p>Every record carries a version number, and every save raises it by one. When you open a record to edit it, the form remembers the version you opened. Saving sends that version back, and the save goes through only if nobody has saved the record since.</p>
+    <p>If somebody has, your save is not applied &mdash; neither of you loses a change without seeing it. The ${
+      options.stack === "browser" ? "form shows a panel" : "form opens a dialog"
+    } listing the fields the other person changed, with their value and yours side by side, and marks the fields you both changed. It offers three choices:</p>
+    <table>
+      <thead><tr><th>Choice</th><th>What happens</th></tr></thead>
+      <tbody>
+        <tr><td>Reload their version</td><td>Your unsaved edits are discarded and the form shows the record as it now stands.</td></tr>
+        <tr><td>Overwrite with mine</td><td>Your values are saved over theirs. It is checked again against the version you have just been shown, so a third person saving in the meantime is caught the same way.</td></tr>
+        <tr><td>Keep editing</td><td>Nothing is saved yet; the form stays open with your edits so you can change them first.</td></tr>
+      </tbody>
+    </table>
+    <p>Two saves of the same version arriving at the same moment cannot both win: exactly one is applied and the other is offered the same three choices.</p>
+    <p class="back"><a href="#top">Back to contents</a></p>
   </section>
 
 ${rulesSection}

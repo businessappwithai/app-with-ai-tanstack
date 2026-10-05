@@ -1486,7 +1486,7 @@ program
     console.log("  • Workflow definitions + BPMN executor");
     console.log("  • Audit trail (ImmuDB-backed)");
     console.log("  • Role-based access control (RBAC)");
-    console.log("  • ETag-based optimistic concurrency");
+    console.log("  • Optimistic locking (ETag / If-Match, 409 on a stale save)");
     console.log("  • E2E test suite (bun:test) — CRUD, rules, workflows, faker volume data\n");
 
     console.log("🛠️  CLI Commands\n");

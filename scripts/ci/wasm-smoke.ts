@@ -58,7 +58,11 @@ async function call(
   } catch {
     /* a non-JSON body is a finding in itself, reported by the caller */
   }
-  return { status: response.status, body: parsed as Record<string, unknown> };
+  return {
+    status: response.status,
+    body: parsed as Record<string, unknown>,
+    etag: response.headers.get("etag"),
+  };
 }
 
 async function check(name: string, fn: () => Promise<void>) {
@@ -317,6 +321,14 @@ const versionOf = async () => {
   );
 };
 const conflictCode = (body: unknown) => (body as { details?: { code?: string } }).details?.code;
+
+await check("a read answers with the record's version as its ETag", async () => {
+  const read = await call("GET", `/bus/account/${accountId}`);
+  const version =
+    (read.body as { version?: number; data?: { version?: number } }).version ??
+    read.body.data?.version;
+  expect(read.etag === `"${version}"`, `expected ETag "${version}", got ${read.etag}`);
+});
 
 await check("a save against a version someone moved past is a 409", async () => {
   const opened = await versionOf();

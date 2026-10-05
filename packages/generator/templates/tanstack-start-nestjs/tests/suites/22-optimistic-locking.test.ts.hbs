@@ -18,6 +18,10 @@
  *     with, and no header at all still saves (an API client that never read a
  *     version is not opted into locking).
  *
+ * And one that lets a plain HTTP client take part without reading the body: a
+ * read and a save answer with the version as an `ETag`, which is the value to
+ * send back as `If-Match`.
+ *
  * Generated: {{now}}
  * Project: {{project.name}}
  */
@@ -75,6 +79,22 @@ describe("optimistic locking", () => {
         expect(stale.data.details?.code).toBe("VERSION_CONFLICT");
         expect(stale.data.details?.expectedVersion).toBe(opened);
         expect(stale.data.details?.currentVersion).toBe(Number(first.data.version));
+      });
+
+      it("answers a read and a save with the record's version as its ETag", async () => {
+        const created = (await harness.createWithParents(entity)) as Row | null;
+        if (!created?.id) return;
+
+        const read = await harness.client.get<Row>(path(created.id));
+        expect(read.headers.get("etag")).toBe(`"${read.data.version}"`);
+
+        const saved = await harness.client.patch<Row>(
+          path(created.id),
+          { [text.name]: stamp("etag") },
+          { headers: ifMatch(read.data.version), allowFailure: true }
+        );
+        if (!saved.ok) return; // the model's own rules may refuse any edit here
+        expect(saved.headers.get("etag")).toBe(`"${saved.data.version}"`);
       });
 
       it("lets exactly one of two parallel saves from the same version win", async () => {
