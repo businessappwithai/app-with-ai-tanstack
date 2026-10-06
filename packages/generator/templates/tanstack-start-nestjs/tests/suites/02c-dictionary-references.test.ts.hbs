@@ -163,6 +163,9 @@ describe("application dictionary — references", () => {
         for (const fk of foreignKeyFields(entity)) {
           const field = byColumn.get(fk.name);
           if (!field) continue; // absence is 02b's failure, not this one's
+          // A reference to an entity the model never declares has no table to
+          // point at; the application degrades it to a plain value on purpose.
+          if (!harness.resolveParentEntity(fk.name)) continue;
           const target = field.ref_table_name;
           if (!target || !registeredTables.has(target)) {
             unresolved.push(`${fk.name}→${target ?? "unresolved"}`);

@@ -718,11 +718,26 @@ export class BusService {
       .orderBy('sys_column.seq_no', 'asc')
       .execute();
 
+    // A reference is only a lookup if the table it names exists. The name comes
+    // from the column (`document_type_id` -> `bus_document_type`), and a model
+    // may mark a column FK without declaring the entity behind it — the checker's
+    // EML502. Served as a lookup it asks the API to search a table that is not
+    // there; served as the plain field it really is, the user can still fill it.
+    const registeredTables = new Set<string>(
+      (await this.kysely.selectFrom('sys_table').select('table_name').execute()).map(
+        (row: any) => row.table_name as string
+      )
+    );
+    const resolveRef = (col: any): string | undefined => {
+      const name = this.resolveRefTableName(col.column_name, col.sys_reference_id);
+      return name && registeredTables.has(name) ? name : undefined;
+    };
+    const isDanglingRef = (col: any): boolean =>
+      !!this.resolveRefTableName(col.column_name, col.sys_reference_id) && !resolveRef(col);
+
     // Pre-resolve identifier fields for all referenced tables in this entity
     const refTableNames = [...new Set(
-      columns
-        .map((col: any) => this.resolveRefTableName(col.column_name, col.sys_reference_id))
-        .filter(Boolean) as string[]
+      columns.map((col: any) => resolveRef(col)).filter(Boolean) as string[]
     )];
     const refLabelFieldsMap: Record<string, string[]> = {};
     await Promise.all(refTableNames.map(async (t) => {
@@ -762,7 +777,7 @@ export class BusService {
         description: table.description,
       },
       columns: columns.map((col: any) => {
-        const refTableName = this.resolveRefTableName(col.column_name, col.sys_reference_id);
+        const refTableName = resolveRef(col);
         const options = !refTableName && enumOptionsMap[col.sys_reference_id]?.length
           ? enumOptionsMap[col.sys_reference_id]
           : undefined;
@@ -770,7 +785,8 @@ export class BusService {
           sys_field_id: col.sys_field_id,
           name: col.field_name || col.name,
           column_name: col.column_name,
-          sys_reference_id: col.sys_reference_id,
+          // 10 = plain string: a reference to a table that does not exist is not a lookup.
+          sys_reference_id: isDanglingRef(col) ? 10 : col.sys_reference_id,
           is_mandatory: col.is_mandatory,
           is_updateable: col.is_updateable,
           is_identifier: col.is_identifier === true,
@@ -835,7 +851,7 @@ export class BusService {
             const fkColName = refFkCol.column_name as string;
             if (ownFkColumnNames.has(fkColName)) {
               const childCol = columns.find((c: any) => {
-                const t = this.resolveRefTableName(c.column_name, c.sys_reference_id);
+                const t = resolveRef(c);
                 return t === refTable;
               });
               if (childCol && childCol.column_name !== fkColName) {

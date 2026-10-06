@@ -15313,6 +15313,31 @@ class BaseGenerator {
   }
 }
 
+// packages/generator/src/generators/tanstack-start-nestjs/fk-constraints.ts
+function buildFkConstraints(busEntities, relationships) {
+  const byName = new Map(busEntities.map((entity2) => [(entity2.originalName || entity2.name).toLowerCase(), entity2]));
+  const constraints = [];
+  const seen = new Set;
+  for (const relationship of relationships) {
+    if (relationship.cardinality !== "oneToMany")
+      continue;
+    const parent = byName.get(relationship.sourceEntity.toLowerCase());
+    const child = byName.get(relationship.targetEntity.toLowerCase());
+    if (!parent || !child)
+      continue;
+    const column = `${parent.tableName.replace(/^bus_/, "")}_id`;
+    const carriesColumn = (child.attributes ?? []).some((attribute) => (attribute.columnName || attribute.name) === column);
+    if (!carriesColumn)
+      continue;
+    const name = `fk_${child.tableName}_${column}`;
+    if (seen.has(name))
+      continue;
+    seen.add(name);
+    constraints.push({ childTable: child.tableName, parentTable: parent.tableName, column, name });
+  }
+  return constraints;
+}
+
 // packages/generator/src/generators/tanstack-start-nestjs/nestjs-backend.generator.ts
 function jsQuote(value) {
   return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\r?\n/g, " ");
@@ -15509,6 +15534,7 @@ class NestJsBackendGenerator extends BaseGenerator {
     });
     const dbUser = this.options.databaseType === "postgresql" ? process.env.USER || process.env.USERNAME || "postgres" : "postgres";
     const fkOverrides = this.buildFkOverrides(busEntities, relationships);
+    const fkConstraints = buildFkConstraints(busEntities, relationships);
     return {
       project: {
         name: this.options.projectName,
@@ -15532,6 +15558,7 @@ class NestJsBackendGenerator extends BaseGenerator {
       projectKebab: this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       entities: busEntities,
       relationships,
+      fkConstraints,
       fkOverrides,
       sysTables,
       sysColumns,
