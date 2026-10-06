@@ -45,6 +45,7 @@ import {
 } from "../../workflows";
 import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";
+import { buildFkConstraints } from "./fk-constraints";
 
 /** Escape a value for embedding inside a single-quoted JS string literal. */
 function jsQuote(value: string): string {
@@ -408,6 +409,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
         : "postgres";
 
     const fkOverrides = this.buildFkOverrides(busEntities, relationships);
+    const fkConstraints = buildFkConstraints(busEntities, relationships);
 
     return {
       project: {
@@ -432,6 +434,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
       projectKebab: this.options.projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       entities: busEntities,
       relationships,
+      fkConstraints,
       fkOverrides,
       sysTables,
       sysColumns,
