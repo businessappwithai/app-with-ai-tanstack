@@ -342,9 +342,13 @@ export class BusService {
     if (!processedData.id) {
       processedData = { ...processedData, id: randomUUID() };
     }
-    // Strip entity-specific PK field (e.g. compound_id) — the table uses 'id'
+    // Strip entity-specific PK field (e.g. compound_id) — the table uses 'id'.
+    // Not when the table really has that column: a self-referencing hierarchy
+    // (asset_class.asset_class_id) is data, and stripping it makes the record
+    // unwriteable once a rule requires the reference.
     const entityPkField = tableName.replace(/^bus_/, '') + '_id';
-    if (entityPkField in processedData) {
+    const hasOwnColumn = metadata.columns.some((c: any) => c.column_name === entityPkField);
+    if (!hasOwnColumn && entityPkField in processedData) {
       const { [entityPkField]: _pk, ...rest } = processedData;
       processedData = rest;
     }
