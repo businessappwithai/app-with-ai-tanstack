@@ -793,7 +793,9 @@ export class BusService {
           sys_reference_id: isDanglingRef(col) ? 10 : col.sys_reference_id,
           is_mandatory: col.is_mandatory,
           is_updateable: col.is_updateable,
-          is_identifier: col.is_identifier === true,
+          // A reference degraded to a plain value holds an id with no table to
+          // resolve it, so it cannot name the record.
+          is_identifier: col.is_identifier === true && !isDanglingRef(col),
           is_key: col.is_key === true,
           field_length: col.field_length,
           default_value: col.default_value,

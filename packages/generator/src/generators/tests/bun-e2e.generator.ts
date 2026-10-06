@@ -229,6 +229,9 @@ export class BunE2ETestGenerator extends BaseGenerator {
         port: this.options.port,
         frontendPort: this.options.frontendPort,
         recordsPerEntity: this.options.recordsPerEntity ?? 1000,
+        // A file-level budget: the per-entity suites make several round trips
+        // per entity, so a 90-entity model needs more than a 19-entity one.
+        suiteTimeoutMs: Math.max(180_000, entities.length * 4_000),
       },
       entities,
       relationships,
