@@ -30373,6 +30373,7 @@ function buildSampleData(parsed, options) {
   }));
   const personEntity = entities.find((entity2) => entity2.name === "User")?.name ?? entities.find((entity2) => /^(user|staff|employee|person|account)s?$/i.test(entity2.name))?.name;
   const fkOverrides = buildFkOverrides(entities, parsed.relationships ?? [], personEntity);
+  const declared = new Set(entities.map((entity2) => entity2.name));
   const ids = new Map;
   const data = {};
   for (const entity2 of inDependencyOrder(entities, personEntity, fkOverrides)) {
@@ -30403,6 +30404,7 @@ function buildSampleData(parsed, options) {
           selfIds: generatedIds,
           entityName: full.name,
           fkOverrides,
+          declared,
           claimedFks
         });
       }
@@ -30417,8 +30419,12 @@ function valueFor(column, entity2, row, draw, context) {
   if (column.isForeignKey) {
     const target = resolveTarget(context.entityName, column, context.personEntity, context.fkOverrides);
     const pool = target === context.entityName ? context.selfIds.slice(0, row) : context.ids.get(target ?? "");
-    if (!pool || pool.length === 0)
+    if (!pool || pool.length === 0) {
+      if (column.required && !(target && context.declared.has(target))) {
+        return draw.faker.string.uuid();
+      }
       return null;
+    }
     if (column.unique) {
       const claimed = context.claimedFks.get(column.columnName) ?? new Set;
       context.claimedFks.set(column.columnName, claimed);
