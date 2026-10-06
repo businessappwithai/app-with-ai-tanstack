@@ -318,6 +318,19 @@ guard finds no edge out of a state the model never declared, and every rule
 keyed on a real status value never fired. A generated application could not
 demonstrate the workflows it was generated from.
 
+### A required reference with no parent takes a uuid, not null
+
+`Document.document_type_id` marked `FK` and required, with no `DocumentType` in the model, is
+what the checker reports as `EML502` and the generator accepts. The seed's `fk()` (`templates/common/
+seeds/business-data.ts.hbs`) found no `bus_document_type` pool and returned null; the `NOT NULL` the
+model asked for refused the insert, one failed insert fails seed 03, and the backend retried five
+times and never started. `fk()` now takes `required` from the attribute: a required column with no
+parent at all gets a stable uuid from a per-column pool, an optional one stays null, and a parent that
+exists is still used. `wasm/sample-data.ts` does the same for the browser stack (where the symptom was
+the entity's rows silently skipped), but only when the parent entity is *not declared* — a declared parent
+that is merely not seeded yet (a cycle) stays null, because a uuid there would fail a real foreign key.
+Held by `templates/__tests__/seed-unresolved-fk.test.ts` and the last block of `sample-data.test.ts`.
+
 ### Optimistic locking — one contract, every target
 
 Every generated table carries the managed `version` column, and every target
