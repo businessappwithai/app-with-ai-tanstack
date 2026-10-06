@@ -12,6 +12,7 @@
  * Project: {{project.name}}
  */
 
+import { randomUUID } from "node:crypto";
 import { login, type SessionUser } from "./auth.ts";
 import {
   type EntityMeta,
@@ -98,7 +99,12 @@ class TestHarness {
     const foreignKeys: Record<string, string> = {};
     for (const fk of foreignKeyFields(entity)) {
       const parent = this.resolveParentEntity(fk.name);
-      if (!parent) continue;
+      if (!parent) {
+        // A required reference whose parent the model never declared (EML502):
+        // nothing to look up, and the column is NOT NULL, so give it a uuid.
+        if (fk.required) foreignKeys[fk.name] = randomUUID();
+        continue;
+      }
 
       const existing = await this.anyRecordId(parent, depth + 1);
       if (existing) foreignKeys[fk.name] = existing;
@@ -135,7 +141,10 @@ class TestHarness {
 
     for (const fk of foreignKeyFields(entity)) {
       const parent = this.resolveParentEntity(fk.name);
-      if (!parent) continue;
+      if (!parent) {
+        if (fk.required) foreignKeys[fk.name] = randomUUID();
+        continue;
+      }
       const id = await this.anyRecordId(parent);
       if (id) foreignKeys[fk.name] = id;
     }
