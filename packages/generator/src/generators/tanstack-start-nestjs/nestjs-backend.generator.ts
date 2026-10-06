@@ -2210,6 +2210,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
     for (const file of staticConfigFiles) {
       try {
         await fs.copyFile(path.join(this.resolvedTemplateDir, file), path.join(outputDir, file));
+        // A script keeps its execute bit whatever mode the template was
+        // checked in with. Best-effort: Windows filesystems reject chmod.
+        if (file.endsWith(".sh")) await fs.chmod(path.join(outputDir, file), 0o755).catch(() => {});
       } catch (_e) {
         console.warn(`Static config file not found: ${file}`);
       }

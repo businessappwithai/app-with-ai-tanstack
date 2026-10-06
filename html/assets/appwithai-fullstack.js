@@ -16696,6 +16696,8 @@ export async function seed(db: Kysely<any>): Promise<void> {
     for (const file of staticConfigFiles) {
       try {
         await copyFile(join(this.resolvedTemplateDir, file), join(outputDir, file));
+        if (file.endsWith(".sh"))
+          await chmod(join(outputDir, file), 493).catch(() => {});
       } catch (_e) {
         console.warn(`Static config file not found: ${file}`);
       }
