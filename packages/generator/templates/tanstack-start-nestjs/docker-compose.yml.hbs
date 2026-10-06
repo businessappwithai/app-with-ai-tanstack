@@ -171,6 +171,9 @@ services:
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
       PORT: {{project.backendPort}}
+      # No immudb service is composed here; left unset the backend tries to
+      # connect on start and logs a gRPC login error. Audit rows go to PostgreSQL.
+      IMMUDB_ENABLED: ${IMMUDB_ENABLED:-false}
       ELECTRIC_URL: http://electric:3000
       # The AI assistant — retrieval over this application's own model.
       #
