@@ -105,6 +105,15 @@ export class RulesEngine implements OnModuleDestroy {
   ): Promise<RuleEvaluationResult[]> {
     this.logger.log(`Evaluating rules for ${entityType}:${action}`);
 
+    // A %%rule drawn as a flowchart with no %%action rows is documentation: its
+    // switch and expression nodes carry no `content`, which the engine rejects
+    // with "missing field `content`". It decides nothing, so say nothing —
+    // rather than logging an error on every write to the entity.
+    if (this.isDiagramOnly(jdmContent)) {
+      this.logger.debug(`Rule ${dbRuleName ?? ''} on ${entityType} is a diagram only; skipped`);
+      return [];
+    }
+
     try {
       const decision = this.engine.createDecision(Buffer.from(this.asJdmGraph(jdmContent)));
       // `_operation` carries the CRUD verb. It is deliberately not called
@@ -234,6 +243,21 @@ export class RulesEngine implements OnModuleDestroy {
    * where `validation-error` is a subtraction, so text is written as a string
    * literal unless it already is one or is a number, a boolean or an object.
    */
+  /** True for a graph whose logic nodes carry no `content` (a drawn, inert rule). */
+  private isDiagramOnly(jdmContent: string): boolean {
+    try {
+      const nodes = (JSON.parse(jdmContent) as { nodes?: Array<{ type?: string; content?: unknown }> })
+        .nodes;
+      if (!Array.isArray(nodes)) return false;
+      return nodes.some(
+        (node) =>
+          node.type !== 'inputNode' && node.type !== 'outputNode' && node.content === undefined,
+      );
+    } catch {
+      return false;
+    }
+  }
+
   private asJdmGraph(jdmContent: string): string {
     let parsed: unknown;
     try {

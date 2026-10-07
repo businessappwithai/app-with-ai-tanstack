@@ -17879,7 +17879,8 @@ class BunE2ETestGenerator extends BaseGenerator {
       config: {
         port: this.options.port,
         frontendPort: this.options.frontendPort,
-        recordsPerEntity: this.options.recordsPerEntity ?? 1000
+        recordsPerEntity: this.options.recordsPerEntity ?? 1000,
+        suiteTimeoutMs: Math.max(180000, entities.length * 6000)
       },
       entities,
       relationships,

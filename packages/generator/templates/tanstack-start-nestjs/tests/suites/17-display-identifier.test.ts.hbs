@@ -20,7 +20,7 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
-import { entities, harness } from "../harness/index.ts";
+import { entities, foreignKeyFields, harness } from "../harness/index.ts";
 
 interface FormField {
   column_name: string;
@@ -65,6 +65,23 @@ function identifiersOf(fields: FormField[]): FormField[] {
  */
 function literalIdentifiersOf(fields: FormField[]): FormField[] {
   return identifiersOf(fields).filter((field) => !field.ref_table_name);
+}
+
+/**
+ * Whether the dictionary has anything to label a record with: a text column of
+ * its own, or — for a join entity — two parents. A dated figure with one parent
+ * has neither, and shows its id, which is the documented last resort.
+ */
+function hasLabelSource(entity: (typeof entities)[number]): boolean {
+  return (
+    foreignKeyFields(entity).length >= 2 ||
+    entity.fields.some(
+      (field) =>
+        !field.isForeignKey &&
+        field.name !== "id" &&
+        (field.type === "string" || field.type === "text")
+    )
+  );
 }
 
 describe("display value", () => {
@@ -141,13 +158,13 @@ describe("display value", () => {
     describe(entity.name, () => {
       it("marks at least one column as the display value", () => {
         const fields = formFields.get(entity.route) ?? [];
-        if (fields.length === 0) return;
+        if (fields.length === 0 || !hasLabelSource(entity)) return;
         expect(identifiersOf(fields).length).toBeGreaterThan(0);
       });
 
       it("names a record from its own columns, or from parents that exist", () => {
         const fields = formFields.get(entity.route) ?? [];
-        if (fields.length === 0) return;
+        if (fields.length === 0 || !hasLabelSource(entity)) return;
 
         if (literalIdentifiersOf(fields).length > 0) return;
 
@@ -198,6 +215,7 @@ describe("display value", () => {
       it("gives every reference to it a label column to show", () => {
         // The other side of the same mechanism: a lookup pointing here has to
         // know what to display instead of the stored id.
+        if (!hasLabelSource(entity)) return;
         const offenders: string[] = [];
         for (const other of entities) {
           for (const field of formFields.get(other.route) ?? []) {
