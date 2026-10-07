@@ -45,6 +45,46 @@ function ceilingsFor(when: string) {
   return result[0]!.attributes[0]!.maxValue;
 }
 
+function refusalsFor(...whens: string[]) {
+  const actions = whens.flatMap((when, index) =>
+    parseRuleActions(`%%action r${index} validation-error when: ${when} message: no`)
+  );
+  const generator = new BunE2ETestGenerator({
+    projectName: "t",
+    projectVersion: "1",
+    projectDescription: "",
+    port: 1,
+    frontendPort: 2,
+    compiledRules: [
+      {
+        name: "r",
+        tableName: "bus_payment",
+        entity: "Payment",
+        event: "beforeCreate",
+        operation: "CREATE",
+        priority: 1,
+        jdmContent: JSON.stringify(buildActionDecisionTable("r", actions)),
+      },
+    ],
+  });
+  return (
+    generator as unknown as { refusals(): Array<{ tableName: string; when: string }> }
+  ).refusals();
+}
+
+describe("refusing conditions handed to the factory", () => {
+  it("lists every validation-error condition with its table", () => {
+    expect(refusalsFor("amount > balance_before", "amount <= 0")).toEqual([
+      { tableName: "bus_payment", when: "amount > balance_before" },
+      { tableName: "bus_payment", when: "amount <= 0" },
+    ]);
+  });
+
+  it("leaves out an unconditional row, which refuses everything and says nothing about values", () => {
+    expect(refusalsFor("true")).toEqual([]);
+  });
+});
+
 describe("value ceilings from refusing rules", () => {
   it("keeps a value at or below a `>` bound", () => {
     expect(ceilingsFor("discount_percent > 40")).toBe(40);

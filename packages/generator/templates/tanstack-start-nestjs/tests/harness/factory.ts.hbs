@@ -11,6 +11,7 @@
 
 import { faker } from "@faker-js/faker";
 import { config } from "./config.ts";
+import { refusals } from "./model.ts";
 import {
   type EntityMeta,
   type FieldMeta,
@@ -251,11 +252,146 @@ export interface BuildOptions {
   uniqueSalt?: string | number;
 }
 
-/** Build one create-payload for an entity. */
+// ── the model's own refusals ─────────────────────────────────
+
+type Token = { kind: "num" | "str" | "id" | "op" | "paren"; text: string };
+
+function tokenize(source: string): Token[] | null {
+  const tokens: Token[] = [];
+  const pattern =
+    /\s*(?:(-?\d+(?:\.\d+)?)|'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|([A-Za-z_][\w.]*)|(==|!=|<=|>=|<|>)|([()]))/y;
+  let at = 0;
+  while (at < source.length) {
+    if (/^\s*$/.test(source.slice(at))) break;
+    pattern.lastIndex = at;
+    const match = pattern.exec(source);
+    if (!match) return null;
+    at = pattern.lastIndex;
+    if (match[1] !== undefined) tokens.push({ kind: "num", text: match[1] });
+    else if (match[2] !== undefined) tokens.push({ kind: "str", text: match[2] });
+    else if (match[3] !== undefined) tokens.push({ kind: "str", text: match[3] });
+    else if (match[4] !== undefined) tokens.push({ kind: "id", text: match[4] });
+    else if (match[5] !== undefined) tokens.push({ kind: "op", text: match[5] });
+    else tokens.push({ kind: "paren", text: match[6] as string });
+  }
+  return tokens;
+}
+
+/**
+ * Evaluate a `%%action ... when:` expression over a record.
+ *
+ * Only the shape those conditions are written in: comparisons between a field, a
+ * number, a string, `null`, `true` or `false`, joined by `and` / `or` / `not` and
+ * parentheses. Anything else yields `undefined` — no verdict — so a condition this
+ * cannot read never makes a record look refused.
+ */
+export function evaluateWhen(source: string, record: Record<string, unknown>): boolean | undefined {
+  const tokens = tokenize(source);
+  if (!tokens || tokens.length === 0) return undefined;
+  let at = 0;
+  const peek = () => tokens[at];
+  const word = (text: string) => peek()?.kind === "id" && peek()?.text === text;
+
+  const atom = (): unknown => {
+    const token = tokens[at++];
+    if (!token) throw new Error("end");
+    if (token.kind === "num") return Number(token.text);
+    if (token.kind === "str") return token.text;
+    if (token.kind === "paren" && token.text === "(") {
+      const inner = orExpr();
+      if (tokens[at++]?.text !== ")") throw new Error("paren");
+      return inner;
+    }
+    if (token.kind === "id") {
+      if (token.text === "null") return null;
+      if (token.text === "true") return true;
+      if (token.text === "false") return false;
+      const value = record[token.text];
+      return value === undefined ? null : value;
+    }
+    throw new Error("atom");
+  };
+  const compare = (): unknown => {
+    const left = atom();
+    const op = peek();
+    if (op?.kind !== "op") return left;
+    at++;
+    const right = atom();
+    if (op.text === "==") return left === right || (left == null && right == null);
+    if (op.text === "!=") return !(left === right || (left == null && right == null));
+    if (left == null || right == null) return false;
+    const [a, b] = typeof left === "number" || typeof right === "number"
+      ? [Number(left), Number(right)]
+      : [String(left), String(right)];
+    if (op.text === "<") return a < b;
+    if (op.text === "<=") return a <= b;
+    if (op.text === ">") return a > b;
+    return a >= b;
+  };
+  const notExpr = (): unknown => {
+    if (word("not")) {
+      at++;
+      return !notExpr();
+    }
+    return compare();
+  };
+  const andExpr = (): unknown => {
+    let value = notExpr();
+    while (word("and")) {
+      at++;
+      const right = notExpr();
+      value = Boolean(value) && Boolean(right);
+    }
+    return value;
+  };
+  function orExpr(): unknown {
+    let value = andExpr();
+    while (word("or")) {
+      at++;
+      const right = andExpr();
+      value = Boolean(value) || Boolean(right);
+    }
+    return value;
+  }
+
+  try {
+    const verdict = orExpr();
+    return at === tokens.length ? Boolean(verdict) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** True when one of the model's refusing rules for this table fires on the record. */
+function refusedByModel(tableName: string, record: Record<string, unknown>): boolean {
+  return refusals.some(
+    (refusal) => refusal.tableName === tableName && evaluateWhen(refusal.when, record) === true
+  );
+}
+
+/** Draws before giving up: a record the overrides alone make refusable is returned as is. */
+const REDRAWS = 40;
+
+/**
+ * Build one create-payload for an entity.
+ *
+ * A drawn record the model's own rules would refuse is drawn again, because the
+ * CRUD suites update the records they create and a stored record the rules refuse
+ * can never be saved. Overrides are applied before the check, so a test that
+ * deliberately trips a rule still does.
+ */
 export function buildRecord(
   entity: EntityMeta,
   options: BuildOptions = {}
 ): Record<string, unknown> {
+  let record = drawRecord(entity, options);
+  for (let attempt = 1; attempt < REDRAWS && refusedByModel(entity.tableName, record); attempt++) {
+    record = drawRecord(entity, options);
+  }
+  return record;
+}
+
+function drawRecord(entity: EntityMeta, options: BuildOptions): Record<string, unknown> {
   const record: Record<string, unknown> = {};
   const fields = options.requiredOnly
     ? writableFields(entity).filter((f) => f.required)

@@ -17904,6 +17904,28 @@ class BunE2ETestGenerator extends BaseGenerator {
       })
     }));
   }
+  refusals() {
+    const found = [];
+    for (const rule2 of this.options.compiledRules ?? []) {
+      let graph;
+      try {
+        graph = JSON.parse(rule2.jdmContent);
+      } catch {
+        continue;
+      }
+      for (const node of graph.nodes ?? []) {
+        if (node.type !== "decisionTableNode")
+          continue;
+        for (const row of node.content?.rules ?? []) {
+          const when = (row.i1 ?? "").trim();
+          if (row.o1 === "'prevent'" && when && when !== "true") {
+            found.push({ tableName: rule2.tableName, when });
+          }
+        }
+      }
+    }
+    return found;
+  }
   buildContext(entities, relationships) {
     entities = this.withValueCeilings(entities);
     return {
@@ -17931,6 +17953,7 @@ class BunE2ETestGenerator extends BaseGenerator {
         x: report.x ?? "",
         y: report.y ?? ""
       })),
+      refusals: this.refusals(),
       stateMachines: this.stateMachines(entities),
       ...this.accessContext(entities),
       now: new Date().toISOString()

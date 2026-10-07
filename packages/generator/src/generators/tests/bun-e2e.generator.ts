@@ -264,6 +264,38 @@ export class BunE2ETestGenerator extends BaseGenerator {
     })) as BusEntity[];
   }
 
+  /**
+   * Every condition under which a compiled rule refuses a write, as text.
+   *
+   * The factory redraws a record that would trip one (see `harness/factory.ts`),
+   * so a CRUD run is not at the mercy of which status or amount it happened to
+   * invent. Rows that are not a refusal, and rules whose JSON cannot be read,
+   * contribute nothing.
+   */
+  private refusals(): Array<{ tableName: string; when: string }> {
+    const found: Array<{ tableName: string; when: string }> = [];
+    for (const rule of this.options.compiledRules ?? []) {
+      let graph: {
+        nodes?: Array<{ type?: string; content?: { rules?: Array<Record<string, string>> } }>;
+      };
+      try {
+        graph = JSON.parse(rule.jdmContent);
+      } catch {
+        continue;
+      }
+      for (const node of graph.nodes ?? []) {
+        if (node.type !== "decisionTableNode") continue;
+        for (const row of node.content?.rules ?? []) {
+          const when = (row.i1 ?? "").trim();
+          if (row.o1 === "'prevent'" && when && when !== "true") {
+            found.push({ tableName: rule.tableName, when });
+          }
+        }
+      }
+    }
+    return found;
+  }
+
   // ── context ───────────────────────────────────────────────────────────────
 
   private buildContext(
@@ -298,6 +330,7 @@ export class BunE2ETestGenerator extends BaseGenerator {
         x: report.x ?? "",
         y: report.y ?? "",
       })),
+      refusals: this.refusals(),
       stateMachines: this.stateMachines(entities),
       ...this.accessContext(entities),
       now: new Date().toISOString(),
