@@ -11,7 +11,7 @@
 
 import { faker } from "@faker-js/faker";
 import { config } from "./config.ts";
-import { refusals } from "./model.ts";
+import { refusals, stateMachines } from "./model.ts";
 import {
   type EntityMeta,
   type FieldMeta,
@@ -446,7 +446,11 @@ function repairEqualities(node: Node, record: Record<string, unknown>): void {
     if (!target || target.t !== "id" || target.name === "today") continue;
     const source = target === clause.l ? clause.r : clause.l;
     const value = valueOf(source, record);
-    if (value == null) continue;
+    if (value == null) {
+      // `final_grade != null` is refused: the field has to be empty, so leave it out.
+      if (source.t === "lit") delete record[target.name];
+      continue;
+    }
     record[target.name] = typeof value === "number" ? Math.round(value * 100) / 100 : value;
   }
 }
@@ -484,9 +488,26 @@ export function buildRecord(
   entity: EntityMeta,
   options: BuildOptions = {}
 ): Record<string, unknown> {
-  let record = drawRecord(entity, options);
+  let record = drawAsStored(entity, options);
   for (let attempt = 1; attempt < REDRAWS && settle(entity.tableName, record); attempt++) {
-    record = drawRecord(entity, options);
+    record = drawAsStored(entity, options);
+  }
+  return record;
+}
+
+/**
+ * Draw a record the way the application will keep it.
+ *
+ * A new record starts in its state machine's initial state whatever status it was
+ * sent with, so the rules are checked against that — an enrolment drawn as
+ * `completed` and stored as `pending` is a `pending` one with a grade, and the
+ * model refuses its next update.
+ */
+function drawAsStored(entity: EntityMeta, options: BuildOptions): Record<string, unknown> {
+  const record = drawRecord(entity, options);
+  const machine = stateMachines.find((candidate) => candidate.tableName === entity.tableName);
+  if (machine?.initial && options.overrides?.[machine.statusField] === undefined) {
+    record[machine.statusField] = machine.initial;
   }
   return record;
 }
