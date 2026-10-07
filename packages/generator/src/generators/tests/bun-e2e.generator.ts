@@ -28,6 +28,7 @@ import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import type { CompiledRbac } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
 import type { CompiledReport } from "../../reports";
+import type { CompiledRule } from "../../rules";
 import type { CompiledWorkflow } from "../../workflows";
 import { BaseGenerator } from "../base.generator";
 
@@ -92,6 +93,13 @@ export interface BunE2ETestGeneratorOptions {
    * that the query runs against the schema the generator emitted.
    */
   compiledReports?: CompiledReport[];
+  /**
+   * The compiled `%%rule` graphs. The factory invents numbers, and a model's own
+   * `validation-error when: discount_percent > 40` refuses an update to a record
+   * the factory gave 56 — so the suites read the ceilings off the rules and keep
+   * the values they invent under them.
+   */
+  compiledRules?: CompiledRule[];
   /** The administrator address the bootstrap creates. */
   adminEmail?: string;
 }
@@ -212,12 +220,57 @@ export class BunE2ETestGenerator extends BaseGenerator {
     );
   }
 
+  /**
+   * Hang `maxValue` on every numeric attribute a refusing rule caps.
+   *
+   * Reads the `prevent` rows of each compiled decision table and keeps the
+   * simple `<field> > N` / `<field> >= N` conditions — the shape `%%action
+   * validation-error when:` is written in for a bound. Anything else is left
+   * alone: a condition the suite cannot read is one it has no ceiling for.
+   */
+  private withValueCeilings(entities: BusEntity[]): BusEntity[] {
+    const ceilings = new Map<string, number>();
+    for (const rule of this.options.compiledRules ?? []) {
+      let graph: {
+        nodes?: Array<{ type?: string; content?: { rules?: Array<Record<string, string>> } }>;
+      };
+      try {
+        graph = JSON.parse(rule.jdmContent);
+      } catch {
+        continue;
+      }
+      for (const node of graph.nodes ?? []) {
+        if (node.type !== "decisionTableNode") continue;
+        for (const row of node.content?.rules ?? []) {
+          if (row.o1 !== "'prevent'") continue;
+          const match = /^\s*([A-Za-z_]\w*)\s*(>=|>)\s*(-?\d+(?:\.\d+)?)\s*$/.exec(row.i1 ?? "");
+          if (!match) continue;
+          const [, column, operator, bound] = match as unknown as [string, string, string, string];
+          const ceiling = operator === ">=" ? Number(bound) - 0.01 : Number(bound);
+          const key = `${rule.tableName}.${column}`;
+          ceilings.set(key, Math.min(ceilings.get(key) ?? ceiling, ceiling));
+        }
+      }
+    }
+    if (ceilings.size === 0) return entities;
+
+    return entities.map((entity) => ({
+      ...entity,
+      attributes: (entity.attributes ?? []).map((attribute) => {
+        const column = (attribute as Partial<BusEntityAttribute>).columnName ?? attribute.name;
+        const ceiling = ceilings.get(`${entity.tableName}.${column}`);
+        return ceiling === undefined ? attribute : { ...attribute, maxValue: ceiling };
+      }),
+    })) as BusEntity[];
+  }
+
   // ── context ───────────────────────────────────────────────────────────────
 
   private buildContext(
     entities: BusEntity[],
     relationships: Relationship[]
   ): Record<string, unknown> {
+    entities = this.withValueCeilings(entities);
     return {
       project: {
         name: this.options.projectName,

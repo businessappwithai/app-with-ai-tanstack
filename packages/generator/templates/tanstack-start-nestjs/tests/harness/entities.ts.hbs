@@ -41,6 +41,11 @@ export interface FieldMeta {
    * not offer and no state machine has an edge out of.
    */
   enumValues?: string[];
+  /**
+   * A ceiling the model's own rules put on this column: a `validation-error`
+   * rule refuses any save above it, so a number the factory invents stays under.
+   */
+  maxValue?: number;
 }
 
 export interface EntityMeta {
@@ -121,6 +126,9 @@ export const entities: EntityMeta[] = [
 {{/if}}
 {{#if enumValues}}
         enumValues: [{{#each enumValues}}"{{this}}"{{#unless @last}}, {{/unless}}{{/each}}],
+{{/if}}
+{{#if maxValue}}
+        maxValue: {{maxValue}},
 {{/if}}
       },
 {{/each}}

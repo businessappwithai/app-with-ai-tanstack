@@ -219,6 +219,9 @@ export function fakeValue(field: FieldMeta, uniqueSalt?: string | number): unkno
     if (!matchesType(candidate, field.type)) continue;
 
     let value = candidate;
+    if (typeof value === "number" && field.maxValue !== undefined && value > field.maxValue) {
+      value = Math.round(field.maxValue * 100) / 100;
+    }
     if (field.unique && typeof value === "string") {
       const salt = uniqueSalt === undefined ? nextUniqueSalt() : scopedSalt(uniqueSalt);
       value = value.includes("@") ? value.replace("@", `+${salt}@`) : `${value}-${salt}`;
@@ -227,6 +230,9 @@ export function fakeValue(field: FieldMeta, uniqueSalt?: string | number): unkno
   }
 
   let value = byType(field);
+  if (typeof value === "number" && field.maxValue !== undefined && value > field.maxValue) {
+    value = Math.round(field.maxValue * 100) / 100;
+  }
   if (field.unique && typeof value === "string") {
     const salt = uniqueSalt === undefined ? nextUniqueSalt() : scopedSalt(uniqueSalt);
     value = `${value}-${salt}`;
