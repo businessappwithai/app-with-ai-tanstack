@@ -439,11 +439,17 @@ function conjuncts(node: Node): Node[] {
  * two must be equal, and no amount of redrawing satisfies an equality between
  * random numbers. The field on one side is set to what the other side works out to.
  */
-function repairEqualities(node: Node, record: Record<string, unknown>): void {
+function repairEqualities(
+  node: Node,
+  record: Record<string, unknown>,
+  locked: ReadonlySet<string>
+): void {
   for (const clause of conjuncts(node)) {
     if (clause.t !== "bin" || clause.op !== "!=" || valueOf(clause, record) !== true) continue;
     const target = clause.l.t === "id" ? clause.l : clause.r.t === "id" ? clause.r : null;
-    if (!target || target.t !== "id" || target.name === "today") continue;
+    // A field the caller set on purpose is not the factory's to rewrite: a test that
+    // sends an undeclared enum value is testing the refusal, not the repair.
+    if (!target || target.t !== "id" || target.name === "today" || locked.has(target.name)) continue;
     const source = target === clause.l ? clause.r : clause.l;
     const value = valueOf(source, record);
     if (value == null) {
@@ -464,10 +470,14 @@ function refusedByModel(tableName: string, record: Record<string, unknown>): boo
 }
 
 /** Make what can be made right by construction, then report whether a refusal still fires. */
-function settle(tableName: string, record: Record<string, unknown>): boolean {
+function settle(
+  tableName: string,
+  record: Record<string, unknown>,
+  locked: ReadonlySet<string>
+): boolean {
   for (const refusal of parsedRefusals) {
     if (refusal.tableName !== tableName || !refusal.node) continue;
-    if (Boolean(valueOf(refusal.node, record))) repairEqualities(refusal.node, record);
+    if (Boolean(valueOf(refusal.node, record))) repairEqualities(refusal.node, record, locked);
   }
   return refusedByModel(tableName, record);
 }
@@ -488,8 +498,12 @@ export function buildRecord(
   entity: EntityMeta,
   options: BuildOptions = {}
 ): Record<string, unknown> {
+  const locked = new Set([
+    ...Object.keys(options.overrides ?? {}),
+    ...Object.keys(options.foreignKeys ?? {}),
+  ]);
   let record = drawAsStored(entity, options);
-  for (let attempt = 1; attempt < REDRAWS && settle(entity.tableName, record); attempt++) {
+  for (let attempt = 1; attempt < REDRAWS && settle(entity.tableName, record, locked); attempt++) {
     record = drawAsStored(entity, options);
   }
   return record;
