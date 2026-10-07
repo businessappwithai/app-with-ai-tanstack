@@ -250,6 +250,8 @@ export class FullStackGenerator {
         // The reports suite runs the model's own SQL against the schema this
         // same run emitted — the one pairing nothing else checks.
         compiledReports: this.options.compiledReports,
+        // A refusing rule's ceiling keeps the numbers the suites invent legal.
+        compiledRules: this.options.compiledRules,
       });
       await testGenerator.generate(entities, relationships, outputDir);
     }

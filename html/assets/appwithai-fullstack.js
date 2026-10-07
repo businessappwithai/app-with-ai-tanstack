@@ -17868,7 +17868,66 @@ class BunE2ETestGenerator extends BaseGenerator {
     const perEntity = busEntities.length * 2;
     console.log(`   ✓ tests/ — ${SHARED_SUITES.length + perEntity} suites, ` + `${HARNESS_FILES.length + 1} harness modules`);
   }
+  withValueCeilings(entities) {
+    const ceilings = new Map;
+    for (const rule2 of this.options.compiledRules ?? []) {
+      let graph;
+      try {
+        graph = JSON.parse(rule2.jdmContent);
+      } catch {
+        continue;
+      }
+      for (const node of graph.nodes ?? []) {
+        if (node.type !== "decisionTableNode")
+          continue;
+        for (const row of node.content?.rules ?? []) {
+          if (row.o1 !== "'prevent'")
+            continue;
+          const match = /^\s*([A-Za-z_]\w*)\s*(>=|>)\s*(-?\d+(?:\.\d+)?)\s*$/.exec(row.i1 ?? "");
+          if (!match)
+            continue;
+          const [, column, operator, bound] = match;
+          const ceiling = operator === ">=" ? Number(bound) - 0.01 : Number(bound);
+          const key = `${rule2.tableName}.${column}`;
+          ceilings.set(key, Math.min(ceilings.get(key) ?? ceiling, ceiling));
+        }
+      }
+    }
+    if (ceilings.size === 0)
+      return entities;
+    return entities.map((entity2) => ({
+      ...entity2,
+      attributes: (entity2.attributes ?? []).map((attribute) => {
+        const column = attribute.columnName ?? attribute.name;
+        const ceiling = ceilings.get(`${entity2.tableName}.${column}`);
+        return ceiling === undefined ? attribute : { ...attribute, maxValue: ceiling };
+      })
+    }));
+  }
+  refusals() {
+    const found = [];
+    for (const rule2 of this.options.compiledRules ?? []) {
+      let graph;
+      try {
+        graph = JSON.parse(rule2.jdmContent);
+      } catch {
+        continue;
+      }
+      for (const node of graph.nodes ?? []) {
+        if (node.type !== "decisionTableNode")
+          continue;
+        for (const row of node.content?.rules ?? []) {
+          const when = (row.i1 ?? "").trim();
+          if (row.o1 === "'prevent'" && when && when !== "true") {
+            found.push({ tableName: rule2.tableName, when });
+          }
+        }
+      }
+    }
+    return found;
+  }
   buildContext(entities, relationships) {
+    entities = this.withValueCeilings(entities);
     return {
       project: {
         name: this.options.projectName,
@@ -17894,6 +17953,7 @@ class BunE2ETestGenerator extends BaseGenerator {
         x: report.x ?? "",
         y: report.y ?? ""
       })),
+      refusals: this.refusals(),
       stateMachines: this.stateMachines(entities),
       ...this.accessContext(entities),
       now: new Date().toISOString()
@@ -18026,7 +18086,7 @@ class BunE2ETestGenerator extends BaseGenerator {
         tableName: entity2.tableName,
         statusField,
         initial: workflow.initial ?? "",
-        terminal: workflow.terminal ?? [],
+        terminal: (workflow.terminal ?? []).filter((state) => !edges.some((edge) => edge.from === state)),
         edges
       });
     }
@@ -18151,7 +18211,8 @@ class FullStackGenerator {
         modelEnums: this.options.modelEnums,
         compiledWorkflows: this.options.compiledWorkflows,
         compiledRbac: this.options.compiledRbac,
-        compiledReports: this.options.compiledReports
+        compiledReports: this.options.compiledReports,
+        compiledRules: this.options.compiledRules
       });
       await testGenerator.generate(entities, relationships, outputDir);
     }

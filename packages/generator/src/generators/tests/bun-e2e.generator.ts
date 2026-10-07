@@ -28,6 +28,7 @@ import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import type { CompiledRbac } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
 import type { CompiledReport } from "../../reports";
+import type { CompiledRule } from "../../rules";
 import type { CompiledWorkflow } from "../../workflows";
 import { BaseGenerator } from "../base.generator";
 
@@ -92,6 +93,13 @@ export interface BunE2ETestGeneratorOptions {
    * that the query runs against the schema the generator emitted.
    */
   compiledReports?: CompiledReport[];
+  /**
+   * The compiled `%%rule` graphs. The factory invents numbers, and a model's own
+   * `validation-error when: discount_percent > 40` refuses an update to a record
+   * the factory gave 56 — so the suites read the ceilings off the rules and keep
+   * the values they invent under them.
+   */
+  compiledRules?: CompiledRule[];
   /** The administrator address the bootstrap creates. */
   adminEmail?: string;
 }
@@ -212,12 +220,89 @@ export class BunE2ETestGenerator extends BaseGenerator {
     );
   }
 
+  /**
+   * Hang `maxValue` on every numeric attribute a refusing rule caps.
+   *
+   * Reads the `prevent` rows of each compiled decision table and keeps the
+   * simple `<field> > N` / `<field> >= N` conditions — the shape `%%action
+   * validation-error when:` is written in for a bound. Anything else is left
+   * alone: a condition the suite cannot read is one it has no ceiling for.
+   */
+  private withValueCeilings(entities: BusEntity[]): BusEntity[] {
+    const ceilings = new Map<string, number>();
+    for (const rule of this.options.compiledRules ?? []) {
+      let graph: {
+        nodes?: Array<{ type?: string; content?: { rules?: Array<Record<string, string>> } }>;
+      };
+      try {
+        graph = JSON.parse(rule.jdmContent);
+      } catch {
+        continue;
+      }
+      for (const node of graph.nodes ?? []) {
+        if (node.type !== "decisionTableNode") continue;
+        for (const row of node.content?.rules ?? []) {
+          if (row.o1 !== "'prevent'") continue;
+          const match = /^\s*([A-Za-z_]\w*)\s*(>=|>)\s*(-?\d+(?:\.\d+)?)\s*$/.exec(row.i1 ?? "");
+          if (!match) continue;
+          const [, column, operator, bound] = match as unknown as [string, string, string, string];
+          const ceiling = operator === ">=" ? Number(bound) - 0.01 : Number(bound);
+          const key = `${rule.tableName}.${column}`;
+          ceilings.set(key, Math.min(ceilings.get(key) ?? ceiling, ceiling));
+        }
+      }
+    }
+    if (ceilings.size === 0) return entities;
+
+    return entities.map((entity) => ({
+      ...entity,
+      attributes: (entity.attributes ?? []).map((attribute) => {
+        const column = (attribute as Partial<BusEntityAttribute>).columnName ?? attribute.name;
+        const ceiling = ceilings.get(`${entity.tableName}.${column}`);
+        return ceiling === undefined ? attribute : { ...attribute, maxValue: ceiling };
+      }),
+    })) as BusEntity[];
+  }
+
+  /**
+   * Every condition under which a compiled rule refuses a write, as text.
+   *
+   * The factory redraws a record that would trip one (see `harness/factory.ts`),
+   * so a CRUD run is not at the mercy of which status or amount it happened to
+   * invent. Rows that are not a refusal, and rules whose JSON cannot be read,
+   * contribute nothing.
+   */
+  private refusals(): Array<{ tableName: string; when: string }> {
+    const found: Array<{ tableName: string; when: string }> = [];
+    for (const rule of this.options.compiledRules ?? []) {
+      let graph: {
+        nodes?: Array<{ type?: string; content?: { rules?: Array<Record<string, string>> } }>;
+      };
+      try {
+        graph = JSON.parse(rule.jdmContent);
+      } catch {
+        continue;
+      }
+      for (const node of graph.nodes ?? []) {
+        if (node.type !== "decisionTableNode") continue;
+        for (const row of node.content?.rules ?? []) {
+          const when = (row.i1 ?? "").trim();
+          if (row.o1 === "'prevent'" && when && when !== "true") {
+            found.push({ tableName: rule.tableName, when });
+          }
+        }
+      }
+    }
+    return found;
+  }
+
   // ── context ───────────────────────────────────────────────────────────────
 
   private buildContext(
     entities: BusEntity[],
     relationships: Relationship[]
   ): Record<string, unknown> {
+    entities = this.withValueCeilings(entities);
     return {
       project: {
         name: this.options.projectName,
@@ -245,6 +330,7 @@ export class BunE2ETestGenerator extends BaseGenerator {
         x: report.x ?? "",
         y: report.y ?? "",
       })),
+      refusals: this.refusals(),
       stateMachines: this.stateMachines(entities),
       ...this.accessContext(entities),
       now: new Date().toISOString(),
@@ -451,7 +537,13 @@ export class BunE2ETestGenerator extends BaseGenerator {
         tableName: entity.tableName,
         statusField,
         initial: workflow.initial ?? "",
-        terminal: workflow.terminal ?? [],
+        // A state the diagram sends to `[*]` is not terminal if it also draws a way
+        // out (`closed --> [*]` beside `closed --> available : reopen`): the suite
+        // asserts a terminal state offers no move, so it is only handed the states
+        // that really have none.
+        terminal: (workflow.terminal ?? []).filter(
+          (state) => !edges.some((edge) => edge.from === state)
+        ),
         edges,
       });
     }
