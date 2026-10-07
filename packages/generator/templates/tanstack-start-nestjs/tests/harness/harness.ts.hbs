@@ -16,6 +16,7 @@ import { randomUUID } from "node:crypto";
 import { login, type SessionUser } from "./auth.ts";
 import {
   type EntityMeta,
+  type FieldMeta,
   foreignKeyFields,
   parentEntityForColumn,
   topologicalEntities,
@@ -106,7 +107,7 @@ class TestHarness {
         continue;
       }
 
-      const existing = await this.anyRecordId(parent, depth + 1);
+      const existing = await this.parentIdFor(fk, parent, depth + 1);
       if (existing) foreignKeys[fk.name] = existing;
     }
 
@@ -145,11 +146,27 @@ class TestHarness {
         if (fk.required) foreignKeys[fk.name] = randomUUID();
         continue;
       }
-      const id = await this.anyRecordId(parent);
+      const id = await this.parentIdFor(fk, parent, 0);
       if (id) foreignKeys[fk.name] = id;
     }
 
     return buildRecord(entity, { foreignKeys, overrides });
+  }
+
+  /**
+   * The parent a foreign key should point at.
+   *
+   * A unique reference is a one-to-one extension (a Doctor *is* a Staff member):
+   * each record needs a parent of its own, and reusing one answers the second
+   * create with 409. Any other reference may share a parent.
+   */
+  async parentIdFor(fk: FieldMeta, parent: EntityMeta, depth: number): Promise<string | null> {
+    if (fk.unique) {
+      const created = await this.createWithParents(parent, {}, depth);
+      const id = created?.id as string | undefined;
+      return id ?? null;
+    }
+    return this.anyRecordId(parent, depth);
   }
 
   /** An existing record id for an entity, creating one if the table is empty. */

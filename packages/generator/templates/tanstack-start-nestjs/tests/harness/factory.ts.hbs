@@ -256,10 +256,17 @@ export interface BuildOptions {
 
 type Token = { kind: "num" | "str" | "id" | "op" | "paren"; text: string };
 
+type Node =
+  | { t: "lit"; v: unknown }
+  | { t: "id"; name: string }
+  | { t: "not"; x: Node }
+  | { t: "neg"; x: Node }
+  | { t: "bin"; op: string; l: Node; r: Node };
+
 function tokenize(source: string): Token[] | null {
   const tokens: Token[] = [];
   const pattern =
-    /\s*(?:(-?\d+(?:\.\d+)?)|'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|([A-Za-z_][\w.]*)|(==|!=|<=|>=|<|>)|([()]))/y;
+    /\s*(?:(\d+(?:\.\d+)?)|'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|([A-Za-z_][\w.]*)|(==|!=|<=|>=|<|>|\+|-|\*|\/)|([()]))/y;
   let at = 0;
   while (at < source.length) {
     if (/^\s*$/.test(source.slice(at))) break;
@@ -278,95 +285,187 @@ function tokenize(source: string): Token[] | null {
 }
 
 /**
- * Evaluate a `%%action ... when:` expression over a record.
+ * Parse a `%%action ... when:` expression.
  *
- * Only the shape those conditions are written in: comparisons between a field, a
- * number, a string, `null`, `true` or `false`, joined by `and` / `or` / `not` and
- * parentheses. Anything else yields `undefined` — no verdict — so a condition this
- * cannot read never makes a record look refused.
+ * Only the shape those conditions are written in: comparisons and `+ - * /`
+ * between fields, numbers, strings, `null`, `true`, `false` and `today`, joined by
+ * `and` / `or` / `not` and parentheses. Anything else is `null` — no verdict — so a
+ * condition this cannot read never makes a record look refused.
  */
-export function evaluateWhen(source: string, record: Record<string, unknown>): boolean | undefined {
+function parseWhen(source: string): Node | null {
   const tokens = tokenize(source);
-  if (!tokens || tokens.length === 0) return undefined;
+  if (!tokens || tokens.length === 0) return null;
   let at = 0;
   const peek = () => tokens[at];
-  const word = (text: string) => peek()?.kind === "id" && peek()?.text === text;
+  const isWord = (text: string) => peek()?.kind === "id" && peek()?.text === text;
+  const isOp = (...ops: string[]) => peek()?.kind === "op" && ops.includes(peek()?.text as string);
 
-  const atom = (): unknown => {
+  const atom = (): Node => {
     const token = tokens[at++];
     if (!token) throw new Error("end");
-    if (token.kind === "num") return Number(token.text);
-    if (token.kind === "str") return token.text;
+    if (token.kind === "num") return { t: "lit", v: Number(token.text) };
+    if (token.kind === "str") return { t: "lit", v: token.text };
+    if (token.kind === "op" && token.text === "-") return { t: "neg", x: atom() };
     if (token.kind === "paren" && token.text === "(") {
       const inner = orExpr();
       if (tokens[at++]?.text !== ")") throw new Error("paren");
       return inner;
     }
     if (token.kind === "id") {
-      if (token.text === "null") return null;
-      if (token.text === "true") return true;
-      if (token.text === "false") return false;
-      const value = record[token.text];
-      return value === undefined ? null : value;
+      if (token.text === "null") return { t: "lit", v: null };
+      if (token.text === "true") return { t: "lit", v: true };
+      if (token.text === "false") return { t: "lit", v: false };
+      return { t: "id", name: token.text };
     }
     throw new Error("atom");
   };
-  const compare = (): unknown => {
-    const left = atom();
-    const op = peek();
-    if (op?.kind !== "op") return left;
-    at++;
-    const right = atom();
-    if (op.text === "==") return left === right || (left == null && right == null);
-    if (op.text === "!=") return !(left === right || (left == null && right == null));
-    if (left == null || right == null) return false;
-    const [a, b] = typeof left === "number" || typeof right === "number"
-      ? [Number(left), Number(right)]
-      : [String(left), String(right)];
-    if (op.text === "<") return a < b;
-    if (op.text === "<=") return a <= b;
-    if (op.text === ">") return a > b;
-    return a >= b;
-  };
-  const notExpr = (): unknown => {
-    if (word("not")) {
-      at++;
-      return !notExpr();
+  const product = (): Node => {
+    let node = atom();
+    while (isOp("*", "/")) {
+      const op = (tokens[at++] as Token).text;
+      node = { t: "bin", op, l: node, r: atom() };
     }
-    return compare();
+    return node;
   };
-  const andExpr = (): unknown => {
-    let value = notExpr();
-    while (word("and")) {
-      at++;
-      const right = notExpr();
-      value = Boolean(value) && Boolean(right);
+  const sum = (): Node => {
+    let node = product();
+    while (isOp("+", "-")) {
+      const op = (tokens[at++] as Token).text;
+      node = { t: "bin", op, l: node, r: product() };
     }
-    return value;
+    return node;
   };
-  function orExpr(): unknown {
-    let value = andExpr();
-    while (word("or")) {
+  const comparison = (): Node => {
+    const left = sum();
+    if (!isOp("==", "!=", "<", "<=", ">", ">=")) return left;
+    const op = (tokens[at++] as Token).text;
+    return { t: "bin", op, l: left, r: sum() };
+  };
+  const notExpr = (): Node => {
+    if (isWord("not")) {
       at++;
-      const right = andExpr();
-      value = Boolean(value) || Boolean(right);
+      return { t: "not", x: notExpr() };
     }
-    return value;
+    return comparison();
+  };
+  const andExpr = (): Node => {
+    let node = notExpr();
+    while (isWord("and")) {
+      at++;
+      node = { t: "bin", op: "and", l: node, r: notExpr() };
+    }
+    return node;
+  };
+  function orExpr(): Node {
+    let node = andExpr();
+    while (isWord("or")) {
+      at++;
+      node = { t: "bin", op: "or", l: node, r: andExpr() };
+    }
+    return node;
   }
 
   try {
-    const verdict = orExpr();
-    return at === tokens.length ? Boolean(verdict) : undefined;
+    const node = orExpr();
+    return at === tokens.length ? node : null;
   } catch {
-    return undefined;
+    return null;
+  }
+}
+
+function valueOf(node: Node, record: Record<string, unknown>): unknown {
+  switch (node.t) {
+    case "lit":
+      return node.v;
+    case "id": {
+      if (node.name === "today") return new Date().toISOString().slice(0, 10);
+      const value = record[node.name];
+      return value === undefined ? null : value;
+    }
+    case "not":
+      return !valueOf(node.x, record);
+    case "neg": {
+      const inner = valueOf(node.x, record);
+      return inner == null ? null : -Number(inner);
+    }
+    case "bin": {
+      if (node.op === "and") return Boolean(valueOf(node.l, record)) && Boolean(valueOf(node.r, record));
+      if (node.op === "or") return Boolean(valueOf(node.l, record)) || Boolean(valueOf(node.r, record));
+      const left = valueOf(node.l, record);
+      const right = valueOf(node.r, record);
+      if (node.op === "==") return left === right || (left == null && right == null);
+      if (node.op === "!=") return !(left === right || (left == null && right == null));
+      if (left == null || right == null) return node.op.length === 1 && "+-*/".includes(node.op) ? null : false;
+      if ("+-*/".includes(node.op) && node.op.length === 1) {
+        const a = Number(left);
+        const b = Number(right);
+        if (node.op === "+") return a + b;
+        if (node.op === "-") return a - b;
+        if (node.op === "*") return a * b;
+        return b === 0 ? null : a / b;
+      }
+      const [a, b] =
+        typeof left === "number" || typeof right === "number"
+          ? [Number(left), Number(right)]
+          : [String(left), String(right)];
+      if (node.op === "<") return a < b;
+      if (node.op === "<=") return a <= b;
+      if (node.op === ">") return a > b;
+      return a >= b;
+    }
+  }
+}
+
+const parsedRefusals = refusals.map((refusal) => ({
+  tableName: refusal.tableName,
+  node: parseWhen(refusal.when),
+}));
+
+/** Evaluate a condition over a record; `undefined` when it could not be read. */
+export function evaluateWhen(source: string, record: Record<string, unknown>): boolean | undefined {
+  const node = parseWhen(source);
+  return node ? Boolean(valueOf(node, record)) : undefined;
+}
+
+/** The `and`-joined clauses of a condition. */
+function conjuncts(node: Node): Node[] {
+  return node.t === "bin" && node.op === "and" ? [...conjuncts(node.l), ...conjuncts(node.r)] : [node];
+}
+
+/**
+ * Make a firing `field != expression` clause false by construction.
+ *
+ * A model that says `line_amount != quantity * unit_price` is refused is saying the
+ * two must be equal, and no amount of redrawing satisfies an equality between
+ * random numbers. The field on one side is set to what the other side works out to.
+ */
+function repairEqualities(node: Node, record: Record<string, unknown>): void {
+  for (const clause of conjuncts(node)) {
+    if (clause.t !== "bin" || clause.op !== "!=" || valueOf(clause, record) !== true) continue;
+    const target = clause.l.t === "id" ? clause.l : clause.r.t === "id" ? clause.r : null;
+    if (!target || target.t !== "id" || target.name === "today") continue;
+    const source = target === clause.l ? clause.r : clause.l;
+    const value = valueOf(source, record);
+    if (value == null) continue;
+    record[target.name] = typeof value === "number" ? Math.round(value * 100) / 100 : value;
   }
 }
 
 /** True when one of the model's refusing rules for this table fires on the record. */
 function refusedByModel(tableName: string, record: Record<string, unknown>): boolean {
-  return refusals.some(
-    (refusal) => refusal.tableName === tableName && evaluateWhen(refusal.when, record) === true
+  return parsedRefusals.some(
+    (refusal) =>
+      refusal.tableName === tableName && refusal.node !== null && Boolean(valueOf(refusal.node, record))
   );
+}
+
+/** Make what can be made right by construction, then report whether a refusal still fires. */
+function settle(tableName: string, record: Record<string, unknown>): boolean {
+  for (const refusal of parsedRefusals) {
+    if (refusal.tableName !== tableName || !refusal.node) continue;
+    if (Boolean(valueOf(refusal.node, record))) repairEqualities(refusal.node, record);
+  }
+  return refusedByModel(tableName, record);
 }
 
 /** Draws before giving up: a record the overrides alone make refusable is returned as is. */
@@ -375,17 +474,18 @@ const REDRAWS = 40;
 /**
  * Build one create-payload for an entity.
  *
- * A drawn record the model's own rules would refuse is drawn again, because the
- * CRUD suites update the records they create and a stored record the rules refuse
- * can never be saved. Overrides are applied before the check, so a test that
- * deliberately trips a rule still does.
+ * A drawn record the model's own rules would refuse is repaired where an equality
+ * says how, and drawn again where it does not, because the CRUD suites update the
+ * records they create and a stored record the rules refuse can never be saved.
+ * Overrides are applied before the check, so a test that deliberately trips a rule
+ * still does.
  */
 export function buildRecord(
   entity: EntityMeta,
   options: BuildOptions = {}
 ): Record<string, unknown> {
   let record = drawRecord(entity, options);
-  for (let attempt = 1; attempt < REDRAWS && refusedByModel(entity.tableName, record); attempt++) {
+  for (let attempt = 1; attempt < REDRAWS && settle(entity.tableName, record); attempt++) {
     record = drawRecord(entity, options);
   }
   return record;

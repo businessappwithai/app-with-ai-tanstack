@@ -537,7 +537,13 @@ export class BunE2ETestGenerator extends BaseGenerator {
         tableName: entity.tableName,
         statusField,
         initial: workflow.initial ?? "",
-        terminal: workflow.terminal ?? [],
+        // A state the diagram sends to `[*]` is not terminal if it also draws a way
+        // out (`closed --> [*]` beside `closed --> available : reopen`): the suite
+        // asserts a terminal state offers no move, so it is only handed the states
+        // that really have none.
+        terminal: (workflow.terminal ?? []).filter(
+          (state) => !edges.some((edge) => edge.from === state)
+        ),
         edges,
       });
     }

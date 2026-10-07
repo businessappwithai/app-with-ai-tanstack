@@ -80,6 +80,13 @@ describe("refusing conditions handed to the factory", () => {
     ]);
   });
 
+  it("keeps arithmetic and `today` conditions as written, for the factory to evaluate", () => {
+    expect(refusalsFor("line_amount != quantity * unit_price", "due_on >= today")).toEqual([
+      { tableName: "bus_payment", when: "line_amount != quantity * unit_price" },
+      { tableName: "bus_payment", when: "due_on >= today" },
+    ]);
+  });
+
   it("leaves out an unconditional row, which refuses everything and says nothing about values", () => {
     expect(refusalsFor("true")).toEqual([]);
   });

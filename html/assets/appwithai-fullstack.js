@@ -18086,7 +18086,7 @@ class BunE2ETestGenerator extends BaseGenerator {
         tableName: entity2.tableName,
         statusField,
         initial: workflow.initial ?? "",
-        terminal: workflow.terminal ?? [],
+        terminal: (workflow.terminal ?? []).filter((state) => !edges.some((edge) => edge.from === state)),
         edges
       });
     }
