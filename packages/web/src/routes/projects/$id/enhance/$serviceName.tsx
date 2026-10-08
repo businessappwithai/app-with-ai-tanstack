@@ -351,14 +351,15 @@ function ServiceWorkflowPage() {
   const project =
     currentProject?.id === projectId ? currentProject : (getProject(projectId) ?? currentProject);
 
+  // Once per project. `erdCode` is never populated by any endpoint, so keying the
+  // load on it re-ran this effect after every load that had just finished —
+  // each one replaced `currentProject` — and the page sat on "Loading project…".
+  const loadedProjectId = useRef<string | null>(null);
   useEffect(() => {
-    // Always load the full project when we either don't have it at all, or when
-    // the cached copy lacks erdCode (it came from the list endpoint).
-    const cached = getProject(projectId);
-    if (!cached?.erdCode || currentProject?.id !== projectId) {
-      loadProject(projectId);
-    }
-  }, [projectId, getProject, currentProject, loadProject]);
+    if (loadedProjectId.current === projectId) return;
+    loadedProjectId.current = projectId;
+    loadProject(projectId);
+  }, [projectId, loadProject]);
 
   const [workflow, setWorkflow] = useState<HookWorkflow>({
     id: `workflow-${Date.now()}`,
@@ -1473,7 +1474,7 @@ function ServiceWorkflowPage() {
                             {rule.title || rule.name}
                           </span>
                           <span className="block truncate text-[11px] text-muted-foreground">
-                            {rule.entity || "no entity"} · {rule.event}
+                            {rule.entity || "no entity"}
                           </span>
                         </button>
                         <button

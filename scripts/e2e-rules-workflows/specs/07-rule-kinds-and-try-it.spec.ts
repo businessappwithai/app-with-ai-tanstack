@@ -53,15 +53,13 @@ test.describe("the rule editor offers every kind of rule", () => {
     });
   }
 
-  test("a rule says when it runs, in plain words", async ({ browser }) => {
+  test("a rule has no moment of its own — a workflow's hook gives it one", async ({ browser }) => {
     const context = await browserAs(browser, author);
     const page = await context.newPage();
     await openNewRule(page, author, "Student");
 
-    const runsWhen = page.getByLabel("Runs when");
-    await expect(runsWhen).toBeVisible();
-    await runsWhen.selectOption({ label: "A record is changed" });
-    await expect(page.getByText("Judged before the change is saved.")).toBeVisible();
+    await expect(page.getByLabel("Name")).toBeVisible();
+    await expect(page.getByLabel("Runs when")).toHaveCount(0);
     await context.close();
   });
 

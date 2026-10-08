@@ -20,12 +20,17 @@ write, so a rule that refuses a write really does stop it.
 
 ## When a rule runs, and what it can do
 
-Pick **Runs when** to say which write the rule judges: a record being created,
-changed or deleted, or any write. The moments the editor offers are
-`beforeCreate`, `afterCreate`, `beforeUpdate`, `afterUpdate`, `beforeDelete` and
+A rule has no "runs when" of its own. It runs when a **workflow** says so: open
+the workflow on the Logic step, and under **Rules attached to this workflow**
+attach the rule to one of the hooks the workflow listens on. The hook is the
+moment. The moments a rule can be attached to are `beforeCreate`,
+`afterCreate`, `beforeUpdate`, `afterUpdate`, `beforeDelete` and
 `customValidate`. The generated application judges `beforeCreate` and
 `afterCreate` the same way — it reads only *create*, *update*, *delete* or *any* —
 so choose by what you mean, not by timing.
+
+A rule written here and attached to no workflow keeps whatever moment it was
+saved with, so a rule from an existing model carries on as before.
 
 Here is what happens to one write, in order:
 

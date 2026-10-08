@@ -17,12 +17,7 @@ import {
   validateDecisionTable,
 } from "@/lib/eml/decision-table";
 import { convertFlowchartToTable } from "@/lib/eml/flowchart-to-table";
-import {
-  buildRuleTemplate,
-  RUNS_WHEN,
-  type RuleTemplateKind,
-  tableToGraph,
-} from "@/lib/eml/rule-templates";
+import { buildRuleTemplate, type RuleTemplateKind, tableToGraph } from "@/lib/eml/rule-templates";
 
 /**
  * One business rule — shown as a decision table, matching the rule editor in
@@ -101,12 +96,6 @@ export interface RuleEditorProps {
    * match the generated application's rule editor.
    */
   autoConvertFlowchart?: boolean;
-  /**
-   * Hide the "Runs when" selector. The Enhance page no longer does: the event is
-   * the only thing that decides which write a rule judges, so hiding it left
-   * every rule made there stuck on "created".
-   */
-  hideEventSelector?: boolean;
   /** Use the real GoRules JDM editor instead of the custom table. */
   useGoRulesEditor?: boolean;
   /** Enum values for the selected entity's fields, keyed by bare field name. */
@@ -120,7 +109,6 @@ export function RuleEditor({
   entities,
   onChange,
   autoConvertFlowchart = false,
-  hideEventSelector = false,
   useGoRulesEditor = false,
   entityEnums = {},
   workflowNames = [],
@@ -163,9 +151,7 @@ export function RuleEditor({
 
   return (
     <>
-      <div
-        className={`mb-3 grid grid-cols-2 gap-3 ${hideEventSelector ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}
-      >
+      <div className="mb-3 grid grid-cols-2 gap-3 lg:grid-cols-3">
         <label className="block">
           <span className="mb-1 block text-xs font-medium">Name</span>
           <input
@@ -193,26 +179,6 @@ export function RuleEditor({
             ))}
           </select>
         </label>
-
-        {!hideEventSelector && (
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium">Runs when</span>
-            <select
-              className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
-              value={rule.event}
-              onChange={(event) => onChange({ event: event.target.value })}
-            >
-              {RULE_EVENTS.map((event) => (
-                <option key={event} value={event}>
-                  {RUNS_WHEN[event]?.label ?? event}
-                </option>
-              ))}
-            </select>
-            <span className="mt-0.5 block text-[11px] text-muted-foreground">
-              {RUNS_WHEN[rule.event]?.hint}
-            </span>
-          </label>
-        )}
 
         <label className="block">
           <span className="mb-1 block text-xs font-medium">Priority</span>
