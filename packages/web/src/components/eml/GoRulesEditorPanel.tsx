@@ -6,6 +6,7 @@ import {
   GraphSimulator,
   JdmConfigProvider,
   type JdmUiMode,
+  nodeSpecification,
   type Simulation,
 } from "@gorules/jdm-editor";
 import { Play } from "lucide-react";
@@ -65,17 +66,21 @@ function withRequestSchema(
   types: Record<string, "string" | "number" | "boolean">
 ): DecisionGraphType {
   if (fields.length === 0) return graph;
-  const schema = JSON.stringify({
-    type: "object",
-    properties: Object.fromEntries(
-      fields.map((field) => [
-        field,
-        values[field]
-          ? { type: "string", enum: values[field] }
-          : { type: types[field] ?? "string" },
-      ])
-    ),
-  });
+  const schema = JSON.stringify(
+    {
+      type: "object",
+      properties: Object.fromEntries(
+        fields.map((field) => [
+          field,
+          values[field]
+            ? { type: "string", enum: values[field] }
+            : { type: types[field] ?? "string" },
+        ])
+      ),
+    },
+    null,
+    2
+  );
   return {
     ...graph,
     nodes: graph.nodes.map((node) =>
@@ -84,6 +89,20 @@ function withRequestSchema(
         : node
     ),
   } as DecisionGraphType;
+}
+
+/**
+ * Every rule starts from the record being written, not from a request, so the
+ * editor's first node says "Record" — in the component palette, in the node
+ * title, and on a node dragged out new. The library offers no prop for it: the
+ * built-in components are not replaceable, only extendable, so its own
+ * specification is renamed once, for this editor.
+ */
+const inputSpec = nodeSpecification.inputNode;
+if (inputSpec.displayName !== "Record") {
+  const generate = inputSpec.generateNode;
+  inputSpec.displayName = "Record";
+  inputSpec.generateNode = (params) => ({ ...generate(params), name: "Record" });
 }
 
 const MODES: ReadonlyArray<{ id: JdmUiMode; label: string }> = [

@@ -66,6 +66,11 @@ export function constrainGraph<G extends Graph>(graph: G, constraints: RuleConst
   return {
     ...graph,
     nodes: (graph.nodes ?? []).map((node) => {
+      // The node every rule starts from is the record being written, so it is
+      // called that — the editor's own default name for it is "Request".
+      if (node.type === "inputNode") {
+        return !node.name || node.name === "Request" ? { ...node, name: "Record" } : node;
+      }
       if (node.type !== "decisionTableNode") return node;
       const content = (node.content ?? {}) as TableContent;
       const type = (column: Column, kind: "input" | "output") => {
