@@ -1,3 +1,4 @@
+import "@/lib/monaco-local";
 import "@gorules/jdm-editor/dist/style.css";
 import {
   DecisionGraph,
@@ -185,6 +186,82 @@ export function GoRulesEditorPanel({
   const tableIds = [...new Set(columns.map((column) => column.nodeId))];
   const inputCount = columns.filter((column) => column.nodeId === tableIds[0]).length;
 
+  /**
+   * Controls that live in the editor's own tab bar, so they are part of the
+   * graph and not a strip above it: the fields each decision table reads, picked
+   * from the entity's own fields, and the Developer / Business view.
+   */
+  const tabBarExtra = (
+    <div className="flex items-center gap-2 pr-2 text-xs">
+      {tableIds.map((nodeId) => {
+        const mine = columns.filter((column) => column.nodeId === nodeId);
+        const used = new Set(mine.map((column) => column.field));
+        return (
+          <div
+            key={nodeId}
+            role="group"
+            aria-label={`Inputs of ${mine[0]?.nodeName}`}
+            className="flex items-center gap-1"
+          >
+            <span className="font-medium">Inputs</span>
+            {mine.map((column) => (
+              <select
+                key={column.columnId}
+                aria-label={`Input field ${column.field || "whole record"}`}
+                className="max-w-[9rem] rounded border border-border bg-background px-1 py-0.5"
+                value={column.field}
+                onChange={(e) =>
+                  commit(setInputField(graphValue, nodeId, column.columnId, e.target.value))
+                }
+              >
+                {column.field === "" && <option value="">Whole record (formula)</option>}
+                {entityFields.map((field) => (
+                  <option key={field} value={field}>
+                    {field}
+                  </option>
+                ))}
+              </select>
+            ))}
+            <select
+              aria-label="Add an input field"
+              className="max-w-[9rem] rounded border border-dashed border-border bg-background px-1 py-0.5"
+              value=""
+              onChange={(e) => {
+                if (e.target.value) commit(setInputField(graphValue, nodeId, null, e.target.value));
+              }}
+            >
+              <option value="">+ field…</option>
+              {entityFields
+                .filter((field) => !used.has(field))
+                .map((field) => (
+                  <option key={field} value={field}>
+                    {field}
+                  </option>
+                ))}
+            </select>
+          </div>
+        );
+      })}
+      <div
+        role="group"
+        aria-label="Editor view"
+        className="flex shrink-0 overflow-hidden rounded border border-border font-medium"
+      >
+        {MODES.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={mode === id}
+            onClick={() => setMode(id)}
+            className={`px-2 py-0.5 ${mode === id ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   const run = async ({ graph, context }: { graph: DecisionGraphType; context: unknown }) => {
     setRunning(true);
     try {
@@ -224,95 +301,21 @@ export function GoRulesEditorPanel({
           beside it and pushed everything under the editor off the screen. */}
       <style>{`
         .jdm-scope > .ant-app { height: auto !important; min-height: 0 !important; }
-        /* An input is picked from the entity's fields in the bar above, not typed
-           into the editor's own free-text field box. */
+        /* An input is picked from the entity's fields in the editor's tab bar, not
+           typed into the editor's own free-text field box. */
         .jdm-scope thead tr:first-child th:nth-child(2) .cta-wrapper { display: none; }
         .jdm-scope thead tr:nth-child(2) th:nth-child(n+3):nth-child(-n+${2 + inputCount}) .grl-field-edit {
           pointer-events: none;
         }
       `}</style>
       <JdmConfigProvider>
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground">
-            The GoRules editor. Drag nodes from the left toolbar; select a node to edit it; press ▷
-            at the bottom-left to open the Simulator and run a sample record.
-          </p>
-          <div
-            role="group"
-            aria-label="Editor view"
-            className="flex shrink-0 overflow-hidden rounded-md border border-border text-xs font-medium"
-          >
-            {MODES.map(({ id, label }) => (
-              <button
-                key={id}
-                type="button"
-                aria-pressed={mode === id}
-                onClick={() => setMode(id)}
-                className={`px-3 py-1 ${mode === id ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-        {tableIds.map((nodeId) => {
-          const mine = columns.filter((column) => column.nodeId === nodeId);
-          const used = new Set(mine.map((column) => column.field));
-          return (
-            <div
-              key={nodeId}
-              aria-label={`Inputs of ${mine[0]?.nodeName}`}
-              className="mb-2 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs"
-            >
-              <span className="font-medium">Inputs of {mine[0]?.nodeName}</span>
-              <span className="text-muted-foreground">
-                — each is a field of {entity || "this entity"}, picked from its own fields
-              </span>
-              {mine.map((column) => (
-                <select
-                  key={column.columnId}
-                  aria-label={`Input field ${column.field || "whole record"}`}
-                  className="rounded-md border border-border px-2 py-1"
-                  value={column.field}
-                  onChange={(e) =>
-                    commit(setInputField(graphValue, nodeId, column.columnId, e.target.value))
-                  }
-                >
-                  {column.field === "" && <option value="">Whole record (formula)</option>}
-                  {entityFields.map((field) => (
-                    <option key={field} value={field}>
-                      {field}
-                    </option>
-                  ))}
-                </select>
-              ))}
-              <select
-                aria-label="Add an input field"
-                className="rounded-md border border-dashed border-border px-2 py-1"
-                value=""
-                onChange={(e) => {
-                  if (e.target.value)
-                    commit(setInputField(graphValue, nodeId, null, e.target.value));
-                }}
-              >
-                <option value="">+ Add an input field…</option>
-                {entityFields
-                  .filter((field) => !used.has(field))
-                  .map((field) => (
-                    <option key={field} value={field}>
-                      {field}
-                    </option>
-                  ))}
-              </select>
-            </div>
-          );
-        })}
         <div className="overflow-hidden rounded-xl border border-border" style={{ height: 640 }}>
           <DecisionGraph
             value={graphValue}
             onChange={(next) => commit(next)}
             dictionaries={dictionaries}
             mode={mode}
+            tabBarExtraContent={tabBarExtra}
             name={ruleName}
             simulate={simulate}
             panels={[

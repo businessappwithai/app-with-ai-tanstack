@@ -7,7 +7,6 @@ const GoRulesEditorPanel = lazy(() =>
   import("./GoRulesEditorPanel").then((m) => ({ default: m.GoRulesEditorPanel }))
 );
 
-import { RuleStarterPicker } from "@/components/eml/RuleStarterPicker";
 import { RuleTryIt } from "@/components/eml/RuleTryIt";
 import {
   type DecisionTable,
@@ -16,12 +15,7 @@ import {
   validateDecisionTable,
 } from "@/lib/eml/decision-table";
 import { convertFlowchartToTable } from "@/lib/eml/flowchart-to-table";
-import {
-  buildRuleTemplate,
-  type RuleTemplateKind,
-  sampleRecord,
-  tableToGraph,
-} from "@/lib/eml/rule-templates";
+import { sampleRecord, tableToGraph } from "@/lib/eml/rule-templates";
 
 /**
  * One business rule — shown as a decision table, matching the rule editor in
@@ -149,10 +143,6 @@ export function RuleEditor({
     : rule.table;
 
   const problems = useMemo(() => (table ? validateDecisionTable(table) : []), [table]);
-  const hasWork =
-    !!rule.jdmGraph ||
-    !!table?.rules.some((row) => Object.entries(row).some(([key, cell]) => key !== "_id" && cell));
-
   return (
     <>
       <div className="mb-3 grid grid-cols-2 gap-3 lg:grid-cols-3">
@@ -217,16 +207,6 @@ export function RuleEditor({
               )}
             </div>
           )}
-          <RuleStarterPicker
-            hasWork={hasWork}
-            entityFields={entityFields}
-            onPick={(kind: RuleTemplateKind) =>
-              onChange({
-                jdmGraph: JSON.stringify(buildRuleTemplate(kind, { entityFields })),
-                sourceFlowchart: undefined,
-              })
-            }
-          />
           <Suspense
             fallback={
               <div className="py-8 text-center text-sm text-muted-foreground">Loading editor…</div>
