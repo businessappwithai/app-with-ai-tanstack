@@ -94,7 +94,8 @@ export function readEnumValues(erd: string): Record<string, Record<string, strin
   const result: Record<string, Record<string, string[]>> = {};
   for (const [entity, field, name] of bound) {
     const values = enums[name];
-    if (values) (result[entity] ??= {})[field] = values;
+    if (!values) continue;
+    result[entity] = { ...(result[entity] ?? {}), [field]: values };
   }
   return result;
 }
