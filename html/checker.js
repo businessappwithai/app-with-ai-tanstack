@@ -3375,11 +3375,14 @@ class CheckEngine {
       }
     }
     const triggered = new Set(this.src.findAll(/^\s*%%action\b/).map(({ text }) => text.match(/\bworkflow:\s*(\S+)/)?.[1]).filter((name) => !!name));
+    const drawnRules = this.src.findAll(/^\s*%%(?:jdm-graph|decision-table)\s/).map(({ text }) => text);
     for (const { lineNo, text } of this.src.findAll(/^%%workflow\b/)) {
       const m = text.match(/^%%workflow\s+(\w+)[^\n]*kind:\s*saga/);
       if (!m || !/\btrigger:\s*rule\b/.test(text))
         continue;
       if (triggered.has(m[1]))
+        continue;
+      if (drawnRules.some((line) => new RegExp(`\\b${m[1]}\\b`).test(line)))
         continue;
       this.warn("EML286", `Saga "${m[1]}" is rule-triggered but no %%action names it.`, {
         line: lineNo,

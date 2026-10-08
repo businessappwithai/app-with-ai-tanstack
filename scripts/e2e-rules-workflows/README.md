@@ -24,6 +24,14 @@ Chromium on the machine when Playwright cannot download its own.
 
 ## What each spec holds
 
+> **Specs 01–06 are not in this repository.** The root `.gitignore` excludes
+> `*.spec.ts` outside a few named paths and this directory was never one of
+> them, so only the config, helpers and scenarios were committed — and
+> `bun run test:e2e:rules-workflows` found no tests. The ignore now allows
+> `scripts/e2e-rules-workflows/specs/*.spec.ts`. The rows for 01–06 below
+> describe what those specs were written to hold; if you have them locally,
+> add them. 07 and 08 are committed.
+
 | Spec | What it proves |
 |---|---|
 | `01-business-rules-editor` | Every rule in `scenarios/business-rules.json` is built through every control, **tested with values**, saved, reloaded and read back. An `%%action` rule opens as its table and keeps its flowchart. The model still checks clean |
@@ -32,6 +40,8 @@ Chromium on the machine when Playwright cannot download its own.
 | `04-git-history-and-yaml-projection` | A Logic save is a git commit; the diff names what was added; the YAML projection the AI assistant reads lists it; restoring the earlier commit removes it |
 | `05-enhance-page-rules` | The Enhance page's Business Rules tab opens an `%%action` rule as its table and writes an edit back into the `%%action` line |
 | `06-generated-app-editors` | In the generated app: Business Rules offers the app's own entities and a rule built there is **enforced** (the write it forbids answers 400 with its message); Automations keeps everything across a reload; Report Designs opens and prints for **every** entity, and a customised layout is what Print uses |
+| `07-rule-kinds-and-try-it` | The Enhance page's graph editor: a working example of each kind of rule (decision table, expression, function, switch, start-a-workflow), **Try it** answering in a sentence what the write would do, **Runs when** in plain words, a function rule surviving a save and reload as `%%jdm-graph`, and the dry-run route refusing a stranger |
+| `08-generated-rule-kinds` | Needs `--generated --model scripts/e2e-rules-workflows/models/rule-kinds.eml.mmd`. A generated helpdesk obeys a table, an expression and a function (each refuses a write with its own message), and a switch that starts a process whose step marks the record — while an ordinary ticket starts nothing |
 
 ## Testing a new rule or workflow
 

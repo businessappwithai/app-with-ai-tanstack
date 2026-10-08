@@ -1,13 +1,13 @@
 import "@gorules/jdm-editor/dist/style.css";
 import {
   DecisionGraph,
-  JdmConfigProvider,
   type DecisionGraphType,
-  type DecisionTableType,
   type DictionaryMap,
+  JdmConfigProvider,
 } from "@gorules/jdm-editor";
 import { useMemo } from "react";
-import { type DecisionTable as InternalDecisionTable } from "@/lib/eml/decision-table";
+import type { DecisionTable as InternalDecisionTable } from "@/lib/eml/decision-table";
+import { tableToGraph } from "@/lib/eml/rule-templates";
 
 interface GoRulesEditorPanelProps {
   /** Serialised DecisionGraphType JSON, if the rule was already saved as a graph. */
@@ -30,37 +30,6 @@ const ACTION_CHOICES: DictionaryMap = {
   ],
 };
 
-/** Convert a flat DecisionTable into a minimal JDM graph (Input → Table → Output). */
-function tableToInitialGraph(table: InternalDecisionTable, name: string): DecisionGraphType {
-  return {
-    nodes: [
-      {
-        id: "input-1",
-        name: "Request",
-        type: "inputNode",
-        position: { x: 80, y: 200 },
-      },
-      {
-        id: "dt-1",
-        name: name || "Decision",
-        type: "decisionTableNode",
-        position: { x: 340, y: 200 },
-        content: table as unknown as DecisionTableType,
-      },
-      {
-        id: "output-1",
-        name: "Response",
-        type: "outputNode",
-        position: { x: 680, y: 200 },
-      },
-    ],
-    edges: [
-      { id: "e1", sourceId: "input-1", targetId: "dt-1" },
-      { id: "e2", sourceId: "dt-1", targetId: "output-1" },
-    ],
-  };
-}
-
 export function GoRulesEditorPanel({
   jdmGraph,
   table,
@@ -77,7 +46,7 @@ export function GoRulesEditorPanel({
         // fall through to conversion
       }
     }
-    return tableToInitialGraph(table, ruleName);
+    return tableToGraph(table, ruleName) as unknown as DecisionGraphType;
   }, [jdmGraph, table, ruleName]);
 
   const dictionaries: DictionaryMap = {
