@@ -219,6 +219,7 @@ export function RuleEditor({
           )}
           <RuleStarterPicker
             hasWork={hasWork}
+            entityFields={entityFields}
             onPick={(kind: RuleTemplateKind) =>
               onChange({
                 jdmGraph: JSON.stringify(buildRuleTemplate(kind, { entityFields })),
