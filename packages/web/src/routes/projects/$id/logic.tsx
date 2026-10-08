@@ -39,6 +39,7 @@ import { useModelAssistant } from "@/hooks/useModelAssistant";
 import { emptyAutomation, parseAutomation } from "@/lib/automation/model";
 import { emptyDecisionTable } from "@/lib/eml/decision-table";
 import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
+import { readEntities, ruleConstraints } from "@/lib/eml/rule-constraints";
 import { sectionProblems } from "@/lib/eml/section-problems";
 import {
   emptySagaFlow,
@@ -127,33 +128,6 @@ interface EmlResponse {
     title?: string;
     diagram: string;
   }>;
-}
-
-/** Entity names and their attributes, read from the ERD for the pickers. */
-function readEntities(erd: string): Array<{ name: string; attributes: string[] }> {
-  const entities: Array<{ name: string; attributes: string[] }> = [];
-  let current: { name: string; attributes: string[] } | null = null;
-
-  for (const rawLine of (erd ?? "").split("\n")) {
-    const line = rawLine.trim();
-    if (line.startsWith("%%")) continue;
-
-    const open = line.match(/^([A-Za-z][A-Za-z0-9_]*)\s*\{$/);
-    if (open?.[1]) {
-      current = { name: open[1], attributes: [] };
-      continue;
-    }
-    if (line === "}" && current) {
-      entities.push(current);
-      current = null;
-      continue;
-    }
-    if (current) {
-      const attribute = line.match(/^[A-Za-z][\w[\]]*\s+([A-Za-z_]\w*)/);
-      if (attribute?.[1]) current.attributes.push(attribute[1]);
-    }
-  }
-  return entities;
 }
 
 let keyCounter = 0;
@@ -279,6 +253,22 @@ function LogicPage() {
 
   const entities = useMemo(() => readEntities(erd), [erd]);
   const entityNames = useMemo(() => entities.map((entity) => entity.name), [entities]);
+  // What a rule may name: the entity's fields, the values its enum or state
+  // machine allows, and the processes defined for it.
+  const constraints = useMemo(
+    () =>
+      ruleConstraints(
+        erd,
+        workflows.map((workflow) => ({
+          name: pascalWorkflowName(workflow.title ?? workflow.name),
+          title: workflow.title ?? workflow.name,
+          entity: workflow.entity,
+          kind: workflow.kind,
+          stateNames: workflow.kind === "state" ? workflow.states.states.map((s) => s.name) : [],
+        }))
+      ),
+    [erd, workflows]
+  );
   const columnsFor = useCallback(
     (entity: string) => entities.find((candidate) => candidate.name === entity)?.attributes ?? [],
     [entities]
@@ -689,6 +679,9 @@ function LogicPage() {
                     projectId={id}
                     onChange={patchRule}
                     onError={setError}
+                    entityEnums={constraints[activeRule.entity]?.values}
+                    entityWorkflows={constraints[activeRule.entity]?.workflowNames}
+                    fieldTypes={constraints[activeRule.entity]?.fieldTypes}
                   />
                 </>
               ) : creating || (!workflows.length && !activeWorkflow) ? (

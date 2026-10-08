@@ -102,6 +102,10 @@ export interface RuleEditorProps {
   autoConvertFlowchart?: boolean;
   /** Enum values for the selected entity's fields, keyed by bare field name. */
   entityEnums?: Record<string, string[]>;
+  /** Processes defined for the rule's entity — all an answer may start. */
+  entityWorkflows?: string[];
+  /** Each field's JSON type, so the editor can complete and check what is written. */
+  fieldTypes?: Record<string, "string" | "number" | "boolean">;
 }
 
 export function RuleEditor({
@@ -110,6 +114,8 @@ export function RuleEditor({
   onChange,
   autoConvertFlowchart = true,
   entityEnums = {},
+  entityWorkflows = [],
+  fieldTypes,
   projectId,
 }: RuleEditorProps) {
   const [showSource, setShowSource] = useState(false);
@@ -230,6 +236,8 @@ export function RuleEditor({
               table={table}
               entityFields={entityFields}
               entityEnums={entityEnums}
+              entityWorkflows={entityWorkflows}
+              fieldTypes={fieldTypes}
               ruleName={slugifyRuleName(rule.title ?? rule.name)}
               projectId={projectId}
               entity={rule.entity}
