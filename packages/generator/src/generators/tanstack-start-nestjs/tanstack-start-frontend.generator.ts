@@ -219,6 +219,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/lib/workflow",
       "src/lib/automation",
       "src/components/automation",
+      "src/components/eml",
+      "src/components/rules",
+      "src/lib/eml",
       "src/components/reports",
       "src/components/notifications",
       "src/components/help",
@@ -858,6 +861,69 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/automation/RuleTableEditor.tsx",
         dest: "src/components/automation/RuleTableEditor.tsx",
+      },
+      // The rule editor and workflow start, shared verbatim with the modelling tool.
+      {
+        src: "src/components/eml/GoRulesEditorPanel.tsx",
+        dest: "src/components/eml/GoRulesEditorPanel.tsx",
+      },
+      {
+        src: "src/components/eml/RuleTryIt.tsx",
+        dest: "src/components/eml/RuleTryIt.tsx",
+      },
+      {
+        src: "src/components/eml/NewWorkflowPanel.tsx",
+        dest: "src/components/eml/NewWorkflowPanel.tsx",
+      },
+      {
+        src: "src/components/eml/WorkflowRules.tsx",
+        dest: "src/components/eml/WorkflowRules.tsx",
+      },
+      {
+        src: "src/lib/eml/decision-table.ts",
+        dest: "src/lib/eml/decision-table.ts",
+      },
+      {
+        src: "src/lib/eml/dry-run-types.ts",
+        dest: "src/lib/eml/dry-run-types.ts",
+      },
+      {
+        src: "src/lib/eml/rule-constraints.ts",
+        dest: "src/lib/eml/rule-constraints.ts",
+      },
+      {
+        src: "src/lib/eml/rule-graph-constraints.ts",
+        dest: "src/lib/eml/rule-graph-constraints.ts",
+      },
+      {
+        src: "src/lib/eml/rule-outcome.ts",
+        dest: "src/lib/eml/rule-outcome.ts",
+      },
+      {
+        src: "src/lib/eml/rule-templates.ts",
+        dest: "src/lib/eml/rule-templates.ts",
+      },
+      {
+        src: "src/lib/eml/workflow-hooks.ts",
+        dest: "src/lib/eml/workflow-hooks.ts",
+      },
+      {
+        src: "src/lib/monaco-local.ts",
+        dest: "src/lib/monaco-local.ts",
+      },
+      // The `?worker` imports Monaco's editor and language workers are loaded through.
+      {
+        src: "src/worker-modules.d.ts",
+        dest: "src/worker-modules.d.ts",
+      },
+      // The generated application's own wrappers around those editors.
+      {
+        src: "src/components/rules/RuleGraphEditor.tsx",
+        dest: "src/components/rules/RuleGraphEditor.tsx",
+      },
+      {
+        src: "src/components/rules/RulePane.tsx",
+        dest: "src/components/rules/RulePane.tsx",
       },
       {
         src: "src/components/automation/AutomationHelp.tsx",

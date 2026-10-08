@@ -38,9 +38,21 @@ describe("the generated rule editor", () => {
     expect(newRule).toContain("useRuleEntities()");
   });
 
-  it("gives the table its entity's fields in both screens", () => {
-    expect(newRule).toContain("entityFields={entityFields}");
-    expect(editRule).toContain("entityFields={entityFields}");
+  it("opens the modelling tool's graph editor in both screens, on the entity's own fields", () => {
+    for (const [name, screen] of [
+      ["new.tsx", newRule],
+      ["$id.edit.tsx", editRule],
+    ]) {
+      expect(screen, name).toContain("<RuleGraphEditor");
+      expect(screen, name).toContain("fallbackFields={entityFields.map");
+      expect(screen, name).not.toContain("RuleTableEditor");
+    }
+  });
+
+  // A rule has no "runs when" of its own: a workflow's hook gives it one.
+  it("has no Trigger Operation to choose on a rule", () => {
+    expect(newRule).not.toContain("Trigger Operation");
+    expect(newRule).toContain("DEFAULT_OPERATION");
   });
 
   // ISSUE-006 (/qa, 2026-09-25): a long name ran over the Operation column of
@@ -189,5 +201,68 @@ describe("the generated report designer", () => {
     const modal = read("frontend/src/components/reports/ReportPrintModal.tsx");
     expect(modal).toContain("typedDisplay(Number(field.sys_reference_id))");
     expect(modal).toContain('timeZone: "UTC"');
+  });
+});
+
+/**
+ * The workflow and rule editors a generated application ships are the
+ * modelling tool's own — the files are held byte-identical by
+ * `editor-files-identical`; this holds the application's side of the joint.
+ */
+describe("the generated app runs the modelling tool's rule and workflow editors", () => {
+  const page = read("frontend/src/routes/admin/automations.tsx.hbs");
+  const wrapper = read("frontend/src/components/rules/RuleGraphEditor.tsx");
+  const controller = read("backend/src/modules/rules/rules.controller.ts.hbs");
+  const service = read("backend/src/modules/rules/rules.service.ts.hbs");
+  const engine = read("backend/src/modules/rules/rules-engine.service.ts.hbs");
+
+  it("starts a workflow from one hook and attaches rules to that hook", () => {
+    expect(page).toContain("<NewWorkflowPanel");
+    expect(page).toContain("<WorkflowRules");
+    expect(page).toContain("sameMoment={sameOperation}");
+    expect(page).toContain("operation: operationForEvent(draft.event)");
+  });
+
+  it("opens a stored rule in the graph editor, beside the workflows", () => {
+    expect(page).toContain("<RulePane");
+    expect(page).not.toContain("RuleTableEditor");
+  });
+
+  it("loads the editor in the browser only, handing it what this model declares", () => {
+    expect(wrapper).toContain("useEffect(() => setMounted(true), [])");
+    expect(wrapper).toContain('import { RULE_MODEL } from "@/lib/rule-model"');
+    expect(wrapper).toContain("entityWorkflows={processes}");
+    expect(wrapper).toContain("/rules/simulate");
+  });
+
+  it("serves the Simulator, and refuses the graphs the compiler refuses", () => {
+    expect(controller).toContain("@Post('simulate')");
+    expect(service).toContain("async simulate(");
+    expect(engine).toContain("FORBIDDEN_FUNCTION_SOURCE");
+    expect(engine).toContain("content: { source: node.content }");
+  });
+
+  it("lets a workflow's hook set the write a rule judges", () => {
+    expect(service).toContain("updateData.operation = dto.operation");
+  });
+
+  it("ships every file those screens import", () => {
+    for (const file of [
+      "components/eml/GoRulesEditorPanel.tsx",
+      "components/eml/RuleTryIt.tsx",
+      "components/eml/NewWorkflowPanel.tsx",
+      "components/eml/WorkflowRules.tsx",
+      "components/rules/RuleGraphEditor.tsx",
+      "components/rules/RulePane.tsx",
+      "lib/eml/rule-constraints.ts",
+      "lib/eml/rule-graph-constraints.ts",
+      "lib/eml/workflow-hooks.ts",
+      "lib/monaco-local.ts",
+      "worker-modules.d.ts",
+    ]) {
+      expect(GENERATOR, file).toContain(`src: "src/${file}"`);
+    }
+    expect(read("frontend/package.json.hbs")).toContain('"@gorules/jdm-editor"');
+    expect(read("frontend/package.json.hbs")).toContain('"monaco-editor"');
   });
 });

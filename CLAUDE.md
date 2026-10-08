@@ -723,11 +723,25 @@ by `packages/web/src/lib/automation/__tests__/checker-accepts-automations.test.t
 ### The rule and workflow editors ship twice, byte for byte
 
 The generated application's Admin → Business Rules and Automations screens use
-the **same files** as the modelling tool's Logic step. Eight live in both
+the **same files** as the modelling tool's Logic step. Nineteen live in both
 `packages/web/src/` and `packages/generator/templates/tanstack-start-nestjs/frontend/src/`:
 
 `components/automation/{AutomationBuilder,StepInspector,RuleTableEditor,LadderCard,RailList}.tsx`,
-`lib/automation/{model,rule-content}.ts`, `lib/workflow/bpmn-model.ts`
+`lib/automation/{model,rule-content}.ts`, `lib/workflow/bpmn-model.ts`, and the GoRules
+graph editor and workflow start: `components/eml/{GoRulesEditorPanel,RuleTryIt,NewWorkflowPanel,WorkflowRules}.tsx`,
+`lib/eml/{decision-table,dry-run-types,rule-constraints,rule-graph-constraints,rule-outcome,rule-templates,workflow-hooks}.ts`,
+`lib/monaco-local.ts`
+
+The generated app's own joints (not shared): `components/rules/{RuleGraphEditor,RulePane}.tsx`
+hand the panel what *this* model declares (`lib/rule-model.ts`, written by
+`writeRuleModel` in `generate-application.ts` from `rules/rule-model.ts`) and a `dryRun`
+that posts to `POST /rules/simulate`. A rule has no "runs when": attaching it to a
+workflow's hook `PUT`s `operation` (CREATE/UPDATE/DELETE/ALL), and `sameOperation` makes
+`afterCreate` find a create rule too, because the table keeps the write, not the hook.
+The backend (`rules-engine.service.ts.hbs`) prepares a graph the way the compiler does —
+a function node's bare source becomes `{ source }`, a transform row gets `transformData`,
+and `import|require|fetch|eval|process|globalThis` is refused. The generated app's
+`vite build` now bundles Monaco: expect ~7 minutes, not ~2.5.
 
 `components/automation/__tests__/editor-files-identical.test.ts` fails on any
 byte of difference, so an edit to one is an edit to both: change the web copy,

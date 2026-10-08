@@ -11,7 +11,10 @@
  * this lazily inside a request handler.
  */
 
-import { describeOutcome, type Outcome } from "./rule-outcome";
+import type { DryRunResult } from "./dry-run-types";
+import { describeOutcome } from "./rule-outcome";
+
+export type { DryRunResult, DryRunTraceStep } from "./dry-run-types";
 
 export interface DryRunInput {
   /** The editor's graph, as JSON text or an object. */
@@ -21,15 +24,6 @@ export interface DryRunInput {
   /** Entity name; only used to compile the rule the way the generator would. */
   entity?: string;
 }
-
-export interface DryRunTraceStep {
-  node: string;
-  output: unknown;
-}
-
-export type DryRunResult =
-  | { ok: true; result: unknown; outcomes: Outcome[]; trace: DryRunTraceStep[] }
-  | { ok: false; problems: string[] };
 
 const TIMEOUT_MS = 3000;
 

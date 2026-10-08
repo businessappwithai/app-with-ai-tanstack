@@ -1,0 +1,148 @@
+/**
+ * The rule editor of the generated application — the modelling tool's own.
+ *
+ * `GoRulesEditorPanel` and `RuleTryIt` are the files the Logic step runs,
+ * byte for byte. What is this application's is what they are handed: the
+ * fields, values and processes this model declares (`lib/rule-model.ts`, written
+ * when it was generated) and the route that runs a rule (`POST /rules/simulate`).
+ *
+ * The panel draws with the GoRules editor and Monaco, which touch `window`, so
+ * it is loaded in the browser only, after the first render.
+ */
+
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { RuleTryIt } from "@/components/eml/RuleTryIt";
+import { asDecisionTable } from "@/lib/automation/rule-content";
+import { apiClient } from "@/lib/api-client";
+import type { DryRunResult, RuleDryRun } from "@/lib/eml/dry-run-types";
+import { describeOutcome } from "@/lib/eml/rule-outcome";
+import { sampleRecord } from "@/lib/eml/rule-templates";
+import { RULE_MODEL } from "@/lib/rule-model";
+
+const GoRulesEditorPanel = lazy(() =>
+  import("@/components/eml/GoRulesEditorPanel").then((m) => ({ default: m.GoRulesEditorPanel }))
+);
+
+/** Graph nodes a plain decision table is made of; anything else is the author's own graph. */
+const TABLE_ONLY = new Set(["inputNode", "outputNode", "decisionTableNode"]);
+
+interface RuleGraphEditorProps {
+  /** The table the rule is filed under, e.g. `bus_student`. */
+  entityName: string;
+  /** What the rule is called. */
+  ruleName: string;
+  /**
+   * The stored rule: a graph, or a bare decision table. Read once, when the
+   * editor opens — from then on the editor holds the rule, and handing its own
+   * edits back to it would redraw the graph under the author's hands.
+   */
+  initialContent: string;
+  /** The columns the dictionary shows, for an entity the model does not describe. */
+  fallbackFields?: string[];
+  /** Every edit, as the graph's JSON. */
+  onChange: (graphJson: string) => void;
+}
+
+/** The rule as a graph to open, when it is more than a table; otherwise as the table. */
+function readContent(content: string): { jdmGraph?: string } {
+  try {
+    const parsed = JSON.parse(content) as { nodes?: Array<{ type?: string }> };
+    if (Array.isArray(parsed?.nodes) && parsed.nodes.some((node) => !TABLE_ONLY.has(node.type ?? ""))) {
+      return { jdmGraph: content };
+    }
+  } catch {
+    // not JSON: open an empty table
+  }
+  return {};
+}
+
+const dryRun: RuleDryRun = async ({ graph, record, entity }) => {
+  const data = await apiClient.post<{
+    ok: boolean;
+    result?: unknown;
+    trace?: Array<{ node: string; output: unknown }>;
+    problems?: string[];
+  }>("/rules/simulate", { jdmContent: graph, testData: record, entityName: entity });
+  if (!data.ok) return { ok: false, problems: data.problems ?? ["The rule did not run."] };
+  const answer: DryRunResult = {
+    ok: true,
+    result: data.result,
+    trace: data.trace ?? [],
+    outcomes: describeOutcome(data.result),
+  };
+  return answer;
+};
+
+export function RuleGraphEditor({
+  entityName,
+  ruleName,
+  initialContent,
+  fallbackFields = [],
+  onChange,
+}: RuleGraphEditorProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const entity = RULE_MODEL.find((candidate) => candidate.table === entityName);
+  const fields = useMemo(
+    () => (entity ? entity.fields.map((field) => field.name) : fallbackFields),
+    [entity, fallbackFields]
+  );
+  const fieldTypes = useMemo(
+    () => Object.fromEntries((entity?.fields ?? []).map((field) => [field.name, field.type])),
+    [entity]
+  );
+  const values = useMemo(() => entity?.values ?? {}, [entity]);
+  const processes = useMemo(() => entity?.processes ?? [], [entity]);
+  const [seed] = useState(() => ({
+    table: asDecisionTable(initialContent),
+    graph: readContent(initialContent).jdmGraph,
+  }));
+  // What the editor last handed back, so the Try-it panel runs what is on the
+  // screen, saved or not.
+  const [current, setCurrent] = useState<string | undefined>(undefined);
+
+  if (!entityName) {
+    return (
+      <p className="px-6 py-8 text-sm text-muted-foreground">
+        Choose the record type first: the editor offers only its fields.
+      </p>
+    );
+  }
+  if (!mounted) {
+    return <div className="py-8 text-center text-sm text-muted-foreground">Loading editor…</div>;
+  }
+
+  return (
+    <div className="p-4">
+      <Suspense
+        fallback={<div className="py-8 text-center text-sm text-muted-foreground">Loading editor…</div>}
+      >
+        <GoRulesEditorPanel
+          jdmGraph={seed.graph}
+          table={seed.table}
+          entityFields={fields}
+          entityEnums={values}
+          entityWorkflows={processes}
+          fieldTypes={fieldTypes}
+          ruleName={ruleName}
+          entity={entityName}
+          dryRun={dryRun}
+          sampleRecord={JSON.stringify(sampleRecord(fields, values, fieldTypes), null, 2)}
+          onChange={(json) => {
+            setCurrent(json);
+            onChange(json);
+          }}
+        />
+      </Suspense>
+      <RuleTryIt
+        entity={entityName}
+        dryRun={dryRun}
+        entityFields={fields}
+        entityEnums={values}
+        fieldTypes={fieldTypes}
+        getGraph={() => current ?? seed.graph ?? initialContent}
+      />
+    </div>
+  );
+}
