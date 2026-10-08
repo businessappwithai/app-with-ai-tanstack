@@ -22,7 +22,22 @@ Use `bun`, never `npm`/`pnpm`. The tool is `packages/web`; generated apps are a 
 4. `bun run seed:admin -- --email x@y.z` — runs the migrations. It **ignores the email** and creates `admin@admin.com` / `administrator`.
 5. `setsid nohup bun run dev > /var/tmp/dev.log 2>&1 < /dev/null &` then poll `curl localhost:3000/api/health` for 200. Add `AUTH_LOGIN_MAX_PER_MINUTE=100 AUTH_REGISTER_MAX_PER_MINUTE=100` when Playwright will register users, or registration answers 429 after three.
 
+## Drive it (agent path)
+
+There is no `chromium-cli` here; `driver.mjs` (Playwright, headless, signs in as the seeded admin) is the way to see a page. Paths are relative to the repository root.
+
+```bash
+node .claude/skills/run-modelling-tool/driver.mjs /projects /var/tmp/projects.png
+node .claude/skills/run-modelling-tool/driver.mjs "/projects/{id}/logic" /var/tmp/logic.png \
+  --new-project language/examples/crm.eml.mmd --wait 5000
+node .claude/skills/run-modelling-tool/driver.mjs /projects/<id>/logic /var/tmp/x.png --click "Lead Qualification"
+```
+
+It prints the project id, final URL, the page's `h1` and the screenshot path; then read the PNG. `--new-project` creates a project from a model file as the signed-in account and fills `{id}`. Env: `BASE_URL`, `TOOL_EMAIL`, `TOOL_PASSWORD`, `PLAYWRIGHT_CHROMIUM_PATH`. For multi-step editor flows use the spec harness instead (`rule-editor-e2e` skill).
+
 ## Things that bite
+
+- **A project is reachable only by its owner.** A 404 on `/api/projects/:id/eml` (page stuck on a load error) means the id belongs to another account — use `--new-project`.
 
 - **Background processes die between tool calls** (Postgres and the dev server both). Re-check `pg_isready -h /tmp` and the health URL before a long script; restart with the lines above. Never `pkill -f` a pattern your own command line contains — it kills the shell.
 - After a dependency or config change Vite re-optimises and reloads the page once; a script that clicks during that gets a "Something went wrong" overlay. Wait for `.jdm-scope .react-flow` (the rule editor) rather than a fixed sleep.
