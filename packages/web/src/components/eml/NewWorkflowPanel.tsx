@@ -1,12 +1,12 @@
 import { Workflow as WorkflowIcon } from "lucide-react";
 import { useState } from "react";
 import type { HookEvent } from "@/lib/automation/model";
-import { STARTER_HOOKS } from "@/lib/eml/workflow-hooks";
+import { HOOK_CHOICES } from "@/lib/eml/workflow-hooks";
 
 export interface NewWorkflowDraft {
   name: string;
   entity: string;
-  events: HookEvent[];
+  event: HookEvent;
 }
 
 interface NewWorkflowPanelProps {
@@ -23,20 +23,14 @@ interface NewWorkflowPanelProps {
 export function NewWorkflowPanel({ entityNames, onCreate, onCancel }: NewWorkflowPanelProps) {
   const [name, setName] = useState("");
   const [entity, setEntity] = useState(entityNames[0] ?? "");
-  const [events, setEvents] = useState<HookEvent[]>(["beforeCreate"]);
-
-  const toggle = (event: HookEvent) =>
-    setEvents((current) =>
-      current.includes(event) ? current.filter((e) => e !== event) : [...current, event]
-    );
+  const [event, setEvent] = useState<HookEvent>("beforeCreate");
+  const chosen = HOOK_CHOICES.find((choice) => choice.event === event);
 
   const problem = !name.trim()
     ? "Give the workflow a name."
     : !entity
       ? "Choose the record type it watches."
-      : events.length === 0
-        ? "Pick at least one hook to attach it to."
-        : null;
+      : null;
 
   return (
     <section
@@ -50,7 +44,7 @@ export function NewWorkflowPanel({ entityNames, onCreate, onCancel }: NewWorkflo
         <div>
           <h2 className="text-lg font-semibold">New workflow</h2>
           <p className="text-sm text-muted-foreground">
-            Start with the hooks it attaches to. Rules are attached to a hook next, and steps come
+            Start with the hook it attaches to. Rules are attached to that hook next, and steps come
             after.
           </p>
         </div>
@@ -83,35 +77,26 @@ export function NewWorkflowPanel({ entityNames, onCreate, onCancel }: NewWorkflo
         </label>
       </div>
 
-      <fieldset className="mt-5">
-        <legend className="mb-2 text-xs font-medium">Attach it to these hooks</legend>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {STARTER_HOOKS.map((hook) => {
-            const on = events.includes(hook.event);
-            return (
-              <label
-                key={hook.event}
-                className={`flex cursor-pointer items-start gap-2 rounded-lg border px-3 py-2 text-sm ${
-                  on ? "border-primary bg-primary/5" : "border-border hover:bg-muted"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="mt-0.5"
-                  checked={on}
-                  onChange={() => toggle(hook.event)}
-                />
-                <span>
-                  <span className="block font-medium">{hook.label}</span>
-                  <span className="block text-xs text-muted-foreground">
-                    <code className="font-mono">{hook.event}</code> · {hook.hint}
-                  </span>
-                </span>
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
+      <label className="mt-4 block">
+        <span className="mb-1 block text-xs font-medium">Attach it to this hook</span>
+        <select
+          aria-label="Hook"
+          className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+          value={event}
+          onChange={(e) => setEvent(e.target.value as HookEvent)}
+        >
+          {(["Writes", "Reads"] as const).map((group) => (
+            <optgroup key={group} label={group === "Writes" ? "Write hooks" : "Read hooks"}>
+              {HOOK_CHOICES.filter((choice) => choice.group === group).map((choice) => (
+                <option key={choice.event} value={choice.event}>
+                  {choice.label} ({choice.event})
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        {chosen && <span className="mt-1 block text-xs text-muted-foreground">{chosen.hint}</span>}
+      </label>
 
       <div className="mt-6 flex items-center justify-end gap-3">
         {problem && <span className="mr-auto text-xs text-muted-foreground">{problem}</span>}
@@ -127,7 +112,7 @@ export function NewWorkflowPanel({ entityNames, onCreate, onCancel }: NewWorkflo
         <button
           type="button"
           disabled={problem !== null}
-          onClick={() => onCreate({ name: name.trim(), entity, events })}
+          onClick={() => onCreate({ name: name.trim(), entity, event })}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
           Create workflow

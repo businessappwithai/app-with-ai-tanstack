@@ -31,15 +31,88 @@ export function canAttachRules(event: string): event is RuleHook {
   return (RULE_HOOKS as readonly string[]).includes(event);
 }
 
-/** The hooks offered when a workflow is started, with a line saying what each is for. */
-export const STARTER_HOOKS: ReadonlyArray<{ event: HookEvent; label: string; hint: string }> = [
-  { event: "beforeCreate", label: "Before a record is created", hint: "Check or prepare it." },
-  { event: "afterCreate", label: "After a record is created", hint: "React to the new record." },
-  { event: "beforeUpdate", label: "Before a record is changed", hint: "Check the change." },
-  { event: "afterUpdate", label: "After a record is changed", hint: "Audit or notify." },
-  { event: "beforeDelete", label: "Before a record is deleted", hint: "Block or confirm it." },
-  { event: "afterDelete", label: "After a record is deleted", hint: "Clean up after it." },
-  { event: "customValidate", label: "On any write", hint: "Cross-field business checks." },
+export interface HookChoice {
+  event: HookEvent;
+  label: string;
+  hint: string;
+  group: "Writes" | "Reads";
+}
+
+/** Every hook type a workflow can attach to, as the start dropdown lists them. */
+export const HOOK_CHOICES: readonly HookChoice[] = [
+  {
+    event: "beforeCreate",
+    label: "Before a record is created",
+    hint: "Check or prepare it.",
+    group: "Writes",
+  },
+  {
+    event: "afterCreate",
+    label: "After a record is created",
+    hint: "React to the new record.",
+    group: "Writes",
+  },
+  {
+    event: "beforeUpdate",
+    label: "Before a record is changed",
+    hint: "Check the change.",
+    group: "Writes",
+  },
+  {
+    event: "afterUpdate",
+    label: "After a record is changed",
+    hint: "Audit or notify.",
+    group: "Writes",
+  },
+  {
+    event: "beforeDelete",
+    label: "Before a record is deleted",
+    hint: "Block or confirm it.",
+    group: "Writes",
+  },
+  {
+    event: "afterDelete",
+    label: "After a record is deleted",
+    hint: "Clean up after it.",
+    group: "Writes",
+  },
+  {
+    event: "customValidate",
+    label: "On any write",
+    hint: "Cross-field business checks.",
+    group: "Writes",
+  },
+  {
+    event: "beforeRead",
+    label: "Before one record is read",
+    hint: "Guard a single read.",
+    group: "Reads",
+  },
+  {
+    event: "afterRead",
+    label: "After one record is read",
+    hint: "Redact or enrich it.",
+    group: "Reads",
+  },
+  { event: "beforeQuery", label: "Before a query runs", hint: "Scope the query.", group: "Reads" },
+  {
+    event: "afterQuery",
+    label: "After a query runs",
+    hint: "Post-process the rows.",
+    group: "Reads",
+  },
+  {
+    event: "beforeList",
+    label: "Before a list is built",
+    hint: "Filtering, sorting, paging.",
+    group: "Reads",
+  },
+  {
+    event: "afterList",
+    label: "After a list is built",
+    hint: "Post-process a page.",
+    group: "Reads",
+  },
 ];
 
 /** `Lead` + `beforeCreate` → `leadBeforeCreate`, a valid handler name. */
@@ -50,12 +123,9 @@ export function defaultHandlerName(entity: string, event: string): string {
   return `${first || "record"}${tail}`;
 }
 
-/** One rung per chosen hook, in the order the author ticked them. */
-export function hooksFor(entity: string, events: readonly HookEvent[]): AutomationHook[] {
-  return events.map((event) => ({
-    ...newHook(event),
-    handler: defaultHandlerName(entity, event),
-  }));
+/** A new workflow attaches to one hook; more can be added on its ladder. */
+export function hookFor(entity: string, event: HookEvent): AutomationHook {
+  return { ...newHook(event), handler: defaultHandlerName(entity, event) };
 }
 
 export interface AttachableRule {

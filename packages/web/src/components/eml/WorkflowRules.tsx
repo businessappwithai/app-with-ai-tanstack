@@ -38,7 +38,7 @@ export function WorkflowRules({ entity, hooks, rules, onAttach, enhanceHref }: W
           Rules attached to this workflow
         </h3>
         <a href={enhanceHref} className="text-xs font-medium text-primary hover:underline">
-          Write or edit rules in Enhance →
+          Rules can also be edited in Enhance →
         </a>
       </div>
 

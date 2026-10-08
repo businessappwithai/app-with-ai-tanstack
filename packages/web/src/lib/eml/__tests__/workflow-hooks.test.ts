@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { HOOK_EVENTS } from "@/lib/automation/model";
 import {
   canAttachRules,
   defaultHandlerName,
-  hooksFor,
+  HOOK_CHOICES,
+  hookFor,
   RULE_HOOKS,
   rulesAttachedTo,
   rulesAvailableFor,
@@ -16,12 +18,15 @@ describe("workflow hooks", () => {
     expect(defaultHandlerName("Support Case", "afterUpdate")).toMatch(/^[a-zA-Z_][a-zA-Z0-9_]*$/);
   });
 
-  it("starts one rung per ticked hook, each with its own handler", () => {
-    const hooks = hooksFor("Lead", ["beforeCreate", "afterUpdate"]);
-    expect(hooks.map((h) => [h.event, h.handler])).toEqual([
-      ["beforeCreate", "leadBeforeCreate"],
-      ["afterUpdate", "leadAfterUpdate"],
-    ]);
+  it("starts with one rung, for the one hook chosen", () => {
+    const hook = hookFor("Lead", "afterUpdate");
+    expect([hook.event, hook.handler]).toEqual(["afterUpdate", "leadAfterUpdate"]);
+  });
+
+  it("offers every hook type the ladder knows, once", () => {
+    const events = HOOK_CHOICES.map((c) => c.event);
+    expect(new Set(events).size).toBe(HOOK_EVENTS.length);
+    expect([...events].sort()).toEqual([...HOOK_EVENTS].sort());
   });
 
   it("reads 'attached to' as the same entity and the same event", () => {
