@@ -353,15 +353,20 @@ function ServiceWorkflowPage() {
   const project =
     currentProject?.id === projectId ? currentProject : (getProject(projectId) ?? currentProject);
 
-  // Once per project. `erdCode` is never populated by any endpoint, so keying the
-  // load on it re-ran this effect after every load that had just finished —
-  // each one replaced `currentProject` — and the page sat on "Loading project…".
-  const loadedProjectId = useRef<string | null>(null);
+  // The full project (with erdCode) comes from loadProject(); the projects list
+  // cache never carries erdCode and loadProject() does not write into it. Keying
+  // the guard off getProject() therefore re-fetched on every render — it never
+  // gained erdCode — so load at most once per project id instead.
+  const loadedProjectRef = useRef<string | null>(null);
   useEffect(() => {
-    if (loadedProjectId.current === projectId) return;
-    loadedProjectId.current = projectId;
+    if (currentProject?.id === projectId && currentProject.erdCode) {
+      loadedProjectRef.current = projectId;
+      return;
+    }
+    if (loadedProjectRef.current === projectId) return;
+    loadedProjectRef.current = projectId;
     loadProject(projectId);
-  }, [projectId, loadProject]);
+  }, [projectId, currentProject, loadProject]);
 
   const [workflow, setWorkflow] = useState<HookWorkflow>({
     id: `workflow-${Date.now()}`,
