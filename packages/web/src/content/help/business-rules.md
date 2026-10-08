@@ -10,33 +10,38 @@ left, the answer on the right, one row per case. The generator compiles the
 table into a GoRules decision graph that the application evaluates inside the
 write, so a rule that refuses a write really does stop it.
 
-## The four settings at the top
+## The settings at the top
 
 | Field        | What it means |
 | ------------ | ------------- |
 | **Name**     | What people call the rule. It is also how a process's *Look up a rule table* step names it, so it is saved as a short identifier — `Late Fee Guard` becomes `lateFeeGuard`. |
 | **Entity**   | The record type the rule reads and writes. The input pickers below list this entity's fields. |
-| **Runs on**  | When it is evaluated. `beforeCreate` / `beforeUpdate` / `beforeDelete` run **before** the write and can refuse it. `afterCreate` / `afterUpdate` run once the write has happened. `customValidate` runs on any write, for cross-field checks. |
-| **Priority** | Order among rules on the same entity and event. **Lower runs first** — the education model's *Admission Assessment* is 5, *Admission Banding* is 10. |
+| **Priority** | Order among rules on the same entity. **Lower runs first** — run an early validation before a later transform. |
 
-Choose **before…** events for anything that must stop a bad write. An
-`after…` rule can no longer refuse it: the record is already saved.
+> **Business rules run when a hook fires.** Go to the **Trigger.dev Workflows** tab, open a hook (e.g. `beforeCreate`, `beforeUpdate`), and attach the rule there. A rule defined here does nothing on its own until it is wired to a hook.
 
-## Reading the table
-
-The sentence above the grid says what the table does:
+## How the table works
 
 > Given **status** and **balance_due**, decide **Action** and **Message**
 
-- **Inputs** (blue, "When all of these fit") are fields of the record. Pick one
-  with the field dropdown; add another with **＋ input**.
-- **Outcomes** (purple, "The answer is") are what the rule hands back. Pick one
-  from the list; add another with **＋ outcome**.
-- **Rows are read top to bottom and the first row where every check fits is
-  the answer.** Order matters: put the specific cases first.
-- A row whose checks are all blank matches anything. It is shown as
-  **"Otherwise — nothing above fit"** and belongs last. It is the rule's
-  default answer.
+### Inputs — conditions on the entity's fields
+
+Click **＋ input** (or the column header) to add an input column. A dropdown lists every field on the selected entity. Pick one — for example **status**. Each cell in that column is a check: type `"Cancelled"` to match that value, `> 0` to check a number, or leave it blank to match anything.
+
+All checks in a row must fit for the row to apply. Rows are read **top to bottom** and the first row where every check fits is the answer — put the most specific case first.
+
+### Outputs — what the rule does when a row fits
+
+Click **＋ output** (or the column header) to add an outcome column. A dropdown lists the available output fields. The most common ones:
+
+| Output field      | What it does |
+| ----------------- | ------------ |
+| **Action**        | `validation-error` blocks the write; `transform` changes a field; `trigger-workflow` starts a process. |
+| **Message**       | The sentence shown to the user when a `validation-error` fires. |
+| **Workflow Name** | For `trigger-workflow` — which process to start. |
+| **Field / Value** | For `transform` — which field to set and what value to write. |
+
+A row where all checks are blank matches *everything*. Put it last as a catch-all default.
 
 ### Writing a check in a cell
 
@@ -107,8 +112,7 @@ is exactly what goes into the model.
 
 ## Worked example — *Late Fee Guard*
 
-1. Rules → **New**. Name it `Late Fee Guard`, Entity **FeeInvoice**, Runs on
-   **beforeUpdate**, Priority `25`.
+1. Rules → **New**. Name it `Late Fee Guard`, Entity **FeeInvoice**, Priority `25`.
 2. Pick the input field **status**, then **＋ input** and pick
    **balance_due**.
 3. Pick the outcome **Action**, then **＋ outcome** and pick **Message**.

@@ -286,3 +286,32 @@ export function parseTableFromFlowchart(flowchart: string): DecisionTable | null
   if (!line) return null;
   return parseDecisionTable(line.slice(DIRECTIVE_PREFIX.length));
 }
+
+/* -------------------------------------------------------------------------- */
+/*  JDM graph round-trip (full DecisionGraph with nodes + edges)              */
+/* -------------------------------------------------------------------------- */
+
+const JDM_GRAPH_PREFIX = "%%jdm-graph ";
+
+/** Embed a full JDM graph (serialised JSON) in an EML-compatible Mermaid flowchart. */
+export function graphToEmlFlowchart(graphJson: string): string {
+  return [
+    "flowchart TD",
+    "    Start([Rule]) --> End([Result])",
+    `    ${JDM_GRAPH_PREFIX}${graphJson}`,
+  ].join("\n");
+}
+
+/**
+ * Extract the JDM graph JSON string from a flowchart produced by
+ * `graphToEmlFlowchart`. Returns null if the flowchart does not contain a
+ * `%%jdm-graph` directive.
+ */
+export function parseGraphFromFlowchart(flowchart: string): string | null {
+  const line = (flowchart ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l.startsWith(JDM_GRAPH_PREFIX));
+  if (!line) return null;
+  return line.slice(JDM_GRAPH_PREFIX.length);
+}

@@ -22,6 +22,8 @@ import {
   type DecisionRow,
   type DecisionTable,
   emptyDecisionTable,
+  graphToEmlFlowchart,
+  parseGraphFromFlowchart,
   parseTableFromFlowchart,
   tableToEmlFlowchart,
 } from "@/lib/eml/decision-table";
@@ -85,6 +87,23 @@ export function normalizeActionTable(table: DecisionTable): DecisionTable {
 
 /** Read one model rule into the editor's shape, recognising how it is stored. */
 export function toEditableRule(rule: ModelRule, key: string): EditableRule {
+  // Full JDM graph stored by the graph editor takes priority.
+  const graphJson = parseGraphFromFlowchart(rule.flowchart);
+  if (graphJson) {
+    return {
+      key,
+      name: rule.name,
+      entity: rule.entity,
+      event: rule.event,
+      priority: rule.priority,
+      title: rule.title,
+      table: emptyDecisionTable(),
+      jdmGraph: graphJson,
+      sourceKind: "decision-table",
+      sourceRuleName: rule.name,
+    };
+  }
+
   const directiveTable = parseTableFromFlowchart(rule.flowchart);
   const actions = parseRuleActions(rule.flowchart);
 
@@ -125,6 +144,8 @@ export function toEditableRule(rule: ModelRule, key: string): EditableRule {
 
 /** The rule body the save path sends, in whichever form the rule is stored. */
 export function ruleFlowchartForSave(rule: EditableRule): string {
+  // A full JDM graph (from the graph editor) is stored as %%jdm-graph.
+  if (rule.jdmGraph) return graphToEmlFlowchart(rule.jdmGraph);
   // An actions rule is stored as `%%action` directives; writing the table back
   // as them keeps its flowchart and its meaning. Everything else is already a
   // document the composer reads.

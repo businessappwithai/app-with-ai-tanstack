@@ -1,5 +1,11 @@
 import { AlertCircle, Code2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
+
+// Gorules JDM editor bundles monaco-editor which cannot run in SSR —
+// lazy-load so it only resolves in the browser.
+const GoRulesEditorPanel = lazy(() =>
+  import("./GoRulesEditorPanel").then((m) => ({ default: m.GoRulesEditorPanel }))
+);
 import { RuleTableEditor } from "@/components/eml/RuleTableEditor";
 import {
   type DecisionTable,
@@ -32,6 +38,12 @@ export interface EditableRule {
   priority?: number;
   title?: string;
   table: DecisionTable;
+  /**
+   * Serialised `DecisionGraphType` JSON (nodes + edges) produced by the full
+   * JDM graph editor. When set, the graph editor is shown instead of the table
+   * editor, and the save path writes `%%jdm-graph` instead of `%%decision-table`.
+   */
+  jdmGraph?: string;
   /**
    * The rule's original Mermaid, kept verbatim when it is not a decision table
    * this editor wrote — a hand-authored `%%rule` flowchart, as every checked-in
@@ -80,6 +92,12 @@ export interface RuleEditorProps {
    * match the generated application's rule editor.
    */
   autoConvertFlowchart?: boolean;
+  /** Hide the "Runs on" event selector — business rules in the enhance context are not tied to a specific hook event. */
+  hideEventSelector?: boolean;
+  /** Use the real GoRules JDM editor instead of the custom table. */
+  useGoRulesEditor?: boolean;
+  /** Enum values for the selected entity's fields, keyed by bare field name. */
+  entityEnums?: Record<string, string[]>;
 }
 
 export function RuleEditor({
@@ -87,6 +105,9 @@ export function RuleEditor({
   entities,
   onChange,
   autoConvertFlowchart = false,
+  hideEventSelector = false,
+  useGoRulesEditor = false,
+  entityEnums = {},
 }: RuleEditorProps) {
   const [showSource, setShowSource] = useState(false);
   const entityFields = useMemo(
@@ -122,7 +143,9 @@ export function RuleEditor({
 
   return (
     <>
-      <div className="mb-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div
+        className={`mb-3 grid grid-cols-2 gap-3 ${hideEventSelector ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}
+      >
         <label className="block">
           <span className="mb-1 block text-xs font-medium">Name</span>
           <input
@@ -151,20 +174,22 @@ export function RuleEditor({
           </select>
         </label>
 
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium">Runs on</span>
-          <select
-            className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
-            value={rule.event}
-            onChange={(event) => onChange({ event: event.target.value })}
-          >
-            {RULE_EVENTS.map((event) => (
-              <option key={event} value={event}>
-                {event}
-              </option>
-            ))}
-          </select>
-        </label>
+        {!hideEventSelector && (
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium">Runs on</span>
+            <select
+              className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+              value={rule.event}
+              onChange={(event) => onChange({ event: event.target.value })}
+            >
+              {RULE_EVENTS.map((event) => (
+                <option key={event} value={event}>
+                  {event}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <label className="block">
           <span className="mb-1 block text-xs font-medium">Priority</span>
@@ -199,16 +224,31 @@ export function RuleEditor({
               )}
             </div>
           )}
-          <RuleTableEditor
-            name={slugifyRuleName(rule.title ?? rule.name)}
-            table={table}
-            onChange={(next) =>
-              authoredFlowchart
-                ? onChange({ sourceFlowchart: undefined, table: next })
-                : onChange({ table: next })
-            }
-            entityFields={entityFields}
-          />
+          {useGoRulesEditor ? (
+            <Suspense fallback={<div className="py-8 text-center text-sm text-muted-foreground">Loading editor…</div>}>
+              <GoRulesEditorPanel
+                jdmGraph={rule.jdmGraph}
+                table={table}
+                entityFields={entityFields}
+                entityEnums={entityEnums}
+                ruleName={slugifyRuleName(rule.title ?? rule.name)}
+                onChange={(graphJson) =>
+                  onChange({ jdmGraph: graphJson, sourceFlowchart: undefined })
+                }
+              />
+            </Suspense>
+          ) : (
+            <RuleTableEditor
+              name={slugifyRuleName(rule.title ?? rule.name)}
+              table={table}
+              onChange={(next) =>
+                authoredFlowchart
+                  ? onChange({ sourceFlowchart: undefined, table: next })
+                  : onChange({ table: next })
+              }
+              entityFields={entityFields}
+            />
+          )}
         </>
       ) : (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
@@ -298,9 +338,9 @@ export function RuleEditor({
           {`%%rule ${slugifyRuleName(rule.title ?? rule.name)} on ${
             rule.entity || "<entity>"
           } event: ${rule.event} priority: ${rule.priority ?? 100}\n${
-            // Match what the save path will write, or this preview claims the
-            // rule is an empty table when it is really the authored flowchart.
-            rule.sourceFlowchart ?? tableToEmlFlowchart(rule.table)
+            rule.jdmGraph
+              ? `%%jdm-graph ${rule.jdmGraph}`
+              : rule.sourceFlowchart ?? tableToEmlFlowchart(rule.table)
           }`}
         </pre>
       )}

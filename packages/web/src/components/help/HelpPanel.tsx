@@ -92,10 +92,17 @@ export function HelpPanel({ open, topic, onTopicChange, onClose }: HelpPanelProp
   if (!open) return null;
 
   return (
-    <aside
-      aria-label="Help"
-      className="fixed inset-y-0 right-0 z-40 flex w-full max-w-[460px] flex-col border-l border-border bg-card shadow-2xl"
-    >
+    <>
+      {/* Backdrop — clicking outside closes the panel */}
+      <div
+        className="fixed inset-0 z-40 bg-black/20"
+        aria-hidden="true"
+        onClick={onClose}
+      />
+      <aside
+        aria-label="Help"
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[460px] flex-col border-l border-border bg-card shadow-2xl"
+      >
       <header className="flex items-center gap-2 border-b border-border px-4 py-3">
         <BookOpen className="h-4 w-4 text-primary" />
         <span className="text-sm font-semibold">Help</span>
@@ -140,6 +147,7 @@ export function HelpPanel({ open, topic, onTopicChange, onClose }: HelpPanelProp
         </ReactMarkdown>
       </div>
     </aside>
+    </>
   );
 }
 

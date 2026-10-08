@@ -2,6 +2,7 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowLeft,
+  BookOpen,
   CheckCircle2,
   Circle,
   Clock,
@@ -19,7 +20,9 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
 import { type EditableRule, RuleEditor } from "@/components/eml/RuleEditor";
+import { HelpPanel } from "@/components/help/HelpPanel";
 import { ProgressStepper } from "@/components/ProgressStepper";
+import type { HelpTopicId } from "@/content/help";
 import {
   type Automation,
   type AutomationStep,
@@ -380,6 +383,8 @@ function ServiceWorkflowPage() {
   const [isSavingRules, setIsSavingRules] = useState(false);
   const [rulesSavedAt, setRulesSavedAt] = useState<string | null>(null);
   const [selectedHookIndex, setSelectedHookIndex] = useState(0);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpTopicId, setHelpTopicId] = useState<HelpTopicId>("rules");
 
   const draftSaveTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const isDirtyRef = useRef(false);
@@ -463,7 +468,39 @@ function ServiceWorkflowPage() {
       }
     });
 
-    return entityList;
+    // Business rules apply to user-defined business entities only.
+    return entityList.filter((e) => !/^sys_/i.test(e.name));
+  }, [project?.erdCode]);
+
+  /** Map from bare field name → enum values, parsed from %%enum and %%field directives. */
+  const modelEnums = useMemo(() => {
+    if (!project?.erdCode) return {};
+    const enumDefs: Record<string, string[]> = {};
+    const fieldToEnum: Record<string, string> = {}; // "Entity.field" → enumName
+
+    for (const line of project.erdCode.split("\n")) {
+      const trimmed = line.trim();
+      const enumMatch = trimmed.match(/^%%enum\s+(\w+)\s*:\s*(.+)$/);
+      if (enumMatch) {
+        const name = enumMatch[1];
+        const valStr = enumMatch[2];
+        if (name && valStr) enumDefs[name] = valStr.split(",").map((v) => v.trim()).filter(Boolean);
+      }
+      const fieldMatch = trimmed.match(/^%%field\s+(\w+\.\w+)\s+.*?enum:\s*(\w+)/);
+      if (fieldMatch) {
+        const entityField = fieldMatch[1];
+        const enumName = fieldMatch[2];
+        if (entityField && enumName) fieldToEnum[entityField] = enumName;
+      }
+    }
+
+    const result: Record<string, string[]> = {};
+    for (const [entityField, enumName] of Object.entries(fieldToEnum)) {
+      const values = enumDefs[enumName];
+      const fieldName = entityField.split(".")[1];
+      if (values && fieldName) result[fieldName] = values;
+    }
+    return result;
   }, [project?.erdCode]);
 
   /**
@@ -1108,6 +1145,7 @@ function ServiceWorkflowPage() {
       </header>
 
       {!showGeneratedCode && (
+        <>
         <div className="border-b border-border bg-card">
           <div className="max-w-[1800px] mx-auto px-6">
             <div className="flex gap-6">
@@ -1152,9 +1190,27 @@ function ServiceWorkflowPage() {
                 <Scale className="w-4 h-4 inline mr-2" />
                 Business Rules
               </button>
+              {activeTab === "rules" && (
+                <button
+                  type="button"
+                  onClick={() => setHelpOpen((o) => !o)}
+                  className="ml-auto flex items-center gap-1.5 self-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Help
+                </button>
+              )}
             </div>
           </div>
         </div>
+
+        <HelpPanel
+          open={helpOpen}
+          topic={helpTopicId}
+          onTopicChange={setHelpTopicId}
+          onClose={() => setHelpOpen(false)}
+        />
+        </>
       )}
 
       {!showGeneratedCode ? (
@@ -1427,6 +1483,9 @@ function ServiceWorkflowPage() {
                         onChange={patchRule}
                         onError={(message) => setValidationErrors(message ? [message] : [])}
                         autoConvertFlowchart
+                        hideEventSelector
+                        useGoRulesEditor
+                        entityEnums={modelEnums}
                       />
                       <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
                         <button
