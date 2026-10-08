@@ -127,24 +127,30 @@ export async function migrate(db, model, readAsset, log = () => {}) {
 
   log("Seeding the dictionary");
   const tick = seedCounter(model, log);
-  await seedReferences(db, model, tick);
-  await seedCategories(db, model, tick);
-  await seedDictionary(db, model, tick);
-  await seedRoles(db, model, tick);
-  await seedAdmin(db, model, log);
-  await seedRoleUsers(db, model, log, tick);
-  await seedRules(db, model, tick);
-  await seedWorkflows(db, model, tick);
-  await seedReports(db, model, tick);
-  await seedAccess(db, model, tick);
-  await seedReporting(db, model, log, tick);
-  await seedSampleData(db, model, log, tick);
+  /* One transaction for the whole seed — see Database.transaction. Without it the
+     browser flushes IndexedDB after every one of thousands of statements. The
+     `seeded` marker is inside it too, so a seed that fails part-way leaves no
+     marker and no half of a dictionary. */
+  await db.transaction(async (tx) => {
+    await seedReferences(tx, model, tick);
+    await seedCategories(tx, model, tick);
+    await seedDictionary(tx, model, tick);
+    await seedRoles(tx, model, tick);
+    await seedAdmin(tx, model, log);
+    await seedRoleUsers(tx, model, log, tick);
+    await seedRules(tx, model, tick);
+    await seedWorkflows(tx, model, tick);
+    await seedReports(tx, model, tick);
+    await seedAccess(tx, model, tick);
+    await seedReporting(tx, model, log, tick);
+    await seedSampleData(tx, model, log, tick);
 
-  await db.query(
-    `INSERT INTO sys_schema_state (key, value) VALUES ('seeded', $1)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
-    [String(SCHEMA_VERSION)]
-  );
+    await tx.query(
+      `INSERT INTO sys_schema_state (key, value) VALUES ('seeded', $1)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+      [String(SCHEMA_VERSION)]
+    );
+  });
 
   return { seeded: true };
 }
@@ -500,10 +506,13 @@ async function seedSampleData(db, model, log, tick = () => {}) {
       if (columns.length === 0) continue;
       const placeholders = columns.map((_, index) => `$${index + 1}`).join(", ");
       try {
-        await db.query(
-          `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${placeholders})
-             ON CONFLICT DO NOTHING`,
-          columns.map((column) => row[column])
+        // A savepoint, so one rejected row costs that row and not the seed.
+        await db.attempt(() =>
+          db.query(
+            `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${placeholders})
+               ON CONFLICT DO NOTHING`,
+            columns.map((column) => row[column])
+          )
         );
         inserted++;
       } catch (error) {

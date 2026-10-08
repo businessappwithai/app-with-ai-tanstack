@@ -12242,6 +12242,45 @@ export class Database {
     await this.pg.exec(sql);
   }
 
+  /**
+   * Run \`work\` in one transaction, handing it a Database bound to it.
+   *
+   * Not for atomicity alone. On the browser's \`idb://\` store PGlite writes its
+   * files back to IndexedDB after every statement made outside a transaction,
+   * so a seed of a thousand statements is a thousand flushes — measured at over
+   * three minutes against about two seconds in memory. Inside a transaction the
+   * flush happens once, at the end.
+   */
+  async transaction(work) {
+    if (this.inTransaction || typeof this.pg.transaction !== "function") return work(this);
+    return this.pg.transaction(async (tx) => {
+      const bound = new Database(tx);
+      bound.inTransaction = true;
+      return work(bound);
+    });
+  }
+
+  /**
+   * Run \`work\`, and if it throws undo only what it did.
+   *
+   * A statement that fails inside a transaction aborts the whole transaction, so
+   * a caller that tolerates a failure — a sample row that breaks a constraint —
+   * needs a savepoint around it. Outside a transaction there is nothing to
+   * abort and \`work\` runs as it is.
+   */
+  async attempt(work) {
+    if (!this.inTransaction) return work();
+    await this.pg.exec("SAVEPOINT attempt");
+    try {
+      const result = await work();
+      await this.pg.exec("RELEASE SAVEPOINT attempt");
+      return result;
+    } catch (error) {
+      await this.pg.exec("ROLLBACK TO SAVEPOINT attempt");
+      throw error;
+    }
+  }
+
   async close() {
     if (this.pg.close) await this.pg.close();
   }
@@ -14457,24 +14496,30 @@ export async function migrate(db, model, readAsset, log = () => {}) {
 
   log("Seeding the dictionary");
   const tick = seedCounter(model, log);
-  await seedReferences(db, model, tick);
-  await seedCategories(db, model, tick);
-  await seedDictionary(db, model, tick);
-  await seedRoles(db, model, tick);
-  await seedAdmin(db, model, log);
-  await seedRoleUsers(db, model, log, tick);
-  await seedRules(db, model, tick);
-  await seedWorkflows(db, model, tick);
-  await seedReports(db, model, tick);
-  await seedAccess(db, model, tick);
-  await seedReporting(db, model, log, tick);
-  await seedSampleData(db, model, log, tick);
+  /* One transaction for the whole seed — see Database.transaction. Without it the
+     browser flushes IndexedDB after every one of thousands of statements. The
+     \`seeded\` marker is inside it too, so a seed that fails part-way leaves no
+     marker and no half of a dictionary. */
+  await db.transaction(async (tx) => {
+    await seedReferences(tx, model, tick);
+    await seedCategories(tx, model, tick);
+    await seedDictionary(tx, model, tick);
+    await seedRoles(tx, model, tick);
+    await seedAdmin(tx, model, log);
+    await seedRoleUsers(tx, model, log, tick);
+    await seedRules(tx, model, tick);
+    await seedWorkflows(tx, model, tick);
+    await seedReports(tx, model, tick);
+    await seedAccess(tx, model, tick);
+    await seedReporting(tx, model, log, tick);
+    await seedSampleData(tx, model, log, tick);
 
-  await db.query(
-    \`INSERT INTO sys_schema_state (key, value) VALUES ('seeded', $1)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()\`,
-    [String(SCHEMA_VERSION)]
-  );
+    await tx.query(
+      \`INSERT INTO sys_schema_state (key, value) VALUES ('seeded', $1)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()\`,
+      [String(SCHEMA_VERSION)]
+    );
+  });
 
   return { seeded: true };
 }
@@ -14830,10 +14875,13 @@ async function seedSampleData(db, model, log, tick = () => {}) {
       if (columns.length === 0) continue;
       const placeholders = columns.map((_, index) => \`$\${index + 1}\`).join(", ");
       try {
-        await db.query(
-          \`INSERT INTO \${table} (\${columns.join(", ")}) VALUES (\${placeholders})
-             ON CONFLICT DO NOTHING\`,
-          columns.map((column) => row[column])
+        // A savepoint, so one rejected row costs that row and not the seed.
+        await db.attempt(() =>
+          db.query(
+            \`INSERT INTO \${table} (\${columns.join(", ")}) VALUES (\${placeholders})
+               ON CONFLICT DO NOTHING\`,
+            columns.map((column) => row[column])
+          )
         );
         inserted++;
       } catch (error) {
@@ -26252,7 +26300,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 616478;
+var RUNTIME_BYTES = 618391;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

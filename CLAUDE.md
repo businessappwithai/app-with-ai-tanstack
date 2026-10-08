@@ -367,6 +367,23 @@ of the system-edition `llmtext` documents describe it; generated suite
 
 `--standalone` mode generates a self-contained browser app (model compiled to `model.json` + SQL, no per-entity source). Regular mode generates the full NestJS + TanStack stack (~413 files).
 
+#### The first-boot seed is one transaction, because the browser flushes per statement
+
+On the browser's `idb://` store PGlite writes its files back to IndexedDB after
+every statement made outside a transaction. The seed is thousands of statements,
+so the CRM model took over three minutes to reach sign-in in headless Chromium —
+past the E2E wait of 180s, which failed that test and left the twelve that depend
+on it unrun — while the same seed in memory under node is two seconds. Nothing run
+under node can show it. `migrate()` now runs every seed stage inside
+`db.transaction()` (one flush; the CRM boots in about 15s), and the `seeded` marker
+is inside it, so a seed that fails leaves no marker and no half a dictionary.
+
+One statement that fails aborts a transaction, so anything the seed tolerates is
+wrapped in `db.attempt()` — a savepoint. Today that is the sample rows, which are
+skipped one at a time. Add a new tolerated step the same way or it will cost the
+whole seed. Held by `generators/wasm/__tests__/seed-transaction.test.ts`, which
+runs a real PGlite in a Bun child process (it will not load under jsdom).
+
 #### The browser application's Application Dictionary shows fields, and did not
 
 `sys_window`, `sys_tab` and `sys_field` are all seeded by `server/migrate.js` and
@@ -665,6 +682,14 @@ excludes `*.spec.ts`; there is now a negation). Specs 01–06 in its README are 
 in the repository. 07 drives the Enhance page; 08 boots a generated app from
 `models/rule-kinds.eml.mmd` (the helpdesk model plus one graph rule per node type
 and a process a switch starts) and asserts on the records.
+
+Hook handlers are stubs the author fills in, so the runner does the same: a
+`<model>.handlers/` directory beside the model (`rule-kinds.handlers/Ticket.ts`) is
+copied over the generated `backend/src/modules/hooks/handlers/` before the app
+starts (`installHandlers` in `run.ts`). That is what makes the order of a write
+observable — a `beforeCreate` hook raises `impact_score`, only the rules then see
+it, and the switch starts the process — and `HOOK_TRACE_FILE` records
+`beforeCreate` ahead of `afterCreate`.
 
 ### The automation builder — the second reader of the same directives
 

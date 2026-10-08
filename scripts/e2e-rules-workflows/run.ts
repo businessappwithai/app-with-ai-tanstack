@@ -14,7 +14,7 @@
  * GENERATED_APP_URL pointing at it, and stops both whatever happens.
  */
 
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { type Subprocess, spawn } from "bun";
@@ -119,6 +119,24 @@ async function freshDatabase(): Promise<string> {
   return url.toString();
 }
 
+/**
+ * Put the author's hook handlers in place.
+ *
+ * The generator writes `backend/src/modules/hooks/handlers/<Entity>.ts` as stubs
+ * and never overwrites them — the bodies are the author's. A model with a
+ * `<model>.handlers/` directory beside it (`rule-kinds.handlers/Ticket.ts`)
+ * supplies those bodies, so a run can observe what a hook did to a write.
+ */
+function installHandlers(modelPath: string, appDir: string): void {
+  const dir = modelPath.replace(/\.eml\.mmd$|\.mmd$/, ".handlers");
+  if (!existsSync(dir)) return;
+  const target = path.join(appDir, "backend/src/modules/hooks/handlers");
+  for (const file of readdirSync(dir).filter((f) => f.endsWith(".ts"))) {
+    copyFileSync(path.join(dir, file), path.join(target, file));
+    console.log(`▸ Installed hook handlers: ${file}`);
+  }
+}
+
 async function bootGeneratedApp(): Promise<Record<string, string>> {
   const out = mkdtempSync(path.join(tmpdir(), "appwithai-rules-workflows-"));
   const backendPort = process.env.GENERATED_BACKEND_PORT ?? "4701";
@@ -146,6 +164,8 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
     ],
     ROOT
   );
+  installHandlers(model, out);
+  const hookTrace = path.join(out, "hook-trace.log");
   await run(["bun", "install"], out, appEnv());
 
   const databaseUrl = await freshDatabase();
@@ -175,7 +195,7 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
   children.push(
     spawn(["bun", "run", "start"], {
       cwd: path.join(out, "backend"),
-      env: appEnv(),
+      env: { ...appEnv(), HOOK_TRACE_FILE: hookTrace },
       stdout: "ignore",
       stderr: "inherit",
     })
@@ -196,6 +216,7 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
     GENERATED_APP_URL: `http://localhost:${frontendPort}`,
     GENERATED_ADMIN_EMAIL: "admin@admin.com",
     GENERATED_ADMIN_PASSWORD: password,
+    HOOK_TRACE_FILE: hookTrace,
   };
 }
 
