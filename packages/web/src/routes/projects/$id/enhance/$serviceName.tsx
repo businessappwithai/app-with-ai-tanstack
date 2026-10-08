@@ -344,10 +344,18 @@ function ServiceWorkflowPage() {
 
   const { getProject, loadProject, setCurrentStep, goToNextStep, currentProject, isLoading } =
     useProjectStore();
-  const project = getProject(projectId) || currentProject;
+
+  // Prefer currentProject when it matches (it includes erdCode from a full GET).
+  // The projects list cache omits erdCode, so falling back to it leaves the
+  // entity dropdown empty even after the store appears to have the project.
+  const project =
+    currentProject?.id === projectId ? currentProject : (getProject(projectId) ?? currentProject);
 
   useEffect(() => {
-    if (!getProject(projectId) && !currentProject) {
+    // Always load the full project when we either don't have it at all, or when
+    // the cached copy lacks erdCode (it came from the list endpoint).
+    const cached = getProject(projectId);
+    if (!cached?.erdCode || currentProject?.id !== projectId) {
       loadProject(projectId);
     }
   }, [projectId, getProject, currentProject, loadProject]);
