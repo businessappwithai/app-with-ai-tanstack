@@ -31,6 +31,14 @@ export default defineConfig({
     jsxImportSource: 'react',
   },
   vite: {
+    optimizeDeps: {
+      // The rule editor's engine is WebAssembly, found next to its own script. Pre-bundled,
+      // the script moves to Vite's cache and the .wasm does not stay beside it, so the dev
+      // server answers the request with HTML and the editor quietly drops to its
+      // developer view — no pick-lists, no operators. Left where it is, it loads.
+      // (It is a direct dependency so the pre-bundled editor can still resolve it.)
+      exclude: ['@gorules/zen-engine-wasm'],
+    },
     esbuild: {
       jsx: 'automatic',
       jsxImportSource: 'react',

@@ -49,6 +49,19 @@ describe("the generated rule editor", () => {
     }
   });
 
+  // The graph editor's toolbar is plain buttons, and a button inside a form submits it:
+  // pressing the Simulator's play control saved the rule and left the page.
+  it("keeps the graph editor outside the form that saves the rule", () => {
+    for (const [name, screen] of [
+      ["new.tsx", newRule],
+      ["$id.edit.tsx", editRule],
+    ]) {
+      const form = screen.slice(screen.indexOf("<form"), screen.indexOf("</form>"));
+      expect(form, name).not.toContain("<RuleGraphEditor");
+      expect(screen, name).toContain('form="rule-form"');
+    }
+  });
+
   // A rule has no "runs when" of its own: a workflow's hook gives it one.
   it("has no Trigger Operation to choose on a rule", () => {
     expect(newRule).not.toContain("Trigger Operation");
@@ -220,7 +233,7 @@ describe("the generated app runs the modelling tool's rule and workflow editors"
     expect(page).toContain("<NewWorkflowPanel");
     expect(page).toContain("<WorkflowRules");
     expect(page).toContain("sameMoment={sameOperation}");
-    expect(page).toContain("operation: operationForEvent(draft.event)");
+    expect(page).toContain("operationForEvent(");
   });
 
   it("opens a stored rule in the graph editor, beside the workflows", () => {

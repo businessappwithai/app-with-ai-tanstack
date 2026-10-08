@@ -442,15 +442,19 @@ export class EntityPromotionService {
     tableName: string,
     operation: 'create' | 'update' | 'delete',
   ): Promise<string[]> {
-    const normalized = tableName.toLowerCase().replace(/^bus_/, '');
-    const candidates = [normalized, `bus_${normalized}`];
-
+    // An automation built in the application files itself under the record
+    // type's own name (`SupportCase`), the model's under the table's
+    // (`bus_support_case`); with the underscores and the prefix set aside the
+    // two are the same word, which is how a multi-word record type is found.
+    const flat = tableName.toLowerCase().replace(/^bus_/, '').replace(/_/g, '');
     const rows = await this.db
       .selectFrom('sys_workflow_definitions')
       .select(['name'])
       .where((eb: any) =>
-        eb.or(candidates.map((c) => eb(sql<string>`lower(entity_name)`, '=', c))),
+        eb(sql<string>`replace(lower(entity_name), '_', '')`, 'in', [flat, `bus${flat}`]),
       )
+      // Nothing compiled means nothing to run: a handlers-only hook workflow.
+      .where('bpmn_xml', 'is not', null)
       .where((eb: any) =>
         eb.or([eb('operation', '=', operation.toUpperCase()), eb('operation', '=', 'ALL')]),
       )

@@ -31,11 +31,7 @@ interface RuleGraphEditorProps {
   entityName: string;
   /** What the rule is called. */
   ruleName: string;
-  /**
-   * The stored rule: a graph, or a bare decision table. Read once, when the
-   * editor opens — from then on the editor holds the rule, and handing its own
-   * edits back to it would redraw the graph under the author's hands.
-   */
+  /** The stored rule: a graph, or a bare decision table. Read once, when the editor opens. */
   initialContent: string;
   /** The columns the dictionary shows, for an entity the model does not describe. */
   fallbackFields?: string[];
@@ -84,9 +80,13 @@ export function RuleGraphEditor({
   useEffect(() => setMounted(true), []);
 
   const entity = RULE_MODEL.find((candidate) => candidate.table === entityName);
+  // Keyed by what the list says, not by the array: a parent that builds it on
+  // every render would otherwise hand the editor "new" fields each time it
+  // re-rendered, which redraws the graph under whatever the author has open.
+  const fallbackKey = fallbackFields.join("\u0000");
   const fields = useMemo(
-    () => (entity ? entity.fields.map((field) => field.name) : fallbackFields),
-    [entity, fallbackFields]
+    () => (entity ? entity.fields.map((field) => field.name) : fallbackKey ? fallbackKey.split("\u0000") : []),
+    [entity, fallbackKey]
   );
   const fieldTypes = useMemo(
     () => Object.fromEntries((entity?.fields ?? []).map((field) => [field.name, field.type])),
@@ -98,9 +98,11 @@ export function RuleGraphEditor({
     table: asDecisionTable(initialContent),
     graph: readContent(initialContent).jdmGraph,
   }));
-  // What the editor last handed back, so the Try-it panel runs what is on the
-  // screen, saved or not.
-  const [current, setCurrent] = useState<string | undefined>(undefined);
+  // The graph as the editor last drew it. It goes back into the panel on every
+  // edit, as the Logic step does: the panel derives from it what it offers next —
+  // the Record's schema on a Record just added, the fields a table may read, the
+  // names that do not exist — and the Try-it panel runs it, saved or not.
+  const [current, setCurrent] = useState<string | undefined>(seed.graph);
 
   if (!entityName) {
     return (
@@ -119,7 +121,7 @@ export function RuleGraphEditor({
         fallback={<div className="py-8 text-center text-sm text-muted-foreground">Loading editor…</div>}
       >
         <GoRulesEditorPanel
-          jdmGraph={seed.graph}
+          jdmGraph={current}
           table={seed.table}
           entityFields={fields}
           entityEnums={values}
@@ -141,7 +143,7 @@ export function RuleGraphEditor({
         entityFields={fields}
         entityEnums={values}
         fieldTypes={fieldTypes}
-        getGraph={() => current ?? seed.graph ?? initialContent}
+        getGraph={() => current ?? initialContent}
       />
     </div>
   );

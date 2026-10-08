@@ -165,7 +165,10 @@ function EditRulePage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-8 py-8">
-        <form onSubmit={handleSubmit}>
+        {/* The form holds the rule's details only. The graph editor's own toolbar is made of
+            plain buttons, and a button inside a form submits it: pressing the Simulator's
+            play control saved the rule. The editor sits outside, and Save names the form. */}
+        <form id="rule-form" onSubmit={handleSubmit}>
           {/* Rule metadata display (read-only) */}
           <div className="border-2 border-foreground mb-8">
             <div className="bg-muted/40 px-6 py-3 border-b-2 border-foreground">
@@ -229,6 +232,8 @@ function EditRulePage() {
             </div>
           </div>
 
+        </form>
+
           {/* The rule: the modelling tool's own graph editor */}
           <div className="border-2 border-foreground mb-8">
             <div className="bg-muted/40 px-6 py-3 border-b-2 border-foreground">
@@ -262,6 +267,7 @@ function EditRulePage() {
             </Link>
             <Button
               type="submit"
+              form="rule-form"
               disabled={updateMutation.isPending}
               className="bg-foreground text-background hover:bg-foreground/90 rounded-none px-8"
             >
@@ -273,7 +279,6 @@ function EditRulePage() {
               {updateMutation.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </div>
-        </form>
       </main>
     </div>
   );

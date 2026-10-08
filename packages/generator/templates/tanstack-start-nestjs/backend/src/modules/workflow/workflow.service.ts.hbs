@@ -18,6 +18,7 @@ import { Inject, Injectable, Logger, NotFoundException, forwardRef } from '@nest
 import { Kysely, sql } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
 import { RulesEngine } from '../rules/rules-engine.service';
+import { automationGuards } from '../workflow-definitions/automation-compiler';
 
 export interface TriggerWorkflowDto {
   entityName: string;
@@ -134,7 +135,9 @@ export class WorkflowService {
   ): Promise<void> {
     const db = options.db ?? this.db;
     const normalized = entityName.toLowerCase().replace(/^bus_/, '');
-    const candidates = [normalized, `bus_${normalized}`];
+    // See EntityPromotionService.findWorkflowNames: `SupportCase` and
+    // `bus_support_case` are the same record type.
+    const flat = normalized.replace(/_/g, '');
 
     let definitions: any[];
     try {
@@ -142,7 +145,7 @@ export class WorkflowService {
         .selectFrom('sys_workflow_definitions')
         .selectAll()
         .where((eb) =>
-          eb.or(candidates.map((c) => eb(sql<string>`lower(entity_name)`, '=', c))),
+          eb(sql<string>`replace(lower(entity_name), '_', '')`, 'in', [flat, `bus${flat}`]),
         )
         .where((eb) =>
           eb.or([
@@ -171,6 +174,14 @@ export class WorkflowService {
     const tableName = entityName.startsWith('bus_') ? entityName : `bus_${normalized}`;
 
     for (const def of definitions) {
+      // An automation built in the application is a flowchart first: with no
+      // steps compiled there is nothing to run, and recording a "success" for
+      // it was how an empty or hook-only definition looked busy.
+      if (!def.bpmn_xml) continue;
+      // Its conditions are `%%guard` lines on the flowchart; every one has to
+      // hold for the record as written, or the run does not start.
+      if (!this.guardsHold(def.mermaid_code, entityData)) continue;
+
       const startMs = Date.now();
       let runId: string | undefined;
 
@@ -445,6 +456,15 @@ export class WorkflowService {
       // state, which still terminates via the safety limit rather than hanging.
       return entityData;
     }
+  }
+
+  /** An automation's `%%guard` conditions, all of which must hold for the record. */
+  private guardsHold(mermaid: string | null | undefined, record: Record<string, unknown>): boolean {
+    if (!mermaid) return true;
+    for (const guard of automationGuards(mermaid)) {
+      if (!this.checkHolds(record, guard.field, guard.operator, guard.value)) return false;
+    }
+    return true;
   }
 
   /** The same eleven operators the automation builder offers for a check. */
@@ -966,7 +986,7 @@ export class WorkflowService {
       if (!Array.isArray((content as any).rules) || (content as any).rules.length === 0) {
         return { nodeType: 'Decision', skipped: 'decision table has no rows' };
       }
-      jdm = this.wrapDecisionTable(content);
+      jdm = this.rulesEngine.prepare(JSON.stringify(content));
     } else if (ruleName) {
       let row: any;
       try {
@@ -984,7 +1004,11 @@ export class WorkflowService {
         this.logger.warn(`Decision: no active rule named "${ruleName}" — skipping`);
         return { nodeType: 'Decision', rule: ruleName, skipped: `no active rule named "${ruleName}"` };
       }
-      jdm = row.jdm_content as string;
+      // Prepared like every stored rule: a bare table is wrapped and quoted, a
+      // function node's source is put where the engine reads it.
+      jdm = this.rulesEngine.prepare(
+        typeof row.jdm_content === 'string' ? row.jdm_content : JSON.stringify(row.jdm_content),
+      );
     } else {
       this.logger.warn('Decision task has neither a decisionTable nor a rule — skipping');
       return { nodeType: 'Decision', skipped: 'no decision table and no rule configured' };
@@ -1043,32 +1067,6 @@ export class WorkflowService {
       `Decision: matched ${matchedRows} row(s), published ${Object.keys(published).join(', ') || '(nothing)'}`,
     );
     return { nodeType: 'Decision', matchedRows, published };
-  }
-
-  /**
-   * Wrap a bare decision table in the graph zen-engine evaluates.
-   *
-   * The step stores only the table because that is all the editor asks anyone
-   * to fill in; the input and output nodes are plumbing, identical every time.
-   */
-  private wrapDecisionTable(content: unknown): string {
-    return JSON.stringify({
-      nodes: [
-        { id: 'input', type: 'inputNode', name: 'Input', position: { x: 0, y: 0 } },
-        {
-          id: 'table',
-          type: 'decisionTableNode',
-          name: 'Decision',
-          position: { x: 300, y: 0 },
-          content,
-        },
-        { id: 'output', type: 'outputNode', name: 'Output', position: { x: 600, y: 0 } },
-      ],
-      edges: [
-        { id: 'e1', sourceId: 'input', targetId: 'table' },
-        { id: 'e2', sourceId: 'table', targetId: 'output' },
-      ],
-    });
   }
 
   /** Call an external HTTP endpoint. Never blocks the workflow for more than 10s. */

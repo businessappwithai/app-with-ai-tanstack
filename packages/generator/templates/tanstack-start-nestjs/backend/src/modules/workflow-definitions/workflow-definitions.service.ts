@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { type Kysely, sql } from "kysely";
 import { InjectDatabase } from "../../database/database.service.decorator";
+import { compileAutomationBpmn, tableForEntity } from "./automation-compiler";
 
 export type WorkflowDefinitionDto = {
   name: string;
@@ -103,13 +104,11 @@ export class WorkflowDefinitionsService {
   async findActiveForEntity(entityName: string, operation: string) {
     // Match definitions stored under either the singular base name (e.g. 'account')
     // or the full bus_ table name (e.g. 'bus_account').
-    const candidates = Array.from(new Set([entityName, `bus_${entityName}`])).map((n) =>
-      n.toLowerCase()
-    );
+    const flat = entityName.toLowerCase().replace(/^bus_/, "").replace(/_/g, "");
     return this.db
       .selectFrom("sys_workflow_definitions")
       .selectAll()
-      .where((eb) => eb.or(candidates.map((c) => eb(sql<string>`lower(entity_name)`, "=", c))))
+      .where((eb) => eb(sql<string>`replace(lower(entity_name), '_', '')`, "in", [flat, `bus${flat}`]))
       .where((eb) =>
         eb.or([eb("operation", "=", operation.toUpperCase()), eb("operation", "=", "ALL")])
       )
@@ -139,7 +138,14 @@ export class WorkflowDefinitionsService {
         name: dto.name,
         entity_name: dto.entityName,
         operation: dto.operation ?? "ALL",
-        bpmn_xml: dto.bpmnXml ?? null,
+        // An automation built in the application stores its flowchart; what the
+        // executor runs is the BPMN compiled from it, written here so that
+        // publishing the automation is what makes it do something.
+        bpmn_xml:
+          dto.bpmnXml ??
+          (kind === "automation" && dto.mermaid
+            ? compileAutomationBpmn(dto.mermaid, tableForEntity(dto.entityName), tableForEntity)
+            : null),
         mermaid_code: dto.mermaid ?? null,
         kind,
         description: dto.description ?? null,
@@ -184,6 +190,15 @@ export class WorkflowDefinitionsService {
         throw new BadRequestException("An automation must be a mermaid flowchart");
       }
       updates.mermaid_code = dto.mermaid;
+      // Recompiled with it, or a saved edit would keep running the steps it was
+      // created with. An explicit `bpmnXml` in the same call wins.
+      if (dto.bpmnXml === undefined && (existing as any).kind === "automation") {
+        updates.bpmn_xml = compileAutomationBpmn(
+          dto.mermaid,
+          tableForEntity(dto.entityName ?? (existing as any).entity_name),
+          tableForEntity,
+        );
+      }
     }
     if (dto.description !== undefined) updates.description = dto.description;
     if (dto.isActive !== undefined) updates.is_active = dto.isActive;

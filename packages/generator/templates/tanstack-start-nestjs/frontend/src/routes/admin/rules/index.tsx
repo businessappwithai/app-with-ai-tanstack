@@ -81,17 +81,18 @@ function AdminRulesPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (ruleId: string) => {
-      await apiClient.delete(`/rules/${ruleId}`);
+    mutationFn: async (rule: Rule) => {
+      // An active rule is switched off; one that is already off is removed.
+      await apiClient.delete(`/rules/${rule.id}${rule.isActive ? "" : "?permanent=true"}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "rules"] });
-      toast.success("Rule deactivated successfully");
+      toast.success(ruleToDelete?.isActive ? "Rule deactivated successfully" : "Rule deleted");
       setDeleteDialogOpen(false);
       setRuleToDelete(null);
     },
     onError: (error: Error) => {
-      toast.error(`Failed to deactivate rule: ${error.message}`);
+      toast.error(`Failed to ${ruleToDelete?.isActive ? "deactivate" : "delete"} rule: ${error.message}`);
     },
   });
 
@@ -120,7 +121,7 @@ function AdminRulesPage() {
 
   const confirmDelete = () => {
     if (ruleToDelete) {
-      deleteMutation.mutate(ruleToDelete.id);
+      deleteMutation.mutate(ruleToDelete);
     }
   };
 
@@ -341,7 +342,8 @@ function AdminRulesPage() {
                     size="sm"
                     onClick={() => handleDelete(rule)}
                     className="h-8 w-8 p-0 hover:bg-red-600 hover:text-background rounded-none"
-                    disabled={!rule.isActive}
+                    title={rule.isActive ? "Deactivate" : "Delete permanently"}
+                    aria-label={rule.isActive ? "Deactivate rule" : "Delete rule permanently"}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -355,10 +357,22 @@ function AdminRulesPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="border-2 border-foreground rounded-none">
           <AlertDialogHeader>
-            <AlertDialogTitle>Deactivate Rule</AlertDialogTitle>
+            <AlertDialogTitle>
+              {ruleToDelete?.isActive ? "Deactivate Rule" : "Delete Rule Permanently"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to deactivate the rule <strong>{ruleToDelete?.ruleName}</strong>
-              ? This will disable the rule but keep its history. You can reactivate it later.
+              {ruleToDelete?.isActive ? (
+                <>
+                  Are you sure you want to deactivate the rule{" "}
+                  <strong>{ruleToDelete?.ruleName}</strong>? This will disable the rule but keep
+                  it listed. You can reactivate it later, or delete it for good once it is off.
+                </>
+              ) : (
+                <>
+                  <strong>{ruleToDelete?.ruleName}</strong> is already inactive. Deleting it removes
+                  it for good; this cannot be undone.
+                </>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -367,7 +381,7 @@ function AdminRulesPage() {
               onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700 rounded-none"
             >
-              Deactivate
+              {ruleToDelete?.isActive ? "Deactivate" : "Delete permanently"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
