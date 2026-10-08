@@ -30,6 +30,12 @@ FIRST, before any other tool. When in doubt, invoke the skill.
 | Save progress | `/context-save` |
 | Resume context | `/context-restore` |
 | Author a backlog-ready spec/issue | `/spec` |
+| Run the modelling tool, screenshot it | `run-modelling-tool` |
+| Rule editor (GoRules graph, constraints, Monaco) | `rule-editor` |
+| Workflows on the Logic step, attaching rules to hooks | `workflow-editor` |
+| Playwright specs for the rule/workflow editors | `rule-editor-e2e` |
+| Generate, build or run an application from a model | `generate-and-run-app` |
+| Before committing, pushing or merging | `ship-checks` |
 
 Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 

@@ -35,6 +35,8 @@ import {
 } from "@/lib/automation/model";
 import { emptyDecisionTable } from "@/lib/eml/decision-table";
 import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
+import { type RuleConstraints, ruleConstraints } from "@/lib/eml/rule-constraints";
+import { parseStateFlow } from "@/lib/eml/workflow-flow";
 import { requestContext } from "@/lib/request-context";
 import {
   generateFlowchartFromHooks,
@@ -393,8 +395,6 @@ function ServiceWorkflowPage() {
   const [rules, setRules] = useState<EditableRule[]>([]);
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesLoaded, setRulesLoaded] = useState(false);
-  // The processes the model declares, so a rule can name one to start.
-  const [workflowNames, setWorkflowNames] = useState<string[]>([]);
   const [selectedRuleIndex, setSelectedRuleIndex] = useState(0);
   const [isSavingRules, setIsSavingRules] = useState(false);
   const [rulesSavedAt, setRulesSavedAt] = useState<string | null>(null);
@@ -488,40 +488,8 @@ function ServiceWorkflowPage() {
     return entityList.filter((e) => !/^sys_/i.test(e.name));
   }, [project?.erdCode]);
 
-  /** Map from bare field name → enum values, parsed from %%enum and %%field directives. */
-  const modelEnums = useMemo(() => {
-    if (!project?.erdCode) return {};
-    const enumDefs: Record<string, string[]> = {};
-    const fieldToEnum: Record<string, string> = {}; // "Entity.field" → enumName
-
-    for (const line of project.erdCode.split("\n")) {
-      const trimmed = line.trim();
-      const enumMatch = trimmed.match(/^%%enum\s+(\w+)\s*:\s*(.+)$/);
-      if (enumMatch) {
-        const name = enumMatch[1];
-        const valStr = enumMatch[2];
-        if (name && valStr)
-          enumDefs[name] = valStr
-            .split(",")
-            .map((v) => v.trim())
-            .filter(Boolean);
-      }
-      const fieldMatch = trimmed.match(/^%%field\s+(\w+\.\w+)\s+.*?enum:\s*(\w+)/);
-      if (fieldMatch) {
-        const entityField = fieldMatch[1];
-        const enumName = fieldMatch[2];
-        if (entityField && enumName) fieldToEnum[entityField] = enumName;
-      }
-    }
-
-    const result: Record<string, string[]> = {};
-    for (const [entityField, enumName] of Object.entries(fieldToEnum)) {
-      const values = enumDefs[enumName];
-      const fieldName = entityField.split(".")[1];
-      if (values && fieldName) result[fieldName] = values;
-    }
-    return result;
-  }, [project?.erdCode]);
+  /** What a rule may name, per entity: fields, allowed values, defined processes. */
+  const [constraints, setConstraints] = useState<Record<string, RuleConstraints>>({});
 
   /**
    * The Business Rules tab reads the same project model the Logic step edits.
@@ -546,12 +514,29 @@ function ServiceWorkflowPage() {
             title?: string;
             flowchart: string;
           }>;
-          workflows?: Array<{ name?: string }>;
+          eml?: string;
+          workflows?: Array<{
+            name: string;
+            title?: string;
+            entity: string;
+            kind: string;
+            diagram: string;
+          }>;
         };
         if (cancelled) return;
 
-        setWorkflowNames(
-          (data.workflows ?? []).map((w) => w.name ?? "").filter((name) => name !== "")
+        setConstraints(
+          ruleConstraints(
+            data.eml ?? "",
+            (data.workflows ?? []).map((w) => ({
+              name: w.name,
+              title: w.title,
+              entity: w.entity,
+              kind: w.kind,
+              stateNames:
+                w.kind === "state" ? parseStateFlow(w.diagram).states.map((st) => st.name) : [],
+            }))
+          )
         );
 
         setRules((data.rules ?? []).map((rule) => toEditableRule(rule, crypto.randomUUID())));
@@ -1479,7 +1464,7 @@ function ServiceWorkflowPage() {
                             {rule.title || rule.name}
                           </span>
                           <span className="block truncate text-[11px] text-muted-foreground">
-                            {rule.entity || "no entity"} · {rule.event}
+                            {rule.entity || "no entity"}
                           </span>
                         </button>
                         <button
@@ -1507,10 +1492,9 @@ function ServiceWorkflowPage() {
                         projectId={projectId}
                         onChange={patchRule}
                         onError={(message) => setValidationErrors(message ? [message] : [])}
-                        autoConvertFlowchart
-                        useGoRulesEditor
-                        entityEnums={modelEnums}
-                        workflowNames={workflowNames}
+                        entityEnums={constraints[activeRule.entity]?.values}
+                        entityWorkflows={constraints[activeRule.entity]?.workflowNames}
+                        fieldTypes={constraints[activeRule.entity]?.fieldTypes}
                       />
                       <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
                         <button

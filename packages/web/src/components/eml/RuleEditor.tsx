@@ -7,8 +7,6 @@ const GoRulesEditorPanel = lazy(() =>
   import("./GoRulesEditorPanel").then((m) => ({ default: m.GoRulesEditorPanel }))
 );
 
-import { RuleStarterPicker } from "@/components/eml/RuleStarterPicker";
-import { RuleTableEditor } from "@/components/eml/RuleTableEditor";
 import { RuleTryIt } from "@/components/eml/RuleTryIt";
 import {
   type DecisionTable,
@@ -17,12 +15,7 @@ import {
   validateDecisionTable,
 } from "@/lib/eml/decision-table";
 import { convertFlowchartToTable } from "@/lib/eml/flowchart-to-table";
-import {
-  buildRuleTemplate,
-  RUNS_WHEN,
-  type RuleTemplateKind,
-  tableToGraph,
-} from "@/lib/eml/rule-templates";
+import { sampleRecord, tableToGraph } from "@/lib/eml/rule-templates";
 
 /**
  * One business rule — shown as a decision table, matching the rule editor in
@@ -101,29 +94,22 @@ export interface RuleEditorProps {
    * match the generated application's rule editor.
    */
   autoConvertFlowchart?: boolean;
-  /**
-   * Hide the "Runs when" selector. The Enhance page no longer does: the event is
-   * the only thing that decides which write a rule judges, so hiding it left
-   * every rule made there stuck on "created".
-   */
-  hideEventSelector?: boolean;
-  /** Use the real GoRules JDM editor instead of the custom table. */
-  useGoRulesEditor?: boolean;
   /** Enum values for the selected entity's fields, keyed by bare field name. */
   entityEnums?: Record<string, string[]>;
-  /** Processes the model declares, offered by the "Start a workflow" example. */
-  workflowNames?: string[];
+  /** Processes defined for the rule's entity — all an answer may start. */
+  entityWorkflows?: string[];
+  /** Each field's JSON type, so the editor can complete and check what is written. */
+  fieldTypes?: Record<string, "string" | "number" | "boolean">;
 }
 
 export function RuleEditor({
   rule,
   entities,
   onChange,
-  autoConvertFlowchart = false,
-  hideEventSelector = false,
-  useGoRulesEditor = false,
+  autoConvertFlowchart = true,
   entityEnums = {},
-  workflowNames = [],
+  entityWorkflows = [],
+  fieldTypes,
   projectId,
 }: RuleEditorProps) {
   const [showSource, setShowSource] = useState(false);
@@ -156,16 +142,15 @@ export function RuleEditor({
       : null
     : rule.table;
 
-  const problems = useMemo(() => (table ? validateDecisionTable(table) : []), [table]);
-  const hasWork =
-    !!rule.jdmGraph ||
-    !!table?.rules.some((row) => Object.entries(row).some(([key, cell]) => key !== "_id" && cell));
-
+  // Once the rule is a graph, the table it started from is no longer its content, and
+  // checking it reported an empty "Input reads no field" for a rule that was complete.
+  const problems = useMemo(
+    () => (table && !rule.jdmGraph ? validateDecisionTable(table) : []),
+    [table, rule.jdmGraph]
+  );
   return (
     <>
-      <div
-        className={`mb-3 grid grid-cols-2 gap-3 ${hideEventSelector ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}
-      >
+      <div className="mb-3 grid grid-cols-2 gap-3 lg:grid-cols-3">
         <label className="block">
           <span className="mb-1 block text-xs font-medium">Name</span>
           <input
@@ -193,26 +178,6 @@ export function RuleEditor({
             ))}
           </select>
         </label>
-
-        {!hideEventSelector && (
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium">Runs when</span>
-            <select
-              className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
-              value={rule.event}
-              onChange={(event) => onChange({ event: event.target.value })}
-            >
-              {RULE_EVENTS.map((event) => (
-                <option key={event} value={event}>
-                  {RUNS_WHEN[event]?.label ?? event}
-                </option>
-              ))}
-            </select>
-            <span className="mt-0.5 block text-[11px] text-muted-foreground">
-              {RUNS_WHEN[rule.event]?.hint}
-            </span>
-          </label>
-        )}
 
         <label className="block">
           <span className="mb-1 block text-xs font-medium">Priority</span>
@@ -247,60 +212,37 @@ export function RuleEditor({
               )}
             </div>
           )}
-          {useGoRulesEditor ? (
-            <>
-              <RuleStarterPicker
-                hasWork={hasWork}
-                onPick={(kind: RuleTemplateKind) =>
-                  onChange({
-                    jdmGraph: JSON.stringify(
-                      buildRuleTemplate(kind, { entityFields, workflowName: workflowNames[0] })
-                    ),
-                    sourceFlowchart: undefined,
-                  })
-                }
-              />
-              <Suspense
-                fallback={
-                  <div className="py-8 text-center text-sm text-muted-foreground">
-                    Loading editor…
-                  </div>
-                }
-              >
-                <GoRulesEditorPanel
-                  jdmGraph={rule.jdmGraph}
-                  table={table}
-                  entityFields={entityFields}
-                  entityEnums={entityEnums}
-                  ruleName={slugifyRuleName(rule.title ?? rule.name)}
-                  onChange={(graphJson) =>
-                    onChange({ jdmGraph: graphJson, sourceFlowchart: undefined })
-                  }
-                />
-              </Suspense>
-              <RuleTryIt
-                projectId={projectId}
-                entity={rule.entity}
-                entityFields={entityFields}
-                entityEnums={entityEnums}
-                getGraph={() =>
-                  rule.jdmGraph ??
-                  JSON.stringify(tableToGraph(table, slugifyRuleName(rule.title ?? rule.name)))
-                }
-              />
-            </>
-          ) : (
-            <RuleTableEditor
-              name={slugifyRuleName(rule.title ?? rule.name)}
+          <Suspense
+            fallback={
+              <div className="py-8 text-center text-sm text-muted-foreground">Loading editor…</div>
+            }
+          >
+            <GoRulesEditorPanel
+              jdmGraph={rule.jdmGraph}
               table={table}
-              onChange={(next) =>
-                authoredFlowchart
-                  ? onChange({ sourceFlowchart: undefined, table: next })
-                  : onChange({ table: next })
-              }
               entityFields={entityFields}
+              entityEnums={entityEnums}
+              entityWorkflows={entityWorkflows}
+              fieldTypes={fieldTypes}
+              ruleName={slugifyRuleName(rule.title ?? rule.name)}
+              projectId={projectId}
+              entity={rule.entity}
+              sampleRecord={JSON.stringify(sampleRecord(entityFields, entityEnums), null, 2)}
+              onChange={(graphJson) =>
+                onChange({ jdmGraph: graphJson, sourceFlowchart: undefined })
+              }
             />
-          )}
+          </Suspense>
+          <RuleTryIt
+            projectId={projectId}
+            entity={rule.entity}
+            entityFields={entityFields}
+            entityEnums={entityEnums}
+            getGraph={() =>
+              rule.jdmGraph ??
+              JSON.stringify(tableToGraph(table, slugifyRuleName(rule.title ?? rule.name)))
+            }
+          />
         </>
       ) : (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">

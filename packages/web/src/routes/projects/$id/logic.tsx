@@ -19,6 +19,7 @@ import {
   type RuleTableSummary,
 } from "@/components/automation/AutomationBuilder";
 import { CopilotProvider } from "@/components/CopilotProvider";
+import { type NewWorkflowDraft, NewWorkflowPanel } from "@/components/eml/NewWorkflowPanel";
 import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
 import { emptyStateFlow } from "@/components/eml/StateFlowCanvas";
 import {
@@ -29,14 +30,16 @@ import {
   WorkflowEditor,
   type WorkflowKind,
 } from "@/components/eml/WorkflowEditor";
+import { WorkflowRules } from "@/components/eml/WorkflowRules";
 import { HelpLink, HelpPanel } from "@/components/help/HelpPanel";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import type { HelpTopicId } from "@/content/help";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
-import { parseAutomation } from "@/lib/automation/model";
+import { emptyAutomation, parseAutomation } from "@/lib/automation/model";
 import { emptyDecisionTable } from "@/lib/eml/decision-table";
 import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
+import { readEntities, ruleConstraints } from "@/lib/eml/rule-constraints";
 import { sectionProblems } from "@/lib/eml/section-problems";
 import {
   emptySagaFlow,
@@ -44,6 +47,7 @@ import {
   parseSagaFlow,
   parseStateFlow,
 } from "@/lib/eml/workflow-flow";
+import { hookFor } from "@/lib/eml/workflow-hooks";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
 
@@ -105,8 +109,6 @@ function LogicRoute() {
   );
 }
 
-type Selection = { kind: "rule" | "workflow"; index: number };
-
 interface EmlResponse {
   eml: string;
   rules: Array<{
@@ -128,33 +130,6 @@ interface EmlResponse {
   }>;
 }
 
-/** Entity names and their attributes, read from the ERD for the pickers. */
-function readEntities(erd: string): Array<{ name: string; attributes: string[] }> {
-  const entities: Array<{ name: string; attributes: string[] }> = [];
-  let current: { name: string; attributes: string[] } | null = null;
-
-  for (const rawLine of (erd ?? "").split("\n")) {
-    const line = rawLine.trim();
-    if (line.startsWith("%%")) continue;
-
-    const open = line.match(/^([A-Za-z][A-Za-z0-9_]*)\s*\{$/);
-    if (open?.[1]) {
-      current = { name: open[1], attributes: [] };
-      continue;
-    }
-    if (line === "}" && current) {
-      entities.push(current);
-      current = null;
-      continue;
-    }
-    if (current) {
-      const attribute = line.match(/^[A-Za-z][\w[\]]*\s+([A-Za-z_]\w*)/);
-      if (attribute?.[1]) current.attributes.push(attribute[1]);
-    }
-  }
-  return entities;
-}
-
 let keyCounter = 0;
 const nextKey = () => `k${(keyCounter++).toString(36)}${Date.now().toString(36)}`;
 
@@ -166,7 +141,12 @@ function LogicPage() {
   const [rules, setRules] = useState<EditableRule[]>([]);
   const [workflows, setWorkflows] = useState<EditableWorkflow[]>([]);
   const [erd, setErd] = useState("");
-  const [selected, setSelected] = useState<Selection>({ kind: "rule", index: 0 });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  // A workflow starts from the hooks it attaches to, so with none yet the
+  // screen opens on that, not on an empty editor.
+  const [creating, setCreating] = useState(false);
+  // A rule is edited here too, with no moment of its own: a workflow hook gives it one.
+  const [selectedRule, setSelectedRule] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -273,6 +253,22 @@ function LogicPage() {
 
   const entities = useMemo(() => readEntities(erd), [erd]);
   const entityNames = useMemo(() => entities.map((entity) => entity.name), [entities]);
+  // What a rule may name: the entity's fields, the values its enum or state
+  // machine allows, and the processes defined for it.
+  const constraints = useMemo(
+    () =>
+      ruleConstraints(
+        erd,
+        workflows.map((workflow) => ({
+          name: pascalWorkflowName(workflow.title ?? workflow.name),
+          title: workflow.title ?? workflow.name,
+          entity: workflow.entity,
+          kind: workflow.kind,
+          stateNames: workflow.kind === "state" ? workflow.states.states.map((s) => s.name) : [],
+        }))
+      ),
+    [erd, workflows]
+  );
   const columnsFor = useCallback(
     (entity: string) => entities.find((candidate) => candidate.name === entity)?.attributes ?? [],
     [entities]
@@ -322,29 +318,18 @@ function LogicPage() {
     ),
   });
 
-  const activeRule = selected.kind === "rule" ? (rules[selected.index] ?? null) : null;
-  const activeWorkflow = selected.kind === "workflow" ? (workflows[selected.index] ?? null) : null;
+  const activeRule = creating || selectedRule === null ? null : (rules[selectedRule] ?? null);
+  const activeWorkflow =
+    creating || selectedRule !== null ? null : (workflows[selectedIndex] ?? null);
 
   const patchRule = useCallback(
     (patch: Partial<EditableRule>) => {
       setRules((current) =>
-        current.map((rule, index) => (index === selected.index ? { ...rule, ...patch } : rule))
+        current.map((rule, index) => (index === selectedRule ? { ...rule, ...patch } : rule))
       );
       setSavedAt(null);
     },
-    [selected.index]
-  );
-
-  const patchWorkflow = useCallback(
-    (patch: Partial<EditableWorkflow>) => {
-      setWorkflows((current) =>
-        current.map((workflow, index) =>
-          index === selected.index ? { ...workflow, ...patch } : workflow
-        )
-      );
-      setSavedAt(null);
-    },
-    [selected.index]
+    [selectedRule]
   );
 
   const addRule = () => {
@@ -359,24 +344,71 @@ function LogicPage() {
         table: emptyDecisionTable(),
       },
     ]);
-    setSelected({ kind: "rule", index: rules.length });
+    setSelectedRule(rules.length);
+    setCreating(false);
     setSavedAt(null);
   };
 
+  const removeRule = (index: number) => {
+    setRules((current) => current.filter((_r, i) => i !== index));
+    setSelectedRule((current) =>
+      current === null ? null : current === index ? null : current > index ? current - 1 : current
+    );
+    setSavedAt(null);
+  };
+
+  /**
+   * Attaching a rule to a hook gives it that hook's event. The rule's own table
+   * is untouched — it is written on the Enhance step.
+   */
+  const attachRule = useCallback((ruleKey: string, event: string) => {
+    setRules((current) =>
+      current.map((rule) => (rule.key === ruleKey ? { ...rule, event } : rule))
+    );
+    setSavedAt(null);
+  }, []);
+
+  const patchWorkflow = useCallback(
+    (patch: Partial<EditableWorkflow>) => {
+      setWorkflows((current) =>
+        current.map((workflow, index) =>
+          index === selectedIndex ? { ...workflow, ...patch } : workflow
+        )
+      );
+      setSavedAt(null);
+    },
+    [selectedIndex]
+  );
+
+  const createWorkflow = (draft: NewWorkflowDraft) => {
+    const base = emptyWorkflow("hook", nextKey(), draft.entity);
+    const automation = {
+      ...emptyAutomation(draft.entity, "hook"),
+      name: draft.name,
+      hooks: [hookFor(draft.entity, draft.event)],
+    };
+    setWorkflows((current) => [
+      ...current,
+      { ...base, name: pascalWorkflowName(draft.name), title: draft.name, automation },
+    ]);
+    setSelectedIndex(workflows.length);
+    setSelectedRule(null);
+    setCreating(false);
+    setSavedAt(null);
+  };
+
+  /** A status machine or a process has no hooks to start from, so it opens blank. */
   const addWorkflow = (kind: WorkflowKind) => {
     setWorkflows((current) => [...current, emptyWorkflow(kind, nextKey(), entityNames[0] ?? "")]);
-    setSelected({ kind: "workflow", index: workflows.length });
+    setSelectedIndex(workflows.length);
+    setSelectedRule(null);
+    setCreating(false);
     setSavedAt(null);
   };
 
-  const removeAt = (kind: "rule" | "workflow", index: number) => {
-    if (kind === "rule") setRules((current) => current.filter((_r, i) => i !== index));
-    else setWorkflows((current) => current.filter((_w, i) => i !== index));
-    setSelected((current) =>
-      current.kind === kind && current.index >= index
-        ? { kind, index: Math.max(0, current.index - 1) }
-        : current
-    );
+  const removeWorkflow = (index: number) => {
+    setWorkflows((current) => current.filter((_w, i) => i !== index));
+    setSelectedIndex((current) => (current >= index ? Math.max(0, current - 1) : current));
     setSavedAt(null);
   };
 
@@ -386,7 +418,13 @@ function LogicPage() {
     const first = problems[0];
     if (first) {
       setError(problems.map((p) => p.message).join(" "));
-      setSelected({ kind: first.kind, index: first.index });
+      setCreating(false);
+      if (first.kind === "workflow") {
+        setSelectedIndex(first.index);
+        setSelectedRule(null);
+      } else {
+        setSelectedRule(first.index);
+      }
       return;
     }
     setIsSaving(true);
@@ -429,9 +467,8 @@ function LogicPage() {
     kind === "saga" ? ListOrdered : kind === "state" ? GitBranch : WorkflowIcon;
 
   /** The help page for whatever the editor is showing, and how to ask for it. */
-  const editorHelp: { topic: HelpTopicId; label: string } = activeRule
-    ? { topic: "rules", label: "How business rules work" }
-    : activeWorkflow?.kind === "state"
+  const editorHelp: { topic: HelpTopicId; label: string } =
+    activeWorkflow?.kind === "state"
       ? { topic: "status", label: "How status machines work" }
       : activeWorkflow?.kind === "hook"
         ? { topic: "lifecycle", label: "How lifecycle processes work" }
@@ -448,8 +485,8 @@ function LogicPage() {
           stepNumber={3}
           estimatedTime="10-15 min"
           subtitle={currentProject?.name}
-          title="Rules and processes"
-          description="The decisions your application makes, and what happens around them. A rule compiles to a GoRules decision graph; a process runs steps in order and can carry a decision table inside one of them."
+          title="Rules and workflows"
+          description="A workflow is what runs around a record: it starts from the hooks it attaches to. Rules are written here or in Enhance, and attached to those hooks in the workflow."
         />
 
         <div className="-mt-2 mb-4 flex justify-end">
@@ -487,7 +524,6 @@ function LogicPage() {
           // left the editor a column about 70px wide.
           <div className="flex flex-col gap-4 md:flex-row">
             <aside className="max-h-80 w-full space-y-5 overflow-y-auto md:max-h-none md:w-64 md:shrink-0 md:overflow-visible">
-              {/* Rules */}
               <div>
                 <div className="mb-2 flex items-center justify-between">
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -499,35 +535,37 @@ function LogicPage() {
                     className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
                   >
                     <Plus className="h-3 w-3" />
-                    New
+                    New rule
                   </button>
                 </div>
-
                 <div className="space-y-1">
                   {rules.map((rule, index) => (
                     <div
                       key={rule.key}
                       className={`group flex items-center gap-1 rounded-md border px-2 py-1.5 text-left text-sm ${
-                        selected.kind === "rule" && selected.index === index
+                        !creating && selectedRule === index
                           ? "border-primary bg-primary/5"
                           : "border-border hover:bg-muted"
                       }`}
                     >
                       <button
                         type="button"
-                        onClick={() => setSelected({ kind: "rule", index })}
+                        onClick={() => {
+                          setSelectedRule(index);
+                          setCreating(false);
+                        }}
                         className="min-w-0 flex-1 text-left"
                       >
                         <span className="block truncate font-medium">
                           {rule.title || rule.name}
                         </span>
                         <span className="block truncate text-[11px] text-muted-foreground">
-                          {rule.entity || "no entity"} · {rule.event}
+                          {rule.entity || "no entity"}
                         </span>
                       </button>
                       <button
                         type="button"
-                        onClick={() => removeAt("rule", index)}
+                        onClick={() => removeRule(index)}
                         aria-label={`Delete ${rule.name}`}
                         className="opacity-0 transition group-hover:opacity-100"
                       >
@@ -535,7 +573,6 @@ function LogicPage() {
                       </button>
                     </div>
                   ))}
-
                   {!rules.length && (
                     <p className="rounded-md border border-dashed border-border px-2 py-3 text-center text-xs text-muted-foreground">
                       No rules yet.
@@ -544,48 +581,44 @@ function LogicPage() {
                 </div>
               </div>
 
-              {/* Processes */}
-              <div>
-                <div className="mb-2 flex items-center justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Processes ({workflows.length})
+                    Workflows ({workflows.length})
                   </h2>
-                </div>
-                <div className="mb-2 flex flex-wrap gap-1">
-                  {(
-                    [
-                      ["hook", "Lifecycle"],
-                      ["state", "Status"],
-                      ["saga", "Process"],
-                    ] as [WorkflowKind, string][]
-                  ).map(([kind, label]) => (
-                    <button
-                      key={kind}
-                      type="button"
-                      onClick={() => addWorkflow(kind)}
-                      className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
-                    >
-                      <Plus className="h-3 w-3" />
-                      {label}
-                    </button>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCreating(true);
+                      setSelectedRule(null);
+                    }}
+                    className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
+                  >
+                    <Plus className="h-3 w-3" />
+                    New workflow
+                  </button>
                 </div>
 
                 <div className="space-y-1">
                   {workflows.map((workflow, index) => {
                     const Icon = kindIcon(workflow.kind);
+                    const hookCount = workflow.automation?.hooks.length ?? 0;
                     return (
                       <div
                         key={workflow.key}
                         className={`group flex items-center gap-1 rounded-md border px-2 py-1.5 text-left text-sm ${
-                          selected.kind === "workflow" && selected.index === index
+                          !creating && selectedRule === null && selectedIndex === index
                             ? "border-primary bg-primary/5"
                             : "border-border hover:bg-muted"
                         }`}
                       >
                         <button
                           type="button"
-                          onClick={() => setSelected({ kind: "workflow", index })}
+                          onClick={() => {
+                            setSelectedIndex(index);
+                            setSelectedRule(null);
+                            setCreating(false);
+                          }}
                           className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
                         >
                           <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -594,13 +627,16 @@ function LogicPage() {
                               {workflow.title || workflow.name}
                             </span>
                             <span className="block truncate text-[11px] text-muted-foreground">
-                              {workflow.entity || "no entity"} · {workflow.kind}
+                              {workflow.entity || "no entity"} ·{" "}
+                              {workflow.kind === "hook"
+                                ? `${hookCount} hook${hookCount === 1 ? "" : "s"}`
+                                : workflow.kind}
                             </span>
                           </span>
                         </button>
                         <button
                           type="button"
-                          onClick={() => removeAt("workflow", index)}
+                          onClick={() => removeWorkflow(index)}
                           aria-label={`Delete ${workflow.name}`}
                           className="opacity-0 transition group-hover:opacity-100"
                         >
@@ -612,66 +648,103 @@ function LogicPage() {
 
                   {!workflows.length && (
                     <p className="rounded-md border border-dashed border-border px-2 py-3 text-center text-xs text-muted-foreground">
-                      No processes yet.
+                      No workflows yet.
                     </p>
                   )}
+                </div>
+
+                <div className="border-t border-border pt-3 text-[11px] text-muted-foreground">
+                  Other kinds:{" "}
+                  <button type="button" className="underline" onClick={() => addWorkflow("state")}>
+                    status machine
+                  </button>
+                  {" · "}
+                  <button type="button" className="underline" onClick={() => addWorkflow("saga")}>
+                    process
+                  </button>
                 </div>
               </div>
             </aside>
 
             <div className="min-w-0 flex-1">
-              <div className="mb-2 flex justify-end">
-                <HelpLink onClick={() => openHelp(editorHelp.topic)}>{editorHelp.label}</HelpLink>
-              </div>
               {activeRule ? (
-                <RuleEditor
-                  key={activeRule.key}
-                  rule={activeRule}
-                  entities={entities}
-                  projectId={id}
-                  onChange={patchRule}
-                  onError={setError}
-                />
-              ) : (activeWorkflow?.kind === "hook" || activeWorkflow?.kind === "saga") &&
-                activeWorkflow.automation ? (
-                // Hook workflows are edited in the same ladder the generated
-                // application ships, so the two surfaces look and behave alike.
-                <div className="min-h-[560px] overflow-hidden rounded-xl border border-border">
-                  <AutomationBuilder
-                    key={activeWorkflow.key}
-                    automation={activeWorkflow.automation}
-                    onChange={(automation) =>
-                      patchWorkflow({
-                        automation,
-                        entity: automation.trigger.entity,
-                        title: automation.name,
-                        name: pascalWorkflowName(automation.name),
-                      })
-                    }
-                    entities={entityNames}
-                    entityFields={entityFieldMap}
-                    ruleTables={ruleTables}
-                    onOpenRuleTable={(name) => {
-                      const index = rules.findIndex(
-                        (rule) => slugifyRuleName(rule.title ?? rule.name) === name
-                      );
-                      if (index >= 0) setSelected({ kind: "rule", index });
-                    }}
+                <>
+                  <div className="mb-2 flex justify-end">
+                    <HelpLink onClick={() => openHelp("rules")}>How business rules work</HelpLink>
+                  </div>
+                  <RuleEditor
+                    key={activeRule.key}
+                    rule={activeRule}
+                    entities={entities}
+                    projectId={id}
+                    onChange={patchRule}
+                    onError={setError}
+                    entityEnums={constraints[activeRule.entity]?.values}
+                    entityWorkflows={constraints[activeRule.entity]?.workflowNames}
+                    fieldTypes={constraints[activeRule.entity]?.fieldTypes}
                   />
-                </div>
-              ) : activeWorkflow ? (
-                <WorkflowEditor
-                  key={activeWorkflow.key}
-                  workflow={activeWorkflow}
+                </>
+              ) : creating || (!workflows.length && !activeWorkflow) ? (
+                <NewWorkflowPanel
+                  key="new-workflow"
                   entityNames={entityNames}
-                  ruleNames={ruleNames}
-                  columnsFor={columnsFor}
-                  onChange={patchWorkflow}
+                  onCreate={createWorkflow}
+                  onCancel={workflows.length ? () => setCreating(false) : undefined}
                 />
               ) : (
-                <div className="rounded-lg border border-dashed border-border py-20 text-center text-sm text-muted-foreground">
-                  Pick a rule or a process on the left, or add one.
-                </div>
+                <>
+                  <div className="mb-2 flex justify-end">
+                    <HelpLink onClick={() => openHelp(editorHelp.topic)}>
+                      {editorHelp.label}
+                    </HelpLink>
+                  </div>
+                  {(activeWorkflow?.kind === "hook" || activeWorkflow?.kind === "saga") &&
+                  activeWorkflow.automation ? (
+                    <>
+                      <div className="min-h-[560px] overflow-hidden rounded-xl border border-border">
+                        <AutomationBuilder
+                          key={activeWorkflow.key}
+                          automation={activeWorkflow.automation}
+                          onChange={(automation) =>
+                            patchWorkflow({
+                              automation,
+                              entity: automation.trigger.entity,
+                              title: automation.name,
+                              name: pascalWorkflowName(automation.name),
+                            })
+                          }
+                          entities={entityNames}
+                          entityFields={entityFieldMap}
+                          ruleTables={ruleTables}
+                          onOpenRuleTable={(name) => {
+                            const index = rules.findIndex(
+                              (rule) => slugifyRuleName(rule.title ?? rule.name) === name
+                            );
+                            if (index >= 0) setSelectedRule(index);
+                          }}
+                        />
+                      </div>
+                      {activeWorkflow.kind === "hook" && (
+                        <WorkflowRules
+                          entity={activeWorkflow.entity}
+                          hooks={activeWorkflow.automation.hooks}
+                          rules={rules}
+                          onAttach={attachRule}
+                          enhanceHref={`/projects/${id}/enhance`}
+                        />
+                      )}
+                    </>
+                  ) : activeWorkflow ? (
+                    <WorkflowEditor
+                      key={activeWorkflow.key}
+                      workflow={activeWorkflow}
+                      entityNames={entityNames}
+                      ruleNames={ruleNames}
+                      columnsFor={columnsFor}
+                      onChange={patchWorkflow}
+                    />
+                  ) : null}
+                </>
               )}
             </div>
           </div>
