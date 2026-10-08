@@ -351,14 +351,20 @@ function ServiceWorkflowPage() {
   const project =
     currentProject?.id === projectId ? currentProject : (getProject(projectId) ?? currentProject);
 
+  // The full project (with erdCode) comes from loadProject(); the projects list
+  // cache never carries erdCode and loadProject() does not write into it. Keying
+  // the guard off getProject() therefore re-fetched on every render — it never
+  // gained erdCode — so load at most once per project id instead.
+  const loadedProjectRef = useRef<string | null>(null);
   useEffect(() => {
-    // Always load the full project when we either don't have it at all, or when
-    // the cached copy lacks erdCode (it came from the list endpoint).
-    const cached = getProject(projectId);
-    if (!cached?.erdCode || currentProject?.id !== projectId) {
-      loadProject(projectId);
+    if (currentProject?.id === projectId && currentProject.erdCode) {
+      loadedProjectRef.current = projectId;
+      return;
     }
-  }, [projectId, getProject, currentProject, loadProject]);
+    if (loadedProjectRef.current === projectId) return;
+    loadedProjectRef.current = projectId;
+    loadProject(projectId);
+  }, [projectId, currentProject, loadProject]);
 
   const [workflow, setWorkflow] = useState<HookWorkflow>({
     id: `workflow-${Date.now()}`,
