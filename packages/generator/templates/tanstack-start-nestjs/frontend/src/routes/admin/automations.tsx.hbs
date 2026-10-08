@@ -18,7 +18,10 @@ import { AutomationHelp } from '@/components/automation/AutomationHelp';
 import { useHelp } from '@/components/help/help-toaster';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
 import { RailSection } from '@/components/automation/RailList';
-import { RuleTableEditor } from '@/components/automation/RuleTableEditor';
+import { type NewWorkflowDraft, NewWorkflowPanel } from '@/components/eml/NewWorkflowPanel';
+import { WorkflowRules } from '@/components/eml/WorkflowRules';
+import { RulePane } from '@/components/rules/RulePane';
+import { eventForOperation, hookFor, operationForEvent, sameOperation } from '@/lib/eml/workflow-hooks';
 import {
   type Automation,
   emptyAutomation,
@@ -46,6 +49,13 @@ const ENTITY_FIELDS: Record<string, string[]> = {
 {{/each}}
 };
 
+/** The table each record type's rules are filed under. */
+const ENTITY_TABLES: Record<string, string> = {
+{{#each entities}}
+  '{{this.name}}': '{{this.tableName}}',
+{{/each}}
+};
+
 /** A row as sys_workflow_definitions returns it. */
 interface StoredAutomation {
   id: string;
@@ -59,6 +69,7 @@ interface RuleRow {
   id: string;
   ruleName?: string;
   entityName?: string;
+  operation?: string;
   jdmContent?: unknown;
   rule_name?: string;
   entity_name?: string;
@@ -68,7 +79,12 @@ interface RuleRow {
 interface RuleTableRecord {
   id: string;
   name: string;
+  /** The table the rule is filed under, e.g. `bus_student`. */
   entity: string;
+  /** What it runs on: CREATE, UPDATE, DELETE or ALL. */
+  operation: string;
+  /** The stored rule, as the API returned it. */
+  content: string;
   table: DecisionTable;
 }
 
@@ -89,6 +105,8 @@ function AutomationsPage() {
   const [tables, setTables] = useState<RuleTableRecord[]>([]);
   const [view, setView] = useState<View>({ kind: 'none' });
   const [loading, setLoading] = useState(true);
+  // Where a workflow begins: a name, a record type and one hook.
+  const [creating, setCreating] = useState(false);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'drafted' | 'saved' | 'error'>('idle');
   const [autoTotal, setAutoTotal] = useState(0);
   const [tableTotal, setTableTotal] = useState(0);
@@ -161,6 +179,11 @@ function AutomationsPage() {
                 id: r.id,
                 name: r.ruleName ?? r.rule_name ?? 'Untitled rule',
                 entity: r.entityName ?? r.entity_name ?? '',
+                operation: r.operation ?? 'CREATE',
+                content:
+                  typeof (r.jdmContent ?? r.jdm_content) === 'string'
+                    ? ((r.jdmContent ?? r.jdm_content) as string)
+                    : JSON.stringify(r.jdmContent ?? r.jdm_content ?? {}),
                 table: asDecisionTable(r.jdmContent ?? r.jdm_content),
               }))
             );
@@ -204,15 +227,17 @@ function AutomationsPage() {
     [tables]
   );
 
-  const usersOf = useCallback(
-    (tableName: string) =>
-      automations.flatMap((a) =>
-        a.steps
-          .map((s, i) => ({ s, i }))
-          .filter(({ s }) => s.type === 'Decision' && s.props.ruleTable === tableName)
-          .map(({ i }) => ({ name: a.name, where: `step ${i + 1}` }))
-      ),
-    [automations]
+  /** Every rule, read as the Logic step reads one: a name, a record type and the hook it runs at. */
+  const attachable = useMemo(
+    () =>
+      tables.map((t) => ({
+        key: t.id,
+        name: t.name,
+        entity:
+          Object.entries(ENTITY_TABLES).find(([, table]) => table === t.entity)?.[0] ?? t.entity,
+        event: eventForOperation(t.operation),
+      })),
+    [tables]
   );
 
   const helpExample = useMemo(() => {
@@ -287,10 +312,15 @@ function AutomationsPage() {
     saveDraft(next);
   };
 
-  const createAutomation = async () => {
-    const fresh = emptyAutomation(ENTITIES[0] ?? 'Record');
+  const createAutomation = async (draft: NewWorkflowDraft) => {
+    const fresh = {
+      ...emptyAutomation(draft.entity, 'hook'),
+      name: draft.name,
+      hooks: [hookFor(draft.entity, draft.event)],
+    };
     setAutomations((list) => [...list, fresh]);
     setView({ kind: 'automation', id: fresh.id });
+    setCreating(false);
 
     try {
       const res = await fetch('/api/workflow-definitions', {
@@ -300,7 +330,7 @@ function AutomationsPage() {
           kind: 'automation',
           name: fresh.name,
           entityName: fresh.trigger.entity,
-          operation: 'ALL',
+          operation: operationForEvent(draft.event),
           mermaid: serializeAutomation(fresh),
           // A draft until it is published: an empty automation that is already
           // live would run on every write to its record type.
@@ -314,6 +344,30 @@ function AutomationsPage() {
       }
     } catch (error) {
       console.error('Failed to create automation:', error);
+    }
+  };
+
+  /**
+   * Attaching a rule to a hook gives it that hook's write. The rule itself — its
+   * graph — is written in the rule editor; here it is picked up and given a
+   * moment to run, which is the one thing a rule does not carry on its own.
+   */
+  const attachRule = async (ruleId: string, event: string) => {
+    const operation = operationForEvent(event);
+    const previous = tables.find((t) => t.id === ruleId)?.operation;
+    setTables((list) => list.map((t) => (t.id === ruleId ? { ...t, operation } : t)));
+    try {
+      const res = await fetch(`/api/rules/${ruleId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ operation }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+    } catch (error) {
+      console.error('Failed to attach the rule:', error);
+      if (previous) {
+        setTables((list) => list.map((t) => (t.id === ruleId ? { ...t, operation: previous } : t)));
+      }
     }
   };
 
@@ -434,12 +488,15 @@ function AutomationsPage() {
                     ? ('draft' as const)
                     : ('paused' as const),
             }))}
-            selectedId={view.kind === 'automation' ? view.id : undefined}
-            onSelect={(id) => setView({ kind: 'automation', id })}
+            selectedId={view.kind === 'automation' && !creating ? view.id : undefined}
+            onSelect={(id) => {
+              setCreating(false);
+              setView({ kind: 'automation', id });
+            }}
           />
 
           <RailSection
-            heading="Rule tables"
+            heading="Rules"
             total={tableTotal}
             items={tables.map((t) => ({
               id: t.id,
@@ -447,8 +504,11 @@ function AutomationsPage() {
               subtitle: `${t.table.inputs.length} inputs · ${t.table.rules.length} rows`,
               state: 'live' as const,
             }))}
-            selectedId={view.kind === 'table' ? view.id : undefined}
-            onSelect={(id) => setView({ kind: 'table', id })}
+            selectedId={view.kind === 'table' && !creating ? view.id : undefined}
+            onSelect={(id) => {
+              setCreating(false);
+              setView({ kind: 'table', id });
+            }}
           />
 
           <div className="mt-auto space-y-2 border-t border-border p-3">
@@ -473,15 +533,32 @@ function AutomationsPage() {
             ) : null}
             <button
               type="button"
-              onClick={createAutomation}
+              onClick={() => setCreating(true)}
               className="w-full rounded-lg border border-border bg-card py-2 text-[13px] font-semibold hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              + New automation
+              + New workflow
             </button>
+            <a
+              href="/admin/rules/new"
+              className="block w-full rounded-lg border border-border bg-card py-2 text-center text-[13px] font-semibold hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              + New rule
+            </a>
           </div>
         </nav>
 
-        {view.kind === 'none' ? (
+        {creating ? (
+          <div className="min-w-0 flex-1 overflow-y-auto p-6">
+            <NewWorkflowPanel
+              key="new-workflow"
+              entityNames={ENTITIES}
+              onCreate={(draft) => void createAutomation(draft)}
+              onCancel={automations.length ? () => setCreating(false) : undefined}
+            />
+          </div>
+        ) : null}
+
+        {!creating && view.kind === 'none' ? (
           <div className="grid flex-1 place-items-center p-8 text-center">
             <div className="max-w-sm space-y-2">
               <p className="text-sm font-semibold">No automation selected</p>
@@ -504,7 +581,8 @@ function AutomationsPage() {
             triggers, one surface — which is the whole point of the toaster:
             help no longer takes the builder away, so having the control within
             reach of the inspector costs nothing. */}
-        {view.kind === 'automation' && current ? (
+        {!creating && view.kind === 'automation' && current ? (
+          <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
           <AutomationBuilder
             onOpenHelp={openHelp}
             automation={current}
@@ -518,15 +596,39 @@ function AutomationsPage() {
             }}
             onPublish={() => void publish(current)}
           />
+          {current.kind === 'hook' || current.hooks.length > 0 ? (
+            <div className="px-5 pb-6">
+              <WorkflowRules
+                entity={current.trigger.entity}
+                hooks={current.hooks}
+                rules={attachable}
+                onAttach={(ruleId, event) => void attachRule(ruleId, event)}
+                enhanceHref="/admin/rules"
+                editLabel="Rules are edited under Rules →"
+                sameMoment={sameOperation}
+              />
+            </div>
+          ) : null}
+          </div>
         ) : null}
 
-        {view.kind === 'table' && currentTable ? (
-          <RuleTableEditor
+        {!creating && view.kind === 'table' && currentTable ? (
+          <RulePane
+            key={currentTable.id}
+            id={currentTable.id}
             name={currentTable.name}
-            table={currentTable.table}
-            usedBy={usersOf(currentTable.name)}
-            onChange={(table) =>
-              setTables((list) => list.map((t) => (t.id === currentTable.id ? { ...t, table } : t)))
+            entityName={currentTable.entity}
+            entityLabel={
+              Object.entries(ENTITY_TABLES).find(([, table]) => table === currentTable.entity)?.[0] ??
+              currentTable.entity
+            }
+            content={currentTable.content}
+            onSaved={(id, content) =>
+              setTables((list) =>
+                list.map((t) =>
+                  t.id === id ? { ...t, content, table: asDecisionTable(content) } : t
+                )
+              )
             }
           />
         ) : null}

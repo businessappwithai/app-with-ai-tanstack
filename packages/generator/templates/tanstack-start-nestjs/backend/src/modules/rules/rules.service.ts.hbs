@@ -28,6 +28,7 @@ export interface CreateRuleDto {
 export interface UpdateRuleDto {
   jdmContent?: string | Record<string, unknown>;
   isActive?: boolean;
+  operation?: 'CREATE' | 'UPDATE' | 'DELETE' | 'ALL';
 }
 
 /** Rule action types that write to the database — the ones a promotion must run atomically. */
@@ -209,6 +210,24 @@ export class RulesService {
       updateData.is_active = dto.isActive;
     }
 
+    if (dto.operation && dto.operation !== rule.operation) {
+      // A rule is filed under its record type, its name and the write it judges;
+      // moving it onto a write that already has one by this name would make two.
+      const taken = await this.db
+        .selectFrom('sys_rule_definitions')
+        .select('id')
+        .where('entity_name', '=', rule.entityName)
+        .where('operation', '=', dto.operation)
+        .where('rule_name', '=', rule.ruleName)
+        .executeTakeFirst();
+      if (taken) {
+        throw new BadRequestException(
+          `Rule ${rule.ruleName} already exists for ${rule.entityName}:${dto.operation}`,
+        );
+      }
+      updateData.operation = dto.operation;
+    }
+
     const updated = await this.db
       .updateTable('sys_rule_definitions')
       .set(updateData)
@@ -308,8 +327,15 @@ export class RulesService {
         return { valid: false, errors: columnErrors };
       }
 
+      const graphErrors = this.rulesEngine.graphProblems(this.serializeJdm(jdmContent));
+      if (graphErrors.length > 0) {
+        return { valid: false, errors: graphErrors };
+      }
+
       const engine = this.rulesEngine.getEngine();
-      const decision = engine.createDecision(Buffer.from(this.serializeJdm(jdmContent)));
+      const decision = engine.createDecision(
+        Buffer.from(this.rulesEngine.prepare(this.serializeJdm(jdmContent))),
+      );
       await decision.evaluate({});
 
       return { valid: true, errors: [] };
@@ -378,7 +404,9 @@ export class RulesService {
       // needs the serialised form, so an object goes through the same helper
       // that writes it to the column rather than reaching the engine as
       // "[object Object]".
-      const decision = engine.createDecision(Buffer.from(this.serializeJdm(jdmContent)));
+      const decision = engine.createDecision(
+        Buffer.from(this.rulesEngine.prepare(this.serializeJdm(jdmContent))),
+      );
       const result = await decision.evaluate(context);
 
       return { success: true, result };
@@ -387,6 +415,41 @@ export class RulesService {
         success: false,
         errors: [error instanceof Error ? error.message : String(error)],
       };
+    }
+  }
+
+  /**
+   * Run a rule graph against a sample record and say what each node produced.
+   *
+   * The same preparation every stored rule goes through, so what the Simulator
+   * shows is what a write would meet. Nothing is stored. The answer has the
+   * shape the rule editor reads: either `ok` with the final result and a trace
+   * of the nodes in the order they ran, or the reasons it could not run.
+   */
+  async simulate(
+    jdmContent: string | Record<string, unknown>,
+    record: Record<string, unknown>,
+  ): Promise<
+    | { ok: true; result: unknown; trace: Array<{ node: string; output: unknown }> }
+    | { ok: false; problems: string[] }
+  > {
+    const text = this.serializeJdm(jdmContent);
+    const problems = this.rulesEngine.graphProblems(text);
+    if (problems.length > 0) return { ok: false, problems };
+    try {
+      const engine = this.rulesEngine.getEngine();
+      const decision = engine.createDecision(Buffer.from(this.rulesEngine.prepare(text)));
+      const evaluated = (await decision.evaluate(
+        { ...record, _operation: 'create' },
+        { trace: true },
+      )) as { result: unknown; trace?: Record<string, { name?: string; output?: unknown }> };
+      const trace = Object.values(evaluated.trace ?? {}).map((step) => ({
+        node: step.name ?? '',
+        output: step.output,
+      }));
+      return { ok: true, result: evaluated.result, trace };
+    } catch (error) {
+      return { ok: false, problems: [error instanceof Error ? error.message : String(error)] };
     }
   }
 

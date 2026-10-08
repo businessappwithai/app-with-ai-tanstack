@@ -19,6 +19,8 @@ export type CreateRuleDto = z.infer<typeof CreateRuleSchema>;
 
 export const UpdateRuleSchema = z.object({
   jdmContent: JdmContent.optional(),
+  /** The write the rule judges — set by attaching it to a workflow's hook. */
+  operation: z.enum(['CREATE', 'UPDATE', 'DELETE', 'ALL']).optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -34,6 +36,15 @@ export const DryRunSchema = z.object({
   ruleId: z.string(),
   testData: z.record(z.unknown()),
 });
+
+export const SimulateRuleSchema = z.object({
+  /** The graph as the editor holds it — JSON text, or the object itself. */
+  jdmContent: z.union([z.string(), z.record(z.unknown())]),
+  testData: z.record(z.unknown()),
+  entityName: z.string().optional(),
+});
+
+export type SimulateRuleDto = z.infer<typeof SimulateRuleSchema>;
 
 export type DryRunDto = z.infer<typeof DryRunSchema>;
 

@@ -258,6 +258,127 @@ export class RulesEngine implements OnModuleDestroy {
     }
   }
 
+  /** A stored rule as the graph the engine runs — what every reader goes through. */
+  prepare(jdmContent: string): string {
+    return this.asJdmGraph(jdmContent);
+  }
+
+  /** Source the function sandbox must never be handed. */
+  private static readonly FORBIDDEN_FUNCTION_SOURCE = /\b(?:import|require|fetch|eval|process|globalThis)\b/;
+
+  /**
+   * Why a graph the rule editor drew cannot run, one sentence each.
+   *
+   * The same checks the modelling tool's compiler makes, so a graph refused
+   * there is refused here: a function with no handler, or one reaching for the
+   * network, the module system or the process; a node with no content; an edge
+   * to a node that is not there.
+   */
+  graphProblems(jdmContent: string): string[] {
+    let graph: { nodes?: Array<Record<string, any>>; edges?: Array<Record<string, any>> };
+    try {
+      graph = JSON.parse(jdmContent);
+    } catch {
+      return ['the rule is not valid JSON'];
+    }
+    if (!graph || !Array.isArray(graph.nodes)) return [];
+    const problems: string[] = [];
+    const ids = new Set<string>();
+    for (const node of graph.nodes) {
+      const label = String(node.name ?? node.id);
+      ids.add(String(node.id));
+      if (node.type === 'inputNode' || node.type === 'outputNode') continue;
+      if (node.content === undefined || node.content === null) {
+        problems.push(`${node.type} "${label}" has no content, so the engine would reject it`);
+      }
+      if (node.type === 'functionNode') {
+        const content = node.content;
+        const source =
+          typeof content === 'string'
+            ? content
+            : typeof content?.source === 'string'
+              ? content.source
+              : '';
+        if (!/\bhandler\b/.test(source)) {
+          problems.push(
+            `functionNode "${label}" defines no handler; write export const handler = async (input) => ({ ... })`,
+          );
+        }
+        if (RulesEngine.FORBIDDEN_FUNCTION_SOURCE.test(source)) {
+          problems.push(
+            `functionNode "${label}" uses import, require, fetch, eval, process or globalThis, which the sandbox does not allow`,
+          );
+        }
+      }
+    }
+    for (const edge of graph.edges ?? []) {
+      if (!ids.has(String(edge.sourceId)) || !ids.has(String(edge.targetId))) {
+        problems.push(`edge "${String(edge.id)}" joins a node that is not in the graph`);
+      }
+    }
+    return problems;
+  }
+
+  /**
+   * Speak the runtime's vocabulary in a graph the editor drew.
+   *
+   * zen runs a function node only from `content: { source }`: a bare string is
+   * refused, or returns {} and decides nothing. A transform row needs the one
+   * `transformData` object the runtime applies — the editor's Field and Value
+   * columns are for the author to read, not for the runtime.
+   */
+  private normalizeGraph(graph: { nodes: Array<Record<string, any>> }): unknown {
+    const literal = (cell: unknown): string | null => {
+      const match = String(cell ?? '')
+        .trim()
+        .match(/^(?:'(.*)'|"(.*)")$/s);
+      return match ? (match[1] ?? match[2] ?? '') : null;
+    };
+    return {
+      ...graph,
+      nodes: graph.nodes.map((node) => {
+        if (node.type === 'functionNode' && typeof node.content === 'string') {
+          return { ...node, content: { source: node.content } };
+        }
+        const table = node.content as
+          | {
+              outputs?: Array<{ id: string; name?: string; field?: string }>;
+              rules?: Array<Record<string, unknown>>;
+            }
+          | undefined;
+        if (node.type !== 'decisionTableNode' || !Array.isArray(table?.rules)) return node;
+        const outputs = table.outputs ?? [];
+        const fieldColumn = outputs.find((c) => c.field === 'field');
+        const valueColumn = outputs.find((c) => c.field === 'value');
+        const actionColumn = outputs.find((c) => c.field === 'action');
+        if (
+          !fieldColumn ||
+          !valueColumn ||
+          !actionColumn ||
+          outputs.some((c) => c.field === 'transformData')
+        ) {
+          return node;
+        }
+        const dataColumn = { id: 'transformData-auto', name: 'Transform Data', field: 'transformData' };
+        return {
+          ...node,
+          content: {
+            ...table,
+            outputs: [...outputs, dataColumn],
+            rules: table.rules.map((row) => {
+              const target = literal(row[fieldColumn.id])?.trim();
+              const isTransform = literal(row[actionColumn.id])?.trim() === 'transform';
+              if (!isTransform || !target) return row;
+              const value = literal(row[valueColumn.id]) ?? String(row[valueColumn.id] ?? '');
+              const data = JSON.stringify({ [target]: value }).replace(/'/g, "\\'");
+              return { ...row, [dataColumn.id]: `'${data}'` };
+            }),
+          },
+        };
+      }),
+    };
+  }
+
   private asJdmGraph(jdmContent: string): string {
     let parsed: unknown;
     try {
@@ -272,7 +393,10 @@ export class RulesEngine implements OnModuleDestroy {
       outputs?: Array<{ id: string; name?: string; field?: string }>;
       rules?: Array<Record<string, string>>;
     };
-    if (!table || typeof table !== 'object' || table.nodes) return jdmContent;
+    if (table && typeof table === 'object' && table.nodes) {
+      return JSON.stringify(this.normalizeGraph(parsed as { nodes: Array<Record<string, any>> }));
+    }
+    if (!table || typeof table !== 'object') return jdmContent;
     if (!Array.isArray(table.inputs) || !Array.isArray(table.outputs) || !Array.isArray(table.rules)) {
       return jdmContent;
     }

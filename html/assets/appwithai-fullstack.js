@@ -17055,6 +17055,9 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
       "src/lib/workflow",
       "src/lib/automation",
       "src/components/automation",
+      "src/components/eml",
+      "src/components/rules",
+      "src/lib/eml",
       "src/components/reports",
       "src/components/notifications",
       "src/components/help",
@@ -17501,6 +17504,66 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/components/automation/RuleTableEditor.tsx",
         dest: "src/components/automation/RuleTableEditor.tsx"
+      },
+      {
+        src: "src/components/eml/GoRulesEditorPanel.tsx",
+        dest: "src/components/eml/GoRulesEditorPanel.tsx"
+      },
+      {
+        src: "src/components/eml/RuleTryIt.tsx",
+        dest: "src/components/eml/RuleTryIt.tsx"
+      },
+      {
+        src: "src/components/eml/NewWorkflowPanel.tsx",
+        dest: "src/components/eml/NewWorkflowPanel.tsx"
+      },
+      {
+        src: "src/components/eml/WorkflowRules.tsx",
+        dest: "src/components/eml/WorkflowRules.tsx"
+      },
+      {
+        src: "src/lib/eml/decision-table.ts",
+        dest: "src/lib/eml/decision-table.ts"
+      },
+      {
+        src: "src/lib/eml/dry-run-types.ts",
+        dest: "src/lib/eml/dry-run-types.ts"
+      },
+      {
+        src: "src/lib/eml/rule-constraints.ts",
+        dest: "src/lib/eml/rule-constraints.ts"
+      },
+      {
+        src: "src/lib/eml/rule-graph-constraints.ts",
+        dest: "src/lib/eml/rule-graph-constraints.ts"
+      },
+      {
+        src: "src/lib/eml/rule-outcome.ts",
+        dest: "src/lib/eml/rule-outcome.ts"
+      },
+      {
+        src: "src/lib/eml/rule-templates.ts",
+        dest: "src/lib/eml/rule-templates.ts"
+      },
+      {
+        src: "src/lib/eml/workflow-hooks.ts",
+        dest: "src/lib/eml/workflow-hooks.ts"
+      },
+      {
+        src: "src/lib/monaco-local.ts",
+        dest: "src/lib/monaco-local.ts"
+      },
+      {
+        src: "src/worker-modules.d.ts",
+        dest: "src/worker-modules.d.ts"
+      },
+      {
+        src: "src/components/rules/RuleGraphEditor.tsx",
+        dest: "src/components/rules/RuleGraphEditor.tsx"
+      },
+      {
+        src: "src/components/rules/RulePane.tsx",
+        dest: "src/components/rules/RulePane.tsx"
       },
       {
         src: "src/components/automation/AutomationHelp.tsx",
@@ -19864,6 +19927,55 @@ ${processSection}
 `;
 }
 
+// packages/generator/src/rules/rule-model.ts
+var jsonType = (type) => type === "integer" || type === "decimal" ? "number" : type === "boolean" ? "boolean" : "string";
+function buildRuleModel(model) {
+  const declared = declaredEntityNames(model.entities);
+  return model.entities.map((entity2) => {
+    const bus = entityToBusEntity(entity2, declared);
+    const values = {};
+    for (const attribute of entity2.attributes) {
+      if (attribute.enumValues?.length)
+        values[attribute.name] = [...attribute.enumValues];
+    }
+    for (const machine of model.workflows.filter((w) => w.entity === entity2.name)) {
+      const states = machine.states.map((state) => state.name);
+      const column = Object.entries(values).find(([, list]) => states.some((s) => list.includes(s)))?.[0] ?? (entity2.attributes.some((a) => a.name === "status") ? "status" : undefined);
+      if (column)
+        values[column] = states;
+    }
+    return {
+      table: bus.tableName,
+      label: formatDisplayName(entity2.name),
+      fields: entity2.attributes.map((attribute) => ({
+        name: attribute.name,
+        type: jsonType(attribute.type)
+      })),
+      values,
+      processes: model.sagas.filter((saga) => saga.entity === entity2.name).map((saga) => saga.name)
+    };
+  });
+}
+function renderRuleModel(entities) {
+  return `/**
+ * What a rule in this application may name, written when it was generated from
+ * its model: each record type's fields and their types, the values a closed
+ * field may hold (its enum, or its state machine's states) and the processes
+ * defined for it. The rule editor offers these and nothing else.
+ */
+
+export interface RuleModelEntity {
+  table: string;
+  label: string;
+  fields: Array<{ name: string; type: "string" | "number" | "boolean" }>;
+  values: Record<string, string[]>;
+  processes: string[];
+}
+
+export const RULE_MODEL: RuleModelEntity[] = ${JSON.stringify(entities, null, 2)};
+`;
+}
+
 // packages/generator/src/pipeline/logger-port.ts
 var NO_LOG = {
   event() {}
@@ -21057,6 +21169,7 @@ async function generateApplication(options) {
     stage = "artifacts";
     await writeModelSource(options.outputDir, options.sources, log);
     await writeManual(options.outputDir, model, options, log);
+    await writeRuleModel(options.outputDir, model, log);
     if (options.writeManifestFile !== false) {
       await writeManifest(options.outputDir, model, options, options.manifest ?? {}, log);
     }
@@ -21069,6 +21182,19 @@ async function generateApplication(options) {
   } catch (err) {
     log.event("pipeline.generation.failed", { project: options.projectName, stage, err });
     throw err;
+  }
+}
+async function writeRuleModel(outputDir, model, log = NO_LOG) {
+  const directory = join(outputDir, "frontend", "src", "lib");
+  try {
+    await access(directory);
+  } catch {
+    return;
+  }
+  try {
+    await writeFile(join(directory, "rule-model.ts"), renderRuleModel(buildRuleModel(model)), "utf-8");
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: "rule-model.ts", err });
   }
 }
 async function writeManual(outputDir, model, options, log = NO_LOG) {

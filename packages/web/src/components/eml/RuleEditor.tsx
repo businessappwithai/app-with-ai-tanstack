@@ -15,6 +15,7 @@ import {
   validateDecisionTable,
 } from "@/lib/eml/decision-table";
 import { convertFlowchartToTable } from "@/lib/eml/flowchart-to-table";
+import { projectDryRun } from "@/lib/eml/project-dry-run";
 import { sampleRecord, tableToGraph } from "@/lib/eml/rule-templates";
 
 /**
@@ -113,6 +114,7 @@ export function RuleEditor({
   projectId,
 }: RuleEditorProps) {
   const [showSource, setShowSource] = useState(false);
+  const dryRun = useMemo(() => projectDryRun(projectId), [projectId]);
   const entityFields = useMemo(
     () => entities.find((e) => e.name === rule.entity)?.attributes ?? [],
     [entities, rule.entity]
@@ -225,19 +227,24 @@ export function RuleEditor({
               entityWorkflows={entityWorkflows}
               fieldTypes={fieldTypes}
               ruleName={slugifyRuleName(rule.title ?? rule.name)}
-              projectId={projectId}
               entity={rule.entity}
-              sampleRecord={JSON.stringify(sampleRecord(entityFields, entityEnums), null, 2)}
+              dryRun={dryRun}
+              sampleRecord={JSON.stringify(
+                sampleRecord(entityFields, entityEnums, fieldTypes),
+                null,
+                2
+              )}
               onChange={(graphJson) =>
                 onChange({ jdmGraph: graphJson, sourceFlowchart: undefined })
               }
             />
           </Suspense>
           <RuleTryIt
-            projectId={projectId}
+            dryRun={dryRun}
             entity={rule.entity}
             entityFields={entityFields}
             entityEnums={entityEnums}
+            fieldTypes={fieldTypes}
             getGraph={() =>
               rule.jdmGraph ??
               JSON.stringify(tableToGraph(table, slugifyRuleName(rule.title ?? rule.name)))

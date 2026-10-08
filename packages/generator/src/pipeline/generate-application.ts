@@ -20,6 +20,7 @@ import {
 } from "../generators/full-stack.generator";
 import { renderManual } from "../manual";
 import { buildReportingPack } from "../reporting/pack";
+import { buildRuleModel, renderRuleModel } from "../rules/rule-model";
 import { NO_LOG, type PipelineLogger } from "./logger-port";
 import {
   GENERATION_DEFAULTS,
@@ -279,6 +280,7 @@ export async function generateApplication(
     stage = "artifacts";
     await writeModelSource(options.outputDir, options.sources, log);
     await writeManual(options.outputDir, model, options, log);
+    await writeRuleModel(options.outputDir, model, log);
 
     if (options.writeManifestFile !== false) {
       await writeManifest(options.outputDir, model, options, options.manifest ?? {}, log);
@@ -294,6 +296,34 @@ export async function generateApplication(
   } catch (err) {
     log.event("pipeline.generation.failed", { project: options.projectName, stage, err });
     throw err;
+  }
+}
+
+/**
+ * Write what a rule may name into the front end, for the rule editor.
+ *
+ * Skipped when there is no front end (`skipFrontend`): the file has no reader
+ * there, and creating `frontend/src/lib` would leave a stray tree behind.
+ */
+async function writeRuleModel(
+  outputDir: string,
+  model: ParsedModel,
+  log: PipelineLogger = NO_LOG
+): Promise<void> {
+  const directory = path.join(outputDir, "frontend", "src", "lib");
+  try {
+    await fs.access(directory);
+  } catch {
+    return;
+  }
+  try {
+    await fs.writeFile(
+      path.join(directory, "rule-model.ts"),
+      renderRuleModel(buildRuleModel(model)),
+      "utf-8"
+    );
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: "rule-model.ts", err });
   }
 }
 

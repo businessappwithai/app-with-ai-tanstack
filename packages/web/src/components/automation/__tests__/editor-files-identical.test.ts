@@ -33,6 +33,18 @@ const SHARED_EDITOR_FILES = [
   "lib/automation/model.ts",
   "lib/automation/rule-content.ts",
   "lib/workflow/bpmn-model.ts",
+  "components/eml/GoRulesEditorPanel.tsx",
+  "components/eml/RuleTryIt.tsx",
+  "components/eml/NewWorkflowPanel.tsx",
+  "components/eml/WorkflowRules.tsx",
+  "lib/eml/decision-table.ts",
+  "lib/eml/dry-run-types.ts",
+  "lib/eml/rule-constraints.ts",
+  "lib/eml/rule-graph-constraints.ts",
+  "lib/eml/rule-outcome.ts",
+  "lib/eml/rule-templates.ts",
+  "lib/eml/workflow-hooks.ts",
+  "lib/monaco-local.ts",
 ] as const;
 
 describe("the editors a generated application ships", () => {
