@@ -379,6 +379,8 @@ function ServiceWorkflowPage() {
   const [rules, setRules] = useState<EditableRule[]>([]);
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesLoaded, setRulesLoaded] = useState(false);
+  // The processes the model declares, so a rule can name one to start.
+  const [workflowNames, setWorkflowNames] = useState<string[]>([]);
   const [selectedRuleIndex, setSelectedRuleIndex] = useState(0);
   const [isSavingRules, setIsSavingRules] = useState(false);
   const [rulesSavedAt, setRulesSavedAt] = useState<string | null>(null);
@@ -484,7 +486,11 @@ function ServiceWorkflowPage() {
       if (enumMatch) {
         const name = enumMatch[1];
         const valStr = enumMatch[2];
-        if (name && valStr) enumDefs[name] = valStr.split(",").map((v) => v.trim()).filter(Boolean);
+        if (name && valStr)
+          enumDefs[name] = valStr
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean);
       }
       const fieldMatch = trimmed.match(/^%%field\s+(\w+\.\w+)\s+.*?enum:\s*(\w+)/);
       if (fieldMatch) {
@@ -526,8 +532,13 @@ function ServiceWorkflowPage() {
             title?: string;
             flowchart: string;
           }>;
+          workflows?: Array<{ name?: string }>;
         };
         if (cancelled) return;
+
+        setWorkflowNames(
+          (data.workflows ?? []).map((w) => w.name ?? "").filter((name) => name !== "")
+        );
 
         setRules((data.rules ?? []).map((rule) => toEditableRule(rule, crypto.randomUUID())));
         setRulesLoaded(true);
@@ -1146,70 +1157,70 @@ function ServiceWorkflowPage() {
 
       {!showGeneratedCode && (
         <>
-        <div className="border-b border-border bg-card">
-          <div className="max-w-[1800px] mx-auto px-6">
-            <div className="flex gap-6">
-              <button
-                type="button"
-                onClick={() => setActiveTab("hooks")}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === "hooks"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-                style={activeTab === "hooks" ? { borderColor: "#FF8400", color: "#FF8400" } : {}}
-              >
-                <GitBranch className="w-4 h-4 inline mr-2" />
-                Hooks
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("workflows")}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === "workflows"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-                style={
-                  activeTab === "workflows" ? { borderColor: "#FF8400", color: "#FF8400" } : {}
-                }
-              >
-                <Settings className="w-4 h-4 inline mr-2" />
-                Trigger.dev Workflows
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("rules")}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === "rules"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-                style={activeTab === "rules" ? { borderColor: "#FF8400", color: "#FF8400" } : {}}
-              >
-                <Scale className="w-4 h-4 inline mr-2" />
-                Business Rules
-              </button>
-              {activeTab === "rules" && (
+          <div className="border-b border-border bg-card">
+            <div className="max-w-[1800px] mx-auto px-6">
+              <div className="flex gap-6">
                 <button
                   type="button"
-                  onClick={() => setHelpOpen((o) => !o)}
-                  className="ml-auto flex items-center gap-1.5 self-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted"
+                  onClick={() => setActiveTab("hooks")}
+                  className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === "hooks"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                  style={activeTab === "hooks" ? { borderColor: "#FF8400", color: "#FF8400" } : {}}
                 >
-                  <BookOpen className="h-4 w-4" />
-                  Help
+                  <GitBranch className="w-4 h-4 inline mr-2" />
+                  Hooks
                 </button>
-              )}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("workflows")}
+                  className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === "workflows"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                  style={
+                    activeTab === "workflows" ? { borderColor: "#FF8400", color: "#FF8400" } : {}
+                  }
+                >
+                  <Settings className="w-4 h-4 inline mr-2" />
+                  Trigger.dev Workflows
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("rules")}
+                  className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === "rules"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                  style={activeTab === "rules" ? { borderColor: "#FF8400", color: "#FF8400" } : {}}
+                >
+                  <Scale className="w-4 h-4 inline mr-2" />
+                  Business Rules
+                </button>
+                {activeTab === "rules" && (
+                  <button
+                    type="button"
+                    onClick={() => setHelpOpen((o) => !o)}
+                    className="ml-auto flex items-center gap-1.5 self-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    Help
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <HelpPanel
-          open={helpOpen}
-          topic={helpTopicId}
-          onTopicChange={setHelpTopicId}
-          onClose={() => setHelpOpen(false)}
-        />
+          <HelpPanel
+            open={helpOpen}
+            topic={helpTopicId}
+            onTopicChange={setHelpTopicId}
+            onClose={() => setHelpOpen(false)}
+          />
         </>
       )}
 
@@ -1483,9 +1494,9 @@ function ServiceWorkflowPage() {
                         onChange={patchRule}
                         onError={(message) => setValidationErrors(message ? [message] : [])}
                         autoConvertFlowchart
-                        hideEventSelector
                         useGoRulesEditor
                         entityEnums={modelEnums}
+                        workflowNames={workflowNames}
                       />
                       <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
                         <button

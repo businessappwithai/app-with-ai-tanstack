@@ -24,6 +24,10 @@ coverage/
 # the two specs beside it did not.
 !tests/**/*.e2e.spec.ts
 !tests/**/*.spec.ts
+# The rule and workflow editors' own suite lives in scripts/, and its specs were
+# never committed for the same reason: `bun run test:e2e:rules-workflows` found
+# a config and no tests.
+!scripts/e2e-rules-workflows/specs/*.spec.ts
 
 # Generated projects runtime artifacts
 packages/web/generated-projects/

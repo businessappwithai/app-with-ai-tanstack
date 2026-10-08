@@ -367,6 +367,23 @@ of the system-edition `llmtext` documents describe it; generated suite
 
 `--standalone` mode generates a self-contained browser app (model compiled to `model.json` + SQL, no per-entity source). Regular mode generates the full NestJS + TanStack stack (~413 files).
 
+#### The first-boot seed is one transaction, because the browser flushes per statement
+
+On the browser's `idb://` store PGlite writes its files back to IndexedDB after
+every statement made outside a transaction. The seed is thousands of statements,
+so the CRM model took over three minutes to reach sign-in in headless Chromium —
+past the E2E wait of 180s, which failed that test and left the twelve that depend
+on it unrun — while the same seed in memory under node is two seconds. Nothing run
+under node can show it. `migrate()` now runs every seed stage inside
+`db.transaction()` (one flush; the CRM boots in about 15s), and the `seeded` marker
+is inside it, so a seed that fails leaves no marker and no half a dictionary.
+
+One statement that fails aborts a transaction, so anything the seed tolerates is
+wrapped in `db.attempt()` — a savepoint. Today that is the sample rows, which are
+skipped one at a time. Add a new tolerated step the same way or it will cost the
+whole seed. Held by `generators/wasm/__tests__/seed-transaction.test.ts`, which
+runs a real PGlite in a Bun child process (it will not load under jsdom).
+
 #### The browser application's Application Dictionary shows fields, and did not
 
 `sys_window`, `sys_tab` and `sys_field` are all seeded by `server/migrate.js` and
@@ -620,6 +637,59 @@ Step vocabulary lives in `packages/web/src/types/project.ts` (`ProjectStep`, `ST
 ### Web app (packages/web/)
 
 **No Vinxi** — `vite.config.ts` shims `@tanstack/start-api-routes` with `src/lib/start-api-routes-compat.js`. Also loads the root `.env` via `loadEnv` (Vite runs with cwd `packages/web`).
+
+### Graph rules — `%%jdm-graph` carries a whole GoRules graph
+
+The Enhance page's graph editor saves a rule as one `%%jdm-graph <json>` line —
+input, decision-table, expression, function and switch nodes plus edges — under a
+placeholder `Start --> End` flowchart. `compileRules` in
+`packages/generator/src/rules/index.ts` reads it (`parseJdmGraphDirective`,
+`validateJdmGraph`, `normalizeGraphActions`); before that it fell through to the
+flowchart branch and compiled to an inert input→output graph, so a function or
+switch saved, reloaded and decided nothing. The checker accepts the line as prose
+inside a flowchart — no language change — and counts a `workflowName` or process
+name inside it as naming a `trigger: rule` saga (`EML286`).
+
+Things the compiler and both runtimes now hold, each learned by running a
+generated app rather than reading the graph:
+
+- **zen 0.54 runs a function node only from `content: { source }`.** A bare string
+  with `export` errors (`unsupported keyword: export`); without `export` it
+  returns `{}` and decides nothing. The compiler wraps a string; a node with no
+  `handler` is refused at compile time, as is source naming `import`, `require`,
+  `fetch`, `eval`, `process` or `globalThis`.
+- **A rule's answer is its final output row, and the application acts only on
+  `action`.** `prevent`/`validation-error` refuses, `trigger-workflow` +
+  `workflowName` starts a process, `transform` needs `transformData`. Values with
+  no `action` do nothing. `rule-outcome.ts` says so in the Try-it panel.
+- **Table editors' Field/Value columns are not read by the runtime** — it applies
+  one `transformData` object. `withTransformData` adds it for the table editor and
+  the graph editor, as `%%action` already did.
+- **zen unary cells:** `null, ""` and `!= null` work; `not null` is silently never a
+  match. The browser runtime's `cellExpression` (`templates/wasm/server/lib/rules.js`)
+  reads the same forms against the column's `field`.
+- **`event` only chooses the operation** (create / update / delete / any) — before
+  and after are judged identically, all before the write. Side effects
+  (`transform`, `trigger-workflow`) run after commit.
+- **Browser runtime:** `isComputedGraph` routes graphs with expression, function or
+  switch content, more than one table, or field-based columns to
+  `evaluateComputedGraph`; everything else keeps its old path. The parity test
+  `browser-runtime-computed-graph.test.ts` runs each graph through zen *and*
+  `rules.js` and compares the verdict.
+
+`scripts/e2e-rules-workflows/specs/` was never committed (the root `.gitignore`
+excludes `*.spec.ts`; there is now a negation). Specs 01–06 in its README are not
+in the repository. 07 drives the Enhance page; 08 boots a generated app from
+`models/rule-kinds.eml.mmd` (the helpdesk model plus one graph rule per node type
+and a process a switch starts) and asserts on the records.
+
+Hook handlers are stubs the author fills in, so the runner does the same: a
+`<model>.handlers/` directory beside the model (`rule-kinds.handlers/Ticket.ts`) is
+copied over the generated `backend/src/modules/hooks/handlers/` before the app
+starts (`installHandlers` in `run.ts`). That is what makes the order of a write
+observable — a `beforeCreate` hook raises `impact_score`, only the rules then see
+it, and the switch starts the process — and `HOOK_TRACE_FILE` records
+`beforeCreate` ahead of `afterCreate`.
 
 ### The automation builder — the second reader of the same directives
 

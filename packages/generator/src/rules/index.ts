@@ -140,6 +140,187 @@ export function parseDecisionTableDirective(flowchart: string): EditorDecisionTa
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Whole decision graphs authored in the graph editor                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The directive the Enhance page's graph editor writes: one line of JSON holding
+ * the editor's whole graph — input, decision-table, expression, function and
+ * switch nodes plus the edges between them.
+ *
+ * Nothing compiled this line. The rule fell through to the flowchart branch and
+ * became an inert input-to-output graph, so a function or switch node an author
+ * drew saved, reloaded and never ran. Anchored at `^%%` like every directive.
+ */
+const JDM_GRAPH_DIRECTIVE = "%%jdm-graph ";
+
+const GRAPH_NODE_TYPES = new Set([
+  "inputNode",
+  "outputNode",
+  "decisionTableNode",
+  "expressionNode",
+  "functionNode",
+  "switchNode",
+]);
+
+/** Source the zen function sandbox must never be handed. */
+const FORBIDDEN_FUNCTION_SOURCE = /\b(?:import|require|fetch|eval|process|globalThis)\b/;
+
+export function parseJdmGraphDirective(flowchart: string): JdmGraph | null {
+  const line = (flowchart ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l.startsWith(JDM_GRAPH_DIRECTIVE));
+  if (!line) return null;
+  try {
+    const parsed = JSON.parse(line.slice(JDM_GRAPH_DIRECTIVE.length)) as JdmGraph;
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Why a graph cannot run, one sentence each; empty when it can. */
+export function validateJdmGraph(graph: JdmGraph): string[] {
+  const problems: string[] = [];
+  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+  const edges = Array.isArray(graph.edges) ? graph.edges : [];
+  const ids = new Set<string>();
+
+  if (!nodes.length) return ["the graph has no nodes"];
+  for (const node of nodes as unknown as Array<Record<string, unknown>>) {
+    const label = String(node.name ?? node.id);
+    ids.add(String(node.id));
+    if (typeof node.type !== "string" || !GRAPH_NODE_TYPES.has(node.type)) {
+      problems.push(`node "${label}" has an unsupported type "${String(node.type)}"`);
+      continue;
+    }
+    if (node.type === "inputNode" || node.type === "outputNode") continue;
+    if (node.content === undefined || node.content === null) {
+      problems.push(`${node.type} "${label}" has no content, so the engine would reject it`);
+    }
+    if (node.type === "functionNode") {
+      const content = node.content;
+      const source =
+        typeof content === "string"
+          ? content
+          : typeof (content as { source?: unknown } | null)?.source === "string"
+            ? (content as { source: string }).source
+            : "";
+      if (!/\bhandler\b/.test(source)) {
+        problems.push(
+          `functionNode "${label}" defines no handler; write export const handler = async (input) => ({ ... })`
+        );
+      }
+      if (FORBIDDEN_FUNCTION_SOURCE.test(source)) {
+        problems.push(
+          `functionNode "${label}" uses import, require, fetch, eval, process or globalThis, which the sandbox does not allow`
+        );
+      }
+    }
+  }
+  if (!nodes.some((n) => n.type === "inputNode")) problems.push("the graph has no input node");
+  if (!nodes.some((n) => n.type === "outputNode")) problems.push("the graph has no output node");
+  for (const edge of edges as unknown as Array<Record<string, unknown>>) {
+    if (!ids.has(String(edge.sourceId)) || !ids.has(String(edge.targetId))) {
+      problems.push(`edge "${String(edge.id)}" joins a node that is not in the graph`);
+    }
+  }
+  return problems;
+}
+
+/**
+ * Speak the runtime's vocabulary in a graph's decision-table cells.
+ *
+ * The editor's authors are told `validation-error` blocks a write (that is EML's
+ * word, and the one the table editor shows); the runtime refuses on `prevent`.
+ * A cell left in EML's word matched, was handed to the engine and was dropped.
+ * Function and expression nodes are the author's own code and are not rewritten.
+ */
+export function normalizeGraphActions(graph: JdmGraph): JdmGraph {
+  const rewrite = (cell: unknown): unknown =>
+    typeof cell === "string" ? cell.replace(/(["'])validation-error\1/g, "$1prevent$1") : cell;
+  return {
+    ...graph,
+    nodes: graph.nodes.map((node) => {
+      const content = (node as { content?: unknown }).content;
+      // zen 0.54 runs a function node only from `{ source }`. A bare string with
+      // `export` is refused and one without it returns {} — a function that
+      // saves, loads and silently decides nothing.
+      if (node.type === ("functionNode" as string) && typeof content === "string") {
+        return { ...node, content: { source: content } } as unknown as typeof node;
+      }
+      const table = content as { rules?: Array<Record<string, unknown>> } | undefined;
+      if (node.type !== ("decisionTableNode" as string) || !Array.isArray(table?.rules)) {
+        return node;
+      }
+      return {
+        ...node,
+        content: withTransformData({
+          ...table,
+          rules: table.rules.map((row) =>
+            Object.fromEntries(Object.entries(row).map(([key, cell]) => [key, rewrite(cell)]))
+          ),
+        }),
+      } as typeof node;
+    }),
+  };
+}
+
+/** A zen string literal's text, or `null` when the cell is an expression. */
+function literalText(cell: unknown): string | null {
+  const match = String(cell ?? "")
+    .trim()
+    .match(/^(?:'(.*)'|"(.*)")$/s);
+  return match ? (match[1] ?? match[2] ?? "") : null;
+}
+
+interface TableContent {
+  inputs?: unknown[];
+  outputs?: Array<{ id: string; name?: string; field?: string }>;
+  rules?: Array<Record<string, unknown>>;
+  [key: string]: unknown;
+}
+
+/**
+ * Give a `transform` row the `transformData` the runtime reads.
+ *
+ * The table editor offers **Field** and **Value** columns for a transform, and
+ * its help page tells the author to fill them. The runtime reads neither: it
+ * applies one `transformData` object and logs "has no transformData — skipping"
+ * otherwise, so a transform written exactly as documented did nothing. The
+ * `%%action` path has translated this since ISSUE-005; the two editor paths
+ * (the table and the graph) did not. The Field and Value columns stay, because
+ * the editors show them.
+ */
+function withTransformData<T extends TableContent>(content: T): T {
+  const outputs = content.outputs ?? [];
+  const fieldColumn = outputs.find((column) => column.field === "field");
+  const valueColumn = outputs.find((column) => column.field === "value");
+  const actionColumn = outputs.find((column) => column.field === "action");
+  if (
+    !fieldColumn ||
+    !valueColumn ||
+    !actionColumn ||
+    outputs.some((column) => column.field === "transformData")
+  ) {
+    return content;
+  }
+  const dataColumn = { id: "transformData-auto", name: "Transform Data", field: "transformData" };
+  return {
+    ...content,
+    outputs: [...outputs, dataColumn],
+    rules: (content.rules ?? []).map((row) => {
+      const target = literalText(row[fieldColumn.id])?.trim();
+      const isTransform = literalText(row[actionColumn.id])?.trim() === "transform";
+      if (!isTransform || !target) return row;
+      const value = literalText(row[valueColumn.id]) ?? String(row[valueColumn.id] ?? "");
+      return { ...row, [dataColumn.id]: zenLiteral(JSON.stringify({ [target]: value })) };
+    }),
+  };
+}
+
 /** A cell that zen should read as a value rather than an identifier reference. */
 function isBareLiteral(value: string): boolean {
   return (
@@ -215,7 +396,7 @@ export function buildEditorDecisionTable(ruleName: string, table: EditorDecision
         id: tableId,
         name: ruleName,
         type: "decisionTableNode",
-        content: {
+        content: withTransformData({
           hitPolicy: table.hitPolicy === "collect" ? ("collect" as const) : ("first" as const),
           inputs: inputs.map((column) => ({
             id: column.id,
@@ -228,7 +409,7 @@ export function buildEditorDecisionTable(ruleName: string, table: EditorDecision
             field: column.field ?? "",
           })),
           rules: rows,
-        },
+        }),
       },
       { id: "output", name: "Output", type: "outputNode" },
     ],
@@ -527,6 +708,24 @@ export function compileRules(
       // placeholder flowchart, so it has to be read before the AST — compiling
       // the placeholder yields a rule that decides nothing.
       const editorTable = parseDecisionTableDirective(section.flowchart);
+      const editorGraph = parseJdmGraphDirective(section.flowchart);
+      if (editorGraph) {
+        const problems = validateJdmGraph(editorGraph);
+        if (problems.length) {
+          onWarn(`Rule "${section.name}" has a graph that cannot run: ${problems.join("; ")}.`);
+          continue;
+        }
+        compiled.push({
+          name: section.name,
+          entity: section.entity,
+          tableName: toTableName(section.entity),
+          event: section.event,
+          operation: eventToOperation(section.event),
+          priority: section.priority ?? 100,
+          jdmContent: JSON.stringify(normalizeGraphActions(editorGraph)),
+        });
+        continue;
+      }
 
       const ast = parseMermaidFlowchart(section.flowchart);
       if (!editorTable && !ast.nodes.size) {

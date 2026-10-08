@@ -94,59 +94,55 @@ export function HelpPanel({ open, topic, onTopicChange, onClose }: HelpPanelProp
   return (
     <>
       {/* Backdrop — clicking outside closes the panel */}
-      <div
-        className="fixed inset-0 z-40 bg-black/20"
-        aria-hidden="true"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 z-40 bg-black/20" aria-hidden="true" onClick={onClose} />
       <aside
         aria-label="Help"
         className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[460px] flex-col border-l border-border bg-card shadow-2xl"
       >
-      <header className="flex items-center gap-2 border-b border-border px-4 py-3">
-        <BookOpen className="h-4 w-4 text-primary" />
-        <span className="text-sm font-semibold">Help</span>
-        <div className="flex-1" />
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close help"
-          className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </header>
-
-      <div
-        role="tablist"
-        aria-label="Help topics"
-        className="flex flex-wrap gap-1 border-b border-border px-3 py-2"
-      >
-        {HELP_TOPICS.map((entry) => (
+        <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+          <BookOpen className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold">Help</span>
+          <div className="flex-1" />
           <button
-            key={entry.id}
             type="button"
-            role="tab"
-            aria-selected={entry.id === topic}
-            onClick={() => onTopicChange(entry.id)}
-            className={cn(
-              "rounded-md px-2.5 py-1 text-xs font-medium",
-              entry.id === topic
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
+            onClick={onClose}
+            aria-label="Close help"
+            className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            {entry.label}
+            <X className="h-4 w-4" />
           </button>
-        ))}
-      </div>
+        </header>
 
-      <div ref={body} role="tabpanel" className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-        <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN}>
-          {current.markdown}
-        </ReactMarkdown>
-      </div>
-    </aside>
+        <div
+          role="tablist"
+          aria-label="Help topics"
+          className="flex flex-wrap gap-1 border-b border-border px-3 py-2"
+        >
+          {HELP_TOPICS.map((entry) => (
+            <button
+              key={entry.id}
+              type="button"
+              role="tab"
+              aria-selected={entry.id === topic}
+              onClick={() => onTopicChange(entry.id)}
+              className={cn(
+                "rounded-md px-2.5 py-1 text-xs font-medium",
+                entry.id === topic
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              {entry.label}
+            </button>
+          ))}
+        </div>
+
+        <div ref={body} role="tabpanel" className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN}>
+            {current.markdown}
+          </ReactMarkdown>
+        </div>
+      </aside>
     </>
   );
 }

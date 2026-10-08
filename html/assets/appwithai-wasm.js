@@ -6931,6 +6931,118 @@ function parseDecisionTableDirective(flowchart) {
     return null;
   }
 }
+var JDM_GRAPH_DIRECTIVE = "%%jdm-graph ";
+var GRAPH_NODE_TYPES = new Set([
+  "inputNode",
+  "outputNode",
+  "decisionTableNode",
+  "expressionNode",
+  "functionNode",
+  "switchNode"
+]);
+var FORBIDDEN_FUNCTION_SOURCE = /\b(?:import|require|fetch|eval|process|globalThis)\b/;
+function parseJdmGraphDirective(flowchart) {
+  const line = (flowchart ?? "").split(`
+`).map((l) => l.trim()).find((l) => l.startsWith(JDM_GRAPH_DIRECTIVE));
+  if (!line)
+    return null;
+  try {
+    const parsed = JSON.parse(line.slice(JDM_GRAPH_DIRECTIVE.length));
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+function validateJdmGraph(graph) {
+  const problems = [];
+  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+  const edges = Array.isArray(graph.edges) ? graph.edges : [];
+  const ids = new Set;
+  if (!nodes.length)
+    return ["the graph has no nodes"];
+  for (const node of nodes) {
+    const label = String(node.name ?? node.id);
+    ids.add(String(node.id));
+    if (typeof node.type !== "string" || !GRAPH_NODE_TYPES.has(node.type)) {
+      problems.push(`node "${label}" has an unsupported type "${String(node.type)}"`);
+      continue;
+    }
+    if (node.type === "inputNode" || node.type === "outputNode")
+      continue;
+    if (node.content === undefined || node.content === null) {
+      problems.push(`${node.type} "${label}" has no content, so the engine would reject it`);
+    }
+    if (node.type === "functionNode") {
+      const content = node.content;
+      const source = typeof content === "string" ? content : typeof content?.source === "string" ? content.source : "";
+      if (!/\bhandler\b/.test(source)) {
+        problems.push(`functionNode "${label}" defines no handler; write export const handler = async (input) => ({ ... })`);
+      }
+      if (FORBIDDEN_FUNCTION_SOURCE.test(source)) {
+        problems.push(`functionNode "${label}" uses import, require, fetch, eval, process or globalThis, which the sandbox does not allow`);
+      }
+    }
+  }
+  if (!nodes.some((n) => n.type === "inputNode"))
+    problems.push("the graph has no input node");
+  if (!nodes.some((n) => n.type === "outputNode"))
+    problems.push("the graph has no output node");
+  for (const edge of edges) {
+    if (!ids.has(String(edge.sourceId)) || !ids.has(String(edge.targetId))) {
+      problems.push(`edge "${String(edge.id)}" joins a node that is not in the graph`);
+    }
+  }
+  return problems;
+}
+function normalizeGraphActions(graph) {
+  const rewrite = (cell) => typeof cell === "string" ? cell.replace(/(["'])validation-error\1/g, "$1prevent$1") : cell;
+  return {
+    ...graph,
+    nodes: graph.nodes.map((node) => {
+      const content = node.content;
+      if (node.type === "functionNode" && typeof content === "string") {
+        return { ...node, content: { source: content } };
+      }
+      const table = content;
+      if (node.type !== "decisionTableNode" || !Array.isArray(table?.rules)) {
+        return node;
+      }
+      return {
+        ...node,
+        content: withTransformData({
+          ...table,
+          rules: table.rules.map((row) => Object.fromEntries(Object.entries(row).map(([key, cell]) => [key, rewrite(cell)])))
+        })
+      };
+    })
+  };
+}
+function literalText(cell) {
+  const match = String(cell ?? "").trim().match(/^(?:'(.*)'|"(.*)")$/s);
+  return match ? match[1] ?? match[2] ?? "" : null;
+}
+function withTransformData(content) {
+  const outputs = content.outputs ?? [];
+  const fieldColumn = outputs.find((column) => column.field === "field");
+  const valueColumn = outputs.find((column) => column.field === "value");
+  const actionColumn = outputs.find((column) => column.field === "action");
+  if (!fieldColumn || !valueColumn || !actionColumn || outputs.some((column) => column.field === "transformData")) {
+    return content;
+  }
+  const dataColumn = { id: "transformData-auto", name: "Transform Data", field: "transformData" };
+  return {
+    ...content,
+    outputs: [...outputs, dataColumn],
+    rules: (content.rules ?? []).map((row) => {
+      const target = literalText(row[fieldColumn.id])?.trim();
+      const isTransform = literalText(row[actionColumn.id])?.trim() === "transform";
+      if (!isTransform || !target)
+        return row;
+      const value = literalText(row[valueColumn.id]) ?? String(row[valueColumn.id] ?? "");
+      return { ...row, [dataColumn.id]: zenLiteral(JSON.stringify({ [target]: value })) };
+    })
+  };
+}
 function isBareLiteral(value) {
   return value === "true" || value === "false" || value === "null" || value !== "" && !Number.isNaN(Number(value));
 }
@@ -6977,7 +7089,7 @@ function buildEditorDecisionTable(ruleName, table) {
         id: tableId,
         name: ruleName,
         type: "decisionTableNode",
-        content: {
+        content: withTransformData({
           hitPolicy: table.hitPolicy === "collect" ? "collect" : "first",
           inputs: inputs.map((column) => ({
             id: column.id,
@@ -6990,7 +7102,7 @@ function buildEditorDecisionTable(ruleName, table) {
             field: column.field ?? ""
           })),
           rules: rows
-        }
+        })
       },
       { id: "output", name: "Output", type: "outputNode" }
     ],
@@ -7072,6 +7184,24 @@ function compileRules(sections, onWarn = () => {}) {
     }
     try {
       const editorTable = parseDecisionTableDirective(section.flowchart);
+      const editorGraph = parseJdmGraphDirective(section.flowchart);
+      if (editorGraph) {
+        const problems = validateJdmGraph(editorGraph);
+        if (problems.length) {
+          onWarn(`Rule "${section.name}" has a graph that cannot run: ${problems.join("; ")}.`);
+          continue;
+        }
+        compiled.push({
+          name: section.name,
+          entity: section.entity,
+          tableName: toTableName(section.entity),
+          event: section.event,
+          operation: eventToOperation(section.event),
+          priority: section.priority ?? 100,
+          jdmContent: JSON.stringify(normalizeGraphActions(editorGraph))
+        });
+        continue;
+      }
       const ast = parseMermaidFlowchart(section.flowchart);
       if (!editorTable && !ast.nodes.size) {
         onWarn(`Rule "${section.name}" has no nodes; skipping.`);
@@ -9283,11 +9413,14 @@ class CheckEngine {
       }
     }
     const triggered = new Set(this.src.findAll(/^\s*%%action\b/).map(({ text }) => text.match(/\bworkflow:\s*(\S+)/)?.[1]).filter((name) => !!name));
+    const drawnRules = this.src.findAll(/^\s*%%(?:jdm-graph|decision-table)\s/).map(({ text }) => text);
     for (const { lineNo, text } of this.src.findAll(/^%%workflow\b/)) {
       const m = text.match(/^%%workflow\s+(\w+)[^\n]*kind:\s*saga/);
       if (!m || !/\btrigger:\s*rule\b/.test(text))
         continue;
       if (triggered.has(m[1]))
+        continue;
+      if (drawnRules.some((line) => new RegExp(`\\b${m[1]}\\b`).test(line)))
         continue;
       this.warn("EML286", `Saga "${m[1]}" is rule-triggered but no %%action names it.`, {
         line: lineNo,
@@ -12109,6 +12242,45 @@ export class Database {
     await this.pg.exec(sql);
   }
 
+  /**
+   * Run \`work\` in one transaction, handing it a Database bound to it.
+   *
+   * Not for atomicity alone. On the browser's \`idb://\` store PGlite writes its
+   * files back to IndexedDB after every statement made outside a transaction,
+   * so a seed of a thousand statements is a thousand flushes — measured at over
+   * three minutes against about two seconds in memory. Inside a transaction the
+   * flush happens once, at the end.
+   */
+  async transaction(work) {
+    if (this.inTransaction || typeof this.pg.transaction !== "function") return work(this);
+    return this.pg.transaction(async (tx) => {
+      const bound = new Database(tx);
+      bound.inTransaction = true;
+      return work(bound);
+    });
+  }
+
+  /**
+   * Run \`work\`, and if it throws undo only what it did.
+   *
+   * A statement that fails inside a transaction aborts the whole transaction, so
+   * a caller that tolerates a failure — a sample row that breaks a constraint —
+   * needs a savepoint around it. Outside a transaction there is nothing to
+   * abort and \`work\` runs as it is.
+   */
+  async attempt(work) {
+    if (!this.inTransaction) return work();
+    await this.pg.exec("SAVEPOINT attempt");
+    try {
+      const result = await work();
+      await this.pg.exec("RELEASE SAVEPOINT attempt");
+      return result;
+    } catch (error) {
+      await this.pg.exec("ROLLBACK TO SAVEPOINT attempt");
+      throw error;
+    }
+  }
+
   async close() {
     if (this.pg.close) await this.pg.close();
   }
@@ -13842,6 +14014,189 @@ function evaluateGraph(graph, record, columns) {
   return { results, trace };
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Graphs authored in the graph editor: nodes that carry \`content\`              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * True for a graph whose nodes *compute* — an expression, function or switch
+ * with real content, or a chain of more than one decision table.
+ *
+ * Everything else is a compiled \`%%action\` table or a drawn flowchart and keeps
+ * its existing path. Without this split the editor's graphs were read as prose:
+ * a function node was handed to \`interpretAction\` by its *name*, and decided
+ * whatever its label sounded like.
+ */
+function isComputedGraph(graph) {
+  const nodes = graph.nodes || [];
+  const computes = nodes.some(
+    (node) =>
+      (node.type === "expressionNode" ||
+        node.type === "functionNode" ||
+        node.type === "switchNode") &&
+      node.content !== undefined
+  );
+  const tables = nodes.filter((node) => node.type === "decisionTableNode");
+  // A column with a \`field\` is read against that field ("> 40" under \`discount\`);
+  // the older table path evaluates every cell as a whole-record expression, which
+  // is the convention only \`%%action\` tables use.
+  const fieldBased = tables.some((node) =>
+    (node.content?.inputs || []).some((input) => String(input.field || "").trim() !== "")
+  );
+  return computes || tables.length > 1 || fieldBased;
+}
+
+/**
+ * One decision-table cell as an expression over the record.
+ *
+ * zen reads a cell against its column's field ("> 40" under \`discount\`), and a
+ * column with no field holds a whole-record check — the convention the table
+ * editor already uses. \`null\` means the cell is blank and matches anything.
+ */
+function cellExpression(field, cell) {
+  const text = String(cell ?? "").trim();
+  if (!text) return null;
+  if (!field) return text;
+  if (/^(==|!=|<=|>=|<|>)/.test(text)) return \`\${field} \${text}\`;
+  const LITERAL = \`(?:"[^"]*"|'[^']*'|-?\\\\d+(?:\\\\.\\\\d+)?|true|false|null)\`;
+  if (new RegExp(\`^\${LITERAL}(?:\\\\s*,\\\\s*\${LITERAL})+$\`).test(text)) {
+    return text
+      .match(new RegExp(LITERAL, "g"))
+      .map((part) => \`\${field} == \${part}\`)
+      .join(" or ");
+  }
+  if (new RegExp(\`^\${LITERAL}$\`).test(text)) return \`\${field} == \${text}\`;
+  return text;
+}
+
+function evaluateContentTable(node, context, trace) {
+  const content = node.content || {};
+  const matches = [];
+  for (const row of content.rules || []) {
+    let matched = true;
+    for (const input of content.inputs || []) {
+      const expression = cellExpression(input.field, row[input.id]);
+      if (expression === null) continue;
+      try {
+        if (!test(expression, context)) matched = false;
+      } catch (error) {
+        trace.push({ node: node.name, assumed: true, reason: error.message });
+        matched = false;
+      }
+      if (!matched) break;
+    }
+    if (!matched) continue;
+    const value = {};
+    for (const output of content.outputs || []) {
+      const cell = row[output.id];
+      if (cell === undefined || String(cell).trim() === "") continue;
+      try {
+        value[output.field] = evaluate(String(cell), context);
+      } catch {
+        value[output.field] = unquote(cell);
+      }
+    }
+    matches.push(value);
+    if (content.hitPolicy !== "collect") break;
+  }
+  return matches;
+}
+
+/**
+ * Run a function node's \`export const handler = async (input) => ({ ... })\`.
+ *
+ * zen runs this in a sandbox without imports, network or process access; the
+ * compiler refuses source that names any of them, and the handler here is given
+ * only a copy of the record. It is the administrator's own code in the
+ * administrator's own tab — not a boundary, which is why the compiler's check is
+ * the one that matters.
+ */
+async function runFunctionNode(node, context) {
+  const raw = typeof node.content === "string" ? node.content : node.content?.source || "";
+  const source = raw.replace(/\\bexport\\s+(?=const|function|async)/g, "");
+  // biome-ignore lint/security/noGlobalEval: sandboxed handler, see above.
+  const factory = new Function("input", \`\${source}\\n;return handler(input);\`);
+  const out = await factory(JSON.parse(JSON.stringify(context)));
+  return out && typeof out === "object" ? out : {};
+}
+
+/**
+ * Walk a graph whose nodes compute, carrying one growing context.
+ *
+ * Mirrors zen: every node reads the context and adds to it; a switch sends the
+ * context down the edges whose \`sourceHandle\` is the statement that fit. The
+ * rule's answer is what the nodes *added* — the action row the application
+ * acts on — so \`trace\` records each node's contribution for the dry run.
+ */
+async function evaluateComputedGraph(graph, record) {
+  const nodes = new Map((graph.nodes || []).map((node) => [node.id, node]));
+  const outgoing = new Map();
+  for (const edge of graph.edges || []) {
+    if (!outgoing.has(edge.sourceId)) outgoing.set(edge.sourceId, []);
+    outgoing.get(edge.sourceId).push(edge);
+  }
+  const start = (graph.nodes || []).find((node) => node.type === "inputNode");
+  if (!start) return { results: [], trace: [] };
+
+  const context = { ...record };
+  const produced = {};
+  const trace = [];
+  const add = (values) => {
+    Object.assign(context, values);
+    Object.assign(produced, values);
+  };
+
+  const queue = [start.id];
+  const seen = new Set();
+  while (queue.length && seen.size < 200) {
+    const id = queue.shift();
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const node = nodes.get(id);
+    if (!node) continue;
+    let followed = outgoing.get(id) || [];
+
+    try {
+      if (node.type === "expressionNode") {
+        const values = {};
+        for (const row of node.content?.expressions || []) {
+          if (!row.key) continue;
+          values[row.key] = evaluate(row.value, { ...context, ...values });
+        }
+        add(values);
+        trace.push({ node: node.name, added: values });
+      } else if (node.type === "functionNode") {
+        const values = await runFunctionNode(node, context);
+        add(values);
+        trace.push({ node: node.name, added: values });
+      } else if (node.type === "decisionTableNode") {
+        const matches = evaluateContentTable(node, context, trace);
+        for (const match of matches) add(match);
+        trace.push({ node: node.name, matched: matches.length });
+      } else if (node.type === "switchNode") {
+        const fits = [];
+        for (const statement of node.content?.statements || []) {
+          const condition = String(statement.condition ?? "").trim();
+          if (statement.isDefault || !condition || test(condition, context)) fits.push(statement.id);
+          if (fits.length && node.content?.hitPolicy !== "collect") break;
+        }
+        followed = followed.filter((edge) => fits.includes(edge.sourceHandle));
+        trace.push({ node: node.name, branches: fits });
+      }
+    } catch (error) {
+      trace.push({ node: node.name, assumed: true, reason: error.message });
+      return {
+        results: [{ action: "error", message: \`Rule node "\${node.name}": \${error.message}\` }],
+        trace,
+      };
+    }
+
+    for (const edge of followed) queue.push(edge.targetId);
+  }
+
+  return { results: Object.keys(produced).length ? [produced] : [], trace };
+}
+
 /**
  * Evaluate every rule bound to an entity operation.
  *
@@ -13867,9 +14222,10 @@ export async function evaluateRules(rules, record, options = {}) {
     }
 
     const table = (graph.nodes || []).find((node) => node.type === "decisionTableNode");
-    const outcome = table
-      ? { results: evaluateDecisionTable(table, record), trace: [] }
-      : evaluateGraph(graph, record, columns);
+    let outcome;
+    if (isComputedGraph(graph)) outcome = await evaluateComputedGraph(graph, record);
+    else if (table) outcome = { results: evaluateDecisionTable(table, record), trace: [] };
+    else outcome = evaluateGraph(graph, record, columns);
 
     traces.push({ rule: rule.name, trace: outcome.trace });
 
@@ -13886,7 +14242,12 @@ export async function evaluateRules(rules, record, options = {}) {
        * so the write was stored and the caller was told nothing. \`reject\` stays
        * because the node-graph path and the JDM parse failure above emit it.
        */
-      if (action === "reject" || action === "error" || action === "prevent") {
+      if (
+        action === "reject" ||
+        action === "error" ||
+        action === "prevent" ||
+        action === "validation-error"
+      ) {
         violations.push({ ruleId: result.ruleId || rule.name, ...result });
       } else if (action === "set" && result.field) {
         mutations[result.field] = result.value;
@@ -14135,24 +14496,30 @@ export async function migrate(db, model, readAsset, log = () => {}) {
 
   log("Seeding the dictionary");
   const tick = seedCounter(model, log);
-  await seedReferences(db, model, tick);
-  await seedCategories(db, model, tick);
-  await seedDictionary(db, model, tick);
-  await seedRoles(db, model, tick);
-  await seedAdmin(db, model, log);
-  await seedRoleUsers(db, model, log, tick);
-  await seedRules(db, model, tick);
-  await seedWorkflows(db, model, tick);
-  await seedReports(db, model, tick);
-  await seedAccess(db, model, tick);
-  await seedReporting(db, model, log, tick);
-  await seedSampleData(db, model, log, tick);
+  /* One transaction for the whole seed — see Database.transaction. Without it the
+     browser flushes IndexedDB after every one of thousands of statements. The
+     \`seeded\` marker is inside it too, so a seed that fails part-way leaves no
+     marker and no half of a dictionary. */
+  await db.transaction(async (tx) => {
+    await seedReferences(tx, model, tick);
+    await seedCategories(tx, model, tick);
+    await seedDictionary(tx, model, tick);
+    await seedRoles(tx, model, tick);
+    await seedAdmin(tx, model, log);
+    await seedRoleUsers(tx, model, log, tick);
+    await seedRules(tx, model, tick);
+    await seedWorkflows(tx, model, tick);
+    await seedReports(tx, model, tick);
+    await seedAccess(tx, model, tick);
+    await seedReporting(tx, model, log, tick);
+    await seedSampleData(tx, model, log, tick);
 
-  await db.query(
-    \`INSERT INTO sys_schema_state (key, value) VALUES ('seeded', $1)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()\`,
-    [String(SCHEMA_VERSION)]
-  );
+    await tx.query(
+      \`INSERT INTO sys_schema_state (key, value) VALUES ('seeded', $1)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()\`,
+      [String(SCHEMA_VERSION)]
+    );
+  });
 
   return { seeded: true };
 }
@@ -14508,10 +14875,13 @@ async function seedSampleData(db, model, log, tick = () => {}) {
       if (columns.length === 0) continue;
       const placeholders = columns.map((_, index) => \`$\${index + 1}\`).join(", ");
       try {
-        await db.query(
-          \`INSERT INTO \${table} (\${columns.join(", ")}) VALUES (\${placeholders})
-             ON CONFLICT DO NOTHING\`,
-          columns.map((column) => row[column])
+        // A savepoint, so one rejected row costs that row and not the seed.
+        await db.attempt(() =>
+          db.query(
+            \`INSERT INTO \${table} (\${columns.join(", ")}) VALUES (\${placeholders})
+               ON CONFLICT DO NOTHING\`,
+            columns.map((column) => row[column])
+          )
         );
         inserted++;
       } catch (error) {
@@ -25930,7 +26300,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 609041;
+var RUNTIME_BYTES = 618391;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

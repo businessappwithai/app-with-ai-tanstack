@@ -18,7 +18,51 @@ write, so a rule that refuses a write really does stop it.
 | **Entity**   | The record type the rule reads and writes. The input pickers below list this entity's fields. |
 | **Priority** | Order among rules on the same entity. **Lower runs first** — run an early validation before a later transform. |
 
-> **Business rules run when a hook fires.** Go to the **Trigger.dev Workflows** tab, open a hook (e.g. `beforeCreate`, `beforeUpdate`), and attach the rule there. A rule defined here does nothing on its own until it is wired to a hook.
+## When a rule runs, and what it can do
+
+Pick **Runs when** to say which write the rule judges: a record being created,
+changed or deleted, or any write. The moments the editor offers are
+`beforeCreate`, `afterCreate`, `beforeUpdate`, `afterUpdate`, `beforeDelete` and
+`customValidate`. The generated application judges `beforeCreate` and
+`afterCreate` the same way — it reads only *create*, *update*, *delete* or *any* —
+so choose by what you mean, not by timing.
+
+Here is what happens to one write, in order:
+
+1. **Hooks** for that moment run first (a hook is code that prepares or checks
+   the record — see the Lifecycle page).
+2. **Your rules** run, lowest **Priority** first. A rule whose answer is
+   `validation-error` stops the write here, and the user sees its message.
+3. The record is saved.
+4. The rules' other answers now take effect: `transform` changes the record,
+   and `trigger-workflow` starts a process (see the Process page). Processes you
+   set to start automatically start here too.
+
+So a rule is how a hook or a process gets *decided*: the hook prepares the
+record, the rule judges it, and the rule's answer can hand it on to a process.
+
+## Pick the kind of rule that fits
+
+Choose **Start from an example** to begin with a working rule instead of a blank
+canvas. Each example checks the same thing — a required field — in a different
+way, so you can compare them.
+
+| Kind | Use it when | What it looks like |
+| ---- | ----------- | ------------------ |
+| **Decision table** | The cases are a list a person can read: *if status is cancelled and money is owed, refuse.* | Rows of checks on the left, answers on the right. |
+| **Expression** | One formula works out the answer: *refuse when the total is below the deposit.* | Named values, each a formula over the record, e.g. `action = total < deposit ? "validation-error" : "allow"`. |
+| **Function** | The logic needs loops, several steps or string work. | A few lines of JavaScript: `export const handler = async (input) => ({ action: "allow" })`. It sees the record as `input` and may not use `import`, `require`, `fetch`, `eval` or `process`. |
+| **Switch** | Different records need different handling: *large amounts go to review, small ones are approved.* | A diamond that sends the record down the branch whose condition fits; each branch can be a table, expression or function. |
+| **Start a workflow** | A match should start a process. | A table whose answer is `trigger-workflow` and a **Workflow Name**. |
+
+You can chain them: an expression can work out `owed`, a table can judge it, and
+a switch can route the result. Draw the nodes on the canvas and join them with
+lines, from **Request** (the record) to **Response** (the answer).
+
+**Whatever the last node produces is the rule's answer, and the application acts
+on its `action`.** An answer with no `action` — say, only `total = 20` — does
+nothing at all. This is the most common reason a first rule "does not work", and
+**Try it** names it for you.
 
 ## How the table works
 
@@ -76,6 +120,16 @@ never fits an empty field.
 - **✕** removes the row.
 
 ## Try it before you save
+
+Under the editor, **Try it before you save** takes a sample record (filled in
+for you — change any value), runs the rule exactly as the application would, and
+says in a sentence what would happen to the write: *Blocks the write*, *Starts
+the workflow*, *Changes status on the record*, or *Lets the write through*. It
+also says when the rule returned something the application cannot act on, such
+as a missing `action` or a `trigger-workflow` with no **Workflow Name**. **How it
+got there** lists what each node produced, in order. Nothing is saved.
+
+### Testing a plain table
 
 **Test with values** has a box for each input. Type a value the way a record
 would hold it and the panel names the row that fits and the answer it gives.

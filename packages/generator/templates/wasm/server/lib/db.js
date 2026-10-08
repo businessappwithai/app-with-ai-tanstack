@@ -73,6 +73,45 @@ export class Database {
     await this.pg.exec(sql);
   }
 
+  /**
+   * Run `work` in one transaction, handing it a Database bound to it.
+   *
+   * Not for atomicity alone. On the browser's `idb://` store PGlite writes its
+   * files back to IndexedDB after every statement made outside a transaction,
+   * so a seed of a thousand statements is a thousand flushes — measured at over
+   * three minutes against about two seconds in memory. Inside a transaction the
+   * flush happens once, at the end.
+   */
+  async transaction(work) {
+    if (this.inTransaction || typeof this.pg.transaction !== "function") return work(this);
+    return this.pg.transaction(async (tx) => {
+      const bound = new Database(tx);
+      bound.inTransaction = true;
+      return work(bound);
+    });
+  }
+
+  /**
+   * Run `work`, and if it throws undo only what it did.
+   *
+   * A statement that fails inside a transaction aborts the whole transaction, so
+   * a caller that tolerates a failure — a sample row that breaks a constraint —
+   * needs a savepoint around it. Outside a transaction there is nothing to
+   * abort and `work` runs as it is.
+   */
+  async attempt(work) {
+    if (!this.inTransaction) return work();
+    await this.pg.exec("SAVEPOINT attempt");
+    try {
+      const result = await work();
+      await this.pg.exec("RELEASE SAVEPOINT attempt");
+      return result;
+    } catch (error) {
+      await this.pg.exec("ROLLBACK TO SAVEPOINT attempt");
+      throw error;
+    }
+  }
+
   async close() {
     if (this.pg.close) await this.pg.close();
   }

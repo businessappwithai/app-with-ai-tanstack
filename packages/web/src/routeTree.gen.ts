@@ -73,6 +73,7 @@ import { Route as ApiProjectsIdDeploymentIndexRouteImport } from './routes/api/p
 import { Route as ApiProjectsIdEmlDownloadRouteImport } from './routes/api/projects/$id/eml.download'
 import { Route as ApiProjectsIdErdVersionsIndexRouteImport } from './routes/api/projects/$id/erd-versions/index'
 import { Route as ApiProjectsIdMembersIndexRouteImport } from './routes/api/projects/$id/members/index'
+import { Route as ApiProjectsIdRulesDryRunRouteImport } from './routes/api/projects/$id/rules/dry-run'
 import { Route as ApiProjectsIdWorkflowsIndexRouteImport } from './routes/api/projects/$id/workflows/index'
 import { Route as ApiProjectsIdErdVersionsVersionIdRestoreRouteImport } from './routes/api/projects/$id/erd-versions/$versionId/restore'
 import { Route as ApiProjectsIdMembersUserIdIndexRouteImport } from './routes/api/projects/$id/members/$userId/index'
@@ -412,6 +413,12 @@ const ApiProjectsIdMembersIndexRoute =
     path: '/api/projects/$id/members/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiProjectsIdRulesDryRunRoute =
+  ApiProjectsIdRulesDryRunRouteImport.update({
+    id: '/api/projects/$id/rules/dry-run',
+    path: '/api/projects/$id/rules/dry-run',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiProjectsIdWorkflowsIndexRoute =
   ApiProjectsIdWorkflowsIndexRouteImport.update({
     id: '/api/projects/$id/workflows/',
@@ -516,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
   '/api/projects/$id/automations/$automationId': typeof ApiProjectsIdAutomationsAutomationIdRoute
   '/api/projects/$id/eml/download': typeof ApiProjectsIdEmlDownloadRoute
+  '/api/projects/$id/rules/dry-run': typeof ApiProjectsIdRulesDryRunRoute
   '/api/projects/$id/automations/': typeof ApiProjectsIdAutomationsIndexRoute
   '/api/projects/$id/deployment/': typeof ApiProjectsIdDeploymentIndexRoute
   '/api/projects/$id/erd-versions/': typeof ApiProjectsIdErdVersionsIndexRoute
@@ -589,6 +597,7 @@ export interface FileRoutesByTo {
   '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
   '/api/projects/$id/automations/$automationId': typeof ApiProjectsIdAutomationsAutomationIdRoute
   '/api/projects/$id/eml/download': typeof ApiProjectsIdEmlDownloadRoute
+  '/api/projects/$id/rules/dry-run': typeof ApiProjectsIdRulesDryRunRoute
   '/api/projects/$id/automations': typeof ApiProjectsIdAutomationsIndexRoute
   '/api/projects/$id/deployment': typeof ApiProjectsIdDeploymentIndexRoute
   '/api/projects/$id/erd-versions': typeof ApiProjectsIdErdVersionsIndexRoute
@@ -663,6 +672,7 @@ export interface FileRoutesById {
   '/api/admin/users/$id/reject': typeof ApiAdminUsersIdRejectRoute
   '/api/projects/$id/automations/$automationId': typeof ApiProjectsIdAutomationsAutomationIdRoute
   '/api/projects/$id/eml/download': typeof ApiProjectsIdEmlDownloadRoute
+  '/api/projects/$id/rules/dry-run': typeof ApiProjectsIdRulesDryRunRoute
   '/api/projects/$id/automations/': typeof ApiProjectsIdAutomationsIndexRoute
   '/api/projects/$id/deployment/': typeof ApiProjectsIdDeploymentIndexRoute
   '/api/projects/$id/erd-versions/': typeof ApiProjectsIdErdVersionsIndexRoute
@@ -738,6 +748,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$id/reject'
     | '/api/projects/$id/automations/$automationId'
     | '/api/projects/$id/eml/download'
+    | '/api/projects/$id/rules/dry-run'
     | '/api/projects/$id/automations/'
     | '/api/projects/$id/deployment/'
     | '/api/projects/$id/erd-versions/'
@@ -811,6 +822,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$id/reject'
     | '/api/projects/$id/automations/$automationId'
     | '/api/projects/$id/eml/download'
+    | '/api/projects/$id/rules/dry-run'
     | '/api/projects/$id/automations'
     | '/api/projects/$id/deployment'
     | '/api/projects/$id/erd-versions'
@@ -884,6 +896,7 @@ export interface FileRouteTypes {
     | '/api/admin/users/$id/reject'
     | '/api/projects/$id/automations/$automationId'
     | '/api/projects/$id/eml/download'
+    | '/api/projects/$id/rules/dry-run'
     | '/api/projects/$id/automations/'
     | '/api/projects/$id/deployment/'
     | '/api/projects/$id/erd-versions/'
@@ -956,6 +969,7 @@ export interface RootRouteChildren {
   ApiAdminUsersIdApproveRoute: typeof ApiAdminUsersIdApproveRoute
   ApiAdminUsersIdRejectRoute: typeof ApiAdminUsersIdRejectRoute
   ApiProjectsIdAutomationsAutomationIdRoute: typeof ApiProjectsIdAutomationsAutomationIdRoute
+  ApiProjectsIdRulesDryRunRoute: typeof ApiProjectsIdRulesDryRunRoute
   ApiProjectsIdAutomationsIndexRoute: typeof ApiProjectsIdAutomationsIndexRoute
   ApiProjectsIdDeploymentIndexRoute: typeof ApiProjectsIdDeploymentIndexRoute
   ApiProjectsIdErdVersionsIndexRoute: typeof ApiProjectsIdErdVersionsIndexRoute
@@ -1419,6 +1433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsIdMembersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/projects/$id/rules/dry-run': {
+      id: '/api/projects/$id/rules/dry-run'
+      path: '/api/projects/$id/rules/dry-run'
+      fullPath: '/api/projects/$id/rules/dry-run'
+      preLoaderRoute: typeof ApiProjectsIdRulesDryRunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/projects/$id/workflows/': {
       id: '/api/projects/$id/workflows/'
       path: '/api/projects/$id/workflows'
@@ -1554,6 +1575,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminUsersIdRejectRoute: ApiAdminUsersIdRejectRoute,
   ApiProjectsIdAutomationsAutomationIdRoute:
     ApiProjectsIdAutomationsAutomationIdRoute,
+  ApiProjectsIdRulesDryRunRoute: ApiProjectsIdRulesDryRunRoute,
   ApiProjectsIdAutomationsIndexRoute: ApiProjectsIdAutomationsIndexRoute,
   ApiProjectsIdDeploymentIndexRoute: ApiProjectsIdDeploymentIndexRoute,
   ApiProjectsIdErdVersionsIndexRoute: ApiProjectsIdErdVersionsIndexRoute,
