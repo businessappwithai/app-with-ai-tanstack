@@ -8,7 +8,6 @@ const GoRulesEditorPanel = lazy(() =>
 );
 
 import { RuleStarterPicker } from "@/components/eml/RuleStarterPicker";
-import { RuleTableEditor } from "@/components/eml/RuleTableEditor";
 import { RuleTryIt } from "@/components/eml/RuleTryIt";
 import {
   type DecisionTable,
@@ -17,7 +16,12 @@ import {
   validateDecisionTable,
 } from "@/lib/eml/decision-table";
 import { convertFlowchartToTable } from "@/lib/eml/flowchart-to-table";
-import { buildRuleTemplate, type RuleTemplateKind, tableToGraph } from "@/lib/eml/rule-templates";
+import {
+  buildRuleTemplate,
+  type RuleTemplateKind,
+  sampleRecord,
+  tableToGraph,
+} from "@/lib/eml/rule-templates";
 
 /**
  * One business rule — shown as a decision table, matching the rule editor in
@@ -96,22 +100,16 @@ export interface RuleEditorProps {
    * match the generated application's rule editor.
    */
   autoConvertFlowchart?: boolean;
-  /** Use the real GoRules JDM editor instead of the custom table. */
-  useGoRulesEditor?: boolean;
   /** Enum values for the selected entity's fields, keyed by bare field name. */
   entityEnums?: Record<string, string[]>;
-  /** Processes the model declares, offered by the "Start a workflow" example. */
-  workflowNames?: string[];
 }
 
 export function RuleEditor({
   rule,
   entities,
   onChange,
-  autoConvertFlowchart = false,
-  useGoRulesEditor = false,
+  autoConvertFlowchart = true,
   entityEnums = {},
-  workflowNames = [],
   projectId,
 }: RuleEditorProps) {
   const [showSource, setShowSource] = useState(false);
@@ -213,60 +211,44 @@ export function RuleEditor({
               )}
             </div>
           )}
-          {useGoRulesEditor ? (
-            <>
-              <RuleStarterPicker
-                hasWork={hasWork}
-                onPick={(kind: RuleTemplateKind) =>
-                  onChange({
-                    jdmGraph: JSON.stringify(
-                      buildRuleTemplate(kind, { entityFields, workflowName: workflowNames[0] })
-                    ),
-                    sourceFlowchart: undefined,
-                  })
-                }
-              />
-              <Suspense
-                fallback={
-                  <div className="py-8 text-center text-sm text-muted-foreground">
-                    Loading editor…
-                  </div>
-                }
-              >
-                <GoRulesEditorPanel
-                  jdmGraph={rule.jdmGraph}
-                  table={table}
-                  entityFields={entityFields}
-                  entityEnums={entityEnums}
-                  ruleName={slugifyRuleName(rule.title ?? rule.name)}
-                  onChange={(graphJson) =>
-                    onChange({ jdmGraph: graphJson, sourceFlowchart: undefined })
-                  }
-                />
-              </Suspense>
-              <RuleTryIt
-                projectId={projectId}
-                entity={rule.entity}
-                entityFields={entityFields}
-                entityEnums={entityEnums}
-                getGraph={() =>
-                  rule.jdmGraph ??
-                  JSON.stringify(tableToGraph(table, slugifyRuleName(rule.title ?? rule.name)))
-                }
-              />
-            </>
-          ) : (
-            <RuleTableEditor
-              name={slugifyRuleName(rule.title ?? rule.name)}
+          <RuleStarterPicker
+            hasWork={hasWork}
+            onPick={(kind: RuleTemplateKind) =>
+              onChange({
+                jdmGraph: JSON.stringify(buildRuleTemplate(kind, { entityFields })),
+                sourceFlowchart: undefined,
+              })
+            }
+          />
+          <Suspense
+            fallback={
+              <div className="py-8 text-center text-sm text-muted-foreground">Loading editor…</div>
+            }
+          >
+            <GoRulesEditorPanel
+              jdmGraph={rule.jdmGraph}
               table={table}
-              onChange={(next) =>
-                authoredFlowchart
-                  ? onChange({ sourceFlowchart: undefined, table: next })
-                  : onChange({ table: next })
-              }
               entityFields={entityFields}
+              entityEnums={entityEnums}
+              ruleName={slugifyRuleName(rule.title ?? rule.name)}
+              projectId={projectId}
+              entity={rule.entity}
+              sampleRecord={JSON.stringify(sampleRecord(entityFields, entityEnums), null, 2)}
+              onChange={(graphJson) =>
+                onChange({ jdmGraph: graphJson, sourceFlowchart: undefined })
+              }
             />
-          )}
+          </Suspense>
+          <RuleTryIt
+            projectId={projectId}
+            entity={rule.entity}
+            entityFields={entityFields}
+            entityEnums={entityEnums}
+            getGraph={() =>
+              rule.jdmGraph ??
+              JSON.stringify(tableToGraph(table, slugifyRuleName(rule.title ?? rule.name)))
+            }
+          />
         </>
       ) : (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">

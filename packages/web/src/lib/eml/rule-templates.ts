@@ -7,14 +7,14 @@
  * The graphs are plain GoRules JDM (the shape `@gorules/jdm-editor` edits and
  * `%%jdm-graph` stores). A rule's answer is its final output row, and the
  * application acts on that row's `action`: `validation-error` refuses the write,
- * `trigger-workflow` starts a process, `transform` changes the record.
+ * `transform` changes the record.
  * `rule-templates.test.ts` runs every template through the real engine and the
  * browser runtime, so a template cannot teach a shape that does not run.
  */
 
 import type { DecisionTable } from "./decision-table";
 
-export type RuleTemplateKind = "table" | "expression" | "function" | "switch" | "workflow";
+export type RuleTemplateKind = "table" | "expression" | "function" | "switch";
 
 export interface RuleTemplateInfo {
   kind: RuleTemplateKind;
@@ -44,18 +44,11 @@ export const RULE_TEMPLATES: readonly RuleTemplateInfo[] = [
     label: "Switch",
     summary: "Send the record down different branches depending on a condition.",
   },
-  {
-    kind: "workflow",
-    label: "Start a workflow",
-    summary: "A table whose answer starts a process when the record fits.",
-  },
 ] as const;
 
 export interface RuleTemplateContext {
   /** The entity's field names, to pick the example field from. */
   entityFields: string[];
-  /** Process to start in the workflow template. */
-  workflowName?: string;
 }
 
 /** Fields the application manages itself — never a good example to check. */
@@ -219,38 +212,6 @@ export function buildRuleTemplate(kind: RuleTemplateKind, context: RuleTemplateC
           edge("refuse", "output"),
           edge("accept", "output"),
         ],
-      } satisfies TemplateGraph;
-
-    case "workflow":
-      return {
-        nodes: [
-          input(),
-          {
-            id: "table",
-            name: "Start the process",
-            type: "decisionTableNode",
-            position: at(1),
-            content: {
-              hitPolicy: "first",
-              inputs: [{ id: "in1", name: field, field }],
-              outputs: [
-                { id: "out1", name: "Action", field: "action" },
-                { id: "out2", name: "Workflow Name", field: "workflowName" },
-              ],
-              rules: [
-                {
-                  _id: "row1",
-                  in1: "!= null",
-                  out1: '"trigger-workflow"',
-                  out2: `"${context.workflowName || "yourWorkflowName"}"`,
-                },
-                { _id: "row2", in1: "", out1: '"allow"', out2: '""' },
-              ],
-            },
-          },
-          output(2),
-        ],
-        edges: [edge("input", "table"), edge("table", "output")],
       } satisfies TemplateGraph;
   }
 }

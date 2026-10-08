@@ -388,8 +388,6 @@ function ServiceWorkflowPage() {
   const [rules, setRules] = useState<EditableRule[]>([]);
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesLoaded, setRulesLoaded] = useState(false);
-  // The processes the model declares, so a rule can name one to start.
-  const [workflowNames, setWorkflowNames] = useState<string[]>([]);
   const [selectedRuleIndex, setSelectedRuleIndex] = useState(0);
   const [isSavingRules, setIsSavingRules] = useState(false);
   const [rulesSavedAt, setRulesSavedAt] = useState<string | null>(null);
@@ -541,13 +539,8 @@ function ServiceWorkflowPage() {
             title?: string;
             flowchart: string;
           }>;
-          workflows?: Array<{ name?: string }>;
         };
         if (cancelled) return;
-
-        setWorkflowNames(
-          (data.workflows ?? []).map((w) => w.name ?? "").filter((name) => name !== "")
-        );
 
         setRules((data.rules ?? []).map((rule) => toEditableRule(rule, crypto.randomUUID())));
         setRulesLoaded(true);
@@ -1502,10 +1495,7 @@ function ServiceWorkflowPage() {
                         projectId={projectId}
                         onChange={patchRule}
                         onError={(message) => setValidationErrors(message ? [message] : [])}
-                        autoConvertFlowchart
-                        useGoRulesEditor
                         entityEnums={modelEnums}
-                        workflowNames={workflowNames}
                       />
                       <div className="mt-4 flex items-center gap-3 border-t border-border pt-4">
                         <button

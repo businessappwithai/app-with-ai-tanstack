@@ -24,7 +24,6 @@ const engine = new ZenEngine();
 
 const CONTEXT = {
   entityFields: ["id", "customer_id", "title", "status", "created_at"],
-  workflowName: "ChaseInvoice",
 };
 
 function compiled(kind: (typeof RULE_TEMPLATES)[number]["kind"]) {
@@ -57,13 +56,13 @@ describe("every starter graph runs", () => {
   for (const { kind, label } of RULE_TEMPLATES) {
     it(`${label}: acts on a record that fits and lets the others through`, async () => {
       const jdm = compiled(kind);
-      const fits = kind === "workflow" ? { title: "Late fee" } : { title: "" };
-      const other = kind === "workflow" ? { title: null } : { title: "Late fee" };
+      const fits = { title: "" };
+      const other = { title: "Late fee" };
 
       const hit = describeOutcome(await zen(jdm, fits));
       const miss = describeOutcome(await zen(jdm, other));
 
-      expect(hit.map((o) => o.kind)).toEqual([kind === "workflow" ? "workflow" : "blocks"]);
+      expect(hit.map((o) => o.kind)).toEqual(["blocks"]);
       expect(miss.map((o) => o.kind)).toEqual(["nothing"]);
     });
 
@@ -73,22 +72,17 @@ describe("every starter graph runs", () => {
         evaluateRules([{ name: "starter", jdm_content: jdm }], record, {
           columns: Object.keys(record),
         });
-      const fits = kind === "workflow" ? { title: "Late fee" } : { title: "" };
-      const other = kind === "workflow" ? { title: null } : { title: "Late fee" };
+      const fits = { title: "" };
+      const other = { title: "Late fee" };
 
       const hit = await run(fits);
       const miss = await run(other);
-      if (kind === "workflow") {
-        expect(hit.notifications.length).toBeGreaterThan(0);
-        expect(miss.notifications).toHaveLength(0);
-      } else {
-        expect(hit.violations).toHaveLength(1);
-        expect(miss.violations).toHaveLength(0);
-      }
+      expect(hit.violations).toHaveLength(1);
+      expect(miss.violations).toHaveLength(0);
     });
   }
 
-  it("names the workflow the author asked for", () => {
-    expect(JSON.stringify(buildRuleTemplate("workflow", CONTEXT))).toContain("ChaseInvoice");
+  it("offers no starter that starts a process — that link is made in the workflow", () => {
+    expect(RULE_TEMPLATES.map((t) => t.kind)).not.toContain("workflow");
   });
 });
