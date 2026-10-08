@@ -142,7 +142,12 @@ export function RuleEditor({
       : null
     : rule.table;
 
-  const problems = useMemo(() => (table ? validateDecisionTable(table) : []), [table]);
+  // Once the rule is a graph, the table it started from is no longer its content, and
+  // checking it reported an empty "Input reads no field" for a rule that was complete.
+  const problems = useMemo(
+    () => (table && !rule.jdmGraph ? validateDecisionTable(table) : []),
+    [table, rule.jdmGraph]
+  );
   return (
     <>
       <div className="mb-3 grid grid-cols-2 gap-3 lg:grid-cols-3">

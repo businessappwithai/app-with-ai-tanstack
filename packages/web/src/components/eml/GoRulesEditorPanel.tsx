@@ -9,6 +9,7 @@ import {
   type JdmUiMode,
   nodeSpecification,
   type Simulation,
+  type SimulationTrace,
 } from "@gorules/jdm-editor";
 import { Play } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -20,6 +21,7 @@ import {
   graphProblems,
   inputColumns,
   setInputField,
+  withoutStockImport,
 } from "@/lib/eml/rule-graph-constraints";
 import { tableToGraph } from "@/lib/eml/rule-templates";
 
@@ -99,6 +101,15 @@ function withRequestSchema(
  * built-in components are not replaceable, only extendable, so its own
  * specification is renamed once, for this editor.
  */
+const functionSpec = nodeSpecification.functionNode;
+{
+  const generate = functionSpec.generateNode;
+  functionSpec.generateNode = (params) => {
+    const node = generate(params);
+    return { ...node, content: withoutStockImport(node.content) as typeof node.content };
+  };
+}
+
 const inputSpec = nodeSpecification.inputNode;
 if (inputSpec.displayName !== "Record") {
   const generate = inputSpec.generateNode;
@@ -278,8 +289,25 @@ export function GoRulesEditorPanel({
         setSimulate({ error: { title: "The rule did not run", message, data: {} } });
         return;
       }
+      // One trace entry per node, so the Simulator can show what each produced.
+      // The route reports them by node name, in the order they ran.
+      const steps = [...data.trace];
+      const trace: Record<string, SimulationTrace> = {};
+      for (const node of graph.nodes) {
+        const own = node.type === "inputNode" ? null : steps.findIndex((s) => s.node === node.name);
+        const hit = own !== null && own >= 0 ? steps.splice(own, 1)[0] : undefined;
+        if (node.type !== "inputNode" && !hit) continue;
+        trace[node.id] = {
+          id: node.id,
+          name: node.name,
+          input: node.type === "inputNode" ? context : null,
+          output: node.type === "inputNode" ? context : hit?.output,
+          performance: "",
+          traceData: null,
+        };
+      }
       setSimulate({
-        result: { performance: "", result: data.result, snapshot: graph, trace: {} },
+        result: { performance: "", result: data.result, snapshot: graph, trace },
       });
     } catch (caught) {
       setSimulate({

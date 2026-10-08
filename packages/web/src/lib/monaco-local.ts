@@ -16,6 +16,10 @@
 import * as monaco from "monaco-editor";
 import EditorWorker from "monaco-editor/editor/editor.worker?worker";
 import JsonWorker from "monaco-editor/language/json/json.worker?worker";
+// @ts-expect-error — the language services, which have no type declarations of their own.
+import * as jsonApi from "monaco-editor/language/json/monaco.contribution";
+// @ts-expect-error — as above.
+import * as typescriptApi from "monaco-editor/language/typescript/monaco.contribution";
 import TypeScriptWorker from "monaco-editor/language/typescript/ts.worker?worker";
 
 declare global {
@@ -26,6 +30,14 @@ declare global {
 }
 
 if (typeof window !== "undefined" && !window.monaco) {
+  // Monaco 0.55 moved the TypeScript and JSON language APIs out of
+  // `monaco.languages`. The GoRules editor still reads them from there (a
+  // function node's editor starts with `languages.typescript.javascriptDefaults`),
+  // so they are put back where it looks.
+  const languages = monaco.languages as unknown as Record<string, unknown>;
+  languages.typescript ??= typescriptApi;
+  languages.json ??= jsonApi;
+
   window.MonacoEnvironment = {
     getWorker(_moduleId, label) {
       if (label === "json") return new JsonWorker();

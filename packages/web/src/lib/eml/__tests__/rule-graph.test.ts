@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { emptyDecisionTable } from "../decision-table";
-import { constrainGraph } from "../rule-graph-constraints";
+import { constrainGraph, withoutStockImport } from "../rule-graph-constraints";
 import { sampleRecord, tableToGraph } from "../rule-templates";
 
 describe("a rule's graph", () => {
@@ -25,5 +25,17 @@ describe("a rule's graph", () => {
       "status",
       "amount",
     ]);
+  });
+
+  it("drops the import a new function node ships with, which the compiler refuses", () => {
+    const stock =
+      "import zen from 'zen';\n\n/** @type {Handler} **/\nexport const handler = async (input) => {\n  return input;\n};\n";
+    expect(withoutStockImport(stock)).not.toMatch(/import/);
+    expect(withoutStockImport({ source: stock })).toEqual({
+      source: expect.not.stringMatching(/import/),
+    });
+    expect(withoutStockImport("export const handler = async (i) => i;")).toBe(
+      "export const handler = async (i) => i;"
+    );
   });
 });

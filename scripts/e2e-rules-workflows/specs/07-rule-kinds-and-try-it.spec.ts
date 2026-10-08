@@ -1,26 +1,16 @@
 /**
- * The graph editor on the Enhance page: every kind of rule, tried before saving.
+ * The rule editor on the Enhance page, and the route behind Try it.
  *
- * An author who opens Business Rules should be able to start from a working
- * example of each kind of node — decision table, expression, function, switch,
- * and a table that starts a workflow — see in a sentence what it would do to a
- * write, and have it still be there, and still run, after a save and a reload.
- *
- * The assertions are on what the page says and what was stored, found by the
- * words on the screen.
+ * Building a rule node by node, running it and saving it is spec 09; this holds
+ * the two things around it: the rule has no moment of its own (a workflow's hook
+ * gives it one), and the dry-run route that Try it and the Simulator call asks
+ * for write access, runs real graphs, and refuses a function that reaches for
+ * the network.
  */
 
 import { type APIRequestContext, expect, type Page, test } from "@playwright/test";
 import { adminContext, createUserSession, type UserSession } from "../../../tests/e2e/helpers";
-import { type Author, authorWithProject, browserAs, storedModel } from "../lib/session";
-
-const STARTERS = [
-  { starter: "Decision table", says: /Blocks the write/ },
-  { starter: "Expression", says: /Blocks the write/ },
-  { starter: "Function", says: /Blocks the write/ },
-  { starter: "Switch", says: /Blocks the write/ },
-  { starter: "Start a workflow", says: /Starts the workflow/ },
-] as const;
+import { type Author, authorWithProject, browserAs } from "../lib/session";
 
 async function openNewRule(page: Page, author: Author, entity: string) {
   await page.goto(`/projects/${author.projectId}/enhance/${entity}Service`);
@@ -29,7 +19,7 @@ async function openNewRule(page: Page, author: Author, entity: string) {
   await page.getByLabel("Entity").selectOption(entity);
 }
 
-test.describe("the rule editor offers every kind of rule", () => {
+test.describe("the rule editor on the Enhance page", () => {
   let author: Author;
 
   test.beforeAll(async ({ playwright }) => {
@@ -39,62 +29,13 @@ test.describe("the rule editor offers every kind of rule", () => {
     await author.session.request.dispose();
   });
 
-  for (const { starter, says } of STARTERS) {
-    test(`${starter}: start from the example, try it, read the answer`, async ({ browser }) => {
-      const context = await browserAs(browser, author);
-      const page = await context.newPage();
-      await openNewRule(page, author, "Student");
-
-      await page.getByRole("button", { name: new RegExp(`^${starter}`) }).click();
-      await page.getByRole("button", { name: "Run the rule" }).click();
-
-      await expect(page.getByLabel("Try the rule").getByText(says)).toBeVisible();
-      await context.close();
-    });
-  }
-
   test("a rule has no moment of its own — a workflow's hook gives it one", async ({ browser }) => {
     const context = await browserAs(browser, author);
     const page = await context.newPage();
     await openNewRule(page, author, "Student");
 
-    await expect(page.getByLabel("Name")).toBeVisible();
+    await expect(page.getByLabel("Name").first()).toBeVisible();
     await expect(page.getByLabel("Runs when")).toHaveCount(0);
-    await context.close();
-  });
-
-  test("a function rule survives a save and a reload, and is stored as a graph", async ({
-    browser,
-  }) => {
-    const context = await browserAs(browser, author);
-    const page = await context.newPage();
-    // The page reports a failed save with alert(); surface it instead of timing out.
-    const alerts: string[] = [];
-    page.on("dialog", (dialog) => {
-      alerts.push(dialog.message());
-      void dialog.dismiss();
-    });
-    await openNewRule(page, author, "Student");
-    await page.getByLabel("Name").first().fill("Student name guard");
-    await page.getByRole("button", { name: /^Function/ }).click();
-    const saved = page.waitForResponse(
-      (response) => response.url().endsWith("/eml") && response.request().method() === "PUT"
-    );
-    await page.getByRole("button", { name: "Save rules" }).click();
-    const response = await saved;
-    expect(response.status(), `saving the rule answered: ${await response.text()}`).toBe(200);
-    await expect(page.getByText(/Saved to the model/), alerts.join("; ")).toBeVisible();
-
-    const model = await storedModel(author);
-    expect(model).toContain("%%rule studentNameGuard on Student");
-    expect(model).toContain("%%jdm-graph ");
-    expect(model).toContain("functionNode");
-
-    await page.reload();
-    await page.getByRole("button", { name: /^Business Rules/ }).click();
-    await page.getByText("Student name guard").first().click();
-    await page.getByRole("button", { name: /Show EML/ }).click();
-    await expect(page.getByText("%%jdm-graph").first()).toBeVisible();
     await context.close();
   });
 });

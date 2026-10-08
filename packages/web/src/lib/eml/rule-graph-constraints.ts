@@ -39,6 +39,22 @@ interface Graph {
   nodes?: GraphNode[];
 }
 
+const STOCK_IMPORT = /^[ \t]*import\s+zen\s+from\s+['"]zen['"];?[ \t]*\r?\n?/m;
+
+/** The editor's starter source for a function node, minus the import it ships with. */
+export function withoutStockImport(content: unknown): unknown {
+  if (typeof content === "string") return content.replace(STOCK_IMPORT, "").replace(/^\s*\n/, "");
+  if (
+    content &&
+    typeof content === "object" &&
+    typeof (content as { source?: unknown }).source === "string"
+  ) {
+    const source = (content as { source: string }).source;
+    return { ...content, source: source.replace(STOCK_IMPORT, "").replace(/^\s*\n/, "") };
+  }
+  return content;
+}
+
 const choices = (values: readonly string[]) => ({
   type: "string" as const,
   enum: {
@@ -71,6 +87,11 @@ export function constrainGraph<G extends Graph>(graph: G, constraints: RuleConst
       if (node.type === "inputNode") {
         return !node.name || node.name === "Request" ? { ...node, name: "Record" } : node;
       }
+      // A new function node opens with `import zen from 'zen'`, a line the
+      // application's own check refuses (a function may not import), so a rule
+      // saved from the editor's default body could never compile.
+      if (node.type === "functionNode")
+        return { ...node, content: withoutStockImport(node.content) };
       if (node.type !== "decisionTableNode") return node;
       const content = (node.content ?? {}) as TableContent;
       const type = (column: Column, kind: "input" | "output") => {
