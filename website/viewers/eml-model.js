@@ -9591,15 +9591,29 @@ function normalizeGraphActions(graph) {
       if (node.type !== "decisionTableNode" || !Array.isArray(table?.rules)) {
         return node;
       }
+      const inputIds = new Set((table.inputs ?? []).map((column) => column.id));
       return {
         ...node,
         content: withTransformData({
           ...table,
-          rules: table.rules.map((row) => Object.fromEntries(Object.entries(row).map(([key, cell]) => [key, rewrite(cell)])))
+          rules: table.rules.map((row) => Object.fromEntries(Object.entries(row).map(([key, cell]) => [
+            key,
+            inputIds.has(key) ? emptyMeansBlank(rewrite(cell)) : rewrite(cell)
+          ])))
         })
       };
     })
   };
+}
+function emptyMeansBlank(cell) {
+  if (typeof cell !== "string")
+    return cell;
+  const text = cell.trim();
+  if (text === "null")
+    return 'null, ""';
+  if (text === "!= null")
+    return '!= null and != ""';
+  return cell;
 }
 function literalText(cell) {
   const match = String(cell ?? "").trim().match(/^(?:'(.*)'|"(.*)")$/s);
@@ -9647,12 +9661,12 @@ function zenInputCell(raw) {
     return "";
   const match = value.match(/^(>=|<=|!=|=|>|<)\s*(.*)$/);
   if (!match)
-    return zenCell(value);
+    return emptyMeansBlank(zenCell(value));
   const [, operator, operand] = match;
   const cell = zenCell(operand);
   if (!cell)
     return "";
-  return operator === "=" ? cell : `${operator} ${cell}`;
+  return emptyMeansBlank(operator === "=" ? cell : `${operator} ${cell}`);
 }
 function buildEditorDecisionTable(ruleName, table) {
   const inputs = (table.inputs ?? []).filter((column) => (column.field ?? "").trim() !== "");

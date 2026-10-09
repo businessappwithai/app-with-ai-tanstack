@@ -130,6 +130,8 @@ export const TABLE_RULES: TableRuleScenario[] = [
     ],
     tryIt: [
       { sample: { status: "withdrawn", withdrawal_reason: null }, expect: "blocks" },
+      // A cleared text box arrives as a blank string, which is just as empty.
+      { sample: { status: "withdrawn", withdrawal_reason: "" }, expect: "blocks" },
       { sample: { status: "withdrawn", withdrawal_reason: "moved away" }, expect: "allows" },
       { sample: { status: "enrolled", withdrawal_reason: null }, expect: "allows" },
     ],
@@ -145,6 +147,7 @@ export const TABLE_RULES: TableRuleScenario[] = [
     tryIt: [
       { sample: { withdrawal_reason: "family move" }, expect: "allows" },
       { sample: { withdrawal_reason: null }, expect: "blocks" },
+      { sample: { withdrawal_reason: "" }, expect: "blocks" },
     ],
   },
   {
@@ -430,6 +433,7 @@ export const TABLE_RULES: TableRuleScenario[] = [
     ],
     tryIt: [
       { sample: { method: "cash", amount: 6000, reference: null }, expect: "blocks" },
+      { sample: { method: "cash", amount: 6000, reference: "" }, expect: "blocks" },
       { sample: { method: "cash", amount: 6000, reference: "R-1" }, expect: "allows" },
       { sample: { method: "card", amount: 6000, reference: null }, expect: "allows" },
     ],

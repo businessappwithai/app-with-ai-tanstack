@@ -350,13 +350,23 @@ export class RulesEngine implements OnModuleDestroy {
         // The editor's word for a refusal is `validation-error`; this engine's is
         // `prevent`. The Simulator should show the answer the application acts on,
         // so the cells are put in the engine's word here, as the compiler does.
+        // An input cell that says only "is empty" (`null`) or "is not empty" (`!= null`) is
+        // widened to cover a blank string too: a text field a person cleared arrives as "".
+        const inputIds = new Set(((original as { inputs?: Array<{ id: string }> }).inputs ?? []).map((c) => c.id));
+        const widen = (key: string, cell: string): string => {
+          if (!inputIds.has(key)) return cell;
+          const text = cell.trim();
+          if (text === 'null') return 'null, ""';
+          if (text === '!= null') return '!= null and != ""';
+          return cell;
+        };
         const table = {
           ...original,
           rules: original.rules.map((row) =>
             Object.fromEntries(
               Object.entries(row).map(([key, cell]) => [
                 key,
-                typeof cell === 'string' ? cell.replace(/(["'])validation-error\1/g, '$1prevent$1') : cell,
+                typeof cell === 'string' ? widen(key, cell.replace(/(["'])validation-error\1/g, '$1prevent$1')) : cell,
               ]),
             ),
           ),
@@ -382,7 +392,8 @@ export class RulesEngine implements OnModuleDestroy {
             rules: table.rules.map((row) => {
               const target = literal(row[fieldColumn.id])?.trim();
               const isTransform = literal(row[actionColumn.id])?.trim() === 'transform';
-              if (!isTransform || !target) return row;
+              // Every row needs a cell in the new column: zen skips a row that has none.
+              if (!isTransform || !target) return { ...row, [dataColumn.id]: row[dataColumn.id] ?? '' };
               const value = literal(row[valueColumn.id]) ?? String(row[valueColumn.id] ?? '');
               const data = JSON.stringify({ [target]: value }).replace(/'/g, "\\'");
               return { ...row, [dataColumn.id]: `'${data}'` };
