@@ -24,6 +24,7 @@ import { RulePane } from '@/components/rules/RulePane';
 import { eventForOperation, hookFor, operationForEvent, sameOperation } from '@/lib/eml/workflow-hooks';
 import {
   type Automation,
+  TRIGGER_HOOKS,
   emptyAutomation,
   parseAutomation,
   serializeAutomation,
@@ -48,6 +49,26 @@ const ENTITY_FIELDS: Record<string, string[]> = {
   '{{this.name}}': [{{#each this.attributes}}'{{this.name}}'{{#unless @last}}, {{/unless}}{{/each}}],
 {{/each}}
 };
+
+/**
+ * The write a stored automation runs on. The definition's `operation` column is
+ * what the executor matches a write against, so it is recomputed whenever the
+ * automation is saved: a trigger or a hook changed on the ladder otherwise
+ * left it running on the write it was created for.
+ */
+function operationOf(automation: Automation): 'CREATE' | 'UPDATE' | 'DELETE' | 'ALL' {
+  if (automation.kind === 'saga') return automation.sagaOperation ?? 'CREATE';
+  const events =
+    automation.kind === 'hook'
+      ? automation.hooks.map((hook) => hook.event as string)
+      : [TRIGGER_HOOKS[automation.trigger.event]];
+  const operations = new Set(events.map(operationForEvent));
+  return operations.size === 1 ? [...operations][0]! : events.length === 0 ? 'CREATE' : 'ALL';
+}
+
+/** A rule-triggered process is reached only through a rule's trigger-workflow action. */
+const triggerTypeOf = (automation: Automation): 'automatic' | 'rule' =>
+  automation.kind === 'saga' && automation.sagaTrigger === 'rule' ? 'rule' : 'automatic';
 
 /** The table each record type's rules are filed under. */
 const ENTITY_TABLES: Record<string, string> = {
@@ -287,6 +308,8 @@ function AutomationsPage() {
             body: JSON.stringify({
               name: automation.name,
               entityName: automation.trigger.entity,
+              operation: operationOf(automation),
+              triggerType: triggerTypeOf(automation),
               mermaid: serializeAutomation(automation),
             }),
           });
@@ -330,7 +353,8 @@ function AutomationsPage() {
           kind: 'automation',
           name: fresh.name,
           entityName: fresh.trigger.entity,
-          operation: operationForEvent(draft.event),
+          operation: operationOf(fresh),
+          triggerType: triggerTypeOf(fresh),
           mermaid: serializeAutomation(fresh),
           // A draft until it is published: an empty automation that is already
           // live would run on every write to its record type.
@@ -411,6 +435,8 @@ function AutomationsPage() {
         body: JSON.stringify({
           name: automation.name,
           entityName: automation.trigger.entity,
+          operation: operationOf(automation),
+          triggerType: triggerTypeOf(automation),
           mermaid: serializeAutomation(automation),
           isActive: true,
         }),

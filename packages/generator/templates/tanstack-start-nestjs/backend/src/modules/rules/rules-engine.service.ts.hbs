@@ -340,13 +340,27 @@ export class RulesEngine implements OnModuleDestroy {
         if (node.type === 'functionNode' && typeof node.content === 'string') {
           return { ...node, content: { source: node.content } };
         }
-        const table = node.content as
+        const original = node.content as
           | {
               outputs?: Array<{ id: string; name?: string; field?: string }>;
               rules?: Array<Record<string, unknown>>;
             }
           | undefined;
-        if (node.type !== 'decisionTableNode' || !Array.isArray(table?.rules)) return node;
+        if (node.type !== 'decisionTableNode' || !Array.isArray(original?.rules)) return node;
+        // The editor's word for a refusal is `validation-error`; this engine's is
+        // `prevent`. The Simulator should show the answer the application acts on,
+        // so the cells are put in the engine's word here, as the compiler does.
+        const table = {
+          ...original,
+          rules: original.rules.map((row) =>
+            Object.fromEntries(
+              Object.entries(row).map(([key, cell]) => [
+                key,
+                typeof cell === 'string' ? cell.replace(/(["'])validation-error\1/g, '$1prevent$1') : cell,
+              ]),
+            ),
+          ),
+        };
         const outputs = table.outputs ?? [];
         const fieldColumn = outputs.find((c) => c.field === 'field');
         const valueColumn = outputs.find((c) => c.field === 'value');
@@ -357,7 +371,7 @@ export class RulesEngine implements OnModuleDestroy {
           !actionColumn ||
           outputs.some((c) => c.field === 'transformData')
         ) {
-          return node;
+          return { ...node, content: table };
         }
         const dataColumn = { id: 'transformData-auto', name: 'Transform Data', field: 'transformData' };
         return {

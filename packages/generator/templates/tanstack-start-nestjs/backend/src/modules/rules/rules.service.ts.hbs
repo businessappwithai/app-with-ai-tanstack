@@ -259,6 +259,24 @@ export class RulesService {
   }
 
   /**
+   * Remove a rule for good.
+   *
+   * Deleting only ever deactivated a rule, so a list that was meant to hold the
+   * rules an application runs filled up with every one ever switched off — and
+   * the screen reads at most 200. Only an inactive rule can be removed: taking
+   * one away is a second, deliberate step after turning it off, never the
+   * first.
+   */
+  async purge(id: string): Promise<void> {
+    const rule = await this.findById(id);
+    if (rule.isActive) {
+      throw new BadRequestException('Deactivate the rule before deleting it permanently');
+    }
+    await this.db.deleteFrom('sys_rule_definitions').where('id', '=', id).execute();
+    this.logger.log(`Deleted rule ${rule.ruleName} permanently`);
+  }
+
+  /**
    * Get rule history (all versions of a rule)
    */
   async getHistory(ruleId: string): Promise<Rule[]> {
@@ -336,7 +354,21 @@ export class RulesService {
       const decision = engine.createDecision(
         Buffer.from(this.rulesEngine.prepare(this.serializeJdm(jdmContent))),
       );
-      await decision.evaluate({});
+      // Run it once, to catch what only running shows (an expression that does
+      // not parse, a function that throws). With nothing to run it on, field
+      // arithmetic — `amount * probability` — fails on null, which says nothing
+      // about the rule: it refused every graph with an expression node. So the
+      // run uses a record built from the Record node's own schema, when the
+      // editor wrote one; and without a schema a failure inside a node is
+      // taken to be about the missing data, not the rule.
+      const sample = this.sampleFromSchema(parsed);
+      try {
+        await decision.evaluate(sample ?? {});
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const dataDependent = !sample && /"type"\s*:\s*"NodeError"/.test(message);
+        if (!dataDependent) throw error;
+      }
 
       return { valid: true, errors: [] };
     } catch (error) {
@@ -344,6 +376,28 @@ export class RulesService {
         valid: false,
         errors: [error instanceof Error ? error.message : String(error)],
       };
+    }
+  }
+
+  /** A record that fits the Record node's JSON schema — "", 0, false, or an enum's first value. */
+  private sampleFromSchema(graph: {
+    nodes?: Array<{ type?: string; content?: { schema?: string } }>;
+  }): Record<string, unknown> | null {
+    try {
+      const text = graph.nodes?.find((node) => node.type === 'inputNode')?.content?.schema;
+      if (!text) return null;
+      const properties = (JSON.parse(text) as {
+        properties?: Record<string, { type?: string; enum?: unknown[] }>;
+      }).properties;
+      if (!properties) return null;
+      return Object.fromEntries(
+        Object.entries(properties).map(([field, spec]) => [
+          field,
+          spec.enum?.length ? spec.enum[0] : spec.type === 'number' ? 0 : spec.type === 'boolean' ? false : '',
+        ]),
+      );
+    } catch {
+      return null;
     }
   }
 

@@ -388,7 +388,8 @@ export class BusService {
       tableName,
       result.id,
       'create',
-      result,
+      // The rules judge numbers as numbers, as they did before the write.
+      await this.withNumericValues(tableName, result),
       this.actor(),
     );
 
@@ -526,7 +527,7 @@ export class BusService {
       tableName,
       id,
       'update',
-      result,
+      await this.withNumericValues(tableName, result),
       this.actor(),
     );
 
@@ -559,7 +560,7 @@ export class BusService {
       tableName,
       id,
       'update',
-      current,
+      await this.withNumericValues(tableName, current),
       this.actor(),
     );
     return this.withPromotion(tableName, id, current, promotion);
@@ -602,7 +603,7 @@ export class BusService {
       tableName,
       id,
       'delete',
-      current,
+      await this.withNumericValues(tableName, current),
       this.actor(),
     );
     await executeAfterDeleteHooks(entity, promotion.promoted);

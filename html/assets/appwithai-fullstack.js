@@ -16941,7 +16941,8 @@ export async function seed(db: Kysely<any>): Promise<void> {
     const wdFiles = [
       "workflow-definitions.controller.ts",
       "workflow-definitions.module.ts",
-      "workflow-definitions.service.ts"
+      "workflow-definitions.service.ts",
+      "automation-compiler.ts"
     ];
     for (const file of wdFiles) {
       try {

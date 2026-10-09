@@ -124,9 +124,16 @@ export class RulesController {
 
   @Delete(':id')
   @Roles('admin')
-  @ApiOperation({ summary: 'Delete a rule (admin only)' })
-  @ApiResponse({ status: 200, description: 'Rule deactivated successfully' })
-  async delete(@Param('id') id: string) {
+  @ApiOperation({
+    summary:
+      'Deactivate a rule (admin only). With ?permanent=true, remove one that is already inactive.',
+  })
+  @ApiResponse({ status: 200, description: 'Rule deactivated, or removed' })
+  async delete(@Param('id') id: string, @Query('permanent') permanent?: string) {
+    if (permanent === 'true') {
+      await this.rulesService.purge(id);
+      return { message: 'Rule deleted permanently' };
+    }
     await this.rulesService.delete(id);
     return { message: 'Rule deactivated successfully' };
   }
