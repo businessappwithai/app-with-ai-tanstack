@@ -1,3 +1,4 @@
+import "@/lib/dayjs-plugins";
 import "@/lib/monaco-local";
 import "@gorules/jdm-editor/dist/style.css";
 import {
@@ -76,9 +77,12 @@ function withRequestSchema(
       properties: Object.fromEntries(
         fields.map((field) => [
           field,
+          // Every column may be null: a field the author left blank reaches the rule as null,
+          // and a schema that says plain "string" refused the whole record — which Try it and
+          // the running application both reported as "invalid JDM structure".
           values[field]
-            ? { type: "string", enum: values[field] }
-            : { type: types[field] ?? "string" },
+            ? { type: ["string", "null"], enum: [...(values[field] as string[]), null] }
+            : { type: [types[field] ?? "string", "null"] },
         ])
       ),
     },

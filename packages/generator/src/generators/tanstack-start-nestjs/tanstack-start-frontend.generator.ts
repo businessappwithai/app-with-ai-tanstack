@@ -911,6 +911,11 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/lib/monaco-local.ts",
         dest: "src/lib/monaco-local.ts",
       },
+      // The date-picker fix the rule editor's Date operators need (GoRulesEditorPanel imports it).
+      {
+        src: "src/lib/dayjs-plugins.ts",
+        dest: "src/lib/dayjs-plugins.ts",
+      },
       // The `?worker` imports Monaco's editor and language workers are loaded through.
       {
         src: "src/worker-modules.d.ts",

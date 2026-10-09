@@ -119,6 +119,40 @@ export function constrainGraph<G extends Graph>(graph: G, constraints: RuleConst
 const unquote = (cell: string) => cell.trim().replace(/^["']|["']$/g, "");
 
 /**
+ * The values a cell under a constrained column names.
+ *
+ * "Is one of" in the table writes `["cancelled","completed"]`, "is not one of"
+ * and "not equals" write `not(...)`/`!=`, and a typed list is `"a","b"`. Reading
+ * the whole cell as one value reported `["cancelled"]` as "not an existing
+ * status" for a rule that named a real one.
+ */
+export function cellValues(cell: string): string[] {
+  let text = cell.trim();
+  const negated = /^not\s*\(([\s\S]*)\)$/.exec(text);
+  if (negated) text = (negated[1] ?? "").trim();
+  text = text.replace(/^(?:==|!=|=)\s*/, "");
+  const list = /^\[([\s\S]*)\]$/.exec(text);
+  if (list) text = (list[1] ?? "").trim();
+  const values: string[] = [];
+  let current = "";
+  let quote = "";
+  for (const char of text) {
+    if (quote) {
+      current += char;
+      if (char === quote) quote = "";
+    } else if (char === '"' || char === "'") {
+      current += char;
+      quote = char;
+    } else if (char === ",") {
+      values.push(current);
+      current = "";
+    } else current += char;
+  }
+  values.push(current);
+  return values.map(unquote).filter((value) => value !== "");
+}
+
+/**
  * What the graph names that the model does not have.
  *
  * Reads the decision tables: a column's field, a cell under a constrained
@@ -146,14 +180,15 @@ export function graphProblems(graph: Graph, constraints: RuleConstraints): strin
       for (const row of content.rules ?? []) {
         const cell = row[c.id];
         if (!cell || !cell.trim()) continue;
-        const value = unquote(cell);
-        if (c.field === "action" && value === "trigger-workflow") {
-          problems.add(
-            "A rule cannot start a workflow — attach the rule to the workflow in the workflow editor."
-          );
-        } else if (!allowed.includes(value) && value !== "") {
-          const what = c.field === "workflowName" ? "process" : c.field;
-          problems.add(`"${value}" is not an existing ${what} for this entity.`);
+        for (const value of cellValues(cell)) {
+          if (c.field === "action" && value === "trigger-workflow") {
+            problems.add(
+              "A rule cannot start a workflow — attach the rule to the workflow in the workflow editor."
+            );
+          } else if (!allowed.includes(value)) {
+            const what = c.field === "workflowName" ? "process" : c.field;
+            problems.add(`"${value}" is not an existing ${what} for this entity.`);
+          }
         }
       }
     }

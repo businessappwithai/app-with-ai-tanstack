@@ -271,11 +271,15 @@ describe("the generated app runs the modelling tool's rule and workflow editors"
       "lib/eml/rule-graph-constraints.ts",
       "lib/eml/workflow-hooks.ts",
       "lib/monaco-local.ts",
+      "lib/dayjs-plugins.ts",
       "worker-modules.d.ts",
     ]) {
       expect(GENERATOR, file).toContain(`src: "src/${file}"`);
     }
     expect(read("frontend/package.json.hbs")).toContain('"@gorules/jdm-editor"');
     expect(read("frontend/package.json.hbs")).toContain('"monaco-editor"');
+    // The date picker's own calendar needs the dayjs the editor hands it, and the adapter it patches.
+    expect(read("frontend/package.json.hbs")).toContain('"dayjs"');
+    expect(read("frontend/package.json.hbs")).toContain('"rc-picker"');
   });
 });

@@ -4,7 +4,7 @@
  * the smallest graph that runs it.
  */
 
-import type { DecisionTable, DecisionRow } from "./decision-table";
+import type { DecisionRow, DecisionTable } from "./decision-table";
 
 /** Fields the application manages itself — never a good example to check. */
 const MANAGED = new Set(["id", "version", "created_at", "updated_at", "created_by", "updated_by"]);

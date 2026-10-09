@@ -32,7 +32,7 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
-    actionTimeout: 30_000,
+    actionTimeout: Number(process.env.E2E_ACTION_TIMEOUT ?? 30_000),
     navigationTimeout: 60_000,
   },
   projects: [

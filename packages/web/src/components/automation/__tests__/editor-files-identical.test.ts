@@ -45,6 +45,7 @@ const SHARED_EDITOR_FILES = [
   "lib/eml/rule-templates.ts",
   "lib/eml/workflow-hooks.ts",
   "lib/monaco-local.ts",
+  "lib/dayjs-plugins.ts",
 ] as const;
 
 describe("the editors a generated application ships", () => {

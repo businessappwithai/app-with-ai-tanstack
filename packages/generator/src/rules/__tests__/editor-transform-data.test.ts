@@ -9,6 +9,7 @@
  * so a transform written exactly as documented never changed a record.
  */
 
+import { ZenEngineSingleton } from "@appwithai/core/rules";
 import { describe, expect, it } from "vitest";
 import { compileRules } from "../index";
 import type { JdmGraph } from "../jdm-converter";
@@ -51,8 +52,8 @@ describe("a transform authored in an editor carries transformData", () => {
       `flowchart TD\n    A([Rule table]) --> B([Result])\n    %%decision-table ${JSON.stringify(table)}`
     );
     expect(dataOf(content, 0)).toBe(`'{"status":"active"}'`);
-    // A row that is not a transform gets none.
-    expect(dataOf(content, 1)).toBeUndefined();
+    // A row that is not a transform carries an empty cell — zen skips a row with no cell at all.
+    expect(dataOf(content, 1)).toBe("");
   });
 
   it("from the graph editor's decision-table node", () => {
@@ -93,5 +94,57 @@ describe("a transform authored in an editor carries transformData", () => {
       `flowchart TD\n    A([T]) --> B([R])\n    %%decision-table ${JSON.stringify(withData)}`
     );
     expect(content.outputs.filter((o) => o.field === "transformData")).toHaveLength(1);
+  });
+});
+
+describe("a table that mixes a refusal, a transform and a default", () => {
+  const mixed = {
+    hitPolicy: "first",
+    inputs: [{ id: "i1", name: "Minutes late", field: "minutes_late" }],
+    outputs: [
+      { id: "o1", name: "Action", field: "action" },
+      { id: "o2", name: "Message", field: "message" },
+      { id: "o3", name: "Field", field: "field" },
+      { id: "o4", name: "Value", field: "value" },
+    ],
+    rules: [
+      { _id: "r1", i1: ">= 60", o1: '"validation-error"', o2: '"Far too late"', o3: "", o4: "" },
+      { _id: "r2", i1: ">= 30", o1: '"transform"', o2: "", o3: '"status"', o4: '"late"' },
+      { _id: "r3", i1: "", o1: '"allow"', o2: "", o3: "", o4: "" },
+    ],
+  };
+
+  const graph = {
+    nodes: [
+      { id: "in", type: "inputNode", name: "in" },
+      { id: "t", type: "decisionTableNode", name: "t", content: mixed },
+      { id: "out", type: "outputNode", name: "out" },
+    ],
+    edges: [
+      { id: "a", sourceId: "in", targetId: "t" },
+      { id: "b", sourceId: "t", targetId: "out" },
+    ],
+  };
+
+  const answer = async (minutesLate: number) => {
+    const [rule] = compileRules([
+      {
+        name: "ladder",
+        entity: "AttendanceRecord",
+        event: "beforeCreate",
+        priority: 1,
+        flowchart: `flowchart TD\n    A([Rule]) --> B([Result])\n    %%jdm-graph ${JSON.stringify(graph)}`,
+      },
+    ]);
+    const evaluated = await ZenEngineSingleton.evaluate(JSON.parse(rule?.jdmContent ?? "{}"), {
+      minutes_late: minutesLate,
+    });
+    return evaluated.decision?.result as Record<string, unknown> | undefined;
+  };
+
+  it("answers each row's own case — the refusal and the default still fire", async () => {
+    expect((await answer(90))?.action).toBe("prevent");
+    expect((await answer(45))?.action).toBe("transform");
+    expect((await answer(2))?.action).toBe("allow");
   });
 });

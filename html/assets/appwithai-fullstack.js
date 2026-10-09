@@ -17555,6 +17555,10 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/lib/monaco-local.ts"
       },
       {
+        src: "src/lib/dayjs-plugins.ts",
+        dest: "src/lib/dayjs-plugins.ts"
+      },
+      {
         src: "src/worker-modules.d.ts",
         dest: "src/worker-modules.d.ts"
       },
@@ -20801,7 +20805,7 @@ function withTransformData(content) {
       const target = literalText(row[fieldColumn.id])?.trim();
       const isTransform = literalText(row[actionColumn.id])?.trim() === "transform";
       if (!isTransform || !target)
-        return row;
+        return { ...row, [dataColumn.id]: row[dataColumn.id] ?? "" };
       const value = literalText(row[valueColumn.id]) ?? String(row[valueColumn.id] ?? "");
       return { ...row, [dataColumn.id]: zenLiteral(JSON.stringify({ [target]: value })) };
     })

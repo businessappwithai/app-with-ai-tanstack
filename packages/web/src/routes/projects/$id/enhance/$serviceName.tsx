@@ -52,9 +52,7 @@ async function checkAuthMe() {
 }
 
 export const Route = createFileRoute("/projects/$id/enhance/$serviceName")({
-  validateSearch: (
-    search: Record<string, unknown>
-  ): { rule?: string; workflow?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { rule?: string; workflow?: string } => ({
     rule: typeof search.rule === "string" ? search.rule : undefined,
     workflow: typeof search.workflow === "string" ? search.workflow : undefined,
   }),
@@ -559,9 +557,7 @@ function ServiceWorkflowPage() {
   // When the URL carries a rule or workflow slug, select it once rules are loaded.
   useEffect(() => {
     if (ruleSearch && rulesLoaded && rules.length > 0) {
-      const idx = rules.findIndex(
-        (r) => slugifyRuleName(r.title ?? r.name) === ruleSearch
-      );
+      const idx = rules.findIndex((r) => slugifyRuleName(r.title ?? r.name) === ruleSearch);
       if (idx >= 0) {
         setSelectedRuleIndex(idx);
         setActiveTab("rules");
@@ -780,8 +776,7 @@ function ServiceWorkflowPage() {
    */
   const selectAvailableHook = (hookType: HookType) => {
     const existing = selectedHooks.findIndex((hook) => hook.type === hookType);
-    const hookName =
-      existing >= 0 ? (selectedHooks[existing]?.name || hookType) : hookType;
+    const hookName = existing >= 0 ? selectedHooks[existing]?.name || hookType : hookType;
     if (existing >= 0) {
       setSelectedHookIndex(existing);
     } else {

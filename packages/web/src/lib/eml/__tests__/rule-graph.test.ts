@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { emptyDecisionTable } from "../decision-table";
-import { constrainGraph, withoutStockImport } from "../rule-graph-constraints";
+import {
+  cellValues,
+  constrainGraph,
+  graphProblems,
+  withoutStockImport,
+} from "../rule-graph-constraints";
 import { sampleRecord, tableToGraph } from "../rule-templates";
 
 describe("a rule's graph", () => {
@@ -37,5 +42,42 @@ describe("a rule's graph", () => {
     expect(withoutStockImport("export const handler = async (i) => i;")).toBe(
       "export const handler = async (i) => i;"
     );
+  });
+});
+
+describe("a cell under a constrained column", () => {
+  const constraints = {
+    fields: ["status"],
+    values: { status: ["open", "cancelled", "completed"] },
+    workflowNames: [],
+  };
+  const graphWith = (cell: string) => ({
+    nodes: [
+      {
+        id: "t",
+        type: "decisionTableNode",
+        content: {
+          inputs: [{ id: "i1", field: "status" }],
+          outputs: [],
+          rules: [{ i1: cell }],
+        },
+      },
+    ],
+  });
+
+  it("reads a list, a negation and a bare value as the values they name", () => {
+    expect(cellValues('["cancelled","completed"]')).toEqual(["cancelled", "completed"]);
+    expect(cellValues('"cancelled", "completed"')).toEqual(["cancelled", "completed"]);
+    expect(cellValues('not("open")')).toEqual(["open"]);
+    expect(cellValues('!= "open"')).toEqual(["open"]);
+    expect(cellValues('"a,b"')).toEqual(["a,b"]);
+    expect(cellValues("")).toEqual([]);
+  });
+
+  it('accepts "is one of" naming real statuses and flags the one that is not', () => {
+    expect(graphProblems(graphWith('["cancelled","completed"]'), constraints)).toEqual([]);
+    expect(graphProblems(graphWith('["cancelled","closed"]'), constraints)).toEqual([
+      '"closed" is not an existing status for this entity.',
+    ]);
   });
 });

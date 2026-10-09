@@ -314,7 +314,11 @@ function withTransformData<T extends TableContent>(content: T): T {
     rules: (content.rules ?? []).map((row) => {
       const target = literalText(row[fieldColumn.id])?.trim();
       const isTransform = literalText(row[actionColumn.id])?.trim() === "transform";
-      if (!isTransform || !target) return row;
+      // Every row needs a cell in the new column — an empty one for a row that is not a
+      // transform. zen skips a row that has no cell at all for an output column, so adding
+      // the column only to transform rows made a table that mixed a refusal, a transform
+      // and a catch-all answer for none of them: the refusal and the default never fired.
+      if (!isTransform || !target) return { ...row, [dataColumn.id]: row[dataColumn.id] ?? "" };
       const value = literalText(row[valueColumn.id]) ?? String(row[valueColumn.id] ?? "");
       return { ...row, [dataColumn.id]: zenLiteral(JSON.stringify({ [target]: value })) };
     }),

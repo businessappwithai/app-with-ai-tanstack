@@ -641,7 +641,9 @@ export function AutomationBuilder({
             placeholder="Name this process"
             disabled={lockHook}
             readOnly={lockHook}
-            onChange={lockHook ? undefined : (e) => onChange({ ...automation, name: e.target.value })}
+            onChange={
+              lockHook ? undefined : (e) => onChange({ ...automation, name: e.target.value })
+            }
           />
           <p className="mt-1 text-[12.5px] text-muted-foreground">
             Runs on every {automation.trigger.entity || "record"}
