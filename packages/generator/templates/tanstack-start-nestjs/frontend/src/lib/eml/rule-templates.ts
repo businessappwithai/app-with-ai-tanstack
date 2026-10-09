@@ -4,7 +4,7 @@
  * the smallest graph that runs it.
  */
 
-import type { DecisionTable } from "./decision-table";
+import type { DecisionTable, DecisionRow } from "./decision-table";
 
 /** Fields the application manages itself — never a good example to check. */
 const MANAGED = new Set(["id", "version", "created_at", "updated_at", "created_by", "updated_by"]);
@@ -56,8 +56,76 @@ export function sampleRecord(
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Cell quoting for the zen decision-table engine                             */
+/* -------------------------------------------------------------------------- */
+
+/** Wrap a value as a zen single-quoted string literal. */
+function zenLiteralCell(value: string): string {
+  return `'${value.replace(/'/g, "\\'")}'`;
+}
+
+/** True when the value is already a zen string literal (`'…'` or `"…"`). */
+function isAlreadyQuoted(value: string): boolean {
+  return (
+    value.length >= 2 &&
+    (value.startsWith("'") || value.startsWith('"')) &&
+    value.endsWith(value[0] as string)
+  );
+}
+
+/** True when the value is a bare zen literal: null, true, false, or a number. */
+function isBareLiteral(value: string): boolean {
+  return (
+    value === "true" ||
+    value === "false" ||
+    value === "null" ||
+    (value !== "" && !Number.isNaN(Number(value)))
+  );
+}
+
+/**
+ * Quote an output cell value for the zen decision-table engine.
+ *
+ * The editor stores plain text (`validation-error`, `transform`).  Zen
+ * evaluates those as identifier expressions — field references — and finds
+ * nothing, so no output field is written.  Wrapping them as zen string
+ * literals makes them constant values instead.
+ */
+function quotedOutputCell(raw: string): string {
+  const value = raw.trim();
+  if (!value || isAlreadyQuoted(value) || isBareLiteral(value)) return value;
+  return zenLiteralCell(value);
+}
+
+/**
+ * Quote an input cell value for the zen decision-table engine.
+ *
+ * Leading comparison operators (`>= 0`, `< 1`, `!= null`) are preserved;
+ * bare string values like `submitted` are quoted to `'submitted'` so zen
+ * treats them as equality checks, not field references.
+ */
+function quotedInputCell(raw: string): string {
+  const value = raw.trim();
+  if (!value) return "";
+  const match = value.match(/^(>=|<=|!=|=|>|<)\s*(.*)/);
+  if (match) {
+    const [, op, operand] = match as [string, string, string];
+    const cell = quotedOutputCell(operand);
+    return op === "=" ? cell : `${op} ${cell}`;
+  }
+  return quotedOutputCell(value);
+}
+
 /** A flat decision table as the smallest graph that runs it: Input → Table → Output. */
 export function tableToGraph(table: DecisionTable, name: string): TemplateGraph {
+  const quotedRules: DecisionRow[] = table.rules.map((row) => {
+    const quoted: DecisionRow = { _id: row._id };
+    for (const input of table.inputs) quoted[input.id] = quotedInputCell(row[input.id] ?? "");
+    for (const output of table.outputs) quoted[output.id] = quotedOutputCell(row[output.id] ?? "");
+    return quoted;
+  });
+
   return {
     nodes: [
       { id: "input-1", name: "Record", type: "inputNode", position: { x: 80, y: 200 } },
@@ -66,7 +134,7 @@ export function tableToGraph(table: DecisionTable, name: string): TemplateGraph 
         name: name || "Decision",
         type: "decisionTableNode",
         position: { x: 340, y: 200 },
-        content: table,
+        content: { ...table, rules: quotedRules },
       },
       { id: "output-1", name: "Response", type: "outputNode", position: { x: 680, y: 200 } },
     ],

@@ -636,10 +636,12 @@ export function AutomationBuilder({
               on an automation rule. */}
           <input
             aria-label="Name"
-            className="w-full rounded-md border border-transparent bg-transparent px-1.5 py-0.5 -ml-1.5 text-xl font-bold tracking-tight hover:border-border focus-visible:border-primary focus-visible:bg-card focus-visible:outline-none"
+            className="w-full rounded-md border border-transparent bg-transparent px-1.5 py-0.5 -ml-1.5 text-xl font-bold tracking-tight hover:border-border focus-visible:border-primary focus-visible:bg-card focus-visible:outline-none disabled:cursor-default disabled:hover:border-transparent"
             value={automation.name}
             placeholder="Name this process"
-            onChange={(e) => onChange({ ...automation, name: e.target.value })}
+            disabled={lockHook}
+            readOnly={lockHook}
+            onChange={lockHook ? undefined : (e) => onChange({ ...automation, name: e.target.value })}
           />
           <p className="mt-1 text-[12.5px] text-muted-foreground">
             Runs on every {automation.trigger.entity || "record"}
@@ -934,13 +936,17 @@ function HookInspector({
       <label className="block">
         <span className="mb-1 block text-xs font-medium">Handler</span>
         <input
-          className="w-full rounded-md border border-border px-2 py-1.5 font-mono text-sm"
+          className="w-full rounded-md border border-border px-2 py-1.5 font-mono text-sm disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
           value={hook.handler}
-          onChange={(e) => onChange({ ...hook, handler: e.target.value })}
+          disabled={locked}
+          readOnly={locked}
+          onChange={locked ? undefined : (e) => onChange({ ...hook, handler: e.target.value })}
           placeholder="normalizeAccountName"
         />
         <span className="mt-1 block text-[11.5px] text-muted-foreground">
-          The function the generated backend will call.
+          {locked
+            ? "Set by the entity and hook type."
+            : "The function the generated backend will call."}
         </span>
       </label>
 

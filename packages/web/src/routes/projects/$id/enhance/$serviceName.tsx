@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
-import { type EditableRule, RuleEditor } from "@/components/eml/RuleEditor";
+import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
 import { HelpPanel } from "@/components/help/HelpPanel";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import type { HelpTopicId } from "@/content/help";
@@ -52,6 +52,12 @@ async function checkAuthMe() {
 }
 
 export const Route = createFileRoute("/projects/$id/enhance/$serviceName")({
+  validateSearch: (
+    search: Record<string, unknown>
+  ): { rule?: string; workflow?: string } => ({
+    rule: typeof search.rule === "string" ? search.rule : undefined,
+    workflow: typeof search.workflow === "string" ? search.workflow : undefined,
+  }),
   beforeLoad: async () => {
     try {
       const data = await checkAuthMe();
@@ -343,6 +349,7 @@ function automationForHook(hook: HookDefinition, index: number): Automation {
 function ServiceWorkflowPage() {
   const navigate = useNavigate();
   const { id: projectId, serviceName } = Route.useParams();
+  const { rule: ruleSearch, workflow: workflowSearch } = Route.useSearch();
 
   const { getProject, loadProject, setCurrentStep, goToNextStep, currentProject, isLoading } =
     useProjectStore();
@@ -433,21 +440,16 @@ function ServiceWorkflowPage() {
   );
 
   const handleHookAutomationChange = (next: Automation) => {
-    const edited = next.hooks[0];
     const updated = selectedHooks.map((hook, index) =>
       index === selectedHookIndex
         ? {
             ...hook,
-            name: edited?.handler || hook.name,
+            // Name is fixed to EntityHookType — never overwrite it from the handler field.
             workflow: { conditions: next.conditions, loops: next.loops, steps: next.steps },
           }
         : hook
     );
     setSelectedHooks(updated);
-    // The diagram names each handler, so keep it in step when that changes.
-    if (edited && edited.handler !== selectedHookDefinition?.name) {
-      updateFlowchartWithHooks(updated);
-    }
     setWorkflowState("draft");
     setValidationErrors([]);
   };
@@ -553,6 +555,28 @@ function ServiceWorkflowPage() {
       cancelled = true;
     };
   }, [activeTab, rulesLoaded, projectId]);
+
+  // When the URL carries a rule or workflow slug, select it once rules are loaded.
+  useEffect(() => {
+    if (ruleSearch && rulesLoaded && rules.length > 0) {
+      const idx = rules.findIndex(
+        (r) => slugifyRuleName(r.title ?? r.name) === ruleSearch
+      );
+      if (idx >= 0) {
+        setSelectedRuleIndex(idx);
+        setActiveTab("rules");
+      }
+    } else if (workflowSearch && selectedHooks.length > 0) {
+      const idx = selectedHooks.findIndex(
+        (h) => h.name.toLowerCase() === workflowSearch.toLowerCase()
+      );
+      if (idx >= 0) {
+        setSelectedHookIndex(idx);
+        setActiveTab("workflows");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rulesLoaded, selectedHooks.length]);
 
   useEffect(() => {
     const loadWorkflow = async () => {
@@ -729,10 +753,11 @@ function ServiceWorkflowPage() {
 
   const handleAddHook = (hookType: HookType) => {
     const entityName = serviceName.replace("Service", "");
+    const capitalizedType = hookType.charAt(0).toUpperCase() + hookType.slice(1);
 
     const newHook: HookDefinition = {
       type: hookType,
-      name: `${hookType}${entityName}`,
+      name: `${entityName}${capitalizedType}`,
       entity: entityName,
       enabled: true,
       code: HOOK_TEMPLATES[hookType] || `// ${hookType} hook for ${entityName}`,
@@ -755,6 +780,8 @@ function ServiceWorkflowPage() {
    */
   const selectAvailableHook = (hookType: HookType) => {
     const existing = selectedHooks.findIndex((hook) => hook.type === hookType);
+    const hookName =
+      existing >= 0 ? (selectedHooks[existing]?.name || hookType) : hookType;
     if (existing >= 0) {
       setSelectedHookIndex(existing);
     } else {
@@ -762,6 +789,11 @@ function ServiceWorkflowPage() {
       setSelectedHookIndex(selectedHooks.length);
     }
     setActiveTab("workflows");
+    void navigate({
+      to: "/projects/$id/enhance/$serviceName",
+      params: { id: projectId, serviceName },
+      search: { workflow: hookName },
+    });
   };
 
   const handleRemoveHook = (hookIndex: number) => {
@@ -1349,6 +1381,11 @@ function ServiceWorkflowPage() {
                                 onClick={() => {
                                   setSelectedHookIndex(index);
                                   setActiveTab("workflows");
+                                  void navigate({
+                                    to: "/projects/$id/enhance/$serviceName",
+                                    params: { id: projectId, serviceName },
+                                    search: { workflow: hook.name || hook.type },
+                                  });
                                 }}
                                 aria-label={`Edit the ${hook.name || hook.type} Trigger.dev workflow`}
                                 title="Edit this hook's Trigger.dev workflow"
@@ -1457,7 +1494,14 @@ function ServiceWorkflowPage() {
                       >
                         <button
                           type="button"
-                          onClick={() => setSelectedRuleIndex(index)}
+                          onClick={() => {
+                            setSelectedRuleIndex(index);
+                            void navigate({
+                              to: "/projects/$id/enhance/$serviceName",
+                              params: { id: projectId, serviceName },
+                              search: { rule: slugifyRuleName(rule.title ?? rule.name) },
+                            });
+                          }}
                           className="min-w-0 flex-1 text-left"
                         >
                           <span className="block truncate font-medium">

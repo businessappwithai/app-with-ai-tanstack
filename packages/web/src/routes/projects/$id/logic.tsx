@@ -73,6 +73,12 @@ async function checkAuthMe() {
 }
 
 export const Route = createFileRoute("/projects/$id/logic")({
+  validateSearch: (
+    search: Record<string, unknown>
+  ): { rule?: string; workflow?: string } => ({
+    rule: typeof search.rule === "string" ? search.rule : undefined,
+    workflow: typeof search.workflow === "string" ? search.workflow : undefined,
+  }),
   beforeLoad: async () => {
     try {
       const data = await checkAuthMe();
@@ -133,9 +139,16 @@ interface EmlResponse {
 let keyCounter = 0;
 const nextKey = () => `k${(keyCounter++).toString(36)}${Date.now().toString(36)}`;
 
+const workflowSlug = (w: EditableWorkflow) =>
+  (w.title ?? w.name)
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+
 function LogicPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
+  const { rule: ruleSearch, workflow: workflowSearch } = Route.useSearch();
   const { currentProject, loadProject, setCurrentStep } = useProjectStore();
 
   const [rules, setRules] = useState<EditableRule[]>([]);
@@ -166,6 +179,29 @@ function LogicPage() {
   useEffect(() => {
     setCurrentStep("logic");
   }, [setCurrentStep]);
+
+  // When the URL carries a rule or workflow slug, select it once loading finishes.
+  useEffect(() => {
+    if (isLoading) return;
+    if (ruleSearch) {
+      const idx = rules.findIndex(
+        (r) => slugifyRuleName(r.title ?? r.name) === ruleSearch
+      );
+      if (idx >= 0) {
+        setSelectedRule(idx);
+        setCreating(false);
+      }
+    } else if (workflowSearch) {
+      const idx = workflows.findIndex((w) => workflowSlug(w) === workflowSearch);
+      if (idx >= 0) {
+        setSelectedIndex(idx);
+        setSelectedRule(null);
+        setCreating(false);
+      }
+    }
+    // Intentionally runs once after load completes, not on every search change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   useEffect(() => {
     let cancelled = false;
@@ -333,11 +369,12 @@ function LogicPage() {
   );
 
   const addRule = () => {
+    const newName = `rule${rules.length + 1}`;
     setRules((current) => [
       ...current,
       {
         key: nextKey(),
-        name: `rule${rules.length + 1}`,
+        name: newName,
         entity: entityNames[0] ?? "",
         event: "beforeCreate",
         priority: 100,
@@ -347,6 +384,11 @@ function LogicPage() {
     setSelectedRule(rules.length);
     setCreating(false);
     setSavedAt(null);
+    void navigate({
+      to: "/projects/$id/logic",
+      params: { id },
+      search: { rule: newName },
+    });
   };
 
   const removeRule = (index: number) => {
@@ -387,23 +429,32 @@ function LogicPage() {
       name: draft.name,
       hooks: [hookFor(draft.entity, draft.event)],
     };
-    setWorkflows((current) => [
-      ...current,
-      { ...base, name: pascalWorkflowName(draft.name), title: draft.name, automation },
-    ]);
+    const newWorkflow = { ...base, name: pascalWorkflowName(draft.name), title: draft.name, automation };
+    setWorkflows((current) => [...current, newWorkflow]);
     setSelectedIndex(workflows.length);
     setSelectedRule(null);
     setCreating(false);
     setSavedAt(null);
+    void navigate({
+      to: "/projects/$id/logic",
+      params: { id },
+      search: { workflow: workflowSlug(newWorkflow) },
+    });
   };
 
   /** A status machine or a process has no hooks to start from, so it opens blank. */
   const addWorkflow = (kind: WorkflowKind) => {
-    setWorkflows((current) => [...current, emptyWorkflow(kind, nextKey(), entityNames[0] ?? "")]);
+    const newWorkflow = emptyWorkflow(kind, nextKey(), entityNames[0] ?? "");
+    setWorkflows((current) => [...current, newWorkflow]);
     setSelectedIndex(workflows.length);
     setSelectedRule(null);
     setCreating(false);
     setSavedAt(null);
+    void navigate({
+      to: "/projects/$id/logic",
+      params: { id },
+      search: { workflow: workflowSlug(newWorkflow) },
+    });
   };
 
   const removeWorkflow = (index: number) => {
@@ -553,6 +604,11 @@ function LogicPage() {
                         onClick={() => {
                           setSelectedRule(index);
                           setCreating(false);
+                          void navigate({
+                            to: "/projects/$id/logic",
+                            params: { id },
+                            search: { rule: slugifyRuleName(rule.title ?? rule.name) },
+                          });
                         }}
                         className="min-w-0 flex-1 text-left"
                       >
@@ -618,6 +674,11 @@ function LogicPage() {
                             setSelectedIndex(index);
                             setSelectedRule(null);
                             setCreating(false);
+                            void navigate({
+                              to: "/projects/$id/logic",
+                              params: { id },
+                              search: { workflow: workflowSlug(workflow) },
+                            });
                           }}
                           className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
                         >
