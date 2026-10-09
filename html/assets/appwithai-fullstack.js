@@ -17532,12 +17532,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/rules/RuleGraphEditor.tsx"
       },
       {
-        src: "src/components/rules/RulePane.tsx",
-        dest: "src/components/rules/RulePane.tsx"
-      },
-      {
-        src: "src/components/automation/AutomationHelp.tsx",
-        dest: "src/components/automation/AutomationHelp.tsx"
+        src: "src/lib/logic-host.ts",
+        dest: "src/lib/logic-host.ts"
       },
       {
         src: "src/components/admin/doc-status-badge.tsx",
@@ -17874,6 +17870,7 @@ var SHARED_SUITES = [
   "20-transaction-notifications.test.ts",
   "21-reports.test.ts",
   "22-optimistic-locking.test.ts",
+  "23-workflow-editors-api.test.ts",
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",
   "11-performance-budget.test.ts"
@@ -19915,6 +19912,7 @@ function buildRuleModel(model) {
         values[column] = states;
     }
     return {
+      name: entity2.name,
       table: bus.tableName,
       label: formatDisplayName(entity2.name),
       fields: entity2.attributes.map((attribute) => ({
@@ -19935,6 +19933,7 @@ function renderRuleModel(entities) {
  */
 
 export interface RuleModelEntity {
+  name: string;
   table: string;
   label: string;
   fields: Array<{ name: string; type: "string" | "number" | "boolean" }>;

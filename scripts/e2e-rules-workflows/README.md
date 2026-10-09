@@ -57,3 +57,18 @@ its hooks, states and moves, or steps; a step uses the words its inspector shows
 
 Controls are found by the words on the screen, never by position, so a field
 added to an inspector does not break every step after it.
+
+## Against a generated application
+
+The Logic step and a generated app's **Admin → Rules and workflows** screen are one component
+(`@appwithai/editors`' `LogicWorkbench`), so the same specs drive both. Set `LOGIC_TARGET=generated`
+and point the base URL at the app:
+
+```bash
+LOGIC_TARGET=generated E2E_BASE_URL=http://localhost:4700 \
+  bun scripts/e2e-rules-workflows/run.ts --generated --no-server --model <model.eml.mmd> -- specs/02-workflow-editors.spec.ts
+```
+
+`authorWithProject`/`browserAs` sign in as the app's administrator instead of creating a
+project, and `logicPath` supplies the screen's URL. Specs 01–04 are meant for this; 03/04
+read the stored model through the modelling tool's API and run there only where they do.

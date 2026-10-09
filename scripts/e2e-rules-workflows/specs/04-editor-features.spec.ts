@@ -9,7 +9,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { LogicPage } from "../lib/logic-page";
 import { RuleGraph } from "../lib/rule-graph";
 import { buildTableRule, runTryIt, startRule } from "../lib/rule-table";
-import { type Author, authorWithProject, browserAs } from "../lib/session";
+import { type Author, authorWithProject, browserAs, logicPath } from "../lib/session";
 
 let author: Author;
 
@@ -21,7 +21,7 @@ test.afterAll(async () => {
 });
 
 async function openLogic(page: Page) {
-  await page.goto(`/projects/${author.projectId}/logic`);
+  await page.goto(logicPath(author));
   await expect(page.getByText("Loading the model…")).toHaveCount(0, { timeout: 60_000 });
 }
 

@@ -10,7 +10,7 @@
 import { expect, test } from "@playwright/test";
 import { RuleGraph } from "../lib/rule-graph";
 import { buildTableRule, runTryIt } from "../lib/rule-table";
-import { type Author, authorWithProject, browserAs } from "../lib/session";
+import { type Author, authorWithProject, browserAs, GENERATED, logicPath } from "../lib/session";
 import { TABLE_RULES } from "../scenarios/rule-catalogue";
 
 const only = process.env.RULES_ONLY;
@@ -35,7 +35,7 @@ test.describe("business rule editor — decision-table rules built through the p
       page.on("pageerror", (e) => errors.push(e.message));
       const graph = new RuleGraph(page);
 
-      await page.goto(`/projects/${author.projectId}/logic`);
+      await page.goto(logicPath(author));
       await expect(page.getByText("Loading the model…")).toHaveCount(0, { timeout: 60_000 });
       await buildTableRule(page, graph, rule);
       for (const t of rule.tryIt) await runTryIt(page, t.sample, t.expect, t.message);
@@ -45,16 +45,19 @@ test.describe("business rule editor — decision-table rules built through the p
       await expect(page.getByText(/Saved to the model/)).toBeVisible({ timeout: 30_000 });
 
       // Reload: the rule that comes back from the model answers the same way.
-      await page.goto(`/projects/${author.projectId}/logic`);
+      await page.goto(logicPath(author));
       await expect(page.getByText("Loading the model…")).toHaveCount(0, { timeout: 60_000 });
       await page.locator("aside").first().getByText(rule.name, { exact: true }).first().click();
       await graph.waitReady();
       await expect(page.locator("label:has(span:text-is('Entity')) select")).toHaveValue(
         rule.entity
       );
-      await expect(page.locator("label:has(span:text-is('Priority')) input")).toHaveValue(
-        String(rule.priority ?? 100)
-      );
+      // A stored rule in a running application has no priority to keep.
+      if (!GENERATED) {
+        await expect(page.locator("label:has(span:text-is('Priority')) input")).toHaveValue(
+          String(rule.priority ?? 100)
+        );
+      }
       for (const t of rule.tryIt) await runTryIt(page, t.sample, t.expect, t.message);
 
       expect(errors, "no uncaught error in the page").toEqual([]);

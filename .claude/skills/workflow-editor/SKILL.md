@@ -22,6 +22,6 @@ The Logic step lists **Rules** and **Workflows**. A workflow is what runs around
 
 `routes/projects/$id/logic.tsx` (selection state: `selectedIndex`, `selectedRule`, `creating`), `components/eml/NewWorkflowPanel.tsx`, `components/eml/WorkflowRules.tsx`, `lib/eml/workflow-hooks.ts`, `lib/eml/section-problems.ts` (a rule or workflow with no name/entity cannot be saved).
 
-## Shared editor files — change both copies
+## One package, two hosts
 
-`components/automation/{AutomationBuilder,StepInspector,RuleTableEditor,LadderCard,RailList}.tsx`, `lib/automation/{model,rule-content}.ts`, `lib/workflow/bpmn-model.ts` ship byte for byte in `packages/generator/templates/tanstack-start-nestjs/frontend/src/`. `editor-files-identical.test.ts` fails on any difference — edit the web copy, then `cp` it over the template's. Prefer not to edit them for Logic-step work.
+The editors live once, in `packages/editors/src` (`@appwithai/editors`); `LogicWorkbench` is the screen and takes a host adapter. The Logic step (`routes/projects/$id/logic.tsx`) and a generated app (`frontend/src/lib/logic-host.ts`, vendored copy of the package under `src/editors/`, gitignored) both render it. Edit the package, never a generated copy; `vendor-editors.test.ts` fails on a stray duplicate. `LOGIC_TARGET=generated` runs the e2e specs against the generated screen.

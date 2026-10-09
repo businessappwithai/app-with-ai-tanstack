@@ -720,33 +720,51 @@ Whatever the builder can write, `language/checker.ts` must accept — a checker
 that rejects the application's own output discredits both. That pairing is held
 by `packages/web/src/lib/automation/__tests__/checker-accepts-automations.test.ts`.
 
-### The rule and workflow editors ship twice, byte for byte
+### The rule and workflow editors are one package, vendored into generated apps
 
-The generated application's Admin → Business Rules and Automations screens use
-the **same files** as the modelling tool's Logic step. Nineteen live in both
-`packages/web/src/` and `packages/generator/templates/tanstack-start-nestjs/frontend/src/`:
+The modelling tool's Logic step and the generated application's **Admin → Rules & workflows**
+screen are the same component. It lives once, in `packages/editors` (`@appwithai/editors`,
+source only, no build step, aliased to `packages/editors/src` in tsconfig/vite/vitest):
+`components/LogicWorkbench.tsx` is the screen (rail, rule editor, lifecycle / process /
+status-machine editors, flowcharts, per-topic help) and owns **no I/O** — a host hands it
+the rules and workflows as editable objects, `constraintsFor`, a `dryRun`, and a `save`
+that is told the whole list.
 
-`components/automation/{AutomationBuilder,StepInspector,RuleTableEditor,LadderCard,RailList}.tsx`,
-`lib/automation/{model,rule-content}.ts`, `lib/workflow/bpmn-model.ts`, and the GoRules
-graph editor and workflow start: `components/eml/{GoRulesEditorPanel,RuleTryIt,NewWorkflowPanel,WorkflowRules}.tsx`,
-`lib/eml/{decision-table,dry-run-types,rule-constraints,rule-graph-constraints,rule-outcome,rule-templates,workflow-hooks}.ts`,
-`lib/monaco-local.ts`
+| Host | Where | What it supplies |
+|---|---|---|
+| Modelling tool | `packages/web/src/routes/projects/$id/logic.tsx` | the project's EML document, one `PUT /api/projects/:id/eml`, the wizard chrome |
+| Generated app | `frontend/src/lib/logic-host.ts` + `routes/admin/automations.tsx.hbs` | `/api/rules` and `/api/workflow-definitions` (diffed on save), `RULE_MODEL` for what a rule may name, `POST /rules/simulate` |
 
-The generated app's own joints (not shared): `components/rules/{RuleGraphEditor,RulePane}.tsx`
-hand the panel what *this* model declares (`lib/rule-model.ts`, written by
-`writeRuleModel` in `generate-application.ts` from `rules/rule-model.ts`) and a `dryRun`
-that posts to `POST /rules/simulate`. A rule has no "runs when": attaching it to a
+**Generated apps get the package as source at generation time.** `ensureEditorsVendored`
+(`generators/tanstack-start-nestjs/vendor-editors.ts`, also `bun run vendor:editors`) copies
+`packages/editors/src` into the template's `frontend/src/editors/` — **gitignored, never
+committed** — and the frontend generator copies that directory whole. Templates import it
+as `@/editors/...`. There is no second copy to keep in step; `vendor-editors.test.ts` fails
+if a template holds a file the package owns, or if one is tracked by git. A new dependency of
+the editors goes in `packages/editors/package.json` **and** the template's `package.json.hbs`
+(`rule-editor-generated-app.test.ts` checks they agree).
+
+Storage in a running application: a rule is a `sys_rule_definitions` row (JDM graph or bare
+table); a lifecycle or process is a `kind: automation` row in `sys_workflow_definitions`
+(mermaid + `operation` + `trigger_type`, compiled to BPMN on save); a **status machine is a
+`kind: state` row** whose edges the host sends and the service writes to
+`sys_workflow_transitions` (what `entity-access.guard` enforces) — the executor skips `state`
+rows, and a machine the model declared cannot be overwritten. Workflows the *model* declares
+are `kind: bpmn` and are not opened by the screen.
+
+The generated app's own joints (not shared): `components/rules/RuleGraphEditor.tsx` hands the
+panel what *this* model declares (`lib/rule-model.ts`, written by
+`writeRuleModel` in `generate-application.ts` from `rules/rule-model.ts`; each entity carries its
+model `name` as well as its table). A rule has no "runs when": attaching it to a
 workflow's hook `PUT`s `operation` (CREATE/UPDATE/DELETE/ALL), and `sameOperation` makes
 `afterCreate` find a create rule too, because the table keeps the write, not the hook.
 The backend (`rules-engine.service.ts.hbs`) prepares a graph the way the compiler does —
 a function node's bare source becomes `{ source }`, a transform row gets `transformData`,
 and `import|require|fetch|eval|process|globalThis` is refused. The generated app's
-`vite build` now bundles Monaco: expect ~7 minutes, not ~2.5.
+`vite build` bundles Monaco: expect ~7 minutes, not ~2.5.
 
-`components/automation/__tests__/editor-files-identical.test.ts` fails on any
-byte of difference, so an edit to one is an edit to both: change the web copy,
-then `cp` it over the template's. A fix made in one place only is how the
-generated app came to edit a different rule table from the tool.
+`scripts/e2e-rules-workflows` proves "exactly like": `LOGIC_TARGET=generated` points specs
+01–04 at the generated app's screen instead of the Logic step.
 
 Four things those editors have to keep true:
 

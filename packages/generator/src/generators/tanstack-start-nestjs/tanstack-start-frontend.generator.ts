@@ -848,13 +848,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/components/rules/RuleGraphEditor.tsx",
         dest: "src/components/rules/RuleGraphEditor.tsx",
       },
+      // Where this application reads and writes the rules and workflows the screen edits.
       {
-        src: "src/components/rules/RulePane.tsx",
-        dest: "src/components/rules/RulePane.tsx",
-      },
-      {
-        src: "src/components/automation/AutomationHelp.tsx",
-        dest: "src/components/automation/AutomationHelp.tsx",
+        src: "src/lib/logic-host.ts",
+        dest: "src/lib/logic-host.ts",
       },
       {
         src: "src/components/admin/doc-status-badge.tsx",

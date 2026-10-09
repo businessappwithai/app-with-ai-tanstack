@@ -49,8 +49,8 @@ const MENU_ITEMS = [
     icon: LayoutList,
   },
   {
-    label: "Business Rules",
-    to: "/admin/rules",
+    label: "Rules & workflows",
+    to: "/admin/automations",
     icon: Settings,
   },
   {

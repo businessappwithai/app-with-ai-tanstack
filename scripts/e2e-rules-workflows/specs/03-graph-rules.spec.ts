@@ -10,7 +10,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import { RuleGraph } from "../lib/rule-graph";
 import { runTryIt, startRule, type TryItAnswer } from "../lib/rule-table";
-import { type Author, authorWithProject, browserAs } from "../lib/session";
+import { type Author, authorWithProject, browserAs, logicPath } from "../lib/session";
 
 interface GraphRule {
   name: string;
@@ -199,7 +199,7 @@ test.describe("graph rules — drawn node by node", () => {
       page.on("pageerror", (e) => errors.push(e.message));
       const graph = new RuleGraph(page);
 
-      await page.goto(`/projects/${author.projectId}/logic`);
+      await page.goto(logicPath(author));
       await expect(page.getByText("Loading the model…")).toHaveCount(0, { timeout: 60_000 });
       await startRule(page, graph, rule);
       await graph.clear();
