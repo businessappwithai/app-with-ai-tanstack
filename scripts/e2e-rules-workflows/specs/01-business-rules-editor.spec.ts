@@ -13,6 +13,16 @@ import { buildTableRule, runTryIt } from "../lib/rule-table";
 import { type Author, authorWithProject, browserAs, GENERATED, logicPath } from "../lib/session";
 import { TABLE_RULES } from "../scenarios/rule-catalogue";
 
+const camel = (text: string) =>
+  text
+    .replace(/[^A-Za-z0-9]+/g, " ")
+    .trim()
+    .split(" ")
+    .map((word, i) =>
+      i === 0 ? word.toLowerCase() : word[0]?.toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join("");
+
 const only = process.env.RULES_ONLY;
 const rules = TABLE_RULES.filter((r) => !only || r.name.includes(only));
 
@@ -47,7 +57,10 @@ test.describe("business rule editor — decision-table rules built through the p
       // Reload: the rule that comes back from the model answers the same way.
       await page.goto(logicPath(author));
       await expect(page.getByText("Loading the model…")).toHaveCount(0, { timeout: 60_000 });
-      await page.locator("aside").first().getByText(rule.name, { exact: true }).first().click();
+      // A stored rule is filed under its identifier (`lateFlagAtFifteen`); the model keeps the
+      // title beside it, a running application does not.
+      const railName = GENERATED ? camel(rule.name) : rule.name;
+      await page.locator("aside").first().getByText(railName, { exact: true }).first().click();
       await graph.waitReady();
       await expect(page.locator("label:has(span:text-is('Entity')) select")).toHaveValue(
         rule.entity

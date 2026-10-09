@@ -69,20 +69,31 @@ export async function authorWithProject(
   return { session, projectId: project.id };
 }
 
+let generatedState: Awaited<ReturnType<BrowserContext["storageState"]>> | undefined;
+
+async function signInToGeneratedApp(browser: Browser) {
+  const context = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
+  const page = await context.newPage();
+  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.fill("input[type=email]", process.env.GENERATED_ADMIN_EMAIL ?? "admin@admin.com");
+  await page.fill("input[type=password]", process.env.GENERATED_ADMIN_PASSWORD ?? "admin123");
+  await page.click("button[type=submit]");
+  await page.waitForURL("**/dashboard");
+  await page.waitForLoadState("networkidle");
+  const state = await context.storageState();
+  await context.close();
+  return state;
+}
+
 export async function browserAs(browser: Browser, author: Author): Promise<BrowserContext> {
   if (GENERATED) {
-    const context = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
-    const page = await context.newPage();
-    await page.goto("/login", { waitUntil: "networkidle" });
-    await page.fill("input[type=email]", process.env.GENERATED_ADMIN_EMAIL ?? "admin@admin.com");
-    await page.fill("input[type=password]", process.env.GENERATED_ADMIN_PASSWORD ?? "admin123");
-    await page.click("button[type=submit]");
-    await page.waitForURL("**/dashboard");
-    // The session cookie is written by the sign-in response; let the dashboard's own
-    // requests settle so a page opened next is not the one that races it.
-    await page.waitForLoadState("networkidle");
-    await page.close();
-    return context;
+    // Signed in once and reused: a sign-in per test is a race with the previous test's
+    // session, and what is under test is the screen, not the login.
+    generatedState ??= await signInToGeneratedApp(browser);
+    return browser.newContext({
+      storageState: generatedState,
+      viewport: { width: 1600, height: 1000 },
+    });
   }
   return browser.newContext({
     storageState: await author.session.request.storageState(),

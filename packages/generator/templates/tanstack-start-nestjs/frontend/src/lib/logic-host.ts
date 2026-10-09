@@ -222,15 +222,23 @@ export interface LoadedLogic {
 export function createLogicHost() {
   const ruleIds = new Map<string, string>();
   const ruleSnapshots = new Map<string, string>();
+  // The name each stored rule is filed under. A rule the model seeded is called "Fee Invoice
+  // validation", not `feeInvoiceValidation`: it keeps that name unless it is renamed, because
+  // a process looks a rule up by its stored name.
+  const ruleNames = new Map<string, string>();
   const workflowIds = new Map<string, string>();
   const workflowSnapshots = new Map<string, string>();
 
-  const ruleBody = (rule: EditableRule) => ({
-    entityName: entityByName(rule.entity)?.table ?? rule.entity,
-    ruleName: slugifyRuleName(rule.title ?? rule.name),
-    operation: operationForEvent(rule.event),
-    jdmContent: rule.jdmGraph ?? JSON.stringify(rule.table),
-  });
+  const ruleBody = (rule: EditableRule) => {
+    const wanted = slugifyRuleName(rule.title ?? rule.name);
+    const kept = ruleNames.get(rule.key);
+    return {
+      entityName: entityByName(rule.entity)?.table ?? rule.entity,
+      ruleName: kept && slugifyRuleName(kept) === wanted ? kept : wanted,
+      operation: operationForEvent(rule.event),
+      jdmContent: rule.jdmGraph ?? JSON.stringify(rule.table),
+    };
+  };
 
   const workflowBody = (workflow: EditableWorkflow) => {
     const name = workflow.title ?? workflow.name;
@@ -282,6 +290,7 @@ export function createLogicHost() {
     const rules = ruleRows.filter((row) => (row.isActive ?? row.is_active) !== false).map(toEditableRule);
     for (const rule of rules) {
       ruleIds.set(rule.key, rule.key);
+      ruleNames.set(rule.key, rule.name);
       ruleSnapshots.set(rule.key, JSON.stringify(ruleBody(rule)));
     }
 
@@ -303,6 +312,7 @@ export function createLogicHost() {
       await write("DELETE", `/rules/${id}`);
       await write("DELETE", `/rules/${id}?permanent=true`);
       ruleIds.delete(key);
+      ruleNames.delete(key);
       ruleSnapshots.delete(key);
     }
     for (const rule of rules) {
@@ -326,6 +336,7 @@ export function createLogicHost() {
           await write("DELETE", `/rules/${id}?permanent=true`);
         }
         if (created.id) ruleIds.set(rule.key, created.id);
+        ruleNames.set(rule.key, body.ruleName);
       }
       ruleSnapshots.set(rule.key, snapshot);
     }
