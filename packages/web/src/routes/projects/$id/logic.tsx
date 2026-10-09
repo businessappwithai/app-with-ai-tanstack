@@ -73,9 +73,7 @@ async function checkAuthMe() {
 }
 
 export const Route = createFileRoute("/projects/$id/logic")({
-  validateSearch: (
-    search: Record<string, unknown>
-  ): { rule?: string; workflow?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { rule?: string; workflow?: string } => ({
     rule: typeof search.rule === "string" ? search.rule : undefined,
     workflow: typeof search.workflow === "string" ? search.workflow : undefined,
   }),
@@ -184,9 +182,7 @@ function LogicPage() {
   useEffect(() => {
     if (isLoading) return;
     if (ruleSearch) {
-      const idx = rules.findIndex(
-        (r) => slugifyRuleName(r.title ?? r.name) === ruleSearch
-      );
+      const idx = rules.findIndex((r) => slugifyRuleName(r.title ?? r.name) === ruleSearch);
       if (idx >= 0) {
         setSelectedRule(idx);
         setCreating(false);
@@ -429,7 +425,12 @@ function LogicPage() {
       name: draft.name,
       hooks: [hookFor(draft.entity, draft.event)],
     };
-    const newWorkflow = { ...base, name: pascalWorkflowName(draft.name), title: draft.name, automation };
+    const newWorkflow = {
+      ...base,
+      name: pascalWorkflowName(draft.name),
+      title: draft.name,
+      automation,
+    };
     setWorkflows((current) => [...current, newWorkflow]);
     setSelectedIndex(workflows.length);
     setSelectedRule(null);
