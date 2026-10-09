@@ -8,9 +8,9 @@
  * go through `toEditableRule`, and this holds the round trip they share.
  */
 
+import { evaluateTable } from "@appwithai/editors/lib/eml/decision-table";
 import { parseRuleActions } from "@appwithai/generator/rules";
 import { describe, expect, it } from "vitest";
-import { evaluateTable } from "../decision-table";
 import { ruleForSave, toEditableRule } from "../editable-rule";
 
 /** Admission Banding, from the education model. */

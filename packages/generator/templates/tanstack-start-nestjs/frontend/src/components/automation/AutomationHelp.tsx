@@ -30,7 +30,7 @@ import {
   TRIGGER_EVENTS,
   TRIGGER_HINTS,
   TRIGGER_LABELS,
-} from "@/lib/automation/model";
+} from "@/editors/lib/automation/model";
 import { cn } from "@/lib/utils";
 
 export interface HelpExample {

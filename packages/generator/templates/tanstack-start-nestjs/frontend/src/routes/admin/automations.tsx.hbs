@@ -13,15 +13,15 @@
 
 import { createFileRoute } from '@tanstack/react-router';
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AutomationBuilder, type RuleTableSummary } from '@/components/automation/AutomationBuilder';
+import { AutomationBuilder, type RuleTableSummary } from '@/editors/components/automation/AutomationBuilder';
 import { AutomationHelp } from '@/components/automation/AutomationHelp';
 import { useHelp } from '@/components/help/help-toaster';
 import { ThemeToggle } from '@/components/theme/theme-toggle';
-import { RailSection } from '@/components/automation/RailList';
-import { type NewWorkflowDraft, NewWorkflowPanel } from '@/components/eml/NewWorkflowPanel';
-import { WorkflowRules } from '@/components/eml/WorkflowRules';
+import { RailSection } from '@/editors/components/automation/RailList';
+import { type NewWorkflowDraft, NewWorkflowPanel } from '@/editors/components/eml/NewWorkflowPanel';
+import { WorkflowRules } from '@/editors/components/eml/WorkflowRules';
 import { RulePane } from '@/components/rules/RulePane';
-import { eventForOperation, hookFor, operationForEvent, sameOperation } from '@/lib/eml/workflow-hooks';
+import { eventForOperation, hookFor, operationForEvent, sameOperation } from '@/editors/lib/eml/workflow-hooks';
 import {
   type Automation,
   TRIGGER_HOOKS,
@@ -29,9 +29,9 @@ import {
   parseAutomation,
   serializeAutomation,
   validateAutomation,
-} from '@/lib/automation/model';
-import { asDecisionTable } from '@/lib/automation/rule-content';
-import type { DecisionTable } from '@/lib/workflow/bpmn-model';
+} from '@/editors/lib/automation/model';
+import { asDecisionTable } from '@/editors/lib/automation/rule-content';
+import type { DecisionTable } from '@/editors/lib/workflow/bpmn-model';
 
 export const Route = createFileRoute('/admin/automations')({
   component: AutomationsPage,

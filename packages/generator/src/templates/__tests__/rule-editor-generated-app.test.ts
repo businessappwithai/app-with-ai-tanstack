@@ -260,26 +260,24 @@ describe("the generated app runs the modelling tool's rule and workflow editors"
   });
 
   it("ships every file those screens import", () => {
-    for (const file of [
-      "components/eml/GoRulesEditorPanel.tsx",
-      "components/eml/RuleTryIt.tsx",
-      "components/eml/NewWorkflowPanel.tsx",
-      "components/eml/WorkflowRules.tsx",
-      "components/rules/RuleGraphEditor.tsx",
-      "components/rules/RulePane.tsx",
-      "lib/eml/rule-constraints.ts",
-      "lib/eml/rule-graph-constraints.ts",
-      "lib/eml/workflow-hooks.ts",
-      "lib/monaco-local.ts",
-      "lib/dayjs-plugins.ts",
-      "worker-modules.d.ts",
-    ]) {
+    // The editors are vendored whole from packages/editors/src; the generator only lists
+    // the application's own wrappers around them.
+    for (const file of ["components/rules/RuleGraphEditor.tsx", "components/rules/RulePane.tsx"]) {
       expect(GENERATOR, file).toContain(`src: "src/${file}"`);
     }
-    expect(read("frontend/package.json.hbs")).toContain('"@gorules/jdm-editor"');
-    expect(read("frontend/package.json.hbs")).toContain('"monaco-editor"');
-    // The date picker's own calendar needs the dayjs the editor hands it, and the adapter it patches.
-    expect(read("frontend/package.json.hbs")).toContain('"dayjs"');
-    expect(read("frontend/package.json.hbs")).toContain('"rc-picker"');
+    expect(GENERATOR).toContain("ensureEditorsVendored(templateDir)");
+    expect(GENERATOR).toContain('"src/editors"');
+    expect(read("frontend/src/worker-modules.d.ts")).toContain('"*.md?raw"');
+  });
+
+  it("depends on everything the vendored editors import", () => {
+    const editors = JSON.parse(
+      readFileSync(path.resolve(__dirname, "../../../../editors/package.json"), "utf8")
+    ) as { dependencies: Record<string, string> };
+    const manifest = read("frontend/package.json.hbs");
+    for (const name of Object.keys(editors.dependencies)) {
+      // `lucide-react` and `tailwind-merge` are the application's own, at the application's own version.
+      expect(manifest, name).toContain(`"${name}"`);
+    }
   });
 });

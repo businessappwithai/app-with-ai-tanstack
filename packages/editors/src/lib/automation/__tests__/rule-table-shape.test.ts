@@ -22,7 +22,6 @@
 
 import { describe, expect, it } from "vitest";
 import { buildActionDecisionTable, parseRuleActions } from "../../../../../generator/src/rules";
-import * as generatedRules from "../../../../../generator/templates/tanstack-start-nestjs/frontend/src/lib/automation/rule-content";
 import { asDecisionTable } from "../rule-content";
 
 const THREE_ACTIONS = [
@@ -65,12 +64,5 @@ describe("reading back what %%action compiled", () => {
     expect(asDecisionTable(null).rules).toHaveLength(1);
     expect(asDecisionTable("not json at all").rules).toHaveLength(1);
     expect(asDecisionTable({ nodes: [] }).rules).toHaveLength(1);
-  });
-
-  it("reads identically in the copy shipped to generated apps", () => {
-    const here = asDecisionTable(JSON.stringify(graph));
-    const there = generatedRules.asDecisionTable(JSON.stringify(graph));
-    expect(there.rules).toHaveLength(here.rules.length);
-    expect(there.inputs).toHaveLength(here.inputs.length);
   });
 });

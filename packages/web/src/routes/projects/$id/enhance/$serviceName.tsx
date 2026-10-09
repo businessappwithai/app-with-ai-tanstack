@@ -17,7 +17,6 @@ import {
   serializeAutomation,
 } from "@appwithai/editors/lib/automation/model";
 import { emptyDecisionTable } from "@appwithai/editors/lib/eml/decision-table";
-import { ruleForSave, toEditableRule } from "@appwithai/editors/lib/eml/editable-rule";
 import { type RuleConstraints, ruleConstraints } from "@appwithai/editors/lib/eml/rule-constraints";
 import { parseStateFlow } from "@appwithai/editors/lib/eml/workflow-flow";
 import {
@@ -46,6 +45,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProgressStepper } from "@/components/ProgressStepper";
+import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
 import { projectDryRun } from "@/lib/eml/project-dry-run";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";

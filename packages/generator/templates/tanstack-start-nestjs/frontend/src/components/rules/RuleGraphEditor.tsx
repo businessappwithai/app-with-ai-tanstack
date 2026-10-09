@@ -11,16 +11,16 @@
  */
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { RuleTryIt } from "@/components/eml/RuleTryIt";
-import { asDecisionTable } from "@/lib/automation/rule-content";
+import { RuleTryIt } from "@/editors/components/eml/RuleTryIt";
+import { asDecisionTable } from "@/editors/lib/automation/rule-content";
 import { apiClient } from "@/lib/api-client";
-import type { DryRunResult, RuleDryRun } from "@/lib/eml/dry-run-types";
-import { describeOutcome } from "@/lib/eml/rule-outcome";
-import { sampleRecord } from "@/lib/eml/rule-templates";
+import type { DryRunResult, RuleDryRun } from "@/editors/lib/eml/dry-run-types";
+import { describeOutcome } from "@/editors/lib/eml/rule-outcome";
+import { sampleRecord } from "@/editors/lib/eml/rule-templates";
 import { RULE_MODEL } from "@/lib/rule-model";
 
 const GoRulesEditorPanel = lazy(() =>
-  import("@/components/eml/GoRulesEditorPanel").then((m) => ({ default: m.GoRulesEditorPanel }))
+  import("@/editors/components/eml/GoRulesEditorPanel").then((m) => ({ default: m.GoRulesEditorPanel }))
 );
 
 /** Graph nodes a plain decision table is made of; anything else is the author's own graph. */
