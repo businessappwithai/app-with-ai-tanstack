@@ -299,7 +299,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     // The rule and workflow editors are one source shared with the modelling tool; a
     // generated application receives them as source under src/editors/.
     await ensureEditorsVendored(templateDir);
-    await this.copyDirRecursive(path.join(templateDir, "src/editors"), path.join(outputDir, "src/editors"));
+    await this.copyDirRecursive(
+      path.join(templateDir, "src/editors"),
+      path.join(outputDir, "src/editors")
+    );
 
     // Entry files (client.tsx, ssr.tsx, router.tsx) - always generated to fix missing scaffolding
     const clientEntryContent = await this.renderTemplate("src/client.tsx.hbs", context);
