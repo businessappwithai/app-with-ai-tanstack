@@ -8,14 +8,19 @@
  * screen in front of the author agrees with it.
  */
 
+import { AutomationBuilder } from "@appwithai/editors/components/automation/AutomationBuilder";
+import { RuleTableEditor } from "@appwithai/editors/components/automation/RuleTableEditor";
+import {
+  type Automation,
+  emptyAutomation,
+  newCondition,
+  newStep,
+} from "@appwithai/editors/lib/automation/model";
+import { emptyDecisionTable } from "@appwithai/editors/lib/workflow/bpmn-model";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { type Automation, emptyAutomation, newCondition, newStep } from "@/lib/automation/model";
-import { emptyDecisionTable } from "@/lib/workflow/bpmn-model";
-import { AutomationBuilder } from "../AutomationBuilder";
 import { AutomationHelp } from "../AutomationHelp";
-import { RuleTableEditor } from "../RuleTableEditor";
 
 const ENTITIES = ["Compound", "Experiment", "Sample", "DeviationReport", "CAPA"];
 const ENTITY_FIELDS: Record<string, string[]> = {

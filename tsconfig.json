@@ -53,6 +53,7 @@
       "@appwithai/generator/*": ["./packages/generator/src/*"],
       "@appwithai/ai": ["./packages/ai/src"],
       "@appwithai/ai/*": ["./packages/ai/src/*"],
+      "@appwithai/editors/*": ["./packages/editors/src/*"],
       "@appwithai/web": ["./packages/web/src"],
       "@appwithai/web/*": ["./packages/web/src/*"],
       "@/*": ["./packages/web/src/*"]
@@ -67,6 +68,8 @@
     "packages/generator/migrations/**/*.ts",
     "packages/ai/src/**/*.ts",
     "packages/ai/src/**/*.tsx",
+    "packages/editors/src/**/*.ts",
+    "packages/editors/src/**/*.tsx",
     "packages/web/src/**/*.ts",
     "packages/web/src/**/*.tsx",
     "packages/web/vitest.config.ts",

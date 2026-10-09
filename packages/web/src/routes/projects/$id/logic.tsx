@@ -1,3 +1,40 @@
+import {
+  AutomationBuilder,
+  type RuleTableSummary,
+} from "@appwithai/editors/components/automation/AutomationBuilder";
+import {
+  type NewWorkflowDraft,
+  NewWorkflowPanel,
+} from "@appwithai/editors/components/eml/NewWorkflowPanel";
+import {
+  type EditableRule,
+  RuleEditor,
+  slugifyRuleName,
+} from "@appwithai/editors/components/eml/RuleEditor";
+import { emptyStateFlow } from "@appwithai/editors/components/eml/StateFlowCanvas";
+import {
+  type EditableWorkflow,
+  emitWorkflowDiagram,
+  emptyWorkflow,
+  pascalWorkflowName,
+  WorkflowEditor,
+  type WorkflowKind,
+} from "@appwithai/editors/components/eml/WorkflowEditor";
+import { WorkflowRules } from "@appwithai/editors/components/eml/WorkflowRules";
+import { HelpLink, HelpPanel } from "@appwithai/editors/components/help/HelpPanel";
+import type { HelpTopicId } from "@appwithai/editors/content/help";
+import { emptyAutomation, parseAutomation } from "@appwithai/editors/lib/automation/model";
+import { emptyDecisionTable } from "@appwithai/editors/lib/eml/decision-table";
+import { ruleForSave, toEditableRule } from "@appwithai/editors/lib/eml/editable-rule";
+import { readEntities, ruleConstraints } from "@appwithai/editors/lib/eml/rule-constraints";
+import { sectionProblems } from "@appwithai/editors/lib/eml/section-problems";
+import {
+  emptySagaFlow,
+  parseHookWorkflow,
+  parseSagaFlow,
+  parseStateFlow,
+} from "@appwithai/editors/lib/eml/workflow-flow";
+import { hookFor } from "@appwithai/editors/lib/eml/workflow-hooks";
 import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
@@ -14,40 +51,11 @@ import {
   Workflow as WorkflowIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  AutomationBuilder,
-  type RuleTableSummary,
-} from "@/components/automation/AutomationBuilder";
 import { CopilotProvider } from "@/components/CopilotProvider";
-import { type NewWorkflowDraft, NewWorkflowPanel } from "@/components/eml/NewWorkflowPanel";
-import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
-import { emptyStateFlow } from "@/components/eml/StateFlowCanvas";
-import {
-  type EditableWorkflow,
-  emitWorkflowDiagram,
-  emptyWorkflow,
-  pascalWorkflowName,
-  WorkflowEditor,
-  type WorkflowKind,
-} from "@/components/eml/WorkflowEditor";
-import { WorkflowRules } from "@/components/eml/WorkflowRules";
-import { HelpLink, HelpPanel } from "@/components/help/HelpPanel";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
-import type { HelpTopicId } from "@/content/help";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
-import { emptyAutomation, parseAutomation } from "@/lib/automation/model";
-import { emptyDecisionTable } from "@/lib/eml/decision-table";
-import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
-import { readEntities, ruleConstraints } from "@/lib/eml/rule-constraints";
-import { sectionProblems } from "@/lib/eml/section-problems";
-import {
-  emptySagaFlow,
-  parseHookWorkflow,
-  parseSagaFlow,
-  parseStateFlow,
-} from "@/lib/eml/workflow-flow";
-import { hookFor } from "@/lib/eml/workflow-hooks";
+import { projectDryRun } from "@/lib/eml/project-dry-run";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
 
@@ -145,6 +153,7 @@ const workflowSlug = (w: EditableWorkflow) =>
 
 function LogicPage() {
   const { id } = Route.useParams();
+  const ruleDryRun = useMemo(() => projectDryRun(id), [id]);
   const navigate = useNavigate();
   const { rule: ruleSearch, workflow: workflowSearch } = Route.useSearch();
   const { currentProject, loadProject, setCurrentStep } = useProjectStore();
@@ -738,7 +747,7 @@ function LogicPage() {
                     key={activeRule.key}
                     rule={activeRule}
                     entities={entities}
-                    projectId={id}
+                    dryRun={ruleDryRun}
                     onChange={patchRule}
                     onError={setError}
                     entityEnums={constraints[activeRule.entity]?.values}

@@ -82,6 +82,11 @@ const config = defineConfig({
         find: /^@appwithai\/generator\/(.*)$/,
         replacement: path.resolve(__dirname, "../generator/src/$1"),
       },
+      // The rule and workflow editors: one source, imported by path from packages/editors.
+      {
+        find: /^@appwithai\/editors\/(.*)$/,
+        replacement: path.resolve(__dirname, "../editors/src/$1"),
+      },
     ],
   },
   plugins: [
