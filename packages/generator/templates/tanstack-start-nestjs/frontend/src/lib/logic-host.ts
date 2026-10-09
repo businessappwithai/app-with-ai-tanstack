@@ -32,9 +32,6 @@ import { type StoredWorkflow, toEditableWorkflow } from "@/editors/lib/eml/workf
 import { apiClient } from "@/lib/api-client";
 import { RULE_MODEL, type RuleModelEntity } from "@/lib/rule-model";
 
-/** Graph nodes a plain decision table is made of; anything else is the author's own graph. */
-const TABLE_ONLY = new Set(["inputNode", "outputNode", "decisionTableNode"]);
-
 type Operation = "CREATE" | "UPDATE" | "DELETE" | "ALL";
 
 interface RuleRow {
@@ -168,7 +165,9 @@ function toEditableRule(row: RuleRow): EditableRule {
     const parsed = (typeof content === "string" ? JSON.parse(content) : content) as {
       nodes?: Array<{ type?: string }>;
     };
-    if (Array.isArray(parsed?.nodes) && parsed.nodes.some((n) => !TABLE_ONLY.has(n.type ?? ""))) {
+    // Any stored graph opens as that graph, including one that is only a table: reading it
+    // back as a bare table and rebuilding the graph renames its nodes and loses cells.
+    if (Array.isArray(parsed?.nodes)) {
       jdmGraph = typeof content === "string" ? content : JSON.stringify(content);
     }
   } catch {
