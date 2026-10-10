@@ -16,13 +16,15 @@ const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
 const chromium = process.env.PLAYWRIGHT_CHROMIUM_PATH;
 
 export default defineConfig({
+  globalSetup: "./global-setup.ts",
   testDir: "./specs",
   testMatch: ["**/*.spec.ts"],
   // One database, one author per file, and 02 reads rules 01 wrote: in order.
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  // A dev server that is still optimising dependencies reloads a page under the test.
+  retries: process.env.LOGIC_TARGET === "generated" ? 2 : process.env.CI ? 1 : 0,
   timeout: 180_000,
   reporter: process.env.CI
     ? [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]]
@@ -32,7 +34,7 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
-    actionTimeout: 30_000,
+    actionTimeout: Number(process.env.E2E_ACTION_TIMEOUT ?? 30_000),
     navigationTimeout: 60_000,
   },
   projects: [

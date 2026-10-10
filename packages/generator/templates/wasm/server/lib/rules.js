@@ -291,6 +291,13 @@ function cellExpression(field, cell) {
   const text = String(cell ?? "").trim();
   if (!text) return null;
   if (!field) return text;
+  // "Is empty" and "is not empty" mean null, absent or blank — a cleared text field is "".
+  if (text === "null") return `${field} == null or ${field} == ""`;
+  // The compiler writes the widened forms (`null, ""`, `!= null and != ""`); a hand-written
+  // table may still say the bare words. All of them mean the same thing here.
+  if (text === "!= null" || text === '!= null and != ""') {
+    return `${field} != null and ${field} != ""`;
+  }
   if (/^(==|!=|<=|>=|<|>)/.test(text)) return `${field} ${text}`;
   const LITERAL = `(?:"[^"]*"|'[^']*'|-?\\d+(?:\\.\\d+)?|true|false|null)`;
   if (new RegExp(`^${LITERAL}(?:\\s*,\\s*${LITERAL})+$`).test(text)) {

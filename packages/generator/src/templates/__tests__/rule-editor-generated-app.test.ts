@@ -176,9 +176,9 @@ describe("the generated engine reads what the rule editor saves", () => {
   });
 });
 
-describe("the generated automations screen keeps what is built in it", () => {
+describe("the generated rules & workflows screen keeps what is built in it", () => {
   const service = read("backend/src/modules/workflow-definitions/workflow-definitions.service.ts");
-  const page = read("frontend/src/routes/admin/automations.tsx.hbs");
+  const host = read("frontend/src/lib/logic-host.ts");
 
   // The update wrote every field but the automation's document, so a draft
   // and Publish alike kept the steps it was created with — none.
@@ -186,17 +186,19 @@ describe("the generated automations screen keeps what is built in it", () => {
     expect(service).toContain("updates.mermaid_code = dto.mermaid;");
   });
 
-  it("saves drafts as they are edited, and creates them inactive", () => {
-    expect(page).toContain("saveDraft(next);");
-    expect(page).toContain("isActive: false,");
+  // ISSUE-008 (/qa, 2026-09-25): nothing could remove a draft, so the rail filled with
+  // "Untitled automation". The workbench deletes; the host writes the delete.
+  it("deletes what the workbench removes, and diffs the rest", () => {
+    expect(host).toContain('write("DELETE", `/workflow-definitions/${id}`)');
+    expect(host).toContain("ruleSnapshots.get(rule.key) === snapshot");
   });
 
-  // ISSUE-008 (/qa, 2026-09-25): every "+ New automation" stores a draft and
-  // nothing could remove one, so the rail filled with "Untitled automation".
-  it("can delete an automation, in two clicks", () => {
-    expect(page).toContain("method: 'DELETE'");
-    expect(page).toContain("Click again to delete");
-    expect(page).not.toMatch(/\bconfirm\(['"`]/);
+  // A status machine is never run: it is its edges, which the entity guard enforces.
+  it("stores a status machine as edges and keeps it out of the executor", () => {
+    expect(service).toContain("writeTransitions");
+    expect(read("backend/src/modules/workflow/workflow.service.ts.hbs")).toContain(
+      ".where('kind' as any, '<>', 'state')"
+    );
   });
 });
 
@@ -229,23 +231,18 @@ describe("the generated app runs the modelling tool's rule and workflow editors"
   const service = read("backend/src/modules/rules/rules.service.ts.hbs");
   const engine = read("backend/src/modules/rules/rules-engine.service.ts.hbs");
 
-  it("starts a workflow from one hook and attaches rules to that hook", () => {
-    expect(page).toContain("<NewWorkflowPanel");
-    expect(page).toContain("<WorkflowRules");
-    expect(page).toContain("sameMoment={sameOperation}");
-    expect(page).toContain("operationForEvent(");
-  });
-
-  it("opens a stored rule in the graph editor, beside the workflows", () => {
-    expect(page).toContain("<RulePane");
-    expect(page).not.toContain("RuleTableEditor");
+  it("renders the modelling tool's own workbench, on the application's own API", () => {
+    expect(page).toContain("<LogicWorkbench");
+    expect(page).toContain("@/editors/components/LogicWorkbench");
+    expect(page).toContain("createLogicHost");
+    expect(page).not.toContain("<RulePane");
   });
 
   it("loads the editor in the browser only, handing it what this model declares", () => {
     expect(wrapper).toContain("useEffect(() => setMounted(true), [])");
     expect(wrapper).toContain('import { RULE_MODEL } from "@/lib/rule-model"');
     expect(wrapper).toContain("entityWorkflows={processes}");
-    expect(wrapper).toContain("/rules/simulate");
+    expect(read("frontend/src/lib/logic-host.ts")).toContain("/rules/simulate");
   });
 
   it("serves the Simulator, and refuses the graphs the compiler refuses", () => {
@@ -255,27 +252,36 @@ describe("the generated app runs the modelling tool's rule and workflow editors"
     expect(engine).toContain("content: { source: node.content }");
   });
 
+  // The panel writes a number as ["null", "number"] so a blank field is a valid record; the
+  // validator's sample read only a bare "number", gave such a field "", and refused every
+  // rule with a numeric input ("is not of types null, number").
+  it("builds the validation sample from a nullable number's non-null type", () => {
+    expect(service).toContain("member !== 'null'");
+  });
+
   it("lets a workflow's hook set the write a rule judges", () => {
     expect(service).toContain("updateData.operation = dto.operation");
   });
 
   it("ships every file those screens import", () => {
-    for (const file of [
-      "components/eml/GoRulesEditorPanel.tsx",
-      "components/eml/RuleTryIt.tsx",
-      "components/eml/NewWorkflowPanel.tsx",
-      "components/eml/WorkflowRules.tsx",
-      "components/rules/RuleGraphEditor.tsx",
-      "components/rules/RulePane.tsx",
-      "lib/eml/rule-constraints.ts",
-      "lib/eml/rule-graph-constraints.ts",
-      "lib/eml/workflow-hooks.ts",
-      "lib/monaco-local.ts",
-      "worker-modules.d.ts",
-    ]) {
+    // The editors are vendored whole from packages/editors/src; the generator only lists
+    // the application's own wrappers around them.
+    for (const file of ["components/rules/RuleGraphEditor.tsx", "lib/logic-host.ts"]) {
       expect(GENERATOR, file).toContain(`src: "src/${file}"`);
     }
-    expect(read("frontend/package.json.hbs")).toContain('"@gorules/jdm-editor"');
-    expect(read("frontend/package.json.hbs")).toContain('"monaco-editor"');
+    expect(GENERATOR).toContain("ensureEditorsVendored(templateDir)");
+    expect(GENERATOR).toContain('"src/editors"');
+    expect(read("frontend/src/worker-modules.d.ts")).toContain('"*.md?raw"');
+  });
+
+  it("depends on everything the vendored editors import", () => {
+    const editors = JSON.parse(
+      readFileSync(path.resolve(__dirname, "../../../../editors/package.json"), "utf8")
+    ) as { dependencies: Record<string, string> };
+    const manifest = read("frontend/package.json.hbs");
+    for (const name of Object.keys(editors.dependencies)) {
+      // `lucide-react` and `tailwind-merge` are the application's own, at the application's own version.
+      expect(manifest, name).toContain(`"${name}"`);
+    }
   });
 });

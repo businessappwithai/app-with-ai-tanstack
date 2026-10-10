@@ -11,10 +11,10 @@
  * this lazily inside a request handler.
  */
 
-import type { DryRunResult } from "./dry-run-types";
-import { describeOutcome } from "./rule-outcome";
+import type { DryRunResult } from "@appwithai/editors/lib/eml/dry-run-types";
+import { describeOutcome } from "@appwithai/editors/lib/eml/rule-outcome";
 
-export type { DryRunResult, DryRunTraceStep } from "./dry-run-types";
+export type { DryRunResult, DryRunTraceStep } from "@appwithai/editors/lib/eml/dry-run-types";
 
 export interface DryRunInput {
   /** The editor's graph, as JSON text or an object. */

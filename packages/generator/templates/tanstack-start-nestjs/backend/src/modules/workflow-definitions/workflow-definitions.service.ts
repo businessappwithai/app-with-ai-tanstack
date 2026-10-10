@@ -11,8 +11,16 @@ export type WorkflowDefinitionDto = {
   bpmnXml?: string;
   /** Mermaid with `%%` directives, as the automation builder writes it. */
   mermaid?: string;
-  /** "bpmn" or "automation". Defaults to bpmn, which is what every older row is. */
-  kind?: "bpmn" | "automation";
+  /**
+   * "bpmn", "automation", or "state". Defaults to bpmn, which is what every older row is.
+   * A "state" definition is a status machine: it is never run, it is the diagram its
+   * edges were read from, and saving it replaces the entity's `sys_workflow_transitions`.
+   */
+  kind?: "bpmn" | "automation" | "state";
+  /** The column a status machine moves. Defaults to `status`. */
+  statusField?: string;
+  /** The edges of a status machine, as the editor drew them. */
+  transitions?: Array<{ from: string; to: string; name?: string }>;
   description?: string;
   isActive?: boolean;
   /**
@@ -40,6 +48,7 @@ const MODEL_OWNED_FIELDS = [
   "mermaid",
   "description",
   "triggerType",
+  "transitions",
 ] as const;
 
 @Injectable()
@@ -122,7 +131,11 @@ export class WorkflowDefinitionsService {
     // BPMN of both is what stopped the automation builder saving anything.
     const kind = dto.kind ?? (dto.mermaid?.trim() ? "automation" : "bpmn");
 
-    if (kind === "automation") {
+    if (kind === "state") {
+      if (!dto.mermaid?.trim()) throw new BadRequestException("mermaid is required");
+      await this.assertStateMachineFree(dto.entityName);
+      await this.writeTransitions(dto);
+    } else if (kind === "automation") {
       if (!dto.mermaid?.trim()) throw new BadRequestException("mermaid is required");
       if (!/^\s*(flowchart|graph)\b/m.test(dto.mermaid)) {
         throw new BadRequestException("An automation must be a mermaid flowchart");
@@ -137,12 +150,12 @@ export class WorkflowDefinitionsService {
       .values({
         name: dto.name,
         entity_name: dto.entityName,
-        operation: dto.operation ?? "ALL",
+        operation: kind === "state" ? "UPDATE" : (dto.operation ?? "ALL"),
         // An automation built in the application stores its flowchart; what the
         // executor runs is the BPMN compiled from it, written here so that
         // publishing the automation is what makes it do something.
         bpmn_xml:
-          dto.bpmnXml ??
+          kind === "state" ? null : dto.bpmnXml ??
           (kind === "automation" && dto.mermaid
             ? compileAutomationBpmn(dto.mermaid, tableForEntity(dto.entityName), tableForEntity)
             : null),
@@ -178,6 +191,25 @@ export class WorkflowDefinitionsService {
     }
 
     const updates: Record<string, unknown> = { updated_at: new Date() };
+    if ((existing as any).kind === "state") {
+      if (dto.transitions) {
+        await this.writeTransitions({
+          ...dto,
+          entityName: dto.entityName ?? (existing as any).entity_name,
+        });
+      }
+      if (dto.mermaid !== undefined) updates.mermaid_code = dto.mermaid;
+      if (dto.name !== undefined) updates.name = dto.name;
+      if (dto.description !== undefined) updates.description = dto.description;
+      if (dto.isActive !== undefined) updates.is_active = dto.isActive;
+      const [saved] = await this.db
+        .updateTable("sys_workflow_definitions")
+        .set(updates as any)
+        .where("id", "=", id)
+        .returningAll()
+        .execute();
+      return saved;
+    }
     if (dto.name !== undefined) updates.name = dto.name;
     if (dto.entityName !== undefined) updates.entity_name = dto.entityName;
     if (dto.operation !== undefined) updates.operation = dto.operation;
@@ -221,7 +253,59 @@ export class WorkflowDefinitionsService {
           "Deactivate it instead if you need it off now.",
       );
     }
+    if ((existing as any).kind === "state") {
+      await sql`DELETE FROM sys_workflow_transitions WHERE table_name = ${tableForEntity(
+        (existing as any).entity_name,
+      )}`.execute(this.db);
+    }
     await this.db.deleteFrom("sys_workflow_definitions").where("id", "=", id).execute();
     return { deleted: true };
+  }
+
+  /**
+   * One status machine per record type: its edges are what the entity guard enforces,
+   * and edges the model drew are not the application's to overwrite.
+   */
+  private async assertStateMachineFree(entityName: string) {
+    const table = tableForEntity(entityName);
+    const own = await this.db
+      .selectFrom("sys_workflow_definitions")
+      .select("id")
+      .where("kind", "=", "state")
+      .where("entity_name", "=", entityName)
+      .executeTakeFirst();
+    if (own) {
+      throw new BadRequestException(`${entityName} already has a status machine — edit that one.`);
+    }
+    const drawn = await sql<{ n: number }>`
+      SELECT count(*)::int AS n FROM sys_workflow_transitions WHERE table_name = ${table}`.execute(
+      this.db,
+    );
+    if ((drawn.rows[0]?.n ?? 0) > 0) {
+      throw new BadRequestException(
+        `${entityName}'s status machine is declared in the model — edit the %%workflow section and regenerate.`,
+      );
+    }
+  }
+
+  /** Replace the entity's edges with the ones the editor drew, in one transaction. */
+  private async writeTransitions(dto: Partial<WorkflowDefinitionDto>) {
+    const edges = dto.transitions ?? [];
+    for (const edge of edges) {
+      if (!edge.from?.trim() || !edge.to?.trim()) {
+        throw new BadRequestException("Every transition needs a from and a to state");
+      }
+    }
+    const table = tableForEntity(dto.entityName ?? "");
+    const field = dto.statusField?.trim() || "status";
+    await this.db.transaction().execute(async (trx) => {
+      await sql`DELETE FROM sys_workflow_transitions WHERE table_name = ${table}`.execute(trx);
+      for (const edge of edges) {
+        await sql`
+          INSERT INTO sys_workflow_transitions (table_name, status_field, from_state, to_state, transition_name)
+          VALUES (${table}, ${field}, ${edge.from}, ${edge.to}, ${edge.name ?? null})
+          ON CONFLICT (table_name, status_field, from_state, to_state) DO NOTHING`.execute(trx);
+      }
+    });
   }
 }

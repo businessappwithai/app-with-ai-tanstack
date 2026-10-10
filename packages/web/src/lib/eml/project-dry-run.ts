@@ -1,4 +1,4 @@
-import type { DryRunResult, RuleDryRun } from "./dry-run-types";
+import type { DryRunResult, RuleDryRun } from "@appwithai/editors/lib/eml/dry-run-types";
 
 /** The modelling tool's way to run a rule: its project's dry-run route. */
 export function projectDryRun(projectId: string): RuleDryRun {

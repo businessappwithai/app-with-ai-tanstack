@@ -24,34 +24,51 @@ Chromium on the machine when Playwright cannot download its own.
 
 ## What each spec holds
 
-> **Specs 01–06 are not in this repository.** The root `.gitignore` excludes
-> `*.spec.ts` outside a few named paths and this directory was never one of
-> them, so only the config, helpers and scenarios were committed — and
-> `bun run test:e2e:rules-workflows` found no tests. The ignore now allows
-> `scripts/e2e-rules-workflows/specs/*.spec.ts`. The rows for 01–06 below
-> describe what those specs were written to hold; if you have them locally,
-> add them. 07 and 08 are committed.
+Every spec drives the page and nothing else: no API call builds, saves or reads
+a rule or a workflow, so what passes is what an author can do.
 
 | Spec | What it proves |
 |---|---|
-| `01-business-rules-editor` | Every rule in `scenarios/business-rules.json` is built through every control, **tested with values**, saved, reloaded and read back. An `%%action` rule opens as its table and keeps its flowchart. The model still checks clean |
-| `02-workflow-editors` | Every workflow in `scenarios/workflows.json`: a Lifecycle's hooks, a Status machine's states and drawn transitions, a Process with **every step type**. Stored as the runtime reads it: a Create step's values as one JSON map, an Update on another record type with its target, a web-service body on one line |
-| `03-editor-help` | The Markdown help opens from the Help button and from each editor, on that editor's page |
-| `04-git-history-and-yaml-projection` | A Logic save is a git commit; the diff names what was added; the YAML projection the AI assistant reads lists it; restoring the earlier commit removes it |
-| `05-enhance-page-rules` | The Enhance page's Business Rules tab opens an `%%action` rule as its table and writes an edit back into the `%%action` line |
-| `06-generated-app-editors` | In the generated app: Business Rules offers the app's own entities and a rule built there is **enforced** (the write it forbids answers 400 with its message); Automations keeps everything across a reload; Report Designs opens and prints for **every** entity, and a customised layout is what Print uses |
-| `07-rule-kinds-and-try-it` | The Enhance page's rule editor has no "Runs when" (a workflow's hook gives a rule its moment), and the dry-run route behind **Try it** and the Simulator: refuses nobody and a stranger, runs a real graph and says what it would do, and refuses a function that reaches for the network |
-| `09-rule-graph-builder` | A rule built from nothing in the graph editor: the first node is the **Record** (never "Request"), no starter cards; **Record**, **Expression**, **Decision table**, **Function**, **Switch** and **Response** added from Components and joined; each configured. The Record's schema is the entity's own fields; an input is picked from them and no others; a status offers only its state machine's states; an answer is one of three, never `trigger-workflow`; Monaco comes from the application, not a CDN. Run in the Simulator and in **Try it**, saved, and read back from the model. Every step attaches a screenshot |
-| `08-generated-rule-kinds` | Needs `--generated --model scripts/e2e-rules-workflows/models/rule-kinds.eml.mmd`. A generated helpdesk obeys a table, an expression and a function (each refuses a write with its own message), and a switch that starts a process whose step marks the record — while an ordinary ticket starts nothing. The author's hook handlers (`models/rule-kinds.handlers/`) are installed over the generated stubs, so it also asserts hook → rule → process (a `beforeCreate` hook raises the score the rules then read) and `beforeCreate` before `afterCreate` |
+| `01-business-rules-editor` | **42 rules** from `scenarios/rule-catalogue.ts`, each built in the decision table with its own controls. Between them: every operator of the palette — Text (equals, not equals, is one of, is not one of, starts with, ends with, contains, is empty, is not empty, any, custom), Number (equals, not equals, >, ≥, <, ≤, between, is one of, is not one of, empty, not empty, custom), Boolean (equals, empty, not empty, custom) and Date (after, before, same day, same or after, same or before); every answer (`validation-error`, `transform`, `allow`); one to three input columns; one to three rows; priorities from 1 to 999. Each rule is tried with sample records in **Try it**, saved, the page reloaded, and the rule opened again and tried again |
+| `02-workflow-editors` | **50 workflows** from `scenarios/workflow-catalogue.ts`: 16 lifecycle workflows (all 13 hooks, field-scoped hooks, up to four hooks), 12 status machines (2–6 states, branching, loops back, several end states, labelled and unlabelled moves) and 22 processes (every step type; every test — is, is not, >, ≥, <, ≤, contains, starts with, is empty, is not empty, changed; a repeat; started by a rule and by a created, updated, deleted or any write). Each is saved, the page reloaded, and the workflow reopened from the rail |
+| `03-graph-rules` | **8 rules** drawn node by node — Expression, Function and Switch nodes, singly and chained — configured, tried, saved and reopened |
+| `04-editor-features` | The controls around building: hit policy (First and Collect), the Developer and Business views, adding, removing and dragging table rows, the Simulator, refusing a rule with no entity, deleting a rule or a workflow, attaching a rule to a hook, removing a hook, the Help panel |
+| `07-rule-kinds-and-try-it` | The Enhance page's rule editor has no "Runs when", and the dry-run route behind Try it: refuses nobody and a stranger, runs a real graph, refuses a function that reaches for the network |
+| `09-rule-graph-builder` | A rule built from nothing in the graph editor, run in the Simulator and in Try it, saved and read back; Monaco comes from the application, not a CDN |
+| `08`, `10`, `11` | The generated application: its rules are enforced, its builders work (need `--generated` or a running generated app) |
+
+```bash
+RULES_ONLY="Year group" bun run test:e2e:rules-workflows     # rules whose name contains it
+WF_ONLY="Check Equals"  bun run test:e2e:rules-workflows     # workflows likewise
+GRAPH_ONLY="function blocks" …                               # graph rules likewise
+E2E_ACTION_TIMEOUT=10000 …                                   # fail a stuck click sooner (ms)
+```
+
+A full run of 01 takes about half an hour, 02 a quarter of one, 03 ten minutes;
+run them one at a time — together they starve the dev server and saves time out.
 
 ## Testing a new rule or workflow
 
-Add an object to `scenarios/business-rules.json` or `scenarios/workflows.json`;
-no code changes are needed. A rule names its entity, event, priority, input
-fields, outcome labels, rows and the test values it must answer. A workflow
-names its kind and either hooks, states and transitions, or steps. Each step
-uses the words its inspector shows (`"type": "Update a field"`, `"target":
-"fee_invoice_id"`). Each scenario file's `$comment` field documents its shape.
+Add an object to `scenarios/rule-catalogue.ts` or `scenarios/workflow-catalogue.ts`;
+no other code changes are needed. A rule names its entity, input fields, rows
+(`"Number:greater than:60"` — the palette's own words), the answers each row
+gives and the sample records Try it must answer. A workflow names its kind and
+its hooks, states and moves, or steps; a step uses the words its inspector shows.
 
 Controls are found by the words on the screen, never by position, so a field
 added to an inspector does not break every step after it.
+
+## Against a generated application
+
+The Logic step and a generated app's **Admin → Rules and workflows** screen are one component
+(`@appwithai/editors`' `LogicWorkbench`), so the same specs drive both. Set `LOGIC_TARGET=generated`
+and point the base URL at the app:
+
+```bash
+LOGIC_TARGET=generated E2E_BASE_URL=http://localhost:4700 \
+  bun scripts/e2e-rules-workflows/run.ts --generated --no-server --model <model.eml.mmd> -- specs/02-workflow-editors.spec.ts
+```
+
+`authorWithProject`/`browserAs` sign in as the app's administrator instead of creating a
+project, and `logicPath` supplies the screen's URL. Specs 01–04 are meant for this; 03/04
+read the stored model through the modelling tool's API and run there only where they do.

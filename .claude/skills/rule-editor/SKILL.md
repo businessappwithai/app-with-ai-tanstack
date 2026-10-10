@@ -7,11 +7,13 @@ description: Work on the business-rule editor — the GoRules decision-graph edi
 
 A rule is a GoRules **graph**: Record → (Expression | Decision table | Function | Switch)… → Response, stored as one `%%jdm-graph` line under `%%rule <name> on <Entity> event: …`. Read `.claude/skills/workflow-editor` for how a rule gets its moment.
 
+> The editors live in `packages/editors/src` (shared with generated apps); paths below that start with `components/` or `lib/` are relative to it.
+
 ## Files
 
 | File | Job |
 |---|---|
-| `packages/web/src/components/eml/RuleEditor.tsx` | Name / Entity / Priority, the panel, Try it, Show EML. Rules from a plain flowchart open read-only or convert |
+| `packages/editors/src/components/eml/RuleEditor.tsx` | Name / Entity / Priority, the panel, Try it, Show EML. Rules from a plain flowchart open read-only or convert |
 | `components/eml/GoRulesEditorPanel.tsx` | The editor itself: constraints, Inputs controls, Simulator, Developer/Business, node renames |
 | `lib/eml/rule-constraints.ts` | What exists per entity: fields (+ JSON types), allowed values (enum or state machine states), defined processes |
 | `lib/eml/rule-graph-constraints.ts` | Types columns as pick-lists, lists names that do not exist, adds/changes input columns, strips the stock function import |

@@ -251,21 +251,43 @@ export function normalizeGraphActions(graph: JdmGraph): JdmGraph {
       if (node.type === ("functionNode" as string) && typeof content === "string") {
         return { ...node, content: { source: content } } as unknown as typeof node;
       }
-      const table = content as { rules?: Array<Record<string, unknown>> } | undefined;
+      const table = content as
+        | { rules?: Array<Record<string, unknown>>; inputs?: Array<{ id?: string }> }
+        | undefined;
       if (node.type !== ("decisionTableNode" as string) || !Array.isArray(table?.rules)) {
         return node;
       }
+      const inputIds = new Set((table.inputs ?? []).map((column) => column.id));
       return {
         ...node,
         content: withTransformData({
           ...table,
           rules: table.rules.map((row) =>
-            Object.fromEntries(Object.entries(row).map(([key, cell]) => [key, rewrite(cell)]))
+            Object.fromEntries(
+              Object.entries(row).map(([key, cell]) => [
+                key,
+                inputIds.has(key) ? emptyMeansBlank(rewrite(cell)) : rewrite(cell),
+              ])
+            )
           ),
         }),
       } as typeof node;
     }),
   };
+}
+
+/**
+ * "Is empty" and "is not empty" in the table write `null` and `!= null`, which zen
+ * reads strictly: a text field a person cleared arrives as `""`, matched neither.
+ * Empty means null, absent *or* blank, so an input cell that says only that is widened
+ * to say so. Numbers, booleans and dates are unaffected — none of them is ever `""`.
+ */
+export function emptyMeansBlank(cell: unknown): unknown {
+  if (typeof cell !== "string") return cell;
+  const text = cell.trim();
+  if (text === "null") return 'null, ""';
+  if (text === "!= null") return '!= null and != ""';
+  return cell;
 }
 
 /** A zen string literal's text, or `null` when the cell is an expression. */
@@ -314,7 +336,11 @@ function withTransformData<T extends TableContent>(content: T): T {
     rules: (content.rules ?? []).map((row) => {
       const target = literalText(row[fieldColumn.id])?.trim();
       const isTransform = literalText(row[actionColumn.id])?.trim() === "transform";
-      if (!isTransform || !target) return row;
+      // Every row needs a cell in the new column — an empty one for a row that is not a
+      // transform. zen skips a row that has no cell at all for an output column, so adding
+      // the column only to transform rows made a table that mixed a refusal, a transform
+      // and a catch-all answer for none of them: the refusal and the default never fired.
+      if (!isTransform || !target) return { ...row, [dataColumn.id]: row[dataColumn.id] ?? "" };
       const value = literalText(row[valueColumn.id]) ?? String(row[valueColumn.id] ?? "");
       return { ...row, [dataColumn.id]: zenLiteral(JSON.stringify({ [target]: value })) };
     }),
@@ -363,11 +389,11 @@ function zenInputCell(raw: string | undefined): string {
   const value = (raw ?? "").trim();
   if (value === "") return "";
   const match = value.match(/^(>=|<=|!=|=|>|<)\s*(.*)$/);
-  if (!match) return zenCell(value);
+  if (!match) return emptyMeansBlank(zenCell(value)) as string;
   const [, operator, operand] = match as unknown as [string, string, string];
   const cell = zenCell(operand);
   if (!cell) return "";
-  return operator === "=" ? cell : `${operator} ${cell}`;
+  return emptyMeansBlank(operator === "=" ? cell : `${operator} ${cell}`) as string;
 }
 
 /**

@@ -13,6 +13,8 @@ import { declaredEntityNames, entityToBusEntity, formatDisplayName } from "@appw
 import type { CompiledSaga, CompiledWorkflow } from "../workflows";
 
 export interface RuleModelEntity {
+  /** The entity as the model names it, e.g. `SupportCase` — what a workflow is filed under. */
+  name: string;
   /** The table a rule is filed under, e.g. `bus_student`. */
   table: string;
   label: string;
@@ -49,6 +51,7 @@ export function buildRuleModel(model: {
       if (column) values[column] = states;
     }
     return {
+      name: entity.name,
       table: bus.tableName,
       label: formatDisplayName(entity.name),
       fields: entity.attributes.map((attribute) => ({
@@ -71,6 +74,7 @@ export function renderRuleModel(entities: RuleModelEntity[]): string {
  */
 
 export interface RuleModelEntity {
+  name: string;
   table: string;
   label: string;
   fields: Array<{ name: string; type: "string" | "number" | "boolean" }>;

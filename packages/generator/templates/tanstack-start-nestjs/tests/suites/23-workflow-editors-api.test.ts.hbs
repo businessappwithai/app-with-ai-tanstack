@@ -1,0 +1,144 @@
+/**
+ * What the rules & workflows screen writes: the API behind it.
+ *
+ * The screen is the modelling tool's own `LogicWorkbench`; in a running application its
+ * host saves through `/rules` and `/workflow-definitions`. A lifecycle or process is an
+ * automation row; a status machine is a `state` row whose edges become
+ * `sys_workflow_transitions` — which is what the entity guard enforces — and whose
+ * definition the executor must never try to run. This suite holds the API to that.
+ *
+ * Generated: {{now}}
+ * Project: {{project.name}}
+ */
+
+import { afterAll, beforeAll, describe, expect, it } from "../harness/testing.ts";
+import { harness } from "../harness/index.ts";
+
+interface Definition {
+  id: string;
+  name: string;
+  kind: string;
+  entity_name: string;
+  is_active: boolean;
+  mermaid_code?: string | null;
+  bpmn_xml?: string | null;
+}
+
+interface Edges {
+  data?: Record<string, Array<{ statusField: string; from: string; to: string }>>;
+}
+
+const token = Date.now().toString(36);
+// An entity of its own, so the suite never meets an edge the model drew.
+const entityName = `E2eMachine${token.replace(/[^a-z0-9]/gi, "")}`;
+const table = `bus_e2e_machine${token.replace(/[^a-z0-9]/gi, "").toLowerCase()}`;
+
+const diagram = (...edges: string[]) =>
+  ["stateDiagram-v2", "  [*] --> Draft", ...edges.map((edge) => `  ${edge}`)].join("\n");
+
+describe("rules & workflows API", () => {
+  const created: string[] = [];
+
+  beforeAll(async () => {
+    await harness.setup();
+  });
+
+  afterAll(async () => {
+    for (const id of created) {
+      await harness.client.delete(`/workflow-definitions/${id}`, { allowFailure: true });
+    }
+    await harness.teardown();
+  });
+
+  const edgesOf = async () => {
+    const response = await harness.client.get<Edges & Record<string, unknown>>(
+      `/workflows/transitions?table=${table}`
+    );
+    const body = response.data as unknown as { byTable?: Record<string, unknown[]> } & Edges;
+    return (body.byTable ?? body.data ?? {})[table] ?? [];
+  };
+
+  it("stores a status machine as the edges the entity guard enforces", async () => {
+    const made = await harness.client.post<Definition>("/workflow-definitions", {
+      kind: "state",
+      name: `Lifecycle ${token}`,
+      entityName,
+      mermaid: diagram("Draft --> Open", "Open --> Closed"),
+      statusField: "status",
+      transitions: [
+        { from: "Draft", to: "Open" },
+        { from: "Open", to: "Closed", name: "close" },
+      ],
+    });
+    expect(made.ok).toBe(true);
+    created.push(made.data.id);
+    expect(made.data.kind).toBe("state");
+    // A diagram its edges were read from is not a thing to run.
+    expect(made.data.bpmn_xml ?? null).toBeNull();
+
+    const edges = (await edgesOf()) as Array<{ from: string; to: string }>;
+    expect(edges.map((edge) => `${edge.from}>${edge.to}`).sort()).toEqual(["Draft>Open", "Open>Closed"]);
+  });
+
+  it("keeps a status machine out of the automation listing", async () => {
+    const listed = await harness.client.get<{ items: Definition[] }>(
+      "/workflow-definitions?kind=automation&limit=200"
+    );
+    expect(listed.data.items.some((item) => item.entity_name === entityName)).toBe(false);
+  });
+
+  it("refuses a second machine for the same record type", async () => {
+    const again = await harness.client.post<{ message?: string }>(
+      "/workflow-definitions",
+      {
+        kind: "state",
+        name: `Second ${token}`,
+        entityName,
+        mermaid: diagram("Draft --> Open"),
+        transitions: [{ from: "Draft", to: "Open" }],
+      },
+      { allowFailure: true }
+    );
+    expect(again.status).toBe(400);
+  });
+
+  it("replaces the edges when the machine is saved again, and removes them with it", async () => {
+    const id = created[0];
+    if (!id) return;
+    const saved = await harness.client.put<Definition>(`/workflow-definitions/${id}`, {
+      mermaid: diagram("Draft --> Closed"),
+      transitions: [{ from: "Draft", to: "Closed" }],
+    });
+    expect(saved.ok).toBe(true);
+    expect(((await edgesOf()) as Array<{ from: string; to: string }>).map((e) => `${e.from}>${e.to}`)).toEqual([
+      "Draft>Closed",
+    ]);
+
+    const removed = await harness.client.delete(`/workflow-definitions/${id}`);
+    expect(removed.ok).toBe(true);
+    created.length = 0;
+    expect(await edgesOf()).toEqual([]);
+  });
+
+  it("stores a process as an automation, compiled for the engine", async () => {
+    const made = await harness.client.post<Definition>("/workflow-definitions", {
+      kind: "automation",
+      name: `Process ${token}`,
+      entityName,
+      operation: "CREATE",
+      triggerType: "rule",
+      isActive: false,
+      mermaid: [
+        "flowchart TD",
+        "%%workflow Process kind: saga entity: " + entityName + " trigger: rule operation: CREATE",
+        "Start([Start]) --> s1[Wait]",
+        "%%step s1 type: Formula operation: set left: 1 as: x",
+        "s1 --> End([End])",
+      ].join("\n"),
+    });
+    expect(made.ok).toBe(true);
+    created.push(made.data.id);
+    expect(made.data.kind).toBe("automation");
+    expect(made.data.mermaid_code).toContain("%%step s1");
+  });
+});

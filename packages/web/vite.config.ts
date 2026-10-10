@@ -82,10 +82,19 @@ const config = defineConfig({
         find: /^@appwithai\/generator\/(.*)$/,
         replacement: path.resolve(__dirname, "../generator/src/$1"),
       },
+      // The rule and workflow editors: one source, imported by path from packages/editors.
+      {
+        find: /^@appwithai\/editors\/(.*)$/,
+        replacement: path.resolve(__dirname, "../editors/src/$1"),
+      },
     ],
   },
   plugins: [
-    devtools(),
+    // Console piping mirrors every browser console line into the server's, and the devtools
+    // client mirrors that back into the browser — each pass prefixing another "[Server]".
+    // One React warning on the Logic page grew the dev log to 690MB and the dev server to
+    // 8GB within an hour. Nothing here reads the piped lines, so it is off.
+    devtools({ consolePiping: { enabled: false } }),
     tailwindcss(),
     tanstackStart({
       tsr: {

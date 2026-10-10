@@ -16957,6 +16957,53 @@ export async function seed(db: Kysely<any>): Promise<void> {
 // packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts
 init_memory_fs();
 init_node_path();
+
+// packages/generator/src/generators/tanstack-start-nestjs/vendor-editors.ts
+init_memory_fs();
+init_node_path();
+var MARKER = "lib/utils.ts";
+var SKIP = /(?:^|\/)__tests__(?:\/|$)|\.(?:test|spec)\.[cm]?[jt]sx?$|(?:^|\/)vite-env\.d\.ts$/;
+async function exists(target) {
+  try {
+    await access(target);
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function copyTree(source, destination, relative2 = "") {
+  const entries = await readdir(source, { withFileTypes: true });
+  await mkdir(destination, { recursive: true });
+  let copied = 0;
+  for (const entry of entries) {
+    const inner = relative2 ? `${relative2}/${entry.name}` : entry.name;
+    if (SKIP.test(inner))
+      continue;
+    const from = join(source, entry.name);
+    const to = join(destination, entry.name);
+    if (entry.isDirectory())
+      copied += await copyTree(from, to, inner);
+    else {
+      await copyFile(from, to);
+      copied++;
+    }
+  }
+  return copied;
+}
+async function ensureEditorsVendored(frontendTemplateDir) {
+  const destination = join(frontendTemplateDir, "src/editors");
+  const source = resolve(frontendTemplateDir, "../../../../editors/src");
+  if (await exists(join(source, MARKER))) {
+    await rm(destination, { recursive: true, force: true });
+    await copyTree(source, destination);
+    return;
+  }
+  if (await exists(join(destination, MARKER)))
+    return;
+  throw new Error(`The rule and workflow editors are missing from ${destination}. In a checkout they are ` + "copied from packages/editors/src; in a published package they ship inside templates/. " + "Run `bun run vendor:editors`.");
+}
+
+// packages/generator/src/generators/tanstack-start-nestjs/tanstack-start-frontend.generator.ts
 function resolveTemplateDir2(subpath) {
   const cwd = process.cwd();
   const possiblePaths = [
@@ -17107,6 +17154,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
   }
   async generateCoreFiles(outputDir, context) {
     const templateDir = this.resolvedTemplateDir;
+    await ensureEditorsVendored(templateDir);
+    await this.copyDirRecursive(join(templateDir, "src/editors"), join(outputDir, "src/editors"));
     const clientEntryContent = await this.renderTemplate("src/client.tsx.hbs", context);
     await writeFile(join(outputDir, "src/client.tsx"), clientEntryContent);
     const ssrEntryContent = await this.renderTemplate("src/ssr.tsx.hbs", context);
@@ -17475,86 +17524,6 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/bus-entity-detail-page.tsx"
       },
       {
-        src: "src/lib/workflow/bpmn-model.ts",
-        dest: "src/lib/workflow/bpmn-model.ts"
-      },
-      {
-        src: "src/lib/automation/model.ts",
-        dest: "src/lib/automation/model.ts"
-      },
-      {
-        src: "src/lib/automation/rule-content.ts",
-        dest: "src/lib/automation/rule-content.ts"
-      },
-      {
-        src: "src/components/automation/LadderCard.tsx",
-        dest: "src/components/automation/LadderCard.tsx"
-      },
-      {
-        src: "src/components/automation/RailList.tsx",
-        dest: "src/components/automation/RailList.tsx"
-      },
-      {
-        src: "src/components/automation/StepInspector.tsx",
-        dest: "src/components/automation/StepInspector.tsx"
-      },
-      {
-        src: "src/components/automation/AutomationBuilder.tsx",
-        dest: "src/components/automation/AutomationBuilder.tsx"
-      },
-      {
-        src: "src/components/automation/RuleTableEditor.tsx",
-        dest: "src/components/automation/RuleTableEditor.tsx"
-      },
-      {
-        src: "src/components/eml/GoRulesEditorPanel.tsx",
-        dest: "src/components/eml/GoRulesEditorPanel.tsx"
-      },
-      {
-        src: "src/components/eml/RuleTryIt.tsx",
-        dest: "src/components/eml/RuleTryIt.tsx"
-      },
-      {
-        src: "src/components/eml/NewWorkflowPanel.tsx",
-        dest: "src/components/eml/NewWorkflowPanel.tsx"
-      },
-      {
-        src: "src/components/eml/WorkflowRules.tsx",
-        dest: "src/components/eml/WorkflowRules.tsx"
-      },
-      {
-        src: "src/lib/eml/decision-table.ts",
-        dest: "src/lib/eml/decision-table.ts"
-      },
-      {
-        src: "src/lib/eml/dry-run-types.ts",
-        dest: "src/lib/eml/dry-run-types.ts"
-      },
-      {
-        src: "src/lib/eml/rule-constraints.ts",
-        dest: "src/lib/eml/rule-constraints.ts"
-      },
-      {
-        src: "src/lib/eml/rule-graph-constraints.ts",
-        dest: "src/lib/eml/rule-graph-constraints.ts"
-      },
-      {
-        src: "src/lib/eml/rule-outcome.ts",
-        dest: "src/lib/eml/rule-outcome.ts"
-      },
-      {
-        src: "src/lib/eml/rule-templates.ts",
-        dest: "src/lib/eml/rule-templates.ts"
-      },
-      {
-        src: "src/lib/eml/workflow-hooks.ts",
-        dest: "src/lib/eml/workflow-hooks.ts"
-      },
-      {
-        src: "src/lib/monaco-local.ts",
-        dest: "src/lib/monaco-local.ts"
-      },
-      {
         src: "src/worker-modules.d.ts",
         dest: "src/worker-modules.d.ts"
       },
@@ -17563,12 +17532,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/rules/RuleGraphEditor.tsx"
       },
       {
-        src: "src/components/rules/RulePane.tsx",
-        dest: "src/components/rules/RulePane.tsx"
-      },
-      {
-        src: "src/components/automation/AutomationHelp.tsx",
-        dest: "src/components/automation/AutomationHelp.tsx"
+        src: "src/lib/logic-host.ts",
+        dest: "src/lib/logic-host.ts"
       },
       {
         src: "src/components/admin/doc-status-badge.tsx",
@@ -17905,6 +17870,7 @@ var SHARED_SUITES = [
   "20-transaction-notifications.test.ts",
   "21-reports.test.ts",
   "22-optimistic-locking.test.ts",
+  "23-workflow-editors-api.test.ts",
   "10-benchmark.test.ts",
   "18-write-benchmark.test.ts",
   "11-performance-budget.test.ts"
@@ -19946,6 +19912,7 @@ function buildRuleModel(model) {
         values[column] = states;
     }
     return {
+      name: entity2.name,
       table: bus.tableName,
       label: formatDisplayName(entity2.name),
       fields: entity2.attributes.map((attribute) => ({
@@ -19966,6 +19933,7 @@ function renderRuleModel(entities) {
  */
 
 export interface RuleModelEntity {
+  name: string;
   table: string;
   label: string;
   fields: Array<{ name: string; type: "string" | "number" | "boolean" }>;
@@ -20771,15 +20739,29 @@ function normalizeGraphActions(graph) {
       if (node.type !== "decisionTableNode" || !Array.isArray(table?.rules)) {
         return node;
       }
+      const inputIds = new Set((table.inputs ?? []).map((column) => column.id));
       return {
         ...node,
         content: withTransformData({
           ...table,
-          rules: table.rules.map((row) => Object.fromEntries(Object.entries(row).map(([key, cell]) => [key, rewrite(cell)])))
+          rules: table.rules.map((row) => Object.fromEntries(Object.entries(row).map(([key, cell]) => [
+            key,
+            inputIds.has(key) ? emptyMeansBlank(rewrite(cell)) : rewrite(cell)
+          ])))
         })
       };
     })
   };
+}
+function emptyMeansBlank(cell) {
+  if (typeof cell !== "string")
+    return cell;
+  const text = cell.trim();
+  if (text === "null")
+    return 'null, ""';
+  if (text === "!= null")
+    return '!= null and != ""';
+  return cell;
 }
 function literalText(cell) {
   const match = String(cell ?? "").trim().match(/^(?:'(.*)'|"(.*)")$/s);
@@ -20801,7 +20783,7 @@ function withTransformData(content) {
       const target = literalText(row[fieldColumn.id])?.trim();
       const isTransform = literalText(row[actionColumn.id])?.trim() === "transform";
       if (!isTransform || !target)
-        return row;
+        return { ...row, [dataColumn.id]: row[dataColumn.id] ?? "" };
       const value = literalText(row[valueColumn.id]) ?? String(row[valueColumn.id] ?? "");
       return { ...row, [dataColumn.id]: zenLiteral(JSON.stringify({ [target]: value })) };
     })
@@ -20827,12 +20809,12 @@ function zenInputCell(raw) {
     return "";
   const match = value.match(/^(>=|<=|!=|=|>|<)\s*(.*)$/);
   if (!match)
-    return zenCell(value);
+    return emptyMeansBlank(zenCell(value));
   const [, operator, operand] = match;
   const cell = zenCell(operand);
   if (!cell)
     return "";
-  return operator === "=" ? cell : `${operator} ${cell}`;
+  return emptyMeansBlank(operator === "=" ? cell : `${operator} ${cell}`);
 }
 function buildEditorDecisionTable(ruleName, table) {
   const inputs = (table.inputs ?? []).filter((column) => (column.field ?? "").trim() !== "");

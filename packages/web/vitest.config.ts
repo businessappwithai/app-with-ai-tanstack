@@ -11,6 +11,7 @@ export default defineConfig({
     include: [
       "src/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "../core/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
+      "../editors/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "../generator/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "../ai/src/**/*.{test,spec}.{js,jsx,ts,tsx}",
       "../yamltecture/test/**/*.test.ts",
@@ -29,6 +30,7 @@ export default defineConfig({
       "@appwithai/core/services": path.resolve(__dirname, "../core/src/services"),
       "@appwithai/core/logging": path.resolve(__dirname, "../core/src/logging"),
       "@appwithai/generator": path.resolve(__dirname, "../generator/src"),
+      "@appwithai/editors": path.resolve(__dirname, "../editors/src"),
     },
   },
 });

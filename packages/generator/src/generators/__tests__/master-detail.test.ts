@@ -187,7 +187,7 @@ erDiagram
 
   it("arranges the same way when the child is declared before its parent", () => {
     const reordered = MODEL.replace(
-      /    Invoice \{[\s\S]*?\n    \}\n(    InvoiceLine \{[\s\S]*?\n    \}\n)/,
+      / {4}Invoice \{[\s\S]*?\n {4}\}\n( {4}InvoiceLine \{[\s\S]*?\n {4}\}\n)/,
       (_match, line: string) =>
         `${line}    Invoice {\n        string id PK\n        string reference\n        string customer_id FK\n    }\n`
     );

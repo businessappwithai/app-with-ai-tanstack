@@ -379,7 +379,11 @@ export class RulesService {
     }
   }
 
-  /** A record that fits the Record node's JSON schema — "", 0, false, or an enum's first value. */
+  /**
+   * A record that fits the Record node's JSON schema — "", 0, false, or an enum's first value.
+   * The editor writes a number as `["null", "number"]` so a blank field is a valid record, so a
+   * `type` is read as its first non-null member.
+   */
   private sampleFromSchema(graph: {
     nodes?: Array<{ type?: string; content?: { schema?: string } }>;
   }): Record<string, unknown> | null {
@@ -387,14 +391,19 @@ export class RulesService {
       const text = graph.nodes?.find((node) => node.type === 'inputNode')?.content?.schema;
       if (!text) return null;
       const properties = (JSON.parse(text) as {
-        properties?: Record<string, { type?: string; enum?: unknown[] }>;
+        properties?: Record<string, { type?: string | string[]; enum?: unknown[] }>;
       }).properties;
       if (!properties) return null;
       return Object.fromEntries(
-        Object.entries(properties).map(([field, spec]) => [
-          field,
-          spec.enum?.length ? spec.enum[0] : spec.type === 'number' ? 0 : spec.type === 'boolean' ? false : '',
-        ]),
+        Object.entries(properties).map(([field, spec]) => {
+          const type = Array.isArray(spec.type)
+            ? spec.type.find((member) => member !== 'null')
+            : spec.type;
+          return [
+            field,
+            spec.enum?.length ? spec.enum[0] : type === 'number' ? 0 : type === 'boolean' ? false : '',
+          ];
+        }),
       );
     } catch {
       return null;

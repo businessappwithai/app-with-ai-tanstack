@@ -11,16 +11,14 @@
  */
 
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { RuleTryIt } from "@/components/eml/RuleTryIt";
-import { asDecisionTable } from "@/lib/automation/rule-content";
-import { apiClient } from "@/lib/api-client";
-import type { DryRunResult, RuleDryRun } from "@/lib/eml/dry-run-types";
-import { describeOutcome } from "@/lib/eml/rule-outcome";
-import { sampleRecord } from "@/lib/eml/rule-templates";
+import { RuleTryIt } from "@/editors/components/eml/RuleTryIt";
+import { asDecisionTable } from "@/editors/lib/automation/rule-content";
+import { simulateRule as dryRun } from "@/lib/logic-host";
+import { sampleRecord } from "@/editors/lib/eml/rule-templates";
 import { RULE_MODEL } from "@/lib/rule-model";
 
 const GoRulesEditorPanel = lazy(() =>
-  import("@/components/eml/GoRulesEditorPanel").then((m) => ({ default: m.GoRulesEditorPanel }))
+  import("@/editors/components/eml/GoRulesEditorPanel").then((m) => ({ default: m.GoRulesEditorPanel }))
 );
 
 /** Graph nodes a plain decision table is made of; anything else is the author's own graph. */
@@ -51,23 +49,6 @@ function readContent(content: string): { jdmGraph?: string } {
   }
   return {};
 }
-
-const dryRun: RuleDryRun = async ({ graph, record, entity }) => {
-  const data = await apiClient.post<{
-    ok: boolean;
-    result?: unknown;
-    trace?: Array<{ node: string; output: unknown }>;
-    problems?: string[];
-  }>("/rules/simulate", { jdmContent: graph, testData: record, entityName: entity });
-  if (!data.ok) return { ok: false, problems: data.problems ?? ["The rule did not run."] };
-  const answer: DryRunResult = {
-    ok: true,
-    result: data.result,
-    trace: data.trace ?? [],
-    outcomes: describeOutcome(data.result),
-  };
-  return answer;
-};
 
 export function RuleGraphEditor({
   entityName,
