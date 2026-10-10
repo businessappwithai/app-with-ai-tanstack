@@ -10,7 +10,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import { RuleGraph } from "../lib/rule-graph";
 import { runTryIt, startRule, type TryItAnswer } from "../lib/rule-table";
-import { type Author, authorWithProject, browserAs, logicPath } from "../lib/session";
+import { type Author, authorWithProject, browserAs, logicPath, railRuleName } from "../lib/session";
 
 interface GraphRule {
   name: string;
@@ -228,7 +228,12 @@ test.describe("graph rules — drawn node by node", () => {
       await page.getByRole("button", { name: "Save", exact: true }).click();
       await expect(page.getByText(/Saved to the model/)).toBeVisible({ timeout: 20_000 });
       await page.reload();
-      await page.locator("aside").first().getByText(rule.name, { exact: true }).first().click();
+      await page
+        .locator("aside")
+        .first()
+        .getByText(railRuleName(rule.name), { exact: true })
+        .first()
+        .click();
       await graph.waitReady();
       await expect(graph.nodes).toHaveCount(rule.chain.length + 2);
       expect(errors, "no uncaught error in the page").toEqual([]);

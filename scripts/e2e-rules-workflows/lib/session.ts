@@ -38,6 +38,24 @@ export const MODEL_SOURCE = readFileSync(MODEL_PATH, "utf8");
  */
 export const GENERATED = process.env.LOGIC_TARGET === "generated";
 
+/**
+ * What the rail calls a rule. A stored rule in a running application is filed under its
+ * identifier (`lateFlagAtFifteen`); the model keeps the title beside it, the application does not.
+ */
+export const railRuleName = (title: string) =>
+  GENERATED
+    ? title
+        .replace(/[^A-Za-z0-9]+/g, " ")
+        .trim()
+        .split(" ")
+        .map((word, i) =>
+          i === 0
+            ? word.toLowerCase()
+            : (word[0]?.toUpperCase() ?? "") + word.slice(1).toLowerCase()
+        )
+        .join("")
+    : title;
+
 /** Where the rules and workflows screen lives for this author. */
 export const logicPath = (author: { projectId: string }) =>
   GENERATED ? "/admin/automations" : `/projects/${author.projectId}/logic`;

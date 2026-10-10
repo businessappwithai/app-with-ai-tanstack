@@ -9,7 +9,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { LogicPage } from "../lib/logic-page";
 import { RuleGraph } from "../lib/rule-graph";
 import { buildTableRule, runTryIt, startRule } from "../lib/rule-table";
-import { type Author, authorWithProject, browserAs, logicPath } from "../lib/session";
+import { type Author, authorWithProject, browserAs, logicPath, railRuleName } from "../lib/session";
 
 let author: Author;
 
@@ -56,7 +56,11 @@ test.describe("the business rule editor's own controls", () => {
     await expect(page.getByLabel("Try the rule").getByText("Senior").first()).toBeVisible();
     await saved(page);
     await openLogic(page);
-    await page.locator("aside").first().getByText("Collect both", { exact: true }).click();
+    await page
+      .locator("aside")
+      .first()
+      .getByText(railRuleName("Collect both"), { exact: true })
+      .click();
     await graph.waitReady();
     await runTryIt(page, { year_group: 9 }, "blocks", "Senior");
   });
@@ -168,11 +172,11 @@ test.describe("the business rule editor's own controls", () => {
     await saved(page);
     await openLogic(page);
     const rail = page.locator("aside").first();
-    await expect(rail.getByText("Delete me", { exact: true })).toBeVisible();
+    await expect(rail.getByText(railRuleName("Delete me"), { exact: true })).toBeVisible();
     await rail.getByLabel("Delete deleteMe").click({ force: true });
     await saved(page);
     await openLogic(page);
-    await expect(rail.getByText("Delete me", { exact: true })).toHaveCount(0);
+    await expect(rail.getByText(railRuleName("Delete me"), { exact: true })).toHaveCount(0);
   });
 });
 
