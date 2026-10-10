@@ -16,6 +16,7 @@ const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
 const chromium = process.env.PLAYWRIGHT_CHROMIUM_PATH;
 
 export default defineConfig({
+  globalSetup: "./global-setup.ts",
   testDir: "./specs",
   testMatch: ["**/*.spec.ts"],
   // One database, one author per file, and 02 reads rules 01 wrote: in order.

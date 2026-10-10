@@ -79,6 +79,8 @@ async function write(method: string, path: string, body?: unknown): Promise<unkn
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const data = (await response.json().catch(() => ({}))) as { message?: string | string[] };
+  // Removing what is already gone is the outcome that was asked for.
+  if (method === "DELETE" && response.status === 404) return data;
   if (!response.ok) {
     const message = [data.message ?? `The server refused the change (${response.status}).`].flat();
     throw new Error(message.join(" "));
@@ -308,8 +310,16 @@ export function createLogicHost() {
     return { rules, workflows };
   }
 
+  // One save at a time: two overlapping saves read the same snapshot and write it twice.
+  let queue: Promise<unknown> = Promise.resolve();
+  const save = (payload: WorkbenchSave): Promise<void> => {
+    const run = queue.then(() => writeChanges(payload));
+    queue = run.catch(() => undefined);
+    return run;
+  };
+
   /** Write what changed: new rows created, edited rows updated, removed rows deleted. */
-  async function save({ rules, workflows }: WorkbenchSave): Promise<void> {
+  async function writeChanges({ rules, workflows }: WorkbenchSave): Promise<void> {
     const keptRules = new Set(rules.map((rule) => rule.key));
     for (const [key, id] of [...ruleIds]) {
       if (keptRules.has(key)) continue;

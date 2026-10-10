@@ -210,7 +210,7 @@ test.describe("the workflow editors' own controls", () => {
     await expect(logic.builder).toContainText("checkBeforeCreate");
     await expect(logic.builder).not.toContainText("auditAfterUpdate");
     await expect(page.getByLabel("Rules attached to this workflow")).toContainText(
-      "Student Record Control"
+      railRuleName("Student Record Control")
     );
   });
 
