@@ -80,6 +80,13 @@ async function signInToGeneratedApp(browser: Browser) {
   await page.click("button[type=submit]");
   await page.waitForURL("**/dashboard");
   await page.waitForLoadState("networkidle");
+  // Warm the dev server: the editor's first request compiles Monaco and the GoRules bundle,
+  // which can outlast the first test's own waits.
+  await page.goto("/admin/automations", { waitUntil: "networkidle", timeout: 240_000 });
+  await page
+    .getByRole("heading", { name: "Rules and workflows" })
+    .waitFor({ timeout: 240_000 })
+    .catch(() => {});
   const state = await context.storageState();
   await context.close();
   return state;
@@ -90,9 +97,11 @@ export async function browserAs(browser: Browser, author: Author): Promise<Brows
     // Signed in once and reused: a sign-in per test is a race with the previous test's
     // session, and what is under test is the screen, not the login.
     generatedState ??= await signInToGeneratedApp(browser);
+    // Wider than the tool's: the application's navigation takes a column of the page, and a
+    // squeezed table puts its add-column control out of reach.
     return browser.newContext({
       storageState: generatedState,
-      viewport: { width: 1600, height: 1000 },
+      viewport: { width: 2000, height: 1200 },
     });
   }
   return browser.newContext({
