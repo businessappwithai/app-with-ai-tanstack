@@ -36,6 +36,7 @@ a rule or a workflow, so what passes is what an author can do.
 | `07-rule-kinds-and-try-it` | The Enhance page's rule editor has no "Runs when", and the dry-run route behind Try it: refuses nobody and a stranger, runs a real graph, refuses a function that reaches for the network |
 | `09-rule-graph-builder` | A rule built from nothing in the graph editor, run in the Simulator and in Try it, saved and read back; Monaco comes from the application, not a CDN |
 | `08`, `10`, `11` | The generated application: its rules are enforced, its builders work (need `--generated` or a running generated app) |
+| `12-generated-state-machine` | Needs `--generated --model scripts/e2e-rules-workflows/models/rule-kinds.eml.mmd`. The generated helpdesk enforces `TicketLifecycle`: `/api/workflows/transitions` offers exactly the drawn moves, a drawn move is accepted, an undrawn one (`open` → `resolved`) is refused and leaves the record alone, and a closed ticket goes nowhere |
 
 ```bash
 RULES_ONLY="Year group" bun run test:e2e:rules-workflows     # rules whose name contains it
