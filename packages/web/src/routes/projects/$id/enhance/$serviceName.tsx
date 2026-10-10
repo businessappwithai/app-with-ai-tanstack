@@ -1,3 +1,29 @@
+import { AutomationBuilder } from "@appwithai/editors/components/automation/AutomationBuilder";
+import {
+  type EditableRule,
+  RuleEditor,
+  slugifyRuleName,
+} from "@appwithai/editors/components/eml/RuleEditor";
+import { HelpPanel } from "@appwithai/editors/components/help/HelpPanel";
+import type { HelpTopicId } from "@appwithai/editors/content/help";
+import {
+  type Automation,
+  type AutomationStep,
+  type Condition,
+  emptyAutomation,
+  type HookEvent,
+  type Loop,
+  parseAutomation,
+  serializeAutomation,
+} from "@appwithai/editors/lib/automation/model";
+import { emptyDecisionTable } from "@appwithai/editors/lib/eml/decision-table";
+import { type RuleConstraints, ruleConstraints } from "@appwithai/editors/lib/eml/rule-constraints";
+import { parseStateFlow } from "@appwithai/editors/lib/eml/workflow-flow";
+import {
+  generateFlowchartFromHooks,
+  type ParsedHookDefinition,
+  validateHookDefinition,
+} from "@appwithai/editors/lib/workflow/hook-parser";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
@@ -18,31 +44,10 @@ import {
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AutomationBuilder } from "@/components/automation/AutomationBuilder";
-import { type EditableRule, RuleEditor, slugifyRuleName } from "@/components/eml/RuleEditor";
-import { HelpPanel } from "@/components/help/HelpPanel";
 import { ProgressStepper } from "@/components/ProgressStepper";
-import type { HelpTopicId } from "@/content/help";
-import {
-  type Automation,
-  type AutomationStep,
-  type Condition,
-  emptyAutomation,
-  type HookEvent,
-  type Loop,
-  parseAutomation,
-  serializeAutomation,
-} from "@/lib/automation/model";
-import { emptyDecisionTable } from "@/lib/eml/decision-table";
 import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
-import { type RuleConstraints, ruleConstraints } from "@/lib/eml/rule-constraints";
-import { parseStateFlow } from "@/lib/eml/workflow-flow";
+import { projectDryRun } from "@/lib/eml/project-dry-run";
 import { requestContext } from "@/lib/request-context";
-import {
-  generateFlowchartFromHooks,
-  type ParsedHookDefinition,
-  validateHookDefinition,
-} from "@/lib/workflow/hook-parser";
 import { useProjectStore } from "@/store/projectStore";
 
 async function checkAuthMe() {
@@ -52,9 +57,7 @@ async function checkAuthMe() {
 }
 
 export const Route = createFileRoute("/projects/$id/enhance/$serviceName")({
-  validateSearch: (
-    search: Record<string, unknown>
-  ): { rule?: string; workflow?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { rule?: string; workflow?: string } => ({
     rule: typeof search.rule === "string" ? search.rule : undefined,
     workflow: typeof search.workflow === "string" ? search.workflow : undefined,
   }),
@@ -349,6 +352,7 @@ function automationForHook(hook: HookDefinition, index: number): Automation {
 function ServiceWorkflowPage() {
   const navigate = useNavigate();
   const { id: projectId, serviceName } = Route.useParams();
+  const ruleDryRun = useMemo(() => projectDryRun(projectId), [projectId]);
   const { rule: ruleSearch, workflow: workflowSearch } = Route.useSearch();
 
   const { getProject, loadProject, setCurrentStep, goToNextStep, currentProject, isLoading } =
@@ -559,9 +563,7 @@ function ServiceWorkflowPage() {
   // When the URL carries a rule or workflow slug, select it once rules are loaded.
   useEffect(() => {
     if (ruleSearch && rulesLoaded && rules.length > 0) {
-      const idx = rules.findIndex(
-        (r) => slugifyRuleName(r.title ?? r.name) === ruleSearch
-      );
+      const idx = rules.findIndex((r) => slugifyRuleName(r.title ?? r.name) === ruleSearch);
       if (idx >= 0) {
         setSelectedRuleIndex(idx);
         setActiveTab("rules");
@@ -780,8 +782,7 @@ function ServiceWorkflowPage() {
    */
   const selectAvailableHook = (hookType: HookType) => {
     const existing = selectedHooks.findIndex((hook) => hook.type === hookType);
-    const hookName =
-      existing >= 0 ? (selectedHooks[existing]?.name || hookType) : hookType;
+    const hookName = existing >= 0 ? selectedHooks[existing]?.name || hookType : hookType;
     if (existing >= 0) {
       setSelectedHookIndex(existing);
     } else {
@@ -1533,7 +1534,7 @@ function ServiceWorkflowPage() {
                         key={activeRule.key}
                         rule={activeRule}
                         entities={entities}
-                        projectId={projectId}
+                        dryRun={ruleDryRun}
                         onChange={patchRule}
                         onError={(message) => setValidationErrors(message ? [message] : [])}
                         entityEnums={constraints[activeRule.entity]?.values}

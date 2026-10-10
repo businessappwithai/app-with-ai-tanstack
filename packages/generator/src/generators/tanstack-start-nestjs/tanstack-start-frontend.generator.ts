@@ -33,6 +33,7 @@ import type { CompiledReport } from "../../reports";
 import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";
+import { ensureEditorsVendored } from "./vendor-editors";
 
 /**
  * Resolve template directory path, handling both dev and bundled environments
@@ -294,6 +295,14 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
 
   private async generateCoreFiles(outputDir: string, context: any): Promise<void> {
     const templateDir = this.resolvedTemplateDir;
+
+    // The rule and workflow editors are one source shared with the modelling tool; a
+    // generated application receives them as source under src/editors/.
+    await ensureEditorsVendored(templateDir);
+    await this.copyDirRecursive(
+      path.join(templateDir, "src/editors"),
+      path.join(outputDir, "src/editors")
+    );
 
     // Entry files (client.tsx, ssr.tsx, router.tsx) - always generated to fix missing scaffolding
     const clientEntryContent = await this.renderTemplate("src/client.tsx.hbs", context);
@@ -828,89 +837,7 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       },
       // The workflow editor, shared verbatim with the modelling tool so a
       // workflow drawn in either behaves the same way.
-      {
-        src: "src/lib/workflow/bpmn-model.ts",
-        dest: "src/lib/workflow/bpmn-model.ts",
-      },
-      // The automation builder, shared verbatim with the modelling tool so an
-      // automation reads and behaves the same in both.
-      {
-        src: "src/lib/automation/model.ts",
-        dest: "src/lib/automation/model.ts",
-      },
-      {
-        src: "src/lib/automation/rule-content.ts",
-        dest: "src/lib/automation/rule-content.ts",
-      },
-      {
-        src: "src/components/automation/LadderCard.tsx",
-        dest: "src/components/automation/LadderCard.tsx",
-      },
-      {
-        src: "src/components/automation/RailList.tsx",
-        dest: "src/components/automation/RailList.tsx",
-      },
-      {
-        src: "src/components/automation/StepInspector.tsx",
-        dest: "src/components/automation/StepInspector.tsx",
-      },
-      {
-        src: "src/components/automation/AutomationBuilder.tsx",
-        dest: "src/components/automation/AutomationBuilder.tsx",
-      },
-      {
-        src: "src/components/automation/RuleTableEditor.tsx",
-        dest: "src/components/automation/RuleTableEditor.tsx",
-      },
-      // The rule editor and workflow start, shared verbatim with the modelling tool.
-      {
-        src: "src/components/eml/GoRulesEditorPanel.tsx",
-        dest: "src/components/eml/GoRulesEditorPanel.tsx",
-      },
-      {
-        src: "src/components/eml/RuleTryIt.tsx",
-        dest: "src/components/eml/RuleTryIt.tsx",
-      },
-      {
-        src: "src/components/eml/NewWorkflowPanel.tsx",
-        dest: "src/components/eml/NewWorkflowPanel.tsx",
-      },
-      {
-        src: "src/components/eml/WorkflowRules.tsx",
-        dest: "src/components/eml/WorkflowRules.tsx",
-      },
-      {
-        src: "src/lib/eml/decision-table.ts",
-        dest: "src/lib/eml/decision-table.ts",
-      },
-      {
-        src: "src/lib/eml/dry-run-types.ts",
-        dest: "src/lib/eml/dry-run-types.ts",
-      },
-      {
-        src: "src/lib/eml/rule-constraints.ts",
-        dest: "src/lib/eml/rule-constraints.ts",
-      },
-      {
-        src: "src/lib/eml/rule-graph-constraints.ts",
-        dest: "src/lib/eml/rule-graph-constraints.ts",
-      },
-      {
-        src: "src/lib/eml/rule-outcome.ts",
-        dest: "src/lib/eml/rule-outcome.ts",
-      },
-      {
-        src: "src/lib/eml/rule-templates.ts",
-        dest: "src/lib/eml/rule-templates.ts",
-      },
-      {
-        src: "src/lib/eml/workflow-hooks.ts",
-        dest: "src/lib/eml/workflow-hooks.ts",
-      },
-      {
-        src: "src/lib/monaco-local.ts",
-        dest: "src/lib/monaco-local.ts",
-      },
+      // The date-picker fix the rule editor's Date operators need (GoRulesEditorPanel imports it).
       // The `?worker` imports Monaco's editor and language workers are loaded through.
       {
         src: "src/worker-modules.d.ts",
@@ -921,13 +848,10 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/components/rules/RuleGraphEditor.tsx",
         dest: "src/components/rules/RuleGraphEditor.tsx",
       },
+      // Where this application reads and writes the rules and workflows the screen edits.
       {
-        src: "src/components/rules/RulePane.tsx",
-        dest: "src/components/rules/RulePane.tsx",
-      },
-      {
-        src: "src/components/automation/AutomationHelp.tsx",
-        dest: "src/components/automation/AutomationHelp.tsx",
+        src: "src/lib/logic-host.ts",
+        dest: "src/lib/logic-host.ts",
       },
       {
         src: "src/components/admin/doc-status-badge.tsx",

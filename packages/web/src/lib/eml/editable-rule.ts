@@ -9,15 +9,9 @@
  * One reader, used by both, is what keeps the two screens describing one model.
  */
 
-import {
-  buildActionDecisionTable,
-  parseRuleActions,
-  replaceRuleActions,
-  serializeRuleActions,
-} from "@appwithai/generator/rules";
-import type { EditableRule } from "@/components/eml/RuleEditor";
-import { slugifyRuleName } from "@/components/eml/RuleEditor";
-import { asDecisionTable } from "@/lib/automation/rule-content";
+import type { EditableRule } from "@appwithai/editors/components/eml/RuleEditor";
+import { slugifyRuleName } from "@appwithai/editors/components/eml/RuleEditor";
+import { asDecisionTable } from "@appwithai/editors/lib/automation/rule-content";
 import {
   type DecisionRow,
   type DecisionTable,
@@ -26,7 +20,13 @@ import {
   parseGraphFromFlowchart,
   parseTableFromFlowchart,
   tableToEmlFlowchart,
-} from "@/lib/eml/decision-table";
+} from "@appwithai/editors/lib/eml/decision-table";
+import {
+  buildActionDecisionTable,
+  parseRuleActions,
+  replaceRuleActions,
+  serializeRuleActions,
+} from "@appwithai/generator/rules";
 
 /** A rule as `GET /api/projects/:id/eml` returns it. */
 export interface ModelRule {

@@ -159,6 +159,8 @@ export class WorkflowService {
         // running them here ignored that condition entirely: a workflow gated on
         // "severity == critical" fired on every write, whatever the severity.
         .where('trigger_type', '=', 'automatic')
+        // A status machine is a diagram its edges were read from; there is nothing to run.
+        .where('kind' as any, '<>', 'state')
         .orderBy('created_at', 'asc')
         .execute();
     } catch (err: any) {

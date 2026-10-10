@@ -20,6 +20,7 @@ import {
   type UserSession,
   unique,
 } from "../../../tests/e2e/helpers";
+import { signInToGeneratedApp } from "./generated-signin";
 
 /** The model the suite is run against; override with RULES_WORKFLOWS_MODEL. */
 export const MODEL_PATH =
@@ -31,6 +32,35 @@ export const MODEL_PATH =
 
 export const MODEL_SOURCE = readFileSync(MODEL_PATH, "utf8");
 
+/**
+ * `LOGIC_TARGET=generated` points the same specs at a generated application's
+ * Admin → Rules and workflows screen instead of the modelling tool's Logic step. The
+ * screen is one component in both (`@appwithai/editors`), so the specs are the proof.
+ */
+export const GENERATED = process.env.LOGIC_TARGET === "generated";
+
+/**
+ * What the rail calls a rule. A stored rule in a running application is filed under its
+ * identifier (`lateFlagAtFifteen`); the model keeps the title beside it, the application does not.
+ */
+export const railRuleName = (title: string) =>
+  GENERATED
+    ? title
+        .replace(/[^A-Za-z0-9]+/g, " ")
+        .trim()
+        .split(" ")
+        .map((word, i) =>
+          i === 0
+            ? word.toLowerCase()
+            : (word[0]?.toUpperCase() ?? "") + word.slice(1).toLowerCase()
+        )
+        .join("")
+    : title;
+
+/** Where the rules and workflows screen lives for this author. */
+export const logicPath = (author: { projectId: string }) =>
+  GENERATED ? "/admin/automations" : `/projects/${author.projectId}/logic`;
+
 export interface Author {
   session: UserSession;
   projectId: string;
@@ -40,6 +70,13 @@ export async function authorWithProject(
   playwright: PlaywrightWorkerArgs["playwright"],
   label: string
 ): Promise<Author> {
+  if (GENERATED) {
+    // The generated application has no projects: it is signed in as its administrator.
+    return {
+      session: { request: { dispose: async () => {} } } as unknown as UserSession,
+      projectId: "generated",
+    };
+  }
   const admin = await adminContext(playwright);
   const session = await createUserSession(playwright, admin, label);
   await admin.dispose();
@@ -51,7 +88,23 @@ export async function authorWithProject(
   return { session, projectId: project.id };
 }
 
+let generatedState: Awaited<ReturnType<BrowserContext["storageState"]>> | undefined;
+
 export async function browserAs(browser: Browser, author: Author): Promise<BrowserContext> {
+  if (GENERATED) {
+    // Signed in once and reused: a sign-in per test is a race with the previous test's
+    // session, and what is under test is the screen, not the login.
+    const file = process.env.GENERATED_STORAGE_STATE;
+    generatedState ??= file
+      ? JSON.parse(readFileSync(file, "utf8"))
+      : await signInToGeneratedApp(browser);
+    // Wider than the tool's: the application's navigation takes a column of the page, and a
+    // squeezed table puts its add-column control out of reach.
+    return browser.newContext({
+      storageState: generatedState,
+      viewport: { width: 2000, height: 1200 },
+    });
+  }
   return browser.newContext({
     storageState: await author.session.request.storageState(),
     viewport: { width: 1600, height: 1000 },

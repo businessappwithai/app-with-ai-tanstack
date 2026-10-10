@@ -98,7 +98,7 @@ export const Route = createFileRoute("/api/projects/$id/eml")({
             ? (body.workflows as ReturnType<typeof extractWorkflowSections>)
             : extractWorkflowSections(existing);
 
-          const { sectionProblems } = await import("@/lib/eml/section-problems");
+          const { sectionProblems } = await import("@appwithai/editors/lib/eml/section-problems");
           const problems = sectionProblems(
             Array.isArray(body.rules) ? rules : [],
             Array.isArray(body.workflows) ? workflows : []

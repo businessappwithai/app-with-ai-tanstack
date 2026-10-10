@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { RuleGraphEditor } from "@/components/rules/RuleGraphEditor";
-import { emptyDecisionTable } from "@/lib/workflow/bpmn-model";
+import { emptyDecisionTable } from "@/editors/lib/workflow/bpmn-model";
 import { useRuleEntities } from "@/hooks/use-rule-entities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
