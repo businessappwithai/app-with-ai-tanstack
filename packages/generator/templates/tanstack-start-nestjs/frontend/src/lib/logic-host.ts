@@ -15,7 +15,11 @@
 import type { ConstraintWorkflow, WorkbenchSave } from "@/editors/components/LogicWorkbench";
 import { slugifyRuleName } from "@/editors/components/eml/RuleEditor";
 import type { EditableRule } from "@/editors/components/eml/RuleEditor";
-import { type EditableWorkflow, emitWorkflowDiagram } from "@/editors/components/eml/WorkflowEditor";
+import {
+  type EditableWorkflow,
+  emitWorkflowDiagram,
+  pascalWorkflowName,
+} from "@/editors/components/eml/WorkflowEditor";
 import {
   type Automation,
   parseAutomation,
@@ -195,7 +199,8 @@ function toStoredWorkflow(row: WorkflowRow): StoredWorkflow {
         ? "saga"
         : "hook";
   return {
-    name: row.name,
+    // As the model stores one: an identifier, with the name people read beside it as the title.
+    name: pascalWorkflowName(row.name),
     entity,
     kind,
     title: row.name,

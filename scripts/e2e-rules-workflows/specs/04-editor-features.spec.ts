@@ -196,10 +196,10 @@ test.describe("the workflow editors' own controls", () => {
       ],
     });
     const attach = page.getByLabel("Attach a rule to beforeCreate");
-    await attach.selectOption({ label: "Student Record Control" });
+    await attach.selectOption({ label: railRuleName("Student Record Control") });
     const section = page.getByLabel("Rules attached to this workflow");
     // Rules saved earlier in this project already sit on beforeCreate, so count nothing.
-    await expect(section.getByText("Student Record Control").first()).toBeVisible();
+    await expect(section.getByText(railRuleName("Student Record Control")).first()).toBeVisible();
     // Remove the second hook.
     await logic.builder.locator("button", { hasText: "auditAfterUpdate" }).first().click();
     await logic.builder.getByLabel("Remove this").last().click();
