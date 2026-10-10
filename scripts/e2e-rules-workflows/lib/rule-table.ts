@@ -92,11 +92,17 @@ export async function setCondition(
  * did. So click once, give it time, and only after a Escape (to leave the toggle closed) click again.
  */
 async function openOutputFieldDialog(page: Page, graph: RuleGraph) {
-  const dialog = page.getByText("Output Field");
+  // The dialog is open when its Create button is: the title text also belongs to the rename
+  // popover that has only just closed, and typing into that one creates nothing.
+  const create = page.getByRole("button", { name: "Create" });
+  await expect(page.getByRole("button", { name: "Update" })).toHaveCount(0);
+  // The edit just made reaches the page's state a moment later and re-renders the editor, which
+  // closes a dialog opened in between. Let it settle first.
+  await page.waitForTimeout(1500);
   for (let attempt = 0; attempt < 3; attempt++) {
     await graph.editor.locator("thead tr:first-child th .cta-wrapper button").last().click();
     if (
-      await dialog.waitFor({ state: "visible", timeout: 10_000 }).then(
+      await create.waitFor({ state: "visible", timeout: 10_000 }).then(
         () => true,
         () => false
       )
@@ -106,7 +112,7 @@ async function openOutputFieldDialog(page: Page, graph: RuleGraph) {
     await page.keyboard.press("Escape");
     await page.waitForTimeout(500);
   }
-  await expect(dialog).toBeVisible();
+  await expect(create).toBeVisible();
 }
 
 /**
