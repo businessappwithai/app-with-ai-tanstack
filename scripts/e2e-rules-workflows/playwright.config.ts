@@ -22,7 +22,8 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  // A dev server that is still optimising dependencies reloads a page under the test.
+  retries: process.env.LOGIC_TARGET === "generated" ? 2 : process.env.CI ? 1 : 0,
   timeout: 180_000,
   reporter: process.env.CI
     ? [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]]

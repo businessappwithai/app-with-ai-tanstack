@@ -87,6 +87,18 @@ async function signInToGeneratedApp(browser: Browser) {
     .getByRole("heading", { name: "Rules and workflows" })
     .waitFor({ timeout: 240_000 })
     .catch(() => {});
+  // Open the rule editor once, so Vite finds and optimises its dependencies now rather than
+  // during a test, where the reload that follows throws the test's page away.
+  await page
+    .getByRole("button", { name: "New rule" })
+    .click({ timeout: 60_000 })
+    .catch(() => {});
+  await page
+    .locator(".jdm-scope .react-flow")
+    .first()
+    .waitFor({ timeout: 240_000 })
+    .catch(() => {});
+  await page.waitForLoadState("networkidle").catch(() => {});
   const state = await context.storageState();
   await context.close();
   return state;
