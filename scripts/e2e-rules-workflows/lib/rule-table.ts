@@ -87,6 +87,29 @@ export async function setCondition(
 }
 
 /**
+ * Open the "Output Field" dialog. The add-column control is a toggle: clicking it again while
+ * the dialog is still opening closes it, which is what a click-and-retry loop on a slower page
+ * did. So click once, give it time, and only after a Escape (to leave the toggle closed) click again.
+ */
+async function openOutputFieldDialog(page: Page, graph: RuleGraph) {
+  const dialog = page.getByText("Output Field");
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await graph.editor.locator("thead tr:first-child th .cta-wrapper button").last().click();
+    if (
+      await dialog.waitFor({ state: "visible", timeout: 10_000 }).then(
+        () => true,
+        () => false
+      )
+    ) {
+      return;
+    }
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(500);
+  }
+  await expect(dialog).toBeVisible();
+}
+
+/**
  * Click a cell until its value editor holds the focus. Typing before it does sends the text to
  * whatever else is focused — on a slower page, a link, and the Enter that follows follows it.
  */
@@ -152,12 +175,7 @@ export async function buildTableRule(page: Page, graph: RuleGraph, s: TableRuleS
   await page.getByRole("button", { name: "Update" }).click();
   await expect(page.getByText("Output Field")).toHaveCount(0);
   for (const name of extras) {
-    const dialog = page.getByText("Output Field");
-    for (let attempt = 0; attempt < 5 && !(await dialog.isVisible()); attempt++) {
-      await graph.editor.locator("thead tr:first-child th .cta-wrapper button").last().click();
-      await dialog.waitFor({ timeout: 2500 }).catch(() => {});
-    }
-    await expect(dialog).toBeVisible();
+    await openOutputFieldDialog(page, graph);
     await page.keyboard.type(name);
     await page.getByRole("button", { name: "Create" }).click();
     await expect(graph.editor.locator(".grl-field-edit").filter({ hasText: name })).toBeVisible();
