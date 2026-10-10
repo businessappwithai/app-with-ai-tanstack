@@ -71,6 +71,11 @@ export interface EditableRule {
 }
 
 export function slugifyRuleName(value: string): string {
+  // A name that is already an identifier is kept as written. Flattening `invoiceControl` to
+  // `invoicecontrol` renamed every model rule that was saved, and a process looks a rule up by
+  // its name.
+  const identifier = value.trim();
+  if (/^[a-z][A-Za-z0-9]*$/.test(identifier)) return identifier;
   const cleaned = value
     .replace(/[^A-Za-z0-9]+/g, " ")
     .trim()
