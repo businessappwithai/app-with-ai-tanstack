@@ -86,6 +86,23 @@ export async function setCondition(
   await page.waitForTimeout(250);
 }
 
+/**
+ * Click a cell until its value editor holds the focus. Typing before it does sends the text to
+ * whatever else is focused — on a slower page, a link, and the Enter that follows follows it.
+ */
+async function focusCellEditor(page: Page, graph: RuleGraph, row: number, col: number) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    await clickCell(page, graph, row, col, 90);
+    await page.waitForTimeout(300);
+    const inEditor = await page.evaluate(() => {
+      const active = document.activeElement;
+      return !!active && !!active.closest(".grl-dt, .monaco-editor, .ant-popover, .ant-select");
+    });
+    if (inEditor) return;
+    await page.keyboard.press("Escape");
+  }
+}
+
 /** The answer column is a pick-list; a fresh cell may start in code mode — toggle it once. */
 export async function setAnswer(
   page: Page,
@@ -166,7 +183,7 @@ export async function buildTableRule(page: Page, graph: RuleGraph, s: TableRuleS
         await setAnswer(page, graph, r, actionCol + 1 + o, value.slice(1));
         continue;
       }
-      await clickCell(page, graph, r, actionCol + 1 + o, 90);
+      await focusCellEditor(page, graph, r, actionCol + 1 + o);
       await page.keyboard.press("Control+A");
       await page.keyboard.insertText(value);
       await page.keyboard.press("Enter");
