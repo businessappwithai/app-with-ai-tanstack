@@ -20,6 +20,7 @@ import {
 } from "../generators/full-stack.generator";
 import { renderManual } from "../manual";
 import { buildReportingPack } from "../reporting/pack";
+import { buildModelLogic, renderModelLogic } from "../rules/model-logic";
 import { buildRuleModel, renderRuleModel } from "../rules/rule-model";
 import { NO_LOG, type PipelineLogger } from "./logger-port";
 import {
@@ -281,6 +282,7 @@ export async function generateApplication(
     await writeModelSource(options.outputDir, options.sources, log);
     await writeManual(options.outputDir, model, options, log);
     await writeRuleModel(options.outputDir, model, log);
+    await writeModelLogic(options.outputDir, options.sources, log);
 
     if (options.writeManifestFile !== false) {
       await writeManifest(options.outputDir, model, options, options.manifest ?? {}, log);
@@ -324,6 +326,32 @@ async function writeRuleModel(
     );
   } catch (err) {
     log.event("pipeline.artifact.write_failed", { artifact: "rule-model.ts", err });
+  }
+}
+
+/**
+ * Write the workflows the model declares into the front end, for the Rules & workflows screen.
+ * Skipped without a front end, for the same reason as `writeRuleModel`.
+ */
+async function writeModelLogic(
+  outputDir: string,
+  sources: string | string[],
+  log: PipelineLogger = NO_LOG
+): Promise<void> {
+  const directory = path.join(outputDir, "frontend", "src", "lib");
+  try {
+    await fs.access(directory);
+  } catch {
+    return;
+  }
+  try {
+    await fs.writeFile(
+      path.join(directory, "model-logic.ts"),
+      renderModelLogic(buildModelLogic(sources)),
+      "utf-8"
+    );
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: "model-logic.ts", err });
   }
 }
 

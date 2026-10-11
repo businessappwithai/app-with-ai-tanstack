@@ -90,6 +90,15 @@ export interface LogicWorkbenchProps {
   /** Buttons before and after Save. They may save first, then leave. */
   footerStart?: (api: { save: () => Promise<boolean>; busy: boolean }) => ReactNode;
   footerEnd?: (api: { save: () => Promise<boolean>; busy: boolean }) => ReactNode;
+  /**
+   * Workflows the author can read but not change — what a running application's model
+   * declares, which its next generation rewrites. Keyed by the workflow's `key`.
+   */
+  lockedWorkflows?: ReadonlySet<string>;
+  /** Whether the host keeps a rule's priority. Off, the field is not offered. Default on. */
+  rulesHavePriority?: boolean;
+  /** What a locked workflow says about itself. */
+  lockedNote?: string;
   /** The names now on screen, for a host that tells an assistant about them. */
   onSummaryChange?: (summary: { ruleNames: string[]; workflowNames: string[] }) => void;
 }
@@ -117,6 +126,9 @@ export function LogicWorkbench({
   header,
   footerStart,
   footerEnd,
+  lockedWorkflows,
+  lockedNote,
+  rulesHavePriority = true,
   onSummaryChange,
 }: LogicWorkbenchProps) {
   const [rules, setRules] = useState<EditableRule[]>([]);
@@ -214,6 +226,12 @@ export function LogicWorkbench({
     onSummaryChange?.({ ruleNames, workflowNames });
   }, [summaryKey]);
 
+  const activeWorkflowLocked = !!(
+    !creating &&
+    selectedRule === null &&
+    workflows[selectedIndex] &&
+    lockedWorkflows?.has((workflows[selectedIndex] as EditableWorkflow).key)
+  );
   const activeRule = creating || selectedRule === null ? null : (rules[selectedRule] ?? null);
   const activeWorkflow =
     creating || selectedRule !== null ? null : (workflows[selectedIndex] ?? null);
@@ -311,6 +329,8 @@ export function LogicWorkbench({
   };
 
   const removeWorkflow = (index: number) => {
+    const target = workflows[index];
+    if (target && lockedWorkflows?.has(target.key)) return;
     setWorkflows((current) => current.filter((_w, i) => i !== index));
     setSelectedIndex((current) => (current >= index ? Math.max(0, current - 1) : current));
     setSavedAt(null);
@@ -507,14 +527,23 @@ export function LogicWorkbench({
                           </span>
                         </span>
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => removeWorkflow(index)}
-                        aria-label={`Delete ${workflow.name}`}
-                        className="opacity-0 transition group-hover:opacity-100"
-                      >
-                        <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
-                      </button>
+                      {lockedWorkflows?.has(workflow.key) ? (
+                        <span
+                          title="Declared in the model"
+                          className="rounded border border-border px-1 text-[10px] uppercase tracking-wide text-muted-foreground"
+                        >
+                          model
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => removeWorkflow(index)}
+                          aria-label={`Delete ${workflow.name}`}
+                          className="opacity-0 transition group-hover:opacity-100"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -555,6 +584,7 @@ export function LogicWorkbench({
                   entityEnums={constraints[activeRule.entity]?.values}
                   entityWorkflows={constraints[activeRule.entity]?.workflowNames}
                   fieldTypes={constraints[activeRule.entity]?.fieldTypes}
+                  showPriority={rulesHavePriority}
                 />
               </>
             ) : creating || (!workflows.length && !activeWorkflow) ? (
@@ -569,52 +599,72 @@ export function LogicWorkbench({
                 <div className="mb-2 flex justify-end">
                   <HelpLink onClick={() => openHelp(editorHelp.topic)}>{editorHelp.label}</HelpLink>
                 </div>
-                {(activeWorkflow?.kind === "hook" || activeWorkflow?.kind === "saga") &&
-                activeWorkflow.automation ? (
-                  <>
-                    <div className="min-h-[560px] overflow-hidden rounded-xl border border-border">
-                      <AutomationBuilder
-                        key={activeWorkflow.key}
-                        automation={activeWorkflow.automation}
-                        onChange={(automation) =>
-                          patchWorkflow({
-                            automation,
-                            entity: automation.trigger.entity,
-                            title: automation.name,
-                            name: pascalWorkflowName(automation.name),
-                          })
-                        }
-                        entities={entityNames}
-                        entityFields={entityFieldMap}
-                        ruleTables={ruleTables}
-                        onOpenRuleTable={(name) => {
-                          const index = rules.findIndex(
-                            (rule) => slugifyRuleName(rule.title ?? rule.name) === name
-                          );
-                          if (index >= 0) setSelectedRule(index);
-                        }}
-                      />
-                    </div>
-                    {activeWorkflow.kind === "hook" && (
-                      <WorkflowRules
-                        entity={activeWorkflow.entity}
-                        hooks={activeWorkflow.automation.hooks}
-                        rules={rules}
-                        onAttach={attachRule}
-                        enhanceHref={enhanceHref ?? "#"}
-                      />
-                    )}
-                  </>
-                ) : activeWorkflow ? (
-                  <WorkflowEditor
-                    key={activeWorkflow.key}
-                    workflow={activeWorkflow}
-                    entityNames={entityNames}
-                    ruleNames={ruleNames}
-                    columnsFor={columnsFor}
-                    onChange={patchWorkflow}
-                  />
-                ) : null}
+                {activeWorkflowLocked && (
+                  <p
+                    role="note"
+                    className="mb-3 rounded-md border border-border bg-muted/50 px-3 py-2 text-xs text-muted-foreground"
+                  >
+                    {lockedNote ??
+                      "This workflow is declared in the model. Edit the model and generate again to change it."}
+                  </p>
+                )}
+                <div
+                  // `inert` takes the whole editor out of reach of the pointer and the keyboard
+                  // alike; set from a ref because React 18 and 19 spell the attribute differently.
+                  ref={(element) => {
+                    if (!element) return;
+                    if (activeWorkflowLocked) element.setAttribute("inert", "");
+                    else element.removeAttribute("inert");
+                  }}
+                  data-locked={activeWorkflowLocked || undefined}
+                >
+                  {(activeWorkflow?.kind === "hook" || activeWorkflow?.kind === "saga") &&
+                  activeWorkflow.automation ? (
+                    <>
+                      <div className="min-h-[560px] overflow-hidden rounded-xl border border-border">
+                        <AutomationBuilder
+                          key={activeWorkflow.key}
+                          automation={activeWorkflow.automation}
+                          onChange={(automation) =>
+                            patchWorkflow({
+                              automation,
+                              entity: automation.trigger.entity,
+                              title: automation.name,
+                              name: pascalWorkflowName(automation.name),
+                            })
+                          }
+                          entities={entityNames}
+                          entityFields={entityFieldMap}
+                          ruleTables={ruleTables}
+                          onOpenRuleTable={(name) => {
+                            const index = rules.findIndex(
+                              (rule) => slugifyRuleName(rule.title ?? rule.name) === name
+                            );
+                            if (index >= 0) setSelectedRule(index);
+                          }}
+                        />
+                      </div>
+                      {activeWorkflow.kind === "hook" && (
+                        <WorkflowRules
+                          entity={activeWorkflow.entity}
+                          hooks={activeWorkflow.automation.hooks}
+                          rules={rules}
+                          onAttach={attachRule}
+                          enhanceHref={enhanceHref ?? "#"}
+                        />
+                      )}
+                    </>
+                  ) : activeWorkflow ? (
+                    <WorkflowEditor
+                      key={activeWorkflow.key}
+                      workflow={activeWorkflow}
+                      entityNames={entityNames}
+                      ruleNames={ruleNames}
+                      columnsFor={columnsFor}
+                      onChange={patchWorkflow}
+                    />
+                  ) : null}
+                </div>
               </>
             )}
           </div>

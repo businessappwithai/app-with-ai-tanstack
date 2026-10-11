@@ -184,6 +184,9 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
       `ADMIN_PASSWORD=${password}`,
       "THROTTLE_TTL=60000",
       "THROTTLE_LIMIT=1000000",
+      // Every spec signs in from one address; better-auth counts session reads per address.
+      "AUTH_RATE_MAX=100000",
+      "AUTH_SIGNIN_MAX=100000",
       "IMMUDB_ENABLED=false",
       "",
     ].join("\n")

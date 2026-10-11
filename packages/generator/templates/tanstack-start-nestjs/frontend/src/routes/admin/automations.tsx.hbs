@@ -62,6 +62,9 @@ function RulesAndWorkflowsPage() {
           constraintsFor={logicConstraints}
           dryRun={simulateRule}
           save={save}
+          rulesHavePriority={false}
+          lockedWorkflows={model?.locked}
+          lockedNote="This workflow is declared in the model. Edit the model and generate the application again to change it; it is shown here as the author drew it."
         />
       </div>
     </div>

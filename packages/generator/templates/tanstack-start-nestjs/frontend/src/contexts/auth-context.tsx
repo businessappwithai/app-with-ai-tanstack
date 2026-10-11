@@ -4,6 +4,7 @@ import React, {
   startTransition,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { setUnauthorizedCallback } from "@/lib/api-client";
@@ -41,10 +42,15 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const userRef = useRef<User | null>(null);
+  userRef.current = user;
 
   const refreshSession = async () => {
     try {
-      const { data } = await getSession();
+      const { data, error } = await getSession();
+      // A read that failed (rate limited, backend restarting) says nothing about whether the
+      // person is signed in. Only an answer of "no session" may end the one they have.
+      if (error && data == null && userRef.current) return;
       // Typed as User rather than unknown: `unknown ?? null` widens to
       // `{} | null`, which does not assign to `User | null`.
       const next = (data as { user?: User } | null)?.user ?? null;

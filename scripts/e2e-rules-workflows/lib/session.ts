@@ -40,10 +40,12 @@ export const MODEL_SOURCE = readFileSync(MODEL_PATH, "utf8");
 export const GENERATED = process.env.LOGIC_TARGET === "generated";
 
 /**
- * What the rail calls a rule. A stored rule in a running application is filed under its
- * identifier (`lateFlagAtFifteen`); the model keeps the title beside it, the application does not.
+ * What a rule the model declares is called in a running application. The model keeps a title
+ * beside its identifier ("Student Record Control"); the application files it under the
+ * identifier alone (`studentRecordControl`) — only a rule written in the application keeps
+ * its title. Use it for the rules the model brought, never for ones a spec built.
  */
-export const railRuleName = (title: string) =>
+export const seededRuleName = (title: string) =>
   GENERATED
     ? title
         .replace(/[^A-Za-z0-9]+/g, " ")

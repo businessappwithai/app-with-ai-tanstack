@@ -91,6 +91,7 @@ export class RulesController {
       ruleName: string;
       operation: string;
       jdmContent: string;
+      title?: string | null;
     },
     @CurrentUser() user: { id: string },
   ) {
@@ -100,6 +101,7 @@ export class RulesController {
         ruleName: dto.ruleName,
         operation: dto.operation as any,
         jdmContent: dto.jdmContent,
+        title: dto.title,
       },
       user.id,
     );
@@ -115,6 +117,7 @@ export class RulesController {
     @Body(new ZodValidationPipe(UpdateRuleSchema)) dto: {
       jdmContent?: string;
       isActive?: boolean;
+      title?: string | null;
       operation?: 'CREATE' | 'UPDATE' | 'DELETE' | 'ALL';
     },
     @CurrentUser() user: { id: string },

@@ -16357,6 +16357,10 @@ export async function executeCustomValidateHooks(
       {
         slug: "add_dictionary_icons",
         template: "src/migrations/019_add_dictionary_icons.ts.hbs"
+      },
+      {
+        slug: "add_rule_title",
+        template: "src/migrations/020_add_rule_title.ts.hbs"
       }
     ];
     const scaffoldSlugs = new Set(scaffold.map((m) => m.slug));
@@ -19894,6 +19898,44 @@ ${processSection}
 `;
 }
 
+// packages/generator/src/rules/model-logic.ts
+function buildModelLogic(sources) {
+  const document = (Array.isArray(sources) ? sources : [sources]).filter(Boolean).join(`
+
+`);
+  if (!document.trim())
+    return [];
+  return extractWorkflowSections(document).map((workflow) => ({
+    name: workflow.name,
+    entity: workflow.entity,
+    kind: workflow.kind,
+    ...workflow.trigger ? { trigger: workflow.trigger } : {},
+    ...workflow.operation ? { operation: workflow.operation } : {},
+    ...workflow.title ? { title: workflow.title } : {},
+    diagram: workflow.diagram
+  }));
+}
+function renderModelLogic(workflows) {
+  return `/**
+ * The workflows this application's model declares, as the author drew them — written when
+ * the application was generated. The Rules & workflows screen lists them read-only: the
+ * next generation rewrites them, so they are changed in the model, not here.
+ */
+
+export interface ModelWorkflow {
+  name: string;
+  entity: string;
+  kind: "hook" | "state" | "saga";
+  trigger?: "automatic" | "rule";
+  operation?: "CREATE" | "UPDATE" | "DELETE" | "ALL";
+  title?: string;
+  diagram: string;
+}
+
+export const MODEL_WORKFLOWS: ModelWorkflow[] = ${JSON.stringify(workflows, null, 2)};
+`;
+}
+
 // packages/generator/src/rules/rule-model.ts
 var jsonType = (type) => type === "integer" || type === "decimal" ? "number" : type === "boolean" ? "boolean" : "string";
 function buildRuleModel(model) {
@@ -21153,6 +21195,7 @@ async function generateApplication(options) {
     await writeModelSource(options.outputDir, options.sources, log);
     await writeManual(options.outputDir, model, options, log);
     await writeRuleModel(options.outputDir, model, log);
+    await writeModelLogic(options.outputDir, options.sources, log);
     if (options.writeManifestFile !== false) {
       await writeManifest(options.outputDir, model, options, options.manifest ?? {}, log);
     }
@@ -21178,6 +21221,19 @@ async function writeRuleModel(outputDir, model, log = NO_LOG) {
     await writeFile(join(directory, "rule-model.ts"), renderRuleModel(buildRuleModel(model)), "utf-8");
   } catch (err) {
     log.event("pipeline.artifact.write_failed", { artifact: "rule-model.ts", err });
+  }
+}
+async function writeModelLogic(outputDir, sources, log = NO_LOG) {
+  const directory = join(outputDir, "frontend", "src", "lib");
+  try {
+    await access(directory);
+  } catch {
+    return;
+  }
+  try {
+    await writeFile(join(directory, "model-logic.ts"), renderModelLogic(buildModelLogic(sources)), "utf-8");
+  } catch (err) {
+    log.event("pipeline.artifact.write_failed", { artifact: "model-logic.ts", err });
   }
 }
 async function writeManual(outputDir, model, options, log = NO_LOG) {

@@ -9,7 +9,13 @@ import { expect, type Page, test } from "@playwright/test";
 import { LogicPage } from "../lib/logic-page";
 import { RuleGraph } from "../lib/rule-graph";
 import { buildTableRule, runTryIt, startRule } from "../lib/rule-table";
-import { type Author, authorWithProject, browserAs, logicPath, railRuleName } from "../lib/session";
+import {
+  type Author,
+  authorWithProject,
+  browserAs,
+  logicPath,
+  seededRuleName,
+} from "../lib/session";
 
 let author: Author;
 
@@ -56,11 +62,7 @@ test.describe("the business rule editor's own controls", () => {
     await expect(page.getByLabel("Try the rule").getByText("Senior").first()).toBeVisible();
     await saved(page);
     await openLogic(page);
-    await page
-      .locator("aside")
-      .first()
-      .getByText(railRuleName("Collect both"), { exact: true })
-      .click();
+    await page.locator("aside").first().getByText("Collect both", { exact: true }).click();
     await graph.waitReady();
     await runTryIt(page, { year_group: 9 }, "blocks", "Senior");
   });
@@ -172,11 +174,11 @@ test.describe("the business rule editor's own controls", () => {
     await saved(page);
     await openLogic(page);
     const rail = page.locator("aside").first();
-    await expect(rail.getByText(railRuleName("Delete me"), { exact: true })).toBeVisible();
+    await expect(rail.getByText("Delete me", { exact: true })).toBeVisible();
     await rail.getByLabel("Delete deleteMe").click({ force: true });
     await saved(page);
     await openLogic(page);
-    await expect(rail.getByText(railRuleName("Delete me"), { exact: true })).toHaveCount(0);
+    await expect(rail.getByText("Delete me", { exact: true })).toHaveCount(0);
   });
 });
 
@@ -196,10 +198,10 @@ test.describe("the workflow editors' own controls", () => {
       ],
     });
     const attach = page.getByLabel("Attach a rule to beforeCreate");
-    await attach.selectOption({ label: railRuleName("Student Record Control") });
+    await attach.selectOption({ label: seededRuleName("Student Record Control") });
     const section = page.getByLabel("Rules attached to this workflow");
     // Rules saved earlier in this project already sit on beforeCreate, so count nothing.
-    await expect(section.getByText(railRuleName("Student Record Control")).first()).toBeVisible();
+    await expect(section.getByText(seededRuleName("Student Record Control")).first()).toBeVisible();
     // Remove the second hook.
     await logic.builder.locator("button", { hasText: "auditAfterUpdate" }).first().click();
     await logic.builder.getByLabel("Remove this").last().click();
@@ -210,7 +212,7 @@ test.describe("the workflow editors' own controls", () => {
     await expect(logic.builder).toContainText("checkBeforeCreate");
     await expect(logic.builder).not.toContainText("auditAfterUpdate");
     await expect(page.getByLabel("Rules attached to this workflow")).toContainText(
-      railRuleName("Student Record Control")
+      seededRuleName("Student Record Control")
     );
   });
 

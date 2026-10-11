@@ -1665,6 +1665,11 @@ export async function executeCustomValidateHooks(
         slug: "add_dictionary_icons",
         template: "src/migrations/019_add_dictionary_icons.ts.hbs",
       },
+      // A rule's display title, beside the identifier it is filed under.
+      {
+        slug: "add_rule_title",
+        template: "src/migrations/020_add_rule_title.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This

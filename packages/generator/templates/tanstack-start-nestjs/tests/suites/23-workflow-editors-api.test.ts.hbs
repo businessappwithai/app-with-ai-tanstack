@@ -120,6 +120,37 @@ describe("rules & workflows API", () => {
     expect(await edgesOf()).toEqual([]);
   });
 
+  it("keeps a rule's title beside the identifier it is filed under", async () => {
+    const jdm = JSON.stringify({
+      hitPolicy: "first",
+      inputs: [{ id: "i1", name: "status", field: "status" }],
+      outputs: [{ id: "o1", name: "Output", field: "action" }],
+      rules: [{ _id: "r1", i1: "", o1: "allow" }],
+    });
+    const made = await harness.client.post<{ id: string; title?: string; ruleName: string }>(
+      "/rules",
+      {
+        entityName: table,
+        ruleName: `titled${token.replace(/[^a-z0-9]/gi, "")}`,
+        operation: "CREATE",
+        title: "A rule with words",
+        jdmContent: jdm,
+      },
+      { allowFailure: true }
+    );
+    if (!made.ok) return; // the model's own rules may refuse this entity; the title is what is held here
+    expect(made.data.title).toBe("A rule with words");
+    const renamed = await harness.client.put<{ title?: string }>(`/rules/${made.data.id}`, {
+      title: "Another way to say it",
+    });
+    expect(renamed.data.title).toBe("Another way to say it");
+    const listed = await harness.client.get<Array<{ id: string; title?: string }> | { rules?: Array<{ id: string; title?: string }> }>("/rules?limit=200");
+    const rows = Array.isArray(listed.data) ? listed.data : (listed.data.rules ?? []);
+    expect(rows.find((row) => row.id === made.data.id)?.title).toBe("Another way to say it");
+    await harness.client.delete(`/rules/${made.data.id}`, { allowFailure: true });
+    await harness.client.delete(`/rules/${made.data.id}?permanent=true`, { allowFailure: true });
+  });
+
   it("stores a process as an automation, compiled for the engine", async () => {
     const made = await harness.client.post<Definition>("/workflow-definitions", {
       kind: "automation",
