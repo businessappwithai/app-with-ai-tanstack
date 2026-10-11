@@ -6,6 +6,7 @@
 
 import { expect, type Page } from "@playwright/test";
 import type { RuleGraph } from "./rule-graph";
+import { GENERATED } from "./session";
 
 export type TryItAnswer = "blocks" | "allows" | "changes" | "nomatch" | "nothing";
 
@@ -158,7 +159,8 @@ export async function startRule(
   await page.getByRole("button", { name: "New rule" }).click();
   await page.locator("label:has(span:text-is('Entity')) select").selectOption(s.entity);
   await page.getByLabel("Name").first().fill(s.name);
-  if (s.priority !== undefined)
+  // A generated application runs every matching rule and has no priority to set.
+  if (s.priority !== undefined && !GENERATED)
     await page.locator("label:has(span:text-is('Priority')) input").fill(String(s.priority));
   await graph.waitReady();
 }

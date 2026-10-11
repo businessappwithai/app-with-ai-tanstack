@@ -28,11 +28,11 @@ test("a workflow the model declares is listed, readable and locked", async ({
   await expect(page.getByText("Loading the model…")).toHaveCount(0, { timeout: 60_000 });
 
   const rail = page.locator("aside").first();
-  const row = rail.getByRole("button", { name: /^\s*AdmissionToEnrolment\b/ }).first();
+  const row = rail.getByRole("button", { name: /^\s*Admission To Enrolment\b/ }).first();
   await expect(row, "the model's process is on the rail").toBeVisible();
   await expect(rail.getByTitle("Declared in the model").first()).toBeVisible();
   // Nothing about it can be deleted from here.
-  await expect(rail.getByLabel("Delete AdmissionToEnrolment")).toHaveCount(0);
+  await expect(rail.getByLabel("Delete Admission To Enrolment")).toHaveCount(0);
 
   await row.click();
   await expect(page.getByRole("note")).toContainText("declared in the model");
