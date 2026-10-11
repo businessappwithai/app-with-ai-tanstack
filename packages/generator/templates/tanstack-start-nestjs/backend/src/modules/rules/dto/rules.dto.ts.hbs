@@ -13,6 +13,8 @@ export const CreateRuleSchema = z.object({
   ruleName: z.string().min(1),
   operation: z.enum(['CREATE', 'READ', 'UPDATE', 'DELETE', 'ALL']),
   jdmContent: JdmContent,
+  /** What the rule is called in words; `ruleName` is the identifier made of it. */
+  title: z.string().max(200).nullable().optional(),
 });
 
 export type CreateRuleDto = z.infer<typeof CreateRuleSchema>;
@@ -22,6 +24,7 @@ export const UpdateRuleSchema = z.object({
   /** The write the rule judges — set by attaching it to a workflow's hook. */
   operation: z.enum(['CREATE', 'UPDATE', 'DELETE', 'ALL']).optional(),
   isActive: z.boolean().optional(),
+  title: z.string().max(200).nullable().optional(),
 });
 
 export type UpdateRuleDto = z.infer<typeof UpdateRuleSchema>;

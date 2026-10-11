@@ -34,6 +34,7 @@ import { parseStateFlow } from "@/editors/lib/eml/workflow-flow";
 import { eventForOperation, operationForEvent } from "@/editors/lib/eml/workflow-hooks";
 import { type StoredWorkflow, toEditableWorkflow } from "@/editors/lib/eml/workflow-model";
 import { apiClient } from "@/lib/api-client";
+import { MODEL_WORKFLOWS } from "@/lib/model-logic";
 import { RULE_MODEL, type RuleModelEntity } from "@/lib/rule-model";
 
 type Operation = "CREATE" | "UPDATE" | "DELETE" | "ALL";
@@ -41,6 +42,7 @@ type Operation = "CREATE" | "UPDATE" | "DELETE" | "ALL";
 interface RuleRow {
   id: string;
   ruleName?: string;
+  title?: string | null;
   entityName?: string;
   operation?: string;
   jdmContent?: unknown;
@@ -183,6 +185,7 @@ function toEditableRule(row: RuleRow): EditableRule {
   return {
     key: row.id,
     name: row.ruleName ?? row.rule_name ?? "Untitled rule",
+    ...(row.title ? { title: row.title } : {}),
     entity: entityNameOf(row.entityName ?? row.entity_name ?? ""),
     event: eventForOperation(operation),
     table,
@@ -219,6 +222,8 @@ function toStoredWorkflow(row: WorkflowRow): StoredWorkflow {
 export interface LoadedLogic {
   rules: EditableRule[];
   workflows: EditableWorkflow[];
+  /** The workflows the model declares: shown, never saved, changed in the model. */
+  locked: ReadonlySet<string>;
 }
 
 /**
@@ -233,6 +238,7 @@ export function createLogicHost() {
   // a process looks a rule up by its stored name.
   const ruleNames = new Map<string, string>();
   const workflowIds = new Map<string, string>();
+  const modelKeys = new Set<string>();
   const workflowSnapshots = new Map<string, string>();
 
   const ruleBody = (rule: EditableRule) => {
@@ -241,6 +247,7 @@ export function createLogicHost() {
     return {
       entityName: entityByName(rule.entity)?.table ?? rule.entity,
       ruleName: kept && slugifyRuleName(kept) === wanted ? kept : wanted,
+      title: rule.title ?? null,
       operation: operationForEvent(rule.event),
       jdmContent: rule.jdmGraph ?? JSON.stringify(rule.table),
     };
@@ -307,7 +314,22 @@ export function createLogicHost() {
       workflowSnapshots.set(workflow.key, JSON.stringify(workflowBody(workflow)));
       return workflow;
     });
-    return { rules, workflows };
+
+    // What the model declares, drawn as the author drew it. A workflow built here under the same
+    // name wins: it is the one that runs, and listing both would show one process twice.
+    const built = new Set(workflows.map((workflow) => workflow.name));
+    modelKeys.clear();
+    for (const declared of MODEL_WORKFLOWS) {
+      const workflow = toEditableWorkflow({
+        ...declared,
+        entity: entityNameOf(declared.entity),
+        title: declared.title ?? declared.name,
+      });
+      if (built.has(workflow.name)) continue;
+      modelKeys.add(workflow.key);
+      workflows.push(workflow);
+    }
+    return { rules, workflows, locked: modelKeys };
   }
 
   // One save at a time: two overlapping saves read the same snapshot and write it twice.
@@ -319,7 +341,9 @@ export function createLogicHost() {
   };
 
   /** Write what changed: new rows created, edited rows updated, removed rows deleted. */
-  async function writeChanges({ rules, workflows }: WorkbenchSave): Promise<void> {
+  async function writeChanges({ rules, workflows: all }: WorkbenchSave): Promise<void> {
+    // The model's own workflows are read-only on screen and never written from it.
+    const workflows = all.filter((workflow) => !modelKeys.has(workflow.key));
     const keptRules = new Set(rules.map((rule) => rule.key));
     for (const [key, id] of [...ruleIds]) {
       if (keptRules.has(key)) continue;
@@ -342,6 +366,7 @@ export function createLogicHost() {
         await write("PUT", `/rules/${id}`, {
           jdmContent: body.jdmContent,
           operation: body.operation,
+          title: body.title,
         });
       } else {
         const created = (await write("POST", "/rules", body)) as { id?: string };

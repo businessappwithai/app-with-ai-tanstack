@@ -252,6 +252,15 @@ describe("the generated app runs the modelling tool's rule and workflow editors"
     expect(engine).toContain("content: { source: node.content }");
   });
 
+  // What the model declares is shown as the author drew it, read-only, and never written back:
+  // the next generation rewrites it, so an edit made here would look saved and then vanish.
+  it("lists the model's own workflows locked, and saves only the ones built here", () => {
+    const host = read("frontend/src/lib/logic-host.ts");
+    expect(host).toContain('import { MODEL_WORKFLOWS } from "@/lib/model-logic"');
+    expect(host).toContain("all.filter((workflow) => !modelKeys.has(workflow.key))");
+    expect(page).toContain("lockedWorkflows={model?.locked}");
+  });
+
   // The panel writes a number as ["null", "number"] so a blank field is a valid record; the
   // validator's sample read only a bare "number", gave such a field "", and refused every
   // rule with a numeric input ("is not of types null, number").
@@ -296,5 +305,22 @@ describe("the dictionary's Business Rules window", () => {
 
   it("opens the Rules & workflows screen", () => {
     expect(seed).toMatch(/name: 'Business Rules',[^}]*?route: '\/admin\/automations'/s);
+  });
+});
+
+// The guard turned any failure while *looking up* a session — a busy database, a dropped
+// connection — into a 401, which the front end answers by signing the person out. A fault in
+// the service signed people out of a session that was perfectly good.
+describe("the session guard", () => {
+  const guard = readFileSync(
+    path.join(TEMPLATES, "backend/src/modules/auth/guards/session-auth.guard.ts.hbs"),
+    "utf8"
+  );
+
+  it("answers a failed lookup as unavailable, not as unauthorised", () => {
+    expect(guard).toContain("throw new ServiceUnavailableException(");
+    expect(guard).not.toContain("Authentication failed. Please sign in again.");
+    // No session at all is still a 401.
+    expect(guard).toContain("Invalid or expired session. Please sign in again.");
   });
 });

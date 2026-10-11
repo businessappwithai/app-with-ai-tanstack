@@ -749,8 +749,23 @@ table); a lifecycle or process is a `kind: automation` row in `sys_workflow_defi
 (mermaid + `operation` + `trigger_type`, compiled to BPMN on save); a **status machine is a
 `kind: state` row** whose edges the host sends and the service writes to
 `sys_workflow_transitions` (what `entity-access.guard` enforces) — the executor skips `state`
-rows, and a machine the model declared cannot be overwritten. Workflows the *model* declares
-are `kind: bpmn` and are not opened by the screen.
+rows, and a machine the model declared cannot be overwritten.
+
+**What the model declares is shown, read-only.** Its workflows are seeded as compiled BPMN, so the
+diagram the author drew is written into the front end at generation (`rules/model-logic.ts` →
+`lib/model-logic.ts`, `MODEL_WORKFLOWS`, read by the same `extractWorkflowSections` the modelling
+tool uses). The host lists them beside the ones built in the app and passes `lockedWorkflows` to the
+workbench, which marks them `model`, hides Delete, shows a note and sets `inert` on the editor
+(from a ref — React 18 and 19 spell the attribute differently); `save` never writes them. A rule has a
+`title` column (migration 020) beside its identifier `rule_name`, so a rule written in the app reads
+as it does in the tool; a rule the *model* seeded has none and shows its identifier. The runtime
+orders nothing by priority, so the host passes `rulesHavePriority={false}` and the field is not
+offered. `slugifyRuleName` keeps a name that is already an identifier (`invoiceControl`) — flattening
+it renamed model rules on save and broke a process's lookup of them.
+
+**The session guard answers a failed lookup 503, not 401.** The front end signs the person out on
+any 401, so a busy database during `getSession` used to bounce a perfectly good session to the sign-in
+page.
 
 The generated app's own joints (not shared): `components/rules/RuleGraphEditor.tsx` hands the
 panel what *this* model declares (`lib/rule-model.ts`, written by

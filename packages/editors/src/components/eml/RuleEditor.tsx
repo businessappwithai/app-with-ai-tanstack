@@ -107,6 +107,11 @@ export interface RuleEditorProps {
   entityWorkflows?: string[];
   /** Each field's JSON type, so the editor can complete and check what is written. */
   fieldTypes?: Record<string, "string" | "number" | "boolean">;
+  /**
+   * Offer the Priority field. A host whose store has nowhere to keep one (a running application
+   * orders nothing by it) turns it off rather than show a field that forgets.
+   */
+  showPriority?: boolean;
 }
 
 export function RuleEditor({
@@ -117,6 +122,7 @@ export function RuleEditor({
   entityEnums = {},
   entityWorkflows = [],
   fieldTypes,
+  showPriority = true,
   dryRun,
 }: RuleEditorProps) {
   const [showSource, setShowSource] = useState(false);
@@ -186,19 +192,21 @@ export function RuleEditor({
           </select>
         </label>
 
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium">Priority</span>
-          <input
-            type="number"
-            step={1}
-            className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
-            value={rule.priority ?? 100}
-            // Both runtimes store it as an integer; 2.5 would be rounded silently.
-            onChange={(event) =>
-              onChange({ priority: Math.trunc(Number(event.target.value)) || 0 })
-            }
-          />
-        </label>
+        {showPriority && (
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium">Priority</span>
+            <input
+              type="number"
+              step={1}
+              className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+              value={rule.priority ?? 100}
+              // Both runtimes store it as an integer; 2.5 would be rounded silently.
+              onChange={(event) =>
+                onChange({ priority: Math.trunc(Number(event.target.value)) || 0 })
+              }
+            />
+          </label>
+        )}
       </div>
 
       {table ? (

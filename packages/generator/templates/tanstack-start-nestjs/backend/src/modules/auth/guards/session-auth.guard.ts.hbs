@@ -8,7 +8,7 @@
  * and validates it against BetterAuth's session store.
  */
 
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Logger, Inject, Optional } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ServiceUnavailableException, Logger, Inject, Optional } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { getAuth } from '../../../lib/better-auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
@@ -82,8 +82,12 @@ export class SessionAuthGuard implements CanActivate {
       return true;
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;
-      this.logger.error(`Authentication failed: ${error.message}`);
-      throw new UnauthorizedException('Authentication failed. Please sign in again.');
+      // Not being able to *check* a session says nothing about whether it is valid. A 401 here
+      // — a database that was busy, a connection that dropped — tells the front end to sign the
+      // person out, and every screen they had open bounces to the sign-in page for a fault that
+      // was never theirs. Say the service could not answer, and let the request be retried.
+      this.logger.error(`Could not check the session: ${error.message}`);
+      throw new ServiceUnavailableException('Could not check your session. Try again.');
     }
   }
 }

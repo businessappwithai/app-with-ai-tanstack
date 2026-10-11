@@ -10,14 +10,7 @@
 import { expect, test } from "@playwright/test";
 import { RuleGraph } from "../lib/rule-graph";
 import { buildTableRule, runTryIt } from "../lib/rule-table";
-import {
-  type Author,
-  authorWithProject,
-  browserAs,
-  GENERATED,
-  logicPath,
-  railRuleName,
-} from "../lib/session";
+import { type Author, authorWithProject, browserAs, GENERATED, logicPath } from "../lib/session";
 import { TABLE_RULES } from "../scenarios/rule-catalogue";
 
 const only = process.env.RULES_ONLY;
@@ -54,10 +47,7 @@ test.describe("business rule editor — decision-table rules built through the p
       // Reload: the rule that comes back from the model answers the same way.
       await page.goto(logicPath(author));
       await expect(page.getByText("Loading the model…")).toHaveCount(0, { timeout: 60_000 });
-      // A stored rule is filed under its identifier (`lateFlagAtFifteen`); the model keeps the
-      // title beside it, a running application does not.
-      const railName = railRuleName(rule.name);
-      await page.locator("aside").first().getByText(railName, { exact: true }).first().click();
+      await page.locator("aside").first().getByText(rule.name, { exact: true }).first().click();
       await graph.waitReady();
       await expect(page.locator("label:has(span:text-is('Entity')) select")).toHaveValue(
         rule.entity

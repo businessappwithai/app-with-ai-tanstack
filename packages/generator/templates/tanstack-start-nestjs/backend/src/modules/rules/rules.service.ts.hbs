@@ -23,10 +23,12 @@ export interface CreateRuleDto {
   ruleName: string;
   operation: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'ALL';
   jdmContent: string | Record<string, unknown>;
+  title?: string | null;
 }
 
 export interface UpdateRuleDto {
   jdmContent?: string | Record<string, unknown>;
+  title?: string | null;
   isActive?: boolean;
   operation?: 'CREATE' | 'UPDATE' | 'DELETE' | 'ALL';
 }
@@ -57,6 +59,7 @@ export interface Rule {
   id: string;
   entityName: string;
   ruleName: string;
+  title?: string;
   operation: string;
   jdmContent: string | Record<string, unknown>;
   version: number;
@@ -169,6 +172,7 @@ export class RulesService {
         rule_name: dto.ruleName,
         operation: dto.operation.toUpperCase(),
         jdm_content: this.serializeJdm(dto.jdmContent),
+        title: dto.title ?? null,
         version: 1,
         is_active: true,
         created_by: userId,
@@ -208,6 +212,10 @@ export class RulesService {
 
     if (dto.isActive !== undefined) {
       updateData.is_active = dto.isActive;
+    }
+
+    if (dto.title !== undefined) {
+      updateData.title = dto.title;
     }
 
     if (dto.operation && dto.operation !== rule.operation) {
@@ -833,6 +841,7 @@ export class RulesService {
       id: record.id as string,
       entityName: record.entity_name as string,
       ruleName: record.rule_name as string,
+      title: (record.title as string | null | undefined) ?? undefined,
       operation: record.operation as string,
       jdmContent: record.jdm_content as string,
       version: record.version as number,
