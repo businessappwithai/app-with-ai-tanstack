@@ -850,7 +850,8 @@ export async function seed(db: Kysely<any>): Promise<void> {
   const adminWindowDefs = [
     {
       name: 'Business Rules',
-      route: '/admin/rules',
+      // The Rules & workflows screen: rules are written and attached to a workflow's hooks there.
+      route: '/admin/automations',
       icon: 'shield-check',
       help:
         'Every rule that runs when a record is written. A rule belongs to one entity and one ' +
@@ -860,7 +861,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
         'reject the write with a message, overwrite a field, or trigger a workflow by name, which is ' +
         'how a condition on a record starts a multi-step process.\n\n' +
         'Rules run inside the transaction that saved the record. If one fails the write is rolled ' +
-        'back, so a rule is a guarantee about the data rather than a reminder after the fact.',
+        'back, so a rule is a guarantee about the data rather than a reminder after the fact.\n\n' +
+        'Rules are edited on the same screen as workflows, because a workflow\'s hook is what gives a ' +
+        'rule its moment: attach a rule to a hook there to choose when it runs.',
     },
     {
       name: 'Workflow Designer',
