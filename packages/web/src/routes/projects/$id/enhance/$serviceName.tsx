@@ -47,6 +47,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
 import { projectDryRun } from "@/lib/eml/project-dry-run";
+import { entityForService, firstRuleOn, rulesForEntity } from "@/lib/eml/service-entity";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
 
@@ -352,6 +353,7 @@ function automationForHook(hook: HookDefinition, index: number): Automation {
 function ServiceWorkflowPage() {
   const navigate = useNavigate();
   const { id: projectId, serviceName } = Route.useParams();
+  const entityName = entityForService(serviceName);
   const ruleDryRun = useMemo(() => projectDryRun(projectId), [projectId]);
   const { rule: ruleSearch, workflow: workflowSearch } = Route.useSearch();
 
@@ -424,8 +426,8 @@ function ServiceWorkflowPage() {
    * beside it honest — both panes show the same document.
    */
   const automation = useMemo(
-    () => parseAutomation(flowchartCode, serviceName),
-    [flowchartCode, serviceName]
+    () => parseAutomation(flowchartCode, entityName),
+    [flowchartCode, entityName]
   );
 
   /**
@@ -545,7 +547,9 @@ function ServiceWorkflowPage() {
           )
         );
 
-        setRules((data.rules ?? []).map((rule) => toEditableRule(rule, crypto.randomUUID())));
+        const loaded = (data.rules ?? []).map((rule) => toEditableRule(rule, crypto.randomUUID()));
+        setRules(loaded);
+        setSelectedRuleIndex(firstRuleOn(loaded, entityName));
         setRulesLoaded(true);
       } catch (error) {
         if (!cancelled) console.error("Error loading rules:", error);
@@ -558,7 +562,7 @@ function ServiceWorkflowPage() {
     return () => {
       cancelled = true;
     };
-  }, [activeTab, rulesLoaded, projectId]);
+  }, [activeTab, rulesLoaded, projectId, entityName]);
 
   // When the URL carries a rule or workflow slug, select it once rules are loaded.
   useEffect(() => {
@@ -702,6 +706,8 @@ function ServiceWorkflowPage() {
   };
 
   const activeRule = rules[selectedRuleIndex] ?? null;
+  const pageRules = rulesForEntity(rules, entityName, selectedRuleIndex);
+  const otherEntityRuleCount = rules.filter((rule) => rule.entity !== entityName).length;
 
   const patchRule = (patch: Partial<EditableRule>) => {
     setRules((current) =>
@@ -716,7 +722,10 @@ function ServiceWorkflowPage() {
       {
         key: crypto.randomUUID(),
         name: `rule${current.length + 1}`,
-        entity: entities[0]?.name ?? "",
+        // A rule made on this service's page is a rule on its entity.
+        entity: entities.some((e) => e.name === entityName)
+          ? entityName
+          : (entities[0]?.name ?? ""),
         event: "beforeCreate",
         priority: 100,
         table: emptyDecisionTable(),
@@ -727,8 +736,15 @@ function ServiceWorkflowPage() {
   };
 
   const handleRemoveRule = (index: number) => {
-    setRules((current) => current.filter((_rule, i) => i !== index));
-    setSelectedRuleIndex((current) => (current >= index ? Math.max(0, current - 1) : current));
+    const remaining = rules.filter((_rule, i) => i !== index);
+    setRules(remaining);
+    setSelectedRuleIndex((current) =>
+      current === index
+        ? firstRuleOn(remaining, entityName)
+        : current > index
+          ? current - 1
+          : current
+    );
     setRulesSavedAt(null);
   };
 
@@ -754,7 +770,6 @@ function ServiceWorkflowPage() {
   };
 
   const handleAddHook = (hookType: HookType) => {
-    const entityName = serviceName.replace("Service", "");
     const capitalizedType = hookType.charAt(0).toUpperCase() + hookType.slice(1);
 
     const newHook: HookDefinition = {
@@ -819,8 +834,6 @@ function ServiceWorkflowPage() {
   };
 
   const updateFlowchartWithHooks = (hooks: HookDefinition[]) => {
-    const entityName = serviceName.replace("Service", "");
-
     const parsedHooks: ParsedHookDefinition[] = hooks.map((hook) => ({
       type: hook.type,
       name: hook.name,
@@ -1461,7 +1474,7 @@ function ServiceWorkflowPage() {
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <Scale className="w-4 h-4" />
-                    Business Rules ({rules.length})
+                    Business Rules ({pageRules.length})
                   </h3>
                   <button
                     type="button"
@@ -1479,12 +1492,12 @@ function ServiceWorkflowPage() {
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Loading rules…
                     </div>
-                  ) : rules.length === 0 ? (
+                  ) : pageRules.length === 0 ? (
                     <p className="rounded-md border border-dashed border-border px-2 py-3 text-center text-xs text-muted-foreground">
-                      No rules yet.
+                      No rules on {entityName} yet.
                     </p>
                   ) : (
-                    rules.map((rule, index) => (
+                    pageRules.map(({ rule, index }) => (
                       <div
                         key={rule.key}
                         className={`group flex items-center gap-1 rounded-md border px-2 py-1.5 text-left text-sm ${
@@ -1524,6 +1537,14 @@ function ServiceWorkflowPage() {
                     ))
                   )}
                 </div>
+                {otherEntityRuleCount > 0 && (
+                  <p className="border-t border-border px-4 py-3 text-[11px] text-muted-foreground">
+                    {otherEntityRuleCount} {otherEntityRuleCount === 1 ? "rule is" : "rules are"} on
+                    other record types — open {otherEntityRuleCount === 1 ? "it" : "them"} from that
+                    record type's service, or from the Logic step. Saving here keeps{" "}
+                    {otherEntityRuleCount === 1 ? "it" : "them"} unchanged.
+                  </p>
+                )}
               </div>
 
               <div className="flex-1 overflow-y-auto bg-muted">
@@ -1688,7 +1709,7 @@ function ServiceWorkflowPage() {
 }
 
 function getDefaultFlowchart(serviceName: string): string {
-  const entityName = serviceName.replace("Service", "");
+  const entityName = entityForService(serviceName);
   return `flowchart TD
     A[Client Request] --> B[Validate Request]
     B --> C[Process ${entityName}]
