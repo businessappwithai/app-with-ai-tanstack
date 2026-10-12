@@ -60,7 +60,16 @@ const config = defineConfig({
       "@appwithai/core",
     ],
     // CJS interop: pre-bundle elkjs bundled JS so Vite handles it as ESM
-    include: ["elkjs/lib/elk.bundled.js"],
+    include: [
+      "elkjs/lib/elk.bundled.js",
+      // Monaco's workers, imported by packages/editors/src/lib/monaco-workers/.
+      // The scan does not follow a `?worker` import into the worker, so these were
+      // found only when a code box first started one — and finding a dependency
+      // that late re-bundles and reloads the page under the person using it.
+      "monaco-editor/editor/editor.worker",
+      "monaco-editor/language/json/json.worker",
+      "monaco-editor/language/typescript/ts.worker",
+    ],
   },
   ssr: {
     // Treat workspace packages as Node.js externals so their dist/index.js
@@ -76,7 +85,7 @@ const config = defineConfig({
     // packages/editors/src/lib/monaco-local.ts puts on `window`. Its one direct
     // import is the MarkerSeverity enum — and resolving that from its own 0.52
     // pulled a second full Monaco into the rule editor's chunk: 4 MB more to
-    // transform and about 95 more stylesheets, the bulk of a 25-second first open.
+    // transform and about 95 more stylesheets on the first open.
     dedupe: ["monaco-editor"],
     alias: [
       // Replace @tanstack/start-api-routes@1.120 (Vinxi-based) with a Vite-compatible shim.
