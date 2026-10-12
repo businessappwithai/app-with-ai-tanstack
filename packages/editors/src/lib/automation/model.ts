@@ -716,6 +716,30 @@ export function validateAutomation(automation: Automation): Problem[] {
         const op = (step.props.operation ?? "set").trim();
         if (op === "set" || op === "copy") continue;
       }
+      // "set" stores its value as written and "copy" reads one from the run, so
+      // each is compiled from a different kind of value: a reference given to
+      // "set" becomes a source with no value, and text given to "copy" a value
+      // with no source. The checker refuses both (EML262), and so does
+      // generation — reported here, at the step, rather than after saving.
+      if (field === "left" && step.type === "Formula") {
+        const op = (step.props.operation ?? "set").trim();
+        const left = (step.props.left ?? "").trim();
+        const isReference = /^\{\{[^}]+\}\}$/.test(left);
+        if (left && op === "set" && isReference) {
+          problems.push({
+            target: step.id,
+            message: `Step ${i + 1} sets a value from ${left}. "set" stores text as written — choose "copy" to take a value from the run.`,
+          });
+          continue;
+        }
+        if (left && op === "copy" && !isReference) {
+          problems.push({
+            target: step.id,
+            message: `Step ${i + 1} copies "${left}", which is not a value from the run. Use a reference such as {{record.field}}, or choose "set" to store the text as written.`,
+          });
+          continue;
+        }
+      }
       if (!(step.props[field] ?? "").trim()) {
         problems.push({
           target: step.id,

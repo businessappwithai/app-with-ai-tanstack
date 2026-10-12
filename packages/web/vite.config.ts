@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, searchForWorkspaceRoot } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,8 +49,13 @@ const config = defineConfig({
     warmup: {
       clientFiles: ["../editors/src/components/eml/GoRulesEditorPanel.tsx"],
     },
+    // Setting `allow` replaces Vite's default — the workspace root — rather than
+    // adding to it. `[".."]` alone (packages/) shut out the root node_modules, where
+    // bun keeps @gorules/zen-engine-wasm: its .wasm answered 403, and the rule
+    // editor's Business view fell back, silently, to plain code cells with no
+    // operator palette. The monorepo root covers packages/editors and the wasm.
     fs: {
-      allow: [".."],
+      allow: [searchForWorkspaceRoot(__dirname)],
     },
   },
   optimizeDeps: {
