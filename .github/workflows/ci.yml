@@ -84,6 +84,12 @@ jobs:
       - name: Type-check
         run: bun run type-check
 
+      # language/** has its own tsconfig, which the root type-check does not
+      # read. Unchecked, it went red when the flowchart parser moved into
+      # packages/editors and nothing noticed.
+      - name: Type-check the language package
+        run: bun run type-check:language
+
       # Error-level only. The tree carries several hundred style warnings that
       # predate this workflow; failing on those would mean the first red build
       # is noise nobody reads. Errors — formatting and unorganised imports — are
