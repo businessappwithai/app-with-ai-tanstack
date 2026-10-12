@@ -9,18 +9,27 @@
  * bundle it and its workers beside the application, and handing the loader the
  * instance it asks for first means it never reaches for the network.
  *
+ * The workers are imported from the one-line entries in `monaco-workers/`, not
+ * as `monaco-editor/editor/editor.worker?worker`. A query on a package subpath
+ * reaches monaco's `exports` map, whose `"./*": "./esm/vs/*.js"` can swallow it:
+ * on macOS the id came back as `editor.worker.js?worker.js`, Vite read
+ * `worker.js` as no worker query at all, served the file as a plain module, and
+ * the page failed with `does not provide an export named 'default'`. A relative
+ * path never goes through `exports`, and each entry imports the worker with no
+ * query, which resolves the same everywhere.
+ *
  * Browser only. Import it from the same lazy chunk as the editor, never from a
  * module the server renders.
  */
 
 import * as monaco from "monaco-editor";
-import EditorWorker from "monaco-editor/editor/editor.worker?worker";
-import JsonWorker from "monaco-editor/language/json/json.worker?worker";
 // @ts-expect-error — the language services, which have no type declarations of their own.
 import * as jsonApi from "monaco-editor/language/json/monaco.contribution";
 // @ts-expect-error — as above.
 import * as typescriptApi from "monaco-editor/language/typescript/monaco.contribution";
-import TypeScriptWorker from "monaco-editor/language/typescript/ts.worker?worker";
+import EditorWorker from "./monaco-workers/editor.worker?worker";
+import JsonWorker from "./monaco-workers/json.worker?worker";
+import TypeScriptWorker from "./monaco-workers/ts.worker?worker";
 
 declare global {
   interface Window {
