@@ -111,7 +111,7 @@ docker/ca-certificates/*.crt
 # dependencies, build output or lockfile.
 
 # PGlite vendored beside the guide by `bun run vendor:pglite` — 17MB of
-# WebAssembly, fetched on demand rather than committed.
+# WebAssembly, put there by that script rather than committed. Never a CDN.
 html/assets/vendor/
 
 # The WASM stack's inlined assets are generated, and are committed anyway.

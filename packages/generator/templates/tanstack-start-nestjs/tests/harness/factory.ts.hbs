@@ -97,7 +97,11 @@ const BY_NAME: Array<[RegExp, () => unknown]> = [
   [/url|website|link|homepage/i, () => faker.internet.url()],
   [/username|(^|_)(login|handle)(_|$)/i, () => faker.internet.username().toLowerCase()],
   [/password/i, () => faker.internet.password({ length: 16 })],
-  [/avatar|image|photo|picture|thumbnail/i, () => faker.image.url()],
+  // A path on the application's own host, never a remote image: faker.image.url()
+  // names picsum.photos or loremflickr, which a screen showing the record loads.
+  [/avatar|image|photo|picture|thumbnail/i, () =>
+    `/images/${faker.string.alphanumeric({ length: 10, casing: "lower" })}.png`,
+  ],
   [/slug/i, () => faker.lorem.slug()],
   [/description|summary|notes?|comment|body|content|remarks/i, () => faker.lorem.sentences(2)],
   [/price|amount|total|cost|salary|fee|balance|revenue/i, () =>

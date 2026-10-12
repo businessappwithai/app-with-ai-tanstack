@@ -9,7 +9,7 @@
  * would be a different application from the one the model described.
  *
  * The PGlite class is injected rather than imported: the Node host resolves it
- * from node_modules and the browser host from a vendored (or CDN) ES module,
+ * from node_modules and the browser host from a vendored ES module (never a CDN),
  * and this file has to be the same file in both.
  */
 
