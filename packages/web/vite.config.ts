@@ -49,6 +49,9 @@ const config = defineConfig({
     warmup: {
       clientFiles: ["../editors/src/components/eml/GoRulesEditorPanel.tsx"],
     },
+    fs: {
+      allow: [".."],
+    },
   },
   optimizeDeps: {
     // Native .node binaries and Node-only drivers can't be bundled by Rolldown — exclude them
@@ -58,6 +61,10 @@ const config = defineConfig({
       "@anush008/tokenizers-darwin-universal",
       "pg",
       "@appwithai/core",
+      // Monaco workers must not be pre-bundled — Vite's ?worker handling creates the
+      // wrapper with a default export, but optimizeDeps runs first and produces a plain
+      // module with no default, so the worker import answers "no export named 'default'".
+      "monaco-editor",
     ],
     // CJS interop: pre-bundle elkjs bundled JS so Vite handles it as ESM
     include: [
@@ -110,6 +117,17 @@ const config = defineConfig({
       {
         find: /^@appwithai\/editors\/(.*)$/,
         replacement: path.resolve(__dirname, "../editors/src/$1"),
+      },
+      // monaco-editor lives in packages/web/node_modules but packages/editors is
+      // outside packages/web, so Vite cannot find it via normal node resolution.
+      // Follow monaco-editor 0.57's exports map: "." -> esm/vs/index.js, "./*" -> esm/vs/*.js
+      {
+        find: /^monaco-editor$/,
+        replacement: path.resolve(__dirname, "node_modules/monaco-editor/esm/vs/index.js"),
+      },
+      {
+        find: /^monaco-editor\/(.+)$/,
+        replacement: path.resolve(__dirname, "node_modules/monaco-editor/esm/vs/$1.js"),
       },
     ],
   },

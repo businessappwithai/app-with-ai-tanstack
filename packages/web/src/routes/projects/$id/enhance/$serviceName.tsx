@@ -404,7 +404,9 @@ function ServiceWorkflowPage() {
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedHookFile[]>([]);
   const [selectedFileIndex, setSelectedFileIndex] = useState<number>(0);
   const [showGeneratedCode, setShowGeneratedCode] = useState(false);
-  const [activeTab, setActiveTab] = useState<"hooks" | "workflows" | "rules">("hooks");
+  const [activeTab, setActiveTab] = useState<"hooks" | "workflows" | "rules">(
+    ruleSearch ? "rules" : workflowSearch ? "workflows" : "hooks"
+  );
   const [rules, setRules] = useState<EditableRule[]>([]);
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesLoaded, setRulesLoaded] = useState(false);
@@ -501,11 +503,11 @@ function ServiceWorkflowPage() {
 
   /**
    * The Business Rules tab reads the same project model the Logic step edits.
-   * It is loaded lazily — only when the tab is opened — and saving sends only
+   * Rules load eagerly on mount; saving sends only
    * `rules`, so the route leaves the model's workflows untouched.
    */
   useEffect(() => {
-    if (activeTab !== "rules" || rulesLoaded) return;
+    if (rulesLoaded) return;
     let cancelled = false;
     setRulesLoading(true);
 
@@ -562,7 +564,21 @@ function ServiceWorkflowPage() {
     return () => {
       cancelled = true;
     };
-  }, [activeTab, rulesLoaded, projectId, entityName]);
+  }, [rulesLoaded, projectId, entityName]);
+
+  // When rules finish loading, auto-switch to Business Rules if this entity has rules
+  // and neither a URL param nor the user's click already chose a different tab.
+  const autoSwitchedToRulesRef = useRef(false);
+  useEffect(() => {
+    if (!rulesLoaded || autoSwitchedToRulesRef.current) return;
+    if (ruleSearch || workflowSearch) return; // URL param already drives the tab
+    const hasEntityRules = rules.some((r) => r.entity === entityName);
+    if (hasEntityRules) {
+      autoSwitchedToRulesRef.current = true;
+      setActiveTab("rules");
+      setSelectedRuleIndex(firstRuleOn(rules, entityName));
+    }
+  }, [rulesLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // When the URL carries a rule or workflow slug, select it once rules are loaded.
   useEffect(() => {
@@ -1207,7 +1223,7 @@ function ServiceWorkflowPage() {
               <div className="flex gap-6">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("hooks")}
+                  onClick={() => { setActiveTab("hooks"); void navigate({ to: "/projects/$id/enhance/$serviceName", params: { id: projectId, serviceName }, search: {} }); }}
                   className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                     activeTab === "hooks"
                       ? "border-primary text-primary"
@@ -1220,7 +1236,7 @@ function ServiceWorkflowPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("workflows")}
+                  onClick={() => { setActiveTab("workflows"); void navigate({ to: "/projects/$id/enhance/$serviceName", params: { id: projectId, serviceName }, search: {} }); }}
                   className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                     activeTab === "workflows"
                       ? "border-primary text-primary"
@@ -1235,7 +1251,7 @@ function ServiceWorkflowPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("rules")}
+                  onClick={() => { setActiveTab("rules"); void navigate({ to: "/projects/$id/enhance/$serviceName", params: { id: projectId, serviceName }, search: {} }); }}
                   className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                     activeTab === "rules"
                       ? "border-primary text-primary"
