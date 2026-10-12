@@ -177,7 +177,7 @@ nothing about whether a generated one compiles.
 
 | Job | What it does that nothing else does |
 |---|---|
-| **Type-check, lint and unit tests** | Also the four `--check` artifact comparisons, `test:language-tools` and `test:llmtext`. Lint is `--diagnostic-level=error` only — the tree carries several hundred pre-existing style warnings |
+| **Type-check, lint and unit tests** | Also `type-check:language`, the four `--check` artifact comparisons, `test:language-tools` and `test:llmtext`. Lint is `--diagnostic-level=error` only — the tree carries several hundred pre-existing style warnings |
 | **Generate a browser application and run its backend** | Generates the stack twice (with and without the overlay) and diffs; asserts the overlay's exact footprint; asserts **no `bun`/`bunx` survives** in any generated `package.json`; migrates and seeds on WebAssembly Postgres with no Postgres on the runner |
 | **Drive the browser stack in Chromium** | The only job that *opens* the result — Service Worker, Node-API shim, worker host |
 | **Generate an application and build it** | Builds the generated backend **and** frontend, type-checks the generated `tests/`, then runs that suite against real Postgres (pgvector) with `node run.ts --no-server` |
