@@ -43,8 +43,8 @@ const app = (page: Page): FrameLocator => page.frameLocator("#frame");
 
 /** Console errors that are the page's own fault, as opposed to the noise below. */
 const IGNORED_CONSOLE = [
-  // The page probes for a vendored PGlite with a HEAD request and falls back to
-  // the CDN when there is none. A 404 there is the probe working.
+  // The page probes for the PGlite served beside it with a HEAD request; a 404
+  // there is the probe working (and the run step then says what is missing).
   /assets\/vendor\/pglite/,
   // `/api/auth/me` before sign-in is how the application discovers it has no
   // session. A 401 is the answer, not a failure.
