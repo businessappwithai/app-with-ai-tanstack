@@ -49,6 +49,8 @@ platform match CI's, because `Bun.build` output depends on both.
 `ensure-packages-built.ts` is the narrower version `bun run dev` runs on every
 start: it builds only the workspace packages whose entry point is missing, so a
 fresh clone works without anyone having to know that it had to be built first.
+It also refuses to start when `node_modules` no longer matches the manifests,
+naming the stale dependency and asking for `bun install`.
 
 ## Also in the repository root
 
