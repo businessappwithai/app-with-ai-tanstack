@@ -80,4 +80,11 @@ describe("a cell under a constrained column", () => {
       '"closed" is not an existing status for this entity.',
     ]);
   });
+
+  it("does not flag a null cell as an invalid enum value — null means is-null in zen", () => {
+    // Regression: /qa 2026-10-12
+    // Report: .gstack/qa-reports/run-20261012T103545Z/qa-report.md
+    expect(graphProblems(graphWith("null"), constraints)).toEqual([]);
+    expect(graphProblems(graphWith("!= null"), constraints)).toEqual([]);
+  });
 });

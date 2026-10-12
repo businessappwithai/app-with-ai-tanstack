@@ -181,6 +181,9 @@ export function graphProblems(graph: Graph, constraints: RuleConstraints): strin
         const cell = row[c.id];
         if (!cell || !cell.trim()) continue;
         for (const value of cellValues(cell)) {
+          // zen's null-check cells ("null", "!= null") are always valid — they
+          // mean "field is null / is not null", not the string literal "null".
+          if (value === "null") continue;
           if (c.field === "action" && value === "trigger-workflow") {
             problems.add(
               "A rule cannot start a workflow — attach the rule to the workflow in the workflow editor."
