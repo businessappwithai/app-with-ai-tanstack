@@ -472,8 +472,7 @@ export function newStep(type: StepType): AutomationStep {
     id: newId("step"),
     type,
     resultName: defaultResultName(type),
-    props: {},
-    ...(type === "Decision" ? {} : {}),
+    props: type === "Formula" ? { operation: "set" } : {},
   };
 }
 
@@ -707,6 +706,15 @@ export function validateAutomation(automation: Automation): Problem[] {
           });
         }
         continue;
+      }
+      // The Formula operation defaults to "set" when not stored — the inspector
+      // displays "set" via the same fallback, so an unset operation is not missing.
+      if (field === "operation" && step.type === "Formula") continue;
+      // For Formula, "right" (And this value) is only required for arithmetic
+      // operations — "set" and "copy" need only one value.
+      if (field === "right" && step.type === "Formula") {
+        const op = (step.props.operation ?? "set").trim();
+        if (op === "set" || op === "copy") continue;
       }
       if (!(step.props[field] ?? "").trim()) {
         problems.push({

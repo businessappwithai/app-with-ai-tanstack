@@ -1,4 +1,7 @@
-import { AutomationBuilder } from "@appwithai/editors/components/automation/AutomationBuilder";
+import {
+  AutomationBuilder,
+  type RuleTableSummary,
+} from "@appwithai/editors/components/automation/AutomationBuilder";
 import {
   type EditableRule,
   RuleEditor,
@@ -725,6 +728,17 @@ function ServiceWorkflowPage() {
   const pageRules = rulesForEntity(rules, entityName, selectedRuleIndex);
   const otherEntityRuleCount = rules.filter((rule) => rule.entity !== entityName).length;
 
+  const ruleTableSummaries: RuleTableSummary[] = useMemo(
+    () =>
+      rules.map((rule) => ({
+        id: rule.key,
+        name: rule.title ?? rule.name,
+        rowCount: rule.table.rules.length,
+        outputs: rule.table.outputs.map((o) => o.field || o.name).filter(Boolean),
+      })),
+    [rules]
+  );
+
   const patchRule = (patch: Partial<EditableRule>) => {
     setRules((current) =>
       current.map((rule, index) => (index === selectedRuleIndex ? { ...rule, ...patch } : rule))
@@ -1236,7 +1250,16 @@ function ServiceWorkflowPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setActiveTab("workflows"); void navigate({ to: "/projects/$id/enhance/$serviceName", params: { id: projectId, serviceName }, search: {} }); }}
+                  onClick={() => {
+                    setActiveTab("workflows");
+                    const currentHook = selectedHooks[selectedHookIndex];
+                    const hookName = currentHook?.name || currentHook?.type;
+                    void navigate({
+                      to: "/projects/$id/enhance/$serviceName",
+                      params: { id: projectId, serviceName },
+                      search: hookName ? { workflow: hookName } : {},
+                    });
+                  }}
                   className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                     activeTab === "workflows"
                       ? "border-primary text-primary"
@@ -1472,18 +1495,63 @@ function ServiceWorkflowPage() {
               </div>
             </>
           ) : activeTab === "workflows" ? (
-            <AutomationBuilder
-              key={hookAutomation ? `hook-${selectedHookIndex}` : "automation"}
-              automation={hookAutomation ?? automation}
-              onChange={
-                hookAutomation
-                  ? handleHookAutomationChange
-                  : (next) => setFlowchartCode(serializeAutomation(next))
-              }
-              entities={entities.map((e) => e.name)}
-              entityFields={Object.fromEntries(entities.map((e) => [e.name, e.attributes]))}
-              lockHook={Boolean(hookAutomation)}
-            />
+            <div className="flex-1 flex overflow-hidden">
+              {selectedHooks.length > 0 && (
+                <div className="w-56 shrink-0 border-r border-border flex flex-col bg-card">
+                  <div className="p-3 border-b border-border">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Hook Workflows
+                    </h3>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                    {selectedHooks.map((hook, index) => {
+                      const hookDef = HOOK_TYPES.find((h) => h.type === hook.type);
+                      const isSelected = selectedHookIndex === index;
+                      return (
+                        <button
+                          key={`${hook.type}-${index}`}
+                          type="button"
+                          onClick={() => {
+                            setSelectedHookIndex(index);
+                            void navigate({
+                              to: "/projects/$id/enhance/$serviceName",
+                              params: { id: projectId, serviceName },
+                              search: { workflow: hook.name || hook.type },
+                            });
+                          }}
+                          className={`w-full flex items-center gap-2 rounded-md border px-2 py-1.5 text-left text-sm transition-colors ${
+                            isSelected
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:bg-muted"
+                          }`}
+                          style={isSelected ? { borderColor: "#FF8400" } : {}}
+                        >
+                          <div
+                            className={`w-2 h-2 rounded-full ${hookDef?.color || "bg-gray-500"} flex-shrink-0`}
+                          />
+                          <span className="min-w-0 flex-1 truncate font-medium">
+                            {hookDef?.label || hook.type}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              <AutomationBuilder
+                key={hookAutomation ? `hook-${selectedHookIndex}` : "automation"}
+                automation={hookAutomation ?? automation}
+                onChange={
+                  hookAutomation
+                    ? handleHookAutomationChange
+                    : (next) => setFlowchartCode(serializeAutomation(next))
+                }
+                entities={entities.map((e) => e.name)}
+                entityFields={Object.fromEntries(entities.map((e) => [e.name, e.attributes]))}
+                ruleTables={ruleTableSummaries}
+                lockHook={Boolean(hookAutomation)}
+              />
+            </div>
           ) : (
             <>
               <div className="w-72 shrink-0 border-r border-border flex flex-col bg-card">
