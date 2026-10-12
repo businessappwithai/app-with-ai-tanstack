@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vinxi dev --port {{config.frontendPort}}",
-    "build": "vinxi build",
+    "build": "NODE_OPTIONS=--max-old-space-size=6144 vinxi build",
     "start": "PORT={{config.frontendPort}} vinxi start",
     "lint": "biome lint --write src",
     "lint:fix": "biome lint --write src",
