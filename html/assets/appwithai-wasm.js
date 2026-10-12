@@ -11379,19 +11379,25 @@ async function boot(message) {
 }
 
 /**
- * Resolve PGlite: vendored copy, then the URL the page supplied, then the CDN.
+ * Where PGlite lives when it is not in \`vendor/pglite/\`: a URL the generator
+ * wrote in from \`--pglite-url\` (or the hosting page's own copy), or nothing.
+ */
+const PGLITE_URL = "";
+
+/**
+ * Resolve PGlite: the vendored copy, then the URL written in above, then the one
+ * the page supplied. Never a CDN.
  *
- * An application generated with \`--vendor-pglite\` carries its own copy and
- * never touches the network; one generated without it needs somewhere to get
- * ~10MB of WebAssembly, and saying so in the log beats failing silently on a
- * plane.
+ * \`appwithai-wasm generate\` vendors PGlite by default, and \`serve.mjs\` serves
+ * \`vendor/pglite/\` from the installed \`@electric-sql/pglite\` when it was not.
+ * Postgres is the application's database, so it is shipped with the
+ * application rather than fetched from a third party at the moment someone
+ * opens it — behind a firewall, offline, or on the day that host is down.
  */
 async function loadPGlite(base, supplied) {
-  const candidates = [
-    new URL("vendor/pglite/index.js", base).href,
-    supplied,
-    "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.5/dist/index.js",
-  ].filter(Boolean);
+  const candidates = [new URL("vendor/pglite/index.js", base).href, PGLITE_URL, supplied].filter(
+    Boolean
+  );
 
   const failures = [];
   for (const candidate of candidates) {
@@ -11416,7 +11422,12 @@ async function loadPGlite(base, supplied) {
       failures.push(\`\${candidate}: \${error.message}\`);
     }
   }
-  throw new Error(\`Could not load PGlite.\\n\${failures.join("\\n")}\`);
+  throw new Error(
+    "Could not load PostgreSQL (PGlite). This application does not carry its own copy.\\n" +
+      "Generate it with \`appwithai-wasm generate\` (which copies PGlite into vendor/pglite), " +
+      "or start it with \`npm install && npm start\`, which serves the installed package.\\n" +
+      failures.join("\\n")
+  );
 }
 
 async function respond(port, message) {
@@ -11745,17 +11756,34 @@ main().catch((error) => {
  *
  * This serves files. The application server is \`host/node-host.mjs\`, or the
  * browser itself.
+ *
+ * \`vendor/pglite/\` is served from the installed \`@electric-sql/pglite\` when the
+ * application was not generated with its own copy — an application downloaded
+ * from the in-browser generator, say, which cannot carry 17MB of WebAssembly in
+ * a shell script. \`npm install\` puts it there. Postgres is never fetched from a
+ * CDN.
  */
 
 import { createServer } from "node:http";
 import { existsSync, statSync } from "node:fs";
+import { createRequire } from "node:module";
 import { readFile } from "node:fs/promises";
-import { dirname, extname, join, normalize, resolve } from "node:path";
+import { dirname, extname, join, normalize, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)));
 const portIndex = process.argv.indexOf("--port");
 const PORT = Number(portIndex >= 0 ? process.argv[portIndex + 1] : process.env.PORT || 4000);
+
+/** The installed PGlite's \`dist/\`, or null when it is not installed. */
+function installedPglite() {
+  try {
+    return dirname(createRequire(join(ROOT, "package.json")).resolve("@electric-sql/pglite"));
+  } catch {
+    return null;
+  }
+}
+const PGLITE_DIST = installedPglite();
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -11785,6 +11813,11 @@ createServer(async (request, response) => {
       return;
     }
     if (existsSync(target) && statSync(target).isDirectory()) target = join(target, "index.html");
+    if (!existsSync(target) && PGLITE_DIST && relative.startsWith("vendor/pglite/")) {
+      const installed = normalize(join(PGLITE_DIST, relative.slice("vendor/pglite/".length)));
+      // Inside the package's dist/, the same as the ROOT check above.
+      if (installed.startsWith(PGLITE_DIST + sep)) target = installed;
+    }
     if (!existsSync(target)) {
       response.writeHead(404).end("Not found");
       return;
@@ -12192,7 +12225,7 @@ export async function destroySession(db, token) {
  * would be a different application from the one the model described.
  *
  * The PGlite class is injected rather than imported: the Node host resolves it
- * from node_modules and the browser host from a vendored (or CDN) ES module,
+ * from node_modules and the browser host from a vendored ES module (never a CDN),
  * and this file has to be the same file in both.
  */
 
@@ -26321,7 +26354,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 618839;
+var RUNTIME_BYTES = 620394;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -30887,7 +30920,7 @@ function emailFor(draw) {
 }
 
 // packages/generator/src/generators/wasm/wasm-app.generator.ts
-var DEFAULT_PGLITE_URL = "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.5/dist/index.js";
+var PGLITE_URL_SLOT = 'const PGLITE_URL = "";';
 function generateWasmApp(parsed, options) {
   const files = new Map;
   for (const [name, contents] of Object.entries(RUNTIME_ASSETS))
@@ -30907,8 +30940,12 @@ function generateWasmApp(parsed, options) {
   if (options.source?.trim())
     files.set("model/model.eml.mmd", options.source);
   files.set("index.html", (RUNTIME_ASSETS["index.html"] ?? "").replaceAll("__PROJECT_NAME__", escapeHtml2(options.name)).replaceAll("__PROJECT_DESCRIPTION__", escapeHtml2(options.description)).replaceAll("__PROJECT_INITIALS__", escapeHtml2(initials2(options.name))));
-  if (options.pgliteUrl && options.pgliteUrl !== DEFAULT_PGLITE_URL) {
-    files.set("host/browser-node-host.js", (RUNTIME_ASSETS["host/browser-node-host.js"] ?? "").replace(DEFAULT_PGLITE_URL, options.pgliteUrl));
+  if (options.pgliteUrl) {
+    const host = RUNTIME_ASSETS["host/browser-node-host.js"] ?? "";
+    if (!host.includes(PGLITE_URL_SLOT)) {
+      throw new Error("host/browser-node-host.js has no PGLITE_URL to set");
+    }
+    files.set("host/browser-node-host.js", host.replace(PGLITE_URL_SLOT, `const PGLITE_URL = ${JSON.stringify(options.pgliteUrl)};`));
   }
   files.set("manual.html", renderManual(parsed, {
     name: options.name,
@@ -31000,9 +31037,10 @@ is how the generator's own tests exercise it.
 
 This application has no Bun in it and no build step: Node runs the host, the
 browser runs the same code under its own Node-API runtime, and nothing is
-compiled on the way in either direction. \`npm install\` is needed only when the
-application was generated *without* \`--vendor-pglite\`, to fetch PGlite for the
-Node host; in the browser it is fetched and cached by the browser itself.
+compiled on the way in either direction. PostgreSQL ships with the application,
+in \`vendor/pglite/\`, and is never fetched from a CDN. An application without that
+folder — one downloaded from the in-browser generator — needs \`npm install\`
+once: \`serve.mjs\` and the Node host then use the installed package.
 
 ## What is in here
 
@@ -31096,7 +31134,6 @@ function generateFromSource(options) {
   };
 }
 export {
-  DEFAULT_PGLITE_URL,
   DEFAULT_SAMPLE_RECORDS,
   ModelCheckError,
   RUNTIME_BYTES,

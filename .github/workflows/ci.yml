@@ -278,10 +278,14 @@ jobs:
       - name: Install Chromium
         run: bunx playwright install --with-deps chromium
 
-      # Seventeen megabytes of PostgreSQL, placed beside the page so the run
-      # does not depend on a CDN being up.
+      # Seventeen megabytes of PostgreSQL, placed beside the page. Nothing is
+      # fetched from a CDN, so without this the page refuses to run an app.
       - name: Vendor PGlite
         run: bun run vendor:pglite
+
+      # The same for run-real-stack.html's @webcontainer/api.
+      - name: Vendor the WebContainer API
+        run: bun run vendor:webcontainer
 
       # run-real-stack.html assembles the NestJS stack in the tab, which needs
       # the templates beside the page. They are a copy of files already in this
