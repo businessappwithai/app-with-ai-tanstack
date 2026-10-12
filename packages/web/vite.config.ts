@@ -41,6 +41,14 @@ const config = defineConfig({
       // Generate step mid-run and threw away its logs and completion state.
       ignored: ["**/generated-projects/**"],
     },
+    // Transform the rule editor in the background as soon as the server starts.
+    // It is a lazy chunk over @gorules/jdm-editor (with antd) and Monaco — about
+    // 11 MB of pre-bundled code — and Vite transforms a module on its first
+    // request, so after every restart the first "New rule" sat on "Loading
+    // editor…" while that happened. Warming the entry warms its static imports.
+    warmup: {
+      clientFiles: ["../editors/src/components/eml/GoRulesEditorPanel.tsx"],
+    },
   },
   optimizeDeps: {
     // Native .node binaries and Node-only drivers can't be bundled by Rolldown — exclude them
@@ -63,6 +71,13 @@ const config = defineConfig({
   },
   resolve: {
     tsconfigPaths: true,
+    // One Monaco. @gorules/jdm-editor depends on monaco-editor 0.52 but draws every
+    // editor through @monaco-editor/react's loader, which takes the 0.57 instance
+    // packages/editors/src/lib/monaco-local.ts puts on `window`. Its one direct
+    // import is the MarkerSeverity enum — and resolving that from its own 0.52
+    // pulled a second full Monaco into the rule editor's chunk: 4 MB more to
+    // transform and about 95 more stylesheets, the bulk of a 25-second first open.
+    dedupe: ["monaco-editor"],
     alias: [
       // Replace @tanstack/start-api-routes@1.120 (Vinxi-based) with a Vite-compatible shim.
       // The original imports 'vinxi/routes' which doesn't exist in @tanstack/react-start@1.167+.
