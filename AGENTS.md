@@ -141,6 +141,13 @@ tree that has never been built those do not exist, so `dev` runs
 and nothing rebuilt on a warm tree. Editing `packages/core` mid-session still
 needs `bun run build:core`.
 
+Before building, it checks every workspace's declared dependencies against what
+is installed and stops with `run "bun install" first` if one is missing or out of
+range. A pull that bumps a dependency otherwise surfaces as a Vite import error
+naming a path that "does not exist" — `monaco-editor/editor/editor.worker` when
+`packages/editors` moved monaco from 0.52 to 0.57. Platform-specific binaries
+bun.lock marks for another os/cpu are skipped.
+
 ### Known-broken scripts
 All of the entries that used to be here have been **removed** rather than
 documented: `migrate`, `test:app`, `test:e2e`, `test:generator`, `test:complete`
