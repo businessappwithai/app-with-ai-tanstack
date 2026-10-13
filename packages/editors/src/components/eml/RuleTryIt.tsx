@@ -13,6 +13,8 @@ interface RuleTryItProps {
   fieldTypes?: Record<string, "string" | "number" | "boolean">;
   /** The graph as it stands now, saved or not. */
   getGraph: () => string;
+  /** When set, the section is exactly this tall and the textarea fills the space. */
+  height?: number;
 }
 
 const KIND_STYLE: Record<string, string> = {
@@ -39,6 +41,7 @@ export function RuleTryIt({
   entityEnums,
   fieldTypes,
   getGraph,
+  height,
 }: RuleTryItProps) {
   const initial = useMemo(
     () => JSON.stringify(sampleRecord(entityFields, entityEnums, fieldTypes), null, 2),
@@ -76,23 +79,27 @@ export function RuleTryIt({
   };
 
   return (
-    <section aria-label="Try the rule" className="mt-3 rounded-lg border border-border p-3">
+    <section
+      aria-label="Try the rule"
+      style={height ? { height } : undefined}
+      className={`mt-3 rounded-lg border border-border p-3${height ? " flex flex-col overflow-hidden" : ""}`}
+    >
       <h3 className="text-sm font-semibold">Try it before you save</h3>
       <p className="mt-0.5 text-xs text-muted-foreground">
         Edit the sample record, then run the rule to see what it would do to the write. Nothing is
         saved.
       </p>
-      <div className="mt-2 grid gap-3 lg:grid-cols-2">
-        <label className="block">
+      <div className={`mt-2 grid gap-3 lg:grid-cols-2${height ? " flex-1 min-h-0" : ""}`}>
+        <label className={height ? "flex min-h-0 flex-col" : "block"}>
           <span className="mb-1 block text-xs font-medium">Sample {entity || "record"}</span>
           <textarea
-            className="h-40 w-full rounded-md border border-border p-2 font-mono text-xs"
+            className={`w-full rounded-md border border-border p-2 font-mono text-xs${height ? " min-h-0 flex-1 resize-none" : " h-40"}`}
             value={shown}
             onChange={(event) => setText(event.target.value)}
             spellCheck={false}
           />
         </label>
-        <div aria-live="polite">
+        <div aria-live="polite" className={height ? "min-h-0 overflow-y-auto" : ""}>
           <span className="mb-1 block text-xs font-medium">What would happen</span>
           {error && (
             <p className="flex items-start gap-1.5 rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">

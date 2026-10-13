@@ -45,6 +45,8 @@ interface GoRulesEditorPanelProps {
   dryRun: RuleDryRun;
   sampleRecord: string;
   onChange: (graphJson: string) => void;
+  /** Height of the graph canvas in pixels. Defaults to 640. */
+  height?: number;
 }
 
 /**
@@ -77,11 +79,13 @@ function withRequestSchema(
       properties: Object.fromEntries(
         fields.map((field) => [
           field,
-          // Every column may be null: a field the author left blank reaches the rule as null,
-          // and a schema that says plain "string" refused the whole record — which Try it and
-          // the running application both reported as "invalid JDM structure".
+          // null stays in the type union so the schema never rejects a blank field
+          // arriving as null from the application.  It must NOT appear in the enum
+          // list: the GoRules simulator renders enum fields as a dropdown and
+          // defaults to the first null-able entry, so every field shows "null"
+          // before the user touches anything.
           values[field]
-            ? { type: ["string", "null"], enum: [...(values[field] as string[]), null] }
+            ? { type: ["string", "null"], enum: values[field] }
             : { type: [types[field] ?? "string", "null"] },
         ])
       ),
@@ -146,6 +150,7 @@ export function GoRulesEditorPanel({
   dryRun,
   sampleRecord,
   onChange,
+  height = 640,
 }: GoRulesEditorPanelProps) {
   const [mode, setMode] = useState<JdmUiMode>("business");
   const [simulate, setSimulate] = useState<Simulation | undefined>();
@@ -336,7 +341,7 @@ export function GoRulesEditorPanel({
         }
       `}</style>
       <JdmConfigProvider>
-        <div className="overflow-hidden rounded-xl border border-border" style={{ height: 640 }}>
+        <div className="overflow-hidden rounded-xl border border-border" style={{ height }}>
           <DecisionGraph
             value={graphValue}
             onChange={(next) => commit(next)}
@@ -352,6 +357,7 @@ export function GoRulesEditorPanel({
                 icon: <Play className="h-4 w-4" />,
                 renderPanel: () => (
                   <GraphSimulator
+                    key={sampleRecord}
                     defaultRequest={sampleRecord}
                     loading={running}
                     onRun={run}

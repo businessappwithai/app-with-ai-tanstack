@@ -1,5 +1,5 @@
-import { AlertCircle, Code2 } from "lucide-react";
-import { lazy, Suspense, useMemo, useState } from "react";
+import { AlertCircle, Code2, GripHorizontal } from "lucide-react";
+import { lazy, Suspense, useCallback, useMemo, useState } from "react";
 
 // Gorules JDM editor bundles monaco-editor which cannot run in SSR —
 // lazy-load so it only resolves in the browser.
@@ -114,6 +114,11 @@ export interface RuleEditorProps {
   showPriority?: boolean;
 }
 
+const TOTAL_HEIGHT = 880;
+const MIN_GRAPH = 300;
+const MIN_TRY_IT = 180;
+const HANDLE_HEIGHT = 10;
+
 export function RuleEditor({
   rule,
   entities,
@@ -126,9 +131,44 @@ export function RuleEditor({
   dryRun,
 }: RuleEditorProps) {
   const [showSource, setShowSource] = useState(false);
+  const [graphHeight, setGraphHeight] = useState(640);
+  const tryItHeight = TOTAL_HEIGHT - HANDLE_HEIGHT - graphHeight;
+
+  const startDrag = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      const startY = e.clientY;
+      const startGraph = graphHeight;
+      const onMove = (ev: MouseEvent) => {
+        const delta = ev.clientY - startY;
+        const next = Math.max(
+          MIN_GRAPH,
+          Math.min(TOTAL_HEIGHT - HANDLE_HEIGHT - MIN_TRY_IT, startGraph + delta)
+        );
+        setGraphHeight(next);
+      };
+      const onUp = () => {
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        document.body.style.cursor = "";
+      };
+      document.body.style.cursor = "row-resize";
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    },
+    [graphHeight]
+  );
   const entityFields = useMemo(
     () => entities.find((e) => e.name === rule.entity)?.attributes ?? [],
     [entities, rule.entity]
+  );
+  // When the project model hasn't loaded yet, `entityFields` is empty but
+  // `fieldTypes` (from the EML constraints API) already has the field names as
+  // keys — use that as a fallback so the simulator opens with real field values
+  // rather than an empty object that renders as null in the trace.
+  const sampleFields = useMemo(
+    () => (entityFields.length > 0 ? entityFields : Object.keys(fieldTypes ?? {})),
+    [entityFields, fieldTypes]
   );
   // Whether the authored flowchart can be read as a table, worked out once so
   // the editor can show it and the banner can say which it is rather than
@@ -235,15 +275,16 @@ export function RuleEditor({
             <GoRulesEditorPanel
               jdmGraph={rule.jdmGraph}
               table={table}
-              entityFields={entityFields}
+              entityFields={sampleFields}
               entityEnums={entityEnums}
               entityWorkflows={entityWorkflows}
               fieldTypes={fieldTypes}
               ruleName={slugifyRuleName(rule.title ?? rule.name)}
               entity={rule.entity}
               dryRun={dryRun}
+              height={graphHeight}
               sampleRecord={JSON.stringify(
-                sampleRecord(entityFields, entityEnums, fieldTypes),
+                sampleRecord(sampleFields, entityEnums, fieldTypes),
                 null,
                 2
               )}
@@ -252,12 +293,23 @@ export function RuleEditor({
               }
             />
           </Suspense>
+          {/* Drag handle — drag up to grow the try-it panel, down to shrink it */}
+          <div
+            role="separator"
+            aria-label="Resize simulator panel"
+            onMouseDown={startDrag}
+            className="mt-2 flex cursor-row-resize select-none items-center justify-center rounded border border-dashed border-border py-0.5 text-muted-foreground hover:border-primary hover:text-primary"
+            style={{ height: HANDLE_HEIGHT }}
+          >
+            <GripHorizontal className="h-3.5 w-3.5" />
+          </div>
           <RuleTryIt
             dryRun={dryRun}
             entity={rule.entity}
-            entityFields={entityFields}
+            entityFields={sampleFields}
             entityEnums={entityEnums}
             fieldTypes={fieldTypes}
+            height={tryItHeight}
             getGraph={() =>
               rule.jdmGraph ??
               JSON.stringify(tableToGraph(table, slugifyRuleName(rule.title ?? rule.name)))
