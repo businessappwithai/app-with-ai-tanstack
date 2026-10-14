@@ -716,6 +716,30 @@ export function validateAutomation(automation: Automation): Problem[] {
         const op = (step.props.operation ?? "set").trim();
         if (op === "set" || op === "copy") continue;
       }
+      // "set" stores its value as written and "copy" reads one from the run, so
+      // each is compiled from a different kind of value: a reference given to
+      // "set" becomes a source with no value, and text given to "copy" a value
+      // with no source. The checker refuses both (EML262), and so does
+      // generation — reported here, at the step, rather than after saving.
+      if (field === "left" && step.type === "Formula") {
+        const op = (step.props.operation ?? "set").trim();
+        const left = (step.props.left ?? "").trim();
+        const isReference = /^\{\{[^}]+\}\}$/.test(left);
+        if (left && op === "set" && isReference) {
+          problems.push({
+            target: step.id,
+            message: `Step ${i + 1} sets a value from ${left}. "set" stores text as written — choose "copy" to take a value from the run.`,
+          });
+          continue;
+        }
+        if (left && op === "copy" && !isReference) {
+          problems.push({
+            target: step.id,
+            message: `Step ${i + 1} copies "${left}", which is not a value from the run. Use a reference such as {{record.field}}, or choose "set" to store the text as written.`,
+          });
+          continue;
+        }
+      }
       if (!(step.props[field] ?? "").trim()) {
         problems.push({
           target: step.id,
@@ -1235,8 +1259,12 @@ function applySagaProps(entry: AutomationStep, props: Record<string, string>): v
     if (source) entry.props.value = `{{${source}}}`;
     // A saga aims at another row with targetSource/targetField; the automation
     // model has one `target`, so the row reference wins over the column.
+    // Without the column, a model step such as `entity: FeeInvoice targetField:
+    // fee_invoice_id` opened as "does not say which one" — on a step that does.
     const targetSource = take("targetSource");
+    const targetField = take("targetField");
     if (targetSource) entry.props.target = `{{${targetSource}}}`;
+    else if (targetField) entry.props.target = targetField;
   } else if (entry.type === "DeleteEntity") {
     const targetSource = take("targetSource");
     const targetField = take("targetField");
@@ -1414,6 +1442,12 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
         entry.loopId = value;
       } else if (key === "values") {
         entry.props[key] = decodeCreateValues(value);
+      } else if (key === "targetSource") {
+        // Which record, as the one-line saga form reads it (`applySagaProps`):
+        // a reference wins over a column, whichever line comes first.
+        entry.props.target = `{{${value}}}`;
+      } else if (key === "targetField") {
+        if (!entry.props.target?.startsWith("{{")) entry.props.target = value;
       } else {
         entry.props[key] = value;
       }

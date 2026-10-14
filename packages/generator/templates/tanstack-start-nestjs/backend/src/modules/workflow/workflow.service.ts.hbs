@@ -605,7 +605,18 @@ export class WorkflowService {
     vars: Record<string, unknown>,
     db: Kysely<any> = this.db,
   ): Promise<Record<string, unknown> | null> {
-    const context: Record<string, unknown> = { ...vars, ...entityData };
+    // The builder offers the record's own fields as `<entity>.<field>` —
+    // `\{{feeinvoice.balance_due}}`, the form its help and its suggestions use —
+    // and saves the reference without braces. The record arrives here flat, so
+    // without these keys every such reference missed: a Formula skipped as
+    // non-numeric, and a Create wrote the text "feeinvoice.id" into a uuid
+    // column and rolled the whole run back. A check already falls back to the
+    // bare name (`checkHolds`); this gives every other step the same reading.
+    const root = triggeringTable.replace(/^bus_/, '').replace(/_/g, '').toLowerCase();
+    const qualified = Object.fromEntries(
+      Object.entries(entityData).map(([key, value]) => [`${root}.${key}`, value]),
+    );
+    const context: Record<string, unknown> = { ...qualified, ...vars, ...entityData };
 
     if (task.nodeType === 'UpdateEntity') {
       return this.executeUpdateEntity(task, triggeringTable, entityData, context, db);
@@ -1020,7 +1031,12 @@ export class WorkflowService {
     let matchedRows: number;
     try {
       const decision = this.rulesEngine.getEngine().createDecision(Buffer.from(jdm));
-      const evaluated = await decision.evaluate(context);
+      // The record comes from the database, so its date columns are Date objects,
+      // which reach zen as `{}`: a rule whose schema types `due_on` as a string
+      // refused every such record ("/due_on: {} is not of types null, string"),
+      // and no lookup on an entity with a date ever decided anything. The JSON
+      // form is what zen reads — a Date becomes its ISO string.
+      const evaluated = await decision.evaluate(JSON.parse(JSON.stringify(context)));
       const raw = (evaluated as any)?.result;
 
       if (Array.isArray(raw)) {

@@ -243,6 +243,33 @@ describe("validateAutomation", () => {
     );
   });
 
+  /**
+   * A Formula's single value compiles by its kind: a reference to `source`, text
+   * to `value`. "set" reads only `value` and "copy" only `source`, so the wrong
+   * kind passed here saved, then failed the checker (EML262) and generation.
+   */
+  it.each([
+    ["set", "{{order.total}}", /choose "copy"/],
+    ["copy", "high", /choose "set"/],
+  ])("refuses %s given the other kind of value (%s)", (operation, left, message) => {
+    const a = sampleAutomation();
+    const formula = newStep("Formula");
+    formula.props = { operation, left };
+    a.steps.push(formula);
+    expect(validateAutomation(a).find((p) => p.target === formula.id)?.message).toMatch(message);
+  });
+
+  it.each([
+    ["set", "high"],
+    ["copy", "{{order.total}}"],
+  ])("accepts %s given its own kind of value (%s)", (operation, left) => {
+    const a = sampleAutomation();
+    const formula = newStep("Formula");
+    formula.props = { operation, left };
+    a.steps.push(formula);
+    expect(validateAutomation(a).some((p) => p.target === formula.id)).toBe(false);
+  });
+
   it("asks for a name and a record type on a fresh automation", () => {
     const a = emptyAutomation("");
     a.name = "";

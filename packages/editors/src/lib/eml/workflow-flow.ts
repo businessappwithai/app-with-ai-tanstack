@@ -216,7 +216,9 @@ export function parseStateFlow(diagram: string): StateFlow {
     const column = depth.get(state.id) ?? 0;
     const row = perColumn.get(column) ?? 0;
     perColumn.set(column, row + 1);
-    state.position = { x: 80 + column * 220, y: 60 + row * 120 };
+    // A state is ~150px wide; at 220 apart a move's label had 70px between two
+    // states and ran into both ("accept_offer" over offer_made and accepted).
+    state.position = { x: 80 + column * 300, y: 60 + row * 140 };
   }
 
   return { states: ordered, transitions, initial, terminal };
