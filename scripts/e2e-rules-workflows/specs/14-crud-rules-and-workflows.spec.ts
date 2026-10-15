@@ -51,7 +51,7 @@ import { buildGraphRule, chainNames, type GraphRuleScenario } from "../lib/graph
 import { expectWorkflowShown, LogicPage, type WorkflowScenario } from "../lib/logic-page";
 import { RuleGraph } from "../lib/rule-graph";
 import { buildTableRule, runTryIt, setTypedCell, type TableRuleScenario } from "../lib/rule-table";
-import { type Author, authorWithProject, browserAs, GENERATED } from "../lib/session";
+import { type Author, authorWithProject, browserAs, GENERATED, MODEL_SOURCE } from "../lib/session";
 import { GRAPH_RULES } from "../scenarios/graph-rule-catalogue";
 import { TABLE_RULES } from "../scenarios/rule-catalogue";
 import { WORKFLOWS } from "../scenarios/workflow-catalogue";
@@ -78,14 +78,21 @@ const SHOTS_DIR =
 
 const STAGES = ["created", "read", "updated", "deleted"] as const;
 
-/** Attach a screenshot of the page to the test and write it to SHOTS_DIR. */
+/**
+ * Attach a screenshot to the test and write it to SHOTS_DIR: the editor beside the rail
+ * (graph, ladder or state machine, with its Try it panel) while the item exists, and the
+ * rail once it is deleted. Element screenshots, not the viewport: opening an item low in
+ * the rail scrolls the page, and a viewport shot then shows the rail and not the editor.
+ */
 async function shot(
   page: Page,
   testInfo: TestInfo,
   item: string,
   stage: (typeof STAGES)[number]
 ): Promise<void> {
-  const body = await page.screenshot();
+  const rail = page.locator("aside").first();
+  const target = stage === "deleted" ? rail : rail.locator("xpath=following-sibling::div[1]");
+  const body = await target.screenshot().catch(() => page.screenshot());
   await testInfo.attach(stage, { body, contentType: "image/png" });
   const slug = item
     .toLowerCase()
@@ -193,6 +200,21 @@ function changedText(next: WorkflowScenario): string {
   return "https://example.com/revised";
 }
 
+/**
+ * The entities whose status machine the model declares. A generated application refuses a
+ * second machine on one of them — "declared in the model — edit the %%workflow section and
+ * regenerate" — because the next generation would overwrite it; the modelling tool edits the
+ * model itself and accepts it.
+ */
+const MODEL_STATE_ENTITIES = new Set(
+  [...MODEL_SOURCE.matchAll(/^%%workflow \w+ entity: (\w+) kind: state\b/gm)].map(
+    (m) => m[1] as string
+  )
+);
+
+/** Where a generated application's refused status machine is built instead: no machine declared. */
+const FREE_STATE_ENTITY = "Department";
+
 async function renameWorkflow(page: Page, wf: WorkflowScenario, title: string) {
   // Lifecycles and processes edit their name in place as the ladder's heading; a status
   // machine has a Name field above its canvas.
@@ -214,12 +236,37 @@ if (kind !== "rules") {
       await author.session.request.dispose();
     });
 
-    for (const wf of pick(WORKFLOWS)) {
-      test(`workflow (${wf.kind}): ${wf.name} — create, read, update, delete`, async ({
+    for (const scenario of pick(WORKFLOWS)) {
+      test(`workflow (${scenario.kind}): ${scenario.name} — create, read, update, delete`, async ({
         browser,
       }, testInfo) => {
         test.setTimeout(420_000);
         const context = await browserAs(browser, author);
+        const declared =
+          GENERATED && scenario.kind === "status" && MODEL_STATE_ENTITIES.has(scenario.entity);
+        if (declared) {
+          await test.step("refused: the model declares this entity's status machine", async () => {
+            const page = await context.newPage();
+            const logic = new LogicPage(page, author.projectId);
+            await logic.open();
+            await logic.createWorkflow(scenario);
+            await page.getByRole("button", { name: "Save", exact: true }).click();
+            await expect(page.getByText(/status machine is declared in the model/)).toBeVisible({
+              timeout: 20_000,
+            });
+            await expectWorkflowKept(page, author, {
+              id: workflowIdentifier(scenario.name),
+              title: scenario.name,
+              entity: scenario.entity,
+              present: false,
+            });
+            await page.close();
+          });
+        }
+        // The same machine, on an entity the model leaves free, for the four operations.
+        const wf: WorkflowScenario = declared
+          ? { ...scenario, entity: FREE_STATE_ENTITY }
+          : scenario;
         const page = await context.newPage();
         const errors = watchErrors(page);
         const logic = new LogicPage(page, author.projectId);

@@ -131,16 +131,27 @@ export class RuleGraph {
       .catch(() => {});
     if (before > 0) await this.makeRoom();
     const target = await this.nextSpot(before);
-    const row = this.page.locator(EDITOR).getByText(kind, { exact: true }).last();
-    const from = (await row.boundingBox())!;
-    const sx = from.x + from.width / 2;
-    const sy = from.y + from.height / 2;
-    const mouse = this.page.mouse;
-    await mouse.move(sx, sy);
-    await mouse.down();
-    await mouse.move(sx - 40, sy + 10, { steps: 5 });
-    await mouse.move(target.x, target.y, { steps: 20 });
-    await mouse.up();
+    const drag = async () => {
+      const row = this.page.locator(EDITOR).getByText(kind, { exact: true }).last();
+      const from = (await row.boundingBox())!;
+      const sx = from.x + from.width / 2;
+      const sy = from.y + from.height / 2;
+      const mouse = this.page.mouse;
+      await mouse.move(sx, sy);
+      await mouse.down();
+      await mouse.move(sx - 40, sy + 10, { steps: 5 });
+      await mouse.move(target.x, target.y, { steps: 20 });
+      await mouse.up();
+    };
+    await drag();
+    // On a loaded machine the canvas can miss the drop altogether — nothing is added, not
+    // even slowly. Drag once more only then; the strict count below still fails a drop
+    // that added two.
+    const landed = await expect(this.nodes)
+      .toHaveCount(before + 1, { timeout: 5000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!landed && (await this.nodes.count()) === before) await drag();
     await expect(this.nodes).toHaveCount(before + 1);
   }
 
