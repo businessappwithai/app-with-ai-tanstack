@@ -81,7 +81,7 @@ export async function buildGraphRule(page: Page, graph: RuleGraph, rule: GraphRu
   const names = chainNames(rule.chain);
   const path = ["Record", ...names, "response"];
   for (let i = 0; i < path.length - 1; i++) {
-    await graph.link(path[i] as string, path[i + 1] as string, 0);
+    await graph.link(path[i] as string, path[i + 1] as string, 0, i + 1);
   }
   for (const [i, node] of rule.chain.entries()) {
     await configureNode(page, graph, node, names[i] as string);

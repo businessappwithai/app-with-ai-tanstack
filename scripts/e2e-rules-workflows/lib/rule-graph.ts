@@ -115,6 +115,12 @@ export class RuleGraph {
     }
   }
 
+  /** Fit every node into view (the controls' third button) — a reopened graph can open scrolled. */
+  async fitView(): Promise<void> {
+    await this.page.locator(`${EDITOR} .react-flow__controls button`).nth(2).click();
+    await this.page.waitForTimeout(400);
+  }
+
   /** Drag a node from the Components panel onto the canvas. */
   async add(kind: NodeKind): Promise<void> {
     const before = await this.nodes.count();
@@ -138,9 +144,15 @@ export class RuleGraph {
     await expect(this.nodes).toHaveCount(before + 1);
   }
 
-  /** Draw a line from one node's output to another's input. */
-  async link(from: string, to: string, fromHandle = 0): Promise<void> {
-    const before = await this.edges.count();
+  /**
+   * Draw a line from one node's output to another's input.
+   *
+   * `edgesAfter` is how many lines the canvas should then hold. Pass it when the caller knows:
+   * the canvas re-mounts its edges just after a line is drawn, so a count read at the start of
+   * the next link can briefly be one short and the wait would then expect one line too few.
+   */
+  async link(from: string, to: string, fromHandle = 0, edgesAfter?: number): Promise<void> {
+    const before = edgesAfter === undefined ? await this.edges.count() : edgesAfter - 1;
     const source = this.node(from).locator(".react-flow__handle-right").nth(fromHandle);
     const target = this.node(to).locator(".react-flow__handle-left").first();
     await source.scrollIntoViewIfNeeded();

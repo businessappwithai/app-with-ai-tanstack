@@ -197,6 +197,7 @@ if (kind !== "workflows") {
             await graph.openTab("Graph");
           }
           if (graphChange) {
+            await graph.fitView();
             await graph.node(graphChange.name).getByText("Edit Function").click();
             await expect(
               graph.editor.locator(".monaco-editor >> visible=true").first()
