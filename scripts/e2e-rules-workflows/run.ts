@@ -317,7 +317,8 @@ try {
   }
   console.log("\n▸ Running the rules and workflows editor suite");
   const child = spawn(
-    ["bunx", "playwright", "test", "-c", "playwright.config.ts", ...passthrough],
+    // `--bun`: the runner on Bun's runtime, not the Node its shebang names.
+    ["bunx", "--bun", "playwright", "test", "-c", "playwright.config.ts", ...passthrough],
     {
       cwd: HERE,
       env: { ...process.env, ...env },
