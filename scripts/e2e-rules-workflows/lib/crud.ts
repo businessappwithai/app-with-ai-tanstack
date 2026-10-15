@@ -78,7 +78,9 @@ export async function deleteFromRail(page: Page, title: string): Promise<void> {
   const row = railRow(page, title);
   await expect(row, `"${title}" is in the rail`).toHaveCount(1);
   await row.hover();
-  await row.getByRole("button", { name: /^Delete / }).click();
+  // By its aria-label: an item titled "Delete Own Record" has an open button whose name
+  // also starts with "Delete".
+  await row.locator("button[aria-label^='Delete ']").click();
   await expect(row).toHaveCount(0);
 }
 
