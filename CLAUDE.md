@@ -77,7 +77,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 **Run a single test:**
 ```bash
 bun --filter @appwithai/web test -- path/to/file.spec.ts
-bunx playwright test tests/e2e/specific.e2e.spec.ts
+bunx --bun playwright test tests/e2e/specific.e2e.spec.ts
 ```
 
 ### Run `bun install` first — both failure modes are silent
