@@ -144,145 +144,6 @@ function revisedTryIt(
 const priorityInput = (page: Page) => page.locator("label:has(span:text-is('Priority')) input");
 const entitySelect = (page: Page) => page.locator("label:has(span:text-is('Entity')) select");
 
-if (kind !== "workflows") {
-  test.describe("CRUD — business rules (53, table and graph)", () => {
-    let author: Author;
-    test.beforeAll(async ({ playwright }) => {
-      author = await authorWithProject(playwright, "crud-rules");
-    });
-    test.afterAll(async () => {
-      await author.session.request.dispose();
-    });
-
-    for (const item of RULE_CASES) {
-      const { rule } = item;
-      test(`rule (${item.shape}): ${rule.name} — create, read, update, delete`, async ({
-        browser,
-      }, testInfo) => {
-        test.setTimeout(480_000);
-        const context = await browserAs(browser, author);
-        const page = await context.newPage();
-        const errors = watchErrors(page);
-        const graph = new RuleGraph(page);
-        const title = rule.name;
-        const id = ruleIdentifier(title);
-        const newTitle = `${title}${REVISED}`;
-        const newId = ruleIdentifier(newTitle);
-        const priority = item.shape === "table" ? (item.rule.priority ?? 100) : 100;
-        const newPriority = priority + 7;
-        const tableChange = item.shape === "table" ? messageCell(item.rule) : undefined;
-        const graphChange = item.shape === "graph" ? functionChange(item.rule) : undefined;
-        const change = tableChange ?? graphChange;
-
-        await test.step("create", async () => {
-          await openLogic(page, author);
-          if (item.shape === "table") await buildTableRule(page, graph, item.rule);
-          else await buildGraphRule(page, graph, item.rule);
-          for (const t of rule.tryIt) await runTryIt(page, t.sample, t.expect, t.message);
-          await shot(page, testInfo, `rule ${title}`, "created");
-          await saveModel(page);
-          await expectRuleKept(page, author, {
-            id,
-            title,
-            entity: rule.entity,
-            present: true,
-            priority: GENERATED ? undefined : priority,
-          });
-        });
-
-        await test.step("read", async () => {
-          await openLogic(page, author);
-          await openFromRail(page, title);
-          await graph.waitReady();
-          await expect(entitySelect(page)).toHaveValue(rule.entity);
-          if (!GENERATED) await expect(priorityInput(page)).toHaveValue(String(priority));
-          if (item.shape === "graph") {
-            await expect(graph.nodes).toHaveCount(item.rule.chain.length + 2);
-          }
-          for (const t of rule.tryIt) await runTryIt(page, t.sample, t.expect, t.message);
-          await shot(page, testInfo, `rule ${title}`, "read");
-        });
-
-        await test.step("update", async () => {
-          await page.getByLabel("Name").first().fill(newTitle);
-          if (!GENERATED) await priorityInput(page).fill(String(newPriority));
-          if (tableChange) {
-            await graph.nodes
-              .filter({ hasText: "Edit Table" })
-              .first()
-              .getByText("Edit Table")
-              .click();
-            await setTypedCell(
-              page,
-              graph,
-              tableChange.row,
-              tableChange.col,
-              `"${tableChange.next}"`
-            );
-            await expect(graph.editor.locator("tbody tr").nth(tableChange.row)).toContainText(
-              tableChange.next
-            );
-            await graph.openTab("Graph");
-          }
-          if (graphChange) {
-            await graph.fitView();
-            await graph.node(graphChange.name).getByText("Edit Function").click();
-            await expect(
-              graph.editor.locator(".monaco-editor >> visible=true").first()
-            ).toBeVisible({
-              timeout: 30_000,
-            });
-            await graph.typeIntoCodeBox(graphChange.body);
-            await graph.openTab("Graph");
-          }
-          const tries = revisedTryIt(rule.tryIt, change);
-          for (const t of tries) await runTryIt(page, t.sample, t.expect, t.message);
-          await saveModel(page);
-
-          await openLogic(page, author);
-          await expect(railRow(page, title), "the old name is gone from the rail").toHaveCount(0);
-          await openFromRail(page, newTitle);
-          await graph.waitReady();
-          await expect(page.getByLabel("Name").first()).toHaveValue(newTitle);
-          await expect(entitySelect(page)).toHaveValue(rule.entity);
-          if (!GENERATED) await expect(priorityInput(page)).toHaveValue(String(newPriority));
-          for (const t of tries) await runTryIt(page, t.sample, t.expect, t.message);
-          await shot(page, testInfo, `rule ${title}`, "updated");
-          await expectRuleKept(page, author, {
-            id: newId,
-            title: newTitle,
-            entity: rule.entity,
-            present: true,
-            text: change?.next,
-            priority: GENERATED ? undefined : newPriority,
-          });
-          await expectRuleKept(page, author, { id, title, entity: rule.entity, present: false });
-        });
-
-        await test.step("delete", async () => {
-          await deleteFromRail(page, newTitle);
-          await saveModel(page);
-          await openLogic(page, author);
-          await expect(railRow(page, newTitle)).toHaveCount(0);
-          await expect(railRow(page, title)).toHaveCount(0);
-          await shot(page, testInfo, `rule ${title}`, "deleted");
-          const entity = rule.entity;
-          await expectRuleKept(page, author, {
-            id: newId,
-            title: newTitle,
-            entity,
-            present: false,
-          });
-          await expectRuleKept(page, author, { id, title, entity, present: false });
-        });
-
-        expect(errors, "no uncaught error in the page").toEqual([]);
-        await context.close();
-      });
-    }
-  });
-}
-
 /* -------------------------------------------------------------- workflows */
 
 /** A lifecycle hook the workflow does not use yet, for the update to add. */
@@ -437,6 +298,147 @@ if (kind !== "rules") {
             present: false,
           });
           await expectWorkflowKept(page, author, { id, title: wf.name, entity, present: false });
+        });
+
+        expect(errors, "no uncaught error in the page").toEqual([]);
+        await context.close();
+      });
+    }
+  });
+}
+
+/* ------------------------------------------- the rules, after the workflows */
+
+if (kind !== "workflows") {
+  test.describe("CRUD — business rules (53, table and graph)", () => {
+    let author: Author;
+    test.beforeAll(async ({ playwright }) => {
+      author = await authorWithProject(playwright, "crud-rules");
+    });
+    test.afterAll(async () => {
+      await author.session.request.dispose();
+    });
+
+    for (const item of RULE_CASES) {
+      const { rule } = item;
+      test(`rule (${item.shape}): ${rule.name} — create, read, update, delete`, async ({
+        browser,
+      }, testInfo) => {
+        test.setTimeout(480_000);
+        const context = await browserAs(browser, author);
+        const page = await context.newPage();
+        const errors = watchErrors(page);
+        const graph = new RuleGraph(page);
+        const title = rule.name;
+        const id = ruleIdentifier(title);
+        const newTitle = `${title}${REVISED}`;
+        const newId = ruleIdentifier(newTitle);
+        const priority = item.shape === "table" ? (item.rule.priority ?? 100) : 100;
+        const newPriority = priority + 7;
+        const tableChange = item.shape === "table" ? messageCell(item.rule) : undefined;
+        const graphChange = item.shape === "graph" ? functionChange(item.rule) : undefined;
+        const change = tableChange ?? graphChange;
+
+        await test.step("create", async () => {
+          await openLogic(page, author);
+          if (item.shape === "table") await buildTableRule(page, graph, item.rule);
+          else await buildGraphRule(page, graph, item.rule);
+          for (const t of rule.tryIt) await runTryIt(page, t.sample, t.expect, t.message);
+          await shot(page, testInfo, `rule ${title}`, "created");
+          await saveModel(page);
+          await expectRuleKept(page, author, {
+            id,
+            title,
+            entity: rule.entity,
+            present: true,
+            priority: GENERATED ? undefined : priority,
+          });
+        });
+
+        await test.step("read", async () => {
+          await openLogic(page, author);
+          await openFromRail(page, title);
+          await graph.waitReady();
+          await expect(entitySelect(page)).toHaveValue(rule.entity);
+          if (!GENERATED) await expect(priorityInput(page)).toHaveValue(String(priority));
+          if (item.shape === "graph") {
+            await expect(graph.nodes).toHaveCount(item.rule.chain.length + 2);
+          }
+          for (const t of rule.tryIt) await runTryIt(page, t.sample, t.expect, t.message);
+          await shot(page, testInfo, `rule ${title}`, "read");
+        });
+
+        await test.step("update", async () => {
+          await page.getByLabel("Name").first().fill(newTitle);
+          if (!GENERATED) await priorityInput(page).fill(String(newPriority));
+          if (tableChange) {
+            await graph.nodes
+              .filter({ hasText: "Edit Table" })
+              .first()
+              .getByText("Edit Table")
+              .click();
+            await setTypedCell(
+              page,
+              graph,
+              tableChange.row,
+              tableChange.col,
+              `"${tableChange.next}"`
+            );
+            await expect(graph.editor.locator("tbody tr").nth(tableChange.row)).toContainText(
+              tableChange.next
+            );
+            await graph.openTab("Graph");
+          }
+          if (graphChange) {
+            await graph.fitView();
+            await graph.node(graphChange.name).getByText("Edit Function").click();
+            await expect(
+              graph.editor.locator(".monaco-editor >> visible=true").first()
+            ).toBeVisible({
+              timeout: 30_000,
+            });
+            await graph.typeIntoCodeBox(graphChange.body);
+            await graph.openTab("Graph");
+          }
+          const tries = revisedTryIt(rule.tryIt, change);
+          for (const t of tries) await runTryIt(page, t.sample, t.expect, t.message);
+          await saveModel(page);
+
+          await openLogic(page, author);
+          await expect(railRow(page, title), "the old name is gone from the rail").toHaveCount(0);
+          await openFromRail(page, newTitle);
+          await graph.waitReady();
+          await expect(page.getByLabel("Name").first()).toHaveValue(newTitle);
+          await expect(entitySelect(page)).toHaveValue(rule.entity);
+          if (!GENERATED) await expect(priorityInput(page)).toHaveValue(String(newPriority));
+          for (const t of tries) await runTryIt(page, t.sample, t.expect, t.message);
+          await shot(page, testInfo, `rule ${title}`, "updated");
+          await expectRuleKept(page, author, {
+            id: newId,
+            title: newTitle,
+            entity: rule.entity,
+            present: true,
+            text: change?.next,
+            priority: GENERATED ? undefined : newPriority,
+          });
+          await expectRuleKept(page, author, { id, title, entity: rule.entity, present: false });
+        });
+
+        await test.step("delete", async () => {
+          await deleteFromRail(page, newTitle);
+          await saveModel(page);
+          await openLogic(page, author);
+          await expect(railRow(page, newTitle)).toHaveCount(0);
+          await expect(railRow(page, title)).toHaveCount(0);
+          await shot(page, testInfo, `rule ${title}`, "deleted");
+          const entity = rule.entity;
+          await expectRuleKept(page, author, {
+            id: newId,
+            title: newTitle,
+            entity,
+            present: false,
+          });
+          await expectRuleKept(page, author, { id, title, entity, present: false });
         });
 
         expect(errors, "no uncaught error in the page").toEqual([]);
