@@ -54,7 +54,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run dev:mastra` | Mastra AI → http://localhost:4111 |
 | `./scripts/start-llm.sh` | Local model server → :8000 |
 | `bun run build` | Build all packages |
-| `bun run type-check` | TypeScript (root tsconfig only) |
+| `bun run type-check` | TypeScript (root tsconfig only) — `tsc` on Bun 1.4 (`bun --bun`), after `scripts/require-bun.ts` refuses any other Bun |
 | `bun run type-check:language` | Type-check `language/**` (separate config) |
 | `bun run lint` / `bun run lint:fix` | Biome lint / autofix |
 | `bun run test` | Vitest unit tests (runs `packages/web/vitest.config.ts`) |
@@ -77,7 +77,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 **Run a single test:**
 ```bash
 bun --filter @appwithai/web test -- path/to/file.spec.ts
-bunx playwright test tests/e2e/specific.e2e.spec.ts
+bunx --bun playwright test tests/e2e/specific.e2e.spec.ts
 ```
 
 ### Run `bun install` first — both failure modes are silent
@@ -373,6 +373,23 @@ of the system-edition `llmtext` documents describe it; generated suite
 `%%workflow … kind: state` compiles to rows in `sys_workflow_transitions`, seeded by `05b_workflow_transitions.ts`. `entity-access.guard.ts` reads them and refuses a status write with no matching edge — **for every caller, master role included**: an edge the diagram never drew is not a permission an administrator lacks, it is a move that does not exist. Who may cross an edge is the separate question, answered from `sys_transition_access` — compiled from `%%rbac` by `packages/generator/src/rbac/index.ts`, **not** from `%%guard`, which now means only an automation condition — and *that* one the master role does bypass. Keep the two apart; merging them is how topology enforcement came to run only on edges that happened to carry a role rule.
 
 `GET /api/workflows/transitions?table=&from=` exposes the edges, so a screen can offer only the moves that exist.
+
+### The generated application runs on Bun — except the frontend build
+
+The NestJS + TanStack templates start every tool on Bun 1.4 with `bun --bun` (a package's
+bin on Bun's runtime instead of the Node its shebang names): the frontend's `dev`, `start`,
+`routes:generate` and `type-check`, and the backend's `build`; the backend already runs its
+TypeScript directly under Bun. Two exceptions, both measured rather than assumed:
+
+| Script | Why it is not plain `bun --bun …` |
+|---|---|
+| frontend `build` | `NODE_OPTIONS=--max-old-space-size=8192 vinxi build`, on Node. Bundling Monaco and the GoRules editor peaks at ~6.7 GB on Node with the heap raised (its default ~4 GB ceiling is what turned CI's "Generate an application and build it" red); under `bun --bun` the same build climbed past 10 GB and was killed on a 15 GB machine. Revisit when the editor bundle is trimmed (`@gorules/jdm-editor` imports the whole `monaco-editor`) |
+| frontend `dev` | `HOST=127.0.0.1 bun --bun vinxi dev`. vinxi asks get-port-please for a port, which binds `::` first; on a host with no IPv6 (this container) Node falls back to IPv4 and Bun throws "Failed to listen at ::", so the dev server never starts. With `HOST` set it probes that host only |
+
+The WASM overlay strips both prefixes (`bun --bun `, `HOST=127.0.0.1 bun --bun `), so the
+browser application's scripts are the plain Node commands they always were — CI's
+"No Bun left" check and the overlay footprint are unchanged. The generated test suite
+(`tests/`) stays on `node --test` by design; CI type-checks it with `bunx --bun tsc`.
 
 ### WASM stack
 

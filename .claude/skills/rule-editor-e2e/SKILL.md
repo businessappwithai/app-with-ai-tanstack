@@ -12,7 +12,7 @@ With the tool already running (see `run-modelling-tool`; start it with the raise
 ```bash
 cd scripts/e2e-rules-workflows
 E2E_NO_SERVER=1 PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium \
-  bunx playwright test -c playwright.config.ts specs/07 specs/09
+  bunx --bun playwright test -c playwright.config.ts specs/07 specs/09
 ```
 
 `bun run test:e2e:rules-workflows` starts the server itself and needs `DATABASE_URL`. Spec 08 needs `-- --generated`. A failure leaves `test-results/*/test-failed-1.png` — **look at it**; it is usually the answer. Debug by writing a page screenshot to `/var/tmp`, not `testInfo.attach` (attachments are not written to disk without the HTML reporter).

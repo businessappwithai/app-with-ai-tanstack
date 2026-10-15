@@ -38,6 +38,14 @@ export default defineConfig({
       // developer view — no pick-lists, no operators. Left where it is, it loads.
       // (It is a direct dependency so the pre-bundled editor can still resolve it.)
       exclude: ['@gorules/zen-engine-wasm'],
+      // Monaco's workers, pre-bundled at start. Found only when a code box first opens — a
+      // function node's body, say — Vite optimised them then and reloaded the page, which
+      // threw away whatever the author had typed into the rule before saving it.
+      include: [
+        'monaco-editor/editor/editor.worker',
+        'monaco-editor/language/typescript/ts.worker',
+        'monaco-editor/language/json/json.worker',
+      ],
     },
     esbuild: {
       jsx: 'automatic',

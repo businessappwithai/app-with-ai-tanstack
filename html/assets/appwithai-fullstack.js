@@ -8021,7 +8021,7 @@ function nodeify(_name, script) {
       break;
     }
   }
-  result = result.replace(/\bbunx --bun /g, "npx ").replace(/\bbunx /g, "npx ").replace(/\bbun x /g, "npx ").replace(/\bbun install\b/g, "npm install").replace(/\bbun run /g, "npm run ").replace(/\bbun --filter /g, "npm run --workspace ").replace(/\bbun test\b/g, "npm test").replace(/(^|[\s"'])bun(?=\s)/g, "$1node");
+  result = result.replace(/\bHOST=127\.0\.0\.1 bun --bun /g, "").replace(/\bbun --bun /g, "").replace(/\bbunx --bun /g, "npx ").replace(/\bbunx /g, "npx ").replace(/\bbun x /g, "npx ").replace(/\bbun install\b/g, "npm install").replace(/\bbun run /g, "npm run ").replace(/\bbun --filter /g, "npm run --workspace ").replace(/\bbun test\b/g, "npm test").replace(/(^|[\s"'])bun(?=\s)/g, "$1node");
   return result;
 }
 async function readJson(file) {

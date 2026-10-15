@@ -1,5 +1,5 @@
 /**
- * Forty-two business rules, built in the Logic step's decision table by its own
+ * Forty-one business rules, built in the Logic step's decision table by its own
  * controls and nothing else — no API call writes or checks a rule. Each is
  * tried with sample records in "Try it", saved, then reloaded and tried again to
  * prove the rule that came back from the model answers the same way.

@@ -366,7 +366,7 @@ jobs:
       # Playwright starts the server itself (see playwright.config.ts) and stops
       # it afterwards, so there is no background process to leak between steps.
       - name: Run the modelling tool's E2E suite
-        run: bunx playwright test
+        run: bunx --bun playwright test
 
       - name: Keep what the run saw
         if: always()
@@ -454,7 +454,7 @@ jobs:
 
       - name: Type-check the generated test suite
         working-directory: ${{ env.APP_DIR }}/tests
-        run: bunx tsc --noEmit
+        run: bunx --bun tsc --noEmit
 
       - name: Point the generated backend at Postgres
         run: |

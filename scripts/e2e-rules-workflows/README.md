@@ -10,6 +10,7 @@ bun run test:e2e:rules-workflows                 # the modelling tool (01–05)
 bun run test:e2e:rules-workflows -- --generated  # also generate, boot and test the app (06)
 bun scripts/e2e-rules-workflows/run.ts --model path/to/other.eml.mmd --generated
 bun scripts/e2e-rules-workflows/run.ts -- --grep "Report Designs"   # after `--`: Playwright flags
+bun scripts/e2e-rules-workflows/run.ts -- specs/14-crud-rules-and-workflows.spec.ts   # CRUD of 52 rules + 50 workflows
 ```
 
 `--generated` needs `DATABASE_URL`. It creates `<db>_rules_workflows_e2e`
@@ -29,10 +30,11 @@ a rule or a workflow, so what passes is what an author can do.
 
 | Spec | What it proves |
 |---|---|
-| `01-business-rules-editor` | **42 rules** from `scenarios/rule-catalogue.ts`, each built in the decision table with its own controls. Between them: every operator of the palette — Text (equals, not equals, is one of, is not one of, starts with, ends with, contains, is empty, is not empty, any, custom), Number (equals, not equals, >, ≥, <, ≤, between, is one of, is not one of, empty, not empty, custom), Boolean (equals, empty, not empty, custom) and Date (after, before, same day, same or after, same or before); every answer (`validation-error`, `transform`, `allow`); one to three input columns; one to three rows; priorities from 1 to 999. Each rule is tried with sample records in **Try it**, saved, the page reloaded, and the rule opened again and tried again |
+| `01-business-rules-editor` | **41 rules** from `scenarios/rule-catalogue.ts`, each built in the decision table with its own controls. Between them: every operator of the palette — Text (equals, not equals, is one of, is not one of, starts with, ends with, contains, is empty, is not empty, any, custom), Number (equals, not equals, >, ≥, <, ≤, between, is one of, is not one of, empty, not empty, custom), Boolean (equals, empty, not empty, custom) and Date (after, before, same day, same or after, same or before); every answer (`validation-error`, `transform`, `allow`); one to three input columns; one to three rows; priorities from 1 to 999. Each rule is tried with sample records in **Try it**, saved, the page reloaded, and the rule opened again and tried again |
 | `02-workflow-editors` | **50 workflows** from `scenarios/workflow-catalogue.ts`: 16 lifecycle workflows (all 13 hooks, field-scoped hooks, up to four hooks), 12 status machines (2–6 states, branching, loops back, several end states, labelled and unlabelled moves) and 22 processes (every step type; every test — is, is not, >, ≥, <, ≤, contains, starts with, is empty, is not empty, changed; a repeat; started by a rule and by a created, updated, deleted or any write). Each is saved, the page reloaded, and the workflow reopened from the rail |
-| `03-graph-rules` | **8 rules** drawn node by node — Expression, Function and Switch nodes, singly and chained — configured, tried, saved and reopened |
+| `03-graph-rules` | **11 rules** (`scenarios/graph-rule-catalogue.ts`) drawn node by node — Expression, Function and Switch nodes, singly and chained — configured, tried, saved and reopened |
 | `04-editor-features` | The controls around building: hit policy (First and Collect), the Developer and Business views, adding, removing and dragging table rows, the Simulator, refusing a rule with no entity, deleting a rule or a workflow, attaching a rule to a hook, removing a hook, the Help panel |
+| `14-crud-rules-and-workflows` | **Full create, read, update and delete for 102 items** on the education model: the 41 decision tables and 11 graph rules (52 rules) and the 50 workflows above. Each item is built and saved (create, and the server holds it once); reloaded and opened from the rail (read: entity, priority, nodes, Try it, or hooks, steps, states and moves); renamed and changed — a rule's message, priority or function body, a lifecycle's extra hook, a status machine's extra state and move, a process's extra step — saved and read back (update: the server holds the new name and nothing under the old one); and deleted from the rail (delete: gone from the page and the stored model, no section left under its title). `CRUD_KIND=rules\|workflows`, `CRUD_ONLY=<substring>` |
 | `07-rule-kinds-and-try-it` | The Enhance page's rule editor has no "Runs when", and the dry-run route behind Try it: refuses nobody and a stranger, runs a real graph, refuses a function that reaches for the network |
 | `09-rule-graph-builder` | A rule built from nothing in the graph editor, run in the Simulator and in Try it, saved and read back; Monaco comes from the application, not a CDN |
 | `08`, `10` | The generated application: its rules are enforced, its builders work (need `--generated` or a running generated app) |
@@ -42,10 +44,12 @@ a rule or a workflow, so what passes is what an author can do.
 RULES_ONLY="Year group" bun run test:e2e:rules-workflows     # rules whose name contains it
 WF_ONLY="Check Equals"  bun run test:e2e:rules-workflows     # workflows likewise
 GRAPH_ONLY="function blocks" …                               # graph rules likewise
+CRUD_KIND=workflows CRUD_ONLY="Hooks" …                      # spec 14: one half, a subset
 E2E_ACTION_TIMEOUT=10000 …                                   # fail a stuck click sooner (ms)
 ```
 
-A full run of 01 takes about half an hour, 02 a quarter of one, 03 ten minutes;
+A full run of 01 takes about half an hour, 02 a quarter of one, 03 ten minutes,
+14 about an hour and a half (rules about an hour, workflows about twenty minutes);
 run them one at a time — together they starve the dev server and saves time out.
 
 ## Testing a new rule or workflow

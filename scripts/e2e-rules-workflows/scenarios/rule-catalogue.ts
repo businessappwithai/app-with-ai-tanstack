@@ -1,5 +1,5 @@
 /**
- * Forty-two business rules, each built in the Logic step's decision table
+ * Forty-one business rules, each built in the Logic step's decision table
  * through its own controls, tried with sample records in "Try it", saved and
  * reopened. Between them they use every operator the table offers — Text,
  * Number, Boolean and Date — every answer (validation-error, transform, allow),

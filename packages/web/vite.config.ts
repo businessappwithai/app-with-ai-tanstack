@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, searchForWorkspaceRoot } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,8 +49,12 @@ const config = defineConfig({
     warmup: {
       clientFiles: ["../editors/src/components/eml/GoRulesEditorPanel.tsx"],
     },
+    // Setting `allow` replaces Vite's default — the workspace root — rather than adding to
+    // it. `[".."]` alone (packages/) put the root node_modules out of reach, where bun keeps
+    // @gorules/zen-engine-wasm: its .wasm answered 403, the decision table never left
+    // Developer mode, and the operator palette and value pickers silently disappeared.
     fs: {
-      allow: [".."],
+      allow: [searchForWorkspaceRoot(__dirname), path.resolve(__dirname, "..")],
     },
   },
   optimizeDeps: {

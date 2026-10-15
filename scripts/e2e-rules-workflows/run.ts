@@ -7,14 +7,35 @@
  *   bun scripts/e2e-rules-workflows/run.ts --generated     # also generate, boot and test the app (06)
  *   bun scripts/e2e-rules-workflows/run.ts --model path/to/model.eml.mmd --generated
  *   bun scripts/e2e-rules-workflows/run.ts -- --grep "Report Designs"   # anything after -- goes to Playwright
+ *   bun scripts/e2e-rules-workflows/run.ts --generated --drive-generated -- specs/14-crud-rules-and-workflows.spec.ts
+ *   bun scripts/e2e-rules-workflows/run.ts --generated --from-zip --drive-generated -- specs/14-crud-rules-and-workflows.spec.ts
  *
  * --generated generates the model with the real pipeline, creates a fresh
  * database beside DATABASE_URL's (<name>_rules_workflows_e2e), migrates and
  * seeds it, starts the generated backend and front end, runs the suite with
  * GENERATED_APP_URL pointing at it, and stops both whatever happens.
+ *
+ * --from-zip builds the application the way the downloadable archive is built
+ * instead of with the CLI: the published bundle (`html/assets/appwithai-fullstack.js`,
+ * `generateFullStack({ overlay: false })`) over the vendored stack templates, every
+ * file written into a real .zip, and the .zip extracted where the app then runs —
+ * on the ports its own `.env` files name (4001/4000), untouched.
+ *
+ * --drive-generated points the specs at the generated application's Admin → Rules and
+ * workflows screen (LOGIC_TARGET=generated) instead of the modelling tool's Logic step,
+ * and needs no modelling tool running.
  */
 
-import { copyFileSync, existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { type Subprocess, spawn } from "bun";
@@ -105,7 +126,8 @@ async function freshDatabase(): Promise<string> {
   if (!base)
     throw new Error("--generated needs DATABASE_URL (the tool's own database is not touched)");
   const url = new URL(base);
-  const name = `${url.pathname.slice(1) || "appwithai"}_rules_workflows_e2e`;
+  // One database per way of building, so a CLI run and an archive run can go side by side.
+  const name = `${url.pathname.slice(1) || "appwithai"}_rules_workflows_e2e${flag("--from-zip") ? "_zip" : ""}`;
   const admin = new pg.Client({ connectionString: base });
   await admin.connect();
   await admin.query(`DROP DATABASE IF EXISTS "${name}" WITH (FORCE)`);
@@ -137,18 +159,71 @@ function installHandlers(modelPath: string, appDir: string): void {
   }
 }
 
+/**
+ * The application as the downloadable archive carries it: generated in memory by the
+ * published browser bundle, zipped, and extracted into `out`.
+ */
+async function generateFromZip(out: string): Promise<void> {
+  console.log("\n▸ Building the archive with html/assets/appwithai-fullstack.js");
+  await run(["bun", "run", "build:stack-templates"], ROOT);
+  const bundle = path.join(ROOT, "html/assets/appwithai-fullstack.js");
+  const { generateFullStack } = (await import(bundle)) as {
+    generateFullStack: (options: {
+      source: string;
+      templates: Record<string, string>;
+      name?: string;
+      overlay?: boolean;
+    }) => Promise<{ files: Record<string, string> }>;
+  };
+  const templates = JSON.parse(
+    readFileSync(path.join(ROOT, "html/assets/stack-templates.json"), "utf8")
+  ) as Record<string, string>;
+  const { files } = await generateFullStack({
+    source: readFileSync(model, "utf8"),
+    templates,
+    name: "rules-workflows-e2e",
+    overlay: false,
+  });
+  const staging = mkdtempSync(path.join(tmpdir(), "appwithai-zip-staging-"));
+  for (const [file, contents] of Object.entries(files)) {
+    const target = path.join(staging, file);
+    mkdirSync(path.dirname(target), { recursive: true });
+    writeFileSync(target, contents);
+  }
+  const archive = `${out}.zip`;
+  await run(["zip", "-qr", archive, "."], staging);
+  await run(["unzip", "-q", archive, "-d", out], ROOT);
+  rmSync(staging, { recursive: true, force: true });
+  console.log(`▸ ${Object.keys(files).length} files, zipped to ${archive} and extracted`);
+}
+
 async function bootGeneratedApp(): Promise<Record<string, string>> {
   const out = mkdtempSync(path.join(tmpdir(), "appwithai-rules-workflows-"));
-  const backendPort = process.env.GENERATED_BACKEND_PORT ?? "4701";
-  const frontendPort = process.env.GENERATED_FRONTEND_PORT ?? "4700";
+  const fromZip = flag("--from-zip");
+  // The archive's own .env files name 4001/4000; the CLI is told its ports.
+  const backendPort = process.env.GENERATED_BACKEND_PORT ?? (fromZip ? "4001" : "4701");
+  const frontendPort = process.env.GENERATED_FRONTEND_PORT ?? (fromZip ? "4000" : "4700");
+  if (fromZip) await generateFromZip(out);
+  else await generateWithCli(out, backendPort, frontendPort);
+  return startGeneratedApp(out, backendPort, frontendPort);
+}
+
+async function generateWithCli(out: string, backendPort: string, frontendPort: string) {
   console.log(`\n▸ Generating ${path.basename(model)} into ${out}`);
+  // From a copy: the generator's checker writes a `.error` report beside the model it reads,
+  // which left the repository's own model dirty after every run.
+  const input = path.join(
+    mkdtempSync(path.join(tmpdir(), "appwithai-model-")),
+    path.basename(model)
+  );
+  copyFileSync(model, input);
   await run(
     [
       "bun",
       "packages/generator/src/cli/generate.ts",
       "generate",
       "--input",
-      model,
+      input,
       "--output",
       out,
       "--name",
@@ -164,6 +239,13 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
     ],
     ROOT
   );
+}
+
+async function startGeneratedApp(
+  out: string,
+  backendPort: string,
+  frontendPort: string
+): Promise<Record<string, string>> {
   installHandlers(model, out);
   const hookTrace = path.join(out, "hook-trace.log");
   await run(["bun", "install"], out, appEnv());
@@ -214,7 +296,12 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
   await waitFor(`http://127.0.0.1:${backendPort}/api/me/health`, 120);
   await waitFor(`http://localhost:${frontendPort}/login`, 180);
 
-  if (!flag("--keep")) process.on("exit", () => rmSync(out, { recursive: true, force: true }));
+  if (!flag("--keep")) {
+    process.on("exit", () => {
+      rmSync(out, { recursive: true, force: true });
+      rmSync(`${out}.zip`, { force: true });
+    });
+  }
   return {
     GENERATED_APP_URL: `http://localhost:${frontendPort}`,
     GENERATED_ADMIN_EMAIL: "admin@admin.com",
@@ -228,9 +315,18 @@ try {
   const env: Record<string, string> = { RULES_WORKFLOWS_MODEL: model };
   if (flag("--generated")) Object.assign(env, await bootGeneratedApp());
   if (flag("--no-server")) env.E2E_NO_SERVER = "1";
+  if (flag("--drive-generated")) {
+    if (!env.GENERATED_APP_URL) throw new Error("--drive-generated needs --generated");
+    Object.assign(env, {
+      LOGIC_TARGET: "generated",
+      E2E_BASE_URL: env.GENERATED_APP_URL,
+      E2E_NO_SERVER: "1",
+    });
+  }
   console.log("\n▸ Running the rules and workflows editor suite");
   const child = spawn(
-    ["bunx", "playwright", "test", "-c", "playwright.config.ts", ...passthrough],
+    // `--bun`: the runner on Bun's runtime, not the Node its shebang names.
+    ["bunx", "--bun", "playwright", "test", "-c", "playwright.config.ts", ...passthrough],
     {
       cwd: HERE,
       env: { ...process.env, ...env },
