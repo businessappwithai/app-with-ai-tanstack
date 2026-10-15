@@ -241,9 +241,9 @@ export function createLogicHost() {
   const modelKeys = new Set<string>();
   const workflowSnapshots = new Map<string, string>();
 
-  const ruleBody = (rule: EditableRule) => {
+  const ruleBody = (rule: EditableRule, names: ReadonlyMap<string, string> = ruleNames) => {
     const wanted = slugifyRuleName(rule.title ?? rule.name);
-    const kept = ruleNames.get(rule.key);
+    const kept = names.get(rule.key);
     return {
       entityName: entityByName(rule.entity)?.table ?? rule.entity,
       ruleName: kept && slugifyRuleName(kept) === wanted ? kept : wanted,
@@ -291,7 +291,12 @@ export function createLogicHost() {
     };
   };
 
+  // Which load is the latest. React's StrictMode runs the screen's effect twice in development,
+  // so two loads overlap on one host; each mints new editor keys for the same stored rows.
+  let loads = 0;
+
   async function load(): Promise<LoadedLogic> {
+    const generation = ++loads;
     const [ruleData, automationData, stateData] = await Promise.all([
       readJson<RuleRow[] | { rules?: RuleRow[]; items?: RuleRow[] }>("/rules?limit=200"),
       readJson<{ items?: WorkflowRow[] }>("/workflow-definitions?kind=automation&limit=200"),
@@ -301,24 +306,37 @@ export function createLogicHost() {
 
     const ruleRows = Array.isArray(ruleData) ? ruleData : (ruleData?.rules ?? ruleData?.items ?? []);
     const rules = ruleRows.filter((row) => (row.isActive ?? row.is_active) !== false).map(toEditableRule);
+
+    // What this load read, kept aside until it is known to be the latest. The maps tie each
+    // editor key to its stored row; a stale load writing into them left two keys on one row,
+    // and the next save deleted the row through the key the screen no longer showed and then
+    // updated it through the other — a 404, so no saved workflow could ever be changed.
+    const read = {
+      ruleIds: new Map<string, string>(),
+      ruleNames: new Map<string, string>(),
+      ruleSnapshots: new Map<string, string>(),
+      workflowIds: new Map<string, string>(),
+      workflowSnapshots: new Map<string, string>(),
+      modelKeys: new Set<string>(),
+    };
     for (const rule of rules) {
-      ruleIds.set(rule.key, rule.key);
-      ruleNames.set(rule.key, rule.name);
-      ruleSnapshots.set(rule.key, JSON.stringify(ruleBody(rule)));
+      read.ruleIds.set(rule.key, rule.key);
+      read.ruleNames.set(rule.key, rule.name);
+      // Against the names this load read: the shared map is not this load's until it commits.
+      read.ruleSnapshots.set(rule.key, JSON.stringify(ruleBody(rule, read.ruleNames)));
     }
 
     const rows = [...(automationData?.items ?? []), ...(stateData?.items ?? [])];
     const workflows = rows.map((row) => {
       const workflow = toEditableWorkflow(toStoredWorkflow(row));
-      workflowIds.set(workflow.key, row.id);
-      workflowSnapshots.set(workflow.key, JSON.stringify(workflowBody(workflow)));
+      read.workflowIds.set(workflow.key, row.id);
+      read.workflowSnapshots.set(workflow.key, JSON.stringify(workflowBody(workflow)));
       return workflow;
     });
 
     // What the model declares, drawn as the author drew it. A workflow built here under the same
     // name wins: it is the one that runs, and listing both would show one process twice.
     const built = new Set(workflows.map((workflow) => workflow.name));
-    modelKeys.clear();
     for (const declared of MODEL_WORKFLOWS) {
       const workflow = toEditableWorkflow({
         ...declared,
@@ -326,10 +344,26 @@ export function createLogicHost() {
         title: declared.title ?? declared.name,
       });
       if (built.has(workflow.name)) continue;
-      modelKeys.add(workflow.key);
+      read.modelKeys.add(workflow.key);
       workflows.push(workflow);
     }
-    return { rules, workflows, locked: modelKeys };
+
+    // Only the latest load says which stored row each key on screen stands for. An older one
+    // still answers — its caller has gone and ignores it — but records nothing.
+    if (generation === loads) {
+      const replace = <K, V>(target: Map<K, V>, source: Map<K, V>) => {
+        target.clear();
+        for (const [key, value] of source) target.set(key, value);
+      };
+      replace(ruleIds, read.ruleIds);
+      replace(ruleNames, read.ruleNames);
+      replace(ruleSnapshots, read.ruleSnapshots);
+      replace(workflowIds, read.workflowIds);
+      replace(workflowSnapshots, read.workflowSnapshots);
+      modelKeys.clear();
+      for (const key of read.modelKeys) modelKeys.add(key);
+    }
+    return { rules, workflows, locked: read.modelKeys };
   }
 
   // One save at a time: two overlapping saves read the same snapshot and write it twice.
