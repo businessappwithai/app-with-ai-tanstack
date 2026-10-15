@@ -67,10 +67,44 @@ export function railRow(page: Page, title: string): Locator {
     });
 }
 
+/** The open item's name field: a rule's or status machine's "Name", a ladder's heading. */
+const nameField = (page: Page) =>
+  page.locator("input[aria-label='Name'], label:has(> span:text-is('Name')) input").first();
+
+/**
+ * Open a rule or workflow from the rail, and make sure it is the one that opened. In a
+ * generated application the model's workflows arrive in the rail a moment after the rest
+ * and push it down, so a click aimed at a row could land on another one.
+ */
 export async function openFromRail(page: Page, title: string): Promise<void> {
   const row = railRow(page, title);
   await expect(row, `"${title}" is in the rail`).toHaveCount(1);
-  await row.locator("button").first().click();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await row.locator("button").first().click();
+    const opened = await expect(nameField(page))
+      .toHaveValue(title, { timeout: 5000 })
+      .then(() => true)
+      .catch(() => false);
+    if (opened) return;
+    await page.waitForTimeout(1000);
+  }
+  await expect(nameField(page), `"${title}" opened`).toHaveValue(title);
+}
+
+/**
+ * Remove whatever an earlier attempt at this test left behind — a retry otherwise collides
+ * with the rule or workflow the failed attempt had already saved ("already exists").
+ */
+export async function removeLeftovers(page: Page, author: Author, titles: string[]): Promise<void> {
+  await openLogic(page, author);
+  let removed = false;
+  for (const title of titles) {
+    if ((await railRow(page, title).count()) > 0) {
+      await deleteFromRail(page, title);
+      removed = true;
+    }
+  }
+  if (removed) await saveModel(page);
 }
 
 /** Delete through the rail's bin, which shows on hover. */

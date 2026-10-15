@@ -43,6 +43,7 @@ import {
   openFromRail,
   openLogic,
   railRow,
+  removeLeftovers,
   ruleIdentifier,
   saveModel,
   workflowIdentifier,
@@ -274,6 +275,8 @@ if (kind !== "rules") {
         const next = revised(wf);
         const newId = workflowIdentifier(next.name);
 
+        if (testInfo.retry > 0) await removeLeftovers(page, author, [wf.name, next.name]);
+
         await test.step("create", async () => {
           await logic.open();
           await logic.createWorkflow(wf);
@@ -385,6 +388,8 @@ if (kind !== "workflows") {
         const tableChange = item.shape === "table" ? messageCell(item.rule) : undefined;
         const graphChange = item.shape === "graph" ? functionChange(item.rule) : undefined;
         const change = tableChange ?? graphChange;
+
+        if (testInfo.retry > 0) await removeLeftovers(page, author, [title, newTitle]);
 
         await test.step("create", async () => {
           await openLogic(page, author);
