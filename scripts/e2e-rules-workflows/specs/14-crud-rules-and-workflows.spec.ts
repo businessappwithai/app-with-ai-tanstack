@@ -2,7 +2,7 @@
  * Create, read, update and delete — every one of them, for every rule and every
  * workflow, through the page, against the education model.
  *
- *   53 business rules: the 42 decision tables of `scenarios/rule-catalogue.ts`
+ *   52 business rules: the 41 decision tables of `scenarios/rule-catalogue.ts`
  *     (every operator, every answer, one to three inputs) and the 11 graphs of
  *     `scenarios/graph-rule-catalogue.ts` (Expression, Function and Switch nodes,
  *     singly and chained).
@@ -310,7 +310,7 @@ if (kind !== "rules") {
 /* ------------------------------------------- the rules, after the workflows */
 
 if (kind !== "workflows") {
-  test.describe("CRUD — business rules (53, table and graph)", () => {
+  test.describe("CRUD — business rules (52, table and graph)", () => {
     let author: Author;
     test.beforeAll(async ({ playwright }) => {
       author = await authorWithProject(playwright, "crud-rules");
