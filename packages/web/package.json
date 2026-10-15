@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "biome check src",
-    "type-check": "tsc --noEmit",
+    "type-check": "bun ../../scripts/require-bun.ts && bun --bun tsc --noEmit",
     "start": "bun run server.ts"
   },
   "imports": {

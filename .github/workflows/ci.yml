@@ -454,7 +454,7 @@ jobs:
 
       - name: Type-check the generated test suite
         working-directory: ${{ env.APP_DIR }}/tests
-        run: bunx tsc --noEmit
+        run: bunx --bun tsc --noEmit
 
       - name: Point the generated backend at Postgres
         run: |

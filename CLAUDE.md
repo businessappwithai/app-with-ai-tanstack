@@ -54,7 +54,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run dev:mastra` | Mastra AI → http://localhost:4111 |
 | `./scripts/start-llm.sh` | Local model server → :8000 |
 | `bun run build` | Build all packages |
-| `bun run type-check` | TypeScript (root tsconfig only) |
+| `bun run type-check` | TypeScript (root tsconfig only) — `tsc` on Bun 1.4 (`bun --bun`), after `scripts/require-bun.ts` refuses any other Bun |
 | `bun run type-check:language` | Type-check `language/**` (separate config) |
 | `bun run lint` / `bun run lint:fix` | Biome lint / autofix |
 | `bun run test` | Vitest unit tests (runs `packages/web/vitest.config.ts`) |
