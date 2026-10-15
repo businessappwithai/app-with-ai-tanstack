@@ -374,6 +374,23 @@ of the system-edition `llmtext` documents describe it; generated suite
 
 `GET /api/workflows/transitions?table=&from=` exposes the edges, so a screen can offer only the moves that exist.
 
+### The generated application runs on Bun — except the frontend build
+
+The NestJS + TanStack templates start every tool on Bun 1.4 with `bun --bun` (a package's
+bin on Bun's runtime instead of the Node its shebang names): the frontend's `dev`, `start`,
+`routes:generate` and `type-check`, and the backend's `build`; the backend already runs its
+TypeScript directly under Bun. Two exceptions, both measured rather than assumed:
+
+| Script | Why it is not plain `bun --bun …` |
+|---|---|
+| frontend `build` | `NODE_OPTIONS=--max-old-space-size=8192 vinxi build`, on Node. Bundling Monaco and the GoRules editor peaks at ~6.7 GB on Node with the heap raised (its default ~4 GB ceiling is what turned CI's "Generate an application and build it" red); under `bun --bun` the same build climbed past 10 GB and was killed on a 15 GB machine. Revisit when the editor bundle is trimmed (`@gorules/jdm-editor` imports the whole `monaco-editor`) |
+| frontend `dev` | `HOST=127.0.0.1 bun --bun vinxi dev`. vinxi asks get-port-please for a port, which binds `::` first; on a host with no IPv6 (this container) Node falls back to IPv4 and Bun throws "Failed to listen at ::", so the dev server never starts. With `HOST` set it probes that host only |
+
+The WASM overlay strips both prefixes (`bun --bun `, `HOST=127.0.0.1 bun --bun `), so the
+browser application's scripts are the plain Node commands they always were — CI's
+"No Bun left" check and the overlay footprint are unchanged. The generated test suite
+(`tests/`) stays on `node --test` by design; CI type-checks it with `bunx --bun tsc`.
+
 ### WASM stack
 
 `appwithai-wasm` runs the same pipeline as `appwithai`, then applies an overlay replacing `pg` with WebAssembly Postgres and swapping `bun` for `node`. The overlay changes exactly 9 files and adds 6 — CI asserts this footprint exactly. **After editing `templates/wasm/` or `templates/wasm-overlay/`, run `bun run build:wasm-runtime` from repo root.**
