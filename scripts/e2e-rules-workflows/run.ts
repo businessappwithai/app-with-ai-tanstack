@@ -126,7 +126,8 @@ async function freshDatabase(): Promise<string> {
   if (!base)
     throw new Error("--generated needs DATABASE_URL (the tool's own database is not touched)");
   const url = new URL(base);
-  const name = `${url.pathname.slice(1) || "appwithai"}_rules_workflows_e2e`;
+  // One database per way of building, so a CLI run and an archive run can go side by side.
+  const name = `${url.pathname.slice(1) || "appwithai"}_rules_workflows_e2e${flag("--from-zip") ? "_zip" : ""}`;
   const admin = new pg.Client({ connectionString: base });
   await admin.connect();
   await admin.query(`DROP DATABASE IF EXISTS "${name}" WITH (FORCE)`);
