@@ -210,13 +210,20 @@ async function bootGeneratedApp(): Promise<Record<string, string>> {
 
 async function generateWithCli(out: string, backendPort: string, frontendPort: string) {
   console.log(`\n▸ Generating ${path.basename(model)} into ${out}`);
+  // From a copy: the generator's checker writes a `.error` report beside the model it reads,
+  // which left the repository's own model dirty after every run.
+  const input = path.join(
+    mkdtempSync(path.join(tmpdir(), "appwithai-model-")),
+    path.basename(model)
+  );
+  copyFileSync(model, input);
   await run(
     [
       "bun",
       "packages/generator/src/cli/generate.ts",
       "generate",
       "--input",
-      model,
+      input,
       "--output",
       out,
       "--name",
