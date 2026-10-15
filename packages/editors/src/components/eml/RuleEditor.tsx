@@ -158,6 +158,15 @@ export function RuleEditor({
     },
     [graphHeight]
   );
+
+  const MAX_GRAPH = TOTAL_HEIGHT - HANDLE_HEIGHT - MIN_TRY_IT;
+  /** The handle is a focusable separator, so the keyboard resizes it too: ↑ and ↓, 40px a press. */
+  const resizeByKey = (e: React.KeyboardEvent) => {
+    const step = e.key === "ArrowUp" ? -40 : e.key === "ArrowDown" ? 40 : 0;
+    if (!step) return;
+    e.preventDefault();
+    setGraphHeight((h) => Math.max(MIN_GRAPH, Math.min(MAX_GRAPH, h + step)));
+  };
   const entityFields = useMemo(
     () => entities.find((e) => e.name === rule.entity)?.attributes ?? [],
     [entities, rule.entity]
@@ -296,8 +305,14 @@ export function RuleEditor({
           {/* Drag handle — drag up to grow the try-it panel, down to shrink it */}
           <div
             role="separator"
+            tabIndex={0}
             aria-label="Resize simulator panel"
+            aria-orientation="horizontal"
+            aria-valuemin={MIN_GRAPH}
+            aria-valuemax={MAX_GRAPH}
+            aria-valuenow={graphHeight}
             onMouseDown={startDrag}
+            onKeyDown={resizeByKey}
             className="mt-2 flex cursor-row-resize select-none items-center justify-center rounded border border-dashed border-border py-0.5 text-muted-foreground hover:border-primary hover:text-primary"
             style={{ height: HANDLE_HEIGHT }}
           >

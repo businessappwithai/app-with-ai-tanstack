@@ -1237,7 +1237,14 @@ function ServiceWorkflowPage() {
               <div className="flex gap-6">
                 <button
                   type="button"
-                  onClick={() => { setActiveTab("hooks"); void navigate({ to: "/projects/$id/enhance/$serviceName", params: { id: projectId, serviceName }, search: {} }); }}
+                  onClick={() => {
+                    setActiveTab("hooks");
+                    void navigate({
+                      to: "/projects/$id/enhance/$serviceName",
+                      params: { id: projectId, serviceName },
+                      search: {},
+                    });
+                  }}
                   className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                     activeTab === "hooks"
                       ? "border-primary text-primary"
@@ -1274,7 +1281,14 @@ function ServiceWorkflowPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setActiveTab("rules"); void navigate({ to: "/projects/$id/enhance/$serviceName", params: { id: projectId, serviceName }, search: {} }); }}
+                  onClick={() => {
+                    setActiveTab("rules");
+                    void navigate({
+                      to: "/projects/$id/enhance/$serviceName",
+                      params: { id: projectId, serviceName },
+                      search: {},
+                    });
+                  }}
                   className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                     activeTab === "rules"
                       ? "border-primary text-primary"

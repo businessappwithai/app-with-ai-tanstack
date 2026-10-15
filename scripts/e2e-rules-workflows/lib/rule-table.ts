@@ -133,6 +133,20 @@ async function focusCellEditor(page: Page, graph: RuleGraph, row: number, col: n
   }
 }
 
+/** Type a value into a table cell (a message, a value) — replacing what it held. */
+export async function setTypedCell(
+  page: Page,
+  graph: RuleGraph,
+  row: number,
+  col: number,
+  value: string
+) {
+  await focusCellEditor(page, graph, row, col);
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText(value);
+  await page.keyboard.press("Enter");
+}
+
 /** The answer column is a pick-list; a fresh cell may start in code mode — toggle it once. */
 export async function setAnswer(
   page: Page,
@@ -209,10 +223,7 @@ export async function buildTableRule(page: Page, graph: RuleGraph, s: TableRuleS
         await setAnswer(page, graph, r, actionCol + 1 + o, value.slice(1));
         continue;
       }
-      await focusCellEditor(page, graph, r, actionCol + 1 + o);
-      await page.keyboard.press("Control+A");
-      await page.keyboard.insertText(value);
-      await page.keyboard.press("Enter");
+      await setTypedCell(page, graph, r, actionCol + 1 + o, value);
     }
   }
   for (const [r, row] of s.rows.entries()) {

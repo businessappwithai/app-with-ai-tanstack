@@ -189,10 +189,13 @@ export class LogicPage {
     const area = this.builder;
     await area.locator("button", { hasText: "When this happens" }).first().click();
     await this.fillHook(first);
-    for (const hook of wf.hooks.slice(1)) {
-      await area.getByText("Add a lifecycle step", { exact: true }).last().click();
-      await this.fillHook(hook);
-    }
+    for (const hook of wf.hooks.slice(1)) await this.addHook(hook);
+  }
+
+  /** Add one more rung to the lifecycle ladder that is open. */
+  async addHook(hook: { when: string; handler: string; field?: string }): Promise<void> {
+    await this.builder.getByText("Add a lifecycle step", { exact: true }).last().click();
+    await this.fillHook(hook);
   }
 
   private async fillHook(hook: { when: string; handler: string; field?: string }) {
@@ -223,7 +226,8 @@ export class LogicPage {
     for (const step of wf.steps) await this.addStep(step);
   }
 
-  private async addStep(step: StepScenario): Promise<void> {
+  /** Add one step to the end of the process that is open. */
+  async addStep(step: StepScenario): Promise<void> {
     const area = this.builder;
     await area.getByText("Add a condition or an action", { exact: true }).last().click();
     await area.locator("button", { hasText: step.type }).first().click();
@@ -295,37 +299,46 @@ export class LogicPage {
       await page.getByText("The process finishes here").click();
     }
     for (const state of workflow.states.slice(1)) {
-      await page.getByRole("button", { name: "Add state" }).click();
-      await page.getByPlaceholder("submitted").fill(state);
-      if (workflow.end.includes(state)) await page.getByText("The process finishes here").click();
+      await this.addState(state, workflow.end.includes(state));
     }
     await expect(nodes).toHaveCount(workflow.states.length);
+    for (const transition of workflow.transitions) await this.addTransition(transition);
+  }
 
-    for (const transition of workflow.transitions) {
-      // Adding a state re-fits the canvas over 200ms; let it settle first.
-      await page.waitForTimeout(400);
-      const from = nodes.filter({ hasText: new RegExp(`^\\W*${escapeRegExp(transition.from)}$`) });
-      const to = nodes.filter({ hasText: new RegExp(`^\\W*${escapeRegExp(transition.to)}$`) });
-      const source = await from.locator(".react-flow__handle-right").boundingBox();
-      const target = await to.locator(".react-flow__handle-left").boundingBox();
-      if (!source || !target)
-        throw new Error(`no handle for ${transition.from} → ${transition.to}`);
-      const before = await page.locator(".react-flow__edge").count();
-      await page.mouse.move(source.x + source.width / 2, source.y + source.height / 2);
-      await page.mouse.down();
-      await page.mouse.move(source.x + source.width / 2 + 10, source.y + source.height / 2, {
-        steps: 3,
-      });
-      await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2, {
-        steps: 14,
-      });
-      await page.mouse.up();
-      await expect(page.locator(".react-flow__edge")).toHaveCount(before + 1);
-      if (transition.trigger) {
-        // The edge's centre can sit under another edge or a node, so select it by event.
-        await page.locator(".react-flow__edge").nth(before).dispatchEvent("click");
-        await page.getByPlaceholder("submit", { exact: true }).fill(transition.trigger);
-      }
+  /** Add a state to the status machine that is open. */
+  async addState(state: string, end = false): Promise<void> {
+    const page = this.page;
+    await page.getByRole("button", { name: "Add state" }).click();
+    await page.getByPlaceholder("submitted").fill(state);
+    if (end) await page.getByText("The process finishes here").click();
+  }
+
+  /** Draw a move between two states of the status machine that is open. */
+  async addTransition(transition: { from: string; to: string; trigger?: string }): Promise<void> {
+    const page = this.page;
+    const nodes = page.locator(".react-flow__node");
+    // Adding a state re-fits the canvas over 200ms; let it settle first.
+    await page.waitForTimeout(400);
+    const from = nodes.filter({ hasText: new RegExp(`^\\W*${escapeRegExp(transition.from)}$`) });
+    const to = nodes.filter({ hasText: new RegExp(`^\\W*${escapeRegExp(transition.to)}$`) });
+    const source = await from.locator(".react-flow__handle-right").boundingBox();
+    const target = await to.locator(".react-flow__handle-left").boundingBox();
+    if (!source || !target) throw new Error(`no handle for ${transition.from} → ${transition.to}`);
+    const before = await page.locator(".react-flow__edge").count();
+    await page.mouse.move(source.x + source.width / 2, source.y + source.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(source.x + source.width / 2 + 10, source.y + source.height / 2, {
+      steps: 3,
+    });
+    await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2, {
+      steps: 14,
+    });
+    await page.mouse.up();
+    await expect(page.locator(".react-flow__edge")).toHaveCount(before + 1);
+    if (transition.trigger) {
+      // The edge's centre can sit under another edge or a node, so select it by event.
+      await page.locator(".react-flow__edge").nth(before).dispatchEvent("click");
+      await page.getByPlaceholder("submit", { exact: true }).fill(transition.trigger);
     }
   }
 
@@ -333,5 +346,32 @@ export class LogicPage {
   async showEml(): Promise<string> {
     await this.page.getByRole("button", { name: "Show EML" }).click();
     return this.page.locator("pre").last().innerText();
+  }
+}
+
+/** What the open workflow shows matches what was built: hooks, steps, or states and moves. */
+export async function expectWorkflowShown(logic: LogicPage, wf: WorkflowScenario) {
+  const page = logic.page;
+  if (wf.kind === "status") {
+    const eml = await logic.showEml();
+    for (const t of wf.transitions) {
+      expect(eml, `${wf.name}: ${t.from} → ${t.to}`).toContain(
+        `${t.from} --> ${t.to}${t.trigger ? ` : ${t.trigger}` : ""}`
+      );
+    }
+    for (const end of wf.end) expect(eml).toContain(`${end} --> [*]`);
+    await expect(page.locator(".react-flow__node")).toHaveCount(wf.states.length);
+    return;
+  }
+  const ladder = logic.builder;
+  if (wf.kind === "lifecycle") {
+    for (const hook of wf.hooks) {
+      await expect(ladder).toContainText(hook.when);
+      await expect(ladder).toContainText(hook.handler);
+    }
+    return;
+  }
+  for (const step of wf.steps) {
+    for (const sentence of stepSentence(step)) await expect(ladder).toContainText(sentence);
   }
 }

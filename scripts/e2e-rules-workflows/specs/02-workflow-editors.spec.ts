@@ -8,39 +8,12 @@
  */
 
 import { expect, test } from "@playwright/test";
-import { LogicPage, stepSentence, type WorkflowScenario } from "../lib/logic-page";
+import { expectWorkflowShown, LogicPage } from "../lib/logic-page";
 import { type Author, authorWithProject, browserAs } from "../lib/session";
 import { WORKFLOWS } from "../scenarios/workflow-catalogue";
 
 const only = process.env.WF_ONLY;
 const workflows = WORKFLOWS.filter((w) => !only || w.name.includes(only));
-
-async function expectReopened(logic: LogicPage, wf: WorkflowScenario) {
-  const page = logic.page;
-  await logic.select(wf.name);
-  if (wf.kind === "status") {
-    const eml = await logic.showEml();
-    for (const t of wf.transitions) {
-      expect(eml, `${wf.name}: ${t.from} → ${t.to}`).toContain(
-        `${t.from} --> ${t.to}${t.trigger ? ` : ${t.trigger}` : ""}`
-      );
-    }
-    for (const end of wf.end) expect(eml).toContain(`${end} --> [*]`);
-    await expect(page.locator(".react-flow__node")).toHaveCount(wf.states.length);
-    return;
-  }
-  const ladder = logic.builder;
-  if (wf.kind === "lifecycle") {
-    for (const hook of wf.hooks) {
-      await expect(ladder).toContainText(hook.when);
-      await expect(ladder).toContainText(hook.handler);
-    }
-    return;
-  }
-  for (const step of wf.steps) {
-    for (const sentence of stepSentence(step)) await expect(ladder).toContainText(sentence);
-  }
-}
 
 test.describe("workflow editors — workflows built through the page", () => {
   let author: Author;
@@ -67,7 +40,8 @@ test.describe("workflow editors — workflows built through the page", () => {
       await logic.save();
 
       await logic.open();
-      await expectReopened(logic, wf);
+      await logic.select(wf.name);
+      await expectWorkflowShown(logic, wf);
       expect(errors, "no uncaught error in the page").toEqual([]);
       await context.close();
     });
