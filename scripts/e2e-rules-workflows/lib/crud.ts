@@ -6,7 +6,7 @@
  */
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { type Author, logicPath, storedModel } from "./session";
+import { type Author, GENERATED, logicPath, storedModel } from "./session";
 
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -109,4 +109,146 @@ export async function expectStored(
     if (title) expect(eml, `no section is left named "${title}"`).not.toMatch(metaName(title));
   }
   return eml;
+}
+
+/* ------------------------------------------------- the backend, on any target */
+
+interface StoredRuleRow {
+  ruleName?: string;
+  rule_name?: string;
+  title?: string | null;
+  entityName?: string;
+  entity_name?: string;
+  jdmContent?: unknown;
+  jdm_content?: unknown;
+  isActive?: boolean;
+  is_active?: boolean;
+}
+
+interface StoredWorkflowRow {
+  name: string;
+  entity_name?: string;
+  kind?: string;
+  mermaid_code?: string | null;
+  is_active?: boolean;
+}
+
+async function apiJson<T>(page: Page, path: string): Promise<T> {
+  const response = await page.request.get(`/api${path}`);
+  expect(response.status(), `GET /api${path}`).toBe(200);
+  return (await response.json()) as T;
+}
+
+/** A generated application's live rules: `sys_rule_definitions` through `/api/rules`. */
+async function generatedRules(page: Page): Promise<StoredRuleRow[]> {
+  const data = await apiJson<
+    StoredRuleRow[] | { rules?: StoredRuleRow[]; items?: StoredRuleRow[] }
+  >(page, "/rules?limit=500");
+  const rows = Array.isArray(data) ? data : (data.rules ?? data.items ?? []);
+  return rows.filter((row) => (row.isActive ?? row.is_active) !== false);
+}
+
+/** A generated application's workflows: `sys_workflow_definitions`, both kinds. */
+async function generatedWorkflows(page: Page): Promise<StoredWorkflowRow[]> {
+  const rows: StoredWorkflowRow[] = [];
+  for (const kind of ["automation", "state"]) {
+    const data = await apiJson<{ items?: StoredWorkflowRow[] }>(
+      page,
+      `/workflow-definitions?kind=${kind}&limit=500`
+    );
+    rows.push(...(data.items ?? []).filter((row) => row.is_active !== false));
+  }
+  return rows;
+}
+
+export interface KeptRule {
+  /** The identifier the rule is filed under. */
+  id: string;
+  title: string;
+  entity: string;
+  present: boolean;
+  /** Wording the stored rule must carry (a message, a function body's text). */
+  text?: string;
+  /** The priority the model must record; the generated runtime keeps none. */
+  priority?: number;
+}
+
+/**
+ * What the backend keeps for one rule: the project's stored model in the modelling tool,
+ * `sys_rule_definitions` in a generated application. Once when present, not at all when
+ * not — and in the model, no section left under its title either.
+ */
+export async function expectRuleKept(page: Page, author: Author, rule: KeptRule): Promise<void> {
+  if (!GENERATED) {
+    const eml = await expectStored(author, "rule", rule.id, rule.present, rule.title);
+    if (!rule.present) return;
+    expect(eml).toMatch(
+      new RegExp(
+        `^%%rule ${escapeRegExp(rule.id)} on ${rule.entity}\\b${
+          rule.priority === undefined ? "" : `.*priority: ${rule.priority}\\b`
+        }`,
+        "m"
+      )
+    );
+    if (rule.text) expect(eml, "the stored rule carries the new wording").toContain(rule.text);
+    return;
+  }
+  const rows = (await generatedRules(page)).filter(
+    (row) => (row.ruleName ?? row.rule_name) === rule.id
+  );
+  if (!rule.present) {
+    expect(rows, `sys_rule_definitions no longer has ${rule.id}`).toHaveLength(0);
+    return;
+  }
+  expect(rows, `sys_rule_definitions has ${rule.id} once`).toHaveLength(1);
+  const row = rows[0] as StoredRuleRow;
+  expect(row.title, "the stored title").toBe(rule.title);
+  if (rule.text) {
+    expect(JSON.stringify(row.jdmContent ?? row.jdm_content), "the stored graph").toContain(
+      rule.text
+    );
+  }
+}
+
+export interface KeptWorkflow {
+  id: string;
+  title: string;
+  entity: string;
+  present: boolean;
+  /** Text the stored definition must carry (a hook's handler, a move, a step's URL). */
+  text?: string;
+}
+
+/** What the backend keeps for one workflow, on either target. */
+export async function expectWorkflowKept(
+  page: Page,
+  author: Author,
+  workflow: KeptWorkflow
+): Promise<void> {
+  if (!GENERATED) {
+    const eml = await expectStored(
+      author,
+      "workflow",
+      workflow.id,
+      workflow.present,
+      workflow.title
+    );
+    if (!workflow.present) return;
+    expect(eml).toMatch(
+      new RegExp(`^%%workflow ${escapeRegExp(workflow.id)} entity: ${workflow.entity}\\b`, "m")
+    );
+    if (workflow.text) expect(eml).toContain(workflow.text);
+    return;
+  }
+  const rows = (await generatedWorkflows(page)).filter((row) => row.name === workflow.title);
+  if (!workflow.present) {
+    expect(rows, `sys_workflow_definitions no longer has "${workflow.title}"`).toHaveLength(0);
+    return;
+  }
+  expect(rows, `sys_workflow_definitions has "${workflow.title}" once`).toHaveLength(1);
+  if (workflow.text) {
+    expect((rows[0] as StoredWorkflowRow).mermaid_code ?? "", "the stored diagram").toContain(
+      workflow.text
+    );
+  }
 }

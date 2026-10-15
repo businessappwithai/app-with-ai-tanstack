@@ -31,7 +31,8 @@
 import { expect, type Page, test } from "@playwright/test";
 import {
   deleteFromRail,
-  expectStored,
+  expectRuleKept,
+  expectWorkflowKept,
   openFromRail,
   openLogic,
   railRow,
@@ -153,10 +154,13 @@ if (kind !== "workflows") {
             contentType: "image/png",
           });
           await saveModel(page);
-          if (!GENERATED) {
-            const eml = await expectStored(author, "rule", id, true);
-            expect(eml).toMatch(new RegExp(`^%%rule ${id} on ${rule.entity}\\b`, "m"));
-          }
+          await expectRuleKept(page, author, {
+            id,
+            title,
+            entity: rule.entity,
+            present: true,
+            priority: GENERATED ? undefined : priority,
+          });
         });
 
         await test.step("read", async () => {
@@ -214,15 +218,15 @@ if (kind !== "workflows") {
           await expect(entitySelect(page)).toHaveValue(rule.entity);
           if (!GENERATED) await expect(priorityInput(page)).toHaveValue(String(newPriority));
           for (const t of tries) await runTryIt(page, t.sample, t.expect, t.message);
-          if (!GENERATED) {
-            const eml = await expectStored(author, "rule", newId, true);
-            await expectStored(author, "rule", id, false);
-            if (change)
-              expect(eml, "the stored rule carries the new wording").toContain(change.next);
-            expect(eml).toMatch(
-              new RegExp(`^%%rule ${newId} on ${rule.entity}\\b.*priority: ${newPriority}`, "m")
-            );
-          }
+          await expectRuleKept(page, author, {
+            id: newId,
+            title: newTitle,
+            entity: rule.entity,
+            present: true,
+            text: change?.next,
+            priority: GENERATED ? undefined : newPriority,
+          });
+          await expectRuleKept(page, author, { id, title, entity: rule.entity, present: false });
         });
 
         await test.step("delete", async () => {
@@ -231,10 +235,14 @@ if (kind !== "workflows") {
           await openLogic(page, author);
           await expect(railRow(page, newTitle)).toHaveCount(0);
           await expect(railRow(page, title)).toHaveCount(0);
-          if (!GENERATED) {
-            await expectStored(author, "rule", newId, false, newTitle);
-            await expectStored(author, "rule", id, false, title);
-          }
+          const entity = rule.entity;
+          await expectRuleKept(page, author, {
+            id: newId,
+            title: newTitle,
+            entity,
+            present: false,
+          });
+          await expectRuleKept(page, author, { id, title, entity, present: false });
         });
 
         expect(errors, "no uncaught error in the page").toEqual([]);
@@ -279,6 +287,20 @@ function revised(wf: WorkflowScenario): WorkflowScenario {
   };
 }
 
+/**
+ * What the stored definition must carry after the update. The modelling tool writes a hook
+ * in the generator's form (`%%hook <when> <handler> on <Entity>`); a generated application
+ * keeps the automation's diagram, so there the handler's name is what to look for.
+ */
+function changedText(next: WorkflowScenario): string {
+  if (next.kind === "lifecycle") {
+    const added = next.hooks[next.hooks.length - 1]!;
+    return GENERATED ? added.handler : `%%hook ${added.when} ${added.handler} on ${next.entity}`;
+  }
+  if (next.kind === "status") return `${next.transitions.at(-1)!.from} --> on_hold : pause`;
+  return "https://example.com/revised";
+}
+
 async function renameWorkflow(page: Page, wf: WorkflowScenario, title: string) {
   // Lifecycles and processes edit their name in place as the ladder's heading; a status
   // machine has a Name field above its canvas.
@@ -321,10 +343,12 @@ if (kind !== "rules") {
             contentType: "image/png",
           });
           await logic.save();
-          if (!GENERATED) {
-            const eml = await expectStored(author, "workflow", id, true);
-            expect(eml).toMatch(new RegExp(`^%%workflow ${id} entity: ${wf.entity}\\b`, "m"));
-          }
+          await expectWorkflowKept(page, author, {
+            id,
+            title: wf.name,
+            entity: wf.entity,
+            present: true,
+          });
         });
 
         await test.step("read", async () => {
@@ -356,18 +380,19 @@ if (kind !== "rules") {
           await expect(railRow(page, wf.name), "the old name is gone from the rail").toHaveCount(0);
           await openFromRail(page, next.name);
           await expectWorkflowShown(logic, next);
-          if (!GENERATED) {
-            const eml = await expectStored(author, "workflow", newId, true);
-            await expectStored(author, "workflow", id, false);
-            if (next.kind === "lifecycle") {
-              const added = next.hooks[next.hooks.length - 1]!;
-              expect(eml).toContain(`%%hook ${added.when} ${added.handler} on ${wf.entity}`);
-            } else if (next.kind === "status") {
-              expect(eml).toContain(`${next.transitions.at(-1)!.from} --> on_hold : pause`);
-            } else {
-              expect(eml).toContain("https://example.com/revised");
-            }
-          }
+          await expectWorkflowKept(page, author, {
+            id: newId,
+            title: next.name,
+            entity: wf.entity,
+            present: true,
+            text: changedText(next),
+          });
+          await expectWorkflowKept(page, author, {
+            id,
+            title: wf.name,
+            entity: wf.entity,
+            present: false,
+          });
         });
 
         await test.step("delete", async () => {
@@ -377,10 +402,14 @@ if (kind !== "rules") {
           await logic.open();
           await expect(railRow(page, next.name)).toHaveCount(0);
           await expect(railRow(page, wf.name)).toHaveCount(0);
-          if (!GENERATED) {
-            await expectStored(author, "workflow", newId, false, next.name);
-            await expectStored(author, "workflow", id, false, wf.name);
-          }
+          const entity = wf.entity;
+          await expectWorkflowKept(page, author, {
+            id: newId,
+            title: next.name,
+            entity,
+            present: false,
+          });
+          await expectWorkflowKept(page, author, { id, title: wf.name, entity, present: false });
         });
 
         expect(errors, "no uncaught error in the page").toEqual([]);
