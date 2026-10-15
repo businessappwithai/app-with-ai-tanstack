@@ -26,9 +26,16 @@
  *
  * `CRUD_ONLY=<substring>` runs the items whose name contains it;
  * `CRUD_KIND=rules|workflows` runs one half.
+ *
+ * Every stage leaves a screenshot of the editor on disk — `screenshots/<target>/<item>--<n>-<stage>.png`,
+ * or under `CRUD_SHOTS_DIR` — because attachments are written only by the HTML reporter, and
+ * a run that passed should still show what it drove.
  */
 
-import { expect, type Page, test } from "@playwright/test";
+import { mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { expect, type Page, type TestInfo, test } from "@playwright/test";
 import {
   deleteFromRail,
   expectRuleKept,
@@ -64,6 +71,29 @@ const RULE_CASES: RuleCase[] = [
 ];
 
 const REVISED = " revised";
+
+const SHOTS_DIR =
+  process.env.CRUD_SHOTS_DIR ??
+  fileURLToPath(new URL(`../screenshots/${GENERATED ? "generated" : "tool"}`, import.meta.url));
+
+const STAGES = ["created", "read", "updated", "deleted"] as const;
+
+/** Attach a screenshot of the page to the test and write it to SHOTS_DIR. */
+async function shot(
+  page: Page,
+  testInfo: TestInfo,
+  item: string,
+  stage: (typeof STAGES)[number]
+): Promise<void> {
+  const body = await page.screenshot();
+  await testInfo.attach(stage, { body, contentType: "image/png" });
+  const slug = item
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  mkdirSync(SHOTS_DIR, { recursive: true });
+  writeFileSync(path.join(SHOTS_DIR, `${slug}--${STAGES.indexOf(stage) + 1}-${stage}.png`), body);
+}
 
 /** Collects the page's uncaught errors; a test ends by asserting there were none. */
 function watchErrors(page: Page): string[] {
@@ -149,10 +179,7 @@ if (kind !== "workflows") {
           if (item.shape === "table") await buildTableRule(page, graph, item.rule);
           else await buildGraphRule(page, graph, item.rule);
           for (const t of rule.tryIt) await runTryIt(page, t.sample, t.expect, t.message);
-          await testInfo.attach("created", {
-            body: await page.screenshot(),
-            contentType: "image/png",
-          });
+          await shot(page, testInfo, `rule ${title}`, "created");
           await saveModel(page);
           await expectRuleKept(page, author, {
             id,
@@ -173,6 +200,7 @@ if (kind !== "workflows") {
             await expect(graph.nodes).toHaveCount(item.rule.chain.length + 2);
           }
           for (const t of rule.tryIt) await runTryIt(page, t.sample, t.expect, t.message);
+          await shot(page, testInfo, `rule ${title}`, "read");
         });
 
         await test.step("update", async () => {
@@ -219,6 +247,7 @@ if (kind !== "workflows") {
           await expect(entitySelect(page)).toHaveValue(rule.entity);
           if (!GENERATED) await expect(priorityInput(page)).toHaveValue(String(newPriority));
           for (const t of tries) await runTryIt(page, t.sample, t.expect, t.message);
+          await shot(page, testInfo, `rule ${title}`, "updated");
           await expectRuleKept(page, author, {
             id: newId,
             title: newTitle,
@@ -236,6 +265,7 @@ if (kind !== "workflows") {
           await openLogic(page, author);
           await expect(railRow(page, newTitle)).toHaveCount(0);
           await expect(railRow(page, title)).toHaveCount(0);
+          await shot(page, testInfo, `rule ${title}`, "deleted");
           const entity = rule.entity;
           await expectRuleKept(page, author, {
             id: newId,
@@ -339,10 +369,7 @@ if (kind !== "rules") {
         await test.step("create", async () => {
           await logic.open();
           await logic.createWorkflow(wf);
-          await testInfo.attach("created", {
-            body: await page.screenshot(),
-            contentType: "image/png",
-          });
+          await shot(page, testInfo, `${wf.kind} ${wf.name}`, "created");
           await logic.save();
           await expectWorkflowKept(page, author, {
             id,
@@ -356,6 +383,7 @@ if (kind !== "rules") {
           await logic.open();
           await openFromRail(page, wf.name);
           await expectWorkflowShown(logic, wf);
+          await shot(page, testInfo, `${wf.kind} ${wf.name}`, "read");
         });
 
         await test.step("update", async () => {
@@ -371,16 +399,13 @@ if (kind !== "rules") {
           } else {
             await logic.addStep(next.steps[next.steps.length - 1]!);
           }
-          await testInfo.attach("updated", {
-            body: await page.screenshot(),
-            contentType: "image/png",
-          });
           await logic.save();
 
           await logic.open();
           await expect(railRow(page, wf.name), "the old name is gone from the rail").toHaveCount(0);
           await openFromRail(page, next.name);
           await expectWorkflowShown(logic, next);
+          await shot(page, testInfo, `${wf.kind} ${wf.name}`, "updated");
           await expectWorkflowKept(page, author, {
             id: newId,
             title: next.name,
@@ -403,6 +428,7 @@ if (kind !== "rules") {
           await logic.open();
           await expect(railRow(page, next.name)).toHaveCount(0);
           await expect(railRow(page, wf.name)).toHaveCount(0);
+          await shot(page, testInfo, `${wf.kind} ${wf.name}`, "deleted");
           const entity = wf.entity;
           await expectWorkflowKept(page, author, {
             id: newId,
