@@ -75,10 +75,14 @@ async function readJson<T>(path: string): Promise<T | null> {
 }
 
 async function write(method: string, path: string, body?: unknown): Promise<unknown> {
+  // A Content-Type only with a body: Fastify refuses `application/json` with nothing after it
+  // ("Body cannot be empty when content-type is set to 'application/json'"), which made every
+  // DELETE from this screen a 500 — no rule or workflow could be removed.
   const response = await fetch(`/api${path}`, {
     method,
-    headers: { "Content-Type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    ...(body === undefined
+      ? {}
+      : { headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }),
   });
   const data = (await response.json().catch(() => ({}))) as { message?: string | string[] };
   // Removing what is already gone is the outcome that was asked for.
