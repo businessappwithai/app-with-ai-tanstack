@@ -31,7 +31,7 @@ bun run build:wasm-runtime -- --check && bun run build:fullstack-browser --check
  && bun run build:wasm-browser -- --check && bun run build:language-tools --check && bun run build:viewers --check
 ```
 
-If `--check` says the runtime differs from CI's, rebuild in `oven/bun:1.4.0`, not locally. A formatting-only edit also stales them. Editing `templates/wasm/**` needs `bun run build:wasm-runtime`.
+If `--check` says the runtime differs from CI's, rebuild in `oven/bun:1.4.3`, not locally. A formatting-only edit also stales them. Editing `templates/wasm/**` needs `bun run build:wasm-runtime`.
 
 ## What a rule becomes in the app
 

@@ -144,9 +144,9 @@ bite by removing one label from `process.md` and watching it fail.
 | `tests/e2e/05b-logic-editors.e2e.spec.ts` (new) | 2 passed |
 | `bun run test` | 893 passed, 12 skipped |
 | `bun run type-check`, `biome check . --diagnostic-level=error` | clean |
-| All five `--check` artifact comparisons, under bun 1.4.0 on linux-x64 (CI's) | up to date |
+| All five `--check` artifact comparisons, on linux-x64 under CI's bun | up to date |
 | Generated app from `examples/drug-discovery.eml.mmd`: install and frontend build | passed |
-| `bun install --frozen-lockfile` under bun 1.4.0 | no changes |
+| `bun install --frozen-lockfile` under CI's bun | no changes |
 
 ## Second pass: gstack `/qa`, health 77 → 91
 
@@ -275,7 +275,7 @@ That is out of scope for a QA pass.
 |-------|--------|
 | `bun run test` | 936 passed, 12 skipped |
 | `bun run type-check`, `biome check . --diagnostic-level=error` | clean |
-| Five `--check` artifact comparisons (bun 1.4.0, linux-x64) | all up to date |
+| Five `--check` artifact comparisons (CI's bun, linux-x64) | all up to date |
 | `scripts/e2e-rules-workflows` with `--generated` | 23 passed (01–06, fresh generated app), after two suite fixes: the runner now gives the app a clean environment, and 06 clicks the designer's real Save control |
 
 ### Windows, tabs and fields, not tables and columns

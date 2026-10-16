@@ -56,8 +56,8 @@ else
     exit 1
 fi
 
-# Check Bun version (should be >= 1.1.0)
-REQUIRED_BUN_VERSION="1.1.0"
+# Check Bun version (should be >= 1.4.3)
+REQUIRED_BUN_VERSION="1.4.3"
 if [ "$(printf '%s\n' "$REQUIRED_BUN_VERSION" "$BUN_VERSION" | sort -V | head -n1)" = "$REQUIRED_BUN_VERSION" ]; then
     print_success "Bun version meets requirements (>= $REQUIRED_BUN_VERSION)"
 else

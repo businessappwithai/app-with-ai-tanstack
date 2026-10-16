@@ -8,6 +8,6 @@ From the application repository root, install the pinned workspace dependencies 
 - Project a model: `bun packages/yamltecture/scripts/project-eml.ts examples/drug-discovery.eml.mmd /tmp/model.ai.yaml`
 - Inspect a model: `bun packages/yamltecture/scripts/inspect-eml.ts examples/drug-discovery.eml.mmd`
 
-The repository pins Bun 1.4.0. Unit tests are local. `test:website` is an optional network check of published examples; it is not required by the application and was not run for this integration.
+The repository pins Bun 1.4.3. Unit tests are local. `test:website` is an optional network check of published examples; it is not required by the application and was not run for this integration.
 
 Git helpers take a host-supplied port. They cannot directly initialize or commit a repository. The web application's project repository service supplies access checks, locking, recovery, and commits.
