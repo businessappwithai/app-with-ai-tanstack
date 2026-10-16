@@ -9,6 +9,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## Bun 1.4.3, and only Bun 1.4.3
+
+**Every repository in this project uses Bun 1.4.3 and no other version** —
+`app-with-ai-tanstack`, `app-and-report-with-ai-tanstack`,
+`enterprise_reporting_tanstack` and `businessappwithai.github.io`. That is the
+rule for every runtime, install, build, test and type-check, in CI, in Docker
+images and locally. There are no exceptions: the WASM build and the
+`appwithai-wasm` CLI run on 1.4.3 too (the second 1.3.11 pin they used to have
+is gone).
+
+- **Never use another Bun.** Not 1.3, not 1.4.0–1.4.2, not a newer release. Bun's
+  bundler output depends on the exact version, so a committed bundle built on
+  another one is byte-wrong for CI; and `bun check`, the type checker every
+  repository runs, first shipped in 1.4.3 — on 1.4.2, `bun check` silently runs a
+  package script named `check` instead, if there is one.
+- **Never use npm, pnpm or yarn** as the package manager, and never `tsc` as the
+  type checker — `bun check` is the static check, and there is no linter or
+  formatter.
+- **Pin it exactly** wherever a version is stated: `BUN_VERSION: "1.4.3"` in CI,
+  `oven/bun:1.4.3` in Dockerfiles, `"bun": ">=1.4.3"` in `engines`. Moving to a
+  different Bun is one deliberate change made in all four repositories together,
+  never in one alone.
+- **What a generated application runs on is a separate question.** The browser
+  (WASM) application the generator writes is Bun-free by design — its overlay
+  swaps bun for node — and that is about the *output*, not the toolchain that
+  produced it.
+
+**Here:** `BUN_VERSION` in `.github/workflows/ci.yml` (every job, the WASM ones
+included), `engines` in every manifest, and `scripts/require-bun.ts`, which
+every `type-check` script runs first and which refuses anything but 1.4.x at or
+above 1.4.3. The NestJS + TanStack application the generator writes pins 1.4.3
+too — its `engines`, its CI (`bun-version: 1.4.3`) and its Dockerfiles. The five
+committed bundles must be rebuilt on 1.4.3 on `linux-x64`, or CI rejects their
+bytes.
+
+---
+
 ## Skill routing
 
 When the user's request matches an available skill, invoke it via the Skill tool,
