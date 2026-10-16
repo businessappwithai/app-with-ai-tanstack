@@ -195,7 +195,7 @@ Every new model save, historical import, restore and generation records its corr
 - An application produced through the staged API generation flow was installed with Bun; its NestJS backend and TanStack frontend production builds passed.
 - CI now has a PostgreSQL-backed project Git recovery job so consistency tests are not silently skipped there.
 
-The local runtime is Bun 1.3.14 on macOS; CI pins Bun 1.4.0 on Linux. Committed platform-dependent browser bundles were not regenerated. Concurrent generator/UI edits in the workspace belong to separate work and were preserved. The repository's pre-existing production-server issue is documented in AGENTS.md; production build success does not establish that the modelling tool's production server runs.
+The local runtime differed from the Bun CI pins on Linux. Committed platform-dependent browser bundles were not regenerated. Concurrent generator/UI edits in the workspace belong to separate work and were preserved. The repository's pre-existing production-server issue is documented in AGENTS.md; production build success does not establish that the modelling tool's production server runs.
 
 ## Operating notes
 

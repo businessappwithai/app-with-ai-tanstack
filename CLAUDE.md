@@ -44,7 +44,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 # APPWITHAI
 
 **Project**: AI-powered ERD design + full-stack code generation  
-**Version**: 5.1.1 | **Runtime**: Bun.js 1.4.0 (pinned — see below)
+**Version**: 5.1.1 | **Runtime**: Bun.js 1.4.3 (pinned — see below)
 
 ## Commands
 
@@ -118,7 +118,7 @@ touched.
 `overlay-assets.generated.ts` and `sw.js` are verbatim copies — byte-identical
 anywhere. The `.js` bundles come from `Bun.build`, whose output depends on the
 bun version **and the platform**: the full-stack bundle is 807407 bytes built on
-macOS and 807697 on Linux, same bun 1.4.0, same frozen lockfile. CI builds with
+macOS and 807697 on Linux, same bun, same frozen lockfile. CI builds with
 the `BUN_VERSION` pinned in `.github/workflows/ci.yml` on `linux-x64`, so
 rebuilding a bundle anywhere else commits bytes CI will reject.
 
@@ -138,7 +138,7 @@ Two traps worth knowing. The job's steps **fail fast**, so the first stale
 artifact hides the rest — run all five locally or you will fix one per CI cycle.
 And if `--check` reports your runtime differs from CI's, do not rebuild locally:
 build where CI builds, e.g.
-`docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.0 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
+`docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.3 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
 
 ### `bun run dev` builds the workspace packages first
 `packages/web` imports `@appwithai/core`, `@appwithai/generator` and
@@ -222,7 +222,7 @@ formatting, not just after a change you think of as behavioural.
 
 | Layer | Technology |
 |-------|------------|
-| Runtime | Bun.js 1.4.0 (pinned) |
+| Runtime | Bun.js 1.4.3 (pinned) |
 | AI Orchestration | Mastra.ai v1.59+, CopilotKit v1.68+ |
 | AI Model | Local OpenAI-compatible endpoint (:8000) |
 | Retrieval | `@mastra/pg` PgVector (HNSW) |

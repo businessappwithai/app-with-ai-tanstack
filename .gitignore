@@ -161,3 +161,7 @@ language.zip
 # The rule and workflow editors are vendored from packages/editors/src at generation time.
 packages/generator/templates/tanstack-start-nestjs/frontend/src/editors/
 scripts/e2e-rules-workflows/screenshots/
+
+# TypeScript incremental-build caches. Every package builds with `bun build`;
+# nothing reads these, and a committed one records whatever toolchain wrote it.
+*.tsbuildinfo

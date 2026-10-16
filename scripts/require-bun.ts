@@ -4,7 +4,7 @@
  *
  * Every script in this repository runs on Bun — the type-check included, whose `tsc`
  * is started with `bun --bun` so it runs on Bun's runtime rather than the Node its
- * shebang names. CI pins `BUN_VERSION: 1.4.0` (`.github/workflows/ci.yml`), and the
+ * shebang names. CI pins `BUN_VERSION: 1.4.3` (`.github/workflows/ci.yml`), and the
  * browser bundles it builds differ byte for byte between Bun versions, so a different
  * Bun is a different answer. Run first by `type-check` and `type-check:language`.
  *
@@ -21,7 +21,7 @@ if (!bun) {
 if (bun.version !== REQUIRED && !bun.version.startsWith(`${REQUIRED}.`)) {
   console.error(
     `Bun ${REQUIRED}.x is required; this is Bun ${bun.version}. ` +
-      `Install it with: curl -fsSL https://bun.sh/install | bash -s "bun-v${REQUIRED}.0"`
+      `Install it with: curl -fsSL https://bun.sh/install | bash -s "bun-v${REQUIRED}.3"`
   );
   process.exit(1);
 }
