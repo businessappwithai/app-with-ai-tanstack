@@ -54,9 +54,8 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run dev:mastra` | Mastra AI → http://localhost:4111 |
 | `./scripts/start-llm.sh` | Local model server → :8000 |
 | `bun run build` | Build all packages |
-| `bun run type-check` | TypeScript (root tsconfig only) — `tsc` on Bun 1.4 (`bun --bun`), after `scripts/require-bun.ts` refuses any other Bun |
+| `bun run type-check` | TypeScript (root tsconfig only) — `bun check`, Bun's own type checker, after `scripts/require-bun.ts` refuses anything older than Bun 1.4.3 |
 | `bun run type-check:language` | Type-check `language/**` (separate config) |
-| `bun run lint` / `bun run lint:fix` | Biome lint / autofix |
 | `bun run test` | Vitest unit tests (runs `packages/web/vitest.config.ts`) |
 | `bun run test:e2e:server` | Playwright E2E with server startup |
 | `bun run test:wasm` | WASM stack end-to-end |
@@ -80,26 +79,24 @@ bun --filter @appwithai/web test -- path/to/file.spec.ts
 bunx --bun playwright test tests/e2e/specific.e2e.spec.ts
 ```
 
-### Run `bun install` first — both failure modes are silent
+### Run `bun install` first — the failure mode is silent
 
-In a tree with no `node_modules`, the two commands you would reach for to check
-your work lie to you, in opposite directions:
+In a tree with no `node_modules`, the command you would reach for to check your
+work lies to you:
 
 | Command | What it does with no `node_modules` |
 |---|---|
-| `bunx biome check .` | Resolves **`biome@0.3.3`** — an unrelated legacy package, not `@biomejs/biome` — and exits **0 having checked nothing**. Indistinguishable from a clean lint |
 | `bun run type-check` | Reports **thousands of phantom errors**: every `node:` builtin and `process` is unresolvable. Indistinguishable from a broken repository |
 
-Both have been mistaken for real results, and each wasted a CI cycle. `bun
-install` fixes both. If you cannot install, pin the linter explicitly —
-`bunx @biomejs/biome@2.5.6 check .` — and do not trust `type-check` at all.
+It has been mistaken for a real result and wasted a CI cycle. `bun install`
+fixes it; if you cannot install, do not trust `type-check` at all.
 
 ### The committed build artifacts, and why CI is the only judge of them
 
 Eight files are built from sources and committed, and CI rebuilds each one and
 compares byte for byte. Editing a source without rebuilding fails the
-`Type-check, lint and unit tests` job — after type-check, lint and the unit
-tests have all passed, which is a long way to walk to find out.
+`Type-check and unit tests` job — after the type-check and the unit tests
+have both passed, which is a long way to walk to find out.
 
 | Rebuild with | Artifact | Stale when you edit |
 |---|---|---|
@@ -160,7 +157,7 @@ All of the entries that used to be here have been **removed** rather than
 documented: `migrate`, `test:app`, `test:e2e`, `test:generator`, `test:complete`
 and `setup:gstack` pointed at files that do not exist, the root
 `vitest.config.ts` referenced a missing `./test/setup.ts`, and `packages/web`'s
-`lint` ran eslint, which is not a dependency anywhere (it runs Biome now). A
+`lint` ran eslint, which is not a dependency anywhere. A
 script that has never worked is worse than no script: it costs every new reader
 the time to find out.
 
@@ -184,7 +181,7 @@ nothing about whether a generated one compiles.
 
 | Job | What it does that nothing else does |
 |---|---|
-| **Type-check, lint and unit tests** | Also `type-check:language`, the four `--check` artifact comparisons, `test:language-tools` and `test:llmtext`. Lint is `--diagnostic-level=error` only — the tree carries several hundred pre-existing style warnings |
+| **Type-check and unit tests** | `bun check` on the root and on `language/**`, the five `--check` artifact comparisons, `test:language-tools` and `test:llmtext` |
 | **Generate a browser application and run its backend** | Generates the stack twice (with and without the overlay) and diffs; asserts the overlay's exact footprint; asserts **no `bun`/`bunx` survives** in any generated `package.json`; migrates and seeds on WebAssembly Postgres with no Postgres on the runner |
 | **Drive the browser stack in Chromium** | The only job that *opens* the result — Service Worker, Node-API shim, worker host |
 | **Generate an application and build it** | Builds the generated backend **and** frontend, type-checks the generated `tests/`, then runs that suite against real Postgres (pgvector) with `node run.ts --no-server` |
@@ -195,20 +192,22 @@ and it runs the suite via the generator's own `run.ts`, never `bun test` — the
 suites are ordered and stateful, and running them in one parallel process makes
 failures move around between runs.
 
-### `bun run lint` does not run the formatter; CI does
+### There is no linter or formatter — the static check is `bun check`
 
-`lint` is `biome lint .`. The first job runs
-`bunx biome check . --max-diagnostics=2000 --diagnostic-level=error`, and
-**`check` is lint *plus* the formatter** — so a clean `bun run lint` says nothing
-about whether CI will accept the file. A long line and an object literal Biome
-would have expanded turned that job red after `lint`, `type-check` and 838 unit
-tests had all passed locally.
+Biome is gone: its config, its dependency, the `lint`, `lint:fix`, `format` and
+`format:check` scripts, the CI step that ran it, and its suppression comments.
+Bun has no linter, so nothing checks style any more; the static check is
+**`bun check`**, the type checker built into Bun since 1.4.3. It reads
+`tsconfig.json`, reports the same errors as `tsc`, and runs on every core — the
+root type-check takes about 4 seconds. `type-check`, `type-check:language`,
+`packages/web` and `yamltecture` all run it; `typescript` stays a dependency for
+editors, and nothing in a script runs `tsc` except the browser application below.
 
-Run the CI command itself before pushing, or `bun run format:check` (which is
-`biome format .`) beside `lint`. `bun run lint:fix` is `biome check --write`, so
-it fixes both — but it also applies the `organizeImports` assist, which touches
-far more than the file you were working on. `bunx biome format --write <files>`
-is the narrow fix.
+Keep the existing style by hand — 2 spaces, LF, 100 columns, double quotes,
+semicolons, ES5 trailing commas — because nothing enforces it now. The old
+suppression comments kept their reasons as plain comments (`// <reason>`): why an
+`any`, an index key or a `dangerouslySetInnerHTML` is acceptable at that spot is
+still worth reading.
 
 **A formatting-only change stales the browser bundles.** `Bun.build` keeps
 comments and whitespace in these bundles, so re-wrapping two lines in
@@ -232,7 +231,7 @@ formatting, not just after a change you think of as behavioural.
 | Backend (generated) | NestJS 10+, Fastify, Kysely |
 | Database | PostgreSQL via Kysely + `pg`; LibSQL/SQLite for Mastra |
 | Testing | Vitest 4, Playwright 1.62, `node:test` (generated apps) |
-| Linter | **Biome** |
+| Static checks | `bun check` (Bun's own type checker) — no linter, no formatter |
 
 ---
 
@@ -389,7 +388,18 @@ TypeScript directly under Bun. Two exceptions, both measured rather than assumed
 The WASM overlay strips both prefixes (`bun --bun `, `HOST=127.0.0.1 bun --bun `), so the
 browser application's scripts are the plain Node commands they always were — CI's
 "No Bun left" check and the overlay footprint are unchanged. The generated test suite
-(`tests/`) stays on `node --test` by design; CI type-checks it with `bunx --bun tsc`.
+(`tests/`) stays on `node --test` by design; CI type-checks it with `bun check`.
+
+**Its static check is `bun check` too, and it has no linter.** The backend and the
+frontend each carry `"type-check": "bun check"` and no `biome.json`; their own CI
+runs it, and `appwithai generate` runs it after the install (`utils/type-check.ts`).
+Turning it on found what nothing had been running: the frontend's
+`/// <reference types="vite/client" />` resolved to nothing because `vite` is only
+`vinxi`'s dependency (so `vite` is a direct dev dependency now), the backend's
+`tsconfig` used the `baseUrl` newer TypeScript removed, `admin/system-config.tsx` was
+linked from the admin index and never written, and the auth proxy's handlers were
+untyped. The WASM overlay rewrites `bun check` to `tsc --noEmit`, so the browser
+application stays Bun-free.
 
 ### WASM stack
 
@@ -1061,7 +1071,7 @@ the service cannot forget.
 
 **TypeScript strict flags:** `noUnusedLocals`, `noUnusedParameters`, `noUncheckedIndexedAccess` (every index → `T | undefined`, narrow before use), `noImplicitReturns`, `isolatedModules`, `experimentalDecorators`.
 
-**Biome:** 2-space indent, LF, line width 100, double quotes, semicolons always, ES5 trailing commas. Excluded: `packages/generator/templates`, `**/routeTree.gen.ts`, `**/*.generated.ts`, `html/assets/`.
+**Style, kept by hand (there is no formatter):** 2-space indent, LF, line width 100, double quotes, semicolons always, ES5 trailing commas.
 
 **Naming:** functions→camelCase, Types/Classes→PascalCase, primitive constants→UPPER_SNAKE_CASE, instance constants→camelCase, logic files→kebab-case, React component files→PascalCase.
 
@@ -1640,6 +1650,6 @@ Add once in `GenerationSettings` in `generate-application.ts`. Do NOT add at cal
 ## Git Workflow
 
 1. Feature branch from `main`
-2. `bun run type-check` and `bun run lint` before pushing
+2. `bun run type-check` (`bun check`) before pushing
 3. If you touched `packages/generator/templates/`, generate an app and build it
 4. Target `main` for PRs

@@ -15,7 +15,7 @@
   },
   "scripts": {
     "test": "bun --filter @appwithai/web test -- ../yamltecture/test",
-    "typecheck": "bun ../../scripts/require-bun.ts && bun --bun tsc --noEmit -p tsconfig.json",
+    "typecheck": "bun ../../scripts/require-bun.ts && bun check -p tsconfig.json",
     "project": "bun scripts/project-eml.ts",
     "inspect": "bun scripts/inspect-eml.ts",
     "test:website": "bun scripts/test-website-models.ts"

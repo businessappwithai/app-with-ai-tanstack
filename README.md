@@ -150,9 +150,8 @@ database/              migrations for the modelling tool's own database
 ## Development
 
 ```bash
-bun run type-check           # the root tsconfig
+bun run type-check           # the root tsconfig, with bun check
 bun run type-check:language  # language/** has its own config
-bun run lint                 # Biome
 bun run test                 # Vitest
 bun run test:playwright      # the modelling tool, in Chromium
 bun run test:wasm            # the browser stack, end to end, in Chromium

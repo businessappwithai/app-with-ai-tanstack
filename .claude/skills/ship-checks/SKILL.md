@@ -1,6 +1,6 @@
 ---
 name: ship-checks
-description: The checks to run — and read correctly — before committing, pushing or merging a change in this repository, including the lint output trap and the route-file stub trap. Use before every commit, and before opening or merging a pull request.
+description: The checks to run — and read correctly — before committing, pushing or merging a change in this repository, including the route-file stub trap. Use before every commit, and before opening or merging a pull request.
 ---
 
 # Before you commit or merge
@@ -8,13 +8,13 @@ description: The checks to run — and read correctly — before committing, pus
 Run, in the repo root, and **read the output** (do not pipe to `tail -1`):
 
 ```bash
-bun install --frozen-lockfile            # first; biome and tsc lie without it
-bunx biome check . --max-diagnostics=2000 --diagnostic-level=error
-bun run type-check
+bun install --frozen-lockfile            # first; the type-check lies without it
+bun run type-check                       # bun check — there is no linter
+bun run type-check:language
 bun --filter @appwithai/web test
 ```
 
-- **Biome:** success ends `Checked N files … No fixes applied.` with no `×`. An error block prints *above* that line, so `tail -1` reports success over a failure — grep for `×` or `Found N error`. `biome check --write <paths>` fixes formatting; limit it to files you touched.
+- **`bun check`:** success is `✓ No type errors in N files`; a failure ends `Found N errors in M files`, with the errors above it. There is no linter or formatter, so keep the existing style by hand.
 - **Vitest** is run from `packages/web` (`bun --filter @appwithai/web test`); a file path filter from the repo root finds nothing.
 - If you touched `packages/generator`, `language/**` or `templates/**`, run the five `--check` builds from the `generate-and-run-app` skill.
 - If you touched the rule or workflow editors, run `rule-editor-e2e` specs 07 and 09.

@@ -221,7 +221,7 @@ export function LogicWorkbench({
     [workflows]
   );
   const summaryKey = `${ruleNames.join("|")}#${workflowNames.join("|")}`;
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the key stands for both lists.
+  // the key stands for both lists.
   useEffect(() => {
     onSummaryChange?.({ ruleNames, workflowNames });
   }, [summaryKey]);

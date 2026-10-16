@@ -1124,6 +1124,15 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Admin roles page template not found");
     }
 
+    // System configuration page (admin/system-config.tsx). The admin index links
+    // to it; without this copy the card pointed at a route that did not exist.
+    try {
+      const systemConfigContent = await this.component("src/routes/admin/system-config.tsx");
+      await fs.writeFile(path.join(adminDir, "system-config.tsx"), systemConfigContent);
+    } catch (_e) {
+      console.warn("Admin system configuration page template not found");
+    }
+
     // Recursively copy admin subdirectories (table/$tableId/, window/$windowId/, etc.)
     const adminSubdirs = [
       { src: "src/routes/admin/table", dest: "src/routes/admin/table" },
@@ -1250,13 +1259,6 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Custom tsconfig template not found, keeping TanStack Start default");
     }
 
-    // Update Biome configuration
-    try {
-      const biomeContent = await this.renderTemplate("biome.json.hbs", context);
-      await fs.writeFile(path.join(outputDir, "biome.json"), biomeContent);
-    } catch (_e) {
-      console.warn("Custom Biome config template not found, using defaults");
-    }
 
     // Generate environment configuration for TanStack Start.
     //

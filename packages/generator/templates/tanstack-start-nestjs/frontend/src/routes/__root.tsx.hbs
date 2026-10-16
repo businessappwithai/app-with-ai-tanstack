@@ -22,7 +22,7 @@ const themeBootHtml = { __html: THEME_BOOT_SCRIPT }
  * theme meets a white page exactly when something has already gone wrong.
  */
 function ThemeBootScript() {
-  // biome-ignore lint/security/noDangerouslySetInnerHtml: a constant string
+  // a constant string
   // from theme-provider.tsx, and the only way to run before first paint
   return <script dangerouslySetInnerHTML={themeBootHtml} />
 }

@@ -9,7 +9,7 @@ Use `bun`, never `npm`/`pnpm`. The tool is `packages/web`; generated apps are a 
 
 ## Start it, in this order
 
-1. `bun install --frozen-lockfile` — with no `node_modules`, `bunx biome` and `type-check` lie (see `ship-checks`).
+1. `bun install --frozen-lockfile` — with no `node_modules`, `type-check` lies (see `ship-checks`).
 2. **Postgres 16** is installed but not running. As root, put the data directory outside `/tmp/claude-*` (the `postgres` user cannot write there):
    ```bash
    B=/usr/lib/postgresql/16/bin; D=/var/tmp/pgdata

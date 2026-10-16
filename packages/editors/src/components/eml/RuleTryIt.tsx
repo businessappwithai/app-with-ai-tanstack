@@ -139,7 +139,7 @@ export function RuleTryIt({
                 <summary className="cursor-pointer font-medium">How it got there</summary>
                 <ol className="mt-1 list-decimal space-y-1 pl-5">
                   {result.trace.map((step, index) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: a trace is ordered and static
+                    // a trace is ordered and static
                     <li key={index}>
                       <span className="font-medium">{step.node || "node"}</span>
                       <code className="ml-1 break-all text-[11px] text-muted-foreground">

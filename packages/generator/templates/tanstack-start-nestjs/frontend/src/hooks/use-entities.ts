@@ -48,6 +48,8 @@ export interface FieldMetadata {
   is_displayed: boolean;
   is_displayed_grid: boolean;
   is_read_only: boolean;
+  /** The field's help text — what a form shows beneath it. */
+  description?: string;
   /**
    * The dictionary's display value (§3.7) — the columns that name a record,
    * and whether this one is the key. `use-bus-entity-level` picks the record

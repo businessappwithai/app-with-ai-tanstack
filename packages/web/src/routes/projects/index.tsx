@@ -457,8 +457,7 @@ function ProjectsPage() {
                 // role="button" on a container of interactive elements is invalid nesting.
                 // Clicking the body is a mouse convenience: the Continue/Edit button inside
                 // navigates to the same route and is reachable by Tab (verified in browser).
-                // biome-ignore lint/a11y/noStaticElementInteractions: keyboard path is the Continue button.
-                // biome-ignore lint/a11y/useKeyWithClickEvents: keyboard path is the Continue button.
+                // keyboard path is the Continue button.
                 <div
                   key={project.id}
                   className="bg-card border border-border rounded-xl p-5 relative group hover:border-primary/50 transition-all cursor-pointer"

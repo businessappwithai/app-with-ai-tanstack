@@ -84,7 +84,7 @@ export function HelpPanel({ open, topic, onTopicChange, onClose }: HelpPanelProp
   }, [open, onClose]);
 
   // A new topic starts at its top, not wherever the last one was scrolled to.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the topic is the trigger
+  // the topic is the trigger
   useEffect(() => {
     body.current?.scrollTo({ top: 0 });
   }, [topic]);

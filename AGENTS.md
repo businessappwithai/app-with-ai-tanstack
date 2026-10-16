@@ -50,7 +50,6 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build` | Build all packages |
 | `bun run type-check` | TypeScript (root tsconfig only) |
 | `bun run type-check:language` | Type-check `language/**` (separate config) |
-| `bun run lint` / `bun run lint:fix` | Biome lint / autofix |
 | `bun run test` | Vitest unit tests (runs `packages/web/vitest.config.ts`) |
 | `bun run test:e2e:server` | Playwright E2E with server startup |
 | `bun run test:wasm` | WASM stack end-to-end |
@@ -73,26 +72,41 @@ bun --filter @appwithai/web test -- path/to/file.spec.ts
 bunx playwright test tests/e2e/specific.e2e.spec.ts
 ```
 
-### Run `bun install` first — both failure modes are silent
+### Run `bun install` first — the failure mode is silent
 
-In a tree with no `node_modules`, the two commands you would reach for to check
-your work lie to you, in opposite directions:
+In a tree with no `node_modules`, the command you would reach for to check your
+work lies to you:
 
 | Command | What it does with no `node_modules` |
 |---|---|
-| `bunx biome check .` | Resolves **`biome@0.3.3`** — an unrelated legacy package, not `@biomejs/biome` — and exits **0 having checked nothing**. Indistinguishable from a clean lint |
 | `bun run type-check` | Reports **thousands of phantom errors**: every `node:` builtin and `process` is unresolvable. Indistinguishable from a broken repository |
 
-Both have been mistaken for real results, and each wasted a CI cycle. `bun
-install` fixes both. If you cannot install, pin the linter explicitly —
-`bunx @biomejs/biome@2.5.6 check .` — and do not trust `type-check` at all.
+It has been mistaken for a real result and wasted a CI cycle. `bun install`
+fixes it; if you cannot install, do not trust `type-check` at all.
+
+### There is no linter or formatter — the static check is `bun check`
+
+Biome is gone: its config, its dependency, the `lint`, `lint:fix`, `format` and
+`format:check` scripts, the CI step that ran it, and its suppression comments.
+Bun has no linter, so nothing checks style any more; the static check is
+**`bun check`**, the type checker built into Bun since 1.4.3. It reads
+`tsconfig.json`, reports the same errors as `tsc`, and runs on every core — the
+root type-check takes about 4 seconds. `type-check`, `type-check:language`,
+`packages/web` and `yamltecture` all run it; `typescript` stays a dependency for
+editors, and nothing in a script runs `tsc` except the browser application below.
+
+Keep the existing style by hand — 2 spaces, LF, 100 columns, double quotes,
+semicolons, ES5 trailing commas — because nothing enforces it now. The old
+suppression comments kept their reasons as plain comments (`// <reason>`): why an
+`any`, an index key or a `dangerouslySetInnerHTML` is acceptable at that spot is
+still worth reading.
 
 ### The committed build artifacts, and why CI is the only judge of them
 
 Eight files are built from sources and committed, and CI rebuilds each one and
 compares byte for byte. Editing a source without rebuilding fails the
-`Type-check, lint and unit tests` job — after type-check, lint and the unit
-tests have all passed, which is a long way to walk to find out.
+`Type-check and unit tests` job — after the type-check and the unit tests
+have both passed, which is a long way to walk to find out.
 
 | Rebuild with | Artifact | Stale when you edit |
 |---|---|---|
@@ -153,7 +167,7 @@ All of the entries that used to be here have been **removed** rather than
 documented: `migrate`, `test:app`, `test:e2e`, `test:generator`, `test:complete`
 and `setup:gstack` pointed at files that do not exist, the root
 `vitest.config.ts` referenced a missing `./test/setup.ts`, and `packages/web`'s
-`lint` ran eslint, which is not a dependency anywhere (it runs Biome now). A
+`lint` ran eslint, which is not a dependency anywhere. A
 script that has never worked is worse than no script: it costs every new reader
 the time to find out.
 
@@ -177,7 +191,7 @@ nothing about whether a generated one compiles.
 
 | Job | What it does that nothing else does |
 |---|---|
-| **Type-check, lint and unit tests** | Also `type-check:language`, the four `--check` artifact comparisons, `test:language-tools` and `test:llmtext`. Lint is `--diagnostic-level=error` only — the tree carries several hundred pre-existing style warnings |
+| **Type-check and unit tests** | `bun check` on the root and on `language/**`, the five `--check` artifact comparisons, `test:language-tools` and `test:llmtext` |
 | **Generate a browser application and run its backend** | Generates the stack twice (with and without the overlay) and diffs; asserts the overlay's exact footprint; asserts **no `bun`/`bunx` survives** in any generated `package.json`; migrates and seeds on WebAssembly Postgres with no Postgres on the runner |
 | **Drive the browser stack in Chromium** | The only job that *opens* the result — Service Worker, Node-API shim, worker host |
 | **Generate an application and build it** | Builds the generated backend **and** frontend, type-checks the generated `tests/`, then runs that suite against real Postgres (pgvector) with `node run.ts --no-server` |
@@ -204,7 +218,7 @@ failures move around between runs.
 | Backend (generated) | NestJS 10+, Fastify, Kysely |
 | Database | PostgreSQL via Kysely + `pg`; LibSQL/SQLite for Mastra |
 | Testing | Vitest 4, Playwright 1.62, `node:test` (generated apps) |
-| Linter | **Biome** |
+| Static checks | `bun check` (Bun's own type checker) — no linter, no formatter |
 
 ---
 
@@ -598,7 +612,7 @@ the service cannot forget.
 
 **TypeScript strict flags:** `noUnusedLocals`, `noUnusedParameters`, `noUncheckedIndexedAccess` (every index → `T | undefined`, narrow before use), `noImplicitReturns`, `isolatedModules`, `experimentalDecorators`.
 
-**Biome:** 2-space indent, LF, line width 100, double quotes, semicolons always, ES5 trailing commas. Excluded: `packages/generator/templates`, `**/routeTree.gen.ts`, `**/*.generated.ts`, `html/assets/`.
+**Style, kept by hand (there is no formatter):** 2-space indent, LF, line width 100, double quotes, semicolons always, ES5 trailing commas.
 
 **Naming:** functions→camelCase, Types/Classes→PascalCase, primitive constants→UPPER_SNAKE_CASE, instance constants→camelCase, logic files→kebab-case, React component files→PascalCase.
 
@@ -1074,6 +1088,6 @@ Add once in `GenerationSettings` in `generate-application.ts`. Do NOT add at cal
 ## Git Workflow
 
 1. Feature branch from `main`
-2. `bun run type-check` and `bun run lint` before pushing
+2. `bun run type-check` (`bun check`) before pushing
 3. If you touched `packages/generator/templates/`, generate an app and build it
 4. Target `main` for PRs

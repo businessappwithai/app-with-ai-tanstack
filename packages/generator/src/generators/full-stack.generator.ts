@@ -148,11 +148,11 @@ export class FullStackGenerator {
       );
     }
 
-    // The linting check is NOT run here. It shells out to the generated
-    // package scripts, and at this point nothing is installed — so it reported
-    // "linting found issues" on every generation regardless of the code, which
-    // is a signal that cannot distinguish a missing biome from a real finding.
-    // The CLI runs it after the install step instead; see `runLintingChecks`.
+    // The type check is NOT run here. It shells out to the generated package
+    // scripts, and at this point nothing is installed — so it would report
+    // errors on every generation regardless of the code, a signal that cannot
+    // distinguish a missing dependency from a real finding. The CLI runs it
+    // after the install step instead; see `runTypeChecks`.
   }
 
   /**

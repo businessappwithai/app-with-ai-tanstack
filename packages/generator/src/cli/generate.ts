@@ -26,7 +26,7 @@ import { cliLogger } from "../pipeline/logger-port";
 import { compileRbac } from "../rbac";
 import { compileReports } from "../reports";
 import { compileRules } from "../rules";
-import { runLintingChecks } from "../utils/lint-check.js";
+import { runTypeChecks } from "../utils/type-check.js";
 import { compileSagaWorkflows, compileWorkflows } from "../workflows";
 
 // Resolve relative paths from the workspace root (INIT_CWD) when called via bun --filter
@@ -689,12 +689,11 @@ program
           quiet,
         });
 
-        // After the install, not before it. Run inside the generator it had no
-        // node_modules to find biome in, so it failed on every generation and
-        // said "linting found issues" about code it had never read.
+        // After the install, not before it: run inside the generator there is no
+        // node_modules, and a check that cannot pass reports nothing real.
         if (!quiet) {
-          console.log("\n🔍 Running linting checks...");
-          await runLintingChecks(outputDir, {
+          console.log("\n🔍 Running type checks...");
+          await runTypeChecks(outputDir, {
             skipBackend: !!options.skipBackend,
             skipFrontend: !!options.skipFrontend,
             packageManager: options.packageManager,
@@ -1836,7 +1835,7 @@ program
             const check = await ssh.execCommand(
               // ${DB_USER:-app} is shell parameter expansion, evaluated on the remote
               // host by docker compose — not a JS template placeholder.
-              // biome-ignore lint/suspicious/noTemplateCurlyInString: shell expansion.
+              // shell expansion.
               "docker compose exec -T postgres pg_isready -U ${DB_USER:-app} 2>/dev/null",
               { cwd: remoteProjectDir }
             );

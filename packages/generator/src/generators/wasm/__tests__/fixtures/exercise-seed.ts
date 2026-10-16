@@ -11,7 +11,7 @@ import { migrate } from "../../../../../templates/wasm/server/migrate.js";
 import { parseModel } from "../../../../pipeline/parse-model";
 import { generateWasmApp } from "../../wasm-app.generator";
 
-// biome-ignore lint/suspicious/noExplicitAny: PGlite is resolved at run time from the repository.
+// PGlite is resolved at run time from the repository.
 const { PGlite } = (await import("@electric-sql/pglite")) as { PGlite: any };
 
 const MODEL = `
