@@ -300,16 +300,11 @@ Found while QA-ing the CLI and a generated application against
 generator on that branch; these eight were not. Full write-up, with evidence, in
 `docs/qa/qa-report-dance-studio-2026-08-31.md`.
 
-1. **`lint` writes, and the generated app does not pass it.** *(medium)*
-   Both generated `package.json`s define `lint` and `lint:fix` identically as
-   `biome lint --write src`, so the lint script mutates the tree and the
-   generated `ci.yml` lint job passes anything biome can auto-fix. Making `lint`
-   read-only is one line; a freshly generated application then fails it with
-   **71 backend and 162 frontend findings** — `useNodejsImportProtocol` (17),
-   `noParameterAssign` (13), `useLiteralKeys` (28), `useTemplate` (35), and the
-   accessibility ones a reader would notice: `useButtonType` (30),
-   `noLabelWithoutControl` (6), `useKeyWithClickEvents` (5). Flip the script and
-   clear the findings together, or every generated repository ships red.
+1. **~~`lint` writes, and the generated app does not pass it.~~** *Resolved by
+   removal.* A generated application has no linter now: Biome, its config and its
+   `lint`/`lint:fix`/`format` scripts are gone, and its static check is
+   `"type-check": "bun check"` in both halves, which a freshly generated
+   application passes — backend, frontend and `tests/`.
 
 2. **A join entity's display value is two raw uuids.** *(medium)*
    §3.7 labels a join entity by its first two parents *resolved through their

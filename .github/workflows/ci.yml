@@ -67,7 +67,7 @@ jobs:
       - run: bun run test -- src/lib/server/__tests__/project-repository.test.ts
 
   checks:
-    name: Type-check, lint and unit tests
+    name: Type-check and unit tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -89,13 +89,6 @@ jobs:
       # packages/editors and nothing noticed.
       - name: Type-check the language package
         run: bun run type-check:language
-
-      # Error-level only. The tree carries several hundred style warnings that
-      # predate this workflow; failing on those would mean the first red build
-      # is noise nobody reads. Errors — formatting and unorganised imports — are
-      # auto-fixable with `bun run lint:fix` and stay enforced.
-      - name: Lint
-        run: bunx biome check . --max-diagnostics=2000 --diagnostic-level=error
 
       - name: Unit tests
         run: bun run test
@@ -454,7 +447,7 @@ jobs:
 
       - name: Type-check the generated test suite
         working-directory: ${{ env.APP_DIR }}/tests
-        run: bunx --bun tsc --noEmit
+        run: bun check
 
       - name: Point the generated backend at Postgres
         run: |

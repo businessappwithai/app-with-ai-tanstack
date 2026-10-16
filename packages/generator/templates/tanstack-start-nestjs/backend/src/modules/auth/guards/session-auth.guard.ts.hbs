@@ -86,7 +86,9 @@ export class SessionAuthGuard implements CanActivate {
       // — a database that was busy, a connection that dropped — tells the front end to sign the
       // person out, and every screen they had open bounces to the sign-in page for a fault that
       // was never theirs. Say the service could not answer, and let the request be retried.
-      this.logger.error(`Could not check the session: ${error.message}`);
+      this.logger.error(
+        `Could not check the session: ${error instanceof Error ? error.message : String(error)}`
+      );
       throw new ServiceUnavailableException('Could not check your session. Try again.');
     }
   }

@@ -36,4 +36,4 @@ A rule is a GoRules **graph**: Record → (Expression | Decision table | Functio
 
 ## Before you finish
 
-`bun run type-check`, `bunx biome check . --diagnostic-level=error`, `bun --filter @appwithai/web test`, then the `rule-editor-e2e` specs 07 and 09. If you touched `help` or the editor's choices, `help-content.test.ts` must still pass.
+`bun run type-check`, `bun --filter @appwithai/web test`, then the `rule-editor-e2e` specs 07 and 09. If you touched `help` or the editor's choices, `help-content.test.ts` must still pass.

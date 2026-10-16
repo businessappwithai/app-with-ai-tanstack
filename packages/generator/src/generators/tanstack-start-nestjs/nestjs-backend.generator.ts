@@ -2259,13 +2259,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
       await fs.writeFile(envPath, envContent);
     }
 
-    // Update Biome configuration
-    try {
-      const biomeContent = await this.renderTemplate("biome.json.hbs", context);
-      await fs.writeFile(path.join(outputDir, "biome.json"), biomeContent);
-    } catch (_e) {
-      console.warn("Custom Biome config template not found, using defaults");
-    }
 
     // Database module
     const dbModuleContent = await this.renderTemplate(

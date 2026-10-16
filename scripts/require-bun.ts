@@ -1,27 +1,31 @@
 #!/usr/bin/env bun
 /**
- * Refuse to go on unless this is Bun 1.4.
+ * Refuse to go on unless this is Bun 1.4.3 or a later 1.4.
  *
- * Every script in this repository runs on Bun — the type-check included, whose `tsc`
- * is started with `bun --bun` so it runs on Bun's runtime rather than the Node its
- * shebang names. CI pins `BUN_VERSION: 1.4.3` (`.github/workflows/ci.yml`), and the
- * browser bundles it builds differ byte for byte between Bun versions, so a different
- * Bun is a different answer. Run first by `type-check` and `type-check:language`.
+ * Every script in this repository runs on Bun, and the type-check *is* Bun: it is
+ * `bun check`, the type checker Bun has carried since 1.4.3. An older 1.4 has no
+ * `check` command and would fail with a message about an unknown script rather than
+ * about its own version. CI pins `BUN_VERSION: 1.4.3` (`.github/workflows/ci.yml`),
+ * and the browser bundles it builds differ byte for byte between Bun versions, so a
+ * different Bun is a different answer. Run first by `type-check` and
+ * `type-check:language`.
  *
  *   bun scripts/require-bun.ts
  */
 
-const REQUIRED = "1.4";
+const MINOR = "1.4";
+const MIN_PATCH = 3;
 
 const bun = (globalThis as { Bun?: { version: string } }).Bun;
 if (!bun) {
-  console.error(`This script runs on Bun ${REQUIRED}, not Node. Run it with \`bun\`.`);
+  console.error(`This script runs on Bun ${MINOR}, not Node. Run it with \`bun\`.`);
   process.exit(1);
 }
-if (bun.version !== REQUIRED && !bun.version.startsWith(`${REQUIRED}.`)) {
+const patch = Number(bun.version.split(".")[2] ?? Number.NaN);
+if (!bun.version.startsWith(`${MINOR}.`) || !(patch >= MIN_PATCH)) {
   console.error(
-    `Bun ${REQUIRED}.x is required; this is Bun ${bun.version}. ` +
-      `Install it with: curl -fsSL https://bun.sh/install | bash -s "bun-v${REQUIRED}.3"`
+    `Bun ${MINOR}.${MIN_PATCH} or a later ${MINOR} is required; this is Bun ${bun.version}. ` +
+      `Install it with: curl -fsSL https://bun.sh/install | bash -s "bun-v${MINOR}.${MIN_PATCH}"`
   );
   process.exit(1);
 }

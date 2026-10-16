@@ -355,7 +355,7 @@ function evaluateContentTable(node, context, trace) {
 async function runFunctionNode(node, context) {
   const raw = typeof node.content === "string" ? node.content : node.content?.source || "";
   const source = raw.replace(/\bexport\s+(?=const|function|async)/g, "");
-  // biome-ignore lint/security/noGlobalEval: sandboxed handler, see above.
+  // sandboxed handler, see above.
   const factory = new Function("input", `${source}\n;return handler(input);`);
   const out = await factory(JSON.parse(JSON.stringify(context)));
   return out && typeof out === "object" ? out : {};

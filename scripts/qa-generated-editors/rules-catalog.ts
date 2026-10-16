@@ -1,4 +1,4 @@
-// biome-ignore-all lint/suspicious/noThenProperty: "then" is a key of the GoRules switch branch data, not a thenable.
+// "then" is a key of the GoRules switch branch data, not a thenable.
 /**
  * Fifty-odd business rules, each a different shape of graph, each with the
  * records that must be refused, allowed or changed.

@@ -112,6 +112,10 @@ function nodeify(_name: string, script: string): string {
   // version of this left `bun run dev:backend` sitting untouched, because it
   // only ever looked at the start of the string.
   result = result
+    // `bun check` is Bun's own type checker; the browser application has no Bun,
+    // so it type-checks with the TypeScript compiler, as it always did. Before the
+    // bare-`bun` rule below, which would make it `node check`.
+    .replace(/\bbun check\b/g, "tsc --noEmit")
     // `bun --bun <bin>` runs a package's bin on Bun's runtime instead of the Node its
     // shebang names; on Node that is just the bin. First, before the bare-`bun` rule
     // below turns it into `node --bun <bin>`, which Node refuses. The dev server's
