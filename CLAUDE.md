@@ -302,8 +302,8 @@ app-with-ai-tanstack/
 ├── database/       # Migrations (001–010)
 ├── html/           # Static guide + run-in-browser.html + run-real-stack.html
 ├── website/        # What businessappwithai.github.io publishes from here
-│   ├── llmtext/    #   llms.txt — the one protocol document (the four
-│                   #   older .txt files are stubs pointing at it)
+│   ├── llmtext/    #   llms.txt — the one protocol document
+│                   #   (the only file in the directory)
 │   └── viewers/    #   The model viewers — served at appwithai.org/viewers
 ├── tests/          # Playwright E2E suites
 └── examples/       # Sample .eml.mmd files
