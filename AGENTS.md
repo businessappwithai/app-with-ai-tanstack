@@ -62,7 +62,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
 | `bun run test:language-tools` | The published `checker.js`/`fixer.js` still agree with the CLI |
 | `bun run build:viewers` | Rebuild `website/viewers/eml-model.js` (the model viewers' reader) |
-| `bun run test:llmtext` | Hold all four `website/llmtext/*.txt` protocol documents to what the checker actually does, the viewer claims in them, and — for the two enhancement editions — that they still carry their base's language reference byte for byte |
+| `bun run test:llmtext` | Hold `website/llmtext/llms.md` to what the checker, the fixer and the dictionary actually do, its examples to 0 errors and 0 warnings, and the four retired `.txt` files to being stubs pointing at it |
 | `bun run vendor:pglite` | Put PGlite beside `html/` (the wasm E2E job needs it) |
 | `bun run build:stack-templates` | Put the stack templates beside `run-real-stack.html` |
 
@@ -249,8 +249,8 @@ app-with-ai-tanstack/
 ├── database/       # Migrations (001–010)
 ├── html/           # Static guide + run-in-browser.html + run-real-stack.html
 ├── website/        # What businessappwithai.github.io publishes from here
-│   ├── llmtext/    #   llms-full.txt and llmdetailed.txt, plus the two
-│                   #   enhancement editions DERIVED from them
+│   ├── llmtext/    #   llms.md — the one protocol document (the four
+│                   #   older .txt files are stubs pointing at it)
 │   └── viewers/    #   The model viewers — served at appwithai.org/viewers
 ├── tests/          # Playwright E2E suites
 └── examples/       # Sample .eml.mmd files
@@ -635,56 +635,78 @@ the service cannot forget.
 
 ---
 
-## The four protocol documents under `website/llmtext/`
+## One protocol document — `website/llmtext/llms.md`
 
-`llms-full.txt` and `llmdetailed.txt` tell a language model how to **write** a
-model from a brief. `llmtextenhancement.txt` and `llmdetailedenhancement.txt`
-tell it how to **change one that already exists** — the user loads their `.mmd`,
-the model reads and counts it, applies only what was asked, and hands the whole
-file back with before-and-after counts.
+`llms.md` is the document a language model is pointed at to **write a model or
+change one**, published at `https://www.appwithai.org/llms.md`. It replaced four —
+`llms-full.txt` and `llmdetailed.txt` (authoring, one-pass and gated) and their
+derived enhancement editions — which are now short stubs pointing at it, kept so
+a URL a model was once given still leads somewhere.
 
-| | Start from a brief | Start from an existing `.mmd` |
-|---|---|---|
-| **One pass** | `llms-full.txt` | `llmtextenhancement.txt` |
-| **Phased, with approval gates** | `llmdetailed.txt` §10 | `llmdetailedenhancement.txt` §10 |
+**New or enhance is decided by one fact: did the user give a `.mmd`?** §1 is one
+procedure, run as office hours (after gstack's `/office-hours`): decide the mode
+from what was given, ask the pace (*walk me through it* or *just build it*), then
+the forcing questions, premises (Gate A), two rosters — minimal and complete
+(Gate B), one Application Dictionary dossier per entity including its form
+layout (Gate C), behaviour (Gate D), write, validate, audit, review, deliver. The
+enhancement rules the derived editions existed for are all in it: ask for the
+file, never reconstruct one from memory, inventory before editing, hand back the
+whole file, and prove nothing was lost with a before-and-after table.
 
-**The enhancement pair is derived, not authored.** Each is its base with the
-protocol section swapped and everything else — the whole language reference —
-carried across byte for byte. The deriver and its four sources live in the
-website repository (`scripts/build-llmtext-enhancement.mjs`, `scripts/llmtext/`),
-because that is where the published copies are served from; regenerate this
-repository's copies by pointing it at these bases:
+**It is authored, not derived.** It began as the site's language-only
+`llms-full.txt` with §1 and §3.7 rewritten; the language reference after §1 is
+that text. Edit it in place. The same file is published by the website and
+carried by the orchestrator — copy it, byte for byte, to
+`businessappwithai.github.io/llms.md` and
+`app-and-report-with-ai-tanstack/common/website/llmtext/llms.md`.
 
-```bash
-node ../businessappwithai.github.io/scripts/build-llmtext-enhancement.mjs \
-  --base website/llmtext/llms-full.txt   --protocol batch \
-  --out  website/llmtext/llmtextenhancement.txt
-node ../businessappwithai.github.io/scripts/build-llmtext-enhancement.mjs \
-  --base website/llmtext/llmdetailed.txt --protocol interactive \
-  --out  website/llmtext/llmdetailedenhancement.txt
+**`bun run test:llmtext` holds it** (`scripts/ci/llmtext-claims.ts`): every code it
+cites exists, every auto-fixable code is tabulated and counted right, every
+`§N.N` resolves, every directive's status matches `appwithai-language.json`, every
+fenced `mermaid` example parses to its entities and checks with no help or layout
+gaps, the nine dictionary-completeness codes match `DICTIONARY_COMPLETENESS`, the
+mode and enhancement rules are present by their wording, the host is written in
+full, and the four retired files are stubs pointing at it. Every fenced `mermaid`
+example in it must check 0 errors, 0 warnings — **including `%%section` layout on
+every entity**.
+
+**§3.7 is the Application Dictionary, and it is the chapter to keep exact.** The
+three layers (storage, screen, navigation), the reference-type derivation, the
+four conditions for a Table Direct lookup and the person-role names, display
+values, List bindings, the help contract, and the form layout. Change what the
+generator derives and change §3.7 with it.
+
+**§7.1 is the reporting application.** `generatorContract.reportingApplication` in
+`language/appwithai-language.json` and §7.1 state what `buildReportingPack`
+derives, the three surfaces that serve it, and the two sign-ins. Edit
+`reporting/pack.ts` and check both. The JSON is inlined in five bundles, so a
+change to it is a rebuild of all of them.
+
+## `%%section` — the form layout, compiled in both stacks
+
+Every entity's form is headed sections of two-column rows, declared in the model:
+
+```
+%%section entity: Order; name: Delivery; help: Where the goods go.; rows: shipping_address | carrier, tracking_number
 ```
 
-**Edit a base and you must regenerate its companion.** `bun run test:llmtext`
-fails otherwise — it asserts that everything before and after the protocol
-section is identical between a base and its enhancement edition, which is the
-only thing standing between four documents and four different accounts of what
-`%%rbac` does.
+`language/sections.ts` is the **one reading** of the directive — the checker
+(`checkSectionDirectives`, EML170–EML177), the fixer (EML172/174/175, each a
+rewrite of one line's `rows:`) and the generator (`parsers/section.parser.ts`,
+`attachFormSections`, `formLayoutFor`) all call it, and the browser bundles carry
+it. Three of the codes (EML170, EML172, EML177) are in `DICTIONARY_COMPLETENESS`.
 
-**The protocol section is numbered differently in different shapes** — §10 in
-this repository's system edition, §1 in the site's language-only `llms-full.txt`
-— so the sources use a `{{N}}` token and never quote another document's section
-number. A source that says "`llms-full.txt` §1" is correct on the website and
-wrong here.
+| Stack | Where the layout lands |
+|---|---|
+| Both | `DictionaryGenerator` → one `sys_field_group` per section (`_tabRef`, `columns: 2`) and each field's `_groupRef`, `seq_no`, `is_same_line`, `x_position`, `y_position`, `column_span` |
+| NestJS | `withFormLayout` in `nestjs-backend.generator.ts` puts `formGroups` and `attribute.layout` in the seed context; `sys-dictionary.ts.hbs` inserts the groups (after Highlights) instead of the generic four; `bus.service` serves `col_span`; `dynamic-form.tsx` spans with literal classes (`COL_SPAN`) because Tailwind never generates an interpolated one |
+| Browser | `model-bundle.ts` → `fieldGroups` and per-field placement in `model.json`; `migrate.js` writes them; `schema.sys.sql` gained the columns (and `ADD COLUMN IF NOT EXISTS` for an older database); `entity-form.js` draws `.group__fields--2` and `.field--wide`, collapsed sections as `<details>` |
 
-**What the enhancement protocols add, and why `test:llmtext` checks for it.**
-Authoring fails one way: model the business badly. Enhancement fails three ways,
-and only the first is a diagnostic — prose instead of a model (`EML004`); a patch
-the user has to merge by hand; and a model that checks clean and is quietly
-smaller than the one that came in, because a smaller model is a valid model and
-nothing reports the `%%report` directives, the help text and the `%%rbac` lines
-that went missing. Both editions are held to asking for the file first, refusing
-to reconstruct a model from memory, inventorying before editing, and comparing
-against that inventory at the end.
+An entity with **no** sections is generated exactly as before — no groups, the
+flat list in declared order — so a model written before the directive still
+behaves the same. Columns a sectioned entity leaves unplaced go to a trailing
+collapsed `Other` section, never off the form. Held by
+`packages/generator/src/parsers/__tests__/form-sections.test.ts`.
 
 ## What a diagnostic hands back — the line, its text, and the steps
 
@@ -757,11 +779,6 @@ scanning rather than filtering lines containing it — a line can hold a good UR
 *and* a bare host, which is the case that survived the first sweep — and it
 asserts the rule's three counter-examples are still present, since a checker that
 "corrects" them leaves a rule that teaches nothing.
-
-**The rule goes in §3.6, not beside the `--base` paragraph.** In this shape that
-paragraph sits inside §10, which `llmtextenhancement.txt` replaces wholesale, so
-anchoring there puts the rule in the base and not in its companion — silently,
-with every other check still green.
 
 ## EML Language
 
@@ -992,10 +1009,8 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 | `packages/web/vite.config.ts` | Vite config, root-.env loading, start-api-routes shim |
 | `language/appwithai-language.json` | ⭐ EML canonical definition |
 | `language/composer.ts` | ⭐ The only writer of complete EML documents |
-| `website/llmtext/llms-full.txt` | ⭐ The spec written for language models |
-| `website/llmtext/llmtextenhancement.txt` | `llms-full.txt` with its protocol section replaced: enhance an existing `.mmd`. **Derived — do not hand-edit** |
-| `website/llmtext/llmdetailedenhancement.txt` | `llmdetailed.txt` with its §10 replaced: the same, with approval gates. **Derived** |
-| `website/llmtext/llmdetailed.txt` | The same spec, §10 replaced by the interactive authoring walkthrough |
+| `website/llmtext/llms.md` | ⭐ The one protocol document for language models: write a model, or change one |
+| `language/sections.ts` | ⭐ The one reading of `%%section` — checker, fixer and generator |
 | `packages/generator/src/viewers/view-model.ts` | ⭐ One reading of a model for the viewers — composed, never re-derived |
 | `website/viewers/` | ⭐ The published model viewers. `eml-model.js` is built; the rest is hand-written |
 | `scripts/ci/llmtext-claims.ts` | ⭐ Holds both specs, and their claims about the viewers, to the real code — run by CI |

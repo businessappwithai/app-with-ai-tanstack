@@ -21,6 +21,7 @@ import { TanStackStartFrontendGenerator } from "../generators/tanstack-start-nes
 import { compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
+import { attachFormSections } from "../parsers/section.parser";
 import { generateApplication, readModelSources } from "../pipeline";
 import { cliLogger } from "../pipeline/logger-port";
 import { compileRbac } from "../rbac";
@@ -53,7 +54,11 @@ async function parseFile(
   await fs.access(absPath);
   const content = await fs.readFile(absPath, "utf-8");
   const parser = new MermaidParser();
-  return parser.parse(content);
+  const parsed = parser.parse(content);
+  // `%%section` lives in `%%` comment lines the ERD parser drops — the same
+  // reason categories are read from the raw text below.
+  attachFormSections(content, parsed.entities);
+  return parsed;
 }
 
 /**

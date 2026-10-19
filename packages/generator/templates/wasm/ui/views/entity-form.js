@@ -134,11 +134,22 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     editable.map((field) => control(field, record, entity, inputs))
   );
 
+  /* `%%section`: the model's own headings, in its order, each a two-column
+     grid in which a field alone on its row spans both columns. A model with
+     no sections has one ungrouped "General" list, as it always did. */
   const grouped = new Map();
   for (const [field, node] of controls) {
-    const group = field.group_name || "General";
-    if (!grouped.has(group)) grouped.set(group, []);
-    grouped.get(group).push(node);
+    const name = field.group_name || "General";
+    if (!grouped.has(name)) {
+      grouped.set(name, {
+        description: field.group_name ? field.group_description : null,
+        columns: field.group_columns || 0,
+        collapsed: !!field.group_collapsed,
+        nodes: [],
+      });
+    }
+    if (field.col_span > 1) node.classList.add("field--wide");
+    grouped.get(name).nodes.push(node);
   }
 
   const submit = async () => {
@@ -218,14 +229,23 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     violationBox,
     el(
       "div.record__body",
-      [...grouped.entries()].map(([group, nodes]) =>
-        el(
-          "section",
-          el("h3.group__name", group),
-          el("p.group__desc", `${group} information fields`),
-          el("div.group__fields", nodes)
-        )
-      )
+      [...grouped.entries()].map(([group, section]) => {
+        const fieldsGrid = el(
+          section.columns === 2 ? "div.group__fields.group__fields--2" : "div.group__fields",
+          section.nodes
+        );
+        const description = section.description || `${group} information fields`;
+        /* A collapsed section is a <details>: closed until opened, and a
+           browser's own control rather than one more thing to wire. */
+        return section.collapsed
+          ? el(
+              "details.group",
+              el("summary.group__name", group),
+              el("p.group__desc", description),
+              fieldsGrid
+            )
+          : el("section", el("h3.group__name", group), el("p.group__desc", description), fieldsGrid);
+      })
     ),
     el(
       "div.record__actions",

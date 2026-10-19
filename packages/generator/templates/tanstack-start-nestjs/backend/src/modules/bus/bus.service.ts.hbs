@@ -706,6 +706,9 @@ export class BusService {
         'sys_field.name as field_name',
         'sys_field.help as field_help',
         'sys_field.sys_field_group_id',
+        // `%%section`: a field alone on its row spans the group's two columns.
+        'sys_field.column_span as col_span',
+        'sys_field.is_same_line',
         'sys_field_group.name as group_name',
         'sys_field_group.columns as group_columns',
         'sys_field_group.description as group_description',
@@ -814,6 +817,8 @@ export class BusService {
           group_columns: col.group_columns || null,
           group_description: col.group_description || null,
           group_layout_type: col.group_layout_type || null,
+          col_span: col.col_span || null,
+          is_same_line: col.is_same_line === true,
         };
       }),
       window: window

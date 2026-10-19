@@ -18,6 +18,7 @@ import type { StackOption } from "../generators/stack-option";
 import { type CompiledHook, compileHooks } from "../hooks";
 import { type EntityCategory, resolveCategories } from "../parsers/category.parser";
 import { MermaidParser } from "../parsers/mermaid.parser";
+import { attachFormSections } from "../parsers/section.parser";
 import { type CompiledRbac, compileRbac } from "../rbac";
 import { type CompiledReport, compileReports } from "../reports";
 import { type CompiledRule, compileRules } from "../rules";
@@ -141,6 +142,9 @@ export function parseModel(sources: string | string[]): ParsedModel {
   }
 
   const joined = list.join("\n");
+  // `%%section` lines are `%%` comments the ERD parser drops, so they are read
+  // from the raw text, like categories, and carried on each entity.
+  attachFormSections(joined, entities);
   const categories = resolveCategories(
     joined,
     entities.map((entity) => entity.name)

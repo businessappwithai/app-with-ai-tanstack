@@ -267,12 +267,19 @@ function screensFor(dictionary: ManualDictionary, entity: Entity): string {
   const layout = dictionary.get(entity.name);
   if (!layout) return "";
 
+  const sectioned = layout.sections.length > 0;
   const rows = layout.fields
     .map(
       (field) =>
         `          <tr>
             <td><code>${escapeHtml(field.column)}</code></td>
-            <td>${escapeHtml(field.label)}</td>
+            <td>${escapeHtml(field.label)}</td>${
+              sectioned
+                ? `
+            <td>${escapeHtml(field.section ?? "—")}</td>
+            <td>${escapeHtml(field.place ?? "—")}</td>`
+                : ""
+            }
             <td>${field.onForm ? "Yes" : "No"}</td>
             <td>${field.inGrid ? "Yes" : "No"}</td>
             <td>${field.formSeq}</td>
@@ -281,10 +288,25 @@ function screensFor(dictionary: ManualDictionary, entity: Entity): string {
     )
     .join("\n");
 
+  /* `%%section`: the form's headings and what each is for, before the fields
+     placed under them. */
+  const sections = sectioned
+    ? `
+      <p>The form is laid out in ${layout.sections.length} section${layout.sections.length === 1 ? "" : "s"}, each a grid of two columns:</p>
+      <ul class="plain">
+          ${layout.sections
+            .map(
+              (section) =>
+                `<li><b>${escapeHtml(section.name)}</b>${section.help ? ` &mdash; ${escapeHtml(section.help)}` : ""}</li>`
+            )
+            .join("\n          ")}
+      </ul>`
+    : "";
+
   return `      <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>${escapeHtml(layout.window)}</b> window, on the <b>${escapeHtml(layout.tab)}</b> tab. These are its ${layout.fields.length} field${layout.fields.length === 1 ? "" : "s"} &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>${escapeHtml(layout.window)}</b> window, on the <b>${escapeHtml(layout.tab)}</b> tab. These are its ${layout.fields.length} field${layout.fields.length === 1 ? "" : "s"} &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>${sections}
       <table>
-        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <thead><tr><th>Column</th><th>Label</th>${sectioned ? "<th>Section</th><th>Place</th>" : ""}<th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
 ${rows}
         </tbody>
@@ -295,9 +317,14 @@ ${rows}
 interface ManualLayout {
   window: string;
   tab: string;
+  /** The `%%section` groups on this tab, in order. Empty when there are none. */
+  sections: Array<{ name: string; help?: string; seqNo: number }>;
   fields: Array<{
     column: string;
     label: string;
+    section?: string;
+    /** `row 2, left`, `row 3, full width` — where in the section's grid. */
+    place?: string;
     onForm: boolean;
     inGrid: boolean;
     formSeq: number;
@@ -338,8 +365,18 @@ function manualDictionary(model: ParsedModel): ManualDictionary {
   const byTable = new Map<string, ManualLayout>();
   for (const tab of tabOf.values()) {
     if (tab.table && !byTable.has(tab.table)) {
-      byTable.set(tab.table, { window: tab.window, tab: tab.name, fields: [] });
+      byTable.set(tab.table, { window: tab.window, tab: tab.name, sections: [], fields: [] });
     }
+  }
+  const groupOf = new Map(context.sysFieldGroups.map((group) => [group._tempId, group]));
+  for (const group of context.sysFieldGroups) {
+    const tab = group._tabRef ? tabOf.get(group._tabRef) : undefined;
+    const layout = tab?.table ? byTable.get(tab.table) : undefined;
+    layout?.sections.push({
+      name: group.name,
+      help: group.description,
+      seqNo: group.seq_no ?? 0,
+    });
   }
   for (const field of context.sysFields) {
     const tab = tabOf.get(field._tabRef);
@@ -347,9 +384,16 @@ function manualDictionary(model: ParsedModel): ManualDictionary {
     const layout = byTable.get(tab.table);
     if (!layout) continue;
     const column = columnOf.get(field._columnRef) ?? "";
+    const group = field._groupRef ? groupOf.get(field._groupRef) : undefined;
     layout.fields.push({
       column,
       label: field.name,
+      section: group?.name,
+      place: group
+        ? `row ${field.y_position ?? "?"}, ${
+            field.column_span === 2 ? "full width" : field.x_position === 2 ? "right" : "left"
+          }`
+        : undefined,
       onForm: field.is_displayed !== false,
       /* `DictionaryGenerator` marks every column grid-visible and each consumer
          narrows it — the browser stack through `isNoise`, the NestJS seed
@@ -361,7 +405,10 @@ function manualDictionary(model: ParsedModel): ManualDictionary {
       readOnly: !!field.is_read_only,
     });
   }
-  for (const layout of byTable.values()) layout.fields.sort((a, b) => a.formSeq - b.formSeq);
+  for (const layout of byTable.values()) {
+    layout.fields.sort((a, b) => a.formSeq - b.formSeq);
+    layout.sections.sort((a, b) => a.seqNo - b.seqNo);
+  }
 
   /* Keyed by entity name for the caller, which holds entities rather than
      table names. */

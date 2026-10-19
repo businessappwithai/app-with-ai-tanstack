@@ -438,6 +438,12 @@ a { color: var(--primary); }
 .group__name { font-size: 14px; font-weight: 650; color: var(--primary); }
 .group__desc { margin: 1px 0 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); font-size: 12.5px; color: var(--text-faint); }
 .group__fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+/* `%%section`: exactly two columns, and a field alone on its row spans both. One
+   column on a narrow screen, where two would leave neither readable. */
+.group__fields--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.group__fields--2 > .field--wide { grid-column: 1 / -1; }
+@media (max-width: 640px) { .group__fields--2 { grid-template-columns: minmax(0, 1fr); } }
+details.group > summary.group__name { cursor: pointer; }
 
 .field { display: grid; gap: 6px; align-content: start; }
 .field--wide { grid-column: 1 / -1; }

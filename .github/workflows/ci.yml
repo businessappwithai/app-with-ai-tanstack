@@ -108,7 +108,7 @@ jobs:
       - name: The browser bundle of the generator is current
         run: bun run build:wasm-browser -- --check
 
-      # checker.js and fixer.js are the published validation surface: llms-full.txt
+      # checker.js and fixer.js are the published validation surface: llms.md
       # tells a model to run its output past them before handing it to anyone. A
       # stale or broken copy passes a document the CLI would refuse, which is the
       # one failure that discredits the whole loop.

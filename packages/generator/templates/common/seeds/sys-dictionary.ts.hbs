@@ -296,7 +296,8 @@ function fieldHelpText(entity: HelpEntity, col: HelpColumn): string {
  * declares, the dictionary describes, the API returns and the grid did not
  * show, with nothing anywhere saying why.
  *
- * `sys_field_group_id` is unset now and the grid is this set, both mirroring
+ * `sys_field_group_id` comes from the model's `%%section` lines or not at all,
+ * and the grid is this set, both mirroring
  * `generators/wasm/model-bundle.ts` — the other producer of this same
  * dictionary, and the one a reader compares against. The same model has to
  * describe the same application whether it was generated as the full stack or
@@ -592,7 +593,21 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }).execute();
 
   // Create sys_column entries
-  const {{camelCase name}}Columns: Array<{ id: string; name: string; displayName: string; isKey: boolean }> = [];
+  const {{camelCase name}}Columns: Array<{
+    id: string;
+    name: string;
+    displayName: string;
+    isKey: boolean;
+    /** `%%section` placement — absent on an entity that declares no sections. */
+    layout?: {
+      group: string;
+      seqNo: number;
+      sameLine: boolean;
+      xPosition: number;
+      yPosition: number;
+      columnSpan: number;
+    };
+  }> = [];
 
   let {{camelCase name}}ColumnSeqNo = 10;
   {{#each attributes}}
@@ -602,6 +617,16 @@ export async function seed(db: Kysely<any>): Promise<void> {
     name: '{{columnName}}',
     displayName: '{{displayName}}',
     isKey: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},
+    {{#if layout}}
+    layout: {
+      group: {{tsString layout.group}},
+      seqNo: {{layout.seqNo}},
+      sameLine: {{layout.sameLine}},
+      xPosition: {{layout.xPosition}},
+      yPosition: {{layout.yPosition}},
+      columnSpan: {{layout.columnSpan}},
+    },
+    {{/if}}
   });
 
   await db.insertInto('sys_column').values({
@@ -686,6 +711,58 @@ export async function seed(db: Kysely<any>): Promise<void> {
    * column order describes — the parity with the browser build that the note
    * on GRID_NOISE is about.
    */
+  {{#if formGroups}}
+  /*
+   * The model's `%%section` groups — headed sections of two-column rows, in the
+   * model's order, after the Highlights panel the layout manager still offers.
+   * Each field below is placed in its group, row and column; nothing here is
+   * decided by position, so this form and the browser build's agree.
+   */
+  const {{camelCase name}}GroupIds = new Map<string, string>();
+  await db.insertInto('sys_field_group').values([
+    {
+      sys_field_group_id: uuidv4(),
+      sys_tab_id: {{camelCase name}}TabId,
+      name: 'Highlights',
+      description:
+        'Shown in the record header, not the form. Drag the two or three fields worth reading at a glance into this group.',
+      layout_type: 'summary',
+      columns: 1,
+      seq_no: 10,
+      field_group_type: 'C',
+      is_collapsed_by_default: false,
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    },
+  ]).execute();
+  {{#each formGroups}}
+  {
+    const groupId = uuidv4();
+    {{camelCase ../name}}GroupIds.set({{tsString name}}, groupId);
+    await db.insertInto('sys_field_group').values({
+      sys_field_group_id: groupId,
+      sys_tab_id: {{camelCase ../name}}TabId,
+      name: {{tsString name}},
+      description: {{#if description}}{{tsString description}}{{else}}null{{/if}},
+      layout_type: 'single',
+      columns: {{columns}},
+      seq_no: {{seqNo}} + 10,
+      field_group_type: 'C',
+      is_collapsed_by_default: {{collapsed}},
+      entity_type: 'D',
+      is_active: true,
+      created_by: createdBy,
+      updated_by: createdBy,
+      created_at: now,
+      updated_at: now,
+    }).execute();
+  }
+  {{/each}}
+  {{else}}
   await db.insertInto('sys_field_group').values([
     {
       sys_field_group_id: uuidv4(),
@@ -757,8 +834,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
       updated_at: now,
     },
   ]).execute();
+  {{/if}}
 
-  // sys_field: sequential seq_no, no field group, grid by GRID_NOISE. See the
+  // sys_field: the `%%section` placement when the model declares one, else a
+  // sequential seq_no and no group; the grid by GRID_NOISE either way. See the
   // note on GRID_NOISE for why none of this is decided by position.
   for (let i = 0; i < {{camelCase name}}Columns.length; i++) {
     const col = {{camelCase name}}Columns[i];
@@ -766,16 +845,23 @@ export async function seed(db: Kysely<any>): Promise<void> {
       sys_field_id: uuidv4(),
       sys_tab_id: {{camelCase name}}TabId,
       sys_column_id: col.id,
+      {{#if formGroups}}
+      sys_field_group_id: col.layout ? {{camelCase name}}GroupIds.get(col.layout.group) : undefined,
+      {{else}}
       sys_field_group_id: undefined,
+      {{/if}}
       name: col.displayName,
       help: fieldHelpFor('{{tableName}}', col.name),
-      seq_no: (i + 1) * 10,
+      seq_no: col.layout?.seqNo ?? (i + 1) * 10,
       seq_no_grid: (i + 1) * 10,
       is_displayed: !col.isKey,
       is_displayed_grid: !col.isKey && !GRID_NOISE.has(col.name),
       is_read_only: ['created_at', 'updated_at', 'deleted_at'].includes(col.name),
       is_encrypted: false,
-      is_same_line: false,
+      is_same_line: col.layout?.sameLine ?? false,
+      x_position: col.layout?.xPosition ?? null,
+      y_position: col.layout?.yPosition ?? null,
+      column_span: col.layout?.columnSpan ?? null,
       is_heading: false,
       is_field_only: false,
       entity_type: 'U',
