@@ -16,7 +16,7 @@
  *   bun scripts/ci/llmtext-claims.ts
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import definition from "../../language/appwithai-language.json";
 import { check } from "../../language/browser/checker.entry";
@@ -37,7 +37,7 @@ const ROOT = resolve(import.meta.dir, "../..");
 /* The one published protocol document. It replaced four — two that authored a
    model from a brief and two, derived from those, that changed an existing one —
    and every claim the four were held to is held here, once. The four files
-   remain only as stubs pointing at it; that is held further down. */
+   are gone; that is held further down. */
 const DOCUMENTS = ["llms.txt"] as const;
 const checkerSource = readFileSync(join(ROOT, "language/checker.ts"), "utf-8");
 
@@ -420,21 +420,14 @@ held(
 );
 held(existsSync(join(ROOT, "website", "viewers", "index.html")), "website/viewers/index.html exists");
 
-/* The four retired documents are stubs pointing at the one that replaced them —
-   a published URL a model was told to read must still lead somewhere, and must
-   not lead to a second, staler account of the language. */
-for (const retired of [
-  "llms-full.txt",
-  "llmdetailed.txt",
-  "llmtextenhancement.txt",
-  "llmdetailedenhancement.txt",
-]) {
-  const stub = readFileSync(join(ROOT, "website", "llmtext", retired), "utf-8");
-  held(
-    stub.includes("https://www.appwithai.org/llms.txt") && stub.split("\n").length < 40,
-    `${retired}: is a short stub pointing at https://www.appwithai.org/llms.txt`
-  );
-}
+/* `llms.txt` is the only protocol document: the four older files and `llms.md`
+   are gone, so a model is never pointed at a second, staler account of the
+   language, and no URL ends in .md (Pages types it text/markdown, which some
+   readers refuse). The directory must hold nothing else. */
+held(
+  readdirSync(join(ROOT, "website", "llmtext")).join(",") === "llms.txt",
+  "website/llmtext holds llms.txt and nothing else"
+);
 
 /* Validation is mandatory, and the document says so in its own opening, in the
    last-resort section, and in the ladder's final row. A model reading only the
