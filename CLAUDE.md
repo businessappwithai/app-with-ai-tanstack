@@ -107,7 +107,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
 | `bun run test:language-tools` | The published `checker.js`/`fixer.js` still agree with the CLI |
 | `bun run build:viewers` | Rebuild `website/viewers/eml-model.js` (the model viewers' reader) |
-| `bun run test:llmtext` | Hold `website/llmtext/llms.md` to what the checker, the fixer and the dictionary actually do, its examples to 0 errors and 0 warnings, and the four retired `.txt` files to being stubs pointing at it |
+| `bun run test:llmtext` | Hold `website/llmtext/llms.txt` to what the checker, the fixer and the dictionary actually do, its examples to 0 errors and 0 warnings, and the four retired `.txt` files to being stubs pointing at it |
 | `bun run vendor:pglite` | Put PGlite beside `html/` (the wasm E2E job needs it) |
 | `bun run build:stack-templates` | Put the stack templates beside `run-real-stack.html` |
 
@@ -302,7 +302,7 @@ app-with-ai-tanstack/
 ├── database/       # Migrations (001–010)
 ├── html/           # Static guide + run-in-browser.html + run-real-stack.html
 ├── website/        # What businessappwithai.github.io publishes from here
-│   ├── llmtext/    #   llms.md — the one protocol document (the four
+│   ├── llmtext/    #   llms.txt — the one protocol document (the four
 │                   #   older .txt files are stubs pointing at it)
 │   └── viewers/    #   The model viewers — served at appwithai.org/viewers
 ├── tests/          # Playwright E2E suites
@@ -1134,21 +1134,18 @@ the service cannot forget.
 
 ---
 
-## One protocol document — `website/llmtext/llms.md`
+## One protocol document — `website/llmtext/llms.txt`
 
-`llms.md` is the document a language model is pointed at to **write a model or
-change one**, published at `https://www.appwithai.org/llms.md`. It replaced four —
+`llms.txt` is the document a language model is pointed at to **write a model or
+change one**, published at `https://www.appwithai.org/llms.txt`. It replaced four —
 `llms-full.txt` and `llmdetailed.txt` (authoring, one-pass and gated) and their
 derived enhancement editions — which are now short stubs pointing at it, kept so
 a URL a model was once given still leads somewhere.
 
-**`llms.txt` is `llms.md` byte for byte, under a name GitHub Pages types
-`text/plain`.** Pages sends `.md` as `text/markdown`, which ChatGPT's web reader
-refuses (`400 Unsupported content-type`). Edit `llms.md` only, then
-`cp website/llmtext/llms.md website/llmtext/llms.txt`; `bun run test:llmtext`
-fails if they differ, and requires each retired stub to name
-`https://www.appwithai.org/llms.txt` as the fallback. The orchestrator and the
-site carry both files.
+**The protocol is published as `llms.txt` and nothing else.** GitHub Pages types `.md` as `text/markdown`,
+which ChatGPT's web reader refuses (`400 Unsupported content-type`), so there is no `llms.txt`: the document
+is `website/llmtext/llms.txt`, served as `text/plain`. Edit it there; the orchestrator and the site carry
+byte copies of the same file. `bun run test:llmtext` requires the four retired stubs to point at it.
 
 **New or enhance is decided by one fact: did the user give a `.mmd`?** §1 is one
 procedure, run as office hours (after gstack's `/office-hours`): decide the mode
@@ -1164,8 +1161,8 @@ whole file, and prove nothing was lost with a before-and-after table.
 `llms-full.txt` with §1 and §3.7 rewritten; the language reference after §1 is
 that text. Edit it in place. The same file is published by the website and
 carried by the orchestrator — copy it, byte for byte, to
-`businessappwithai.github.io/llms.md` and
-`app-and-report-with-ai-tanstack/common/website/llmtext/llms.md`.
+`businessappwithai.github.io/llms.txt` and
+`app-and-report-with-ai-tanstack/common/website/llmtext/llms.txt`.
 
 **`bun run test:llmtext` holds it** (`scripts/ci/llmtext-claims.ts`): every code it
 cites exists, every auto-fixable code is tabulated and counted right, every
@@ -1278,7 +1275,7 @@ warnings are advisory"*, for every warning alike. But §10 of the authoring
 protocol requires a complete Application Dictionary — help on every entity and
 every column, the `FK` modifier on every reference, an enum binding on every
 closed vocabulary, a `name:` on every category — and `audit-model.mjs` **fails**
-a model missing any of it, which §10 item 22 of `llms.md` makes part of delivering. So a model
+a model missing any of it, which §10 item 22 of `llms.txt` makes part of delivering. So a model
 could clear the checker, read in the checker's own last words that the rest was
 optional, and fail the audit the same protocol required it to pass.
 
@@ -1600,7 +1597,7 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 | `packages/web/vite.config.ts` | Vite config, root-.env loading, start-api-routes shim |
 | `language/appwithai-language.json` | ⭐ EML canonical definition |
 | `language/composer.ts` | ⭐ The only writer of complete EML documents |
-| `website/llmtext/llms.md` | ⭐ The one protocol document for language models: write a model, or change one |
+| `website/llmtext/llms.txt` | ⭐ The one protocol document for language models: write a model, or change one |
 | `language/sections.ts` | ⭐ The one reading of `%%section` — checker, fixer and generator |
 | `packages/generator/src/viewers/view-model.ts` | ⭐ One reading of a model for the viewers — composed, never re-derived |
 | `website/viewers/` | ⭐ The published model viewers. `eml-model.js` is built; the rest is hand-written |

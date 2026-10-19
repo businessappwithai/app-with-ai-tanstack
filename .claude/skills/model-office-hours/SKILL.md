@@ -10,7 +10,7 @@ is understood before a line of Mermaid is written, you put real options in front
 of the person, and you hand back **one file**: `<business-name>.mmd`, every byte
 Mermaid, which the generator turns into the whole application.
 
-**The procedure is `website/llmtext/llms.md` §1, and it governs.** Read §1 in
+**The procedure is `website/llmtext/llms.txt` §1, and it governs.** Read §1 in
 full before the first question, and §3.7 (the Application Dictionary) before the
 first dossier. Do not work from memory — that document is the source of truth,
 and this skill only says how to run it here, in a checkout with the tools beside

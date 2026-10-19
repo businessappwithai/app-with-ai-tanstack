@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Hold `website/llmtext/llms.md` to the claims it makes about the checker, the
+ * Hold `website/llmtext/llms.txt` to the claims it makes about the checker, the
  * language and the Application Dictionary.
  *
  * The document tells a language model which diagnostics exist, which of them
@@ -38,7 +38,7 @@ const ROOT = resolve(import.meta.dir, "../..");
    model from a brief and two, derived from those, that changed an existing one —
    and every claim the four were held to is held here, once. The four files
    remain only as stubs pointing at it; that is held further down. */
-const DOCUMENTS = ["llms.md"] as const;
+const DOCUMENTS = ["llms.txt"] as const;
 const checkerSource = readFileSync(join(ROOT, "language/checker.ts"), "utf-8");
 
 let failed = 0;
@@ -348,7 +348,7 @@ for (const name of DOCUMENTS) {
 /* ------------------------------------------------------------------------ */
 
 /**
- * `llms.md` replaced four documents: two that authored a model from a brief and
+ * `llms.txt` replaced four documents: two that authored a model from a brief and
  * two, derived from those, that changed a model that already existed. What made
  * the enhancement pair worth having was a handful of rules an authoring
  * protocol has no use for — ask for the file, never reconstruct it, inventory it
@@ -356,7 +356,7 @@ for (const name of DOCUMENTS) {
  * the four into one is only safe while those rules are still in it, so they are
  * held here by their wording, the same way the derivation used to be held.
  */
-const unified = readFileSync(join(ROOT, "website", "llmtext", "llms.md"), "utf-8");
+const unified = readFileSync(join(ROOT, "website", "llmtext", "llms.txt"), "utf-8");
 const unifiedProse = unified.replace(/\s+/g, " ");
 
 for (const [pattern, label] of [
@@ -373,7 +373,7 @@ for (const [pattern, label] of [
   [/the \*\*minimal\*\* one .* and the \*\*complete\*\* one/, "puts two rosters in front of the user"],
   [/Hard gate\./, "keeps the hard gate: no code, only the model"],
 ] as const) {
-  held(pattern.test(unifiedProse), `llms.md: ${label}`);
+  held(pattern.test(unifiedProse), `llms.txt: ${label}`);
 }
 
 /* The Application Dictionary codes the document calls mandatory are the ones the
@@ -389,7 +389,7 @@ const dictionaryTable = unified.slice(tableStart, unified.indexOf("The delivered
 const missingFromTable = completeness.filter((code) => !dictionaryTable.includes(`\`${code}\``));
 held(
   missingFromTable.length === 0,
-  `llms.md §1.2: tabulates every dictionary-completeness code${
+  `llms.txt §1.2: tabulates every dictionary-completeness code${
     missingFromTable.length ? ` (missing ${missingFromTable.join(", ")})` : ""
   }`
 );
@@ -397,26 +397,26 @@ const COUNT_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seve
 const statedCount = /\b([A-Z][a-z]+) checker codes mean a dictionary value is missing/.exec(unified)?.[1];
 held(
   COUNT_WORDS.indexOf((statedCount ?? "").toLowerCase()) === completeness.length,
-  `llms.md §1.2: counts the dictionary codes correctly (checker says ${completeness.length}, document says ${statedCount})`
+  `llms.txt §1.2: counts the dictionary codes correctly (checker says ${completeness.length}, document says ${statedCount})`
 );
 
 /* The form layout is part of the dictionary, and mandatory. */
 held(
   /\*\*It is mandatory\.\*\* Every entity — line items included — declares its sections/.test(unifiedProse),
-  "llms.md §3.7.6: says the form layout is mandatory"
+  "llms.txt §3.7.6: says the form layout is mandatory"
 );
 held(
   /\*\*A row holds one or two columns\.\*\*/.test(unifiedProse),
-  "llms.md §3.7.6: says a row holds one or two columns"
+  "llms.txt §3.7.6: says a row holds one or two columns"
 );
 for (const code of ["EML170", "EML171", "EML172", "EML173", "EML174", "EML175", "EML176", "EML177"]) {
-  held(unified.includes(`\`${code}\``), `llms.md: documents ${code}`);
+  held(unified.includes(`\`${code}\``), `llms.txt: documents ${code}`);
 }
 
 /* The viewers, which the protocol sends a reader to for what Mermaid draws as comments. */
 held(
   unified.includes("https://www.appwithai.org/viewers/"),
-  "llms.md: names the viewers by their published URL"
+  "llms.txt: names the viewers by their published URL"
 );
 held(existsSync(join(ROOT, "website", "viewers", "index.html")), "website/viewers/index.html exists");
 
@@ -431,30 +431,22 @@ for (const retired of [
 ]) {
   const stub = readFileSync(join(ROOT, "website", "llmtext", retired), "utf-8");
   held(
-    stub.includes("https://www.appwithai.org/llms.md") && stub.split("\n").length < 40,
-    `${retired}: is a short stub pointing at https://www.appwithai.org/llms.md`
+    stub.includes("https://www.appwithai.org/llms.txt") && stub.split("\n").length < 40,
+    `${retired}: is a short stub pointing at https://www.appwithai.org/llms.txt`
   );
 }
 
-/* `llms.txt` is `llms.md` under a name Pages types text/plain: some readers
-   (ChatGPT's among them) refuse text/markdown with "400 Unsupported content-type".
-   It is a byte copy, and every retired stub names it as the fallback. */
-held(
-  readFileSync(join(ROOT, "website", "llmtext", "llms.txt"), "utf-8") === unified,
-  "llms.txt is a byte-for-byte copy of llms.md"
-);
-for (const retired of [
-  "llms-full.txt",
-  "llmdetailed.txt",
-  "llmtextenhancement.txt",
-  "llmdetailedenhancement.txt",
+/* Validation is mandatory, and the document says so in its own opening, in the
+   last-resort section, and in the ladder's final row. A model reading only the
+   top must not meet "deliver unvalidated" as an option before it has met the rule. */
+for (const [pattern, label] of [
+  [/\*\*Validation is mandatory, and it is two runs, not one\.\*\*/, "opens with the rule that validation is mandatory: checker and audit"],
+  [/is not delivered, it is a draft/, "says a model not run through both is a draft"],
+  [/never state a count, a verdict or a\s+score that a run did not print/, "forbids counts a run did not print"],
+  [/labelled \*\*not validated\*\*/, "labels an unvalidated delivery as not validated"],
+  [/\*\*Check\*\* for the checker and \*\*Audit\*\* for the audit/, "names the browser page's Check and Audit buttons"],
 ]) {
-  held(
-    readFileSync(join(ROOT, "website", "llmtext", retired), "utf-8").includes(
-      "https://www.appwithai.org/llms.txt"
-    ),
-    `${retired}: names https://www.appwithai.org/llms.txt as the plain-text fallback`
-  );
+  held(pattern.test(unified), `llms.txt: ${label}`);
 }
 
 /* ------------------------------------------------------------------------ */
