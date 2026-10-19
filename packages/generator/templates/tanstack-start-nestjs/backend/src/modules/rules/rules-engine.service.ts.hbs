@@ -65,6 +65,20 @@ interface JdmViolation {
   transformData?: Record<string, unknown> | string;
 }
 
+/**
+ * A record as zen reads it.
+ *
+ * What reaches a rule is often a row read back from the database, whose date
+ * columns are Date objects — and a Date reaches zen as `{}`. A rule whose schema
+ * types `due_on` as a string then failed on every such record ("/due_on: {} is
+ * not of types null, string"), the failure was logged as a warning, and the
+ * write went through: every rule on an entity with a date column was silently
+ * off. The JSON form is what zen reads — a Date becomes its ISO string.
+ */
+function asZenInput(data: Record<string, unknown>): Record<string, unknown> {
+  return JSON.parse(JSON.stringify(data ?? {})) as Record<string, unknown>;
+}
+
 @Injectable()
 export class RulesEngine implements OnModuleDestroy {
   private readonly logger = new Logger(RulesEngine.name);
@@ -124,7 +138,7 @@ export class RulesEngine implements OnModuleDestroy {
       // injected value made the field look present even when it was omitted.
       // Rules read the operation from `_operation`; the payload is passed
       // through untouched.
-      const result = await decision.evaluate({ ...data, _operation: action });
+      const result = await decision.evaluate({ ...asZenInput(data), _operation: action });
 
       let violations: JdmViolation[] = [];
 
@@ -196,7 +210,7 @@ export class RulesEngine implements OnModuleDestroy {
       // injected value made the field look present even when it was omitted.
       // Rules read the operation from `_operation`; the payload is passed
       // through untouched.
-      const result = await decision.evaluate({ ...data, _operation: action });
+      const result = await decision.evaluate({ ...asZenInput(data), _operation: action });
 
       // hitPolicy "collect" returns an array; single-match returns an object or null
       if (Array.isArray(result.result)) {

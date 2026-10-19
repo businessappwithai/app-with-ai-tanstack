@@ -95,6 +95,11 @@ export function StateFlowCanvas({ flow, onChange }: StateFlowCanvasProps) {
         target: transition.to,
         label: transition.label,
         labelStyle: { fontSize: 11, fontWeight: 600 },
+        // An opaque plate, so a line crossing a label does not strike through it.
+        labelShowBg: true,
+        labelBgStyle: { fill: "hsl(var(--card))" },
+        labelBgPadding: [4, 2] as [number, number],
+        labelBgBorderRadius: 4,
         markerEnd: { type: MarkerType.ArrowClosed },
         style: { strokeWidth: 1.5 },
       })),

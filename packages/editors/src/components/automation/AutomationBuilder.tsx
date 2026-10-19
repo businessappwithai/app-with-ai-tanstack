@@ -646,7 +646,7 @@ export function AutomationBuilder({
             }
           />
           <p className="mt-1 text-[12.5px] text-muted-foreground">
-            Runs on every {automation.trigger.entity || "record"}
+            {runsWhen(automation)}
             {problems.length > 0 ? (
               <span className="text-amber-700 dark:text-amber-300">
                 {" · "}
@@ -1098,6 +1098,25 @@ function ConditionRow({
  * is also the word the saved EML uses (`Repeat while …`), and the stopping
  * clause still puts the end condition, the part that goes wrong, in view.
  */
+/**
+ * The line under a process's name. It said "Runs on every Payment" for every
+ * process, including one a business rule starts — which runs on none of them
+ * by itself — contradicting "What starts it" beside it.
+ */
+function runsWhen(automation: Automation): string {
+  const entity = automation.trigger.entity || "record";
+  if (automation.kind !== "saga") return `Runs on every ${entity}`;
+  if (automation.sagaTrigger === "rule")
+    return `Runs when a business rule starts it, on a ${entity}`;
+  const write: Record<string, string> = {
+    CREATE: "created",
+    UPDATE: "updated",
+    DELETE: "deleted",
+  };
+  const when = write[automation.sagaOperation ?? ""];
+  return when ? `Runs every time a ${entity} is ${when}` : `Runs on every write to a ${entity}`;
+}
+
 function LoopTitle({ loop }: { loop: Loop }) {
   if (!loop.condition.field) {
     return <span className="text-muted-foreground">Say what to check, or this never stops.</span>;
