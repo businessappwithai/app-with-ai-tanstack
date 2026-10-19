@@ -436,6 +436,27 @@ for (const retired of [
   );
 }
 
+/* `llms.txt` is `llms.md` under a name Pages types text/plain: some readers
+   (ChatGPT's among them) refuse text/markdown with "400 Unsupported content-type".
+   It is a byte copy, and every retired stub names it as the fallback. */
+held(
+  readFileSync(join(ROOT, "website", "llmtext", "llms.txt"), "utf-8") === unified,
+  "llms.txt is a byte-for-byte copy of llms.md"
+);
+for (const retired of [
+  "llms-full.txt",
+  "llmdetailed.txt",
+  "llmtextenhancement.txt",
+  "llmdetailedenhancement.txt",
+]) {
+  held(
+    readFileSync(join(ROOT, "website", "llmtext", retired), "utf-8").includes(
+      "https://www.appwithai.org/llms.txt"
+    ),
+    `${retired}: names https://www.appwithai.org/llms.txt as the plain-text fallback`
+  );
+}
+
 /* ------------------------------------------------------------------------ */
 /*  The published host, written in full                                      */
 /* ------------------------------------------------------------------------ */
