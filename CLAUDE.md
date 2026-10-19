@@ -1142,6 +1142,14 @@ change one**, published at `https://www.appwithai.org/llms.md`. It replaced four
 derived enhancement editions — which are now short stubs pointing at it, kept so
 a URL a model was once given still leads somewhere.
 
+**`llms.txt` is `llms.md` byte for byte, under a name GitHub Pages types
+`text/plain`.** Pages sends `.md` as `text/markdown`, which ChatGPT's web reader
+refuses (`400 Unsupported content-type`). Edit `llms.md` only, then
+`cp website/llmtext/llms.md website/llmtext/llms.txt`; `bun run test:llmtext`
+fails if they differ, and requires each retired stub to name
+`https://www.appwithai.org/llms.txt` as the fallback. The orchestrator and the
+site carry both files.
+
 **New or enhance is decided by one fact: did the user give a `.mmd`?** §1 is one
 procedure, run as office hours (after gstack's `/office-hours`): decide the mode
 from what was given, ask the pace (*walk me through it* or *just build it*), then
