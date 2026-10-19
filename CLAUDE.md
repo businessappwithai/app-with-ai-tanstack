@@ -178,8 +178,10 @@ build where CI builds, e.g.
 `packages/web` imports `@appwithai/core`, `@appwithai/generator` and
 `@appwithai/ai` by bare specifier, and their `exports` point at `dist/`. On a
 tree that has never been built those do not exist, so `dev` runs
-`scripts/ensure-packages-built.ts` first. It builds only what is missing — 26ms
-and nothing rebuilt on a warm tree. Editing `packages/core` mid-session still
+`scripts/ensure-packages-built.ts` first. It builds only what is missing or older than its `src/` — 26ms
+and nothing rebuilt on a warm tree. A `dist/` left over from before a pull is rebuilt: the
+dry-run imports the generator by bare specifier, so a stale one answered for a compiler the
+source no longer has ("is empty" stopped matching `""`). Editing `packages/core` mid-session still
 needs `bun run build:core`.
 
 Before building, it checks every workspace's declared dependencies against what

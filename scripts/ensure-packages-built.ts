@@ -10,7 +10,7 @@
  * say why. It was reproducible, undocumented, and cost everyone who met it the
  * same half hour.
  *
- * So `dev` runs this first. It builds only what is missing, which makes the
+ * So `dev` runs this first. It builds only what is missing or older than its source, which makes the
  * first run work and every run after it cost one `existsSync` per package.
  *
  *   bun scripts/ensure-packages-built.ts          build what is missing
@@ -31,7 +31,7 @@
  * the built output of its dependencies.
  */
 
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -119,8 +119,31 @@ const PACKAGES = [
   { name: "ai", script: "build:ai", marker: "packages/ai/dist/index.js" },
 ] as const;
 
+/** The newest modification time under `dir`, in ms; 0 when it holds no files. */
+function newestMtime(dir: string): number {
+  let newest = 0;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    newest = Math.max(newest, entry.isDirectory() ? newestMtime(path) : statSync(path).mtimeMs);
+  }
+  return newest;
+}
+
+/**
+ * Built, but older than the source it was built from. A pull leaves the old `dist/` in
+ * place, and the web app imports the generator by bare specifier — so its dry-run kept
+ * compiling rules with a compiler from before `emptyMeansBlank`, and "is empty" stopped
+ * matching a cleared text box (`""`) while the source said it did.
+ */
+function isOlderThanSource(pkg: (typeof PACKAGES)[number]): boolean {
+  const src = join(ROOT, "packages", pkg.name, "src");
+  return existsSync(src) && newestMtime(src) > statSync(join(ROOT, pkg.marker)).mtimeMs;
+}
+
 const force = process.argv.includes("--force");
-const missing = PACKAGES.filter((pkg) => force || !existsSync(join(ROOT, pkg.marker)));
+const missing = PACKAGES.filter(
+  (pkg) => force || !existsSync(join(ROOT, pkg.marker)) || isOlderThanSource(pkg)
+);
 
 if (missing.length === 0) {
   process.exit(0);
@@ -129,7 +152,7 @@ if (missing.length === 0) {
 console.log(
   `Building ${missing.map((pkg) => pkg.name).join(", ")} — the web app imports ${
     missing.length === 1 ? "it" : "them"
-  } and ${missing.length === 1 ? "it is" : "they are"} not built yet.`
+  } and ${missing.length === 1 ? "it is" : "they are"} missing or older than the source.`
 );
 
 for (const pkg of missing) {
