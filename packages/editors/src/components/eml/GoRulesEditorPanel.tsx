@@ -47,6 +47,8 @@ interface GoRulesEditorPanelProps {
   onChange: (graphJson: string) => void;
   /** Height of the graph canvas in pixels. Defaults to 640. */
   height?: number;
+  /** When true, the entity's fields haven't loaded yet — Run is disabled. */
+  fieldsLoading?: boolean;
 }
 
 /**
@@ -151,6 +153,7 @@ export function GoRulesEditorPanel({
   sampleRecord,
   onChange,
   height = 640,
+  fieldsLoading = false,
 }: GoRulesEditorPanelProps) {
   const [mode, setMode] = useState<JdmUiMode>("business");
   const [simulate, setSimulate] = useState<Simulation | undefined>();
@@ -297,6 +300,8 @@ export function GoRulesEditorPanel({
       // The route reports them by node name, in the order they ran.
       const steps = [...data.trace];
       const trace: Record<string, SimulationTrace> = {};
+      // Index nodes by id so edges can look up their source's output.
+      const nodeById = Object.fromEntries(graph.nodes.map((n) => [n.id, n]));
       for (const node of graph.nodes) {
         const own = node.type === "inputNode" ? null : steps.findIndex((s) => s.node === node.name);
         const hit = own !== null && own >= 0 ? steps.splice(own, 1)[0] : undefined;
@@ -309,6 +314,18 @@ export function GoRulesEditorPanel({
           performance: "",
           traceData: null,
         };
+      }
+      // Wire up each node's input from its upstream neighbour's output.
+      // The dry-run route only returns outputs; the graph's edges tell us
+      // which node fed which, so the Simulator's Input tab shows real data.
+      for (const edge of graph.edges) {
+        const target = nodeById[edge.targetId];
+        if (!target || target.type === "inputNode") continue;
+        const sourceEntry = trace[edge.sourceId];
+        const targetEntry = trace[edge.targetId];
+        if (sourceEntry && targetEntry && targetEntry.input === null) {
+          targetEntry.input = sourceEntry.output;
+        }
       }
       setSimulate({
         result: { performance: "", result: data.result, snapshot: graph, trace },
@@ -359,7 +376,7 @@ export function GoRulesEditorPanel({
                   <GraphSimulator
                     key={sampleRecord}
                     defaultRequest={sampleRecord}
-                    loading={running}
+                    loading={running || fieldsLoading}
                     onRun={run}
                     onClear={() => setSimulate(undefined)}
                   />

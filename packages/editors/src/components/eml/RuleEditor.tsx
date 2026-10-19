@@ -292,6 +292,7 @@ export function RuleEditor({
               entity={rule.entity}
               dryRun={dryRun}
               height={graphHeight}
+              fieldsLoading={sampleFields.length === 0}
               sampleRecord={JSON.stringify(
                 sampleRecord(sampleFields, entityEnums, fieldTypes),
                 null,
