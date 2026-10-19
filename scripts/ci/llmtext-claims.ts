@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 /**
- * Hold `website/llmtext/llms-full.txt` and `website/llmtext/llmdetailed.txt` to the claims they
- * make about the checker.
+ * Hold `website/llmtext/llms.md` to the claims it makes about the checker, the
+ * language and the Application Dictionary.
  *
- * The two files tell a language model which diagnostics exist, which of them
+ * The document tells a language model which diagnostics exist, which of them
  * repair themselves, and how to run the engine. Nothing enforced any of that:
  * both are prose, and prose about a compiler goes stale in the one direction
  * nobody notices — a code that was renamed, a repair that stopped being
@@ -34,17 +34,11 @@ const directives = (
 
 const ROOT = resolve(import.meta.dir, "../..");
 
-/* The four published protocol documents. Two author a model from a brief; two
-   take an existing `.mmd` and change it. The enhancement pair is *derived* from
-   the pair above it — the whole language reference is copied and only the
-   protocol section differs — so every claim held below has to hold for all four,
-   and the derivation itself is held at the end of this file. */
-const DOCUMENTS = [
-  "llms-full.txt",
-  "llmdetailed.txt",
-  "llmtextenhancement.txt",
-  "llmdetailedenhancement.txt",
-] as const;
+/* The one published protocol document. It replaced four — two that authored a
+   model from a brief and two, derived from those, that changed an existing one —
+   and every claim the four were held to is held here, once. The four files
+   remain only as stubs pointing at it; that is held further down. */
+const DOCUMENTS = ["llms.md"] as const;
 const checkerSource = readFileSync(join(ROOT, "language/checker.ts"), "utf-8");
 
 let failed = 0;
@@ -189,7 +183,7 @@ for (const name of DOCUMENTS) {
     `${name}: says plainly that a clean checker run does not mean the model is finished`
   );
   held(
-    /22 passed, 0 failed/.test(prose) && /[Tt]wenty-two checks/.test(prose),
+    /23 passed, 0 failed/.test(prose) && /[Tt]wenty-three checks/.test(prose),
     `${name}: quotes the audit's score, and the same count in words`
   );
 
@@ -330,7 +324,7 @@ for (const name of DOCUMENTS) {
   let undocumented = 0;
   for (const example of examples) {
     const codes = check(example.body).issues.filter((issue: { code: string }) =>
-      ["EML151", "EML152", "EML153"].includes(issue.code)
+      ["EML151", "EML152", "EML153", "EML170", "EML172", "EML177"].includes(issue.code)
     );
     if (codes.length > 0) {
       undocumented++;
@@ -345,234 +339,102 @@ for (const name of DOCUMENTS) {
   }
   held(
     undocumented === 0,
-    `${name}: every mermaid example carries help on its entities and columns`
+    `${name}: every mermaid example carries help on its entities and columns, and lays out its forms`
   );
-}
-
-/**
- * The seed the protocol tells a reader to write must itself survive both
- * readers. Belt and braces over the sweep above, because this one example is
- * the one every session copies.
- */
-const seedExample = readFileSync(join(ROOT, "website", "llmtext", "llmdetailed.txt"), "utf-8")
-  .split("```mermaid")
-  .find((block) => block.includes("Acme Dance Studio"))
-  ?.split("```")[0];
-
-if (seedExample) {
-  const seed = parseModel(seedExample);
-  held(
-    seed.entities.length === 4,
-    `llmdetailed.txt §10.3: the seed example parses to its four entities (got ${seed.entities.length})`
-  );
-  held(
-    seed.entities.every((entity) => entity.attributes.some((a) => a.name === "id")),
-    "llmdetailed.txt §10.3: every seed entity carries the id the example writes"
-  );
-  const report = check(seedExample);
-  held(
-    report.counts.errors === 0 && report.counts.warnings === 0,
-    `llmdetailed.txt §10.3: the seed checks clean (${report.counts.errors}e ${report.counts.warnings}w ${report.counts.infos}i)`
-  );
-} else {
-  held(false, "llmdetailed.txt §10.3: the seed example is still findable");
 }
 
 /* ------------------------------------------------------------------------ */
-/*  The viewers                                                              */
+/*  One document, two modes                                                  */
 /* ------------------------------------------------------------------------ */
 
 /**
- * `llmdetailed.txt` tells the reader to open the viewers, at a URL, and says
- * what they draw. All three of those rot silently: the page can move, a tab can
- * be renamed, and a claim about what is drawn can outlive the code that drew
- * it. A model following a stale instruction sends its user to a 404 in the
- * middle of a walkthrough.
+ * `llms.md` replaced four documents: two that authored a model from a brief and
+ * two, derived from those, that changed a model that already existed. What made
+ * the enhancement pair worth having was a handful of rules an authoring
+ * protocol has no use for — ask for the file, never reconstruct it, inventory it
+ * before editing, hand the whole of it back, and prove nothing was lost. Folding
+ * the four into one is only safe while those rules are still in it, so they are
+ * held here by their wording, the same way the derivation used to be held.
  */
-const detailed = readFileSync(join(ROOT, "website", "llmtext", "llmdetailed.txt"), "utf-8");
-const detailedProse = detailed.replace(/\s+/g, " ");
+const unified = readFileSync(join(ROOT, "website", "llmtext", "llms.md"), "utf-8");
+const unifiedProse = unified.replace(/\s+/g, " ");
 
-held(
-  /https:\/\/www\.appwithai\.org\/viewers\//.test(detailed),
-  "llmdetailed.txt: names the viewers by their published URL"
-);
-
-/* The path it names has to be the directory this repository publishes, and the
-   page it names has to be in it. */
-for (const file of ["index.html", "eml-model.js", "model-viewer.js", "viewers.css"]) {
-  held(
-    existsSync(join(ROOT, "website", "viewers", file)),
-    `website/viewers/${file} exists — llmdetailed.txt sends readers to it`
-  );
+for (const [pattern, label] of [
+  [/decided by one fact: did the user give you an existing `\.mmd`\?/, "decides new or enhance by whether a .mmd was given"],
+  [/Never reconstruct a model from memory/, "refuses to reconstruct a model from memory"],
+  [/never start an enhancement from a blank document/i, "refuses to start an enhancement from a blank document"],
+  [/Inventory it\./, "inventories the model before editing it"],
+  [/You were given the whole file\. Give the whole file back\./, "asks for the whole file back, not a patch"],
+  [/If this fell and nobody asked/, "carries the before-and-after regression table"],
+  [/\*\*Walk me through it\*\*/, "offers the walkthrough pace"],
+  [/\*\*Just build it\*\*/, "offers the one-pass pace"],
+  [/One question at a time \*when the answer changes the next question\*/, "asks one question at a time"],
+  [/PREMISES/, "states premises before the roster"],
+  [/the \*\*minimal\*\* one .* and the \*\*complete\*\* one/, "puts two rosters in front of the user"],
+  [/Hard gate\./, "keeps the hard gate: no code, only the model"],
+] as const) {
+  held(pattern.test(unifiedProse), `llms.md: ${label}`);
 }
 
-/* Every tab the prose names by title is a tab the page actually has. Read off
-   the markup rather than listed here, so a renamed tab fails this rather than
-   quietly disagreeing with the instruction. */
-const viewerPage = readFileSync(join(ROOT, "website", "viewers", "index.html"), "utf-8");
-const tabs = [...viewerPage.matchAll(/data-tab="[^"]+">([^<]+)</g)].map((match) =>
-  (match[1] ?? "").trim()
+/* The Application Dictionary codes the document calls mandatory are the ones the
+   published report calls mandatory — DICTIONARY_COMPLETENESS in the checker
+   entry. Read from its source, because it is not exported and a copy of it here
+   would be the second answer this file exists to prevent. */
+const entrySource = readFileSync(join(ROOT, "language/browser/checker.entry.ts"), "utf-8");
+const completenessBlock = /const DICTIONARY_COMPLETENESS = new Set\(\[([\s\S]*?)\]\)/.exec(entrySource);
+const completeness = [...(completenessBlock?.[1] ?? "").matchAll(/"(EML\d{3})"/g)].map((m) => m[1]);
+held(completeness.length > 0, `checker.entry.ts: DICTIONARY_COMPLETENESS read (${completeness.length})`);
+const tableStart = unified.indexOf("Every Application Dictionary value is mandatory");
+const dictionaryTable = unified.slice(tableStart, unified.indexOf("The delivered file carries none", tableStart));
+const missingFromTable = completeness.filter((code) => !dictionaryTable.includes(`\`${code}\``));
+held(
+  missingFromTable.length === 0,
+  `llms.md §1.2: tabulates every dictionary-completeness code${
+    missingFromTable.length ? ` (missing ${missingFromTable.join(", ")})` : ""
+  }`
 );
-for (const named of ["Workflows", "Business rules", "Access"]) {
-  held(
-    tabs.includes(named) && detailedProse.includes(`**${named}**`),
-    `llmdetailed.txt: the "${named}" tab it names exists on the page`
-  );
+const COUNT_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+const statedCount = /\b([A-Z][a-z]+) checker codes mean a dictionary value is missing/.exec(unified)?.[1];
+held(
+  COUNT_WORDS.indexOf((statedCount ?? "").toLowerCase()) === completeness.length,
+  `llms.md §1.2: counts the dictionary codes correctly (checker says ${completeness.length}, document says ${statedCount})`
+);
+
+/* The form layout is part of the dictionary, and mandatory. */
+held(
+  /\*\*It is mandatory\.\*\* Every entity — line items included — declares its sections/.test(unifiedProse),
+  "llms.md §3.7.6: says the form layout is mandatory"
+);
+held(
+  /\*\*A row holds one or two columns\.\*\*/.test(unifiedProse),
+  "llms.md §3.7.6: says a row holds one or two columns"
+);
+for (const code of ["EML170", "EML171", "EML172", "EML173", "EML174", "EML175", "EML176", "EML177"]) {
+  held(unified.includes(`\`${code}\``), `llms.md: documents ${code}`);
 }
 
-/* The three ways in, and which one needs which browser. Recommending "Watch a
-   file" without saying it is Chromium-only is how a reader concludes the page
-   is broken. */
+/* The viewers, which the protocol sends a reader to for what Mermaid draws as comments. */
 held(
-  /File System Access API/.test(detailedProse) && /Watch a file/.test(detailedProse),
-  "llmdetailed.txt: says which browsers can watch a file"
+  unified.includes("https://www.appwithai.org/viewers/"),
+  "llms.md: names the viewers by their published URL"
 );
-const modelViewer = readFileSync(join(ROOT, "website", "viewers", "model-viewer.js"), "utf-8");
-held(
-  modelViewer.includes("showOpenFilePicker"),
-  "the viewers really gate watching on the File System Access API"
-);
+held(existsSync(join(ROOT, "website", "viewers", "index.html")), "website/viewers/index.html exists");
 
-/* The claim that makes the viewers worth pointing at: they read the model with
-   the generator's own code, so their verdict is the checker's verdict. */
-held(
-  /same parser, rule compiler, workflow compiler and RBAC derivation the generator/.test(
-    detailedProse
-  ),
-  "llmdetailed.txt: says the viewers read the model with the generator's own code"
-);
-const viewerEntry = readFileSync(join(ROOT, "packages/generator/src/browser/viewers.ts"), "utf-8");
-held(
-  viewerEntry.includes("checker.entry") && viewerEntry.includes("../viewers"),
-  "the viewer bundle really re-exports the published checker and the pipeline's reading"
-);
-
-/* ------------------------------------------------------------------------ */
-/*  The enhancement editions                                                 */
-/* ------------------------------------------------------------------------ */
-
-/**
- * `llmtextenhancement.txt` and `llmdetailedenhancement.txt` start from an
- * existing `.mmd` where their bases start from a brief. Two things are held
- * here that nothing above covers.
- *
- * First, the derivation. Each enhancement edition is its base with the
- * authoring protocol swapped for the enhancement protocol and everything else
- * copied, so a base edited without rebuilding its companion is the one way
- * these four documents can come to disagree about the language itself — which
- * is the failure the whole arrangement exists to prevent. The site's
- * `scripts/build-llmtext-enhancement.mjs` is the deriver; what is asserted here
- * is the property it produces, so this check holds whether or not the deriver
- * was the thing that last wrote the file.
- *
- * Second, the four rules that make an enhancement protocol different from an
- * authoring one. Each was a real failure before it was a rule: starting without
- * the user's file, rebuilding the model from memory, answering with a patch the
- * user has to merge, and handing back a model that checks clean and is quietly
- * smaller than the one that came in. Only the first of those has a diagnostic.
- */
-const PAIRS = [
-  [
-    "llms-full.txt",
-    "llmtextenhancement.txt",
-    /^## \d+\. Authoring protocol\b/m,
-    /^## \d+\. Enhancement protocol\b/m,
-  ],
-  [
-    "llmdetailed.txt",
-    "llmdetailedenhancement.txt",
-    /^## \d+\. Interactive authoring protocol\b/m,
-    /^## \d+\. Interactive enhancement protocol\b/m,
-  ],
-] as const;
-
-for (const [baseName, enhancedName, baseHeading, enhancedHeading] of PAIRS) {
-  const base = readFileSync(join(ROOT, "website", "llmtext", baseName), "utf-8");
-  const enhanced = readFileSync(join(ROOT, "website", "llmtext", enhancedName), "utf-8");
-
-  held(baseHeading.test(base), `${baseName}: still carries the authoring protocol section`);
-  held(enhancedHeading.test(enhanced), `${enhancedName}: carries the enhancement protocol section`);
-
-  /* Everything after the protocol section is the base's, byte for byte. Taking
-     the tail from the *next* `## ` heading after each protocol is what makes
-     this independent of how long either protocol happens to be. */
-  const tailAfterProtocol = (doc: string, heading: RegExp): string => {
-    const at = doc.search(heading);
-    const rest = doc.slice(at);
-    /* The next *numbered* `## ` heading. A bare `## ` would stop inside the
-       fenced dossier both protocols quote, whose own headings are `## Fields`
-       and `## Enums` — which is the bug this assertion caught in the deriver. */
-    const next = rest.search(/\n## \d+\. /);
-    return next === -1 ? "" : rest.slice(next);
-  };
+/* The four retired documents are stubs pointing at the one that replaced them —
+   a published URL a model was told to read must still lead somewhere, and must
+   not lead to a second, staler account of the language. */
+for (const retired of [
+  "llms-full.txt",
+  "llmdetailed.txt",
+  "llmtextenhancement.txt",
+  "llmdetailedenhancement.txt",
+]) {
+  const stub = readFileSync(join(ROOT, "website", "llmtext", retired), "utf-8");
   held(
-    tailAfterProtocol(base, baseHeading) === tailAfterProtocol(enhanced, enhancedHeading) &&
-      tailAfterProtocol(base, baseHeading).length > 1000,
-    `${enhancedName}: carries ${baseName}'s language reference unchanged after the protocol`
-  );
-
-  /* And everything between the header rule and the protocol, which is §0 and
-     whatever else precedes it in that shape. */
-  const headTo = (doc: string, heading: RegExp): string =>
-    doc.slice(doc.indexOf("\n---\n"), doc.search(heading));
-  held(
-    headTo(base, baseHeading) === headTo(enhanced, enhancedHeading),
-    `${enhancedName}: carries ${baseName}'s sections before the protocol unchanged`
+    stub.includes("https://www.appwithai.org/llms.md") && stub.split("\n").length < 40,
+    `${retired}: is a short stub pointing at https://www.appwithai.org/llms.md`
   );
 }
-
-for (const name of ["llmtextenhancement.txt", "llmdetailedenhancement.txt"]) {
-  const doc = readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
-  const prose = doc.replace(/\s+/g, " ");
-
-  held(
-    /load (?:their|your) `?\.mmd`?|Send me the `\.mmd`/i.test(prose),
-    `${name}: asks the user to load their .mmd before anything else`
-  );
-  held(
-    /Never reconstruct the model/i.test(prose),
-    `${name}: forbids rebuilding the model from memory or the conversation`
-  );
-  held(
-    /Not a patch\. Not a diff\.|Not a diff, not a patch/i.test(prose),
-    `${name}: delivers the whole model rather than a patch`
-  );
-  held(
-    /baseline/i.test(prose) && /inventor/i.test(prose),
-    `${name}: baselines and inventories the model before editing it`
-  );
-  held(
-    /(nothing was lost|nothing lost|regression)/i.test(prose) && doc.includes("%%report"),
-    `${name}: compares the result against the baseline to prove nothing was lost`
-  );
-  /* The losses that no diagnostic reports. Naming them is the whole value of
-     the comparison — a protocol that says "check nothing was lost" without
-     saying what goes missing is a protocol nobody can follow. */
-  for (const lost of ["%%rbac", "%%report", "help text"])
-    held(
-      name === "llmtextenhancement.txt" || doc.includes(lost),
-      `${name}: names ${lost} among what an enhancement silently drops`
-    );
-
-  /* Each document has to be findable from the other three, or a reader lands
-     on the enhancement form for a model that does not exist yet. */
-  for (const sibling of DOCUMENTS)
-    if (sibling !== name) held(doc.includes(sibling), `${name}: names its companion ${sibling}`);
-}
-
-/* The interactive edition keeps its gates. A phase list with no gate in it is
-   the batch protocol wearing the other file's name, which that file does
-   better. */
-const interactiveEnhancement = readFileSync(
-  join(ROOT, "website", "llmtext", "llmdetailedenhancement.txt"),
-  "utf-8"
-);
-for (const gate of ["Gate A", "Gate B", "Gate C", "Gate D", "Gate E"])
-  held(interactiveEnhancement.includes(gate), `llmdetailedenhancement.txt keeps ${gate}`);
-held(
-  interactiveEnhancement.includes("00-original.mmd"),
-  "llmdetailedenhancement.txt keeps the user's original untouched as the thing to compare against"
-);
 
 /* ------------------------------------------------------------------------ */
 /*  The published host, written in full                                      */

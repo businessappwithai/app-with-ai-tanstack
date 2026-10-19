@@ -175,6 +175,9 @@ CREATE TABLE IF NOT EXISTS sys_field_group (
   sys_field_group_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   sys_tab_id UUID REFERENCES sys_tab(sys_tab_id),
   name VARCHAR(100) NOT NULL,
+  description TEXT,
+  columns INTEGER DEFAULT 1,
+  is_collapsed_by_default BOOLEAN DEFAULT false,
   seq_no INTEGER DEFAULT 0,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -204,11 +207,26 @@ CREATE TABLE IF NOT EXISTS sys_field (
   display_logic TEXT,
   is_key BOOLEAN DEFAULT false,
   is_parent BOOLEAN DEFAULT false,
+  is_same_line BOOLEAN DEFAULT false,
+  x_position INTEGER,
+  y_position INTEGER,
+  column_span INTEGER,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(sys_tab_id, sys_column_id)
 );
+
+-- `%%section` layout. In the CREATE above for a new database, and added here
+-- for one a tab wrote before sections existed: the schema is re-run on every
+-- boot and only ever adds.
+ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS columns INTEGER DEFAULT 1;
+ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS is_collapsed_by_default BOOLEAN DEFAULT false;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS is_same_line BOOLEAN DEFAULT false;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS x_position INTEGER;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS y_position INTEGER;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS column_span INTEGER;
 
 CREATE TABLE IF NOT EXISTS sys_category (
   sys_category_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

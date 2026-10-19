@@ -803,6 +803,18 @@ function FormChangeNotifier({
   return null;
 }
 
+
+/*
+ * A field's span, as whole class names. Tailwind writes only the classes it
+ * finds spelled out in the source, so `md:col-span-${n}` produced no CSS and a
+ * field meant to span a `%%section` row sat in one column of it.
+ */
+const COL_SPAN: Record<number, string> = {
+  2: "md:col-span-2",
+  3: "md:col-span-3",
+  4: "md:col-span-4",
+};
+
 export function DynamicForm({
   tableName,
   fields: externalFields,
@@ -1109,7 +1121,7 @@ export function DynamicForm({
                     className={cn(
                       field.col_span &&
                         field.col_span > 1 &&
-                        `md:col-span-${Math.min(groupColumns, field.col_span)}`
+                        COL_SPAN[Math.min(groupColumns, field.col_span)]
                     )}
                   >
                     <FieldRenderer

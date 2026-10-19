@@ -94,6 +94,21 @@ export interface Entity {
   parentEntity?: string;
   /** The child's foreign key back to `parentEntity`, resolved at parse time. */
   parentLinkColumn?: string;
+  /**
+   * `%%section` — the form's layout: headed sections of rows of one or two
+   * columns, in declaration order. Absent when the model declares none, which
+   * leaves the form one flat list in column order.
+   */
+  formSections?: EntityFormSection[];
+}
+
+/** One `%%section` of an entity's form. Mirrors `FormSection` in language/sections.ts. */
+export interface EntityFormSection {
+  name: string;
+  help?: string;
+  collapsed: boolean;
+  /** Rows in order, each one or two attribute names. */
+  rows: string[][];
 }
 
 export interface Relationship {

@@ -573,18 +573,29 @@ export function buildModelBundle(
         ),
         seqNo: column.seq_no,
       })),
-      // No field groups, and the form is therefore one flat list in the
-      // model's own column order.
+      // The model's `%%section` groups, and nothing else.
       //
-      // `sys_field.sys_field_group_id` is unset in both stacks — but it took a
-      // fix to make that true. The NestJS seed
-      // (`templates/common/seeds/sys-dictionary.ts.hbs`) used to assign a
-      // group by *position*, `i < 3 ? General : Details`, which its form
-      // renders as two headed sections split after the third column. So one
-      // model produced two applications that laid the same entity out
-      // differently, and the split was not something the model asked for.
-      // Change one of these two and change the other.
-      fieldGroups: [] as Array<{ tableName: string; name: string; seqNo: number }>,
+      // An entity with no sections has no groups, and its form is one flat
+      // list in the model's own column order. Groups used to be decided by
+      // *position* in the NestJS seed (`i < 3 ? General : Details`), which split
+      // every form after its third column — one model, two applications laying
+      // the same entity out differently, and a split nobody asked for. A group
+      // comes from the model or not at all, in both stacks
+      // (`templates/common/seeds/sys-dictionary.ts.hbs`). Change one of these
+      // two and change the other.
+      fieldGroups: dictionary.sysFieldGroups
+        .filter((group) => group._tabRef)
+        .map((group) => ({
+          tableName:
+            tableByTemp.get(
+              dictionary.sysTabs.find((tab) => tab._tempId === group._tabRef)?._tableRef ?? ""
+            ) ?? "",
+          name: group.name,
+          description: group.description,
+          columns: group.columns ?? 2,
+          collapsed: group.is_collapsed_by_default,
+          seqNo: group.seq_no ?? 0,
+        })),
       fields: dictionary.sysFields.map((field) => {
         const reference = columnByTemp.get(field._columnRef);
         const tableName = reference?.table ?? tabTable.get(field._tabRef) ?? "";
@@ -607,6 +618,14 @@ export function buildModelBundle(
           isInsertable: true,
           seqNo: field.seq_no,
           seqNoGrid: field.seq_no_grid,
+          /* `%%section`: the group, and where in its two-column grid. */
+          fieldGroup: field._groupRef
+            ? dictionary.sysFieldGroups.find((group) => group._tempId === field._groupRef)?.name
+            : undefined,
+          isSameLine: field.is_same_line,
+          xPosition: field.x_position,
+          yPosition: field.y_position,
+          columnSpan: field.column_span,
           fieldType: attribute?.type,
           referenceId: attribute?.referenceId,
           defaultValue: attribute?.defaultValue ?? undefined,

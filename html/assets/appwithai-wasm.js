@@ -490,7 +490,7 @@ var appwithai_language_default = {
       manual: "The generated manual carries a section, When two people change the same record, naming the three choices."
     },
     alsoDerived: [
-      "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10).",
+      "Each entity becomes a sys_table with a window and a tab; attributes become fields in declared order (seqNo = (index + 1) * 10), unless the entity declares %%section - then the fields follow the sections and their rows. See formLayout.",
       "%%index becomes real indexes; a unique attribute or a `name` column is indexed automatically (mergeIndexes).",
       "%%category becomes the dashboard grouping; a model declaring none gets a single General category holding every entity.",
       "%%field <Entity>.<column> help: and %%entity <Name> help: become sys_column.description and sys_table.description - the help a reader sees under the field and beside the table. %%entity description: is the same key under its other name.",
@@ -524,11 +524,44 @@ var appwithai_language_default = {
         EML151: "help that describes its subject rather than restating its name",
         EML152: "%%entity <Name> help: on an entity",
         EML153: "%%field <Entity>.<column> help: on every column but the primary key",
-        EML154: "name: on a %%category — without it the grouping is dropped"
+        EML154: "name: on a %%category — without it the grouping is dropped",
+        EML170: "%%section on every entity — without it the form is one flat, unheaded column of fields",
+        EML172: "every column but the primary key placed in a %%section row — an unplaced column falls into a trailing Other section",
+        EML177: "help: on every %%section that says what the section is for — it is the sentence under the heading"
       },
-      required: "A delivered model carries none of these six. They are warnings by severity and gaps by consequence: audit-model.mjs fails a model carrying any of them, and formatReport's verdict names them apart from the advisory warnings (DICTIONARY_COMPLETENESS in language/browser/checker.entry.ts).",
+      required: "A delivered model carries none of these nine. They are warnings by severity and gaps by consequence: audit-model.mjs fails a model carrying any of them, and formatReport's verdict names them apart from the advisory warnings (DICTIONARY_COMPLETENESS in language/browser/checker.entry.ts).",
       planFirst: "Decide every value before writing the document — per entity its help, category and parent; per column its type, modifiers, FK target, enum binding and help; per cross-entity step the row it aims at (targetSource or targetField, else EML265). A value improvised while typing the ERD is the one that comes out as a restatement.",
-      reviewUntilClean: "A clean checker run starts the review rather than ending it: re-read the file against the plan, confirm none of the six codes and a 22/0 audit, read every help line as the person on the generated screen would, and after any fix re-run the checker and the audit from zero. The review ends when a full pass finds nothing to change, not when a cycle count runs out."
+      reviewUntilClean: "A clean checker run starts the review rather than ending it: re-read the file against the plan, confirm none of the nine codes and a clean audit, read every help line as the person on the generated screen would, and after any fix re-run the checker and the audit from zero. The review ends when a full pass finds nothing to change, not when a cycle count runs out."
+    },
+    formLayout: {
+      description: "How a record's form is laid out: headed sections, each of rows of one or two fields. It is the third layer of the dictionary - a column says what is stored, a field says that it is on the screen, and a section says where and beside what. Declared by `%%section`, compiled to one sys_field_group per section (sys_field_group.columns = 2, description = the section's help) and to each field's sys_field_group_id, seq_no, is_same_line, x_position (1 or 2), y_position (the row) and column_span (2 for a row of one). Both stacks draw it: the NestJS form as a two-column grid per group, the browser form the same way.",
+      directive: "%%section entity: <Entity>; name: <Label>; help: <text>; rows: <column>, <column> | <column> | ...; collapsed: true",
+      mandatory: "Every entity declares its sections, and every column but the primary key sits in exactly one row of one of them. A form is the screen people use all day; the model is the only place its layout is decided, and an entity without sections is generated as one flat, unheaded list in declared order - correct, and nothing anyone designed.",
+      rows: [
+        "Two columns per row is the norm. Pair columns a person fills or reads together: first_name beside last_name, start_date beside end_date, quantity beside unit_price, a reference beside the status it moves through.",
+        "A row of one spans the full width. Use it for text and memo columns (reference 14), for an address, and for a reference whose label is long - never to avoid deciding what pairs with what.",
+        "More than two columns in a row is an error (EML174): the form is a two-column grid, and a third column has nowhere to go."
+      ],
+      sections: [
+        "Name a section for what the person is doing in it - Identity, Contact, Terms, Delivery, Clinical findings - not for the kind of column it holds. `References`, `Dates` and `Numbers` are a schema, not a form.",
+        "Open with the section that identifies the record: its name or number and the one or two values someone checks first. The display value's columns belong there.",
+        "Keep a section to the fields that are read together - roughly two to six rows. An entity with eight columns has two or three sections, not one; an entity with three columns may have one.",
+        "Put what is rarely touched last, and mark it `collapsed: true`: internal notes, integration references, figures only an administrator reads.",
+        "A line item (`%%entity <Child> parent:`) has sections too: they are what its own form shows when a row is opened from the parent's tab."
+      ],
+      help: "`help:` on a section is compiled to sys_field_group.description and printed under the heading. Say what the section is for and what has to be true before it is complete - `What was agreed with the supplier: the price, the terms and the date it stops applying.` - not `Terms fields.`. It is part of the help contract (helpText) and held to it the same way: EML177 reports a section with none, or one that restates its name.",
+      unplaced: "A column of a sectioned entity that no row names is not lost: it is generated into a trailing collapsed `Other` section, and EML172 reports it. The fixer places it for you by appending rows of two to the entity's last section, which is a repair and not a design - move it to where it belongs.",
+      entitiesWithoutSections: "An entity with no %%section is generated exactly as it was before the directive existed: one tab, every field in declared order, no headings. It is legal, it is what an older model produces, and it is EML170.",
+      checkerCodes: {
+        EML170: "warning — an entity declares no %%section. Dictionary completeness.",
+        EML171: "error — a %%section without one of its required keys: entity, name or rows.",
+        EML172: "warning — columns of a sectioned entity placed in no row. Dictionary completeness. Auto-fixable: appended to the entity's last section, two per row.",
+        EML173: "error — a %%section names an entity the model does not declare.",
+        EML174: "error — a row with more than two columns. Auto-fixable: split into rows of two.",
+        EML175: "warning — a column placed in two rows. Auto-fixable: the later placement is removed.",
+        EML176: "error — a row names a column the entity does not declare, or its primary key, which no form shows.",
+        EML177: "warning — a %%section with no help:, or help that restates the section's name. Dictionary completeness."
+      }
     },
     masterDetail: {
       description: "A line item is an entity with no life away from its owner - an invoice line, an order line, a prescription item. The ERD cannot tell one from an ordinary reference, because InvoiceLine.invoice_id and Invoice.patient_id are both a foreign key with a relationship behind it. The modeller says which it is.",
@@ -1303,6 +1336,22 @@ var appwithai_language_default = {
         ]
       },
       {
+        keyword: "%%section",
+        form: "%%section entity: <Entity>; name: <Label>; help: <text>; rows: <column>, <column> | <column> | ...; collapsed: true",
+        status: "compiled",
+        consumedBy: [
+          "packages/generator/src/parsers/section.parser.ts -> entity.formSections",
+          "packages/generator/src/generators/dictionary.generator.ts -> sys_field_group, sys_field.sys_field_group_id / is_same_line / x_position / column_span",
+          "templates/common/seeds/sys-dictionary.ts.hbs (NestJS) and generators/wasm/model-bundle.ts (browser)"
+        ],
+        purpose: "Lay an entity's form out as headed sections of two-column rows. Each directive is one section of one entity: `name` is its heading, `help` the sentence under the heading, and `rows` its fields, rows separated by `|` and the one or two columns of a row by `,`. A row of two puts the columns side by side; a row of one spans the full width, which is where a text or memo column, or a reference worth its whole line, belongs. Sections render in declaration order and fields in row order. Repeating a section's `entity` and `name` continues it, so a long section can be written over several lines; `help` is read from the first. `collapsed: true` closes the section until it is opened. Every column of the entity but its primary key is placed in exactly one section - see applicationDictionary.formLayout. `entity`, `name` and `rows` are required. `help` may contain semicolons; no other value may.",
+        examples: [
+          "%%section entity: Order; name: Order; help: Who placed the order, when, and where it stands.; rows: order_number, order_date | customer_id, status",
+          "%%section entity: Order; name: Delivery; help: Where the goods go and how they travel there.; rows: shipping_address | carrier, tracking_number",
+          "%%section entity: Order; name: Notes; help: Anything the next person handling this order should know.; rows: notes; collapsed: true"
+        ]
+      },
+      {
         keyword: "%%index",
         form: "%%index <Entity>(<attr>[, <attr>...]) [unique]",
         status: "compiled",
@@ -1582,7 +1631,7 @@ var appwithai_language_default = {
       "EML001-EML099": "Document level: metadata, emptiness, section structure.",
       "EML100-EML119": "Entities and attributes.",
       "EML120-EML129": "Relationships.",
-      "EML130-EML199": "Directives attached to the ERD: %%enum, %%field, %%entity, %%index, %%category — including the line-item pair EML149 and EML150.",
+      "EML130-EML199": "Directives attached to the ERD: %%enum, %%field, %%entity, %%index, %%category, %%section — including the line-item pair EML149 and EML150, and the form-layout codes EML170-EML177.",
       "EML200-EML299": "Hooks, guards, triggers, workflows and rules as declared by directives.",
       "EML300-EML399": "Business-rule flowcharts.",
       "EML400-EML449": "Workflow sections: hook, state and saga.",
@@ -1594,6 +1643,9 @@ var appwithai_language_default = {
       EML112: "Duplicate attribute - deletes the later line, keeping the stronger constraints.",
       EML114: "Foreign key not ending in _id - appends the suffix.",
       EML117: "Entity has no primary key - prepends `string id PK`.",
+      EML172: "Columns placed in no %%section row - appends them to the entity's last section, two per row.",
+      EML174: "A %%section row with more than two columns - splits it into rows of two.",
+      EML175: "A column placed in two %%section rows - removes the later placement.",
       EML287: "Rule condition names a camelCase identifier - rewrites it as the snake_case column.",
       EML421: "State workflow has no initial transition - inserts `[*] --> <firstState>`.",
       EML422: "State workflow has no terminal state - appends `<lastState> --> [*]`."
@@ -6388,6 +6440,188 @@ class MermaidParser {
   }
 }
 
+// language/sections.ts
+var KEYS = new Set(["entity", "name", "help", "rows", "collapsed"]);
+var REQUIRED = ["entity", "name", "rows"];
+var DIRECTIVE2 = /^\s*%%section\b\s*(.*)$/i;
+function parseKeys(body) {
+  const keys = new Map;
+  let last;
+  for (const segment of body.split(";")) {
+    const match = segment.match(/^\s*([A-Za-z]+)\s*:(.*)$/);
+    const key = match?.[1]?.toLowerCase();
+    if (match && key && KEYS.has(key)) {
+      keys.set(key, (match[2] ?? "").trim());
+      last = key;
+    } else if (last && segment.trim()) {
+      keys.set(last, `${keys.get(last) ?? ""}; ${segment.trim()}`.trim());
+    }
+  }
+  return keys;
+}
+function parseRows(text) {
+  return text.split("|").map((row) => row.split(",").map((column) => column.trim()).filter(Boolean)).filter((row) => row.length > 0);
+}
+function formatRows(rows) {
+  return rows.map((row) => row.join(", ")).join(" | ");
+}
+function parseSectionDirectives(source) {
+  const found = [];
+  const lines = source.replace(/\r\n/g, `
+`).split(`
+`);
+  lines.forEach((text, index) => {
+    const match = text.match(DIRECTIVE2);
+    if (!match)
+      return;
+    const keys = parseKeys(match[1] ?? "");
+    const rowsText = keys.get("rows");
+    found.push({
+      line: index + 1,
+      entity: keys.get("entity") || undefined,
+      name: keys.get("name") || undefined,
+      help: keys.get("help") || undefined,
+      collapsed: /^(true|yes)$/i.test(keys.get("collapsed") ?? ""),
+      rows: rowsText === undefined ? undefined : parseRows(rowsText),
+      missing: REQUIRED.filter((key) => !keys.get(key))
+    });
+  });
+  return found;
+}
+function sectionsByEntity(directives) {
+  const byEntity = new Map;
+  for (const directive of directives) {
+    if (directive.missing.length > 0 || !directive.entity || !directive.name)
+      continue;
+    const sections = byEntity.get(directive.entity) ?? [];
+    const existing = sections.find((section) => section.name.toLowerCase() === directive.name?.toLowerCase());
+    if (existing) {
+      existing.rows.push(...directive.rows ?? []);
+      existing.lines.push(directive.line);
+      if (!existing.help && directive.help)
+        existing.help = directive.help;
+      existing.collapsed = existing.collapsed || directive.collapsed;
+    } else {
+      sections.push({
+        name: directive.name,
+        help: directive.help,
+        collapsed: directive.collapsed,
+        rows: [...directive.rows ?? []],
+        lines: [directive.line]
+      });
+    }
+    byEntity.set(directive.entity, sections);
+  }
+  return byEntity;
+}
+function placeFields(sections, declared) {
+  const placed = new Map;
+  let order = 0;
+  sections.forEach((section, sectionIndex) => {
+    let rowNo = 0;
+    for (const raw of section.rows) {
+      const row = raw.filter((column) => (!declared || declared.has(column)) && !placed.has(column));
+      if (row.length === 0)
+        continue;
+      rowNo++;
+      const pair = row.slice(0, 2);
+      pair.forEach((column, position) => {
+        placed.set(column, {
+          section: sectionIndex,
+          row: rowNo,
+          column: position === 0 ? 1 : 2,
+          sameLine: position === 1,
+          span: pair.length === 1 ? 2 : 1,
+          order: ++order
+        });
+      });
+      for (const column of row.slice(2)) {
+        rowNo++;
+        placed.set(column, {
+          section: sectionIndex,
+          row: rowNo,
+          column: 1,
+          sameLine: false,
+          span: 2,
+          order: ++order
+        });
+      }
+    }
+  });
+  return placed;
+}
+var UNPLACED_SECTION = "Other";
+
+// packages/generator/src/parsers/section.parser.ts
+function attachFormSections(source, entities) {
+  const byEntity = sectionsByEntity(parseSectionDirectives(source));
+  for (const entity of entities) {
+    const sections = byEntity.get(entity.name);
+    if (!sections || sections.length === 0)
+      continue;
+    entity.formSections = sections.map((section) => ({
+      name: section.name,
+      help: section.help,
+      collapsed: section.collapsed,
+      rows: section.rows.map((row) => [...row])
+    }));
+  }
+}
+function formLayoutFor(entity) {
+  const sections = entity.formSections;
+  if (!sections || sections.length === 0)
+    return;
+  const columns = entity.attributes.map((attribute) => attribute.name).filter((name) => name !== entity.primaryKey);
+  const placements = placeFields(sections.map((section) => ({ ...section, lines: [] })), new Set(columns));
+  const groups = sections.map((section, index) => ({
+    name: section.name,
+    description: section.help,
+    collapsed: section.collapsed,
+    seqNo: (index + 1) * 10,
+    columns: 2
+  }));
+  const fields = new Map;
+  let order = 0;
+  const ordered = [...placements.entries()].sort((a, b) => a[1].order - b[1].order);
+  for (const [column, placement] of ordered) {
+    order = placement.order;
+    fields.set(column, {
+      group: groups[placement.section]?.name ?? UNPLACED_SECTION,
+      seqNo: placement.order * 10,
+      sameLine: placement.sameLine,
+      xPosition: placement.column,
+      yPosition: placement.row,
+      columnSpan: placement.span
+    });
+  }
+  const unplaced = columns.filter((column) => !fields.has(column));
+  if (unplaced.length > 0) {
+    let name = UNPLACED_SECTION;
+    while (groups.some((group) => group.name.toLowerCase() === name.toLowerCase()))
+      name += " fields";
+    groups.push({
+      name,
+      description: "Fields the model did not place in a section.",
+      collapsed: true,
+      seqNo: (groups.length + 1) * 10,
+      columns: 2
+    });
+    unplaced.forEach((column, index) => {
+      const right = index % 2 === 1;
+      const alone = !right && index === unplaced.length - 1;
+      fields.set(column, {
+        group: name,
+        seqNo: ++order * 10,
+        sameLine: right,
+        xPosition: right ? 2 : 1,
+        yPosition: Math.floor(index / 2) + 1,
+        columnSpan: alone ? 2 : 1
+      });
+    });
+  }
+  return { groups, fields };
+}
+
 // packages/generator/src/rbac/index.ts
 var RBAC_OPERATIONS = ["create", "read", "update", "delete"];
 var OPERATION_ALIASES = {
@@ -6409,7 +6643,7 @@ var OPERATION_ALIASES = {
   remove: "delete",
   destroy: "delete"
 };
-var DIRECTIVE2 = /^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*]\w*)\s*$/;
+var DIRECTIVE3 = /^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*]\w*)\s*$/;
 function parseRoleExpression(expression) {
   const roles = [];
   for (const part of expression.split("|")) {
@@ -6447,7 +6681,7 @@ function compileRbac(source, knownEntities = [], stateMachines = [], onWarn = ()
     const line = rawLine.trim();
     if (!line.startsWith("%%rbac"))
       continue;
-    const match = line.match(DIRECTIVE2);
+    const match = line.match(DIRECTIVE3);
     if (!match) {
       onWarn(`Skipping malformed %%rbac directive: ${line}`);
       continue;
@@ -6511,7 +6745,7 @@ function compileRbac(source, knownEntities = [], stateMachines = [], onWarn = ()
 // packages/generator/src/reports/index.ts
 var REPORT_CHART_TYPES = ["bar", "line", "pie", "area"];
 var CHART_TYPE_SET = new Set(REPORT_CHART_TYPES);
-var KEYS = ["title", "entity", "chart", "x", "y", "help"];
+var KEYS2 = ["title", "entity", "chart", "x", "y", "help"];
 var READ_ONLY = /^\s*(?:with|select)\b/i;
 function hasStatementBreak(sql) {
   const body = sql.replace(/;\s*$/, "");
@@ -6550,7 +6784,7 @@ function parseReportDirective(line) {
   const name = nameMatch[1];
   const keys = head.slice(nameMatch[0].length);
   const read = (key) => {
-    const stop = KEYS.join("|");
+    const stop = KEYS2.join("|");
     const found = keys.match(new RegExp(`\\b${key}:\\s*(.*?)(?=\\s+(?:${stop}):|$)`, "is"));
     return found?.[1]?.trim() || undefined;
   };
@@ -7458,6 +7692,7 @@ function parseModel(sources) {
   }
   const joined = list.join(`
 `);
+  attachFormSections(joined, entities);
   const categories = resolveCategories(joined, entities.map((entity) => entity.name));
   const warn = (message) => console.warn(`  ⚠️  ${message}`);
   const rules = compileRules(extractRuleSections(joined), warn);
@@ -8126,6 +8361,10 @@ class SourceIndex {
     this.lines = source.split(`
 `);
   }
+  text() {
+    return this.lines.join(`
+`);
+  }
   findLine(pattern, startLine = 1) {
     for (let i = startLine - 1;i < this.lines.length; i++) {
       const line = this.lines[i];
@@ -8286,6 +8525,7 @@ class CheckEngine {
     this.checkCategoryDirectives();
     this.checkLineItems();
     this.checkHelpText();
+    this.checkSectionDirectives();
     this.checkHooks();
     this.checkAutomationTriggers();
     this.checkGuards();
@@ -8911,6 +9151,106 @@ class CheckEngine {
             hint: `"${field.text.trim().slice(0, 60)}" repeats the column name. Say why the value matters, what is expected in it, and what happens downstream — a reference column should say what the reference is *for*, not that it is one.`
           });
         }
+      }
+    }
+  }
+  restatedSectionHelp(name, text) {
+    const own = this.nameAsWords(name);
+    const body = text.trim().replace(/\.+$/, "").trim().toLowerCase().replace(/^(the|all)\s+/, "").replace(/\s+(fields?|information|info|details|data|section|columns?)$/, "").trim();
+    return body === own || body === "";
+  }
+  checkSectionDirectives() {
+    const directives = parseSectionDirectives(this.src.text());
+    const declared = new Map(this.model.entities.map((entity) => [entity.name, entity]));
+    for (const directive of directives) {
+      if (directive.missing.length > 0) {
+        this.error("EML171", `%%section is missing ${directive.missing.map((key) => `\`${key}:\``).join(", ")}.`, {
+          line: directive.line,
+          hint: "Syntax: %%section entity: <Entity>; name: <Label>; help: <what this section is for>; rows: <column>, <column> | <column>. Rows are separated by `|`, the one or two columns of a row by `,`."
+        });
+        continue;
+      }
+      if (directive.entity && !declared.has(directive.entity)) {
+        this.error("EML173", `%%section names entity "${directive.entity}", which is not declared.`, {
+          line: directive.line,
+          hint: "Use the entity's name exactly as the erDiagram declares it — it is case-sensitive, like every other directive's."
+        });
+      }
+    }
+    const byEntity = sectionsByEntity(directives);
+    for (const entity of this.model.entities) {
+      const entityLine = this.src.findLine(new RegExp(`^\\s*${entity.name}\\s*\\{`));
+      const sections = byEntity.get(entity.name);
+      const columns = entity.attributes.filter((attribute) => !attribute.isPrimaryKey);
+      if (!sections || sections.length === 0) {
+        if (columns.length === 0)
+          continue;
+        this.warn("EML170", `Entity "${entity.name}" declares no %%section, so its form is one flat list.`, {
+          line: entityLine,
+          hint: `Add \`%%section entity: ${entity.name}; name: <Label>; help: …; rows: <a>, <b> | <c>\` lines placing every column but the key — two per row, a row of one for text that needs the width. The sections are the form a person uses all day, and the model is the only place they are decided.`
+        });
+        continue;
+      }
+      const known = new Set(entity.attributes.map((attribute) => attribute.name));
+      const key = entity.attributes.find((attribute) => attribute.isPrimaryKey)?.name;
+      const placed = new Set;
+      for (const section of sections) {
+        if (!section.help) {
+          this.warn("EML177", `%%section "${entity.name}.${section.name}" has no help:.`, {
+            line: section.lines[0],
+            hint: "Add `help: …` — what this part of the form is for, and what has to be true before it is complete. It is printed under the section's heading."
+          });
+        } else if (this.restatedSectionHelp(section.name, section.help)) {
+          this.warn("EML177", `%%section "${entity.name}.${section.name}" help: restates its name.`, {
+            line: section.lines[0],
+            hint: `"${section.help.trim().slice(0, 60)}" repeats the heading. Say what the person filling it in is doing there.`
+          });
+        }
+      }
+      for (const directive of directives) {
+        if (directive.entity !== entity.name || !directive.rows)
+          continue;
+        for (const row of directive.rows) {
+          if (row.length > 2) {
+            this.error("EML174", `%%section row "${row.join(", ")}" of ${entity.name} has ${row.length} columns; a row holds one or two.`, {
+              line: directive.line,
+              hint: "The form is a two-column grid. Split the row with `|` — pair what is filled in together, and give a long column a row of its own."
+            });
+          }
+          for (const column of row) {
+            if (column === key) {
+              this.error("EML176", `%%section places "${entity.name}.${column}", the primary key.`, {
+                line: directive.line,
+                hint: "The key is a generated uuid that no form shows. Leave it out of every row."
+              });
+              continue;
+            }
+            if (!known.has(column)) {
+              const near = [...known].find((name) => name.toLowerCase() === column.toLowerCase().replace(/\s+/g, "_"));
+              this.error("EML176", `%%section places "${entity.name}.${column}", which ${entity.name} does not declare.`, {
+                line: directive.line,
+                hint: near ? `Did you mean \`${near}\`? Rows name columns exactly as the erDiagram declares them.` : `Rows name columns of ${entity.name} exactly as the erDiagram declares them: ${[...known].filter((name) => name !== key).join(", ")}.`
+              });
+              continue;
+            }
+            if (placed.has(column)) {
+              this.warn("EML175", `"${entity.name}.${column}" is placed in two %%section rows.`, {
+                line: directive.line,
+                hint: "A field appears once on a form. The first placement is used; remove this one."
+              });
+              continue;
+            }
+            placed.add(column);
+          }
+        }
+      }
+      const unplaced = columns.map((attribute) => attribute.name).filter((name) => !placed.has(name));
+      if (unplaced.length > 0) {
+        const last = sections[sections.length - 1];
+        this.warn("EML172", `${entity.name} leaves ${unplaced.length} column${unplaced.length === 1 ? "" : "s"} out of every %%section: ${unplaced.join(", ")}.`, {
+          line: last?.lines[last.lines.length - 1],
+          hint: `Place ${unplaced.join(", ")} in the row ${unplaced.length === 1 ? "it belongs" : "they belong"} to. Unplaced columns are generated into a collapsed "${UNPLACED_SECTION}" section at the end of the form, which nobody designed.`
+        });
       }
     }
   }
@@ -9965,7 +10305,10 @@ var AUTO_FIXABLE_CODES = new Set([
   "EML114",
   "EML112",
   "EML103",
-  "EML287"
+  "EML287",
+  "EML172",
+  "EML174",
+  "EML175"
 ]);
 if (false) {}
 
@@ -10011,10 +10354,94 @@ function applyFix(lines, issue) {
       return fixMissingTerminalTransition(lines, issue, base);
     case "EML287":
       return fixCamelCaseRuleCondition(lines, issue, base);
+    case "EML172":
+      return fixUnplacedColumns(lines, issue, base);
+    case "EML174":
+      return fixWideRow(lines, issue, base);
+    case "EML175":
+      return fixDoublePlacement(lines, issue, base);
     default:
       base.description = `No auto-fix strategy for ${issue.code}.`;
       return base;
   }
+}
+function rowsSpan(text) {
+  if (!/^\s*%%section\b/i.test(text))
+    return;
+  const open = text.match(/(^|;)\s*rows\s*:/i);
+  if (open?.index === undefined)
+    return;
+  const start = open.index + open[0].length;
+  const rest = text.slice(start);
+  const close = rest.match(/;\s*(entity|name|help|collapsed)\s*:/i);
+  return { start, end: close?.index === undefined ? text.length : start + close.index };
+}
+function rewriteRows(lines, issue, base, change, description) {
+  const index = (issue.line ?? 0) - 1;
+  const before = lines[index];
+  const span = before === undefined ? undefined : rowsSpan(before);
+  if (before === undefined || !span) {
+    base.description = `Line ${issue.line ?? "?"} is not a %%section with rows:; left alone.`;
+    return base;
+  }
+  const rows = change(parseRows(before.slice(span.start, span.end)));
+  if (!rows) {
+    base.description = `Nothing to change on line ${issue.line}.`;
+    return base;
+  }
+  const after = `${before.slice(0, span.start)} ${formatRows(rows)}${before.slice(span.end)}`;
+  lines[index] = after;
+  base.applied = true;
+  base.description = description;
+  base.changes = [{ lineNo: index + 1, before, after, action: "replace" }];
+  return base;
+}
+function fixUnplacedColumns(lines, issue, base) {
+  const match = issue.message.match(/^(\w+) leaves \d+ columns? out of every %%section: (.+)\.$/);
+  if (!match?.[2]) {
+    base.description = "Could not read the unplaced columns from the issue message.";
+    return base;
+  }
+  const columns = match[2].split(",").map((column) => column.trim()).filter(Boolean);
+  const added = [];
+  for (let i = 0;i < columns.length; i += 2)
+    added.push(columns.slice(i, i + 2));
+  return rewriteRows(lines, issue, base, (rows) => [...rows, ...added], `Placed ${columns.join(", ")} in ${match[1]}'s last section, two per row — move them to where they belong.`);
+}
+function fixWideRow(lines, issue, base) {
+  return rewriteRows(lines, issue, base, (rows) => {
+    if (!rows.some((row) => row.length > 2))
+      return;
+    return rows.flatMap((row) => {
+      const pairs = [];
+      for (let i = 0;i < row.length; i += 2)
+        pairs.push(row.slice(i, i + 2));
+      return pairs;
+    });
+  }, "Split a row of more than two columns into rows of two.");
+}
+function fixDoublePlacement(lines, issue, base) {
+  const match = issue.message.match(/^"\w+\.(\w+)" is placed in two %%section rows\.$/);
+  const column = match?.[1];
+  if (!column) {
+    base.description = "Could not read the column from the issue message.";
+    return base;
+  }
+  return rewriteRows(lines, issue, base, (rows) => {
+    let rowIndex = -1;
+    let colIndex = -1;
+    rows.forEach((row, r) => row.forEach((name, c) => {
+      if (name === column) {
+        rowIndex = r;
+        colIndex = c;
+      }
+    }));
+    if (rowIndex < 0)
+      return;
+    const next = rows.map((row) => [...row]);
+    next[rowIndex]?.splice(colIndex, 1);
+    return next.filter((row) => row.length > 0);
+  }, `Removed the second placement of "${column}".`);
 }
 function fixMissingMetaName(lines, _issue, base) {
   let name = "EML Model";
@@ -10583,6 +11010,9 @@ CREATE TABLE IF NOT EXISTS sys_field_group (
   sys_field_group_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   sys_tab_id UUID REFERENCES sys_tab(sys_tab_id),
   name VARCHAR(100) NOT NULL,
+  description TEXT,
+  columns INTEGER DEFAULT 1,
+  is_collapsed_by_default BOOLEAN DEFAULT false,
   seq_no INTEGER DEFAULT 0,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -10612,11 +11042,26 @@ CREATE TABLE IF NOT EXISTS sys_field (
   display_logic TEXT,
   is_key BOOLEAN DEFAULT false,
   is_parent BOOLEAN DEFAULT false,
+  is_same_line BOOLEAN DEFAULT false,
+  x_position INTEGER,
+  y_position INTEGER,
+  column_span INTEGER,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(sys_tab_id, sys_column_id)
 );
+
+-- \`%%section\` layout. In the CREATE above for a new database, and added here
+-- for one a tab wrote before sections existed: the schema is re-run on every
+-- boot and only ever adds.
+ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS columns INTEGER DEFAULT 1;
+ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS is_collapsed_by_default BOOLEAN DEFAULT false;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS is_same_line BOOLEAN DEFAULT false;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS x_position INTEGER;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS y_position INTEGER;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS column_span INTEGER;
 
 CREATE TABLE IF NOT EXISTS sys_category (
   sys_category_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -14578,7 +15023,14 @@ async function seedDictionary(db, model, tick = () => {}) {
       [tabId, group.name]
     );
     if (exists) continue;
-    await db.insert("sys_field_group", { sys_tab_id: tabId, name: group.name, seq_no: group.seqNo ?? 0 });
+    await db.insert("sys_field_group", {
+      sys_tab_id: tabId,
+      name: group.name,
+      description: group.description ?? null,
+      columns: group.columns ?? 1,
+      is_collapsed_by_default: !!group.collapsed,
+      seq_no: group.seqNo ?? 0,
+    });
     tick();
   }
 
@@ -14602,8 +15054,9 @@ async function seedDictionary(db, model, tick = () => {}) {
       \`INSERT INTO sys_field (sys_tab_id, sys_column_id, sys_field_group_id, name, description,
                               is_displayed, is_displayed_grid, is_read_only, is_mandatory,
                               is_updateable, is_insertable, seq_no, seq_no_grid, display_length,
-                              field_type, sys_reference_id, default_value, is_key)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+                              field_type, sys_reference_id, default_value, is_key,
+                              is_same_line, x_position, y_position, column_span)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
        ON CONFLICT (sys_tab_id, sys_column_id) DO NOTHING\`,
       [
         tabId,
@@ -14624,6 +15077,10 @@ async function seedDictionary(db, model, tick = () => {}) {
         field.referenceId ?? null,
         field.defaultValue ?? null,
         !!field.isKey,
+        !!field.isSameLine,
+        field.xPosition ?? null,
+        field.yPosition ?? null,
+        field.columnSpan ?? null,
       ]
     );
     tick();
@@ -15422,14 +15879,17 @@ async function entityMetadata(db, entity) {
             f.is_displayed, f.is_displayed_grid,
             f.is_read_only, f.is_mandatory, f.is_updateable, f.is_insertable,
             f.seq_no, f.seq_no_grid, f.field_type, f.sys_field_group_id,
-            g.name AS group_name
+            f.is_same_line, f.column_span,
+            g.name AS group_name, g.description AS group_description,
+            g.columns AS group_columns, g.is_collapsed_by_default AS group_collapsed,
+            g.seq_no AS group_seq_no
        FROM sys_column c
        JOIN sys_table t ON t.sys_table_id = c.sys_table_id
        LEFT JOIN sys_tab tb ON tb.sys_table_id = t.sys_table_id
        LEFT JOIN sys_field f ON f.sys_column_id = c.sys_column_id AND f.sys_tab_id = tb.sys_tab_id
        LEFT JOIN sys_field_group g ON g.sys_field_group_id = f.sys_field_group_id
       WHERE t.table_name = $1
-      ORDER BY COALESCE(f.seq_no, c.seq_no)\`,
+      ORDER BY COALESCE(g.seq_no, 0), COALESCE(f.seq_no, c.seq_no)\`,
     [entity.tableName]
   );
 
@@ -15473,7 +15933,14 @@ async function entityMetadata(db, entity) {
       field_type: column.field_type,
       seq_no: column.seq_no ?? 0,
       seq_no_grid: column.seq_no_grid ?? 0,
+      /* \`%%section\`: the heading, the sentence under it, the grid it draws
+         (2 columns), and whether this field spans a row of its own. */
       group_name: column.group_name,
+      group_description: column.group_description ?? null,
+      group_columns: column.group_columns ?? null,
+      group_collapsed: column.group_collapsed ?? false,
+      is_same_line: column.is_same_line ?? false,
+      col_span: column.column_span ?? null,
     })),
     window: window ? { sys_window_id: window.sys_window_id, name: window.name } : undefined,
   };
@@ -18413,6 +18880,12 @@ a { color: var(--primary); }
 .group__name { font-size: 14px; font-weight: 650; color: var(--primary); }
 .group__desc { margin: 1px 0 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); font-size: 12.5px; color: var(--text-faint); }
 .group__fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+/* \`%%section\`: exactly two columns, and a field alone on its row spans both. One
+   column on a narrow screen, where two would leave neither readable. */
+.group__fields--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.group__fields--2 > .field--wide { grid-column: 1 / -1; }
+@media (max-width: 640px) { .group__fields--2 { grid-template-columns: minmax(0, 1fr); } }
+details.group > summary.group__name { cursor: pointer; }
 
 .field { display: grid; gap: 6px; align-content: start; }
 .field--wide { grid-column: 1 / -1; }
@@ -22174,11 +22647,22 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     editable.map((field) => control(field, record, entity, inputs))
   );
 
+  /* \`%%section\`: the model's own headings, in its order, each a two-column
+     grid in which a field alone on its row spans both columns. A model with
+     no sections has one ungrouped "General" list, as it always did. */
   const grouped = new Map();
   for (const [field, node] of controls) {
-    const group = field.group_name || "General";
-    if (!grouped.has(group)) grouped.set(group, []);
-    grouped.get(group).push(node);
+    const name = field.group_name || "General";
+    if (!grouped.has(name)) {
+      grouped.set(name, {
+        description: field.group_name ? field.group_description : null,
+        columns: field.group_columns || 0,
+        collapsed: !!field.group_collapsed,
+        nodes: [],
+      });
+    }
+    if (field.col_span > 1) node.classList.add("field--wide");
+    grouped.get(name).nodes.push(node);
   }
 
   const submit = async () => {
@@ -22258,14 +22742,23 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     violationBox,
     el(
       "div.record__body",
-      [...grouped.entries()].map(([group, nodes]) =>
-        el(
-          "section",
-          el("h3.group__name", group),
-          el("p.group__desc", \`\${group} information fields\`),
-          el("div.group__fields", nodes)
-        )
-      )
+      [...grouped.entries()].map(([group, section]) => {
+        const fieldsGrid = el(
+          section.columns === 2 ? "div.group__fields.group__fields--2" : "div.group__fields",
+          section.nodes
+        );
+        const description = section.description || \`\${group} information fields\`;
+        /* A collapsed section is a <details>: closed until opened, and a
+           browser's own control rather than one more thing to wire. */
+        return section.collapsed
+          ? el(
+              "details.group",
+              el("summary.group__name", group),
+              el("p.group__desc", description),
+              fieldsGrid
+            )
+          : el("section", el("h3.group__name", group), el("p.group__desc", description), fieldsGrid);
+      })
     ),
     el(
       "div.record__actions",
@@ -26187,7 +26680,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 620353;
+var RUNTIME_BYTES = 623737;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -26732,6 +27225,43 @@ class DictionaryGenerator {
         _tabRef: tabId,
         _columnRef: columnEntries[idx]?._tempId ?? ""
       }));
+      const layout = formLayoutFor(entity);
+      if (layout) {
+        const groupIds = new Map;
+        for (const group of layout.groups) {
+          const groupId = `fg_${++fieldGroupCounter}`;
+          groupIds.set(group.name, groupId);
+          sysFieldGroups.push({
+            name: group.name,
+            description: group.description,
+            field_group_type: "C",
+            is_collapsed_by_default: group.collapsed,
+            entity_type: this.config.defaultEntityType,
+            is_active: true,
+            created_by: this.config.createdBy,
+            updated_by: this.config.createdBy,
+            _tempId: groupId,
+            _tabRef: tabId,
+            columns: group.columns,
+            seq_no: group.seqNo
+          });
+        }
+        const keyed = new Map(busAttrs.map((attr, idx) => [attr.columnName, fieldEntries[idx]]));
+        for (const [column, place] of layout.fields) {
+          const field = keyed.get(column);
+          if (!field)
+            continue;
+          field._groupRef = groupIds.get(place.group);
+          field.seq_no = place.seqNo;
+          field.is_same_line = place.sameLine;
+          field.x_position = place.xPosition;
+          field.y_position = place.yPosition;
+          field.column_span = place.columnSpan;
+        }
+        const key = keyed.get(entity.primaryKey);
+        if (key)
+          key.seq_no = 0;
+      }
       sysFields.push(...fieldEntries);
     }
     let childSeq = 20;
@@ -27745,7 +28275,14 @@ function buildModelBundle(parsed, project) {
         refTableName: refTableFor(entities, tableByTemp.get(column._tableRef) ?? "", column.column_name),
         seqNo: column.seq_no
       })),
-      fieldGroups: [],
+      fieldGroups: dictionary.sysFieldGroups.filter((group) => group._tabRef).map((group) => ({
+        tableName: tableByTemp.get(dictionary.sysTabs.find((tab) => tab._tempId === group._tabRef)?._tableRef ?? "") ?? "",
+        name: group.name,
+        description: group.description,
+        columns: group.columns ?? 2,
+        collapsed: group.is_collapsed_by_default,
+        seqNo: group.seq_no ?? 0
+      })),
       fields: dictionary.sysFields.map((field) => {
         const reference = columnByTemp.get(field._columnRef);
         const tableName = reference?.table ?? tabTable.get(field._tabRef) ?? "";
@@ -27763,6 +28300,11 @@ function buildModelBundle(parsed, project) {
           isInsertable: true,
           seqNo: field.seq_no,
           seqNoGrid: field.seq_no_grid,
+          fieldGroup: field._groupRef ? dictionary.sysFieldGroups.find((group) => group._tempId === field._groupRef)?.name : undefined,
+          isSameLine: field.is_same_line,
+          xPosition: field.x_position,
+          yPosition: field.y_position,
+          columnSpan: field.column_span,
           fieldType: attribute?.type,
           referenceId: attribute?.referenceId,
           defaultValue: attribute?.defaultValue ?? undefined,
@@ -27921,19 +28463,28 @@ function screensFor(dictionary, entity) {
   const layout = dictionary.get(entity.name);
   if (!layout)
     return "";
+  const sectioned = layout.sections.length > 0;
   const rows = layout.fields.map((field) => `          <tr>
             <td><code>${escapeHtml(field.column)}</code></td>
-            <td>${escapeHtml(field.label)}</td>
+            <td>${escapeHtml(field.label)}</td>${sectioned ? `
+            <td>${escapeHtml(field.section ?? "—")}</td>
+            <td>${escapeHtml(field.place ?? "—")}</td>` : ""}
             <td>${field.onForm ? "Yes" : "No"}</td>
             <td>${field.inGrid ? "Yes" : "No"}</td>
             <td>${field.formSeq}</td>
             <td>${field.readOnly ? "Yes" : "No"}</td>
           </tr>`).join(`
 `);
+  const sections = sectioned ? `
+      <p>The form is laid out in ${layout.sections.length} section${layout.sections.length === 1 ? "" : "s"}, each a grid of two columns:</p>
+      <ul class="plain">
+          ${layout.sections.map((section) => `<li><b>${escapeHtml(section.name)}</b>${section.help ? ` &mdash; ${escapeHtml(section.help)}` : ""}</li>`).join(`
+          `)}
+      </ul>` : "";
   return `      <h4>Where it appears</h4>
-      <p>The application opens this record in the <b>${escapeHtml(layout.window)}</b> window, on the <b>${escapeHtml(layout.tab)}</b> tab. These are its ${layout.fields.length} field${layout.fields.length === 1 ? "" : "s"} &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>
+      <p>The application opens this record in the <b>${escapeHtml(layout.window)}</b> window, on the <b>${escapeHtml(layout.tab)}</b> tab. These are its ${layout.fields.length} field${layout.fields.length === 1 ? "" : "s"} &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>${sections}
       <table>
-        <thead><tr><th>Column</th><th>Label</th><th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <thead><tr><th>Column</th><th>Label</th>${sectioned ? "<th>Section</th><th>Place</th>" : ""}<th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
         <tbody>
 ${rows}
         </tbody>
@@ -27959,8 +28510,18 @@ function manualDictionary(model) {
   const byTable = new Map;
   for (const tab of tabOf.values()) {
     if (tab.table && !byTable.has(tab.table)) {
-      byTable.set(tab.table, { window: tab.window, tab: tab.name, fields: [] });
+      byTable.set(tab.table, { window: tab.window, tab: tab.name, sections: [], fields: [] });
     }
+  }
+  const groupOf = new Map(context.sysFieldGroups.map((group) => [group._tempId, group]));
+  for (const group of context.sysFieldGroups) {
+    const tab = group._tabRef ? tabOf.get(group._tabRef) : undefined;
+    const layout = tab?.table ? byTable.get(tab.table) : undefined;
+    layout?.sections.push({
+      name: group.name,
+      help: group.description,
+      seqNo: group.seq_no ?? 0
+    });
   }
   for (const field of context.sysFields) {
     const tab = tabOf.get(field._tabRef);
@@ -27970,17 +28531,22 @@ function manualDictionary(model) {
     if (!layout)
       continue;
     const column = columnOf.get(field._columnRef) ?? "";
+    const group = field._groupRef ? groupOf.get(field._groupRef) : undefined;
     layout.fields.push({
       column,
       label: field.name,
+      section: group?.name,
+      place: group ? `row ${field.y_position ?? "?"}, ${field.column_span === 2 ? "full width" : field.x_position === 2 ? "right" : "left"}` : undefined,
       onForm: field.is_displayed !== false,
       inGrid: field.is_displayed_grid !== false && !GRID_NOISE.has(column),
       formSeq: field.seq_no ?? 0,
       readOnly: !!field.is_read_only
     });
   }
-  for (const layout of byTable.values())
+  for (const layout of byTable.values()) {
     layout.fields.sort((a, b) => a.formSeq - b.formSeq);
+    layout.sections.sort((a, b) => a.seqNo - b.seqNo);
+  }
   const byEntity = new Map;
   for (const entity of model.entities) {
     const layout = byTable.get(tableNameFor(entity));

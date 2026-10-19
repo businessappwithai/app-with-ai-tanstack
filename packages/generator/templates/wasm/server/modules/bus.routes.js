@@ -77,14 +77,17 @@ async function entityMetadata(db, entity) {
             f.is_displayed, f.is_displayed_grid,
             f.is_read_only, f.is_mandatory, f.is_updateable, f.is_insertable,
             f.seq_no, f.seq_no_grid, f.field_type, f.sys_field_group_id,
-            g.name AS group_name
+            f.is_same_line, f.column_span,
+            g.name AS group_name, g.description AS group_description,
+            g.columns AS group_columns, g.is_collapsed_by_default AS group_collapsed,
+            g.seq_no AS group_seq_no
        FROM sys_column c
        JOIN sys_table t ON t.sys_table_id = c.sys_table_id
        LEFT JOIN sys_tab tb ON tb.sys_table_id = t.sys_table_id
        LEFT JOIN sys_field f ON f.sys_column_id = c.sys_column_id AND f.sys_tab_id = tb.sys_tab_id
        LEFT JOIN sys_field_group g ON g.sys_field_group_id = f.sys_field_group_id
       WHERE t.table_name = $1
-      ORDER BY COALESCE(f.seq_no, c.seq_no)`,
+      ORDER BY COALESCE(g.seq_no, 0), COALESCE(f.seq_no, c.seq_no)`,
     [entity.tableName]
   );
 
@@ -128,7 +131,14 @@ async function entityMetadata(db, entity) {
       field_type: column.field_type,
       seq_no: column.seq_no ?? 0,
       seq_no_grid: column.seq_no_grid ?? 0,
+      /* `%%section`: the heading, the sentence under it, the grid it draws
+         (2 columns), and whether this field spans a row of its own. */
       group_name: column.group_name,
+      group_description: column.group_description ?? null,
+      group_columns: column.group_columns ?? null,
+      group_collapsed: column.group_collapsed ?? false,
+      is_same_line: column.is_same_line ?? false,
+      col_span: column.column_span ?? null,
     })),
     window: window ? { sys_window_id: window.sys_window_id, name: window.name } : undefined,
   };

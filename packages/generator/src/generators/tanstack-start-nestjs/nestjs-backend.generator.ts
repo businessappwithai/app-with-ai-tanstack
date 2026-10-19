@@ -46,6 +46,32 @@ import {
 import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";
 import { buildFkConstraints } from "./fk-constraints";
+import { formLayoutFor } from "../../parsers/section.parser";
+
+/**
+ * Carry an entity's `%%section` layout into the template context.
+ *
+ * `formGroups` is the sections, in order, for the seed to insert as
+ * sys_field_group rows on the entity's tab; each attribute's `layout` is where
+ * its field sits — group, order, column, row, span. An entity with no sections
+ * gets neither, and the seed writes the flat list it always has. The browser
+ * stack takes the same layout from `formLayoutFor` through the dictionary
+ * generator, so one model lays out the same way in both.
+ */
+export function withFormLayout<
+  T extends { attributes: Array<{ name: string }>; formSections?: unknown[] },
+>(entity: T): T {
+  const layout = formLayoutFor(entity as unknown as Parameters<typeof formLayoutFor>[0]);
+  if (!layout) return entity;
+  return {
+    ...entity,
+    formGroups: layout.groups,
+    attributes: entity.attributes.map((attribute) => ({
+      ...attribute,
+      layout: layout.fields.get(attribute.name),
+    })),
+  };
+}
 
 /** Escape a value for embedding inside a single-quoted JS string literal. */
 function jsQuote(value: string): string {
@@ -341,7 +367,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
      */
     const declared = declaredEntityNames(entities);
     const busEntities = entities
-      .map((entity) => entityToBusEntity(entity, declared))
+      .map((entity) => withFormLayout(entityToBusEntity(entity, declared)))
       .sort((a, b) => Number(!!a.parentEntity) - Number(!!b.parentEntity));
 
     // Generate dictionary entries using the proper helper function

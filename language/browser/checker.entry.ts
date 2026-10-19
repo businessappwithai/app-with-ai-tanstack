@@ -204,10 +204,10 @@ export function formatNextSteps(report: CheckReport): string {
    * report is the last thing it reads: a blanket "optional" is the sentence it
    * acts on.
    *
-   * These six are the ones that silently degrade what the generated application
+   * These nine are the ones that silently degrade what the generated application
    * shows — a lookup that renders a raw uuid, a dropdown that becomes a free
    * text box, a form and a manual that explain nothing, a grouping the parser
-   * drops. None of them stops the generator, which is exactly why none of them
+   * drops, a form with no sections. None of them stops the generator, which is exactly why none of them
    * announces itself anywhere else.
    */
   if (errors > 0) {
@@ -222,7 +222,7 @@ export function formatNextSteps(report: CheckReport): string {
         `(${codes}) are Application Dictionary gaps: the dictionary is what the application ` +
         `draws every screen from, and each one leaves it recording less than the model knows — ` +
         `a reference as text rather than a lookup, a closed vocabulary as a free text box, a ` +
-        `field and its manual entry with nothing under it. Clear them. \`node audit-model.mjs ` +
+        `field and its manual entry with nothing under it, a form with no sections. Clear them. \`node audit-model.mjs ` +
         `<file>.mmd\` fails while any stand, and the authoring protocol requires it to exit 0.` +
         (other > 0
           ? ` The remaining ${other} warning${other === 1 ? " is" : "s are"} advisory.`
@@ -252,6 +252,9 @@ export function formatNextSteps(report: CheckReport): string {
  * | `EML152` | `sys_table.description` empty — the entity's manual section opens with nothing |
  * | `EML153` | `sys_column.description` empty — the field prints a dash in the form and the manual |
  * | `EML154` | a `%%category` the parser drops, so its entities fall into "General" |
+ * | `EML170` | no `sys_field_group` at all — the form is one flat, unheaded list |
+ * | `EML172` | a column no `%%section` row places — it lands in a trailing "Other" section |
+ * | `EML177` | `sys_field_group.description` empty — a section heading with nothing under it |
  */
 const DICTIONARY_COMPLETENESS = new Set([
   "EML119",
@@ -260,6 +263,9 @@ const DICTIONARY_COMPLETENESS = new Set([
   "EML152",
   "EML153",
   "EML154",
+  "EML170",
+  "EML172",
+  "EML177",
 ]);
 
 /** Wrap a step to a readable measure, indented under its own number. */
