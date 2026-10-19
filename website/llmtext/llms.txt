@@ -11,10 +11,6 @@
 > model attached or pasted, you are changing that model — whole, in place, losing
 > nothing. Without one, you are building a new one from their description. §1
 > is the procedure for both; §1.1.1 decides which you are in.
->
-> This document replaces the four that came before it — `llms-full.txt`,
-> `llmdetailed.txt`, `llmtextenhancement.txt` and `llmdetailedenhancement.txt`.
-> Everything they said about the language is here; their four protocols are §1.
 
 - **EML version**: 1.2.0 · **Based on**: Mermaid · **Updated**: 2026-10-19
 - **This document**: `https://www.appwithai.org/llms.txt`
