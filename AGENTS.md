@@ -62,7 +62,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
 | `bun run test:language-tools` | The published `checker.js`/`fixer.js` still agree with the CLI |
 | `bun run build:viewers` | Rebuild `website/viewers/eml-model.js` (the model viewers' reader) |
-| `bun run test:llmtext` | Hold `website/llmtext/llms.md` to what the checker, the fixer and the dictionary actually do, its examples to 0 errors and 0 warnings, and the four retired `.txt` files to being stubs pointing at it |
+| `bun run test:llmtext` | Hold `website/llmtext/llms.txt` to what the checker, the fixer and the dictionary actually do, its examples to 0 errors and 0 warnings, and `llms.txt` to being the only file in `website/llmtext/` |
 | `bun run vendor:pglite` | Put PGlite beside `html/` (the wasm E2E job needs it) |
 | `bun run build:stack-templates` | Put the stack templates beside `run-real-stack.html` |
 
@@ -249,8 +249,8 @@ app-with-ai-tanstack/
 ├── database/       # Migrations (001–010)
 ├── html/           # Static guide + run-in-browser.html + run-real-stack.html
 ├── website/        # What businessappwithai.github.io publishes from here
-│   ├── llmtext/    #   llms.md — the one protocol document (the four
-│                   #   older .txt files are stubs pointing at it)
+│   ├── llmtext/    #   llms.txt — the one protocol document
+│                   #   (the only file in the directory)
 │   └── viewers/    #   The model viewers — served at appwithai.org/viewers
 ├── tests/          # Playwright E2E suites
 └── examples/       # Sample .eml.mmd files
@@ -635,13 +635,13 @@ the service cannot forget.
 
 ---
 
-## One protocol document — `website/llmtext/llms.md`
+## One protocol document — `website/llmtext/llms.txt`
 
-`llms.md` is the document a language model is pointed at to **write a model or
-change one**, published at `https://www.appwithai.org/llms.md`. It replaced four —
+`llms.txt` is the document a language model is pointed at to **write a model or
+change one**, published at `https://www.appwithai.org/llms.txt`. It replaced four —
 `llms-full.txt` and `llmdetailed.txt` (authoring, one-pass and gated) and their
-derived enhancement editions — which are now short stubs pointing at it, kept so
-a URL a model was once given still leads somewhere.
+derived enhancement editions — which are deleted. There is one file, so no URL a
+model is given can lead to a second account of the language.
 
 **New or enhance is decided by one fact: did the user give a `.mmd`?** §1 is one
 procedure, run as office hours (after gstack's `/office-hours`): decide the mode
@@ -657,8 +657,8 @@ whole file, and prove nothing was lost with a before-and-after table.
 `llms-full.txt` with §1 and §3.7 rewritten; the language reference after §1 is
 that text. Edit it in place. The same file is published by the website and
 carried by the orchestrator — copy it, byte for byte, to
-`businessappwithai.github.io/llms.md` and
-`app-and-report-with-ai-tanstack/common/website/llmtext/llms.md`.
+`businessappwithai.github.io/llms.txt` and
+`app-and-report-with-ai-tanstack/common/website/llmtext/llms.txt`.
 
 **`bun run test:llmtext` holds it** (`scripts/ci/llmtext-claims.ts`): every code it
 cites exists, every auto-fixable code is tabulated and counted right, every
@@ -666,7 +666,7 @@ cites exists, every auto-fixable code is tabulated and counted right, every
 fenced `mermaid` example parses to its entities and checks with no help or layout
 gaps, the nine dictionary-completeness codes match `DICTIONARY_COMPLETENESS`, the
 mode and enhancement rules are present by their wording, the host is written in
-full, and the four retired files are stubs pointing at it. Every fenced `mermaid`
+full, and `llms.txt` is the only file in its directory. Every fenced `mermaid`
 example in it must check 0 errors, 0 warnings — **including `%%section` layout on
 every entity**.
 
@@ -760,7 +760,7 @@ log line still get one.
 
 ## The published host is written in full — `https://www.appwithai.org`
 
-Every mention of the host in all four `website/llmtext/*.txt` protocol documents
+Every mention of the host in `website/llmtext/llms.txt`
 is the absolute URL — scheme and `www.` included — and each document carries a
 rule saying so. **`www` is canonical and the apex serves the same files**; both
 carry a certificate. That was not true for part of this project's life: `www`
@@ -1009,7 +1009,7 @@ than committed: `bun run vendor:pglite` and `bun run build:stack-templates`.
 | `packages/web/vite.config.ts` | Vite config, root-.env loading, start-api-routes shim |
 | `language/appwithai-language.json` | ⭐ EML canonical definition |
 | `language/composer.ts` | ⭐ The only writer of complete EML documents |
-| `website/llmtext/llms.md` | ⭐ The one protocol document for language models: write a model, or change one |
+| `website/llmtext/llms.txt` | ⭐ The one protocol document for language models: write a model, or change one |
 | `language/sections.ts` | ⭐ The one reading of `%%section` — checker, fixer and generator |
 | `packages/generator/src/viewers/view-model.ts` | ⭐ One reading of a model for the viewers — composed, never re-derived |
 | `website/viewers/` | ⭐ The published model viewers. `eml-model.js` is built; the rest is hand-written |

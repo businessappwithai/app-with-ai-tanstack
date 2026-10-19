@@ -14,7 +14,7 @@
  *
  * The last of those is the one worth having: a viewer that throws on an
  * incomplete model is a viewer that goes blank at exactly the moment a reader
- * wants it, and every gate of the walkthrough in `website/llmtext/llms.md` ends
+ * wants it, and every gate of the walkthrough in `website/llmtext/llms.txt` ends
  * with a document that is incomplete on purpose.
  */
 
@@ -187,7 +187,7 @@ describe("readModel composes the pipeline's own reading", () => {
 
   it("reads a document that is still being written", () => {
     /* Each of these is a real intermediate state of the walkthrough in
-       `website/llmtext/llms.md`: the header alone, the header and one
+       `website/llmtext/llms.txt`: the header alone, the header and one
        entity, an entity block left open mid-line. None may throw, and none may
        report a structure the document does not have. */
     const partials = [
