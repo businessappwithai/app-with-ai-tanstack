@@ -38,7 +38,24 @@ const ROOT = resolve(import.meta.dir, "../..");
    model from a brief and two, derived from those, that changed an existing one —
    and every claim the four were held to is held here, once. The four files
    are gone; that is held further down. */
-const DOCUMENTS = ["llms.txt"] as const;
+/* `llms.txt` is a short controller; the rest is lazy-loaded chunks the controller
+   names. Cross-file claims (a section reference, a status table, a wording rule)
+   are held against all of them read as one document, because a reader who loads
+   a chunk is reading the same protocol. Per-file claims (examples, stray hosts)
+   run on each chunk. */
+const CHUNKS = [
+  "llms.txt",
+  "working-session.txt",
+  "eml-syntax.txt",
+  "eml-dictionary.txt",
+  "eml-reporting.txt",
+  "checker-rules.txt",
+  "enhancement-examples.txt",
+] as const;
+const readChunk = (name: string): string =>
+  readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
+const ALL = CHUNKS.map(readChunk).join("\n");
+const DOCUMENTS = ["llms.txt (all chunks)"] as const;
 const checkerSource = readFileSync(join(ROOT, "language/checker.ts"), "utf-8");
 
 let failed = 0;
@@ -51,7 +68,7 @@ const held = (condition: boolean, label: string): void => {
 };
 
 for (const name of DOCUMENTS) {
-  const doc = readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
+  const doc = ALL;
   /* Both files are hard-wrapped, so a claim about a sentence has to be matched
      against a whitespace-collapsed copy or it turns on where a line broke. */
   const prose = doc.replace(/\s+/g, " ");
@@ -265,8 +282,9 @@ for (const name of DOCUMENTS) {
  */
 const ENTITY_BLOCK = /^[ \t]*([A-Z][A-Za-z0-9_]*)[ \t]*\{/gm;
 
-for (const name of DOCUMENTS) {
-  const doc = readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
+let exampleTotal = 0;
+for (const name of CHUNKS) {
+  const doc = readChunk(name);
 
   /* Fenced ```mermaid blocks only. A plain ``` fence is prose about the
      language — including, deliberately, the one-liner §10.3 now quotes as the
@@ -282,7 +300,9 @@ for (const name of DOCUMENTS) {
     index = end;
   }
 
-  held(examples.length > 0, `${name}: has fenced mermaid examples to check (${examples.length})`);
+  exampleTotal += examples.length;
+  if (examples.length === 0) continue;
+  console.log(`ok   ${name}: has fenced mermaid examples to check (${examples.length})`);
 
   let disagreed = 0;
   for (const example of examples) {
@@ -342,6 +362,7 @@ for (const name of DOCUMENTS) {
     `${name}: every mermaid example carries help on its entities and columns, and lays out its forms`
   );
 }
+held(exampleTotal > 0, `the chunks carry fenced mermaid examples to check (${exampleTotal})`);
 
 /* ------------------------------------------------------------------------ */
 /*  One document, two modes                                                  */
@@ -356,7 +377,7 @@ for (const name of DOCUMENTS) {
  * the four into one is only safe while those rules are still in it, so they are
  * held here by their wording, the same way the derivation used to be held.
  */
-const unified = readFileSync(join(ROOT, "website", "llmtext", "llms.txt"), "utf-8");
+const unified = ALL;
 const unifiedProse = unified.replace(/\s+/g, " ");
 
 for (const [pattern, label] of [
@@ -431,9 +452,32 @@ held(existsSync(join(ROOT, "website", "viewers", "index.html")), "website/viewer
    language, and no URL ends in .md (Pages types it text/markdown, which some
    readers refuse). The directory must hold nothing else. */
 held(
-  readdirSync(join(ROOT, "website", "llmtext")).join(",") === "llms.txt",
-  "website/llmtext holds llms.txt and nothing else"
+  readdirSync(join(ROOT, "website", "llmtext")).sort().join(",") === [...CHUNKS].sort().join(","),
+  "website/llmtext holds llms.txt and its named chunks and nothing else"
 );
+
+/* The controller is the part every run pays for, so it stays small, and it names
+   every chunk by its full published URL — a chunk it does not name is one a
+   reader never loads. */
+const controller = readChunk("llms.txt");
+held(
+  controller.length <= 9000,
+  `llms.txt controller stays small (${controller.length} chars, budget 9000)`
+);
+for (const chunk of CHUNKS.filter((name) => name !== "llms.txt"))
+  held(
+    controller.includes(`https://www.appwithai.org/${chunk}`),
+    `llms.txt controller names ${chunk} by its published URL`
+  );
+for (const [pattern, label] of [
+  [/Fetch a chunk only when its step arrives/, "tells the reader to load chunks lazily"],
+  [/A required chunk cannot be fetched: ask the user to attach it/, "stops rather than proceeding when a chunk cannot be fetched"],
+  [/^M1\. Mode by one fact/m, "decides the mode by one fact"],
+  [/Validation is mandatory: checker, fixer if needed, checker again, then audit/, "makes validation mandatory"],
+  [/research the domain widely, then attack your own plan/, "requires research and an adversarial review first"],
+  [/Write the URL in full, never a bare host/, "carries the rule that the URL is written in full"],
+] as const)
+  held(pattern.test(controller), `llms.txt controller: ${label}`);
 
 /* Validation is mandatory, and the document says so in its own opening, in the
    last-resort section, and in the ladder's final row. A model reading only the
@@ -492,8 +536,8 @@ const TEACHING = [
   "the canonical form and the one to write; the apex `https://appwithai.org`",
 ];
 
-for (const name of DOCUMENTS) {
-  const doc = readFileSync(join(ROOT, "website", "llmtext", name), "utf-8");
+for (const name of CHUNKS) {
+  const doc = readChunk(name);
   const stray = doc
     .split("\n")
     .filter((line) => !TEACHING.some((teaching) => line.includes(teaching)))
@@ -505,15 +549,15 @@ for (const name of DOCUMENTS) {
       stray.length ? ` (${stray.length} stray, first: "${stray[0]?.trim().slice(0, 72)}")` : ""
     }`
   );
-  held(
-    doc.includes("Write the URL in full, every time"),
-    `${name}: carries the rule that the URL is written in full`
-  );
-  held(
-    doc.includes("[www.appwithai.org](https://www.appwithai.org)"),
-    `${name}: keeps the Markdown-link counter-example the rule is about`
-  );
 }
+held(
+  ALL.includes("Write the URL in full, every time"),
+  "llms.txt chunks: carry the rule that the URL is written in full"
+);
+held(
+  ALL.includes("[www.appwithai.org](https://www.appwithai.org)"),
+  "llms.txt chunks: keep the Markdown-link counter-example the rule is about"
+);
 
 console.log(failed === 0 ? "\nllmtext claims hold." : `\n${failed} claim(s) contradicted.`);
 process.exit(failed === 0 ? 0 : 1);

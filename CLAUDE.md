@@ -107,7 +107,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
 | `bun run test:language-tools` | The published `checker.js`/`fixer.js` still agree with the CLI |
 | `bun run build:viewers` | Rebuild `website/viewers/eml-model.js` (the model viewers' reader) |
-| `bun run test:llmtext` | Hold `website/llmtext/llms.txt` to what the checker, the fixer and the dictionary actually do, its examples to 0 errors and 0 warnings, and `llms.txt` to being the only file in `website/llmtext/` |
+| `bun run test:llmtext` | Hold `website/llmtext/llms.txt` to what the checker, the fixer and the dictionary actually do, its examples to 0 errors and 0 warnings, and `website/llmtext/` to holding the controller and its named chunks and nothing else |
 | `bun run vendor:pglite` | Put PGlite beside `html/` (the wasm E2E job needs it) |
 | `bun run build:stack-templates` | Put the stack templates beside `run-real-stack.html` |
 
@@ -302,8 +302,8 @@ app-with-ai-tanstack/
 ├── database/       # Migrations (001–010)
 ├── html/           # Static guide + run-in-browser.html + run-real-stack.html
 ├── website/        # What businessappwithai.github.io publishes from here
-│   ├── llmtext/    #   llms.txt — the one protocol document
-│                   #   (the only file in the directory)
+│   ├── llmtext/    #   llms.txt — the ~1k-token controller, plus the chunks
+│                   #   it names and a model loads lazily
 │   └── viewers/    #   The model viewers — served at appwithai.org/viewers
 ├── tests/          # Playwright E2E suites
 └── examples/       # Sample .eml.mmd files
@@ -1142,10 +1142,10 @@ change one**, published at `https://www.appwithai.org/llms.txt`. It replaced fou
 derived enhancement editions — which are deleted. There is one file, so no URL a
 model is given can lead to a second account of the language.
 
-**The protocol is published as `llms.txt` and nothing else.** GitHub Pages types `.md` as `text/markdown`,
+**The protocol is a short controller, `llms.txt`, plus six lazy-loaded chunks (`working-session`, `eml-syntax`, `eml-dictionary`, `eml-reporting`, `checker-rules`, `enhancement-examples`, each `.txt`) — and nothing else.** The controller (about 1,000 tokens, budgeted in `llmtext-claims.ts`) holds the MUST rules, the load order, the validate commands, the stop conditions and the output contract, and names each chunk by its full published URL; a model fetches a chunk only when the step needs it. GitHub Pages types `.md` as `text/markdown`,
 which ChatGPT's web reader refuses (`400 Unsupported content-type`), so there is no `llms.txt`: the document
 is `website/llmtext/llms.txt`, served as `text/plain`. Edit it there; the orchestrator and the site carry
-byte copies of the same file. `bun run test:llmtext` requires `llms.txt` to be the only file in `website/llmtext/`.
+byte copies of the same files. `bun run test:llmtext` holds the chunks to one another as a single document (section references, status tables, wording rules) and each chunk to its own examples and host spelling.
 
 **New or enhance is decided by one fact: did the user give a `.mmd`?** §1 is one
 procedure, run as a working session (modelled on gstack's `/office-hours`): decide the mode
@@ -1170,7 +1170,7 @@ cites exists, every auto-fixable code is tabulated and counted right, every
 fenced `mermaid` example parses to its entities and checks with no help or layout
 gaps, the nine dictionary-completeness codes match `DICTIONARY_COMPLETENESS`, the
 mode and enhancement rules are present by their wording, the host is written in
-full, and `llms.txt` is the only file in its directory. Every fenced `mermaid`
+full, and `website/llmtext/` holds the controller and its named chunks and nothing else. Every fenced `mermaid`
 example in it must check 0 errors, 0 warnings — **including `%%section` layout on
 every entity**.
 
