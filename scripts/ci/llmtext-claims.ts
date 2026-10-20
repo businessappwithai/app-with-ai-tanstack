@@ -437,6 +437,7 @@ for (const [pattern, label] of [
   [/is not delivered, it is a draft/, "says a model not run through both is a draft"],
   [/never state a count, a verdict or a\s+score that a run did not print/, "forbids counts a run did not print"],
   [/labelled \*\*not validated\*\*/, "labels an unvalidated delivery as not validated"],
+  [/\*\*Read\*\* `https:\/\/www\.appwithai\.org\/guide\/check-model-standalone\.mjs`/, "tells a no-network sandbox to read the standalone checker, not to ask the user to attach it"],
   [/\*\*Check\*\* for the checker and \*\*Audit\*\* for the audit/, "names the browser page's Check and Audit buttons"],
 ]) {
   held(pattern.test(unified), `llms.txt: ${label}`);
