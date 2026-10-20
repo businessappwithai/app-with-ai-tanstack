@@ -32,7 +32,17 @@ Then ask the pace in the same first question, with `AskUserQuestion`:
 **Walk me through it** (recommended — gates A–D, one decision at a time) or **Just
 build it** (one pass, every decision listed as an assumption).
 
-## 2. Run the phases with real questions
+## 2. Research, then attack the plan — before the first gate
+
+§1.1.2.1, in both modes (an attached `.mmd` does not skip it): think as hard as
+you can, research the domain as widely as the tools allow (web search, the
+workspace, `docs/eml-sessions/`), write the plan, then review it adversarially as
+a hostile domain expert and record each objection with its resolution. Keep the
+working papers as `00-research.md` and `01-adversarial-review.md` in the session
+directory. Only then start the gates, with the surviving findings as Gate A's
+premises.
+
+## 3. Run the phases with real questions
 
 - Every gate is an `AskUserQuestion` call with real options and an explicit
   "tell me what to change" arm. One question at a time when the answer changes the
@@ -51,7 +61,7 @@ Keep the session on disk so a compaction costs nothing:
 `docs/eml-sessions/<business-slug>/progress.md`, one dossier file per entity, and
 the `.mmd` itself. Look for an unfinished session there first and offer to resume.
 
-## 3. Check after every edit, not only at the end
+## 4. Check after every edit, not only at the end
 
 ```bash
 bun language/fixer.ts docs/eml-sessions/<slug>/<slug>.mmd     # auto-fixes, then re-checks
@@ -72,7 +82,7 @@ section. That keeps the field on the form; move it to the row it belongs in.
 For an enhancement, put the §1.1.2 inventory beside the same counts from the
 result (§1.3.3). Every number goes up or stays the same unless the user asked.
 
-## 4. Show the model
+## 5. Show the model
 
 Mermaid draws only the ERD. Point the user at `https://www.appwithai.org/viewers/`
 (or `website/viewers/index.html` served from this checkout) to see the rules,
