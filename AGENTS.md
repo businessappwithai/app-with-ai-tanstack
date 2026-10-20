@@ -644,7 +644,7 @@ derived enhancement editions — which are deleted. There is one file, so no URL
 model is given can lead to a second account of the language.
 
 **New or enhance is decided by one fact: did the user give a `.mmd`?** §1 is one
-procedure, run as office hours (after gstack's `/office-hours`): decide the mode
+procedure, run as a working session (modelled on gstack's `/office-hours`): decide the mode
 from what was given, ask the pace (*walk me through it* or *just build it*), then
 the forcing questions, premises (Gate A), two rosters — minimal and complete
 (Gate B), one Application Dictionary dossier per entity including its form
