@@ -372,6 +372,12 @@ for (const [pattern, label] of [
   [/PREMISES/, "states premises before the roster"],
   [/the \*\*minimal\*\* one .* and the \*\*complete\*\* one/, "puts two rosters in front of the user"],
   [/Hard gate\./, "keeps the hard gate: no code, only the model"],
+  [/Put on your thinking cap/, "asks for deep thinking before anything is drafted"],
+  [/This phase runs every time, and a `\.mmd` in hand does not skip it/, "runs the research phase even when a .mmd was given"],
+  [/research as widely as you can/, "asks for the widest research on the domain"],
+  [/Review the plan adversarially/i, "reviews the research plan adversarially"],
+  [/Step 4 — only then build, and review with the user/, "builds and reviews with the user only after the adversarial review"],
+  [/A review that raised nothing has not been done/, "refuses an adversarial review that found nothing"],
 ] as const) {
   held(pattern.test(unifiedProse), `llms.txt: ${label}`);
 }
