@@ -62,7 +62,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run build:language-tools` | Rebuild `html/checker.js` + `html/fixer.js` |
 | `bun run test:language-tools` | The published `checker.js`/`fixer.js` still agree with the CLI |
 | `bun run build:viewers` | Rebuild `website/viewers/eml-model.js` (the model viewers' reader) |
-| `bun run test:llmtext` | Hold `website/llmtext/llms.txt` to what the checker, the fixer and the dictionary actually do, its examples to 0 errors and 0 warnings, and `llms.txt` to being the only file in `website/llmtext/` |
+| `bun run test:llmtext` | Hold `website/llmtext/llms.txt` to what the checker, the fixer and the dictionary actually do, its examples to 0 errors and 0 warnings, and `website/llmtext/` to holding the controller and its named chunks and nothing else |
 | `bun run vendor:pglite` | Put PGlite beside `html/` (the wasm E2E job needs it) |
 | `bun run build:stack-templates` | Put the stack templates beside `run-real-stack.html` |
 
@@ -249,8 +249,8 @@ app-with-ai-tanstack/
 ├── database/       # Migrations (001–010)
 ├── html/           # Static guide + run-in-browser.html + run-real-stack.html
 ├── website/        # What businessappwithai.github.io publishes from here
-│   ├── llmtext/    #   llms.txt — the one protocol document
-│                   #   (the only file in the directory)
+│   ├── llmtext/    #   llms.txt — the ~1k-token controller, plus the chunks
+│                   #   it names and a model loads lazily
 │   └── viewers/    #   The model viewers — served at appwithai.org/viewers
 ├── tests/          # Playwright E2E suites
 └── examples/       # Sample .eml.mmd files
@@ -666,7 +666,7 @@ cites exists, every auto-fixable code is tabulated and counted right, every
 fenced `mermaid` example parses to its entities and checks with no help or layout
 gaps, the nine dictionary-completeness codes match `DICTIONARY_COMPLETENESS`, the
 mode and enhancement rules are present by their wording, the host is written in
-full, and `llms.txt` is the only file in its directory. Every fenced `mermaid`
+full, and `website/llmtext/` holds the controller and its named chunks and nothing else. Every fenced `mermaid`
 example in it must check 0 errors, 0 warnings — **including `%%section` layout on
 every entity**.
 

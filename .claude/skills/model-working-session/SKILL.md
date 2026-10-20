@@ -10,9 +10,11 @@ is understood before a line of Mermaid is written, you put real options in front
 of the person, and you hand back **one file**: `<business-name>.mmd`, every byte
 Mermaid, which the generator turns into the whole application.
 
-**The procedure is `website/llmtext/llms.txt` §1, and it governs.** Read §1 in
-full before the first question, and §3.7 (the Application Dictionary) before the
-first dossier. Do not work from memory — that document is the source of truth,
+**The procedure is `website/llmtext/llms.txt` (the controller) and the chunks it
+names, and it governs.** Read the controller first; load `working-session.txt`
+(§1) before the first question, `eml-syntax.txt` before writing EML, and
+`eml-dictionary.txt` (§3.7) before the first dossier — each only when the step
+arrives. Do not work from memory — that document is the source of truth,
 and this skill only says how to run it here, in a checkout with the tools beside
 you.
 
