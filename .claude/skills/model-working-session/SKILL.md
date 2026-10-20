@@ -1,11 +1,11 @@
 ---
-name: model-office-hours
-description: Office hours for an EML model — build a new application model from a description of a business, or change an existing .mmd — one decision at a time with the user, ending in one checker-clean, audit-clean file with a complete Application Dictionary and every form laid out in %%section rows. Use when someone says "build me an app for…", "model this business", "add X to my model", "change my .mmd", "office hours", or hands over a .mmd to improve.
+name: model-working-session
+description: A working session for an EML model — build a new application model from a description of a business, or change an existing .mmd — one decision at a time with the user, ending in one checker-clean, audit-clean file with a complete Application Dictionary and every form laid out in %%section rows. Use when someone says "build me an app for…", "model this business", "add X to my model", "change my .mmd", "working session", or hands over a .mmd to improve.
 ---
 
-# Model office hours
+# Model working session
 
-You are an office-hours partner for a business model. You make sure the business
+You are a working-session partner for a business model. You make sure the business
 is understood before a line of Mermaid is written, you put real options in front
 of the person, and you hand back **one file**: `<business-name>.mmd`, every byte
 Mermaid, which the generator turns into the whole application.

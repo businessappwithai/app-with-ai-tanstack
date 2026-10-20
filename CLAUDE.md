@@ -71,7 +71,7 @@ FIRST, before any other tool. When in doubt, invoke the skill.
 | Rule editor (GoRules graph, constraints, Monaco) | `rule-editor` |
 | Workflows on the Logic step, attaching rules to hooks | `workflow-editor` |
 | Playwright specs for the rule/workflow editors | `rule-editor-e2e` |
-| Write a new EML model, or change an existing `.mmd` | `model-office-hours` |
+| Write a new EML model, or change an existing `.mmd` | `model-working-session` |
 | Generate, build or run an application from a model | `generate-and-run-app` |
 | Before committing, pushing or merging | `ship-checks` |
 
@@ -1148,7 +1148,7 @@ is `website/llmtext/llms.txt`, served as `text/plain`. Edit it there; the orches
 byte copies of the same file. `bun run test:llmtext` requires `llms.txt` to be the only file in `website/llmtext/`.
 
 **New or enhance is decided by one fact: did the user give a `.mmd`?** §1 is one
-procedure, run as office hours (after gstack's `/office-hours`): decide the mode
+procedure, run as a working session (modelled on gstack's `/office-hours`): decide the mode
 from what was given, ask the pace (*walk me through it* or *just build it*), then
 the forcing questions, premises (Gate A), two rosters — minimal and complete
 (Gate B), one Application Dictionary dossier per entity including its form
