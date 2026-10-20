@@ -476,8 +476,22 @@ for (const [pattern, label] of [
   [/Validation is mandatory: checker, fixer if needed, checker again, then audit/, "makes validation mandatory"],
   [/research the domain widely, then attack your own plan/, "requires research and an adversarial review first"],
   [/Write the URL in full, never a bare host/, "carries the rule that the URL is written in full"],
+  [/PREREQUISITE \(ChatGPT only\)/, "gates ChatGPT runs on a prerequisite"],
+  [/If you are ChatGPT, the TinyFish plugin is mandatory/, "makes the TinyFish plugin mandatory for ChatGPT"],
+  [/Not installed or not signed in: STOP/, "stops a ChatGPT run when the plugin is missing"],
+  [/Plugins > search TinyFish > Install plugin/, "gives the ChatGPT install steps"],
+  [/https:\/\/docs\.tinyfish\.ai\/plugins/, "links the plugin's own instructions"],
+  [/Any other surface: P1–P3 do not apply/, "limits the prerequisite to ChatGPT"],
 ] as const)
   held(pattern.test(controller), `llms.txt controller: ${label}`);
+
+/* The prerequisite is only as good as the chunk that says how the plugin is used,
+   and that chunk must keep the user's model out of the third-party request. */
+held(
+  /#### 8\.4\.1 ChatGPT: install the TinyFish plugin first/.test(ALL) &&
+    /never goes into\s+a TinyFish request/.test(ALL),
+  "checker-rules.txt §8.4.1: explains the plugin and keeps the user's model out of it"
+);
 
 /* Validation is mandatory, and the document says so in its own opening, in the
    last-resort section, and in the ladder's final row. A model reading only the
