@@ -196,7 +196,7 @@ function LogicPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div role="main" className="min-h-screen bg-background">
       <ProgressStepper currentStep="logic" projectId={id} />
 
       <div className="mx-auto max-w-[1600px] px-4 py-6">

@@ -164,7 +164,7 @@ function EditRulePage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-8 py-8">
+      <div className="max-w-6xl mx-auto px-8 py-8">
         {/* The form holds the rule's details only. The graph editor's own toolbar is made of
             plain buttons, and a button inside a form submits it: pressing the Simulator's
             play control saved the rule. The editor sits outside, and Save names the form. */}
@@ -279,7 +279,7 @@ function EditRulePage() {
               {updateMutation.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </div>
-      </main>
+      </div>
     </div>
   );
 }

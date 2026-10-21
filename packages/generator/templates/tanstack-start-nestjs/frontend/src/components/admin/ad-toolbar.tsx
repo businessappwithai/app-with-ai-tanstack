@@ -276,6 +276,7 @@ export function ADToolbar({
                 variant="ghost"
                 size="sm"
                 onClick={onRefresh}
+                aria-label="Refresh"
                 className="h-9 w-9 p-0 hover:bg-primary/10 hover:text-primary"
               >
                 <RefreshCw className="h-4 w-4" />

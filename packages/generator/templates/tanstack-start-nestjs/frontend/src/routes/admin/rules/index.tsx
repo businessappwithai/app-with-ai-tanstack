@@ -173,7 +173,7 @@ function AdminRulesPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-8 py-12">
+      <div className="max-w-7xl mx-auto px-8 py-12">
         {/* Stats Cards */}
         <section className="mb-12">
           <div className="grid grid-cols-4 gap-0 border-l border-r border-foreground">
@@ -352,7 +352,7 @@ function AdminRulesPage() {
             ))}
           </div>
         )}
-      </main>
+      </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent className="border-2 border-foreground rounded-none">

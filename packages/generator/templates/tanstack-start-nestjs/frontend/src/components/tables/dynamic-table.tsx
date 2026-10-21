@@ -613,6 +613,7 @@ export function DynamicTable({
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search..."
+            aria-label="Search rows"
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="pl-8"
@@ -704,6 +705,7 @@ export function DynamicTable({
             size="sm"
             onClick={() => onPageChange?.(1)}
             disabled={page === 1}
+            aria-label="First page"
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -712,6 +714,7 @@ export function DynamicTable({
             size="sm"
             onClick={() => onPageChange?.(page - 1)}
             disabled={page === 1}
+            aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -723,6 +726,7 @@ export function DynamicTable({
             size="sm"
             onClick={() => onPageChange?.(page + 1)}
             disabled={page === totalPages}
+            aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -731,6 +735,7 @@ export function DynamicTable({
             size="sm"
             onClick={() => onPageChange?.(totalPages)}
             disabled={page === totalPages}
+            aria-label="Last page"
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>

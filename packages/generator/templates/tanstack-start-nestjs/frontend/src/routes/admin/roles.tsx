@@ -30,7 +30,11 @@ function RolesPage() {
       <header className="sticky top-0 z-10 bg-card border-b border-border">
         <div className="container-swiss">
           <div className="flex h-14 items-center gap-3">
-            <Link to="/dashboard" className="text-muted-foreground hover:text-foreground">
+            <Link
+              to="/dashboard"
+              aria-label="Back to dashboard"
+              className="text-muted-foreground hover:text-foreground"
+            >
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <UserCog className="w-4 h-4 text-primary" />
@@ -40,7 +44,7 @@ function RolesPage() {
         </div>
       </header>
 
-      <main className="container-swiss py-8">
+      <div className="container-swiss py-8">
         {isLoading && (
           <div className="swiss-card p-12 text-center">
             <Loader2 className="w-8 h-8 mx-auto animate-spin text-primary" />
@@ -94,7 +98,7 @@ function RolesPage() {
             </table>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

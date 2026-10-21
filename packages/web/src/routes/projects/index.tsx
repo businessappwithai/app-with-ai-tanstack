@@ -347,10 +347,12 @@ function ProjectsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-muted border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                 placeholder="Search projects..."
+                aria-label="Search projects"
                 type="text"
               />
             </div>
             <select
+              aria-label="Filter by status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary"
@@ -361,6 +363,7 @@ function ProjectsPage() {
               <option>Complete</option>
             </select>
             <select
+              aria-label="Filter by type"
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
               className="px-4 py-2.5 bg-background border border-border rounded-xl text-sm text-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary"
@@ -597,6 +600,7 @@ function ProjectsPage() {
                           e.stopPropagation();
                           setShowMenu(showMenu === project.id ? null : project.id);
                         }}
+                        aria-label={`Delete ${project.name}`}
                         className="p-2 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />

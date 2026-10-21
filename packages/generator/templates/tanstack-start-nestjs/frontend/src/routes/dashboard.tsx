@@ -253,7 +253,8 @@ function DashboardPage() {
         * runs on an entity, and there is no third meaning for it to have.
         */}
 
-      <main className="container-swiss py-8 space-y-10">
+      <div className="container-swiss py-8 space-y-10">
+        <h1 className="sr-only">Dashboard</h1>
         {/* The card filter. Its own control on the page rather than chrome in
             a header, because that is what it is: it narrows what is shown
             below and means nothing anywhere else in the application. */}
@@ -453,7 +454,7 @@ function DashboardPage() {
             </p>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

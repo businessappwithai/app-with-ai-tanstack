@@ -1213,7 +1213,7 @@ function DesignPage() {
       instructions="You are an ERD design assistant. You can see the current ERD diagram (via the 'Current ERD' context). Use the 'updateERD' action to make surgical changes: add entities, modify attributes, change relationships. For bulk AI generation, use the bottom bar. Ask the user what they'd like to change."
       defaultOpen={false}
     >
-      <div className="min-h-screen bg-background flex flex-col">
+      <div role="main" className="min-h-screen bg-background flex flex-col">
         {saveNotice && (
           <p role="status" className="px-6 py-2 text-sm border-b">
             {saveNotice}
@@ -1718,6 +1718,7 @@ function DesignPage() {
                       style={{ lineHeight: "20px" }}
                       spellCheck={false}
                       placeholder="Enter Mermaid ERD syntax here..."
+                      aria-label="Mermaid ERD code"
                     />
                   </div>
                   {errorLine && (
@@ -1826,6 +1827,7 @@ function DesignPage() {
                       }
                     }}
                     placeholder="Describe your entities in natural language... (Cmd+Enter to submit)"
+                    aria-label="Describe your entities"
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     disabled={isAiLoading}
                   />

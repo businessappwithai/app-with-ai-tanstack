@@ -1093,7 +1093,7 @@ function ServiceWorkflowPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div role="main" className="min-h-screen bg-background flex flex-col">
       <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-[1800px] mx-auto px-6 py-4">
           <div className="flex items-center justify-between mb-4">

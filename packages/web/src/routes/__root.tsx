@@ -1,4 +1,5 @@
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
+import { HeadingTitle } from "@/components/providers/HeadingTitle";
 import { Providers } from "@/components/providers/Providers";
 import "@/styles/globals.css";
 
@@ -36,6 +37,7 @@ function RootLayout() {
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
         <Providers>
+          <HeadingTitle />
           <Outlet />
         </Providers>
         <Scripts />

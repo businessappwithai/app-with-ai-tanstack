@@ -192,6 +192,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       if (typeof exceptionResponse === 'string') {
         message = exceptionResponse;
+        // `new HttpException('text', 403)` carries no `error` of its own, and the
+        // default above would label a 403 "Internal Server Error".
+        error = this.getErrorName(status);
       } else if (typeof exceptionResponse === 'object') {
         const responseObj = exceptionResponse as any;
         message = responseObj.message || message;
