@@ -88,11 +88,22 @@ function stampableFields(entity: EntityMeta): FieldMeta[] {
  * the rows this suite created, the other receives the computed value. Reusing a
  * single column would erase the marker the assertions look the rows up by.
  *
+ * The value column must not be unique. The workflow writes the same number into
+ * it on every run, the suite leaves that row behind, and a second run against the
+ * same database is then refused by the unique index on its first write — a
+ * `code` column took `42` once and rejected it ever after.
+ *
  * Returns null when the model has no such pair, so the suite skips rather than
  * asserting against a shape this model does not have.
  */
+function pickColumns(entity: EntityMeta): [FieldMeta, FieldMeta] | null {
+  const [marker, ...rest] = stampableFields(entity);
+  const value = rest.find((field) => !field.unique);
+  return marker && value ? [marker, value] : null;
+}
+
 function pickPair(): { trigger: EntityMeta; target: EntityMeta } | null {
-  const target = entities.find((entity) => stampableFields(entity).length >= 2);
+  const target = entities.find((entity) => pickColumns(entity) !== null);
   if (!target) return null;
   const trigger = entities.find(
     (entity) => entity.tableName !== target.tableName && stampableFields(entity).length >= 1
@@ -121,7 +132,7 @@ describe("multi-step workflows triggered by rules", () => {
     triggerEntity = pair.trigger;
     targetEntity = pair.target;
     triggerField = stampableFields(triggerEntity)[0]!;
-    [targetMarker, targetValue] = stampableFields(targetEntity) as [FieldMeta, FieldMeta];
+    [targetMarker, targetValue] = pickColumns(targetEntity) as [FieldMeta, FieldMeta];
     workflowName = `${suiteId}-escalation`;
 
     try {
