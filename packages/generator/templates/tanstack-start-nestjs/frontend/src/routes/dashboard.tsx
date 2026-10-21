@@ -54,11 +54,14 @@ interface CategoryGroup {
  * SQL statement that resolves the roles itself. It replaced two calls here
  * (`/sys/categories/with-entities` and `/me/permissions`) over six queries.
  */
-function useDashboard() {
+function useDashboard(enabled: boolean) {
   return useQuery({
     queryKey: ['dashboard'],
     queryFn: () => apiClient.get<DashboardResponse>('/sys/categories/dashboard'),
     staleTime: 5 * 60 * 1000,
+    // A signed-out visitor is about to be sent to the sign-in page; asking the
+    // API first only logs a 401 for a request nobody can answer.
+    enabled,
   });
 }
 
@@ -143,8 +146,8 @@ function DashboardPage() {
    * browser *unscoped by role and including line items*, and their result was
    * rendered nowhere whenever any category existed. They are gone.
    */
-  const { data: dashboard, isLoading: categoriesLoading, error } = useDashboard();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { data: dashboard, isLoading: categoriesLoading, error } = useDashboard(isAuthenticated);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   /*
@@ -250,7 +253,8 @@ function DashboardPage() {
         * runs on an entity, and there is no third meaning for it to have.
         */}
 
-      <main className="container-swiss py-8 space-y-10">
+      <div className="container-swiss py-8 space-y-10">
+        <h1 className="sr-only">Dashboard</h1>
         {/* The card filter. Its own control on the page rather than chrome in
             a header, because that is what it is: it narrows what is shown
             below and means nothing anywhere else in the application. */}
@@ -450,7 +454,7 @@ function DashboardPage() {
             </p>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

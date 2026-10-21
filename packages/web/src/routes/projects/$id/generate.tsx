@@ -47,7 +47,7 @@ const stackOptions: StackOption[] = [
     icon: <Database className="w-8 h-8" />,
     features: [
       "NestJS REST API",
-      "Knex.js with PostgreSQL",
+      "Kysely with PostgreSQL",
       "TanStack Start Frontend",
       "Monorepo Architecture",
       // Matches DEFAULT_FRONTEND_PORT / DEFAULT_BACKEND_PORT in
@@ -216,7 +216,7 @@ function GeneratePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div role="main" className="min-h-screen bg-background flex flex-col">
       <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <WizardStepHeader
@@ -309,7 +309,7 @@ function GeneratePage() {
                 type="button"
                 onClick={handleGenerate}
                 disabled={!selectedStack || isGenerating}
-                className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] disabled:opacity-50"
+                className="flex-1 flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-slate-900 font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] disabled:opacity-50"
                 style={{ backgroundColor: "#FF8400" }}
               >
                 <Zap className="w-5 h-5" />
@@ -327,8 +327,8 @@ function GeneratePage() {
                 <span className="ml-4 text-muted-foreground">Generation Logs</span>
                 {isGenerating && (
                   <span
-                    className="ml-auto px-3 py-1 text-xs rounded-full font-sans"
-                    style={{ backgroundColor: "rgba(255, 132, 0, 0.2)", color: "#FF8400" }}
+                    className="text-brand ml-auto px-3 py-1 text-xs rounded-full font-sans"
+                    style={{ backgroundColor: "rgba(255, 132, 0, 0.2)" }}
                   >
                     IN PROGRESS
                   </span>
@@ -371,7 +371,7 @@ function GeneratePage() {
                 <button
                   type="button"
                   onClick={handleContinue}
-                  className="mt-6 w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
+                  className="mt-6 w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-slate-900 font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                   style={{ backgroundColor: "#FF8400" }}
                 >
                   <CheckCircle2 className="w-5 h-5" />

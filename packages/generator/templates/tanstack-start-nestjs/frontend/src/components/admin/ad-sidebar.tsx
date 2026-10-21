@@ -144,7 +144,7 @@ export function ADSidebar({ children }: ADSidebarProps) {
       </Button>
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 overflow-auto">{children}</main>
+      <div className="flex-1 min-w-0 overflow-auto">{children}</div>
     </div>
   );
 }

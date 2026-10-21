@@ -418,6 +418,7 @@ export function ADListShell({
 
   return (
     <div className="flex flex-col h-full">
+      <h1 className="sr-only">{pluralLabel(level.label)}</h1>
       <ADToolbar
         onNew={
           viewOnly

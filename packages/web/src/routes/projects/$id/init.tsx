@@ -115,7 +115,7 @@ function InitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div role="main" className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -336,7 +336,7 @@ function InitPage() {
                   </div>
                 ) : (
                   <div className="bg-muted border border-border text-foreground rounded-xl px-4 py-3">
-                    Full Stack: TanStack Start + NestJS + Knex.js
+                    Full Stack: TanStack Start + NestJS + Kysely
                   </div>
                 )}
                 {!isNewProject && (
@@ -412,7 +412,7 @@ function InitPage() {
             <button
               type="button"
               onClick={handleContinue}
-              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
+              className="flex-1 bg-primary hover:bg-primary/90 text-slate-900 font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
               style={{ backgroundColor: "#FF8400" }}
             >
               Continue to Design

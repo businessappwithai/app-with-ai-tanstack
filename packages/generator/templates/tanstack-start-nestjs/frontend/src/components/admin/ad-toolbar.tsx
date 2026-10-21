@@ -138,7 +138,7 @@ export function ADToolbar({
               <Button
                 size="sm"
                 onClick={onEdit}
-                className="h-9 gap-2 px-4 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white shadow-sm"
+                className="h-9 gap-2 px-4 text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white shadow-sm"
               >
                 <Pencil className="h-4 w-4" />
                 Edit
@@ -276,6 +276,7 @@ export function ADToolbar({
                 variant="ghost"
                 size="sm"
                 onClick={onRefresh}
+                aria-label="Refresh"
                 className="h-9 w-9 p-0 hover:bg-primary/10 hover:text-primary"
               >
                 <RefreshCw className="h-4 w-4" />

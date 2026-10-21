@@ -152,7 +152,7 @@ function EnhancePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div role="main" className="min-h-screen bg-background flex flex-col">
       <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-[1800px] mx-auto px-6 py-4">
           <WizardStepHeader
@@ -207,7 +207,7 @@ function EnhancePage() {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-3 bg-muted group-hover:bg-primary/10 rounded-xl transition-colors">
-                      <div style={{ color: "#FF8400" }}>{service.icon}</div>
+                      <div className="text-brand" >{service.icon}</div>
                     </div>
                     <ArrowRight
                       className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors"
@@ -229,8 +229,7 @@ function EnhancePage() {
                       </span>
                     </div>
                     <span
-                      className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ color: "#FF8400" }}
+                      className="text-brand text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       Configure →
                     </span>

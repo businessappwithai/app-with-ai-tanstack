@@ -75,14 +75,20 @@ export async function seed(db: Kysely<any>): Promise<void> {
   // 1. Roles
   // ---------------------------------------------------------------------------
   for (const roleName of RBAC_ROLES) {
-    // Case-insensitive, because the guard matches that way. The seeded roles
-    // are title-cased (`Manager`) and a model writes `role:manager`; an exact
-    // check here would create a second, near-identical role beside the real one
-    // and leave an administrator guessing which of the two to assign.
+    // The guard folds case and treats `_`, `-` and spaces alike
+    // (`entity-access.guard`), so this does too. The seeded roles are title-cased
+    // with spaces (`Airport Manager`) and a model writes `role:airport_manager`:
+    // comparing only case created a second role beside every real one — ten roles
+    // seeded, nine more written here — and left an administrator guessing which
+    // of each pair to assign.
     const existing = await db
       .selectFrom('sys_role')
       .select('sys_role_id')
-      .where(sql`lower(name)` as any, '=', roleName.toLowerCase())
+      .where(
+        sql`lower(regexp_replace(trim(name), '[[:space:]_-]+', ' ', 'g'))` as any,
+        '=',
+        roleName.trim().toLowerCase().replace(/[\s_-]+/g, ' ')
+      )
       .executeTakeFirst();
 
     if (existing) continue;

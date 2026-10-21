@@ -15,7 +15,6 @@ import {
   FileText,
   FolderOpen,
   GitCommit,
-  HelpCircle,
   History,
   Library,
   List,
@@ -47,6 +46,7 @@ import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
 import type { ERDVersion } from "@/lib/api/projects";
 import { erdVersionsApi } from "@/lib/api/projects";
+import { useCopilotInputLabel } from "@/hooks/useCopilotInputLabel";
 import { toRenderableMermaid } from "@/lib/mermaid-render";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
@@ -70,6 +70,12 @@ export const Route = createFileRoute("/projects/$id/design")({
   component: DesignRoute,
 });
 
+/** Lines as `wc -l` and the model's own file contract count them: a trailing newline ends a line. */
+function countLines(text: string): number {
+  if (text === "") return 0;
+  return text.endsWith("\n") ? text.split("\n").length - 1 : text.split("\n").length;
+}
+
 // CopilotProvider must sit ABOVE the component that calls useCopilotReadable /
 // useCopilotAction. Rendering it inside DesignPage's own JSX puts the context
 // below the hooks that read it, which throws
@@ -83,6 +89,7 @@ function DesignRoute() {
 }
 
 function DesignPage() {
+  useCopilotInputLabel();
   const navigate = useNavigate();
   const { id: projectId } = Route.useParams();
 
@@ -682,10 +689,12 @@ function DesignPage() {
       const id = `validate-${Date.now()}`;
       await mermaid.render(id, toRenderableMermaid(erdCode));
       setValidationErrors([]);
+      setSaveNotice(`Validated: the diagram parses (${entities.length} entities).`);
     } catch (error) {
       setValidationErrors([
         error instanceof Error ? error.message : "The diagram could not be parsed.",
       ]);
+      setSaveNotice("Validation failed: see the errors above the editor.");
     } finally {
       setIsValidating(false);
     }
@@ -1206,7 +1215,7 @@ function DesignPage() {
       instructions="You are an ERD design assistant. You can see the current ERD diagram (via the 'Current ERD' context). Use the 'updateERD' action to make surgical changes: add entities, modify attributes, change relationships. For bulk AI generation, use the bottom bar. Ask the user what they'd like to change."
       defaultOpen={false}
     >
-      <div className="min-h-screen bg-background flex flex-col">
+      <div role="main" className="min-h-screen bg-background flex flex-col">
         {saveNotice && (
           <p role="status" className="px-6 py-2 text-sm border-b">
             {saveNotice}
@@ -1231,7 +1240,7 @@ function DesignPage() {
                       <List className="w-4 h-4" />
                       Entities
                       {entities.length > 0 && (
-                        <span className="px-1.5 py-0.5 text-xs bg-purple-500 text-white rounded-full">
+                        <span className="px-1.5 py-0.5 text-xs bg-purple-700 text-white rounded-full">
                           {entities.length}
                         </span>
                       )}
@@ -1254,7 +1263,7 @@ function DesignPage() {
                       Versions
                       {versions.length > 0 && (
                         <span
-                          className="px-1.5 py-0.5 text-xs text-white rounded-full"
+                          className="px-1.5 py-0.5 text-xs text-slate-900 rounded-full"
                           style={{ backgroundColor: "#FF8400" }}
                         >
                           {versions.length}
@@ -1322,7 +1331,7 @@ function DesignPage() {
                     <button
                       type="button"
                       onClick={handleGenerate}
-                      className="flex items-center gap-2 px-6 py-2 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
+                      className="flex items-center gap-2 px-6 py-2 text-slate-900 font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
                       style={{ backgroundColor: "#FF8400" }}
                     >
                       <Zap className="w-4 h-4" />
@@ -1631,7 +1640,7 @@ function DesignPage() {
                     <h2 className="text-lg font-semibold text-foreground">Mermaid ERD Code</h2>
                     {versions.length > 0 && (
                       <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                        <span className="font-mono" style={{ color: "#FF8400" }}>
+                        <span className="text-brand font-mono">
                           v{versions.length}
                         </span>
                         <span>•</span>
@@ -1648,7 +1657,7 @@ function DesignPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{erdCode.split("\n").length} lines</span>
+                    <span>{countLines(erdCode)} lines</span>
                     <span>•</span>
                     <span>{entities.length} entities</span>
                   </div>
@@ -1711,19 +1720,14 @@ function DesignPage() {
                       style={{ lineHeight: "20px" }}
                       spellCheck={false}
                       placeholder="Enter Mermaid ERD syntax here..."
+                      aria-label="Mermaid ERD code"
                     />
                   </div>
-                  <div className="absolute bottom-4 right-4 flex items-center gap-3 text-xs text-slate-500">
-                    <span>{erdCode.split("\n").length} lines</span>
-                    <span>•</span>
-                    <span>{entities.length} entities</span>
-                    {errorLine && (
-                      <>
-                        <span>•</span>
-                        <span className="text-red-600">Error on line {errorLine}</span>
-                      </>
-                    )}
-                  </div>
+                  {errorLine && (
+                    <div className="pointer-events-none absolute bottom-4 right-4 rounded-md bg-red-50 px-2 py-1 text-xs text-red-600 dark:bg-red-950">
+                      Error on line {errorLine}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1734,7 +1738,7 @@ function DesignPage() {
               isFullscreen ? "w-full h-screen" : showVersions || showEntityList ? "w-1/2" : "w-1/2"
             } flex flex-col bg-slate-50 dark:bg-slate-900 ${!isFullscreen ? "min-h-[calc(100vh-400px)]" : ""}`}
           >
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="p-6 pr-24 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Live Preview</h2>
               <div className="flex items-center gap-2">
                 {!isFullscreen && (
@@ -1825,6 +1829,7 @@ function DesignPage() {
                       }
                     }}
                     placeholder="Describe your entities in natural language... (Cmd+Enter to submit)"
+                    aria-label="Describe your entities"
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     disabled={isAiLoading}
                   />
@@ -2139,13 +2144,6 @@ function DesignPage() {
           </div>
         )}
 
-        <button
-          type="button"
-          className="fixed bottom-6 right-6 w-14 h-14 text-white rounded-full shadow-lg shadow-primary/50 flex items-center justify-center transition-all active:scale-95 z-40"
-          style={{ backgroundColor: "#FF8400" }}
-        >
-          <HelpCircle className="w-6 h-6" />
-        </button>
       </div>
       <DbOperationsModal
         isOpen={showDbModal}

@@ -8,7 +8,6 @@ import {
   EyeOff,
   FileCode2,
   Globe,
-  HelpCircle,
   Loader2,
   Plus,
   Rocket,
@@ -69,7 +68,7 @@ function DeployPage() {
 
   const [envVars, setEnvVars] = useState<EnvVariable[]>([
     { key: "DATABASE_URL", value: "", isSecret: true },
-    { key: "DATABASE_NAME", value: "taskflow", isSecret: false },
+    { key: "DATABASE_NAME", value: "", isSecret: false },
     { key: "API_KEY", value: "", isSecret: true },
     { key: "PORT", value: (project?.port || 4001).toString(), isSecret: false },
     { key: "NODE_ENV", value: "production", isSecret: false },
@@ -98,6 +97,18 @@ function DeployPage() {
         setDeploymentUrl(project.deploymentUrl);
         setDeploymentComplete(true);
       }
+      // The database is named after this project, not after a sample. Only an
+      // empty value is filled in, so a name the author typed is never replaced.
+      const databaseName =
+        project.name
+          ?.toLowerCase()
+          .replace(/[^a-z0-9]+/g, "_")
+          .replace(/^_+|_+$/g, "") || "app";
+      setEnvVars((vars) =>
+        vars.map((v) =>
+          v.key === "DATABASE_NAME" && !v.value ? { ...v, value: databaseName } : v
+        )
+      );
       if (project.databaseUrl) {
         setEnvVars((vars) =>
           vars.map((v) =>
@@ -328,7 +339,7 @@ function DeployPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div role="main" className="min-h-screen bg-background flex flex-col">
       <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <WizardStepHeader
@@ -344,7 +355,9 @@ function DeployPage() {
                 <button
                   type="button"
                   onClick={handleViewApp}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/25 transition-all active:scale-[0.98]"
+                  disabled={!deploymentUrl}
+                  title={deploymentUrl ? undefined : "Deploy the application first"}
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/25 transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
                 >
                   <Globe className="w-4 h-4" />
                   Open Local App
@@ -363,7 +376,7 @@ function DeployPage() {
                 <button
                   type="button"
                   onClick={handleBackToProjects}
-                  className="flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
+                  className="flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primary/90 text-slate-900 font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                   style={{ backgroundColor: "#FF8400" }}
                 >
                   <CheckCircle2 className="w-4 h-4" />
@@ -404,7 +417,7 @@ function DeployPage() {
                   <button
                     type="button"
                     onClick={handleAddEnvVar}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white text-sm font-medium rounded-lg transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-primary hover:bg-primary/90 text-slate-900 text-sm font-medium rounded-lg transition-colors"
                     style={{ backgroundColor: "#FF8400" }}
                   >
                     <Plus className="w-4 h-4" />
@@ -420,6 +433,7 @@ function DeployPage() {
                         value={envVar.key}
                         onChange={(e) => handleEnvVarChange(index, "key", e.target.value)}
                         placeholder="KEY"
+                        aria-label={`Variable ${index + 1} name`}
                         className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                         style={{ "--tw-ring-color": "#FF8400" } as React.CSSProperties}
                       />
@@ -429,6 +443,7 @@ function DeployPage() {
                           value={envVar.value}
                           onChange={(e) => handleEnvVarChange(index, "value", e.target.value)}
                           placeholder="value"
+                          aria-label={`${envVar.key || `Variable ${index + 1}`} value`}
                           className="w-full px-3 py-2 pr-10 bg-background border border-border rounded-lg text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                           style={{ "--tw-ring-color": "#FF8400" } as React.CSSProperties}
                         />
@@ -436,6 +451,7 @@ function DeployPage() {
                           <button
                             type="button"
                             onClick={() => toggleSecretVisibility(envVar.key)}
+                            aria-label={`${showSecrets[envVar.key] ? "Hide" : "Show"} ${envVar.key} value`}
                             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
                           >
                             {showSecrets[envVar.key] ? (
@@ -458,6 +474,7 @@ function DeployPage() {
                       <button
                         type="button"
                         onClick={() => handleRemoveEnvVar(index)}
+                        aria-label={`Remove ${envVar.key || `variable ${index + 1}`}`}
                         className="p-2 hover:bg-red-500/10 rounded-lg transition-colors"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
@@ -476,7 +493,7 @@ function DeployPage() {
                 <button
                   type="button"
                   onClick={handleDeploy}
-                  className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-slate-900 font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                   style={{ backgroundColor: "#FF8400" }}
                 >
                   <Rocket className="w-5 h-5" />
@@ -556,7 +573,7 @@ function DeployPage() {
                         {serverStatus === "running" && (
                           <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
                             <Clock className="w-4 h-4" style={{ color: "#FF8400" }} />
-                            <span className="font-medium" style={{ color: "#FF8400" }}>
+                            <span className="text-brand font-medium">
                               {uptime}
                             </span>
                           </div>
@@ -600,8 +617,7 @@ function DeployPage() {
                         href={deploymentUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 font-mono text-sm hover:underline"
-                        style={{ color: "#FF8400" }}
+                        className="text-brand flex-1 font-mono text-sm hover:underline"
                       >
                         {deploymentUrl}
                       </a>
@@ -625,8 +641,8 @@ function DeployPage() {
                   <span className="ml-4 text-muted-foreground">Deployment Logs</span>
                   {isDeploying && (
                     <span
-                      className="ml-auto px-3 py-1 text-xs rounded-full font-sans"
-                      style={{ backgroundColor: "rgba(255, 132, 0, 0.2)", color: "#FF8400" }}
+                      className="text-brand ml-auto px-3 py-1 text-xs rounded-full font-sans"
+                      style={{ backgroundColor: "rgba(255, 132, 0, 0.2)" }}
                     >
                       IN PROGRESS
                     </span>
@@ -705,13 +721,6 @@ function DeployPage() {
         </div>
       </div>
 
-      <button
-        type="button"
-        className="fixed bottom-6 right-6 w-14 h-14 text-white rounded-full shadow-lg shadow-primary/50 flex items-center justify-center transition-all active:scale-95 z-40"
-        style={{ backgroundColor: "#FF8400" }}
-      >
-        <HelpCircle className="w-6 h-6" />
-      </button>
     </div>
   );
 }
