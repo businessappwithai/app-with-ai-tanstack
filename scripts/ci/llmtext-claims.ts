@@ -182,7 +182,7 @@ for (const name of DOCUMENTS) {
    *
    * The checker answers "would the generator refuse this model". Nothing in it
    * requires a model to *have* a lifecycle, a rule, an access rule or a word of
-   * help text, so a bare ERD is 0 errors and 0 warnings — and these documents
+   * help text, so a bare ERD is 0 errors (its help gaps are warnings) — and these documents
    * used to point at `scripts/check-model.mjs` in the website repository for the
    * other question, which the reader of this text has no clone of. It is a
    * published runner now, and every edition has to offer it by URL.
