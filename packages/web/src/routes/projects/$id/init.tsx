@@ -412,7 +412,7 @@ function InitPage() {
             <button
               type="button"
               onClick={handleContinue}
-              className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
+              className="flex-1 bg-primary hover:bg-primary/90 text-slate-900 font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
               style={{ backgroundColor: "#FF8400" }}
             >
               Continue to Design

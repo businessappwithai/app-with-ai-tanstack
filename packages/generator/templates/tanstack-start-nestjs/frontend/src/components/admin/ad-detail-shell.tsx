@@ -875,7 +875,7 @@ export function ADDetailShell({
           </Link>
           {crumbs.slice(0, -1).map((c, i) => (
             <span key={i} className="flex items-center gap-1.5">
-              <span className="text-muted-foreground/50">/</span>
+              <span aria-hidden="true" className="text-muted-foreground/50">/</span>
               {c.href ? (
                 <Link
                   to={c.href as never}
@@ -901,7 +901,7 @@ export function ADDetailShell({
               >
                 ← List
               </button>
-              <span className="text-muted-foreground/40">|</span>
+              <span aria-hidden="true" className="text-muted-foreground/40">|</span>
               <h1 className="text-xl font-semibold text-foreground truncate">{currentName}</h1>
               {!!currentRecord?.doc_status && currentRecord.doc_status !== "none" && (
                 <DocStatusBadge

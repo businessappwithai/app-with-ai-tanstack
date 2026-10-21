@@ -46,6 +46,7 @@ import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
 import type { ERDVersion } from "@/lib/api/projects";
 import { erdVersionsApi } from "@/lib/api/projects";
+import { useCopilotInputLabel } from "@/hooks/useCopilotInputLabel";
 import { toRenderableMermaid } from "@/lib/mermaid-render";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
@@ -88,6 +89,7 @@ function DesignRoute() {
 }
 
 function DesignPage() {
+  useCopilotInputLabel();
   const navigate = useNavigate();
   const { id: projectId } = Route.useParams();
 
@@ -1238,7 +1240,7 @@ function DesignPage() {
                       <List className="w-4 h-4" />
                       Entities
                       {entities.length > 0 && (
-                        <span className="px-1.5 py-0.5 text-xs bg-purple-500 text-white rounded-full">
+                        <span className="px-1.5 py-0.5 text-xs bg-purple-700 text-white rounded-full">
                           {entities.length}
                         </span>
                       )}
@@ -1261,7 +1263,7 @@ function DesignPage() {
                       Versions
                       {versions.length > 0 && (
                         <span
-                          className="px-1.5 py-0.5 text-xs text-white rounded-full"
+                          className="px-1.5 py-0.5 text-xs text-slate-900 rounded-full"
                           style={{ backgroundColor: "#FF8400" }}
                         >
                           {versions.length}
@@ -1329,7 +1331,7 @@ function DesignPage() {
                     <button
                       type="button"
                       onClick={handleGenerate}
-                      className="flex items-center gap-2 px-6 py-2 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
+                      className="flex items-center gap-2 px-6 py-2 text-slate-900 font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
                       style={{ backgroundColor: "#FF8400" }}
                     >
                       <Zap className="w-4 h-4" />
@@ -1638,7 +1640,7 @@ function DesignPage() {
                     <h2 className="text-lg font-semibold text-foreground">Mermaid ERD Code</h2>
                     {versions.length > 0 && (
                       <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                        <span className="font-mono" style={{ color: "#FF8400" }}>
+                        <span className="text-brand font-mono">
                           v{versions.length}
                         </span>
                         <span>•</span>

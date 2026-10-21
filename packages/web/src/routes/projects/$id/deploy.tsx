@@ -376,7 +376,7 @@ function DeployPage() {
                 <button
                   type="button"
                   onClick={handleBackToProjects}
-                  className="flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
+                  className="flex items-center gap-2 px-6 py-2 bg-primary hover:bg-primary/90 text-slate-900 font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                   style={{ backgroundColor: "#FF8400" }}
                 >
                   <CheckCircle2 className="w-4 h-4" />
@@ -417,7 +417,7 @@ function DeployPage() {
                   <button
                     type="button"
                     onClick={handleAddEnvVar}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-primary hover:bg-primary/90 text-white text-sm font-medium rounded-lg transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-primary hover:bg-primary/90 text-slate-900 text-sm font-medium rounded-lg transition-colors"
                     style={{ backgroundColor: "#FF8400" }}
                   >
                     <Plus className="w-4 h-4" />
@@ -493,7 +493,7 @@ function DeployPage() {
                 <button
                   type="button"
                   onClick={handleDeploy}
-                  className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-slate-900 font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                   style={{ backgroundColor: "#FF8400" }}
                 >
                   <Rocket className="w-5 h-5" />
@@ -573,7 +573,7 @@ function DeployPage() {
                         {serverStatus === "running" && (
                           <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg">
                             <Clock className="w-4 h-4" style={{ color: "#FF8400" }} />
-                            <span className="font-medium" style={{ color: "#FF8400" }}>
+                            <span className="text-brand font-medium">
                               {uptime}
                             </span>
                           </div>
@@ -617,8 +617,7 @@ function DeployPage() {
                         href={deploymentUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 font-mono text-sm hover:underline"
-                        style={{ color: "#FF8400" }}
+                        className="text-brand flex-1 font-mono text-sm hover:underline"
                       >
                         {deploymentUrl}
                       </a>
@@ -642,8 +641,8 @@ function DeployPage() {
                   <span className="ml-4 text-muted-foreground">Deployment Logs</span>
                   {isDeploying && (
                     <span
-                      className="ml-auto px-3 py-1 text-xs rounded-full font-sans"
-                      style={{ backgroundColor: "rgba(255, 132, 0, 0.2)", color: "#FF8400" }}
+                      className="text-brand ml-auto px-3 py-1 text-xs rounded-full font-sans"
+                      style={{ backgroundColor: "rgba(255, 132, 0, 0.2)" }}
                     >
                       IN PROGRESS
                     </span>

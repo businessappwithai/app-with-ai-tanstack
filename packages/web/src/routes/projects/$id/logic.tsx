@@ -19,6 +19,7 @@ import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
 import { type ModelRule, ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
+import { useCopilotInputLabel } from "@/hooks/useCopilotInputLabel";
 import { projectDryRun } from "@/lib/eml/project-dry-run";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
@@ -98,6 +99,7 @@ interface EmlResponse {
  * application's Rules & workflows screen renders too.
  */
 function LogicPage() {
+  useCopilotInputLabel();
   const { id } = Route.useParams();
   const ruleDryRun = useMemo(() => projectDryRun(id), [id]);
   const navigate = useNavigate();

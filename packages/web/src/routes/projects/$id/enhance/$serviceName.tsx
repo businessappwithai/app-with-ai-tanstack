@@ -1142,7 +1142,7 @@ function ServiceWorkflowPage() {
                   type="button"
                   onClick={handleValidate}
                   disabled={selectedHooks.length === 0 || isValidating}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-slate-900 font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: "#FF8400" }}
                 >
                   {isValidating ? (
@@ -1665,7 +1665,7 @@ function ServiceWorkflowPage() {
                           type="button"
                           onClick={saveRules}
                           disabled={isSavingRules}
-                          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+                          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-slate-900 disabled:opacity-50"
                           style={{ backgroundColor: "#FF8400" }}
                         >
                           {isSavingRules ? (
