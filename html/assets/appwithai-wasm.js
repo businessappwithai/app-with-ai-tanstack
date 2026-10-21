@@ -6252,6 +6252,27 @@ class MermaidParser {
       child.parentEntity = parent.name;
       child.parentLinkColumn = link.name;
     }
+    this.flattenNestedLineItems(entities);
+  }
+  flattenNestedLineItems(entities) {
+    const byName = new Map(entities.map((entity) => [entity.name, entity]));
+    const depth = (entity) => {
+      let levels = 0;
+      const seen = new Set;
+      for (let current = entity.parentEntity ? byName.get(entity.parentEntity) : undefined;current && !seen.has(current.name); current = current.parentEntity ? byName.get(current.parentEntity) : undefined) {
+        seen.add(current.name);
+        levels++;
+      }
+      return levels;
+    };
+    const nested = entities.filter((entity) => entity.parentEntity).map((entity) => ({ entity, levels: depth(entity) })).sort((a, b) => a.levels - b.levels);
+    for (const { entity } of nested) {
+      const parent = entity.parentEntity ? byName.get(entity.parentEntity) : undefined;
+      if (!parent?.parentEntity)
+        continue;
+      entity.parentEntity = undefined;
+      entity.parentLinkColumn = undefined;
+    }
   }
   parseIndexDirective(line) {
     const match = line.match(/^%%index\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s*(unique)?\s*$/i);

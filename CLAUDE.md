@@ -383,6 +383,46 @@ the entity's rows silently skipped), but only when the parent entity is *not dec
 that is merely not seeded yet (a cycle) stays null, because a uuid there would fail a real foreign key.
 Held by `templates/__tests__/seed-unresolved-fk.test.ts` and the last block of `sample-data.test.ts`.
 
+### A line item of a line item is generated as a top-level entity
+
+`%%entity CargoItem parent: Shipment` beside `%%entity DangerousGoods parent: CargoItem`
+checks clean — the checker has no rule against a chain — and the NestJS dictionary seed then
+named `cargoItemWindowId`, a variable it declares only for top-level entities, so the generated
+backend did not compile (found by generating `examples/shipping-management-system.eml.mmd`).
+The tab model has two levels: a child's tab is one level inside a top-level entity's window,
+and `use-bus-entity-level.ts` lists a window's level-1 tabs for the open record. So
+`attachParents` in `parsers/mermaid.parser.ts` (`flattenNestedLineItems`) drops `parent:` from
+an entity whose parent is itself a child, shallowest first: the deeper one keeps its foreign key
+and gets a window and a dashboard card of its own; in a chain of three the third re-attaches to
+the second. Held by `parsers/__tests__/nested-line-items.test.ts`. The checker still says
+nothing about it — a diagnostic would be a language change in three repositories.
+
+### A table whose name ends in "s" is not a plural
+
+`BusService.getTableName` and `EntityAccessGuard.getTableName` map a bare entity name to
+`bus_<singular>` so a plural REST path still works. The front end sends the bare table name, so
+`dangerous_goods` became `bus_dangerous_good`: the list answered "Entity not found" and the
+guard checked access against a table nothing declares. Both templates now carry
+`MODEL_TABLES` and prefer an exact match before singularizing. Held by
+`templates/__tests__/model-table-names.test.ts`.
+
+### The generated suites vary what a model's constraints make unique, and repair what its rules reconcile
+
+Three things the shipping model needed of `tests/harness/`, each of which failed whole suites
+before it was taught:
+
+- **`%%index E(a, b) unique`** is a property of the pair. The factory gives a non-reference
+  member a distinct value (`distinctValue`), and `createWithParents` / `buildValidRecord` use a
+  fresh parent for the first reference when every member is a reference — or when the caller
+  pinned a plain member (`distinctParentColumns`). `uniqueTogether` comes from
+  `BunE2ETestGenerator.withUniqueTogether`.
+- **`repairEqualities` reaches through `or` as well as `and`.** A model writes "these reconcile"
+  as `gross_amount != net_amount + tax_amount or open_amount < 0 or …`; looking only through
+  `and` left the equality alone and every update of the stored record was refused by the rule
+  under test.
+- **A suite never pins a column a refusing rule reads** — `firstUnruledNumericField`, as
+  `firstTextField` already did for text. On a delivery line all four quantities are in one rule.
+
 ### Optimistic locking — one contract, every target
 
 Every generated table carries the managed `version` column, and every target

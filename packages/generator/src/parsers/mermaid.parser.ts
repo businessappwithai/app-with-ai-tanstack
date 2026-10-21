@@ -303,6 +303,51 @@ export class MermaidParser {
       child.parentEntity = parent.name;
       child.parentLinkColumn = link.name;
     }
+
+    this.flattenNestedLineItems(entities);
+  }
+
+  /**
+   * A line item of a line item stands on its own.
+   *
+   * A child has no window: its tab lives in its parent's, one level down, and
+   * the window the front end opens is the one a top-level entity owns. A child
+   * whose parent is itself a child therefore names a window that was never
+   * created — the dictionary seed referenced `cargoItemWindowId` for
+   * `DangerousGoods parent: CargoItem` while `CargoItem parent: Shipment`, and
+   * the generated backend failed to compile. The tab model has two levels, so
+   * the deeper entity keeps its foreign key and gets a window of its own, the
+   * way an entity that declared no `parent:` does. Entities are taken
+   * shallowest first, so in a chain of three the third is a child of the second
+   * once the second has been made top-level.
+   */
+  private flattenNestedLineItems(entities: Entity[]): void {
+    const byName = new Map(entities.map((entity) => [entity.name, entity]));
+    const depth = (entity: Entity): number => {
+      let levels = 0;
+      const seen = new Set<string>();
+      for (
+        let current = entity.parentEntity ? byName.get(entity.parentEntity) : undefined;
+        current && !seen.has(current.name);
+        current = current.parentEntity ? byName.get(current.parentEntity) : undefined
+      ) {
+        seen.add(current.name);
+        levels++;
+      }
+      return levels;
+    };
+
+    const nested = entities
+      .filter((entity) => entity.parentEntity)
+      .map((entity) => ({ entity, levels: depth(entity) }))
+      .sort((a, b) => a.levels - b.levels);
+
+    for (const { entity } of nested) {
+      const parent = entity.parentEntity ? byName.get(entity.parentEntity) : undefined;
+      if (!parent?.parentEntity) continue;
+      entity.parentEntity = undefined;
+      entity.parentLinkColumn = undefined;
+    }
   }
 
   /**

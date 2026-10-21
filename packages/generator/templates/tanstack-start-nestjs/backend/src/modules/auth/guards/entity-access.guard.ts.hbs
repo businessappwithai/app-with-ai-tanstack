@@ -444,9 +444,22 @@ export class EntityAccessGuard implements CanActivate {
   }
 
   /** Deliberate copy of BusService.getTableName — see the note at the top. */
+  /**
+   * The tables the model declares. A bare name that is already one of them is
+   * not a plural: `dangerous_goods` is a table, and singularizing it to
+   * `dangerous_good` pointed the list, the form and the access check at a table
+   * that does not exist.
+   */
+  private static readonly MODEL_TABLES = new Set<string>([
+{{#each entities}}
+    '{{tableName}}',
+{{/each}}
+  ]);
+
   private getTableName(entity: string): string {
     const normalized = entity.toLowerCase().replace(/-/g, '_');
     if (normalized.startsWith('bus_')) return normalized;
+    if (EntityAccessGuard.MODEL_TABLES.has(`bus_${normalized}`)) return `bus_${normalized}`;
     return `bus_${this.singularize(normalized)}`;
   }
 
