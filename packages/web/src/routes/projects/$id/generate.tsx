@@ -47,7 +47,7 @@ const stackOptions: StackOption[] = [
     icon: <Database className="w-8 h-8" />,
     features: [
       "NestJS REST API",
-      "Knex.js with PostgreSQL",
+      "Kysely with PostgreSQL",
       "TanStack Start Frontend",
       "Monorepo Architecture",
       // Matches DEFAULT_FRONTEND_PORT / DEFAULT_BACKEND_PORT in

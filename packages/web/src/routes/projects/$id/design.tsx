@@ -15,7 +15,6 @@ import {
   FileText,
   FolderOpen,
   GitCommit,
-  HelpCircle,
   History,
   Library,
   List,
@@ -69,6 +68,12 @@ export const Route = createFileRoute("/projects/$id/design")({
   },
   component: DesignRoute,
 });
+
+/** Lines as `wc -l` and the model's own file contract count them: a trailing newline ends a line. */
+function countLines(text: string): number {
+  if (text === "") return 0;
+  return text.endsWith("\n") ? text.split("\n").length - 1 : text.split("\n").length;
+}
 
 // CopilotProvider must sit ABOVE the component that calls useCopilotReadable /
 // useCopilotAction. Rendering it inside DesignPage's own JSX puts the context
@@ -682,10 +687,12 @@ function DesignPage() {
       const id = `validate-${Date.now()}`;
       await mermaid.render(id, toRenderableMermaid(erdCode));
       setValidationErrors([]);
+      setSaveNotice(`Validated: the diagram parses (${entities.length} entities).`);
     } catch (error) {
       setValidationErrors([
         error instanceof Error ? error.message : "The diagram could not be parsed.",
       ]);
+      setSaveNotice("Validation failed: see the errors above the editor.");
     } finally {
       setIsValidating(false);
     }
@@ -1648,7 +1655,7 @@ function DesignPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{erdCode.split("\n").length} lines</span>
+                    <span>{countLines(erdCode)} lines</span>
                     <span>•</span>
                     <span>{entities.length} entities</span>
                   </div>
@@ -1713,17 +1720,11 @@ function DesignPage() {
                       placeholder="Enter Mermaid ERD syntax here..."
                     />
                   </div>
-                  <div className="absolute bottom-4 right-4 flex items-center gap-3 text-xs text-slate-500">
-                    <span>{erdCode.split("\n").length} lines</span>
-                    <span>•</span>
-                    <span>{entities.length} entities</span>
-                    {errorLine && (
-                      <>
-                        <span>•</span>
-                        <span className="text-red-600">Error on line {errorLine}</span>
-                      </>
-                    )}
-                  </div>
+                  {errorLine && (
+                    <div className="pointer-events-none absolute bottom-4 right-4 rounded-md bg-red-50 px-2 py-1 text-xs text-red-600 dark:bg-red-950">
+                      Error on line {errorLine}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1734,7 +1735,7 @@ function DesignPage() {
               isFullscreen ? "w-full h-screen" : showVersions || showEntityList ? "w-1/2" : "w-1/2"
             } flex flex-col bg-slate-50 dark:bg-slate-900 ${!isFullscreen ? "min-h-[calc(100vh-400px)]" : ""}`}
           >
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="p-6 pr-24 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Live Preview</h2>
               <div className="flex items-center gap-2">
                 {!isFullscreen && (
@@ -2139,13 +2140,6 @@ function DesignPage() {
           </div>
         )}
 
-        <button
-          type="button"
-          className="fixed bottom-6 right-6 w-14 h-14 text-white rounded-full shadow-lg shadow-primary/50 flex items-center justify-center transition-all active:scale-95 z-40"
-          style={{ backgroundColor: "#FF8400" }}
-        >
-          <HelpCircle className="w-6 h-6" />
-        </button>
       </div>
       <DbOperationsModal
         isOpen={showDbModal}

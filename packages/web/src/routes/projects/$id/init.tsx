@@ -336,7 +336,7 @@ function InitPage() {
                   </div>
                 ) : (
                   <div className="bg-muted border border-border text-foreground rounded-xl px-4 py-3">
-                    Full Stack: TanStack Start + NestJS + Knex.js
+                    Full Stack: TanStack Start + NestJS + Kysely
                   </div>
                 )}
                 {!isNewProject && (
