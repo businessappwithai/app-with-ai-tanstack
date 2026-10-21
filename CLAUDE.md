@@ -394,8 +394,12 @@ and `use-bus-entity-level.ts` lists a window's level-1 tabs for the open record.
 `attachParents` in `parsers/mermaid.parser.ts` (`flattenNestedLineItems`) drops `parent:` from
 an entity whose parent is itself a child, shallowest first: the deeper one keeps its foreign key
 and gets a window and a dashboard card of its own; in a chain of three the third re-attaches to
-the second. Held by `parsers/__tests__/nested-line-items.test.ts`. The checker still says
-nothing about it — a diagnostic would be a language change in three repositories.
+the second. Held by `parsers/__tests__/nested-line-items.test.ts`. The checker says so too:
+`EML155` (info — the result is well defined and may be what the author wants) reports the
+entity the parser makes top-level, by the same algorithm in `checkLineItems`; the two have to
+stay in step, and `generators/__tests__/nested-line-items-check.test.ts` holds them against
+each other. It is a language change: the canonical copy in `app-and-report-with-ai-tanstack`
+and the one in `enterprise_reporting_tanstack` do not have it until they are brought level.
 
 ### A table whose name ends in "s" is not a plural
 
