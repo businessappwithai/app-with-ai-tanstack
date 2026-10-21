@@ -267,6 +267,24 @@ export class BunE2ETestGenerator extends BaseGenerator {
   }
 
   /**
+   * Hang `uniqueTogether` on every entity that declares a unique index over more
+   * than one column — `%%index BookingShipment(booking_id, shipment_id) unique`.
+   *
+   * A single-column unique index is already on the column (`unique`), and the
+   * factory salts it. A pair is a property of the entity, and a suite that reuses
+   * one parent for every record it creates writes the same pair twice and is
+   * refused with a 409 that is the constraint working, not the application failing.
+   */
+  private withUniqueTogether(entities: BusEntity[]): BusEntity[] {
+    return entities.map((entity) => ({
+      ...entity,
+      uniqueTogether: (entity.indexes ?? [])
+        .filter((index) => index.unique && index.columns.length > 1)
+        .map((index) => index.columns),
+    })) as BusEntity[];
+  }
+
+  /**
    * Every condition under which a compiled rule refuses a write, as text.
    *
    * The factory redraws a record that would trip one (see `harness/factory.ts`),
@@ -304,7 +322,7 @@ export class BunE2ETestGenerator extends BaseGenerator {
     entities: BusEntity[],
     relationships: Relationship[]
   ): Record<string, unknown> {
-    entities = this.withValueCeilings(entities);
+    entities = this.withUniqueTogether(this.withValueCeilings(entities));
     return {
       project: {
         name: this.options.projectName,
