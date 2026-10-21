@@ -422,6 +422,14 @@ before it was taught:
   under test.
 - **A suite never pins a column a refusing rule reads** — `firstUnruledNumericField`, as
   `firstTextField` already did for text. On a delivery line all four quantities are in one rule.
+- **A suite that leaves a row behind never writes a constant into a unique column, and never
+  lists more than it filters.** Suite 09 wrote `42` into the second text column of the first
+  entity that had two — `Branch.code`, which is unique — so the first run passed and every re-run
+  on that database was refused (`pickColumns` takes a non-unique one). Suite 23 listed
+  `/rules?limit=200` and looked for its rule in it; past 200 rules, whether it was there depended
+  on the order they came back in, so it now filters by its own entity. Both passed on a fresh
+  database, which is why the full run did: **run the suite twice on one database** before
+  calling a harness change done.
 
 ### Optimistic locking — one contract, every target
 

@@ -144,7 +144,10 @@ describe("rules & workflows API", () => {
       title: "Another way to say it",
     });
     expect(renamed.data.title).toBe("Another way to say it");
-    const listed = await harness.client.get<Array<{ id: string; title?: string }> | { rules?: Array<{ id: string; title?: string }> }>("/rules?limit=200");
+    // This entity's rules only: the unfiltered list is capped at 200 and an
+    // installation that has been tested a few times holds more than that, so
+    // whether the new rule was on the page depended on the order it came back in.
+    const listed = await harness.client.get<Array<{ id: string; title?: string }> | { rules?: Array<{ id: string; title?: string }> }>(`/rules?entityName=${encodeURIComponent(table)}&limit=200`);
     const rows = Array.isArray(listed.data) ? listed.data : (listed.data.rules ?? []);
     expect(rows.find((row) => row.id === made.data.id)?.title).toBe("Another way to say it");
     await harness.client.delete(`/rules/${made.data.id}`, { allowFailure: true });
