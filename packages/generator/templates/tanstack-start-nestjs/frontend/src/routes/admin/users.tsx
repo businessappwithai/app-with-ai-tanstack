@@ -17,6 +17,8 @@ interface SysUser {
   roles?: string[];
 }
 
+const EMPTY_USER = { name: '', email: '', password: '', roleName: 'User' };
+
 function UsersPage() {
   const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery<{ data: SysUser[] }>({
@@ -27,13 +29,21 @@ function UsersPage() {
   // This screen is the only way an account comes into existence — the
   // application has no sign-up page and the server refuses public sign-up.
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState(EMPTY_USER);
+
+  // The role the account starts with. Without a choice every account was a
+  // plain User, and an administrator had nowhere on this screen to say otherwise.
+  const { data: rolesData } = useQuery<{ data: { sys_role_id: string; name: string }[] }>({
+    queryKey: ['admin', 'sys-roles'],
+    queryFn: () => apiClient.get('/sys/roles'),
+    enabled: showForm,
+  });
+  const roles = rolesData?.data ?? [];
 
   const createUser = useMutation({
-    mutationFn: (input: { name: string; email: string; password: string }) =>
-      apiClient.post('/sys/users', input),
+    mutationFn: (input: typeof EMPTY_USER) => apiClient.post('/sys/users', input),
     onSuccess: () => {
-      setForm({ name: '', email: '', password: '' });
+      setForm(EMPTY_USER);
       setShowForm(false);
       void queryClient.invalidateQueries({ queryKey: ['admin', 'sys-users'] });
     },
@@ -76,7 +86,7 @@ function UsersPage() {
               createUser.mutate(form);
             }}
           >
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <label className="text-sm">
                 <span className="mb-1 block text-muted-foreground">Name</span>
                 <input
@@ -108,6 +118,21 @@ function UsersPage() {
                   onChange={(event) => setForm({ ...form, password: event.target.value })}
                   className="w-full rounded-md border border-border bg-background px-3 py-2"
                 />
+              </label>
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">Role</span>
+                <select
+                  value={form.roleName}
+                  onChange={(event) => setForm({ ...form, roleName: event.target.value })}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2"
+                >
+                  {roles.length === 0 && <option value="User">User</option>}
+                  {roles.map((r) => (
+                    <option key={r.sys_role_id} value={r.name}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
             {createUser.isError && (

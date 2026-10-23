@@ -563,6 +563,16 @@ export class SysController {
     return this.sysService.findAllSysRoles();
   }
 
+  /** Create a role. Administrators only, as account creation is. */
+  @Post('roles')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Create a role (administrators only)' })
+  async createSysRole(
+    @Body() body: { name: string; description?: string; isMasterRole?: boolean }
+  ) {
+    return this.sysService.createSysRole(body);
+  }
+
   // ============================================================================
   // SYS_REPORT_DESIGN Endpoints
   // ============================================================================

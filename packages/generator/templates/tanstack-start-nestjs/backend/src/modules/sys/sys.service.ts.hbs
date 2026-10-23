@@ -1409,6 +1409,54 @@ export class SysService {
     return { data: { sys_user_id: sysUserId, name, email, is_active: true } };
   }
 
+  /**
+   * Create a role. Administrators only (the controller's `@Roles('admin')`).
+   *
+   * A new role starts active and with no access of its own: what it may read
+   * or change is granted afterwards, and a role nobody has granted anything
+   * is a role that sees nothing — the safe default for a freshly made one.
+   */
+  async createSysRole(input: { name: string; description?: string; isMasterRole?: boolean }) {
+    const name = (input.name ?? '').trim();
+    if (!name) throw new ConflictException('A role needs a name');
+    if (name.length > 100) throw new ConflictException('A role name is at most 100 characters');
+
+    const existing = await this.db.kysely
+      .selectFrom('sys_role')
+      .select('sys_role_id')
+      .where(sql`lower(name)`, '=', name.toLowerCase())
+      .executeTakeFirst();
+    if (existing) throw new ConflictException(`A role named "${name}" already exists`);
+
+    const sysRoleId = randomUUID();
+    const isMasterRole = input.isMasterRole === true;
+    const description = input.description?.trim() || null;
+    await this.db.kysely
+      .insertInto('sys_role')
+      .values({
+        sys_role_id: sysRoleId,
+        name,
+        description,
+        user_level: isMasterRole ? 'S' : 'C',
+        is_master_role: isMasterRole,
+        is_active: true,
+        entity_type: 'D',
+        created_by: 'admin',
+        updated_by: 'admin',
+      } as any)
+      .execute();
+
+    return {
+      data: {
+        sys_role_id: sysRoleId,
+        name,
+        description,
+        is_master_role: isMasterRole,
+        is_active: true,
+      },
+    };
+  }
+
   async findAllSysRoles() {
     const roles = await this.db.kysely
       .selectFrom('sys_role')
