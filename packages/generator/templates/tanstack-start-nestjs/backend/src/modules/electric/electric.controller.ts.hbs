@@ -236,10 +236,28 @@ export class ElectricController {
         'connection',
         'keep-alive',
       ]);
+      // The page may call this route cross-origin (VITE_ELECTRIC_PROXY_URL
+      // points at the API's own port) with `credentials: 'include'`. Electric
+      // answers `access-control-allow-origin: *`, which a browser rejects on a
+      // credentialed request; relayed, it also overwrites the specific origin
+      // Nest's CORS layer already set on this reply. So Electric's CORS
+      // headers are dropped and Nest's stand.
+      //
+      // `access-control-expose-headers` is deliberately NOT dropped: it is how
+      // Electric lets the client read electric-offset, electric-handle,
+      // electric-cursor, electric-schema, electric-up-to-date and
+      // electric-has-data. Without it sync cannot advance.
+      const CORS_HEADERS = new Set([
+        'access-control-allow-origin',
+        'access-control-allow-credentials',
+        'access-control-allow-methods',
+        'access-control-allow-headers',
+        'access-control-max-age',
+      ]);
       const headers: Record<string, string> = {};
       upstream.headers.forEach((value, key) => {
         const name = key.toLowerCase();
-        if (name === 'cache-control' || FRAMING.has(name)) return;
+        if (name === 'cache-control' || FRAMING.has(name) || CORS_HEADERS.has(name)) return;
         headers[key] = value;
       });
       headers['cache-control'] = 'private, no-store';
