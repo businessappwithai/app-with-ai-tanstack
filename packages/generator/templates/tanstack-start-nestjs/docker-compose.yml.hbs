@@ -121,6 +121,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       SESSION_SECRET: ${SESSION_SECRET:-change-me-in-production}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
+      # The administrator's password (8+ characters). Unset: the seed's default.
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
       ELECTRIC_URL: http://electric:3000
       # The AI assistant — retrieval over this application's own model.
@@ -169,6 +171,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       SESSION_SECRET: ${SESSION_SECRET:-change-me-in-production}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production}
+      # The administrator's password (8+ characters). Unset: the seed's default.
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
       PORT: {{project.backendPort}}
       # No immudb service is composed here; left unset the backend tries to
