@@ -230,6 +230,13 @@ services:
         # See the note at the top of this file.
         VITE_API_URL: ${VITE_API_URL:-}
         VITE_APP_URL: ${VITE_APP_URL:-http://localhost:{{project.frontendPort}}}
+        # Dictionary shape requests go straight to the API's port, a separate
+        # connection pool from the page's. Through this origin the long-polling
+        # shapes occupy all six HTTP/1.1 slots and starve every other request.
+        # Needs CORS_ORIGIN to name the page's origin (its default does). Behind
+        # a reverse proxy or on another host, set VITE_ELECTRIC_PROXY_URL to the
+        # API's public address, or to '/api/v1/shape' to stay on one origin.
+        VITE_ELECTRIC_PROXY_URL: ${VITE_ELECTRIC_PROXY_URL:-http://localhost:{{project.backendPort}}/api/v1/shape}
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-{{project.frontendPort}}}:{{project.frontendPort}}"

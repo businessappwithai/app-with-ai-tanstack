@@ -44,3 +44,24 @@ describe.each([
     expect(last.startsWith("oven/bun:1.4.3-alpine")).toBe(true);
   });
 });
+
+describe("Electric shapes do not share the page's connection pool", () => {
+  const read = (f: string) => readFileSync(join(ROOT, f), "utf8");
+
+  it("passes VITE_ELECTRIC_PROXY_URL to the front-end build, defaulting to the API port", () => {
+    expect(read("frontend/Dockerfile.hbs")).toContain(
+      "ENV VITE_ELECTRIC_PROXY_URL=${VITE_ELECTRIC_PROXY_URL}"
+    );
+    expect(read("docker-compose.yml.hbs")).toMatch(
+      /VITE_ELECTRIC_PROXY_URL: \$\{VITE_ELECTRIC_PROXY_URL:-http:\/\/localhost:\{\{project\.backendPort\}\}\/api\/v1\/shape\}/
+    );
+  });
+
+  it("drops Electric's CORS headers but keeps access-control-expose-headers", () => {
+    const src = read("backend/src/modules/electric/electric.controller.ts.hbs");
+    const set = /const CORS_HEADERS = new Set\(\[([\s\S]*?)\]\)/.exec(src)?.[1] ?? "";
+    expect(set).toContain("access-control-allow-origin");
+    expect(set).toContain("access-control-allow-credentials");
+    expect(set).not.toContain("expose-headers");
+  });
+});

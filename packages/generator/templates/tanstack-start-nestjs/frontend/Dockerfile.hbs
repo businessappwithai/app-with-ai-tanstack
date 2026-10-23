@@ -39,8 +39,16 @@ WORKDIR /app/frontend
 # time, is where that forwarding goes.
 ARG VITE_API_URL=
 ARG VITE_APP_URL
+# Where the dictionary's Electric shape requests go. Empty means same origin
+# (/api/v1/shape through this server). Compose sets it to the API's own port:
+# each shape is a long poll, there are several, and a browser allows six HTTP/1.1
+# connections per origin — so through this origin they took every slot and every
+# chunk, navigation and API call queued behind them (a 15 s navigation timeout,
+# 10 s notification polls). A second origin is a second pool of six.
+ARG VITE_ELECTRIC_PROXY_URL=
 ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_APP_URL=${VITE_APP_URL}
+ENV VITE_ELECTRIC_PROXY_URL=${VITE_ELECTRIC_PROXY_URL}
 
 # Raise this if the build reports "heap out of memory"; lower it on a small
 # Docker VM. Docker Desktop: Settings > Resources > Memory.
