@@ -97,6 +97,40 @@ function ChildPanel({ childTab, parentRecord, selfLevel, parentContext }: ChildP
   const records = data?.data ?? [];
   const totalCount = data?.meta?.total ?? 0;
 
+  // A line is created where it is read: inside its parent's tab, with the
+  // reference to the parent filled in and hidden. The detail toolbar's New
+  // belongs to the parent level, so without this a child could only be added
+  // by leaving the record for the child's own list.
+  const queryClient = useQueryClient();
+  const [isCreating, setIsCreating] = useState(false);
+  const [createErrors, setCreateErrors] = useState<string[]>([]);
+  const parentLink: AnyRecord = childLevel.parentField
+    ? { [childLevel.parentField]: parentId }
+    : {};
+
+  const createMutation = useMutation({
+    mutationFn: (formData: AnyRecord) =>
+      apiClient.post<AnyRecord>(childLevel.endpoint, { ...formData, ...parentLink }),
+    onSuccess: () => {
+      toast.success(`${childLevel.label} created`);
+      queryClient.invalidateQueries({ queryKey: ["ad-child", childLevel.endpoint, parentId] });
+      queryClient.invalidateQueries({
+        queryKey: ["ad-child-count", childLevel.endpoint, parentId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["ad-list", childLevel.endpoint] });
+      setIsCreating(false);
+      setCreateErrors([]);
+    },
+    onError: (err: any) => {
+      const specific = Array.isArray(err?.errors) ? (err.errors as string[]) : null;
+      const fallback = Array.isArray(err?.message)
+        ? err.message.join(", ")
+        : (err?.message ?? "Failed to create");
+      setCreateErrors(specific ?? [fallback]);
+      toast.error(specific?.[0] ?? fallback);
+    },
+  });
+
   return (
     <div>
       {/* Child list link */}
@@ -105,13 +139,57 @@ function ChildPanel({ childTab, parentRecord, selfLevel, parentContext }: ChildP
           {totalCount} {childLevel.label}
           {totalCount !== 1 ? "s" : ""}
         </span>
-        <Link
-          to={buildAdminListUrl(childParentCtx, childLevel) as never}
-          className="flex items-center gap-1 text-xs text-primary hover:underline"
-        >
-          View all <ExternalLink className="h-3 w-3" />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Button
+            size="sm"
+            variant={isCreating ? "ghost" : "outline"}
+            className="h-7 gap-1 text-xs"
+            onClick={() => {
+              setIsCreating((open) => !open);
+              setCreateErrors([]);
+            }}
+          >
+            {isCreating ? (
+              "Cancel"
+            ) : (
+              <>
+                <FilePlus2 className="h-3.5 w-3.5" /> New {childLevel.label}
+              </>
+            )}
+          </Button>
+          <Link
+            to={buildAdminListUrl(childParentCtx, childLevel) as never}
+            className="flex items-center gap-1 text-xs text-primary hover:underline"
+          >
+            View all <ExternalLink className="h-3 w-3" />
+          </Link>
+        </div>
       </div>
+      {isCreating && (
+        <div className="mx-4 mt-2 rounded-md border border-border bg-muted/20 p-4">
+          <DynamicForm
+            tableName={childLevel.id}
+            idField={childLevel.idField}
+            fields={childLevel.formFields}
+            initialData={parentLink}
+            parentField={childLevel.parentField}
+            parentContext={parentRecord}
+            onSubmit={(fd) => createMutation.mutate(fd)}
+            mode="create"
+            isSaving={createMutation.isPending}
+          />
+          {createErrors.length > 0 && (
+            <div className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-3">
+              <p className="text-sm font-medium text-destructive mb-1">Validation failed</p>
+              <ul className="text-xs text-destructive/90 space-y-0.5 list-disc list-inside">
+                {createErrors.map((e, i) => (
+                  <li key={i}>{e}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
       <div className="p-4">
         <DynamicTable
           tableName={childLevel.id}
@@ -551,6 +629,14 @@ export function ADDetailShell({
   const [formData, setFormData] = useState<AnyRecord>({});
   const [hasChanges, setHasChanges] = useState(false);
   const [activeChildTab, setActiveChildTab] = useState(() => level.childTabs?.[0]?.id ?? "");
+  // The child tabs arrive with the metadata, usually after the first render, so
+  // the initial value above is "" and no tab would open. Select the first one
+  // once they exist, and again if the current one is no longer among them.
+  useEffect(() => {
+    const tabs = level.childTabs ?? [];
+    if (tabs.length === 0) return;
+    if (!tabs.some((ct) => ct.id === activeChildTab)) setActiveChildTab(tabs[0]!.id);
+  }, [level.childTabs, activeChildTab]);
   const [isEditing, setIsEditing] = useState(initialMode === "edit");
   const [saveErrors, setSaveErrors] = useState<string[]>([]);
   const [isPrintOpen, setIsPrintOpen] = useState(false);

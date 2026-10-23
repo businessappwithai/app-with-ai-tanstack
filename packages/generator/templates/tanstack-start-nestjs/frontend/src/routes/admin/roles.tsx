@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { WindowHelpButton } from '@/components/admin/window-help-button';
 import { apiClient } from '@/lib/api-client';
-import { UserCog, ArrowLeft, Loader2, AlertCircle, Star } from 'lucide-react';
+import { UserCog, ArrowLeft, Loader2, AlertCircle, Star, Plus } from 'lucide-react';
 
 export const Route = createFileRoute('/admin/roles')({
   component: RolesPage,
@@ -17,10 +18,26 @@ interface SysRole {
   user_count?: number;
 }
 
+const EMPTY_ROLE = { name: '', description: '', isMasterRole: false };
+
 function RolesPage() {
+  const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery<{ data: SysRole[] }>({
     queryKey: ['admin', 'sys-roles'],
     queryFn: () => apiClient.get('/sys/roles'),
+  });
+
+  // Administrators only — the server refuses anyone else with a 403.
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(EMPTY_ROLE);
+
+  const createRole = useMutation({
+    mutationFn: (input: typeof EMPTY_ROLE) => apiClient.post('/sys/roles', input),
+    onSuccess: () => {
+      setForm(EMPTY_ROLE);
+      setShowForm(false);
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'sys-roles'] });
+    },
   });
 
   const roles = data?.data ?? [];
@@ -40,11 +57,70 @@ function RolesPage() {
             <UserCog className="w-4 h-4 text-primary" />
             <h1 className="font-display text-lg font-semibold">Role Management</h1>
             <WindowHelpButton windowName="Role" entityLabel="Role" />
+            <button
+              type="button"
+              onClick={() => setShowForm((open) => !open)}
+              className="ml-auto inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              <Plus className="w-4 h-4" />
+              {showForm ? 'Cancel' : 'New role'}
+            </button>
           </div>
         </div>
       </header>
 
       <div className="container-swiss py-8">
+        {showForm && (
+          <form
+            className="swiss-card mb-6 p-4 space-y-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              createRole.mutate(form);
+            }}
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">Name</span>
+                <input
+                  required
+                  maxLength={100}
+                  value={form.name}
+                  onChange={(event) => setForm({ ...form, name: event.target.value })}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2"
+                />
+              </label>
+              <label className="text-sm">
+                <span className="mb-1 block text-muted-foreground">Description</span>
+                <input
+                  value={form.description}
+                  onChange={(event) => setForm({ ...form, description: event.target.value })}
+                  className="w-full rounded-md border border-border bg-background px-3 py-2"
+                />
+              </label>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.isMasterRole}
+                onChange={(event) => setForm({ ...form, isMasterRole: event.target.checked })}
+              />
+              <span>Master role (sees and changes everything, like the administrator)</span>
+            </label>
+            {createRole.isError && (
+              <p className="text-sm text-destructive">
+                {(createRole.error as Error)?.message ?? 'Could not create the role'}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={createRole.isPending}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+            >
+              {createRole.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+              Create role
+            </button>
+          </form>
+        )}
         {isLoading && (
           <div className="swiss-card p-12 text-center">
             <Loader2 className="w-8 h-8 mx-auto animate-spin text-primary" />
