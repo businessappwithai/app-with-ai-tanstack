@@ -1,11 +1,11 @@
 # education-management-system — progress
-Phase: 7 (delivered)  ·  Updated: 2026-10-24 — **revision 1.1.0** (24 entities); the 19 below are the original session
+Phase: 7 (delivered)  ·  Updated: 2026-10-24 — **revision 1.2.0** (25 entities); the 19 below are the original session
 
 | Gate | State |
 |---|---|
 | A research    | approved (self-approved — no interactive user at the gate) |
 | B roster      | approved (self-approved) |
-| C entities    | 19 of 19 in the original session; 5 more added in revision 1.1.0 (24 of 24, below) |
+| C entities    | 19 of 19 in the original session; 5 more added in revision 1.1.0 and `ConcernFeedback` after it (25 of 25, below) |
 | D cross-cut   | approved |
 | E validation  | clean — 0 errors · 0 warnings · 0 info, audit 23 passed 0 failed on the 1.1.0 bytes (`03-validation.md`) |
 
@@ -31,10 +31,11 @@ Phase: 7 (delivered)  ·  Updated: 2026-10-24 — **revision 1.1.0** (24 entitie
 | Payment | approved | gained `balance_before`, stamped before the write |
 | DisciplineIncident | approved | |
 | ConsentRecord | added in 1.1.0 | not walked through this session's gates; dossier generated from the model, judgement notes written from its help, rules and access |
-| SupportPlan | added in 1.1.0 | as above; `Student.has_support_plan` is not kept in step with it (see its dossier) |
-| SafeguardingConcern | added in 1.1.0 | as above; readable by `principal` and `counsellor` only, creatable by `teacher` |
+| SupportPlan | added in 1.1.0 | as above; its hooks now keep `Student.has_support_plan` in step |
+| SafeguardingConcern | added in 1.1.0 | as above; readable by `principal` and `counsellor` only, creatable by `teacher`, who hears the outcome through `ConcernFeedback` |
+| ConcernFeedback | added after 1.1.0 | the outcome a reporting teacher can read; no student on it |
 | CommunicationLog | added in 1.1.0 | as above; a record of messages, not a sender of them |
-| Refund | added in 1.1.0 | as above; no saga moves the invoice when a refund is paid |
+| Refund | added in 1.1.0 | as above; a paid refund now moves its invoice through two sagas, and an approver cannot be the requester |
 
 **Completion mode: `DONE_WITH_CONCERNS`.** The document is clean and every gate is
 closed, but the brief was one line and 22 statements in `00-research.md` §9 are
@@ -52,9 +53,10 @@ Open questions for the user, in the order they matter:
    as reported? Both are two-row facts, so refusing them means a handler.
 5. Instalment plans are out of scope; they are real in most schools. (Refunds were out of scope
    when this list was written; revision 1.1.0 added `Refund`.)
-6. `Student.has_support_plan` says the support plan "is held outside this system", and
-   `SupportPlan` now holds it inside. Derive the flag from active plans, or change its help.
-7. Nothing moves a `FeeInvoice` when a `Refund` is paid, so an invoice stays `paid` after its
-   money has been returned.
-8. A teacher may report a safeguarding concern but cannot read it back, or its outcome.
-   How does the reporting teacher learn that action was taken?
+6. ~~`Student.has_support_plan` says the plan is held outside this system~~ — **resolved**: derived
+   from active and under-review plans by the `SupportPlan` hooks, help rewritten.
+7. ~~Nothing moves a `FeeInvoice` when a `Refund` is paid~~ — **resolved**: two sagas, three new
+   invoice edges, once only via `applied_to_invoice_at`.
+8. ~~A reporting teacher cannot learn the outcome~~ — **resolved**: `ConcernFeedback`. Still open: a
+   teacher can read every feedback row, not only their own, because `%%rbac` cannot scope rows.
+9. ~~Nothing stops a refund being approved by its requester~~ — **resolved**: `refuseSelfApprovedRefund`.

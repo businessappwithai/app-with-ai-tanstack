@@ -8,7 +8,7 @@ follows from what the brief said, `[assumed]` a real guess that could plausibly
 be otherwise.
 
 > **Revision 1.1.0.** This is the Phase 1 research for the original nineteen-entity model and is kept
-> as written. The model has since grown to twenty-four entities; what changed, and which lines below
+> as written. The model has since grown to twenty-five entities; what changed, and which lines below
 > it overtakes, is in **§10**. Lines this document now contradicts are marked *(superseded — §10)*.
 
 **Tag counts: 1 stated · 46 inferred · 22 assumed.** A one-line brief produces
@@ -220,17 +220,21 @@ Gate B.
 
 ---
 
-## 10. Revision 1.1.0 — what the model added, and what that supersedes
+## 10. Revisions 1.1.0 and 1.2.0 — what the model added, and what that supersedes
 
-The model now has **24 entities, 16 state machines, 15 rules, 5 sagas, 19 hooks, 8 declared roles,
-91 access restrictions and 45 `%%report` directives** (it had 19, 11, 10, 5, 19, 8, 68 and 40).
+The model now has **25 entities, 16 state machines, 15 rules, 7 sagas, 26 hooks, 8 declared roles,
+94 access restrictions and 45 `%%report` directives** (it had 19, 11, 10, 5, 19, 8, 68 and 40).
+Revision 1.1.0 added the five entities below; the later change closed the four gaps it had left open
+(`progress.md` questions 6–8, and the refund approver): `ConcernFeedback` is the 25th entity, two
+refund sagas and seven hooks were added, the invoice machine gained three edges, and `refundControl`
+gained three actions.
 The first nineteen entities are unchanged. Five were added, each from a duty §7 already names but
 the original roster did not model:
 
 | Added | Why the school needs it | Supersedes |
 |---|---|---|
 | `ConsentRecord` | A guardian's decision about a trip, a photograph, a data share or emergency treatment has a start, an end and an author; "we had consent" must be answerable on a date. | §8 "the medical/nursing record, which carries its own consent regime" — the *record* stays out, the *consent* is in |
-| `SupportPlan` | Learning, accessibility, medical and behaviour adjustments need an owner and a review date, and teachers need the adjustments without the evidence behind them. | The `Student.has_support_plan` flag, which still says the plan is held outside this system |
+| `SupportPlan` | Learning, accessibility, medical and behaviour adjustments need an owner and a review date, and teachers need the adjustments without the evidence behind them. | The `Student.has_support_plan` flag, which is now derived from the plans and no longer says the plan is held outside this system |
 | `SafeguardingConcern` | §7 says safeguarding is the one place the read matrix is policy. Concerns are about a child at risk, not a child at fault, so they are not a kind of `DisciplineIncident`. | §7: pastoral notes are no longer only the discipline record |
 | `CommunicationLog` | An auditable record that a guardian was told, and that delivery failed when it did. | §8 "messaging" — the sending stays out, the record is in |
 | `Refund` | Money going back needs a request, a decision by someone else and a settlement date, without editing the original payment. | The progress note that refunds were out of scope |
@@ -239,5 +243,5 @@ Nothing here was approved at Gate A: these are the model's own later scope, reco
 this document is not read as describing a model that no longer exists. The `[assumed]` list in §9 is
 unchanged and still applies to the original nineteen; the five additions carry assumptions of their
 own that nobody has confirmed — chiefly that a teacher may *create* a safeguarding concern but not read
-it back, that refunds are approved only by the principal, and that a guardian may read their own
+it back (they hear the outcome through `ConcernFeedback`), that refunds are approved only by the principal, and that a guardian may read their own
 consents, refunds and communications as a role, not as a row filter.

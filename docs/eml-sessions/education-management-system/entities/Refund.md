@@ -1,6 +1,6 @@
 # Refund  ·  standalone  ·  category: Finance
 
-**Role.** A controlled reversal of money previously received, requested and approved by different staff where possible. It never edits or deletes the original payment.
+**Role.** A controlled reversal of money previously received, requested and approved by different people, which the system enforces. It never edits or deletes the original payment; when it is paid, the invoice it was paid against is moved back to reflect the money returned.
 
 **Placement.** Standalone. The finance control queue — requests awaiting a decision, with age and amount (`finance-refunds-awaiting-decision`) — spans every payment, and a refund's identity is its own request, not the payment's.
 
@@ -19,17 +19,22 @@
 | `decided_at` | datetime | OPTIONAL | When approval or rejection was recorded. Blank until a decision is made. |
 | `paid_at` | datetime | OPTIONAL | When the money actually left the school. Required before the refund can be marked paid. |
 | `decision_notes` | text | OPTIONAL | The evidence and reasoning behind approval, rejection or cancellation, written for reconciliation and later audit. |
+| `fee_invoice_id` | string | FK OPTIONAL | The invoice the original payment was made against, copied onto the refund by the refund hook so the invoice rules can read it. It is derived from the payment and never chosen. |
+| `invoice_status_after` | string | OPTIONAL | What the invoice becomes once this refund is paid, worked out by the refund hook: part_paid when money remains paid against it, issued when the refund returns all of it. Blank when the invoice stays as it is, as with an overdue, draft or cancelled invoice. The rule reads it because it can only see the record being written. |
+| `applied_to_invoice_at` | datetime | OPTIONAL | When the paid refund was taken off the invoice's amount paid. It is stamped once by the refund hook; while it is blank the refund has not reached the invoice, and once it is set no later edit applies it a second time. |
 | `reference` | string | OPTIONAL | The bank or payment-provider reference proving the repayment. Required where the channel supplies one. |
 
 ## Enums
 
 - `reason` → **RefundReason**: duplicate_payment, overpayment, cancelled_service, approved_withdrawal, billing_error, other
 - `status` → **RefundStatus**: requested, under_review, approved, paid, rejected, cancelled
+- `invoice_status_after` → **InvoiceStatus**: draft, issued, part_paid, paid, overdue, cancelled
 
 ## Relationships
 
 - `Payment ||--o{ Refund` — reversed by *(this side carries the foreign key)*
 - `Staff ||--o{ Refund` — requests and approves *(this side carries the foreign key)*
+- `FeeInvoice ||--o{ Refund` — credited back by *(this side carries the foreign key)*
 
 **Indexes.** `Refund(payment_id, status, requested_at)`
 
@@ -59,14 +64,25 @@ cancelled --> [*]
 - `requireRefundApproval validation-error when: status == "approved" and approved_by_id == null message: An approved refund needs the staff member who authorised the return of funds.`
 - `requireRefundRejectionNotes validation-error when: status == "rejected" and decision_notes == null message: A rejected refund needs the reason finance will explain to the family.`
 - `requireRefundPaidTime validation-error when: status == "paid" and paid_at == null message: A refund is paid only when the money actually left the school.`
+- `refuseSelfApprovedRefund validation-error when: approved_by_id != null and approved_by_id == requested_by_id message: The person who approves a refund cannot be the person who requested it. A second member of staff must authorise the return of funds.`
+- `returnInvoiceToPartPaid trigger-workflow when: status == "paid" and applied_to_invoice_at == null and invoice_status_after == "part_paid" workflow: RefundReopensInvoice`
+- `returnInvoiceToIssued trigger-workflow when: status == "paid" and applied_to_invoice_at == null and invoice_status_after == "issued" workflow: RefundReissuesInvoice`
 
 ## Hooks
 
-None.
+- `beforeUpdate` → `resolveRefundInvoiceEffect`
+- `afterUpdate` → `applyRefundToInvoice`
 
 ## Cross-entity effects
 
-None. A refund never edits or deletes the original payment (the entity's help says so), and no saga reads it: paying a refund does not move the invoice, which is the gap `Payment` records as an open question.
+Paying a refund puts the money back on the invoice. `resolveRefundInvoiceEffect` (beforeUpdate) copies `fee_invoice_id` from the payment and works out `invoice_status_after`; the `refundControl` rule then starts `RefundReopensInvoice` (→ `part_paid`) or `RefundReissuesInvoice` (→ `issued`) when `status == "paid"`; and `applyRefundToInvoice` (afterUpdate) takes the amount off `FeeInvoice.amount_paid`, puts it back on `balance_due` and stamps `applied_to_invoice_at`. That stamp is what makes it once only: the runtime does not de-duplicate a saga, so the rule also requires `applied_to_invoice_at == null`. The invoice machine draws `paid → part_paid`, `paid → issued` and `part_paid → issued` for it. An overdue, draft or cancelled invoice is left as it is (`invoice_status_after` stays blank).
+
+Sagas that touch it:
+
+- **RefundReopensInvoice** *(triggered on this entity)*
+  - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: part_paid`
+- **RefundReissuesInvoice** *(triggered on this entity)*
+  - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: issued`
 
 ## Access
 
@@ -80,4 +96,4 @@ None. A refund never edits or deletes the original payment (the entity's help sa
 
 ## Open questions
 
-The entity's help says it is requested and approved by different staff "where possible", but no rule compares `requested_by_id` with `approved_by_id`. What does separate them is the role split: `finance_officer` creates, only `principal` may `approve`, and `finance_officer` pays. The master role is outside that split. Whether a refund above some amount needs a second approver is not modelled.
+Whether a refund above some amount needs a second approver is not modelled. The approver may not be the requester: `refuseSelfApprovedRefund` refuses any update where `approved_by_id` equals `requested_by_id`, so it holds for the master role too. A refund that takes an overdue invoice's paid amount to zero leaves it `overdue` rather than `issued`, which is deliberate: the chase continues.

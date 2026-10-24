@@ -30,6 +30,7 @@
 - `AcademicTerm ||--o{ FeeInvoice` — covers *(this side carries the foreign key)*
 - `FeeInvoice ||--o{ FeeInvoiceLine` — itemised as
 - `FeeInvoice ||--o{ Payment` — settled by
+- `FeeInvoice ||--o{ Refund` — credited back by
 
 **Indexes.** `FeeInvoice(status, due_on)` · `FeeInvoice(student_id, academic_term_id)`
 
@@ -50,7 +51,9 @@ part_paid --> paid      : settle
 part_paid --> overdue   : mark_overdue
 overdue   --> part_paid : record_part_payment
 overdue   --> paid      : settle
-paid      --> [*]
+paid      --> part_paid : reopen_after_refund
+paid      --> issued    : reissue_after_refund
+part_paid --> issued    : reissue_after_refund
 cancelled --> [*]
 ```
 
@@ -67,7 +70,7 @@ None.
 
 ## Cross-entity effects
 
-Its totals are written by the `FeeInvoiceLine` and `Payment` hooks, never keyed; its status is moved by the two payment sagas. `mark_overdue` is a scheduled move rather than a rule — a rule cannot read the clock — and it is called out here so nobody expects the transition to fire itself.
+Its totals are written by the `FeeInvoiceLine`, `Payment` and `Refund` hooks, never keyed; its status is moved by the two payment sagas and the two refund sagas, and a paid invoice is no longer terminal — a paid refund can reopen it. `mark_overdue` is a scheduled move rather than a rule — a rule cannot read the clock — and it is called out here so nobody expects the transition to fire itself.
 
 Sagas that touch it:
 
@@ -79,6 +82,10 @@ Sagas that touch it:
   - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: paid`
 - **PartPaymentPosting**
   - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: part_paid`
+- **RefundReopensInvoice**
+  - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: part_paid`
+- **RefundReissuesInvoice**
+  - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: issued`
 
 ## Access
 

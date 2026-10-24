@@ -1,7 +1,7 @@
 # Education Management System — Phase 2 entity roster
 
 Derived from the approved `00-research.md` under §10.2. **Nineteen entities at Gate B; revision
-1.1.0 added five** (the second table below, and `00-research.md` §10). The nineteen: the
+1.1.0 added five, and a later revision a twenty-fifth, `ConcernFeedback`** (the second table below, and `00-research.md` §10). The nineteen: the
 artefacts and actors from the research, the reference entities the described
 flow silently depends on (a room, a term, a department), and the one join
 entity a many-to-many needs (`StudentGuardian`, which is a real object because
@@ -52,6 +52,7 @@ there is a list someone opens away from any one student or payment.
 | 21 | `SupportPlan` | The controlled summary of a student's learning, accessibility, medical or behaviour support, its owner and its review date. Created in `draft`, activated, reviewed, closed. | standalone | Student Support | principal · registrar · head_of_department · teacher · counsellor |
 | 22 | `SafeguardingConcern` | A confidential welfare or child-protection concern in factual language, triaged to an accountable owner. Separate from discipline because the student may be at risk rather than at fault. | standalone | Student Support | principal · counsellor *(a teacher may **create** one and cannot read it)* |
 | 23 | `CommunicationLog` | An auditable record of an operational message to a guardian about a student, including delivery failure — subject and outcome, not content. | standalone | Student Support | all eight roles |
+| 25 | `ConcernFeedback` | What a staff member who reported a safeguarding concern is told about it afterwards: case reference, a neutral outcome and a short message, never the student. Written by the concern's hooks. | standalone | Student Support | principal · head_of_department · teacher · counsellor |
 | 24 | `Refund` | A controlled reversal of money received, requested and approved by different staff where possible. Never edits or deletes the original `Payment`. | standalone | Finance | principal · finance_officer · guardian |
 
 Relationships these add (11, taking the model from 31 to 42):
@@ -153,7 +154,7 @@ every role must end up with a `read` line and its own reports (§10.5.1).
 
 ---
 
-> **Gate B — roster approved** (the original nineteen; revision 1.1.0 later made it twenty-four,
+> **Gate B — roster approved** (the original nineteen; revision 1.1.0 later made it twenty-four and a further change twenty-five,
 > still four children and eight roles). Nineteen entities, four of them children, eight
 > roles. Self-approved by the running agent (no interactive user at the gate);
 > the question that would have been put — *what does this school have that is

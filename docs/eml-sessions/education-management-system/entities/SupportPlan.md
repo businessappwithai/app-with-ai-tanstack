@@ -55,11 +55,13 @@ closed --> [*]
 
 ## Hooks
 
-None.
+- `afterCreate` → `syncStudentSupportFlagOnCreate`
+- `afterUpdate` → `syncStudentSupportFlagOnUpdate`
+- `afterDelete` → `syncStudentSupportFlagOnDelete`
 
 ## Cross-entity effects
 
-None. Activating or closing a plan writes nothing else: in particular it does not set `Student.has_support_plan`, which is a hand-maintained flag.
+Keeps `Student.has_support_plan` true while the student has a plan that is `active` or `under_review`: `syncStudentSupportFlagOnCreate`, `…OnUpdate` and `…OnDelete` recompute the flag from the student's plans after each write, so a draft or closed plan does not set it and closing the last live plan clears it.
 
 ## Access
 
@@ -73,4 +75,4 @@ None. Activating or closing a plan writes nothing else: in particular it does no
 
 ## Open questions
 
-`Student.has_support_plan` and this entity say two things about one fact. The flag's own help still reads "the plan itself is held outside this system", which `SupportPlan` now contradicts, and no hook keeps the two in step. Either the flag should be derived from active plans, or its help should point here. Teachers read the plan (`adjustments`) without being able to create or change it, which is the intent of the entity's help text: the adjustments they need, without broad access to sensitive evidence.
+Teachers read the plan (`adjustments`) without being able to create or change it, which is the intent of the entity's help text: the adjustments they need, without broad access to sensitive evidence. A student with two plans keeps the flag until the last live one closes.

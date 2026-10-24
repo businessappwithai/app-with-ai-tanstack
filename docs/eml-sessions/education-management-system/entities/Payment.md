@@ -67,4 +67,4 @@ Sagas that touch it:
 
 ## Open questions
 
-Instalment plans, and what a refund does to the invoice. A negative payment is still refused by `refuseNonPositivePayment`; money going back is a `Refund` against the payment, which never edits or deletes it. Nothing moves the invoice when a refund is paid — no saga reads `Refund` — so an invoice stays `paid` after its money has been returned, and `finance-refunds-awaiting-decision` is the queue a person works from.
+Instalment plans. A negative payment is still refused by `refuseNonPositivePayment`; money going back is a `Refund` against the payment, which never edits or deletes it. When a refund is paid its hooks and sagas move the invoice back (see `Refund`), and `finance-refunds-awaiting-decision` is the queue a person works from.

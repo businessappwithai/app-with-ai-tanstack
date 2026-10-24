@@ -19,7 +19,7 @@
 | `withdrawn_on` | date | OPTIONAL | The date the student left. Set with the status; the term's invoice is not cancelled by it, which is what makes the leavers report a finance report as well as a registry one. |
 | `withdrawal_reason` | text | OPTIONAL | Why the student left, in the family's terms — relocation, transfer, financial, exclusion. Required on withdrawal, because the retention report is built from it and an unexplained leaver is the one the governors ask about. |
 | `school_email` | email | OPTIONAL | The account the student signs in with. Optional: it is issued at year 7 and some transfers arrive without one. |
-| `has_support_plan` | boolean | — | Set when the student has a formal learning-support plan. It is a flag, not the plan: the plan itself is held outside this system, and this field exists so a teacher opening the register knows to ask for it. |
+| `has_support_plan` | boolean | — | True while the student has a support plan that is active or under review; a draft or closed plan does not count. It is kept in step with the plans by the support-plan hooks and never keyed by hand, so a teacher opening the register can trust it as the prompt to read the student's plan, which sits in this system as a SupportPlan record. |
 
 ## Enums
 
@@ -74,7 +74,7 @@ withdrawn --> [*]
 
 ## Cross-entity effects
 
-Suspension is written **onto** the student by the `SuspensionEscalation` saga when a conduct record records a suspension sanction — trigger `DisciplineIncident` → target `Student` → transition `enrolled|on_leave → suspended`. Withdrawal deliberately does *not* cascade: the term's invoice stands, which is the school's policy and the reason `Enrollment.withdrawn_on` is evidence rather than a trigger.
+Suspension is written **onto** the student by the `SuspensionEscalation` saga when a conduct record records a suspension sanction — trigger `DisciplineIncident` → target `Student` → transition `enrolled|on_leave → suspended`. Withdrawal deliberately does *not* cascade: the term's invoice stands, which is the school's policy and the reason `Enrollment.withdrawn_on` is evidence rather than a trigger. `has_support_plan` is written by the `SupportPlan` hooks, never keyed by hand.
 
 Sagas that touch it:
 
