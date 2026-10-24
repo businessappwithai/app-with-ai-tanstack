@@ -144,11 +144,15 @@ export const Route = createFileRoute("/api/deploy")({
               // dependencies unless it trusts the same CA this process does.
               // Copying it into the project's certificate directory means the
               // build works without anyone having to know that.
+              // The Dockerfile always does `COPY docker/ca-certificates/ …`; if the
+              // directory is absent Docker fails with "not found" even when no
+              // certificate was ever needed. Ensure it exists unconditionally.
+              const certsDir = path.join(projectPath, "docker", "ca-certificates");
+              await fs.mkdir(certsDir, { recursive: true });
+
               const caSource = process.env.DEPLOY_EXTRA_CA_CERT;
               if (caSource) {
                 try {
-                  const certsDir = path.join(projectPath, "docker", "ca-certificates");
-                  await fs.mkdir(certsDir, { recursive: true });
                   await fs.copyFile(caSource, path.join(certsDir, "deploy-ca.crt"));
                   log("info", "Added the configured CA certificate to the build context");
                 } catch (error) {
@@ -224,14 +228,15 @@ export const Route = createFileRoute("/api/deploy")({
                   `-e DATABASE_URL=… ${latest}`
               );
 
+              const liveUrl = `http://localhost:${project.port}`;
               await projectDb
-                .update(projectId, { deploymentStatus: "deployed", deployment_url: latest })
+                .update(projectId, { deploymentStatus: "deployed", deployment_url: liveUrl })
                 .catch(() => {
                   // Recording the outcome is a convenience; the image exists
                   // either way and failing here would be misleading.
                 });
 
-              send({ complete: true, image: tag, url: `http://localhost:${project.port}` });
+              send({ complete: true, image: tag, url: liveUrl });
               finish();
             } catch (error) {
               console.error("[deploy] failed:", error);

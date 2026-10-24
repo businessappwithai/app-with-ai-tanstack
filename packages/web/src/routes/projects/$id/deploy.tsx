@@ -2,6 +2,7 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   Activity,
   AlertCircle,
+  ArrowLeft,
   CheckCircle2,
   Clock,
   Eye,
@@ -69,7 +70,6 @@ function DeployPage() {
   const [envVars, setEnvVars] = useState<EnvVariable[]>([
     { key: "DATABASE_URL", value: "", isSecret: true },
     { key: "DATABASE_NAME", value: "", isSecret: false },
-    { key: "API_KEY", value: "", isSecret: true },
     { key: "PORT", value: (project?.port || 4001).toString(), isSecret: false },
     { key: "NODE_ENV", value: "production", isSecret: false },
   ]);
@@ -236,6 +236,7 @@ function DeployPage() {
       const decoder = new TextDecoder();
 
       let finalUrl = "";
+      let streamError = "";
 
       if (reader) {
         while (true) {
@@ -262,6 +263,7 @@ function DeployPage() {
                   });
                 }
                 if (data.error) {
+                  streamError = data.error;
                   setError(data.error);
                   addLog("error", data.error);
                 }
@@ -273,9 +275,11 @@ function DeployPage() {
         }
       }
 
-      addLog("success", "Deployment completed successfully!");
-      if (finalUrl) {
-        addLog("info", `Your application is live at: ${finalUrl}`);
+      if (!streamError) {
+        addLog("success", "Deployment completed successfully!");
+        if (finalUrl) {
+          addLog("info", `Your application is live at: ${finalUrl}`);
+        }
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Unknown error occurred";
@@ -352,6 +356,14 @@ function DeployPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/projects/$id/enhance", params: { id: projectId } })}
+                  className="flex items-center gap-2 px-4 py-2 border border-border hover:bg-muted font-semibold rounded-xl transition-all active:scale-[0.98]"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Enhance
+                </button>
                 <button
                   type="button"
                   onClick={handleViewApp}
@@ -605,6 +617,19 @@ function DeployPage() {
                         <h2 className="text-xl font-bold text-foreground">Deployment Failed</h2>
                         <p className="text-sm text-red-400">{error}</p>
                       </div>
+                      {error.includes("Regenerate") && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate({ to: "/projects/$id/generate", params: { id: projectId } })
+                          }
+                          className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-slate-900 font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
+                          style={{ backgroundColor: "#FF8400" }}
+                        >
+                          <Rocket className="w-4 h-4" />
+                          Regenerate App
+                        </button>
+                      )}
                     </>
                   )}
                 </div>

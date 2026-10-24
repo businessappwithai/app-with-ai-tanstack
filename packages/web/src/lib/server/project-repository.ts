@@ -140,15 +140,20 @@ async function finish(db: Db, dir: string, operation: Operation): Promise<Result
   let commit = await head(dir);
   const message = commit ? await git(dir, ["show", "-s", "--format=%B", commit]) : "";
   if (!message.includes(`APPWITHAI-Operation: ${id}`)) {
-    if (commit !== parent)
+    // If the local repo was wiped (empty) but the operation recorded a parent that
+    // no longer exists, the 'before' snapshot is stale too — skip the filesystem
+    // check and re-apply the files as a fresh root commit instead of throwing
+    // "Repository changed while a save was pending."
+    const repoWiped = commit === null && parent !== null;
+    if (!repoWiped && commit !== parent)
       throw new RepositoryError(
         "Repository changed while a save was pending. Reconcile the pending operation before saving again."
       );
-    await publishFiles(dir, before, files);
+    if (!repoWiped) await publishFiles(dir, before, files);
     commit = await commitFiles(
       dir,
       files,
-      parent,
+      repoWiped ? null : parent,
       `${p.description || operation.kind}\n\nAPPWITHAI-Operation: ${id}\nAPPWITHAI-Kind: ${operation.kind}\n`,
       p.actor
     );
@@ -165,20 +170,27 @@ async function finish(db: Db, dir: string, operation: Operation): Promise<Result
     .executeTakeFirst();
   let modelRevision = commit;
   if (priorState && operation.kind !== "restore-application") {
-    const priorTree = (await git(dir, ["rev-parse", `${priorState.model_commit}:model`])).trim();
-    const nextTree = (await git(dir, ["rev-parse", `${commit}:model`])).trim();
-    const priorProjection = await git(dir, [
-      "rev-parse",
-      "--verify",
-      `${priorState.model_commit}:${AI_PROJECTION}`,
-    ]).catch(() => "");
-    const nextProjection = await git(dir, [
-      "rev-parse",
-      "--verify",
-      `${commit}:${AI_PROJECTION}`,
-    ]).catch(() => "");
-    if (priorTree === nextTree && priorProjection === nextProjection)
-      modelRevision = priorState.model_commit;
+    // The stored model_commit may reference a commit that was lost when the repo
+    // was wiped. Resolve it gracefully; if it can't be found, keep the new commit
+    // as the model revision rather than crashing with "Git operation failed".
+    const priorTree = await git(dir, ["rev-parse", `${priorState.model_commit}:model`]).catch(
+      () => null
+    );
+    if (priorTree !== null) {
+      const nextTree = (await git(dir, ["rev-parse", `${commit}:model`])).trim();
+      const priorProjection = await git(dir, [
+        "rev-parse",
+        "--verify",
+        `${priorState.model_commit}:${AI_PROJECTION}`,
+      ]).catch(() => "");
+      const nextProjection = await git(dir, [
+        "rev-parse",
+        "--verify",
+        `${commit}:${AI_PROJECTION}`,
+      ]).catch(() => "");
+      if (priorTree.trim() === nextTree && priorProjection === nextProjection)
+        modelRevision = priorState.model_commit;
+    }
   }
   await db.transaction().execute(async (tx) => {
     const now = new Date().toISOString();
@@ -571,12 +583,18 @@ export async function saveProject(
     if (typeof model !== "string" || model.length > 5_000_000)
       throw new RepositoryError("Model must be text under 5 MB", 400);
     if (previous) {
-      const baseline = await treeFiles(dir, previous.model_commit, "model");
-      const workingEditor = await readFile(dir, EDITOR);
-      if (workingEditor !== baseline[EDITOR] && workingEditor !== encode(model))
-        throw new RepositoryError(
-          "The model file was edited outside the application. Preserve or import that edit before saving."
-        );
+      // The stored model_commit may be missing when the local repo was wiped.
+      // In that case there is no prior state to compare against, so skip the
+      // working-tree divergence check (same rationale as the repoWiped guard
+      // in finish()).
+      const baseline = await treeFiles(dir, previous.model_commit, "model").catch(() => null);
+      if (baseline !== null) {
+        const workingEditor = await readFile(dir, EDITOR);
+        if (workingEditor !== baseline[EDITOR] && workingEditor !== encode(model))
+          throw new RepositoryError(
+            "The model file was edited outside the application. Preserve or import that edit before saving."
+          );
+      }
     }
     const workflows = await db
       .selectFrom("workflows")

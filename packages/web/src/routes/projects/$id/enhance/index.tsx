@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Zap as Bolt, Code, GitBranch, Settings, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Rocket, Zap as Bolt, Code, GitBranch, Settings, Zap } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
@@ -161,6 +161,26 @@ function EnhancePage() {
             description="Extend your generated application with AI-assisted features like authentication, validation, testing, and custom business logic. Select a service to define workflows and enhance."
             estimatedTime="5-10 min"
           />
+
+          <div className="flex items-center justify-between mb-2">
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/projects/$id/generate", params: { id: projectId } })}
+              className="flex items-center gap-2 px-4 py-2 border border-border hover:bg-muted font-semibold rounded-xl transition-all active:scale-[0.98]"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Generate
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/projects/$id/deploy", params: { id: projectId } })}
+              className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-slate-900 font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
+              style={{ backgroundColor: "#FF8400" }}
+            >
+              Continue to Deploy
+              <Rocket className="w-4 h-4" />
+            </button>
+          </div>
 
           <ProgressStepper
             currentStep="enhance"
