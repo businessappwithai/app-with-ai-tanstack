@@ -35,6 +35,10 @@
 - `Staff ||--o{ AdmissionApplication` — decides
 - `Staff ||--o{ Payment` — received by
 - `Staff ||--o{ DisciplineIncident` — reported by
+- `Staff ||--o{ SupportPlan` — owns
+- `Staff ||--o{ SafeguardingConcern` — reports and owns
+- `Staff ||--o{ CommunicationLog` — sends
+- `Staff ||--o{ Refund` — requests and approves
 
 ## Lifecycle
 
