@@ -1,6 +1,6 @@
 # SafeguardingConcern  ·  standalone  ·  category: Student Support
 
-**Role.** A confidential welfare or child-protection concern recorded in factual language, triaged to an accountable owner and retained through referral or closure. It is separate from discipline because the student may be at risk rather than at fault.
+**Role.** A confidential welfare or child-protection concern recorded in factual language, triaged to an accountable owner and retained through referral or closure. It is separate from discipline because the student may be at risk rather than at fault. Whoever reported it does not read it back; they hear the outcome through ConcernFeedback.
 
 **Placement.** Standalone, and deliberately not a kind of `DisciplineIncident`: the student may be at risk rather than at fault, so the record, its readers and its lifecycle differ. The principal works a list of concerns awaiting triage (`principal-untriaged-safeguarding`).
 
@@ -33,6 +33,7 @@
 
 - `Student ||--o{ SafeguardingConcern` — protected by *(this side carries the foreign key)*
 - `Staff ||--o{ SafeguardingConcern` — reports and owns *(this side carries the foreign key)*
+- `SafeguardingConcern ||--o{ ConcernFeedback` — reported back by
 
 **Indexes.** `SafeguardingConcern(status, reported_at)`
 
@@ -60,11 +61,12 @@ closed --> [*]
 
 ## Hooks
 
-None.
+- `afterCreate` → `acknowledgeConcernToReporter`
+- `afterUpdate` → `reportOutcomeToReporter`
 
 ## Cross-entity effects
 
-None. A concern moving to `referred` has an `external_reference` to hold the outside agency's number, but nothing notifies that agency or anyone else; no hook or saga reads it. Closing it requires `closed_on` and a `closure_reason` — the two rules that stop a concern disappearing.
+Tells the reporter what happened to it, without letting them read it: `acknowledgeConcernToReporter` (afterCreate) and `reportOutcomeToReporter` (afterUpdate, when the status changes) write a `ConcernFeedback` row for `reported_by_id` carrying only the case reference, a neutral outcome and a short message. A concern moving to `referred` still has an `external_reference` for the outside agency's number, but nothing notifies that agency. Closing it requires `closed_on` and a `closure_reason` — the two rules that stop a concern disappearing.
 
 ## Access
 
@@ -79,4 +81,4 @@ None. A concern moving to `referred` has an `external_reference` to hold the out
 
 ## Open questions
 
-Read access is `principal` and `counsellor` only, yet `teacher` may **create**: a teacher can report a concern and then cannot see it, or its outcome. That asymmetry is intended — reporting must be easy and reading must be narrow — but the model does not say how a reporting teacher learns that action was taken, and it is the question a safeguarding lead is likely to ask first.
+Read access is `principal` and `counsellor` only, yet `teacher` may **create**: reporting must be easy and reading must be narrow. The reporting teacher learns the outcome through `ConcernFeedback`. `%%rbac` cannot scope rows, so every `teacher` can read every feedback row; that is why a feedback row carries a case reference and never the student, the account or the risk.

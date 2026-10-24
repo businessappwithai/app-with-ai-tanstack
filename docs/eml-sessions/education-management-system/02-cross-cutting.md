@@ -2,7 +2,7 @@
 
 What no single entity owns, once every entity is in. §10.5.
 
-> **Revision 1.1.0.** Counts below are for the model as it stands (24 entities). The five sagas, the
+> **Revision 1.1.0.** Counts below are for the model as it stands (25 entities). The original five sagas (the model now has seven; the two added turn a paid refund back into an open invoice), the
 > three "not a rule" decisions and the sagas' state checks are as written in the original session; the
 > access matrix, indexes, coverage sweep and reports have been brought up to date and say what changed.
 
@@ -68,23 +68,23 @@ a person acts from.
 
 ## The `%%rbac` matrix as a whole
 
-Eight roles, 91 directives (68 before 1.1.0), and every entity carries a `read` line. Read counts —
+Eight roles, 94 directives (68 before 1.1.0), and every entity carries a `read` line. Read counts —
 the number of entities a role can see, which is the number of screens it signs in
 to — are what the viewers' **Access** tab reports and what decides whether a role
 is worth seeding at all:
 
 | Role | Entities it can read | What it does |
 |---|---|---|
-| `principal` | 24 of 24 | Everything, including conduct and safeguarding. |
+| `principal` | 25 of 25 | Everything, including conduct and safeguarding. |
 | `registrar` | 20 | Everything academic, invoices, consents, support plans and communications; not conduct, payments, refunds or safeguarding. |
 | `finance_officer` | 13 | Money, refunds, the messages sent to families, and the people it is owed by. |
-| `counsellor` | 14 | Pastoral: students, guardians, attendance, conduct, consents, support plans, safeguarding concerns and communications. |
-| `teacher` | 14 | Their teaching surface: students, groups, sessions, registers, assessments, support plans and communications; may report a safeguarding concern. |
-| `head_of_department` | 14 | The teaching surface plus the department's staff and courses, support plans and communications. |
+| `counsellor` | 15 | Pastoral: students, guardians, attendance, conduct, consents, support plans, safeguarding concerns and communications. |
+| `teacher` | 15 | Their teaching surface: students, groups, sessions, registers, assessments, support plans and communications; may report a safeguarding concern. |
+| `head_of_department` | 15 | The teaching surface plus the department's staff and courses, support plans and communications. |
 | `admissions_officer` | 9 | Applications, applicants, guardians, terms, courses, staff, communications. |
 | `guardian` | 14 | Their child's timetable, attendance, results and fees, plus consents, communications and refunds. |
 
-No role reads 0 of 24, which is the failure §10.5 tells you to look for. Three
+No role reads 0 of 25, which is the failure §10.5 tells you to look for. Three
 deliberate narrownesses are recorded rather than left to be discovered:
 
 1. **`DisciplineIncident` is readable by `counsellor` and `principal` only.** A
@@ -126,8 +126,8 @@ was **not repeated** for them.
 
 Run as a checklist, not a review:
 
-- [x] every entity has `%%entity <Name> help:` — 24 of 24;
-- [x] **every column** has `%%field <E>.<col> help:` — 214 of 214 non-key columns,
+- [x] every entity has `%%entity <Name> help:` — 25 of 25;
+- [x] **every column** has `%%field <E>.<col> help:` — 223 of 223 non-key columns,
       verified by the dossier generator, which prints `**no help text**` where one
       is missing and printed none;
 - [x] every child has a parent and a foreign key back to it — 4 children, no
@@ -135,7 +135,7 @@ Run as a checklist, not a review:
 - [x] every state in every `stateDiagram-v2` is backed by a declared `%%enum` —
       16 machines, no `EML426`/`EML428`;
 - [x] every cross-entity effect from every dossier landed somewhere real — 5
-      sagas, 19 hooks, and the three that deliberately did not are listed above;
+      sagas, 26 hooks, and the three that deliberately did not are listed above;
 - [x] every rule that must act is an `%%action`, not a node-graph — 15 rule
       sections, 14 of them decision tables; `admissionAssessment` is the one node
       graph and its dossier says in terms that it decides only;

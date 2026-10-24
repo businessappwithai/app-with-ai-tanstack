@@ -37,6 +37,7 @@
 - `Staff ||--o{ DisciplineIncident` — reported by
 - `Staff ||--o{ SupportPlan` — owns
 - `Staff ||--o{ SafeguardingConcern` — reports and owns
+- `Staff ||--o{ ConcernFeedback` — hears back through
 - `Staff ||--o{ CommunicationLog` — sends
 - `Staff ||--o{ Refund` — requests and approves
 
