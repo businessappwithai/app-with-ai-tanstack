@@ -100,3 +100,34 @@ function parseDefinition(row) {
     kind: row.kind ?? value.kind ?? "state",
   };
 }
+
+/**
+ * The column an entity's state machine drives, and the state a new record
+ * starts in — or null when the entity has no state machine.
+ *
+ * `status`, else `state`, else `stage`: the same order `language/state-field.ts`
+ * states for the checker, the generator and the NestJS stack. That column is
+ * system-managed. No person writes it: the bus routes drop it on create (the
+ * record starts in `initial`) and refuse a change to it on update, and only the
+ * application's background workflows — the saga executor in `sagas.js`, the
+ * rules that start it, the hooks — move it. The form shows it read-only in the
+ * record's header and the list grid always shows it.
+ */
+export const STATE_FIELD_CANDIDATES = ["status", "state", "stage"];
+
+export async function stateFieldFor(db, model, entity) {
+  const machine = await stateMachineFor(db, model, entity.name);
+  if (!machine) return null;
+  const field = STATE_FIELD_CANDIDATES.find((candidate) =>
+    entity.attributes.some((attribute) => attribute.columnName === candidate)
+  );
+  if (!field) return null;
+  const initial =
+    machine.initial ??
+    (machine.transitions || []).find((transition) => transition.from === "[*]")?.to ??
+    null;
+  return { field, initial, machine };
+}
+
+/** `details.code` of the refusal a person's write to a state field receives. */
+export const STATE_FIELD_REFUSAL_CODE = "STATE_FIELD_SYSTEM_MANAGED";

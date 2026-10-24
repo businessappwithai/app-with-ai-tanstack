@@ -23,6 +23,10 @@
 | `external_reference` | string | OPTIONAL | The case number supplied by an authorised external agency. Blank until a referral is accepted. |
 | `closed_on` | date | OPTIONAL | The date the concern was formally closed after actions, referrals and review were recorded. |
 | `closure_reason` | text | OPTIONAL | Why no further action remains with the school and where continuing responsibility sits. Required on closure. |
+| `triaged_at` | datetime | OPTIONAL | When the move to triaged was recorded on this safeguarding concern. Recording it moves a safeguarding concern from reported to triaged: the workflows set the status, which nobody changes by hand. |
+| `investigating_at` | datetime | OPTIONAL | When the move to investigating was recorded on this safeguarding concern. Recording it moves a safeguarding concern from triaged to investigating: the workflows set the status, which nobody changes by hand. |
+| `referred_at` | datetime | OPTIONAL | When the move to referred was recorded on this safeguarding concern. Recording it moves a safeguarding concern from triaged or investigating to referred: the workflows set the status, which nobody changes by hand. |
+| `closed_at` | datetime | OPTIONAL | When the move to closed was recorded on this safeguarding concern. Recording it moves a safeguarding concern from investigating or referred to closed: the workflows set the status, which nobody changes by hand. |
 
 ## Enums
 
@@ -57,7 +61,18 @@ closed --> [*]
 ### `safeguardingControl` on `beforeUpdate` — **`%%action` decision table — it can act**
 
 - `requireConcernClosureDate validation-error when: status == "closed" and closed_on == null message: A safeguarding concern cannot close without the date continuing responsibility ended.`
+- `requireConcernClosureDateOnMove validation-error when: closed_at != null and closed_on == null message: A safeguarding concern cannot close without the date continuing responsibility ended.`
 - `requireConcernClosureReason validation-error when: status == "closed" and closure_reason == null message: A safeguarding concern cannot close without explaining the action taken and where any continuing responsibility sits.`
+- `requireConcernClosureReasonOnMove validation-error when: closed_at != null and closure_reason == null message: A safeguarding concern cannot close without explaining the action taken and where any continuing responsibility sits.`
+
+### `safeguardingConcernStateProgress` on `beforeUpdate` — **`%%action` decision table — it can act**
+
+- `moveReportedToTriaged trigger-workflow when: status == "reported" and triaged_at != null workflow: SafeguardingConcernTriagedMove`
+- `moveTriagedToInvestigating trigger-workflow when: status == "triaged" and investigating_at != null workflow: SafeguardingConcernInvestigatingMove`
+- `moveTriagedToReferred trigger-workflow when: status == "triaged" and referred_at != null workflow: SafeguardingConcernReferredMove`
+- `moveInvestigatingToReferred trigger-workflow when: status == "investigating" and referred_at != null workflow: SafeguardingConcernReferredMove`
+- `moveInvestigatingToClosed trigger-workflow when: status == "investigating" and closed_at != null workflow: SafeguardingConcernClosedMove`
+- `moveReferredToClosed trigger-workflow when: status == "referred" and closed_at != null workflow: SafeguardingConcernClosedMove`
 
 ## Hooks
 
@@ -68,6 +83,22 @@ closed --> [*]
 
 Tells the reporter what happened to it, without letting them read it: `acknowledgeConcernToReporter` (afterCreate) and `reportOutcomeToReporter` (afterUpdate, when the status changes) write a `ConcernFeedback` row for `reported_by_id` carrying only the case reference, a neutral outcome and a short message. A concern moving to `referred` still has an `external_reference` for the outside agency's number, but nothing notifies that agency. Closing it requires `closed_on` and a `closure_reason` — the two rules that stop a concern disappearing.
 
+Sagas that touch it:
+
+- **SafeguardingConcernTriagedMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: triaged`
+  - `C UpdateEntity field: investigating_at value: null`
+  - `D UpdateEntity field: referred_at value: null`
+- **SafeguardingConcernInvestigatingMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: investigating`
+  - `C UpdateEntity field: referred_at value: null`
+  - `D UpdateEntity field: closed_at value: null`
+- **SafeguardingConcernReferredMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: referred`
+  - `C UpdateEntity field: closed_at value: null`
+- **SafeguardingConcernClosedMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: closed`
+
 ## Access
 
 | Operation | Roles |
@@ -75,9 +106,6 @@ Tells the reporter what happened to it, without letting them read it: `acknowled
 | `read` | principal · counsellor |
 | `create` | teacher · counsellor · principal |
 | `update` | counsellor · principal |
-| `triage` | counsellor · principal |
-| `refer` | principal · counsellor |
-| `close` | principal |
 
 ## Open questions
 

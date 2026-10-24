@@ -45,8 +45,8 @@ describe("chunkModel", () => {
 
     expect(kinds.overview).toBe(1);
     expect(kinds.entity).toBe(19);
-    expect(kinds.rule).toBe(3);
-    expect(kinds.workflow).toBe(3);
+    expect(kinds.rule).toBe(6);
+    expect(kinds.workflow).toBe(19);
     // One per declaration, not one for all of them: pooled, two dozen
     // enumerations averaged into a vector that matched no question about
     // any of them.

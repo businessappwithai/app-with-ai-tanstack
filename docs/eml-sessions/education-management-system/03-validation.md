@@ -102,9 +102,9 @@ $ node guide/audit-model.mjs education-management-system.mmd
 
 The audit reports, among its lines: 25 entities and 25 primary keys; 48 foreign keys, each ending
 `_id` and each carrying `FK`; 17 status columns bound to enums (38 `%%field … enum:` bindings);
-16 state machines, each with an initial transition and a terminal state; 7 sagas with 9 steps;
-26 `%%hook` directives; help on 25 entities and 223 columns; every form laid out in `%%section` rows
-(47 section lines); and 4 line items declared, none left on the dashboard.
+16 state machines, each with an initial transition and a terminal state; 63 sagas with 111 steps;
+26 `%%hook` directives; help on 25 entities and 274 columns; every form laid out in `%%section` rows
+(63 section lines); and 4 line items declared, none left on the dashboard.
 
 Two of its figures are not the model's. The scorer counts every line that *contains* `%%rbac` or
 `%%action`, and the file mentions each once or twice in comments, so it prints 96 and 44 where the

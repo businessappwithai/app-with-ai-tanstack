@@ -17,8 +17,9 @@
 import { Router } from "../lib/router.js";
 import { badRequest, json, notFound, readJson } from "../lib/http.js";
 import { ident } from "../lib/db.js";
-import { checkOperationAccess, checkTransitionAccess, requireUser } from "../lib/guards.js";
-import { stateMachineFor } from "../lib/workflows.js";
+import { checkOperationAccess, requireUser } from "../lib/guards.js";
+import { STATE_FIELD_REFUSAL_CODE, stateFieldFor, stateMachineFor } from "../lib/workflows.js";
+import { runTriggeredSagas } from "../lib/sagas.js";
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
 import { recordAudit } from "./audit.routes.js";
@@ -66,7 +67,11 @@ function entityOr404(model, segment) {
 }
 
 /** Metadata for one entity, assembled from the dictionary rows. */
-async function entityMetadata(db, entity) {
+async function entityMetadata(db, entity, model) {
+  /* The state field is system-managed (lib/workflows.js stateFieldFor): never
+     an input on the form, always a column of the list, whatever the field rows
+     say — an administrator's toggle can neither make it editable nor hide it. */
+  const state = model ? await stateFieldFor(db, model, entity) : null;
   const table = await db.one("SELECT * FROM sys_table WHERE table_name = $1", [entity.tableName]);
   if (!table) throw notFound(`${entity.tableName} is not in the dictionary`);
 
@@ -103,9 +108,12 @@ async function entityMetadata(db, entity) {
       table_name: table.table_name,
       name: table.name,
       description: table.description,
+      state_field: state?.field ?? null,
     },
     entity: { name: entity.name, route: entity.routeName },
-    columns: columns.map((column) => ({
+    columns: columns.map((column) => {
+      const isState = state?.field === column.column_name;
+      return {
       sys_field_id: column.sys_field_id,
       name: column.name || column.column_name,
       column_name: column.column_name,
@@ -114,12 +122,13 @@ async function entityMetadata(db, entity) {
          the fallback. The form renders it under the control. */
       description: column.description ?? null,
       sys_reference_id: column.sys_reference_id,
-      is_mandatory: column.is_mandatory ?? false,
-      is_updateable: column.is_updateable !== false,
-      is_insertable: column.is_insertable !== false,
-      is_read_only: column.is_read_only ?? false,
-      is_displayed: column.is_displayed !== false,
-      is_displayed_grid: column.is_displayed_grid !== false,
+      is_mandatory: isState ? false : (column.is_mandatory ?? false),
+      is_updateable: isState ? false : column.is_updateable !== false,
+      is_insertable: isState ? false : column.is_insertable !== false,
+      is_read_only: isState ? true : (column.is_read_only ?? false),
+      is_displayed: isState ? false : column.is_displayed !== false,
+      is_displayed_grid: isState ? true : column.is_displayed_grid !== false,
+      is_state_field: isState,
       is_key: column.is_key ?? false,
       /* The column tying a detail row to its master, from
          `%%entity <Child> parent: <Parent>`. Projected so the dictionary screen
@@ -139,7 +148,8 @@ async function entityMetadata(db, entity) {
       group_collapsed: column.group_collapsed ?? false,
       is_same_line: column.is_same_line ?? false,
       col_span: column.column_span ?? null,
-    })),
+      };
+    }),
     window: window ? { sys_window_id: window.sys_window_id, name: window.name } : undefined,
   };
 }
@@ -266,7 +276,7 @@ const isBlank = (value) => value == null || String(value).trim() === "";
  */
 function statusColumn(entity, workflow) {
   if (!workflow) return null;
-  const candidates = ["status", "state", "workflow_state"];
+  const candidates = ["status", "state", "stage"];
   return entity.attributes.find((attribute) => candidates.includes(attribute.columnName))?.columnName ?? null;
 }
 
@@ -320,11 +330,11 @@ export function busRoutes(model) {
   const router = new Router();
 
   router.get("/:entity/meta", async (_request, { db, params }) =>
-    json(await entityMetadata(db, entityOr404(model, params.entity)))
+    json(await entityMetadata(db, entityOr404(model, params.entity), model))
   );
 
   router.get("/:entity/fields/form", async (_request, { db, params, query }) => {
-    const metadata = await entityMetadata(db, entityOr404(model, params.entity));
+    const metadata = await entityMetadata(db, entityOr404(model, params.entity), model);
     const includeHidden = query.get("includeHidden") === "true";
     return json(
       metadata.columns
@@ -334,7 +344,7 @@ export function busRoutes(model) {
   });
 
   router.get("/:entity/fields/grid", async (_request, { db, params, query }) => {
-    const metadata = await entityMetadata(db, entityOr404(model, params.entity));
+    const metadata = await entityMetadata(db, entityOr404(model, params.entity), model);
     const includeHidden = query.get("includeHidden") === "true";
     return json(
       metadata.columns
@@ -441,6 +451,15 @@ export function busRoutes(model) {
     const body = await readJson(request);
     let values = sanitize(entity, body);
 
+    // A new record starts in its machine's initial state, whatever the request
+    // said: the state is the application's to set, never a person's. A hook
+    // below may still set it, and the sagas the write starts move it on.
+    const state = await stateFieldFor(db, model, entity);
+    if (state) {
+      delete values[state.field];
+      if (state.initial) values[state.field] = state.initial;
+    }
+
     const before = await runHooks(model.hooks, "beforeCreate", entity.name, values);
     if (before.failures.length) throw badRequest("A lifecycle hook refused the write", before.failures);
     values = before.record;
@@ -463,6 +482,9 @@ export function busRoutes(model) {
 
     const created = await db.insert(entity.tableName, values);
     const after = await runHooks(model.hooks, "afterCreate", entity.name, created);
+    const runs = await runTriggeredSagas(
+      db, model, entity, created, "CREATE", outcome.notifications, user
+    );
 
     await recordAudit(db, {
       user,
@@ -472,8 +494,11 @@ export function busRoutes(model) {
       after: created,
     });
 
+    const stored = runs.length
+      ? (await db.one(`SELECT * FROM ${ident(entity.tableName)} WHERE id = $1`, [created.id])) ?? created
+      : created;
     return json(
-      { ...created, _hooks: [...before.log, ...after.log], _notifications: outcome.notifications },
+      { ...stored, _hooks: [...before.log, ...after.log], _notifications: outcome.notifications, _workflows: runs },
       { status: 201 }
     );
   });
@@ -500,6 +525,33 @@ export function busRoutes(model) {
     const body = await readJson(request);
     let values = sanitize(entity, body);
 
+    // The state is changed only by background workflows. The value the record
+    // already holds is dropped, so a form sending the whole record back still
+    // saves; any other value is refused, for every person, administrator
+    // included — the same answer the NestJS stack gives.
+    const state = await stateFieldFor(db, model, entity);
+    if (state && Object.prototype.hasOwnProperty.call(values, state.field)) {
+      if (String(values[state.field] ?? "") === String(current[state.field] ?? "")) {
+        delete values[state.field];
+      } else {
+        return json(
+          {
+            statusCode: 403,
+            message:
+              `"${state.field}" is changed only by the application's workflows, never through a form. ` +
+              "Record the fact the move depends on and its workflow will move it.",
+            details: {
+              code: STATE_FIELD_REFUSAL_CODE,
+              entity: entity.tableName,
+              field: state.field,
+              current: current[state.field] ?? null,
+            },
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     const before = await runHooks(model.hooks, "beforeUpdate", entity.name, values, { previous: current });
     if (before.failures.length) throw badRequest("A lifecycle hook refused the write", before.failures);
     values = before.record;
@@ -520,16 +572,6 @@ export function busRoutes(model) {
     }
     Object.assign(values, applicableMutations(entity, outcome.mutations));
 
-    const machine = await stateMachineFor(db, model, entity.name);
-    await checkTransitionAccess(
-      db,
-      user,
-      entity.tableName,
-      current,
-      { ...current, ...values },
-      statusColumn(entity, machine)
-    );
-
     values.updated_by = user.id;
     values.updated_at = new Date().toISOString();
     values.version = (current.version ?? 1) + 1;
@@ -549,6 +591,12 @@ export function busRoutes(model) {
     const after = await runHooks(model.hooks, "afterUpdate", entity.name, updated, { previous: current });
 
     await recordWorkflowRun(db, model, entity, current, updated, user);
+    const runs = await runTriggeredSagas(
+      db, model, entity, updated, "UPDATE", outcome.notifications, user
+    );
+    const stored = runs.length
+      ? (await db.one(`SELECT * FROM ${ident(entity.tableName)} WHERE id = $1`, [params.id])) ?? updated
+      : updated;
     await recordAudit(db, {
       user,
       action: "UPDATE",
@@ -559,8 +607,8 @@ export function busRoutes(model) {
     });
 
     return json(
-      { ...updated, _hooks: [...before.log, ...after.log], _notifications: outcome.notifications },
-      { headers: etagHeader(updated) }
+      { ...stored, _hooks: [...before.log, ...after.log], _notifications: outcome.notifications, _workflows: runs },
+      { headers: etagHeader(stored) }
     );
   };
 

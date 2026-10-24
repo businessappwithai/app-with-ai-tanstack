@@ -60,13 +60,21 @@ describe("enum integrity", () => {
     await harness.setup();
 
     for (const entity of entities) {
-      const response = await harness.client.get<FormField[]>(
-        `/bus/${entity.route}/fields/form?includeHidden=true`,
-        { allowFailure: true }
-      );
+      // The grid as well as the form: a state field is never a form input (it
+      // is shown read-only in the record's header) but is always a grid column.
+      const [response, grid] = await Promise.all([
+        harness.client.get<FormField[]>(`/bus/${entity.route}/fields/form?includeHidden=true`, {
+          allowFailure: true,
+        }),
+        harness.client.get<FormField[]>(`/bus/${entity.route}/fields/grid`, { allowFailure: true }),
+      ]);
       if (!response.ok) continue;
 
-      for (const field of response.data ?? []) {
+      const fields = [...(response.data ?? [])];
+      for (const field of grid.ok ? (grid.data ?? []) : []) {
+        if (!fields.some((known) => known.column_name === field.column_name)) fields.push(field);
+      }
+      for (const field of fields) {
         const declared = modelEnums.find(
           (item) => item.referenceId === field.sys_reference_id
         );

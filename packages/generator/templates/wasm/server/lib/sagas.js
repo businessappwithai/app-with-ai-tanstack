@@ -1,0 +1,270 @@
+/**
+ * The background workflows — a saga's steps, run after the write that started
+ * them.
+ *
+ * A `kind: saga` workflow is a list of steps (`%%step`) compiled into
+ * `model.sagas` and seeded into `sys_workflow_definitions`. A rule starts one
+ * with a `trigger-workflow` action naming it; a saga declared `trigger:
+ * automatic` runs on every write its `operation` names. Until this file, the
+ * browser application stored the sagas and never ran one: the rule matched,
+ * its row went into `_notifications`, and the step that should have moved an
+ * invoice to `paid` did nothing.
+ *
+ * This is also the only writer of a state field. A person's request may not
+ * change one (`bus.routes.js` refuses it); a saga's UpdateEntity step writes it
+ * here, directly, the way the NestJS executor writes through Kysely without
+ * passing its own access guard. Row targeting follows that executor exactly:
+ *
+ *   no entity                the triggering record
+ *   entity + targetSource    the row whose id is that context value (a column of
+ *                            the triggering record, or what an earlier step
+ *                            published)
+ *   entity + targetField     the rows whose targetField equals the triggering
+ *                            record's id — children pointing back at it
+ *
+ * Steps it does not run here (Decision, REST, Agent, Formula beyond a copy) are
+ * recorded as skipped in the run's detail rather than failing it.
+ */
+
+import { ident } from "./db.js";
+import { evaluateRules } from "./rules.js";
+import { stateFieldFor } from "./workflows.js";
+
+/**
+ * How many state moves one write may set off. A saga that writes a state runs
+ * the entity's rules again (below), and a model whose rules move a record back
+ * and forth would otherwise never stop.
+ */
+const MAX_STATE_WRITE_DEPTH = 8;
+
+/** Find a saga definition by name: the table first, the model as a fallback. */
+async function sagaNamed(db, model, name) {
+  try {
+    const row = await db.one(
+      "SELECT definition FROM sys_workflow_definitions WHERE name = $1 AND kind = 'saga' AND is_active = true",
+      [name]
+    );
+    if (row?.definition) {
+      return typeof row.definition === "string" ? JSON.parse(row.definition) : row.definition;
+    }
+  } catch {
+    /* fall through to the model */
+  }
+  return (model.sagas || []).find((saga) => saga.name === name) ?? null;
+}
+
+function entityNamed(model, name) {
+  const wanted = String(name ?? "").trim().toLowerCase().replace(/^bus_/, "");
+  return (
+    model.entities.find(
+      (entity) =>
+        entity.name.toLowerCase() === wanted ||
+        entity.tableName === `bus_${wanted}` ||
+        entity.tableName === wanted
+    ) ?? null
+  );
+}
+
+/** A literal step value as the column will hold it. */
+function literal(raw) {
+  const value = String(raw ?? "").trim();
+  if (value === "true") return true;
+  if (value === "false") return false;
+  if (value === "null") return null;
+  return value;
+}
+
+async function updateEntity(db, model, triggering, record, step, context) {
+  const props = step.props || {};
+  const target = props.entity ? entityNamed(model, props.entity) : triggering;
+  const field = String(props.field ?? "").trim();
+  if (!target || !field) return { step: step.nodeId, skipped: "no entity or field" };
+
+  const value =
+    props.source && context[props.source.trim()] !== undefined
+      ? context[props.source.trim()]
+      : literal(props.value);
+
+  const targetSource = props.targetSource?.trim();
+  const targetField = props.targetField?.trim() || "id";
+  let column = "id";
+  let match;
+  if (targetSource) {
+    match = context[targetSource];
+  } else if (target === triggering) {
+    match = record.id;
+  } else if (targetField !== "id") {
+    column = targetField;
+    match = record.id;
+  }
+  if (match === undefined || match === null) {
+    return { step: step.nodeId, skipped: "no row to update" };
+  }
+
+  const rows = await db.query(
+    `UPDATE ${ident(target.tableName)}
+        SET ${ident(field)} = $1, updated_at = NOW(), version = COALESCE(version, 0) + 1
+      WHERE ${ident(column)} = $2 AND deleted_at IS NULL
+      RETURNING id`,
+    [value, match]
+  );
+  return {
+    step: step.nodeId,
+    entity: target.name,
+    field,
+    value,
+    rows: rows.length,
+    ids: rows.map((row) => row.id),
+  };
+}
+
+async function createEntity(db, model, step, context) {
+  const props = step.props || {};
+  const target = entityNamed(model, props.entity);
+  if (!target) return { step: step.nodeId, skipped: "unknown entity" };
+  let fields = {};
+  try {
+    fields = props.fields ? JSON.parse(props.fields) : {};
+  } catch {
+    return { step: step.nodeId, skipped: "fields is not JSON" };
+  }
+  const values = {};
+  for (const [column, source] of Object.entries(fields)) {
+    values[column] =
+      typeof source === "string" && context[source] !== undefined ? context[source] : source;
+  }
+  // A record a workflow creates starts in its machine's initial state, as one
+  // a person creates does, unless the step names the state itself.
+  const state = await stateFieldFor(db, model, target);
+  if (state?.initial && (values[state.field] === undefined || values[state.field] === null)) {
+    values[state.field] = state.initial;
+  }
+  const created = await db.insert(target.tableName, values);
+  if (props.as) context[props.as.trim()] = created?.id;
+  return { step: step.nodeId, entity: target.name, created: created?.id ?? null };
+}
+
+async function deleteEntity(db, model, triggering, record, step, context) {
+  const props = step.props || {};
+  const target = props.entity ? entityNamed(model, props.entity) : triggering;
+  if (!target) return { step: step.nodeId, skipped: "unknown entity" };
+  const targetSource = props.targetSource?.trim();
+  const targetField = props.targetField?.trim() || "id";
+  const column = targetSource ? "id" : target === triggering ? "id" : targetField;
+  const match = targetSource ? context[targetSource] : record.id;
+  if (match === undefined || match === null) return { step: step.nodeId, skipped: "no row" };
+  const rows = await db.query(
+    `UPDATE ${ident(target.tableName)} SET deleted_at = NOW()
+      WHERE ${ident(column)} = $1 AND deleted_at IS NULL RETURNING id`,
+    [match]
+  );
+  return { step: step.nodeId, entity: target.name, deleted: rows.length };
+}
+
+/** Run one saga against the record that started it. */
+export async function runSaga(db, model, entity, record, saga, user) {
+  const context = { ...record };
+  const results = [];
+  let status = "completed";
+  for (const step of saga.steps || []) {
+    try {
+      if (step.type === "UpdateEntity") {
+        results.push(await updateEntity(db, model, entity, record, step, context));
+      } else if (step.type === "CreateEntity") {
+        results.push(await createEntity(db, model, step, context));
+      } else if (step.type === "DeleteEntity") {
+        results.push(await deleteEntity(db, model, entity, record, step, context));
+      } else {
+        results.push({ step: step.nodeId, skipped: `${step.type} is not run in the browser` });
+      }
+    } catch (error) {
+      results.push({ step: step.nodeId, error: error.message });
+      status = "failed";
+      break;
+    }
+  }
+
+  await db.insert("sys_workflow_runs", {
+    workflow_name: saga.name,
+    entity_name: entity.name,
+    record_id: record.id,
+    trigger: "saga",
+    status,
+    detail: JSON.stringify({ steps: results }),
+    created_by: user?.id ?? null,
+  });
+  return { saga: saga.name, status, steps: results };
+}
+
+/**
+ * Every saga a write starts: those its rules named with `trigger-workflow`,
+ * and those declared `trigger: automatic` for this operation. Run after the
+ * write, against the record as stored — as the NestJS stack does.
+ *
+ * A saga that writes an entity's state field is itself a write that rules may
+ * be keyed on (`status == "paid" and …`), and a person's request is no longer
+ * how a state changes, so nothing else would evaluate them. After such a step
+ * the moved rows are re-read and their UPDATE rules run again; only the sagas
+ * those rules start are run, as `followStateWrites` does in the NestJS rules
+ * service, to a depth of MAX_STATE_WRITE_DEPTH.
+ */
+export async function runTriggeredSagas(
+  db, model, entity, record, operation, notifications, user, depth = 0
+) {
+  const names = new Set();
+  for (const item of notifications || []) {
+    const action = String(item.action || "").toLowerCase();
+    const name = item.workflowName || item.workflow;
+    if (action.startsWith("trigger") && name) names.add(String(name));
+  }
+  if (depth === 0) {
+    for (const saga of model.sagas || []) {
+      if (saga.entity !== entity.name || saga.trigger !== "automatic") continue;
+      if (saga.operation === "ALL" || saga.operation === operation) names.add(saga.name);
+    }
+  }
+
+  const runs = [];
+  for (const name of names) {
+    const saga = await sagaNamed(db, model, name);
+    if (!saga) continue;
+    const run = await runSaga(db, model, entity, record, saga, user);
+    runs.push(run);
+    runs.push(...(await followStateWrites(db, model, run, user, depth)));
+  }
+  return runs;
+}
+
+async function followStateWrites(db, model, run, user, depth) {
+  if (depth >= MAX_STATE_WRITE_DEPTH) return [];
+  const runs = [];
+  for (const result of run.steps) {
+    if (!result.ids?.length) continue;
+    const target = entityNamed(model, result.entity);
+    if (!target) continue;
+    const state = await stateFieldFor(db, model, target);
+    if (!state || state.field !== result.field) continue;
+    const rules = await db.query(
+      `SELECT name, jdm_content FROM sys_rule_definitions
+        WHERE entity_name = $1 AND operation IN ('UPDATE', 'ALL') AND is_active = true
+        ORDER BY priority ASC`,
+      [target.name]
+    );
+    for (const id of result.ids) {
+      const row = await db.one(
+        `SELECT * FROM ${ident(target.tableName)} WHERE id = $1 AND deleted_at IS NULL`,
+        [id]
+      );
+      if (!row) continue;
+      const outcome = await evaluateRules(rules, row, {
+        columns: target.attributes.map((attribute) => attribute.columnName),
+      });
+      runs.push(
+        ...(await runTriggeredSagas(
+          db, model, target, row, "UPDATE", outcome.notifications, user, depth + 1
+        ))
+      );
+    }
+  }
+  return runs;
+}

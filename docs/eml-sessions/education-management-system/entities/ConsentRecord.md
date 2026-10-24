@@ -18,6 +18,8 @@
 | `withdrawn_at` | datetime | OPTIONAL | When the guardian revoked consent. Kept with the original record so earlier authorised activity remains explainable. |
 | `withdrawal_reason` | text | OPTIONAL | The guardian's reason where they chose to give one. It is optional and must not be used to pressure a family to keep consent active. |
 | `evidence_url` | string | OPTIONAL | A protected link to the signed form or verified digital evidence. Access must follow the same restrictions as the consent record. |
+| `active_at` | datetime | OPTIONAL | When the move to active was recorded on this consent record. Recording it moves a consent record from draft to active: the workflows set the status, which nobody changes by hand. |
+| `expired_at` | datetime | OPTIONAL | When the move to expired was recorded on this consent record. Recording it moves a consent record from active to expired: the workflows set the status, which nobody changes by hand. |
 
 ## Enums
 
@@ -51,6 +53,12 @@ expired   --> [*]
 
 - `requireConsentWithdrawalTime validation-error when: status == "withdrawn" and withdrawn_at == null message: Withdrawing consent requires the time authority ended so later activity cannot be mistaken for authorised activity.`
 
+### `consentRecordStateProgress` on `beforeUpdate` — **`%%action` decision table — it can act**
+
+- `moveDraftToActive trigger-workflow when: status == "draft" and active_at != null workflow: ConsentRecordActiveMove`
+- `moveActiveToWithdrawn trigger-workflow when: status == "active" and withdrawn_at != null workflow: ConsentRecordWithdrawnMove`
+- `moveActiveToExpired trigger-workflow when: status == "active" and expired_at != null workflow: ConsentRecordExpiredMove`
+
 ## Hooks
 
 None.
@@ -59,6 +67,17 @@ None.
 
 None. Withdrawing a consent records when authority ended and does not stop anything by itself; no hook or saga reads `ConsentRecord`, so whoever acts on a trip, a photograph or a data share checks the record.
 
+Sagas that touch it:
+
+- **ConsentRecordActiveMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: active`
+  - `C UpdateEntity field: withdrawn_at value: null`
+  - `D UpdateEntity field: expired_at value: null`
+- **ConsentRecordWithdrawnMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: withdrawn`
+- **ConsentRecordExpiredMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: expired`
+
 ## Access
 
 | Operation | Roles |
@@ -66,7 +85,6 @@ None. Withdrawing a consent records when authority ended and does not stop anyth
 | `read` | principal · registrar · counsellor · guardian |
 | `create` | registrar · counsellor |
 | `update` | registrar · counsellor |
-| `withdraw` | registrar · counsellor · guardian |
 
 ## Open questions
 

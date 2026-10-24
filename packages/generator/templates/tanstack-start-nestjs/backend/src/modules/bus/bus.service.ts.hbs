@@ -19,6 +19,7 @@ import { PromotionDispatcher } from './promotion-dispatcher.service';
 import type { PromotionActor, PromotionResult } from './entity-promotion.service';
 import { WorkflowService } from '../workflow/workflow.service';
 import { currentRequestContext, getLogger } from '../../common/logging/logger.service';
+import { stateFieldOf } from '../../common/state-fields';
 import {
   DEFAULT_ORDER_BY_CLAUSE,
   parseOrderByClause,
@@ -53,6 +54,12 @@ export interface FieldMetadata {
   ref_label_fields?: string[];
   /** Populated for enum columns: the allowed values from sys_ref_list. */
   options?: { value: string; label: string }[];
+  /**
+   * The column the entity's state machine drives. System-managed: shown
+   * read-only in the record header and always in the list grid, never as an
+   * input — only the application's workflows change it.
+   */
+  is_state_field?: boolean;
   /** Query param name for cascading filter (e.g. 'filter.country_id') */
   ref_filter_param?: string;
   /** Form field whose value feeds the cascading filter (e.g. 'country_id') */
@@ -65,6 +72,8 @@ export interface EntityMetadata {
     table_name: string;
     name: string;
     description?: string;
+    /** The state field, when the entity has a state machine. See FieldMetadata.is_state_field. */
+    state_field?: string | null;
   };
   columns: FieldMetadata[];
   window?: {
@@ -344,6 +353,14 @@ export class BusService {
 
     const metadata = await this.getEntityMetadata(entity);
     const dataWithDefaults = { ...data };
+
+    // A new record starts in its state machine's initial state. A person's
+    // request never carries the state (the guard drops it); a workflow creating
+    // a record may name one, and a hook may still set it below.
+    const state = stateFieldOf(tableName);
+    if (state?.initial && dataWithDefaults[state.field] === undefined) {
+      dataWithDefaults[state.field] = state.initial;
+    }
 
     for (const column of metadata.columns) {
       if (column.default_value && dataWithDefaults[column.column_name] === undefined) {
@@ -790,14 +807,22 @@ export class BusService {
       }
     }
 
+    // The state field is system-managed (common/state-fields.ts): never an
+    // input on the form, never hidden from the list, whatever the dictionary's
+    // field rows say — an administrator's toggle cannot make it editable or
+    // take it out of the grid.
+    const stateField = stateFieldOf(table.table_name)?.field ?? null;
+
     const metadata: EntityMetadata = {
       table: {
         sys_table_id: table.sys_table_id,
         table_name: table.table_name,
         name: table.name,
         description: table.description,
+        state_field: stateField,
       },
       columns: columns.map((col: any) => {
+        const isStateField = stateField !== null && col.column_name === stateField;
         const refTableName = resolveRef(col);
         const options = !refTableName && enumOptionsMap[col.sys_reference_id]?.length
           ? enumOptionsMap[col.sys_reference_id]
@@ -809,7 +834,7 @@ export class BusService {
           // 10 = plain string: a reference to a table that does not exist is not a lookup.
           sys_reference_id: isDanglingRef(col) ? 10 : col.sys_reference_id,
           is_mandatory: col.is_mandatory,
-          is_updateable: col.is_updateable,
+          is_updateable: isStateField ? false : col.is_updateable,
           // A reference degraded to a plain value holds an id with no table to
           // resolve it, so it cannot name the record.
           is_identifier: col.is_identifier === true && !isDanglingRef(col),
@@ -821,9 +846,10 @@ export class BusService {
           options,
           seq_no: col.field_seq_no || col.seq_no || 0,
           seq_no_grid: col.seq_no_grid || 0,
-          is_displayed: col.is_displayed !== false,
-          is_displayed_grid: col.is_displayed_grid !== false,
-          is_read_only: col.field_is_read_only || false,
+          is_displayed: isStateField ? false : col.is_displayed !== false,
+          is_displayed_grid: isStateField ? true : col.is_displayed_grid !== false,
+          is_read_only: isStateField ? true : col.field_is_read_only || false,
+          is_state_field: isStateField,
           help: col.field_help || undefined,
           field_group_id: col.sys_field_group_id || null,
           group_name: col.group_name || null,
@@ -907,6 +933,8 @@ export class BusService {
 
   async getFormFields(entity: string): Promise<FieldMetadata[]> {
     const metadata = await this.getEntityMetadata(entity);
+    // The state field is never here: it is not an input. The record header
+    // reads it from the grid fields, which always carry it.
     return metadata.columns.filter((col) => col.is_displayed).sort((a, b) => a.seq_no - b.seq_no);
   }
 
@@ -920,6 +948,11 @@ export class BusService {
     const errors: string[] = [];
 
     for (const column of metadata.columns) {
+      // The state field is the application's to write, never a request's: the
+      // guard has already dropped or refused it, and on create the service
+      // fills in the initial state, so neither "required" nor "not updateable"
+      // is the caller's fault.
+      if (column.is_state_field) continue;
       // Skip auto-managed system columns in create mode
       if (mode === 'create' && BusService.AUTO_MANAGED_COLUMNS.has(column.column_name)) continue;
       const value = data[column.column_name];

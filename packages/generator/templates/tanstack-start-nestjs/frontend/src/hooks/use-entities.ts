@@ -58,6 +58,12 @@ export interface FieldMetadata {
    */
   is_identifier?: boolean;
   is_key?: boolean;
+  /**
+   * The column the entity's state machine drives. System-managed: the record
+   * header shows it read-only (StateBadge), the list grid always shows it, and
+   * the form never offers it as an input.
+   */
+  is_state_field?: boolean;
   col_span?: number;
   row_span?: number;
   field_group_id?: string;

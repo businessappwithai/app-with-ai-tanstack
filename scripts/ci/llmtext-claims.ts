@@ -456,6 +456,28 @@ held(
   "website/llmtext holds llms.txt and its named chunks and nothing else"
 );
 
+/* The state field is system-managed, and the chunks say so where a reader
+   writes a state machine, a %%section row and a %%rbac line. Held by wording,
+   and each code it cites by the checker, so the prose cannot drift from the
+   diagnostics that enforce it. */
+{
+  const prose = ALL.replace(/\s+/g, " ");
+  for (const [pattern, label] of [
+    [/\*\*The state field is system-managed\.\*\*/, "§5.2 opens on the state field being system-managed"],
+    [/never changed by a person through a form or a direct API write/, "§5.2 says no person writes a state"],
+    [/STATE_FIELD_SYSTEM_MANAGED/, "§5.2 names the refusal code"],
+    [/read-only in its top header/, "§3.7.6 puts the state in the form's top header"],
+    [/the list grid \*\*always\*\* shows it as a column/, "§3.7.6 always shows the state in the list grid"],
+    [/A transition event is \*\*not\*\* an operation a role can hold/, "§6 grants no transition"],
+  ] as const)
+    held(pattern.test(prose), `llms.txt (all chunks): ${label}`);
+  for (const code of ["EML178", "EML215", "EML507", "EML508"])
+    held(
+      ALL.includes(code) && checkerSource.includes(`"${code}"`),
+      `llms.txt (all chunks): cites ${code} and the checker emits it`
+    );
+}
+
 /* The controller is the part every run pays for, so it stays small, and it names
    every chunk by its full published URL — a chunk it does not name is one a
    reader never loads. */
@@ -476,6 +498,8 @@ for (const [pattern, label] of [
   [/Validation is mandatory: checker, fixer if needed, checker again, then audit/, "makes validation mandatory"],
   [/research the domain widely, then attack your own plan/, "requires research and an adversarial review first"],
   [/Write the URL in full, never a bare host/, "carries the rule that the URL is written in full"],
+  [/state field .* is system-managed: no person changes it through a form; only background workflows do/, "makes the state field system-managed"],
+  [/the form shows it read-only in its header and the list grid always shows it/, "shows the state read-only in the form header and always in the grid"],
   [/PREREQUISITE \(ChatGPT only\)/, "gates ChatGPT runs on a prerequisite"],
   [/If you are ChatGPT, the TinyFish plugin is mandatory/, "makes the TinyFish plugin mandatory for ChatGPT"],
   [/Not installed or not signed in: STOP/, "stops a ChatGPT run when the plugin is missing"],

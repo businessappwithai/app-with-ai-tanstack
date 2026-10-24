@@ -538,6 +538,14 @@ export function buildRecord(
   for (let attempt = 1; attempt < REDRAWS && settle(entity.tableName, record, locked); attempt++) {
     record = drawAsStored(entity, options);
   }
+  // The state is the application's to set, never a request's: it was drawn
+  // above only so the rules are checked against the record as it will be
+  // stored. Sent back, it would be a person changing the state of a record a
+  // workflow has since moved on — which the API refuses.
+  const machine = stateMachines.find((candidate) => candidate.tableName === entity.tableName);
+  if (machine && options.overrides?.[machine.statusField] === undefined) {
+    delete record[machine.statusField];
+  }
   return record;
 }
 

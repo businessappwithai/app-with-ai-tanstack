@@ -4,11 +4,15 @@ A status state machine lists the **statuses a record can be in** and the
 **moves allowed between them**. For example, an invoice goes `draft → issued →
 paid`, or `issued → cancelled`, and nothing else.
 
-The generated application enforces it on every write. A write that changes the
-status along an arrow you drew is allowed. A write that tries any other move is
-refused, **for every user, administrators included**, because a move the
-diagram does not contain is not a move the process has. (Who may make an
-allowed move is a separate question, answered by the model's `%%rbac` lines.)
+**Nobody changes a status by hand.** The status column is system-managed: the
+record's form shows it read-only in its header, the list always shows it as a
+column, and a person's write that changes it is refused — administrators
+included. Only background workflows move a record: a rule notices the fact a
+move depends on (an `approved_at`, a `paid_at`) and starts a saga whose
+`UpdateEntity` step writes the new status.
+
+Even a workflow may only move along an arrow you drew. A move the diagram does
+not contain is not a move the process has, and the application refuses it.
 
 ## Building one
 
@@ -44,9 +48,11 @@ state to move it; its position has no effect on how the machine behaves.
   refused.
 - **Match the enum.** A state whose name is not one of the column's enum
   values can never be reached by a real record.
+- **Give every arrow a writer.** Each status a record can move into needs a
+  saga that writes it, started by a rule on the fact that causes the move.
+  The checker reports a status nothing writes.
 - **Name the triggers.** A labelled arrow reads as a sentence in the generated
-  screens (*"issue"*, *"cancel"*), and the application offers only the moves
-  that exist from a record's current status.
+  screens (*"issue"*, *"cancel"*).
 
 ## Show EML
 

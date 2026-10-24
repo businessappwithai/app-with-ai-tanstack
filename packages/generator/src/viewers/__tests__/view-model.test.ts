@@ -121,15 +121,15 @@ describe("readModel composes the pipeline's own reading", () => {
     expect(flow?.undeclaredStates).toEqual(["escalated"]);
   });
 
-  it("names the roles allowed to cross a restricted transition", () => {
+  it("names the saga that moves a record into each state it writes", () => {
+    // A state is changed only by background workflows: LeadConversion's
+    // UpdateEntity step is what puts a Lead in `converted`.
     const view = readModel(crm);
     const lifecycle = view.workflows.find((workflow) => workflow.name === "LeadLifecycle");
-    const restricted = Object.entries(lifecycle?.transitionRoles ?? {});
-
-    expect(restricted.length).toBeGreaterThan(0);
-    for (const [edge, roles] of restricted) {
-      expect(edge).toMatch(/^\w+>\w+$/);
-      expect(roles.length).toBeGreaterThan(0);
+    expect(lifecycle?.stateWriters.converted).toContain("LeadConversion");
+    for (const [state, writers] of Object.entries(lifecycle?.stateWriters ?? {})) {
+      expect(lifecycle?.states.map((item) => item.name)).toContain(state);
+      expect(writers.length).toBeGreaterThan(0);
     }
   });
 

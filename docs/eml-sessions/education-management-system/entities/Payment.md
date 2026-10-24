@@ -54,9 +54,9 @@ None. This entity has no status column and no lifecycle.
 Sagas that touch it:
 
 - **InvoiceSettlement** *(triggered on this entity)*
-  - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: paid`
+  - `B UpdateEntity entity: FeeInvoice targetSource: fee_invoice_id field: status value: paid`
 - **PartPaymentPosting** *(triggered on this entity)*
-  - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: part_paid`
+  - `B UpdateEntity entity: FeeInvoice targetSource: fee_invoice_id field: status value: part_paid`
 
 ## Access
 

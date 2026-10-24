@@ -10,7 +10,7 @@
  * Project: {{project.name}}
  */
 
-import { refusals } from "./model.ts";
+import { refusals, stateMachines } from "./model.ts";
 
 export type FieldType =
   | "string"
@@ -161,9 +161,24 @@ export const relationships: RelationshipMeta[] = [
 {{/each}}
 ];
 
-/** Fields a client is allowed to write. */
+/**
+ * The state field of every entity with a state machine, as `table.column`.
+ * System-managed: only the application's workflows write it, so no client does.
+ */
+const STATE_FIELDS = new Set(
+  stateMachines.map((machine) => `${machine.tableName}.${machine.statusField}`)
+);
+
+/** Is this the entity's state field — the column only workflows may change? */
+export function isStateField(entity: EntityMeta, field: string): boolean {
+  return STATE_FIELDS.has(`${entity.tableName}.${field}`);
+}
+
+/** Fields a client is allowed to write. A state field is not one of them. */
 export function writableFields(entity: EntityMeta): FieldMeta[] {
-  return entity.fields.filter((f) => !SERVER_MANAGED_FIELDS.has(f.name));
+  return entity.fields.filter(
+    (f) => !SERVER_MANAGED_FIELDS.has(f.name) && !isStateField(entity, f.name)
+  );
 }
 
 /** Writable fields excluding foreign keys — safe to populate without existing parents. */

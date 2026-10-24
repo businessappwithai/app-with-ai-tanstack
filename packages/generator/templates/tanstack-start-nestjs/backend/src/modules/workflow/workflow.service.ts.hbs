@@ -19,6 +19,7 @@ import { Kysely, sql } from 'kysely';
 import { InjectDatabase } from '../../database/database.service.decorator';
 import { RulesEngine } from '../rules/rules-engine.service';
 import { automationGuards } from '../workflow-definitions/automation-compiler';
+import { stateFieldOf } from '../../common/state-fields';
 
 export interface TriggerWorkflowDto {
   entityName: string;
@@ -262,7 +263,7 @@ export class WorkflowService {
     operation: 'create' | 'update' | 'delete',
     entityData: Record<string, unknown>,
     options: WorkflowRunOptions = {},
-  ): Promise<void> {
+  ): Promise<Record<string, unknown>[]> {
     const db = options.db ?? this.db;
     let definition: any;
     try {
@@ -277,7 +278,7 @@ export class WorkflowService {
         throw new Error(`Could not load workflow "${workflowName}": ${err?.message ?? err}`);
       }
       this.logger.warn(`Could not load workflow "${workflowName}": ${err?.message}`);
-      return;
+      return [];
     }
 
     if (!definition) {
@@ -289,7 +290,7 @@ export class WorkflowService {
       this.logger.debug(
         `No active workflow named "${workflowName}" — nothing to trigger for ${entityName}:${entityId}`,
       );
-      return;
+      return [];
     }
 
     const startMs = Date.now();
@@ -323,6 +324,7 @@ export class WorkflowService {
         .execute();
 
       this.logger.log(`Rule-triggered workflow "${workflowName}" completed for ${entityName}:${entityId}`);
+      return mutations;
     } catch (err: any) {
       this.logger.error(`Rule-triggered workflow "${workflowName}" failed: ${err?.message}`);
       if (options.throwOnError) {
@@ -336,6 +338,7 @@ export class WorkflowService {
           .execute()
           .catch(() => {});
       }
+      return [];
     }
   }
 
@@ -709,8 +712,12 @@ export class WorkflowService {
 
     const source = task.source?.trim();
     const hasLiteral = task.value !== undefined && task.value !== '';
+    // `value: null` clears the column. A state machine's move uses it to reset
+    // the fact that would otherwise move the record straight back out of a state
+    // it has just re-entered; the string "null" is never a value a column wants.
+    const literal = task.value === 'null' ? null : task.value;
     const resolvedValue =
-      source && context[source] !== undefined ? context[source] : task.value;
+      source && context[source] !== undefined ? context[source] : literal;
 
     // A step that reads a variable nothing published used to run anyway and
     // write `undefined`, blanking the column. Silently destroying a value is
@@ -790,6 +797,12 @@ export class WorkflowService {
     for (const [column, source] of entries) {
       values[column.trim()] =
         typeof source === 'string' && context[source] !== undefined ? context[source] : source;
+    }
+    // A record a workflow creates starts in its machine's initial state, as one
+    // a person creates does, unless the step names the state itself.
+    const state = stateFieldOf(targetTable);
+    if (state?.initial && (values[state.field] === undefined || values[state.field] === null)) {
+      values[state.field] = state.initial;
     }
 
     const inserted = await db

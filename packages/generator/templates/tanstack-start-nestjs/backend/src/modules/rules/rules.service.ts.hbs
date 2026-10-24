@@ -16,6 +16,7 @@ import type { RuleEvaluationResult } from './rules-engine.service';
 import { readFileSync } from 'fs';
 import { WorkflowService } from '../workflow/workflow.service';
 import { getLogger } from '../../common/logging/logger.service';
+import { stateFieldOf } from '../../common/state-fields';
 import { join } from 'path';
 
 export interface CreateRuleDto {
@@ -47,7 +48,24 @@ export interface RuleActionOptions {
   db?: Kysely<any>;
   /** Throw on the first failing action instead of logging it and carrying on. */
   throwOnError?: boolean;
+  /**
+   * How many state writes deep this evaluation is. A workflow that moves a
+   * record into a new state is itself a write, so the entity's rules run again
+   * against the record it produced — that is how a rule keyed on the new state
+   * fires, now that no person writes a state. Bounded, because a model can draw
+   * a cycle.
+   */
+  depth?: number;
+  /**
+   * Run only the workflow-starting actions. Set when the rules are re-run after
+   * a workflow's state write: that write is already made, so a refusal cannot
+   * apply to it, and a transform would rewrite a record nobody is editing.
+   */
+  triggersOnly?: boolean;
 }
+
+/** How many workflow state writes may chain from one person's write. */
+const MAX_STATE_WRITE_DEPTH = 8;
 
 export interface MatchedAction {
   ruleName: string;
@@ -711,6 +729,49 @@ export class RulesService {
    *
    * Pass options.db to run every write on a transaction.
    */
+  /**
+   * Re-run the rules of every record a workflow just moved into a new state.
+   *
+   * A state field is changed only by background workflows, and they write it
+   * directly rather than through /bus, so nothing else would evaluate the
+   * record's rules against its new state: a rule keyed on `status == "paid"`
+   * would never fire. Only workflow-starting actions run (`triggersOnly`).
+   */
+  private async followStateWrites(
+    mutations: Array<Record<string, unknown>> | void | undefined,
+    options: RuleActionOptions,
+    depth: number,
+  ): Promise<void> {
+    for (const mutation of mutations || []) {
+      if (mutation?.nodeType !== 'UpdateEntity' || !(Number(mutation.rowsAffected) > 0)) continue;
+      const table = String(mutation.table ?? '');
+      const state = stateFieldOf(table);
+      if (!state || mutation.field !== state.field) continue;
+      const match = String(mutation.matchedOn ?? '').match(/^([A-Za-z_]\w*)=(.+)$/);
+      if (!match) continue;
+      const db = options.db ?? this.db;
+      let rows: Array<Record<string, any>> = [];
+      try {
+        rows = await db
+          .selectFrom(table as any)
+          .selectAll()
+          .where(match[1] as any, '=', match[2])
+          .where('deleted_at' as any, 'is', null)
+          .execute();
+      } catch (err: any) {
+        this.logger.warn(`followStateWrites: could not reload ${table}: ${err?.message ?? err}`);
+        continue;
+      }
+      for (const row of rows) {
+        await this.executeMatchedActions(table, String(row.id), row, 'update', {
+          ...options,
+          depth: depth + 1,
+          triggersOnly: true,
+        });
+      }
+    }
+  }
+
   async executeMatchedActions(
     entityName: string,
     entityId: string,
@@ -719,6 +780,13 @@ export class RulesService {
     options: RuleActionOptions = {},
   ): Promise<void> {
     const db = options.db ?? this.db;
+    const depth = options.depth ?? 0;
+    if (depth > MAX_STATE_WRITE_DEPTH) {
+      this.logger.warn(
+        `executeMatchedActions: ${entityName}:${entityId} moved state ${depth} times from one write — stopping`,
+      );
+      return;
+    }
 
     let results: RuleEvaluationResult[];
     try {
@@ -751,10 +819,17 @@ export class RulesService {
             this.logger.log(`Rule "${result.ruleName}" triggering workflow "${wfName}" for ${entityName}:${entityId}`);
             // Only hand our connection over when the caller opened a transaction —
             // otherwise the workflow service uses its own, as it always has.
-            await this.workflowService.triggerByWorkflowName(wfName, entityName, entityId, operation, data, {
-              db: options.db,
-              throwOnError: options.throwOnError,
-            });
+            const mutations = await this.workflowService.triggerByWorkflowName(
+              wfName,
+              entityName,
+              entityId,
+              operation,
+              data,
+              { db: options.db, throwOnError: options.throwOnError },
+            );
+            await this.followStateWrites(mutations, options, depth);
+          } else if (options.triggersOnly) {
+            continue;
           } else if (action.type === 'cascade-update') {
             const targetEntity = action.config.targetEntity as string | undefined;
             const linkField = action.config.linkField as string | undefined;

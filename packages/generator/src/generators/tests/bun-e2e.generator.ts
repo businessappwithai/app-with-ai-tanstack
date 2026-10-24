@@ -28,6 +28,7 @@ import { declaredEntityNames, entityToBusEntity } from "@appwithai/core/types";
 import type { CompiledRbac } from "../../rbac";
 import { deriveAccess } from "../../rbac/roles";
 import type { CompiledReport } from "../../reports";
+import { stateFieldOf } from "../../../../../language/state-field";
 import type { CompiledRule } from "../../rules";
 import type { CompiledWorkflow } from "../../workflows";
 import { BaseGenerator } from "../base.generator";
@@ -542,7 +543,8 @@ export class BunE2ETestGenerator extends BaseGenerator {
       const columns = ((entity.attributes ?? []) as Array<Partial<BusEntityAttribute>>).map(
         (attribute) => attribute.columnName ?? attribute.name
       );
-      const statusField = columns.includes("status") ? "status" : "workflow_status";
+      const statusField =
+        stateFieldOf(columns.filter((name): name is string => !!name)) ?? "workflow_status";
 
       // `[*]` is the diagram's start and end marker, not a state a record is
       // ever in — the seed drops those edges, so the suite must too or it

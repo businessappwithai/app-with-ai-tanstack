@@ -20,6 +20,7 @@
 | `sent_at` | datetime | OPTIONAL | When the message left the school or the call occurred. Blank while it remains queued. |
 | `delivered_at` | datetime | OPTIONAL | When the channel confirmed delivery. Blank for channels that do not provide confirmation. |
 | `failure_reason` | text | OPTIONAL | Why delivery failed and what staff should correct before retrying, such as an invalid number or rejected email. |
+| `failed_at` | datetime | OPTIONAL | When the move to failed was recorded on this communication log. Recording it moves a communication log from queued or sent to failed: the workflows set the status, which nobody changes by hand. |
 
 ## Enums
 
@@ -54,6 +55,14 @@ failed    --> [*]
 ### `communicationDeliveryControl` on `beforeUpdate` — **`%%action` decision table — it can act**
 
 - `requireCommunicationFailureReason validation-error when: status == "failed" and failure_reason == null message: A failed communication needs a reason so staff can correct the address or choose another channel.`
+- `requireCommunicationFailureReasonOnMove validation-error when: failed_at != null and failure_reason == null message: A failed communication needs a reason so staff can correct the address or choose another channel.`
+
+### `communicationLogStateProgress` on `beforeUpdate` — **`%%action` decision table — it can act**
+
+- `moveQueuedToSent trigger-workflow when: status == "queued" and sent_at != null workflow: CommunicationLogSentMove`
+- `moveQueuedToFailed trigger-workflow when: status == "queued" and failed_at != null workflow: CommunicationLogFailedMove`
+- `moveSentToDelivered trigger-workflow when: status == "sent" and delivered_at != null workflow: CommunicationLogDeliveredMove`
+- `moveSentToFailed trigger-workflow when: status == "sent" and failed_at != null workflow: CommunicationLogFailedMove`
 
 ## Hooks
 
@@ -62,6 +71,17 @@ None.
 ## Cross-entity effects
 
 None. The entity is the record of a message, not the sender of one: nothing in the model writes a row. `notifyGuardiansOfStatusChange` on `Student` is the only notifier the model declares, and its handler is where a row would naturally be created, but the model does not say that it is.
+
+Sagas that touch it:
+
+- **CommunicationLogSentMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: sent`
+  - `C UpdateEntity field: delivered_at value: null`
+  - `D UpdateEntity field: failed_at value: null`
+- **CommunicationLogFailedMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: failed`
+- **CommunicationLogDeliveredMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: delivered`
 
 ## Access
 

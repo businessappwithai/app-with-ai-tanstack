@@ -244,13 +244,13 @@ export function compileRbac(
       continue;
     }
 
-    const key = `${entity}:${rawTarget.toLowerCase()}`;
-    const existing = transitions.get(key);
-    if (existing) {
-      for (const role of roles) existing.roles.add(role);
-    } else {
-      transitions.set(key, { entity, transition: rawTarget, edges, roles: new Set(roles) });
-    }
+    // A state is changed only by background workflows (language/state-field.ts),
+    // so a transition is not a permission a role can hold: nothing reaches
+    // sys_transition_access, and the checker reports the line as EML215.
+    onWarn(
+      `%%rbac on ${entity}.${rawTarget} grants a state transition; only background ` +
+        `workflows change a state — skipped.`
+    );
   }
 
   return {

@@ -174,7 +174,7 @@ generated; when the two disagree, the generator's copy is the language.
 | **core** | `erDiagram` entities, attributes, `PK/FK/UK/OPTIONAL/NULL/UNIQUE`, all 8 cardinalities, plus `%%index`, `%%enum`, `%%field enum:` and `%%category` | Compiled |
 | **rules** | `flowchart` decision flows → JDM via shape semantics; `%%action` → JDM decision table | Compiled |
 | **workflows** | `%%hook` (both forms, all 13 types), `stateDiagram-v2` state machines, `%%workflow kind: saga` with `%%step` and `%%loop` | Compiled |
-| **access** | `%%rbac`, in both its CRUD and state-transition forms | Compiled to `sys_operation_access` / `sys_transition_access`, enforced by the generated guard |
+| **access** | `%%rbac` on CRUD operations — a state transition is not grantable (`EML215`): the state field is system-managed, written only by background workflows | Compiled to `sys_operation_access`, enforced by the generated guard, which also refuses any person's write to a state field |
 | **help** | `%%field <E>.<col> help:` and `%%entity <Name> help:` (or `description:`) | Compiled — to `sys_column.description` / `sys_table.description`, shown in the app, and the whole "what it is for" column of `manual.html` |
 | **validated** | `%%rule`, `%%trigger`, and the `%%entity` keys other than `help:`/`description:` | No compiler yet; `checker.ts` enforces syntax so a malformed one fails rather than being dropped |
 | **reserved** | `%%field` keys other than `enum:` and `help:` | Renderer-safe, documented, inert |

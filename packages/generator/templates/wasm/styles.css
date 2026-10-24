@@ -422,6 +422,13 @@ a { color: var(--primary); }
   padding: 16px 20px; border-bottom: 1px solid var(--border);
 }
 .record__title { margin: 0; font-size: 17px; }
+.record__state {
+  display: inline-flex; align-items: center; padding: 2px 9px;
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+  border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
 .record__close {
   margin-left: auto; border: 0; background: transparent; color: var(--text-faint);
   font-size: 20px; line-height: 1; cursor: pointer; padding: 0 4px;

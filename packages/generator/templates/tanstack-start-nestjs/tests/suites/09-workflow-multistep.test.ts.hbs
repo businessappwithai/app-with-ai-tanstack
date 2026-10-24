@@ -38,6 +38,7 @@ import {
   foreignKeyFields,
   harness,
   isFailure,
+  isStateField,
   isTerminal,
   runsForEntity,
   updateRule,
@@ -76,6 +77,9 @@ function stampableFields(entity: EntityMeta): FieldMeta[] {
       !field.name.endsWith("_id") &&
       field.name !== "id" &&
       !FORMAT_CONSTRAINED_COLUMNS.has(field.name) &&
+      // Only a background workflow writes a state field; a person's write that
+      // stamps one is refused before the chain could start.
+      !isStateField(entity, field.name) &&
       (field.type === "string" || field.type === "text") &&
       (field.maxLength === undefined || field.maxLength >= 24)
   );
