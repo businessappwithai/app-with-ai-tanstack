@@ -88,11 +88,36 @@
   "Payment": {
     "placement": "Standalone. The daily takings list is payments across invoices.",
     "crossEntity": "`resolveInvoiceBalance` stamps `balance_before` before the write, `applyPaymentToInvoice` applies the money after it, and the rule then moves the invoice through `InvoiceSettlement` or `PartPaymentPosting`. That order is the §10.4 pattern stated exactly: a handler resolves, the rule decides and acts.",
-    "openQuestions": "Refunds. A negative payment is refused by `refuseNonPositivePayment`, so a refund today is a cancelled invoice and a re-issue. A real refund record was ruled out of scope at Gate B."
+    "openQuestions": "Instalment plans, and what a refund does to the invoice. A negative payment is still refused by `refuseNonPositivePayment`; money going back is a `Refund` against the payment, which never edits or deletes it. Nothing moves the invoice when a refund is paid — no saga reads `Refund` — so an invoice stays `paid` after its money has been returned, and `finance-refunds-awaiting-decision` is the queue a person works from."
   },
   "DisciplineIncident": {
     "placement": "Standalone. The pastoral team works a list of incidents.",
     "crossEntity": "A suspension sanction suspends the student — trigger `DisciplineIncident` → target `Student` → transition `enrolled|on_leave → suspended` — through `SuspensionEscalation`. Nothing lifts the suspension automatically: `reinstate` is a person's decision, and `counsellor-current-suspensions` is the list it is made from.",
-    "openQuestions": "Read access is `counsellor` and `principal` only, so a teacher cannot record an incident — they report it to the pastoral team, who record it with the teacher named in `reported_by_id`. The alternative (teachers create and read every incident) was rejected against research §7's safeguarding line. Row-level scoping — a teacher seeing only incidents they reported — is an application concern that `%%rbac` cannot express, and it is the change to make if the school wants teachers to record directly."
+    "openQuestions": "Read access is `counsellor` and `principal` only, so a teacher cannot record an incident — they report it to the pastoral team, who record it with the teacher named in `reported_by_id`. The alternative (teachers create and read every incident) was rejected against research §7's safeguarding line. Row-level scoping — a teacher seeing only incidents they reported — is an application concern that `%%rbac` cannot express, and it is the change to make if the school wants teachers to record directly. Welfare and child-protection concerns are not recorded here: `SafeguardingConcern` is a separate entity, on purpose, because a student may be at risk rather than at fault — and, unlike here, a teacher may create one."
+  },
+  "ConsentRecord": {
+    "placement": "Standalone. The renewal queue — every consent that lapses in the next thirty days, across all students — is a list someone opens in its own right (`registrar-consents-expiring`), and a consent has its own identity: this guardian's decision about this student's participation, on a date.",
+    "crossEntity": "None. Withdrawing a consent records when authority ended and does not stop anything by itself; no hook or saga reads `ConsentRecord`, so whoever acts on a trip, a photograph or a data share checks the record.",
+    "openQuestions": "`expire` is a transition nobody triggers: like an invoice going overdue it is the clock's, so `registrar-consents-expiring` is the list a person acts from rather than a rule that fires. A guardian can read and withdraw consents through the `guardian` role, but `%%rbac` cannot scope that role to their own child — the same limitation `02-cross-cutting.md` records for every guardian-readable entity."
+  },
+  "SupportPlan": {
+    "placement": "Standalone. The counsellor's caseload — active plans ordered by review date (`counsellor-support-reviews-due`) — is a list opened away from any one student, and a plan has an accountable owner (`owner_id`, a `Staff` reference).",
+    "crossEntity": "None. Activating or closing a plan writes nothing else: in particular it does not set `Student.has_support_plan`, which is a hand-maintained flag.",
+    "openQuestions": "`Student.has_support_plan` and this entity say two things about one fact. The flag's own help still reads \"the plan itself is held outside this system\", which `SupportPlan` now contradicts, and no hook keeps the two in step. Either the flag should be derived from active plans, or its help should point here. Teachers read the plan (`adjustments`) without being able to create or change it, which is the intent of the entity's help text: the adjustments they need, without broad access to sensitive evidence."
+  },
+  "SafeguardingConcern": {
+    "placement": "Standalone, and deliberately not a kind of `DisciplineIncident`: the student may be at risk rather than at fault, so the record, its readers and its lifecycle differ. The principal works a list of concerns awaiting triage (`principal-untriaged-safeguarding`).",
+    "crossEntity": "None. A concern moving to `referred` has an `external_reference` to hold the outside agency's number, but nothing notifies that agency or anyone else; no hook or saga reads it. Closing it requires `closed_on` and a `closure_reason` — the two rules that stop a concern disappearing.",
+    "openQuestions": "Read access is `principal` and `counsellor` only, yet `teacher` may **create**: a teacher can report a concern and then cannot see it, or its outcome. That asymmetry is intended — reporting must be easy and reading must be narrow — but the model does not say how a reporting teacher learns that action was taken, and it is the question a safeguarding lead is likely to ask first."
+  },
+  "CommunicationLog": {
+    "placement": "Standalone. Failed messages across all families (`registrar-failed-communications`) are a list in their own right. Both `student_id` and `guardian_id` are optional, because a notice can concern a student without addressing one guardian, or the reverse.",
+    "crossEntity": "None. The entity is the record of a message, not the sender of one: nothing in the model writes a row. `notifyGuardiansOfStatusChange` on `Student` is the only notifier the model declares, and its handler is where a row would naturally be created, but the model does not say that it is.",
+    "openQuestions": "By design it stores the subject and the outcome, not the message content. Whether a guardian-facing portal may show a guardian their own log depends on row-level scoping that `%%rbac` cannot express; the `guardian` role can read this entity as a role, not as a filter."
+  },
+  "Refund": {
+    "placement": "Standalone. The finance control queue — requests awaiting a decision, with age and amount (`finance-refunds-awaiting-decision`) — spans every payment, and a refund's identity is its own request, not the payment's.",
+    "crossEntity": "None. A refund never edits or deletes the original payment (the entity's help says so), and no saga reads it: paying a refund does not move the invoice, which is the gap `Payment` records as an open question.",
+    "openQuestions": "The entity's help says it is requested and approved by different staff \"where possible\", but no rule compares `requested_by_id` with `approved_by_id`. What does separate them is the role split: `finance_officer` creates, only `principal` may `approve`, and `finance_officer` pays. The master role is outside that split. Whether a refund above some amount needs a second approver is not modelled."
   }
 }

@@ -25,6 +25,7 @@
 
 - `FeeInvoice ||--o{ Payment` — settled by *(this side carries the foreign key)*
 - `Staff ||--o{ Payment` — received by *(this side carries the foreign key)*
+- `Payment ||--o{ Refund` — reversed by
 
 **Indexes.** `Payment(fee_invoice_id, received_at)`
 
@@ -66,4 +67,4 @@ Sagas that touch it:
 
 ## Open questions
 
-Refunds. A negative payment is refused by `refuseNonPositivePayment`, so a refund today is a cancelled invoice and a re-issue. A real refund record was ruled out of scope at Gate B.
+Instalment plans, and what a refund does to the invoice. A negative payment is still refused by `refuseNonPositivePayment`; money going back is a `Refund` against the payment, which never edits or deletes it. Nothing moves the invoice when a refund is paid — no saga reads `Refund` — so an invoice stays `paid` after its money has been returned, and `finance-refunds-awaiting-decision` is the queue a person works from.

@@ -3,6 +3,10 @@
 Every step that touched the `.mmd` closed the same way (§10.0): edit → fixer →
 checker → clean. One line per step, with the counts before and after.
 
+> **Revision 1.1.0.** The table and the two sections after it are the log of the original
+> nineteen-entity session and keep their original figures (19 entities, 11 machines, 68 `%%rbac`,
+> 40 reports). The log for the current 24-entity model is the last section.
+
 Engine: `bun language/checker.ts` from the checkout, which is
 `language/checker.ts` itself — the same engine `appwithai.org/guide/checker.js`
 is built from. The published runner and the site's scorer were then run over the
@@ -76,3 +80,44 @@ OK   saga writes Student    -> suspended
   `EML290`–`EML296` validate the shape and nothing else. `check-reporting-pack.ts`
   in `app-and-report-with-ai-tanstack` executes every query against a real
   generated schema; it was not run in this session.
+
+## Revision 1.1.0 — the current bytes
+
+Five entities were added after the original session (`00-research.md` §10). Nothing below
+reconstructs the steps that added them; it records what was run **over the file as it is**, with the
+published modules (`guide/checker.js`, `guide/audit-model.mjs`, EML 1.2.0), so the verdict is the one a
+reader gets from `appwithai.org`:
+
+```
+$ node guide/check-model.mjs education-management-system.mmd
+pass 1   checkAndFix 0e 0w 0i · repaired: false
+pass 2   check       0e 0w 0i
+pass 3   check       0e 0w 0i
+
+OK — 0 errors, 0 warnings (EML 1.2.0)        exit 0
+
+$ node guide/audit-model.mjs education-management-system.mmd
+23 passed, 0 failed
+```
+
+The audit reports, among its lines: 24 entities and 24 primary keys; 45 foreign keys, each ending
+`_id` and each carrying `FK`; 17 status columns bound to enums (36 `%%field … enum:` bindings);
+16 state machines, each with an initial transition and a terminal state; 5 sagas with 7 steps;
+19 `%%hook` directives; help on 24 entities and 214 columns; every form laid out in `%%section` rows
+(46 section lines); and 4 line items declared, none left on the dashboard.
+
+Two of its figures are not the model's. The scorer counts every line that *contains* `%%rbac` or
+`%%action`, and the file mentions each once or twice in comments, so it prints 93 and 41 where the
+model has **91 `%%rbac`** and **40 `%%action`** directives — the figures the rest of these documents and
+the website use.
+
+The header comment of the `.mmd` itself was out of date in the delivered file (it still said nineteen
+entities, five lifecycles and two sagas) and has been corrected to twenty-four, sixteen and five.
+
+### Still not verified here
+
+- **The report SQL against a live schema** — by hand. CI does it (`02-cross-cutting.md`, "The reporting
+  pass"); this session did not.
+- **Anything that needs a running application.** The deployable archive for this model was generated in
+  a browser and inspected (24 `bus_` tables, the model byte-identical inside, the reporting pack present),
+  but `docker compose up --build` was not run on it.

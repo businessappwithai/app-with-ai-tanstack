@@ -34,6 +34,10 @@
 - `Student ||--o{ AdmissionApplication` — results from
 - `Student ||--o{ FeeInvoice` — billed to
 - `Student ||--o{ DisciplineIncident` — subject of
+- `Student ||--o{ ConsentRecord` — has consent
+- `Student ||--o{ SupportPlan` — supported by
+- `Student ||--o{ SafeguardingConcern` — protected by
+- `Student ||--o{ CommunicationLog` — concerns
 
 **Indexes.** `Student(status, year_group)`
 
