@@ -171,6 +171,11 @@ erDiagram
         datetime accepted_at OPTIONAL
         text terms
         decimal cost_conversion_rate OPTIONAL
+        datetime quote_offered_at OPTIONAL
+        datetime quote_draft_at OPTIONAL
+        datetime quote_accepted_at OPTIONAL
+        datetime quote_declined_at OPTIONAL
+        datetime quote_expired_at OPTIONAL
     }
     QuoteLine {
         string id PK
@@ -205,6 +210,13 @@ erDiagram
         boolean is_on_hold
         text hold_reason OPTIONAL
         text cancellation_reason OPTIONAL
+        datetime job_booked_at OPTIONAL
+        datetime job_open_at OPTIONAL
+        datetime job_moving_at OPTIONAL
+        datetime job_arrived_at OPTIONAL
+        datetime job_delivered_at OPTIONAL
+        datetime job_closed_at OPTIONAL
+        datetime job_cancelled_at OPTIONAL
     }
     ShipmentParty {
         string id PK
@@ -274,6 +286,12 @@ erDiagram
         datetime instruction_cutoff_at OPTIONAL
         datetime vgm_cutoff_at OPTIONAL
         text confirmation_terms OPTIONAL
+        datetime booking_confirmed_at OPTIONAL
+        datetime booking_rejected_at OPTIONAL
+        datetime booking_cancelled_at OPTIONAL
+        datetime booking_amending_at OPTIONAL
+        datetime booking_cancelling_at OPTIONAL
+        datetime booking_completed_at OPTIONAL
     }
     BookingShipment {
         string id PK
@@ -294,6 +312,10 @@ erDiagram
         text carrier_response OPTIONAL
         datetime decided_at OPTIONAL
         text fee_agreement OPTIONAL
+        datetime change_sent_at OPTIONAL
+        datetime change_withdrawn_at OPTIONAL
+        datetime change_accepted_at OPTIONAL
+        datetime change_refused_at OPTIONAL
     }
     TransportLeg {
         string id PK
@@ -309,6 +331,10 @@ erDiagram
         datetime actual_departure_at OPTIONAL
         datetime actual_arrival_at OPTIONAL
         string haulage_basis
+        datetime leg_dispatched_at OPTIONAL
+        datetime leg_moving_at OPTIONAL
+        datetime leg_completed_at OPTIONAL
+        datetime leg_cancelled_at OPTIONAL
     }
     LegPoint {
         string id PK
@@ -348,6 +374,13 @@ erDiagram
         datetime empty_returned_at OPTIONAL
         string ownership
         string owner_name OPTIONAL
+        datetime unit_collected_at OPTIONAL
+        datetime unit_packed_at OPTIONAL
+        datetime unit_shipped_at OPTIONAL
+        datetime unit_discharged_at OPTIONAL
+        datetime unit_gated_out_at OPTIONAL
+        datetime unit_returned_at OPTIONAL
+        datetime unit_cancelled_at OPTIONAL
     }
     ContainerCargo {
         string id PK
@@ -383,6 +416,10 @@ erDiagram
         datetime submitted_at OPTIONAL
         datetime acknowledged_at OPTIONAL
         text carrier_response OPTIONAL
+        datetime si_submitted_at OPTIONAL
+        datetime si_correction_at OPTIONAL
+        datetime si_accepted_at OPTIONAL
+        datetime si_withdrawn_at OPTIONAL
     }
     InstructionBooking {
         string id PK
@@ -407,6 +444,14 @@ erDiagram
         string pcin OPTIONAL
         string mcin OPTIONAL
         text surrender_evidence OPTIONAL
+        datetime doc_approved_at OPTIONAL
+        datetime doc_draft_at OPTIONAL
+        datetime doc_issued_at OPTIONAL
+        datetime doc_surrender_pending_at OPTIONAL
+        datetime doc_surrendered_at OPTIONAL
+        datetime doc_amend_pending_at OPTIONAL
+        datetime doc_void_at OPTIONAL
+        datetime doc_accomplished_at OPTIONAL
     }
     DocumentShipment {
         string id PK
@@ -441,6 +486,13 @@ erDiagram
         datetime cleared_at OPTIONAL
         text submitted_snapshot OPTIONAL
         text authority_response OPTIONAL
+        datetime filing_submitted_at OPTIONAL
+        datetime filing_rejected_at OPTIONAL
+        datetime filing_draft_at OPTIONAL
+        datetime filing_accepted_at OPTIONAL
+        datetime filing_held_at OPTIONAL
+        datetime filing_cleared_at OPTIONAL
+        datetime filing_withdrawn_at OPTIONAL
     }
     FilingLine {
         string id PK
@@ -470,6 +522,12 @@ erDiagram
         datetime authorised_at OPTIONAL
         datetime expires_at OPTIONAL
         text evidence_summary OPTIONAL
+        datetime release_held_at OPTIONAL
+        datetime release_requested_at OPTIONAL
+        datetime release_authorised_at OPTIONAL
+        datetime release_executed_at OPTIONAL
+        datetime release_revoked_at OPTIONAL
+        datetime release_expired_at OPTIONAL
     }
     Delivery {
         string id PK
@@ -485,6 +543,12 @@ erDiagram
         url proof_url OPTIONAL
         text condition_notes OPTIONAL
         text failure_reason OPTIONAL
+        datetime delivery_dispatched_at OPTIONAL
+        datetime delivery_failed_at OPTIONAL
+        datetime delivery_planned_at OPTIONAL
+        datetime delivery_partial_at OPTIONAL
+        datetime delivery_complete_at OPTIONAL
+        datetime delivery_cancelled_at OPTIONAL
     }
     DeliveryLine {
         string id PK
@@ -512,6 +576,10 @@ erDiagram
         decimal assessed_amount
         string status
         text dispute_reason OPTIONAL
+        datetime storage_reviewed_at OPTIONAL
+        datetime storage_agreed_at OPTIONAL
+        datetime storage_disputed_at OPTIONAL
+        datetime storage_waived_at OPTIONAL
     }
     Invoice {
         string id PK
@@ -534,6 +602,12 @@ erDiagram
         string approved_by_id FK OPTIONAL
         text adjustment_reason OPTIONAL
         text party_snapshot
+        datetime invoice_review_at OPTIONAL
+        datetime invoice_draft_at OPTIONAL
+        datetime invoice_posted_at OPTIONAL
+        datetime invoice_partial_at OPTIONAL
+        datetime invoice_settled_at OPTIONAL
+        datetime invoice_void_at OPTIONAL
     }
     InvoiceLine {
         string id PK
@@ -565,6 +639,10 @@ erDiagram
         string bank_reference OPTIONAL
         string approved_by_id FK OPTIONAL
         text reversal_reason OPTIONAL
+        datetime cash_review_at OPTIONAL
+        datetime cash_draft_at OPTIONAL
+        datetime cash_posted_at OPTIONAL
+        datetime cash_reversed_at OPTIONAL
     }
     Allocation {
         string id PK
@@ -576,6 +654,8 @@ erDiagram
         decimal conversion_rate
         date applied_on
         text reversal_reason OPTIONAL
+        datetime allocation_posted_at OPTIONAL
+        datetime allocation_reversed_at OPTIONAL
     }
     CostAccrual {
         string id PK
@@ -589,6 +669,10 @@ erDiagram
         string status
         date accrued_on
         text basis
+        datetime accrual_approved_at OPTIONAL
+        datetime accrual_partial_at OPTIONAL
+        datetime accrual_matched_at OPTIONAL
+        datetime accrual_cancelled_at OPTIONAL
     }
     AccrualMatch {
         string id PK
@@ -612,6 +696,9 @@ erDiagram
         decimal ledger_closing_balance
         string status
         text reconciliation_notes OPTIONAL
+        datetime statement_review_at OPTIONAL
+        datetime statement_disputed_at OPTIONAL
+        datetime statement_agreed_at OPTIONAL
     }
     StatementLine {
         string id PK
@@ -641,6 +728,11 @@ erDiagram
         text resolution OPTIONAL
         datetime notified_at OPTIONAL
         boolean notice_logged
+        datetime claim_notified_at OPTIONAL
+        datetime claim_negotiating_at OPTIONAL
+        datetime claim_rejected_at OPTIONAL
+        datetime claim_settled_at OPTIONAL
+        datetime claim_withdrawn_at OPTIONAL
     }
     ClaimEvent {
         string id PK
@@ -662,6 +754,10 @@ erDiagram
         text requirement
         text completion_evidence OPTIONAL
         datetime completed_at OPTIONAL
+        datetime task_working_at OPTIONAL
+        datetime task_blocked_at OPTIONAL
+        datetime task_done_at OPTIONAL
+        datetime task_cancelled_at OPTIONAL
     }
     Attachment {
         string id PK
@@ -707,6 +803,10 @@ erDiagram
         datetime submitted_at OPTIONAL
         datetime acknowledged_at OPTIONAL
         url certificate_url
+        datetime vgm_submitted_at OPTIONAL
+        datetime vgm_accepted_at OPTIONAL
+        datetime vgm_rejected_at OPTIONAL
+        datetime vgm_superseded_at OPTIONAL
     }
     PackingCertificate {
         string id PK
@@ -1019,7 +1119,7 @@ erDiagram
 %%field Quote.cost_conversion_rate help: Offer-currency units per supplier-cost currency unit used for converted cost estimates; supporting source currency and dates are retained in the quote terms.
 %%section entity: Quote; name: Commercial offer; help: Identify the customer, office and responsibility for this version of the offer.; rows: reference, party_id | branch_id, owner_id
 %%section entity: Quote; name: Route and terms; help: Describe the agreed scope before rates are offered.; rows: load_type, origin_text | destination_text, incoterm | named_place, currency_id | valid_until, cost_conversion_rate
-%%section entity: Quote; name: Decision; help: Record acceptance or loss without turning the quoted rate into a booking promise.; rows: status, accepted_at | terms
+%%section entity: Quote; name: Decision; help: Record acceptance or loss without turning the quoted rate into a booking promise.; rows: accepted_at | terms
 %%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Quote.read
 %%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Quote.create
 %%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Quote.update
@@ -1079,7 +1179,7 @@ erDiagram
 %%field Shipment.cancellation_reason help: Customer or operational reason retained when the job is cancelled rather than deleting its history.
 %%section entity: Shipment; name: Job identity; help: Identify the customer order and the office accountable for completing it.; rows: reference, party_id | branch_id, owner_id | quote_id, customer_reference
 %%section entity: Shipment; name: Service commitment; help: Record what was accepted rather than assuming every job has identical transport obligations.; rows: direction, load_type | incoterm, named_place | payment_term, cargo_ready_on | requested_delivery_on
-%%section entity: Shipment; name: Job progress; help: Move the job only along its operational lifecycle, preserving exceptions in tasks and milestones.; rows: status, is_on_hold | hold_reason | cancellation_reason
+%%section entity: Shipment; name: Job progress; help: Move the job only along its operational lifecycle, preserving exceptions in tasks and milestones.; rows: is_on_hold | hold_reason | cancellation_reason
 %%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Shipment.read
 %%rbac role:operations|documentation|customs|warehouse|finance|management on Shipment.create
 %%rbac role:operations|documentation|customs|warehouse|finance|management on Shipment.update
@@ -1195,7 +1295,7 @@ erDiagram
 %%field Booking.vgm_cutoff_at help: UTC deadline the carrier gives for receiving VGM, where applicable.
 %%field Booking.confirmation_terms help: Confirmed capacity restrictions and carrier conditions preserved with the booking.
 %%section entity: Booking; name: Carrier arrangement; help: Identify the carrier request before linking customer cargo to the reserved capacity.; rows: reference, party_id | voyage_id, carrier_reference | mode, equipment_type_id | equipment_count
-%%section entity: Booking; name: Carrier decision; help: Preserve amendments and cancellation requests rather than overwriting confirmed commitments.; rows: status, requested_at | confirmed_at, cargo_cutoff_at | instruction_cutoff_at, vgm_cutoff_at | confirmation_terms
+%%section entity: Booking; name: Carrier decision; help: Preserve amendments and cancellation requests rather than overwriting confirmed commitments.; rows: requested_at | confirmed_at, cargo_cutoff_at | instruction_cutoff_at, vgm_cutoff_at | confirmation_terms
 %%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Booking.read
 %%rbac role:operations|documentation|customs|warehouse|finance|management on Booking.create
 %%rbac role:operations|documentation|customs|warehouse|finance|management on Booking.update
@@ -1231,7 +1331,7 @@ erDiagram
 %%field BookingChange.carrier_response help: Carrier’s accepted or refused wording, including any remaining conditions.
 %%field BookingChange.decided_at help: UTC time the carrier’s decision was received.
 %%field BookingChange.fee_agreement help: Agreed amendment or cancellation charges with currency and payer; resulting financial lines remain separate.
-%%section entity: BookingChange; name: Change request; help: Record what was sent to the carrier and who requested it.; rows: reference, booking_id | requested_by_id, status | requested_at | requested_changes
+%%section entity: BookingChange; name: Change request; help: Record what was sent to the carrier and who requested it.; rows: reference, booking_id | requested_by_id | requested_at | requested_changes
 %%section entity: BookingChange; name: Carrier response; help: Record the decision and charges before changing the booking’s operative terms.; rows: carrier_response | decided_at | fee_agreement
 %%rbac role:operations|documentation|management on BookingChange.read
 %%rbac role:operations|documentation|management on BookingChange.create
@@ -1258,7 +1358,7 @@ erDiagram
 %%field TransportLeg.haulage_basis enum: HaulageBasis
 %%field TransportLeg.haulage_basis help: carrier_haulage is contracted through the main carrier; merchant_haulage is arranged separately by the cargo interest or forwarder.
 %%section entity: TransportLeg; name: Movement plan; help: Identify the supplier and conveyance responsible for this movement segment.; rows: reference, party_id | booking_id, voyage_id | mode, conveyance_reference | haulage_basis
-%%section entity: TransportLeg; name: Dispatch and completion; help: Keep the intended times separate from actual movement evidence.; rows: status, planned_departure_at | planned_arrival_at, actual_departure_at | actual_arrival_at
+%%section entity: TransportLeg; name: Dispatch and completion; help: Keep the intended times separate from actual movement evidence.; rows: planned_departure_at | planned_arrival_at, actual_departure_at | actual_arrival_at
 %%rbac role:sales|operations|documentation|customs|warehouse|finance|management on TransportLeg.read
 %%rbac role:operations|documentation|customs|warehouse|finance|management on TransportLeg.create
 %%rbac role:operations|documentation|customs|warehouse|finance|management on TransportLeg.update
@@ -1322,7 +1422,7 @@ erDiagram
 %%field ContainerUse.ownership enum: EquipmentOwnership
 %%field ContainerUse.ownership help: carrier_owned uses carrier return instructions, shipper_owned uses the owner’s agreed movement terms, and leased follows the lessor’s return obligation.
 %%field ContainerUse.owner_name help: Legal owner named in the equipment agreement, required where ownership changes return or customs responsibility.
-%%section entity: ContainerUse; name: Packed unit; help: Match the physical box to the carrier arrangement and equipment specification.; rows: reference, container_number | booking_id, equipment_type_id | seal_number, status | ownership, owner_name
+%%section entity: ContainerUse; name: Packed unit; help: Match the physical box to the carrier arrangement and equipment specification.; rows: reference, container_number | booking_id, equipment_type_id | seal_number | ownership, owner_name
 %%section entity: ContainerUse; name: Mass and special conditions; help: Confirm the actual packed unit’s safety evidence before loading.; rows: tare_kg, verified_gross_kg | vgm_method, vgm_signatory | vgm_submitted_at, vgm_acknowledged | setpoint_celsius
 %%section entity: ContainerUse; name: Equipment handovers; help: Track chargeable custody and the return obligation for this same packing cycle.; rows: empty_collected_at, gate_in_at | discharged_at, gate_out_at | empty_return_due_at, empty_returned_at
 %%rbac role:sales|operations|documentation|customs|warehouse|finance|management on ContainerUse.read
@@ -1385,7 +1485,7 @@ erDiagram
 %%field ShippingInstruction.submitted_at help: UTC time this instruction version was transmitted to the carrier.
 %%field ShippingInstruction.acknowledged_at help: UTC time acceptance or a correction response was received.
 %%field ShippingInstruction.carrier_response help: Carrier’s documentary response, including missing data and any amendment requirements.
-%%section entity: ShippingInstruction; name: Instruction version; help: Identify the instruction and its accountable documentary coordinator.; rows: reference, owner_id | revision_number, status
+%%section entity: ShippingInstruction; name: Instruction version; help: Identify the instruction and its accountable documentary coordinator.; rows: reference, owner_id | revision_number
 %%section entity: ShippingInstruction; name: Submission evidence; help: Keep the full instructed wording with submission and response evidence.; rows: instruction_snapshot | submitted_at, acknowledged_at | carrier_response
 %%rbac role:operations|documentation|customs|warehouse|finance|management on ShippingInstruction.read
 %%rbac role:operations|documentation|customs|warehouse|finance|management on ShippingInstruction.create
@@ -1427,7 +1527,7 @@ erDiagram
 %%field TransportDocument.mcin help: Master cargo identification assigned by customs where applicable to the consolidation.
 %%field TransportDocument.surrender_evidence help: Verified original presentation, carrier surrender confirmation or lawful electronic surrender evidence.
 %%section entity: TransportDocument; name: Carriage document; help: Identify who issues the contract and which instructions produced this version.; rows: reference, document_number | party_id, document_kind | shipping_instruction_id, transport_document_id
-%%section entity: TransportDocument; name: Document control; help: Preserve issued wording and the right-to-delivery evidence for this version.; rows: medium, status | original_count | issued_snapshot | issued_at, approved_by_id | platform_reference, pcin | mcin
+%%section entity: TransportDocument; name: Document control; help: Preserve issued wording and the right-to-delivery evidence for this version.; rows: medium | original_count | issued_snapshot | issued_at, approved_by_id | platform_reference, pcin | mcin
 %%section entity: TransportDocument; name: Document control evidence; help: Preserve issued wording and the right-to-delivery evidence for this version.; rows: surrender_evidence
 %%rbac role:operations|documentation|customs|warehouse|finance|management on TransportDocument.read
 %%rbac role:operations|documentation|customs|warehouse|finance|management on TransportDocument.create
@@ -1488,7 +1588,7 @@ erDiagram
 %%field CustomsFiling.submitted_snapshot help: Exact filed content or an authorised evidence reference, retained before subsequent correction.
 %%field CustomsFiling.authority_response help: Acceptance, query or rejection text including error codes and required corrective action.
 %%section entity: CustomsFiling; name: Declaration responsibility; help: Identify the job, declarant and authority for this particular submission.; rows: reference, shipment_id | transport_document_id, party_id | filing_kind, authority_name
-%%section entity: CustomsFiling; name: Submission version; help: Retain submission identity and the applicable deadline without hard-coded statutory windows.; rows: revision_number, status | external_reference, importer_exporter_code | bank_ad_code, filing_due_at | submitted_at, cleared_at | submitted_snapshot | authority_response
+%%section entity: CustomsFiling; name: Submission version; help: Retain submission identity and the applicable deadline without hard-coded statutory windows.; rows: revision_number | external_reference, importer_exporter_code | bank_ad_code, filing_due_at | submitted_at, cleared_at | submitted_snapshot | authority_response
 %%rbac role:operations|documentation|customs|warehouse|finance|management on CustomsFiling.read
 %%rbac role:operations|documentation|customs|warehouse|finance|management on CustomsFiling.create
 %%rbac role:operations|documentation|customs|warehouse|finance|management on CustomsFiling.update
@@ -1538,7 +1638,7 @@ erDiagram
 %%field ReleaseOrder.evidence_summary help: References to the original, customs, credit and terminal evidence used in the decision.
 %%section entity: ReleaseOrder; name: Release request; help: Identify the cargo and entitled organisation before any collection instruction is issued.; rows: reference, shipment_id | transport_document_id, party_id | release_basis
 %%section entity: ReleaseOrder; name: Independent clearances; help: Record each clearance from its evidence; customs clearance alone never grants delivery rights.; rows: document_cleared, customs_cleared | finance_cleared, terminal_cleared | approved_by_id
-%%section entity: ReleaseOrder; name: Authorisation validity; help: Issue a time-bounded release and retain revocation evidence.; rows: status, authorised_at | expires_at | evidence_summary
+%%section entity: ReleaseOrder; name: Authorisation validity; help: Issue a time-bounded release and retain revocation evidence.; rows: authorised_at | expires_at | evidence_summary
 %%rbac role:operations|documentation|customs|warehouse|finance|management on ReleaseOrder.read
 %%rbac role:operations|documentation|customs|warehouse|finance|management on ReleaseOrder.create
 %%rbac role:operations|documentation|customs|warehouse|finance|management on ReleaseOrder.update
@@ -1564,7 +1664,7 @@ erDiagram
 %%field Delivery.condition_notes help: Visible damage, shortage or reservation written at handover; a clean receipt must not be inferred from silence.
 %%field Delivery.failure_reason help: Why delivery failed and what must change before another attempt.
 %%section entity: Delivery; name: Delivery instruction; help: Identify the receiving party, supplier and authority for this delivery attempt.; rows: reference, shipment_id | release_order_id, party_id | location_id, receiver_name
-%%section entity: Delivery; name: Delivery outcome; help: Separate unsuccessful attempts from evidenced delivery of actual cargo quantities.; rows: status, appointment_at | delivered_at, proof_url | condition_notes | failure_reason
+%%section entity: Delivery; name: Delivery outcome; help: Separate unsuccessful attempts from evidenced delivery of actual cargo quantities.; rows: appointment_at | delivered_at, proof_url | condition_notes | failure_reason
 %%rbac role:operations|documentation|warehouse|finance|management on Delivery.read
 %%rbac role:operations|documentation|warehouse|finance|management on Delivery.create
 %%rbac role:operations|documentation|warehouse|finance|management on Delivery.update
@@ -1611,7 +1711,7 @@ erDiagram
 %%field StorageCharge.dispute_reason help: Specific challenged dates, tariff or liability, with supporting interchange and authority evidence.
 %%section entity: StorageCharge; name: Chargeable custody; help: Identify the unit, charging supplier and contractual clock for this segment.; rows: reference, container_use_id | party_id, storage_kind | currency_id
 %%section entity: StorageCharge; name: Free-time basis; help: Preserve the agreement that determines the last free instant and any exclusions.; rows: clock_start_at, free_until_at | clock_stop_at | tariff_basis | chargeable_days, daily_rate | assessed_amount
-%%section entity: StorageCharge; name: Review and dispute; help: Keep an assessed exposure separate from a supplier invoice and from a final waiver.; rows: status | dispute_reason
+%%section entity: StorageCharge; name: Review and dispute; help: Keep an assessed exposure separate from a supplier invoice and from a final waiver.; rows: dispute_reason
 %%rbac role:operations|finance|management on StorageCharge.read
 %%rbac role:operations|finance|management on StorageCharge.create
 %%rbac role:operations|finance|management on StorageCharge.update
@@ -1644,7 +1744,7 @@ erDiagram
 %%field Invoice.adjustment_reason help: Reason a credit or void is needed and the authorised treatment of the original document.
 %%field Invoice.party_snapshot help: Frozen counterparty legal name, address and applicable tax identity printed or recorded at issue.
 %%section entity: Invoice; name: Financial document; help: Identify the legal counterparty and office before entering charges.; rows: reference, document_number | invoice_kind, party_id | branch_id, invoice_id | currency_id
-%%section entity: Invoice; name: Issue and due date; help: Keep issued terms stable and explicitly record the functional-currency conversion basis.; rows: status, issued_on | due_on, functional_fx_rate | functional_currency_code
+%%section entity: Invoice; name: Issue and due date; help: Keep issued terms stable and explicitly record the functional-currency conversion basis.; rows: issued_on | due_on, functional_fx_rate | functional_currency_code
 %%section entity: Invoice; name: Control totals; help: Totals in transaction currency are reconciled to the lines and allocations before posting or settlement.; rows: net_amount, tax_amount | gross_amount, open_amount | approved_by_id | adjustment_reason | party_snapshot
 %%rbac role:finance|management on Invoice.read
 %%rbac role:finance|management on Invoice.create
@@ -1701,7 +1801,7 @@ erDiagram
 %%field Settlement.approved_by_id help: Finance reviewer authorising posting or reversal; required separation from the originator is a financial control.
 %%field Settlement.reversal_reason help: Evidence and reason for undoing a posted cash transaction, including the required allocation reversal.
 %%section entity: Settlement; name: Cash transaction; help: Identify the payer or payee and the actual bank or cash transaction.; rows: reference, party_id | currency_id, settlement_kind | method, value_on
-%%section entity: Settlement; name: Authorisation and value; help: Confirm bank clearance and approval before allocating the cash.; rows: status, amount | bank_fee_amount, bank_reference | approved_by_id | reversal_reason
+%%section entity: Settlement; name: Authorisation and value; help: Confirm bank clearance and approval before allocating the cash.; rows: amount | bank_fee_amount, bank_reference | approved_by_id | reversal_reason
 %%rbac role:finance|management on Settlement.read
 %%rbac role:finance|management on Settlement.create
 %%rbac role:finance|management on Settlement.update
@@ -1722,7 +1822,7 @@ erDiagram
 %%field Allocation.conversion_rate help: Invoice-currency units per settlement-currency unit used for this allocation, including an explicit one for same-currency allocation.
 %%field Allocation.applied_on help: Financial date on which this cash allocation affects the two open balances.
 %%field Allocation.reversal_reason help: Why the posted application was reversed rather than edited or deleted.
-%%section entity: Allocation; name: Apply cash; help: Select the cash and financial document after verifying compatible party and transaction direction.; rows: settlement_id, invoice_id | status
+%%section entity: Allocation; name: Apply cash; help: Select the cash and financial document after verifying compatible party and transaction direction.; rows: settlement_id, invoice_id
 %%section entity: Allocation; name: Currency bridge; help: Enter both amounts with evidence of the conversion used for this allocation.; rows: settlement_amount, invoice_amount | conversion_rate, applied_on | reversal_reason
 %%rbac role:finance|management on Allocation.read
 %%rbac role:finance|management on Allocation.create
@@ -1745,7 +1845,7 @@ erDiagram
 %%field CostAccrual.accrued_on help: Effective date on which the expected cost was recognised for job management reporting.
 %%field CostAccrual.basis help: Carrier buy rate, quote, tariff or estimation evidence supporting this cost and its currency.
 %%section entity: CostAccrual; name: Expected supplier cost; help: Attribute an estimate to its job, supplier and normalised charge.; rows: reference, shipment_id | party_id, charge_code_id | currency_id
-%%section entity: CostAccrual; name: Estimate and replacement; help: Record a reviewed estimate and the unconsumed portion remaining after actual-cost matching.; rows: estimated_amount, remaining_amount | status, accrued_on | basis
+%%section entity: CostAccrual; name: Estimate and replacement; help: Record a reviewed estimate and the unconsumed portion remaining after actual-cost matching.; rows: estimated_amount, remaining_amount | accrued_on | basis
 %%rbac role:operations|finance|management on CostAccrual.read
 %%rbac role:operations|finance|management on CostAccrual.create
 %%rbac role:operations|finance|management on CostAccrual.update
@@ -1787,7 +1887,7 @@ erDiagram
 %%field SupplierStatement.status help: statement_received awaits matching, statement_review is being reconciled, statement_disputed has unresolved differences, and statement_agreed closes the reconciliation.
 %%field SupplierStatement.reconciliation_notes help: Balance sign convention, unmatched items, FX treatment and counterparty agreement evidence.
 %%section entity: SupplierStatement; name: Statement received; help: Identify the counterparty and the exact currency and period being reconciled.; rows: reference, party_id | currency_id, period_from | period_to
-%%section entity: SupplierStatement; name: Balance comparison; help: Compare like-for-like balances and document unresolved differences.; rows: supplier_closing_balance, ledger_closing_balance | status | reconciliation_notes
+%%section entity: SupplierStatement; name: Balance comparison; help: Compare like-for-like balances and document unresolved differences.; rows: supplier_closing_balance, ledger_closing_balance | reconciliation_notes
 %%rbac role:finance|management on SupplierStatement.read
 %%rbac role:finance|management on SupplierStatement.create
 %%rbac role:finance|management on SupplierStatement.update
@@ -1835,7 +1935,7 @@ erDiagram
 %%field Claim.notice_logged help: Internal idempotency marker set only after the notice chronology entry is recorded; operators do not use it to assert notice was sent.
 %%section entity: Claim; name: Claim responsibility; help: Identify the affected job and the counterparty being asked to remedy the loss or dispute.; rows: reference, shipment_id | party_id, claim_kind | owner_id
 %%section entity: Claim; name: Notice and exposure; help: Record contract-specific deadlines rather than applying one universal claims period.; rows: discovered_at, notice_due_on | limitation_on, currency_id | claimed_amount, recovered_amount | notified_at
-%%section entity: Claim; name: Disposition; help: Keep an unresolved claim open even after the shipment’s physical movement finishes.; rows: status | allegations | resolution | notice_logged
+%%section entity: Claim; name: Disposition; help: Keep an unresolved claim open even after the shipment’s physical movement finishes.; rows: allegations | resolution | notice_logged
 %%rbac role:operations|documentation|customs|warehouse|finance|management on Claim.read
 %%rbac role:operations|documentation|customs|warehouse|finance|management on Claim.create
 %%rbac role:operations|documentation|customs|warehouse|finance|management on Claim.update
@@ -1874,7 +1974,7 @@ erDiagram
 %%field Task.requirement help: Required outcome, applicable contract or authority, and the evidence that will demonstrate completion.
 %%field Task.completion_evidence help: Actual document, response or action evidence supporting completion, not merely an assertion that work is done.
 %%field Task.completed_at help: UTC time the required outcome was evidenced.
-%%section entity: Task; name: Action ownership; help: Identify the required business outcome and the coordinator accountable for it.; rows: title, shipment_id | owner_id, priority | status
+%%section entity: Task; name: Action ownership; help: Identify the required business outcome and the coordinator accountable for it.; rows: title, shipment_id | owner_id, priority
 %%section entity: Task; name: Deadline and evidence; help: Record the real requirement and the evidence needed before completion.; rows: due_at | requirement | completion_evidence | completed_at
 %%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Task.read
 %%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Task.create
@@ -1949,7 +2049,7 @@ erDiagram
 %%field VgmDeclaration.acknowledged_at help: UTC time the required receipt evidence was confirmed.
 %%field VgmDeclaration.certificate_url help: Authorised signed declaration retained as evidence of this exact version.
 %%section entity: VgmDeclaration; name: Mass certification; help: Identify the packed unit and the responsible declaring organisation.; rows: reference, container_use_id | party_id, revision_number | verified_gross_kg, vgm_method
-%%section entity: VgmDeclaration; name: Transmission evidence; help: Preserve the signatory and both submission and acceptance evidence.; rows: signatory_name, measurement_reference | status, signed_at | submitted_at, acknowledged_at | certificate_url
+%%section entity: VgmDeclaration; name: Transmission evidence; help: Preserve the signatory and both submission and acceptance evidence.; rows: signatory_name, measurement_reference | signed_at | submitted_at, acknowledged_at | certificate_url
 %%rbac role:operations|documentation|warehouse|management on VgmDeclaration.read
 %%rbac role:operations|documentation|warehouse|management on VgmDeclaration.create
 %%rbac role:operations|documentation|warehouse|management on VgmDeclaration.update
@@ -2025,6 +2125,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action quoteValidAcceptance validation-error when: status == "quote_accepted" and accepted_at == null message: Record customer acceptance evidence before accepting this offer
+%%action quoteValidAcceptanceOnMove validation-error when: quote_accepted_at != null and accepted_at == null message: Record customer acceptance evidence before accepting this offer
 
 %%meta name: quotePositiveUnits
 %%meta kind: rules
@@ -2055,6 +2156,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action jobCancellationEvidence validation-error when: status == "job_cancelled" and cancellation_reason == null message: Retain the reason for cancelling this customer job
+%%action jobCancellationEvidenceOnMove validation-error when: job_cancelled_at != null and cancellation_reason == null message: Retain the reason for cancelling this customer job
 
 %%meta name: cargoQuantities
 %%meta kind: rules
@@ -2105,6 +2207,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action unitLoadingMass validation-error when: status == "unit_shipped" and (verified_gross_kg == null or vgm_acknowledged == false) message: Packed units require verified VGM evidence acknowledged for this loading before shipment
+%%action unitLoadingMassOnMove validation-error when: unit_shipped_at != null and (verified_gross_kg == null or vgm_acknowledged == false) message: Packed units require verified VGM evidence acknowledged for this loading before shipment
 
 %%meta name: unitMassAboveTare
 %%meta kind: rules
@@ -2125,6 +2228,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action unitReturnEvidence validation-error when: status == "unit_returned" and empty_returned_at == null message: Record the accepted empty-return evidence before ending equipment custody
+%%action unitReturnEvidenceOnMove validation-error when: unit_returned_at != null and empty_returned_at == null message: Record the accepted empty-return evidence before ending equipment custody
 
 %%meta name: vgmPositiveMass
 %%meta kind: rules
@@ -2145,6 +2249,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action vgmAcceptanceEvidence validation-error when: status == "vgm_accepted" and (submitted_at == null or acknowledged_at == null) message: Retain submission and acknowledgement evidence for the accepted VGM version
+%%action vgmAcceptanceEvidenceOnMove validation-error when: vgm_accepted_at != null and (submitted_at == null or acknowledged_at == null) message: Retain submission and acknowledgement evidence for the accepted VGM version
 
 %%meta name: instructionSentEvidence
 %%meta kind: rules
@@ -2155,6 +2260,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action instructionSentEvidence validation-error when: status == "si_submitted" and submitted_at == null message: Record transmission time for this exact instruction version
+%%action instructionSentEvidenceOnMove validation-error when: si_submitted_at != null and submitted_at == null message: Record transmission time for this exact instruction version
 
 %%meta name: documentIssueEvidence
 %%meta kind: rules
@@ -2165,6 +2271,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action documentIssueEvidence validation-error when: status == "doc_issued" and (issued_at == null or approved_by_id == null) message: Retain reviewer and issue time before releasing a carriage document
+%%action documentIssueEvidenceOnMove validation-error when: doc_issued_at != null and (issued_at == null or approved_by_id == null) message: Retain reviewer and issue time before releasing a carriage document
 
 %%meta name: documentSurrenderEvidence
 %%meta kind: rules
@@ -2175,6 +2282,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action documentSurrenderEvidence validation-error when: status == "doc_surrendered" and surrender_evidence == null message: Retain verified surrender or entitlement evidence before confirming surrender
+%%action documentSurrenderEvidenceOnMove validation-error when: doc_surrendered_at != null and surrender_evidence == null message: Retain verified surrender or entitlement evidence before confirming surrender
 
 %%meta name: waybillOriginals
 %%meta kind: rules
@@ -2195,6 +2303,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action filingSubmissionEvidence validation-error when: status == "filing_submitted" and (submitted_at == null or submitted_snapshot == null) message: Retain exact filed content and transmission time before recording submission
+%%action filingSubmissionEvidenceOnMove validation-error when: filing_submitted_at != null and (submitted_at == null or submitted_snapshot == null) message: Retain exact filed content and transmission time before recording submission
 
 %%meta name: filingClearanceEvidence
 %%meta kind: rules
@@ -2205,6 +2314,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action filingClearanceEvidence validation-error when: status == "filing_cleared" and (cleared_at == null or authority_response == null) message: Record the authority clearance evidence rather than assuming submission means clearance
+%%action filingClearanceEvidenceOnMove validation-error when: filing_cleared_at != null and (cleared_at == null or authority_response == null) message: Record the authority clearance evidence rather than assuming submission means clearance
 
 %%meta name: releaseAllClearances
 %%meta kind: rules
@@ -2215,6 +2325,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action releaseAllClearances validation-error when: status == "release_authorised" and (document_cleared == false or customs_cleared == false or finance_cleared == false or terminal_cleared == false) message: Document entitlement customs finance and terminal evidence are all required before release
+%%action releaseAllClearancesOnMove validation-error when: release_authorised_at != null and (document_cleared == false or customs_cleared == false or finance_cleared == false or terminal_cleared == false) message: Document entitlement customs finance and terminal evidence are all required before release
 
 %%meta name: releaseReviewer
 %%meta kind: rules
@@ -2225,6 +2336,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action releaseReviewer validation-error when: status == "release_authorised" and (approved_by_id == null or authorised_at == null) message: A named reviewer and authorisation time are required for cargo release
+%%action releaseReviewerOnMove validation-error when: release_authorised_at != null and (approved_by_id == null or authorised_at == null) message: A named reviewer and authorisation time are required for cargo release
 
 %%meta name: deliveryProof
 %%meta kind: rules
@@ -2235,6 +2347,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action deliveryProof validation-error when: (status == "delivery_complete" or status == "delivery_partial") and (delivered_at == null or proof_url == null) message: Retain the receiving handover time and proof before reporting physical delivery
+%%action deliveryProofOnMove validation-error when: (delivery_complete_at != null or delivery_partial_at != null) and (delivered_at == null or proof_url == null) message: Retain the receiving handover time and proof before reporting physical delivery
 
 %%meta name: deliveryQuantityAccounting
 %%meta kind: rules
@@ -2275,6 +2388,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action invoiceApprovalEvidence validation-error when: status == "invoice_posted" and approved_by_id == null message: A finance reviewer must authorise posting
+%%action invoiceApprovalEvidenceOnMove validation-error when: invoice_posted_at != null and approved_by_id == null message: A finance reviewer must authorise posting
 
 %%meta name: cashApproval
 %%meta kind: rules
@@ -2285,6 +2399,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action cashApproval validation-error when: status == "cash_posted" and (approved_by_id == null or amount <= 0) message: A posted cash transaction needs approval and a positive evidenced amount
+%%action cashApprovalOnMove validation-error when: cash_posted_at != null and (approved_by_id == null or amount <= 0) message: A posted cash transaction needs approval and a positive evidenced amount
 
 %%meta name: cashReversalReason
 %%meta kind: rules
@@ -2295,6 +2410,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action cashReversalReason validation-error when: status == "cash_reversed" and reversal_reason == null message: Explain the cash reversal and reverse its allocations without deleting history
+%%action cashReversalReasonOnMove validation-error when: cash_reversed_at != null and reversal_reason == null message: Explain the cash reversal and reverse its allocations without deleting history
 
 %%meta name: allocationPositiveAmounts
 %%meta kind: rules
@@ -2345,6 +2461,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action taskCompletionEvidence validation-error when: status == "task_done" and (completed_at == null or completion_evidence == null) message: Record completion time and the required outcome evidence before closing this action
+%%action taskCompletionEvidenceOnMove validation-error when: task_done_at != null and (completed_at == null or completion_evidence == null) message: Record completion time and the required outcome evidence before closing this action
 
 %%meta name: claimNoticeEvidence
 %%meta kind: rules
@@ -2355,6 +2472,7 @@ flowchart TD
     B -->|No| D[Refuse with a specific reason]
     D --> Z([Correction required])
 %%action claimNoticeEvidence validation-error when: status == "claim_notified" and notified_at == null message: Record when the formal notice was actually sent before advancing the claim
+%%action claimNoticeEvidenceOnMove validation-error when: claim_notified_at != null and notified_at == null message: Record when the formal notice was actually sent before advancing the claim
 
 %%meta name: claimPositiveValues
 %%meta kind: rules
@@ -2379,11 +2497,6 @@ stateDiagram-v2
     quote_accepted --> [*]
     quote_declined --> [*]
     quote_expired --> [*]
-%%rbac role:sales|management on Quote.accept
-%%rbac role:sales|management on Quote.decline
-%%rbac role:sales|management on Quote.expire
-%%rbac role:sales|management on Quote.offer
-%%rbac role:sales|management on Quote.revise
 
 %%meta name: Shipment lifecycle
 %%meta kind: workflow
@@ -2401,14 +2514,6 @@ stateDiagram-v2
     job_booked --> job_cancelled : cancel_job
     job_closed --> [*]
     job_cancelled --> [*]
-%%rbac role:operations|management on Shipment.arrive
-%%rbac role:operations|management on Shipment.cancel_job
-%%rbac role:operations|management on Shipment.close_job
-%%rbac role:operations|management on Shipment.complete_delivery
-%%rbac role:operations|management on Shipment.confirm_arrangements
-%%rbac role:operations|management on Shipment.depart
-%%rbac role:operations|management on Shipment.oncarry
-%%rbac role:operations|management on Shipment.replan
 
 %%meta name: Booking lifecycle
 %%meta kind: workflow
@@ -2427,15 +2532,6 @@ stateDiagram-v2
     booking_completed --> [*]
     booking_rejected --> [*]
     booking_cancelled --> [*]
-%%rbac role:operations|management on Booking.accept_cancellation
-%%rbac role:operations|management on Booking.complete_booking
-%%rbac role:operations|management on Booking.confirm_booking
-%%rbac role:operations|management on Booking.refuse_cancellation
-%%rbac role:operations|management on Booking.reject_booking
-%%rbac role:operations|management on Booking.request_amendment
-%%rbac role:operations|management on Booking.request_cancellation
-%%rbac role:operations|management on Booking.resolve_amendment
-%%rbac role:operations|management on Booking.withdraw_booking
 
 %%meta name: BookingChange lifecycle
 %%meta kind: workflow
@@ -2450,10 +2546,6 @@ stateDiagram-v2
     change_accepted --> [*]
     change_refused --> [*]
     change_withdrawn --> [*]
-%%rbac role:operations|management on BookingChange.accept_change
-%%rbac role:operations|management on BookingChange.refuse_change
-%%rbac role:operations|management on BookingChange.submit_change
-%%rbac role:operations|management on BookingChange.withdraw_change
 
 %%meta name: TransportLeg lifecycle
 %%meta kind: workflow
@@ -2467,10 +2559,6 @@ stateDiagram-v2
     leg_dispatched --> leg_cancelled : cancel_leg
     leg_completed --> [*]
     leg_cancelled --> [*]
-%%rbac role:operations|management on TransportLeg.cancel_leg
-%%rbac role:operations|management on TransportLeg.complete_leg
-%%rbac role:operations|management on TransportLeg.dispatch_leg
-%%rbac role:operations|management on TransportLeg.start_leg
 
 %%meta name: ContainerUse lifecycle
 %%meta kind: workflow
@@ -2488,15 +2576,6 @@ stateDiagram-v2
     unit_collected --> unit_returned : return_unused
     unit_returned --> [*]
     unit_cancelled --> [*]
-%%rbac role:operations|warehouse|management on ContainerUse.cancel_unit
-%%rbac role:operations|warehouse|management on ContainerUse.collect_empty
-%%rbac role:operations|warehouse|management on ContainerUse.collect_full
-%%rbac role:operations|warehouse|management on ContainerUse.discharge_unit
-%%rbac role:operations|warehouse|management on ContainerUse.load_unit
-%%rbac role:operations|warehouse|management on ContainerUse.pack_unit
-%%rbac role:operations|warehouse|management on ContainerUse.return_empty
-%%rbac role:operations|warehouse|management on ContainerUse.return_unused
-%%rbac role:operations|warehouse|management on ContainerUse.unpack_for_rework
 
 %%meta name: ShippingInstruction lifecycle
 %%meta kind: workflow
@@ -2511,12 +2590,6 @@ stateDiagram-v2
     si_correction --> si_withdrawn : withdraw_instruction
     si_accepted --> si_correction : amend_instruction
     si_withdrawn --> [*]
-%%rbac role:documentation|management on ShippingInstruction.accept_instruction
-%%rbac role:documentation|management on ShippingInstruction.amend_instruction
-%%rbac role:documentation|management on ShippingInstruction.request_correction
-%%rbac role:documentation|management on ShippingInstruction.resubmit_instruction
-%%rbac role:documentation|management on ShippingInstruction.submit_instruction
-%%rbac role:documentation|management on ShippingInstruction.withdraw_instruction
 
 %%meta name: TransportDocument lifecycle
 %%meta kind: workflow
@@ -2537,18 +2610,6 @@ stateDiagram-v2
     doc_draft --> doc_void : void_draft
     doc_void --> [*]
     doc_accomplished --> [*]
-%%rbac role:documentation|management on TransportDocument.accept_delivery_surrender
-%%rbac role:documentation|management on TransportDocument.accomplish_document
-%%rbac role:documentation|management on TransportDocument.accomplish_waybill
-%%rbac role:documentation|management on TransportDocument.approve_document
-%%rbac role:documentation|management on TransportDocument.issue_document
-%%rbac role:documentation|management on TransportDocument.refuse_document_amendment
-%%rbac role:documentation|management on TransportDocument.reject_delivery_surrender
-%%rbac role:documentation|management on TransportDocument.request_delivery_surrender
-%%rbac role:documentation|management on TransportDocument.request_document_amendment
-%%rbac role:documentation|management on TransportDocument.revise_draft
-%%rbac role:documentation|management on TransportDocument.void_draft
-%%rbac role:documentation|management on TransportDocument.void_for_reissue
 
 %%meta name: CustomsFiling lifecycle
 %%meta kind: workflow
@@ -2566,14 +2627,6 @@ stateDiagram-v2
     filing_rejected --> filing_withdrawn : withdraw_filing
     filing_cleared --> [*]
     filing_withdrawn --> [*]
-%%rbac role:customs|management on CustomsFiling.accept_filing
-%%rbac role:customs|management on CustomsFiling.clear_filing
-%%rbac role:customs|management on CustomsFiling.correct_filing
-%%rbac role:customs|management on CustomsFiling.hold_filing
-%%rbac role:customs|management on CustomsFiling.reject_filing
-%%rbac role:customs|management on CustomsFiling.resolve_query
-%%rbac role:customs|management on CustomsFiling.submit_filing
-%%rbac role:customs|management on CustomsFiling.withdraw_filing
 
 %%meta name: ReleaseOrder lifecycle
 %%meta kind: workflow
@@ -2589,12 +2642,6 @@ stateDiagram-v2
     release_executed --> [*]
     release_revoked --> [*]
     release_expired --> [*]
-%%rbac role:operations|documentation|management on ReleaseOrder.authorise_release
-%%rbac role:operations|documentation|management on ReleaseOrder.execute_release
-%%rbac role:operations|documentation|management on ReleaseOrder.expire_release
-%%rbac role:operations|documentation|management on ReleaseOrder.hold_release
-%%rbac role:operations|documentation|management on ReleaseOrder.resolve_release
-%%rbac role:operations|documentation|management on ReleaseOrder.revoke_release
 
 %%meta name: Delivery lifecycle
 %%meta kind: workflow
@@ -2611,13 +2658,6 @@ stateDiagram-v2
     delivery_failed --> delivery_cancelled : cancel_delivery
     delivery_complete --> [*]
     delivery_cancelled --> [*]
-%%rbac role:operations|warehouse|management on Delivery.accept_partial_resolution
-%%rbac role:operations|warehouse|management on Delivery.cancel_delivery
-%%rbac role:operations|warehouse|management on Delivery.complete_delivery
-%%rbac role:operations|warehouse|management on Delivery.dispatch_delivery
-%%rbac role:operations|warehouse|management on Delivery.fail_delivery
-%%rbac role:operations|warehouse|management on Delivery.record_partial_delivery
-%%rbac role:operations|warehouse|management on Delivery.retry_delivery
 
 %%meta name: StorageCharge lifecycle
 %%meta kind: workflow
@@ -2632,11 +2672,6 @@ stateDiagram-v2
     storage_reviewed --> storage_waived : waive_storage
     storage_agreed --> [*]
     storage_waived --> [*]
-%%rbac role:finance|management on StorageCharge.agree_storage
-%%rbac role:finance|management on StorageCharge.dispute_storage
-%%rbac role:finance|management on StorageCharge.review_storage
-%%rbac role:finance|management on StorageCharge.settle_dispute
-%%rbac role:finance|management on StorageCharge.waive_storage
 
 %%meta name: Invoice lifecycle
 %%meta kind: workflow
@@ -2656,15 +2691,6 @@ stateDiagram-v2
     invoice_review --> invoice_void : void_invoice
     invoice_void --> [*]
     invoice_settled --> [*]
-%%rbac role:finance|management on Invoice.apply_part_payment
-%%rbac role:finance|management on Invoice.post_invoice
-%%rbac role:finance|management on Invoice.return_invoice
-%%rbac role:finance|management on Invoice.reverse_allocation
-%%rbac role:finance|management on Invoice.reverse_full_allocation
-%%rbac role:finance|management on Invoice.reverse_part_allocation
-%%rbac role:finance|management on Invoice.settle_invoice
-%%rbac role:finance|management on Invoice.submit_invoice
-%%rbac role:finance|management on Invoice.void_invoice
 
 %%meta name: Settlement lifecycle
 %%meta kind: workflow
@@ -2676,10 +2702,6 @@ stateDiagram-v2
     cash_review --> cash_posted : post_cash
     cash_posted --> cash_reversed : reverse_cash
     cash_reversed --> [*]
-%%rbac role:finance|management on Settlement.post_cash
-%%rbac role:finance|management on Settlement.return_cash
-%%rbac role:finance|management on Settlement.reverse_cash
-%%rbac role:finance|management on Settlement.submit_cash
 
 %%meta name: Allocation lifecycle
 %%meta kind: workflow
@@ -2689,8 +2711,6 @@ stateDiagram-v2
     allocation_draft --> allocation_posted : post_allocation
     allocation_posted --> allocation_reversed : reverse_allocation
     allocation_reversed --> [*]
-%%rbac role:finance|management on Allocation.post_allocation
-%%rbac role:finance|management on Allocation.reverse_allocation
 
 %%meta name: CostAccrual lifecycle
 %%meta kind: workflow
@@ -2705,11 +2725,6 @@ stateDiagram-v2
     accrual_approved --> accrual_cancelled : cancel_accrual
     accrual_matched --> [*]
     accrual_cancelled --> [*]
-%%rbac role:finance|management on CostAccrual.approve_accrual
-%%rbac role:finance|management on CostAccrual.cancel_accrual
-%%rbac role:finance|management on CostAccrual.match_full_cost
-%%rbac role:finance|management on CostAccrual.match_part_cost
-%%rbac role:finance|management on CostAccrual.match_remaining_cost
 
 %%meta name: SupplierStatement lifecycle
 %%meta kind: workflow
@@ -2721,10 +2736,6 @@ stateDiagram-v2
     statement_disputed --> statement_review : resolve_statement_item
     statement_review --> statement_agreed : agree_statement
     statement_agreed --> [*]
-%%rbac role:finance|management on SupplierStatement.agree_statement
-%%rbac role:finance|management on SupplierStatement.dispute_statement
-%%rbac role:finance|management on SupplierStatement.resolve_statement_item
-%%rbac role:finance|management on SupplierStatement.review_statement
 
 %%meta name: Claim lifecycle
 %%meta kind: workflow
@@ -2742,11 +2753,6 @@ stateDiagram-v2
     claim_settled --> [*]
     claim_rejected --> [*]
     claim_withdrawn --> [*]
-%%rbac role:operations|documentation|customs|warehouse|finance|management on Claim.negotiate_claim
-%%rbac role:operations|documentation|customs|warehouse|finance|management on Claim.notify_claim
-%%rbac role:operations|documentation|customs|warehouse|finance|management on Claim.reject_claim
-%%rbac role:operations|documentation|customs|warehouse|finance|management on Claim.settle_claim
-%%rbac role:operations|documentation|customs|warehouse|finance|management on Claim.withdraw_claim
 
 %%meta name: Task lifecycle
 %%meta kind: workflow
@@ -2762,11 +2768,6 @@ stateDiagram-v2
     task_blocked --> task_cancelled : cancel_task
     task_done --> [*]
     task_cancelled --> [*]
-%%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Task.block_task
-%%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Task.cancel_task
-%%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Task.complete_task
-%%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Task.resume_task
-%%rbac role:sales|operations|documentation|customs|warehouse|finance|management on Task.start_task
 
 %%meta name: VgmDeclaration lifecycle
 %%meta kind: workflow
@@ -2779,10 +2780,6 @@ stateDiagram-v2
     vgm_accepted --> vgm_superseded : supersede_vgm
     vgm_superseded --> [*]
     vgm_rejected --> [*]
-%%rbac role:operations|documentation|warehouse|management on VgmDeclaration.acknowledge_vgm
-%%rbac role:operations|documentation|warehouse|management on VgmDeclaration.reject_vgm
-%%rbac role:operations|documentation|warehouse|management on VgmDeclaration.submit_vgm
-%%rbac role:operations|documentation|warehouse|management on VgmDeclaration.supersede_vgm
 
 %%meta name: Quote domain controls
 %%meta kind: workflow
@@ -3180,3 +3177,1593 @@ flowchart TD
     C --> Z([Notice retained])
 %%step B CreateEntity entity: ClaimEvent fields: {"claim_id":"id","occurred_at":"notified_at","recorded_by_id":"owner_id","subject":"reference","details":"allegations"}
 %%step C UpdateEntity field: notice_logged value: true
+
+%% ---- The state field is system-managed: each move is a rule and a saga ----
+%% Nobody changes a state by hand. Recording the time a move depends on starts
+%% the saga that sets the state; generated by the state-rule migration.
+%%field Quote.quote_offered_at help: When the move to quote offered was recorded on this quote. Recording it moves a quote from quote draft to quote offered: the workflows set the status, which nobody changes by hand.
+%%field Quote.quote_draft_at help: When the move to quote draft was recorded on this quote. Recording it moves a quote from quote offered to quote draft: the workflows set the status, which nobody changes by hand.
+%%field Quote.quote_accepted_at help: When the move to quote accepted was recorded on this quote. Recording it moves a quote from quote offered to quote accepted: the workflows set the status, which nobody changes by hand.
+%%field Quote.quote_declined_at help: When the move to quote declined was recorded on this quote. Recording it moves a quote from quote offered to quote declined: the workflows set the status, which nobody changes by hand.
+%%field Quote.quote_expired_at help: When the move to quote expired was recorded on this quote. Recording it moves a quote from quote offered to quote expired: the workflows set the status, which nobody changes by hand.
+%%section entity: Quote; name: Progress; help: The times that move this quote along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: quote_offered_at, quote_draft_at | quote_accepted_at, quote_declined_at | quote_expired_at
+
+%%meta name: Quote quote offered move
+%%meta kind: workflow
+%%workflow QuoteQuoteOfferedMove entity: Quote kind: saga trigger: rule
+flowchart TD
+    A([Move to quote offered recorded]) --> B[Set the status to quote offered]
+    B --> C[Clear quote draft at for the next move]
+    C --> D[Clear quote accepted at for the next move]
+    D --> E[Clear quote declined at for the next move]
+    E --> F[Clear quote expired at for the next move]
+    F --> Z([Quote Offered])
+
+    %%step B UpdateEntity field: status value: quote_offered
+    %%step C UpdateEntity field: quote_draft_at value: null
+    %%step D UpdateEntity field: quote_accepted_at value: null
+    %%step E UpdateEntity field: quote_declined_at value: null
+    %%step F UpdateEntity field: quote_expired_at value: null
+
+%%meta name: Quote quote draft move
+%%meta kind: workflow
+%%workflow QuoteQuoteDraftMove entity: Quote kind: saga trigger: rule
+flowchart TD
+    A([Move to quote draft recorded]) --> B[Set the status to quote draft]
+    B --> C[Clear quote offered at for the next move]
+    C --> Z([Quote Draft])
+
+    %%step B UpdateEntity field: status value: quote_draft
+    %%step C UpdateEntity field: quote_offered_at value: null
+
+%%meta name: Quote quote accepted move
+%%meta kind: workflow
+%%workflow QuoteQuoteAcceptedMove entity: Quote kind: saga trigger: rule
+flowchart TD
+    A([Move to quote accepted recorded]) --> B[Set the status to quote accepted]
+    B --> Z([Quote Accepted])
+
+    %%step B UpdateEntity field: status value: quote_accepted
+
+%%meta name: Quote quote declined move
+%%meta kind: workflow
+%%workflow QuoteQuoteDeclinedMove entity: Quote kind: saga trigger: rule
+flowchart TD
+    A([Move to quote declined recorded]) --> B[Set the status to quote declined]
+    B --> Z([Quote Declined])
+
+    %%step B UpdateEntity field: status value: quote_declined
+
+%%meta name: Quote quote expired move
+%%meta kind: workflow
+%%workflow QuoteQuoteExpiredMove entity: Quote kind: saga trigger: rule
+flowchart TD
+    A([Move to quote expired recorded]) --> B[Set the status to quote expired]
+    B --> Z([Quote Expired])
+
+    %%step B UpdateEntity field: status value: quote_expired
+
+%%meta name: Quote State Progress
+%%meta kind: rules
+%%rule quoteStateProgress on Quote event: beforeUpdate priority: 90
+flowchart TD
+    A([Quote updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveQuoteDraftToQuoteOffered trigger-workflow when: status == "quote_draft" and quote_offered_at != null workflow: QuoteQuoteOfferedMove
+    %%action moveQuoteOfferedToQuoteDraft trigger-workflow when: status == "quote_offered" and quote_draft_at != null workflow: QuoteQuoteDraftMove
+    %%action moveQuoteOfferedToQuoteAccepted trigger-workflow when: status == "quote_offered" and quote_accepted_at != null workflow: QuoteQuoteAcceptedMove
+    %%action moveQuoteOfferedToQuoteDeclined trigger-workflow when: status == "quote_offered" and quote_declined_at != null workflow: QuoteQuoteDeclinedMove
+    %%action moveQuoteOfferedToQuoteExpired trigger-workflow when: status == "quote_offered" and quote_expired_at != null workflow: QuoteQuoteExpiredMove
+%%field Shipment.job_booked_at help: When the move to job booked was recorded on this shipment. Recording it moves a shipment from job open to job booked: the workflows set the status, which nobody changes by hand.
+%%field Shipment.job_open_at help: When the move to job open was recorded on this shipment. Recording it moves a shipment from job booked to job open: the workflows set the status, which nobody changes by hand.
+%%field Shipment.job_moving_at help: When the move to job moving was recorded on this shipment. Recording it moves a shipment from job booked or job arrived to job moving: the workflows set the status, which nobody changes by hand.
+%%field Shipment.job_arrived_at help: When the move to job arrived was recorded on this shipment. Recording it moves a shipment from job moving to job arrived: the workflows set the status, which nobody changes by hand.
+%%field Shipment.job_delivered_at help: When the move to job delivered was recorded on this shipment. Recording it moves a shipment from job arrived to job delivered: the workflows set the status, which nobody changes by hand.
+%%field Shipment.job_closed_at help: When the move to job closed was recorded on this shipment. Recording it moves a shipment from job delivered to job closed: the workflows set the status, which nobody changes by hand.
+%%field Shipment.job_cancelled_at help: When the move to job cancelled was recorded on this shipment. Recording it moves a shipment from job open or job booked to job cancelled: the workflows set the status, which nobody changes by hand.
+%%section entity: Shipment; name: Progress; help: The times that move this shipment along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: job_booked_at, job_open_at | job_moving_at, job_arrived_at | job_delivered_at, job_closed_at | job_cancelled_at
+
+%%meta name: Shipment job booked move
+%%meta kind: workflow
+%%workflow ShipmentJobBookedMove entity: Shipment kind: saga trigger: rule
+flowchart TD
+    A([Move to job booked recorded]) --> B[Set the status to job booked]
+    B --> C[Clear job open at for the next move]
+    C --> D[Clear job moving at for the next move]
+    D --> E[Clear job cancelled at for the next move]
+    E --> Z([Job Booked])
+
+    %%step B UpdateEntity field: status value: job_booked
+    %%step C UpdateEntity field: job_open_at value: null
+    %%step D UpdateEntity field: job_moving_at value: null
+    %%step E UpdateEntity field: job_cancelled_at value: null
+
+%%meta name: Shipment job open move
+%%meta kind: workflow
+%%workflow ShipmentJobOpenMove entity: Shipment kind: saga trigger: rule
+flowchart TD
+    A([Move to job open recorded]) --> B[Set the status to job open]
+    B --> C[Clear job booked at for the next move]
+    C --> D[Clear job cancelled at for the next move]
+    D --> Z([Job Open])
+
+    %%step B UpdateEntity field: status value: job_open
+    %%step C UpdateEntity field: job_booked_at value: null
+    %%step D UpdateEntity field: job_cancelled_at value: null
+
+%%meta name: Shipment job moving move
+%%meta kind: workflow
+%%workflow ShipmentJobMovingMove entity: Shipment kind: saga trigger: rule
+flowchart TD
+    A([Move to job moving recorded]) --> B[Set the status to job moving]
+    B --> C[Clear job arrived at for the next move]
+    C --> Z([Job Moving])
+
+    %%step B UpdateEntity field: status value: job_moving
+    %%step C UpdateEntity field: job_arrived_at value: null
+
+%%meta name: Shipment job arrived move
+%%meta kind: workflow
+%%workflow ShipmentJobArrivedMove entity: Shipment kind: saga trigger: rule
+flowchart TD
+    A([Move to job arrived recorded]) --> B[Set the status to job arrived]
+    B --> C[Clear job moving at for the next move]
+    C --> D[Clear job delivered at for the next move]
+    D --> Z([Job Arrived])
+
+    %%step B UpdateEntity field: status value: job_arrived
+    %%step C UpdateEntity field: job_moving_at value: null
+    %%step D UpdateEntity field: job_delivered_at value: null
+
+%%meta name: Shipment job delivered move
+%%meta kind: workflow
+%%workflow ShipmentJobDeliveredMove entity: Shipment kind: saga trigger: rule
+flowchart TD
+    A([Move to job delivered recorded]) --> B[Set the status to job delivered]
+    B --> C[Clear job closed at for the next move]
+    C --> Z([Job Delivered])
+
+    %%step B UpdateEntity field: status value: job_delivered
+    %%step C UpdateEntity field: job_closed_at value: null
+
+%%meta name: Shipment job closed move
+%%meta kind: workflow
+%%workflow ShipmentJobClosedMove entity: Shipment kind: saga trigger: rule
+flowchart TD
+    A([Move to job closed recorded]) --> B[Set the status to job closed]
+    B --> Z([Job Closed])
+
+    %%step B UpdateEntity field: status value: job_closed
+
+%%meta name: Shipment job cancelled move
+%%meta kind: workflow
+%%workflow ShipmentJobCancelledMove entity: Shipment kind: saga trigger: rule
+flowchart TD
+    A([Move to job cancelled recorded]) --> B[Set the status to job cancelled]
+    B --> Z([Job Cancelled])
+
+    %%step B UpdateEntity field: status value: job_cancelled
+
+%%meta name: Shipment State Progress
+%%meta kind: rules
+%%rule shipmentStateProgress on Shipment event: beforeUpdate priority: 90
+flowchart TD
+    A([Shipment updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveJobOpenToJobBooked trigger-workflow when: status == "job_open" and job_booked_at != null workflow: ShipmentJobBookedMove
+    %%action moveJobBookedToJobOpen trigger-workflow when: status == "job_booked" and job_open_at != null workflow: ShipmentJobOpenMove
+    %%action moveJobBookedToJobMoving trigger-workflow when: status == "job_booked" and job_moving_at != null workflow: ShipmentJobMovingMove
+    %%action moveJobMovingToJobArrived trigger-workflow when: status == "job_moving" and job_arrived_at != null workflow: ShipmentJobArrivedMove
+    %%action moveJobArrivedToJobMoving trigger-workflow when: status == "job_arrived" and job_moving_at != null workflow: ShipmentJobMovingMove
+    %%action moveJobArrivedToJobDelivered trigger-workflow when: status == "job_arrived" and job_delivered_at != null workflow: ShipmentJobDeliveredMove
+    %%action moveJobDeliveredToJobClosed trigger-workflow when: status == "job_delivered" and job_closed_at != null workflow: ShipmentJobClosedMove
+    %%action moveJobOpenToJobCancelled trigger-workflow when: status == "job_open" and job_cancelled_at != null workflow: ShipmentJobCancelledMove
+    %%action moveJobBookedToJobCancelled trigger-workflow when: status == "job_booked" and job_cancelled_at != null workflow: ShipmentJobCancelledMove
+%%field Booking.booking_confirmed_at help: When the move to booking confirmed was recorded on this booking. Recording it moves a booking from booking requested, booking amending or booking cancelling to booking confirmed: the workflows set the status, which nobody changes by hand.
+%%field Booking.booking_rejected_at help: When the move to booking rejected was recorded on this booking. Recording it moves a booking from booking requested to booking rejected: the workflows set the status, which nobody changes by hand.
+%%field Booking.booking_cancelled_at help: When the move to booking cancelled was recorded on this booking. Recording it moves a booking from booking requested or booking cancelling to booking cancelled: the workflows set the status, which nobody changes by hand.
+%%field Booking.booking_amending_at help: When the move to booking amending was recorded on this booking. Recording it moves a booking from booking confirmed to booking amending: the workflows set the status, which nobody changes by hand.
+%%field Booking.booking_cancelling_at help: When the move to booking cancelling was recorded on this booking. Recording it moves a booking from booking confirmed to booking cancelling: the workflows set the status, which nobody changes by hand.
+%%field Booking.booking_completed_at help: When the move to booking completed was recorded on this booking. Recording it moves a booking from booking confirmed to booking completed: the workflows set the status, which nobody changes by hand.
+%%section entity: Booking; name: Progress; help: The times that move this booking along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: booking_confirmed_at, booking_rejected_at | booking_cancelled_at, booking_amending_at | booking_cancelling_at, booking_completed_at
+
+%%meta name: Booking booking confirmed move
+%%meta kind: workflow
+%%workflow BookingBookingConfirmedMove entity: Booking kind: saga trigger: rule
+flowchart TD
+    A([Move to booking confirmed recorded]) --> B[Set the status to booking confirmed]
+    B --> C[Clear booking amending at for the next move]
+    C --> D[Clear booking cancelling at for the next move]
+    D --> E[Clear booking completed at for the next move]
+    E --> Z([Booking Confirmed])
+
+    %%step B UpdateEntity field: status value: booking_confirmed
+    %%step C UpdateEntity field: booking_amending_at value: null
+    %%step D UpdateEntity field: booking_cancelling_at value: null
+    %%step E UpdateEntity field: booking_completed_at value: null
+
+%%meta name: Booking booking rejected move
+%%meta kind: workflow
+%%workflow BookingBookingRejectedMove entity: Booking kind: saga trigger: rule
+flowchart TD
+    A([Move to booking rejected recorded]) --> B[Set the status to booking rejected]
+    B --> Z([Booking Rejected])
+
+    %%step B UpdateEntity field: status value: booking_rejected
+
+%%meta name: Booking booking cancelled move
+%%meta kind: workflow
+%%workflow BookingBookingCancelledMove entity: Booking kind: saga trigger: rule
+flowchart TD
+    A([Move to booking cancelled recorded]) --> B[Set the status to booking cancelled]
+    B --> Z([Booking Cancelled])
+
+    %%step B UpdateEntity field: status value: booking_cancelled
+
+%%meta name: Booking booking amending move
+%%meta kind: workflow
+%%workflow BookingBookingAmendingMove entity: Booking kind: saga trigger: rule
+flowchart TD
+    A([Move to booking amending recorded]) --> B[Set the status to booking amending]
+    B --> C[Clear booking confirmed at for the next move]
+    C --> Z([Booking Amending])
+
+    %%step B UpdateEntity field: status value: booking_amending
+    %%step C UpdateEntity field: booking_confirmed_at value: null
+
+%%meta name: Booking booking cancelling move
+%%meta kind: workflow
+%%workflow BookingBookingCancellingMove entity: Booking kind: saga trigger: rule
+flowchart TD
+    A([Move to booking cancelling recorded]) --> B[Set the status to booking cancelling]
+    B --> C[Clear booking confirmed at for the next move]
+    C --> D[Clear booking cancelled at for the next move]
+    D --> Z([Booking Cancelling])
+
+    %%step B UpdateEntity field: status value: booking_cancelling
+    %%step C UpdateEntity field: booking_confirmed_at value: null
+    %%step D UpdateEntity field: booking_cancelled_at value: null
+
+%%meta name: Booking booking completed move
+%%meta kind: workflow
+%%workflow BookingBookingCompletedMove entity: Booking kind: saga trigger: rule
+flowchart TD
+    A([Move to booking completed recorded]) --> B[Set the status to booking completed]
+    B --> Z([Booking Completed])
+
+    %%step B UpdateEntity field: status value: booking_completed
+
+%%meta name: Booking State Progress
+%%meta kind: rules
+%%rule bookingStateProgress on Booking event: beforeUpdate priority: 90
+flowchart TD
+    A([Booking updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveBookingRequestedToBookingConfirmed trigger-workflow when: status == "booking_requested" and booking_confirmed_at != null workflow: BookingBookingConfirmedMove
+    %%action moveBookingRequestedToBookingRejected trigger-workflow when: status == "booking_requested" and booking_rejected_at != null workflow: BookingBookingRejectedMove
+    %%action moveBookingRequestedToBookingCancelled trigger-workflow when: status == "booking_requested" and booking_cancelled_at != null workflow: BookingBookingCancelledMove
+    %%action moveBookingConfirmedToBookingAmending trigger-workflow when: status == "booking_confirmed" and booking_amending_at != null workflow: BookingBookingAmendingMove
+    %%action moveBookingAmendingToBookingConfirmed trigger-workflow when: status == "booking_amending" and booking_confirmed_at != null workflow: BookingBookingConfirmedMove
+    %%action moveBookingConfirmedToBookingCancelling trigger-workflow when: status == "booking_confirmed" and booking_cancelling_at != null workflow: BookingBookingCancellingMove
+    %%action moveBookingCancellingToBookingConfirmed trigger-workflow when: status == "booking_cancelling" and booking_confirmed_at != null workflow: BookingBookingConfirmedMove
+    %%action moveBookingCancellingToBookingCancelled trigger-workflow when: status == "booking_cancelling" and booking_cancelled_at != null workflow: BookingBookingCancelledMove
+    %%action moveBookingConfirmedToBookingCompleted trigger-workflow when: status == "booking_confirmed" and booking_completed_at != null workflow: BookingBookingCompletedMove
+%%field BookingChange.change_sent_at help: When the move to change sent was recorded on this booking change. Recording it moves a booking change from change draft to change sent: the workflows set the status, which nobody changes by hand.
+%%field BookingChange.change_withdrawn_at help: When the move to change withdrawn was recorded on this booking change. Recording it moves a booking change from change draft or change sent to change withdrawn: the workflows set the status, which nobody changes by hand.
+%%field BookingChange.change_accepted_at help: When the move to change accepted was recorded on this booking change. Recording it moves a booking change from change sent to change accepted: the workflows set the status, which nobody changes by hand.
+%%field BookingChange.change_refused_at help: When the move to change refused was recorded on this booking change. Recording it moves a booking change from change sent to change refused: the workflows set the status, which nobody changes by hand.
+%%section entity: BookingChange; name: Progress; help: The times that move this booking change along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: change_sent_at, change_withdrawn_at | change_accepted_at, change_refused_at
+
+%%meta name: Booking Change change sent move
+%%meta kind: workflow
+%%workflow BookingChangeChangeSentMove entity: BookingChange kind: saga trigger: rule
+flowchart TD
+    A([Move to change sent recorded]) --> B[Set the status to change sent]
+    B --> C[Clear change accepted at for the next move]
+    C --> D[Clear change refused at for the next move]
+    D --> E[Clear change withdrawn at for the next move]
+    E --> Z([Change Sent])
+
+    %%step B UpdateEntity field: status value: change_sent
+    %%step C UpdateEntity field: change_accepted_at value: null
+    %%step D UpdateEntity field: change_refused_at value: null
+    %%step E UpdateEntity field: change_withdrawn_at value: null
+
+%%meta name: Booking Change change withdrawn move
+%%meta kind: workflow
+%%workflow BookingChangeChangeWithdrawnMove entity: BookingChange kind: saga trigger: rule
+flowchart TD
+    A([Move to change withdrawn recorded]) --> B[Set the status to change withdrawn]
+    B --> Z([Change Withdrawn])
+
+    %%step B UpdateEntity field: status value: change_withdrawn
+
+%%meta name: Booking Change change accepted move
+%%meta kind: workflow
+%%workflow BookingChangeChangeAcceptedMove entity: BookingChange kind: saga trigger: rule
+flowchart TD
+    A([Move to change accepted recorded]) --> B[Set the status to change accepted]
+    B --> Z([Change Accepted])
+
+    %%step B UpdateEntity field: status value: change_accepted
+
+%%meta name: Booking Change change refused move
+%%meta kind: workflow
+%%workflow BookingChangeChangeRefusedMove entity: BookingChange kind: saga trigger: rule
+flowchart TD
+    A([Move to change refused recorded]) --> B[Set the status to change refused]
+    B --> Z([Change Refused])
+
+    %%step B UpdateEntity field: status value: change_refused
+
+%%meta name: Booking Change State Progress
+%%meta kind: rules
+%%rule bookingChangeStateProgress on BookingChange event: beforeUpdate priority: 90
+flowchart TD
+    A([Booking Change updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveChangeDraftToChangeSent trigger-workflow when: status == "change_draft" and change_sent_at != null workflow: BookingChangeChangeSentMove
+    %%action moveChangeDraftToChangeWithdrawn trigger-workflow when: status == "change_draft" and change_withdrawn_at != null workflow: BookingChangeChangeWithdrawnMove
+    %%action moveChangeSentToChangeAccepted trigger-workflow when: status == "change_sent" and change_accepted_at != null workflow: BookingChangeChangeAcceptedMove
+    %%action moveChangeSentToChangeRefused trigger-workflow when: status == "change_sent" and change_refused_at != null workflow: BookingChangeChangeRefusedMove
+    %%action moveChangeSentToChangeWithdrawn trigger-workflow when: status == "change_sent" and change_withdrawn_at != null workflow: BookingChangeChangeWithdrawnMove
+%%field TransportLeg.leg_dispatched_at help: When the move to leg dispatched was recorded on this transport leg. Recording it moves a transport leg from leg planned to leg dispatched: the workflows set the status, which nobody changes by hand.
+%%field TransportLeg.leg_moving_at help: When the move to leg moving was recorded on this transport leg. Recording it moves a transport leg from leg dispatched to leg moving: the workflows set the status, which nobody changes by hand.
+%%field TransportLeg.leg_completed_at help: When the move to leg completed was recorded on this transport leg. Recording it moves a transport leg from leg moving to leg completed: the workflows set the status, which nobody changes by hand.
+%%field TransportLeg.leg_cancelled_at help: When the move to leg cancelled was recorded on this transport leg. Recording it moves a transport leg from leg planned or leg dispatched to leg cancelled: the workflows set the status, which nobody changes by hand.
+%%section entity: TransportLeg; name: Progress; help: The times that move this transport leg along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: leg_dispatched_at, leg_moving_at | leg_completed_at, leg_cancelled_at
+
+%%meta name: Transport Leg leg dispatched move
+%%meta kind: workflow
+%%workflow TransportLegLegDispatchedMove entity: TransportLeg kind: saga trigger: rule
+flowchart TD
+    A([Move to leg dispatched recorded]) --> B[Set the status to leg dispatched]
+    B --> C[Clear leg moving at for the next move]
+    C --> D[Clear leg cancelled at for the next move]
+    D --> Z([Leg Dispatched])
+
+    %%step B UpdateEntity field: status value: leg_dispatched
+    %%step C UpdateEntity field: leg_moving_at value: null
+    %%step D UpdateEntity field: leg_cancelled_at value: null
+
+%%meta name: Transport Leg leg moving move
+%%meta kind: workflow
+%%workflow TransportLegLegMovingMove entity: TransportLeg kind: saga trigger: rule
+flowchart TD
+    A([Move to leg moving recorded]) --> B[Set the status to leg moving]
+    B --> C[Clear leg completed at for the next move]
+    C --> Z([Leg Moving])
+
+    %%step B UpdateEntity field: status value: leg_moving
+    %%step C UpdateEntity field: leg_completed_at value: null
+
+%%meta name: Transport Leg leg completed move
+%%meta kind: workflow
+%%workflow TransportLegLegCompletedMove entity: TransportLeg kind: saga trigger: rule
+flowchart TD
+    A([Move to leg completed recorded]) --> B[Set the status to leg completed]
+    B --> Z([Leg Completed])
+
+    %%step B UpdateEntity field: status value: leg_completed
+
+%%meta name: Transport Leg leg cancelled move
+%%meta kind: workflow
+%%workflow TransportLegLegCancelledMove entity: TransportLeg kind: saga trigger: rule
+flowchart TD
+    A([Move to leg cancelled recorded]) --> B[Set the status to leg cancelled]
+    B --> Z([Leg Cancelled])
+
+    %%step B UpdateEntity field: status value: leg_cancelled
+
+%%meta name: Transport Leg State Progress
+%%meta kind: rules
+%%rule transportLegStateProgress on TransportLeg event: beforeUpdate priority: 90
+flowchart TD
+    A([Transport Leg updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveLegPlannedToLegDispatched trigger-workflow when: status == "leg_planned" and leg_dispatched_at != null workflow: TransportLegLegDispatchedMove
+    %%action moveLegDispatchedToLegMoving trigger-workflow when: status == "leg_dispatched" and leg_moving_at != null workflow: TransportLegLegMovingMove
+    %%action moveLegMovingToLegCompleted trigger-workflow when: status == "leg_moving" and leg_completed_at != null workflow: TransportLegLegCompletedMove
+    %%action moveLegPlannedToLegCancelled trigger-workflow when: status == "leg_planned" and leg_cancelled_at != null workflow: TransportLegLegCancelledMove
+    %%action moveLegDispatchedToLegCancelled trigger-workflow when: status == "leg_dispatched" and leg_cancelled_at != null workflow: TransportLegLegCancelledMove
+%%field ContainerUse.unit_collected_at help: When the move to unit collected was recorded on this container use. Recording it moves a container use from unit expected or unit packed to unit collected: the workflows set the status, which nobody changes by hand.
+%%field ContainerUse.unit_packed_at help: When the move to unit packed was recorded on this container use. Recording it moves a container use from unit collected to unit packed: the workflows set the status, which nobody changes by hand.
+%%field ContainerUse.unit_shipped_at help: When the move to unit shipped was recorded on this container use. Recording it moves a container use from unit packed to unit shipped: the workflows set the status, which nobody changes by hand.
+%%field ContainerUse.unit_discharged_at help: When the move to unit discharged was recorded on this container use. Recording it moves a container use from unit shipped to unit discharged: the workflows set the status, which nobody changes by hand.
+%%field ContainerUse.unit_gated_out_at help: When the move to unit gated out was recorded on this container use. Recording it moves a container use from unit discharged to unit gated out: the workflows set the status, which nobody changes by hand.
+%%field ContainerUse.unit_returned_at help: When the move to unit returned was recorded on this container use. Recording it moves a container use from unit gated out or unit collected to unit returned: the workflows set the status, which nobody changes by hand.
+%%field ContainerUse.unit_cancelled_at help: When the move to unit cancelled was recorded on this container use. Recording it moves a container use from unit expected to unit cancelled: the workflows set the status, which nobody changes by hand.
+%%section entity: ContainerUse; name: Progress; help: The times that move this container use along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: unit_collected_at, unit_packed_at | unit_shipped_at, unit_discharged_at | unit_gated_out_at, unit_returned_at | unit_cancelled_at
+
+%%meta name: Container Use unit collected move
+%%meta kind: workflow
+%%workflow ContainerUseUnitCollectedMove entity: ContainerUse kind: saga trigger: rule
+flowchart TD
+    A([Move to unit collected recorded]) --> B[Set the status to unit collected]
+    B --> C[Clear unit packed at for the next move]
+    C --> D[Clear unit returned at for the next move]
+    D --> Z([Unit Collected])
+
+    %%step B UpdateEntity field: status value: unit_collected
+    %%step C UpdateEntity field: unit_packed_at value: null
+    %%step D UpdateEntity field: unit_returned_at value: null
+
+%%meta name: Container Use unit packed move
+%%meta kind: workflow
+%%workflow ContainerUseUnitPackedMove entity: ContainerUse kind: saga trigger: rule
+flowchart TD
+    A([Move to unit packed recorded]) --> B[Set the status to unit packed]
+    B --> C[Clear unit collected at for the next move]
+    C --> D[Clear unit shipped at for the next move]
+    D --> Z([Unit Packed])
+
+    %%step B UpdateEntity field: status value: unit_packed
+    %%step C UpdateEntity field: unit_collected_at value: null
+    %%step D UpdateEntity field: unit_shipped_at value: null
+
+%%meta name: Container Use unit shipped move
+%%meta kind: workflow
+%%workflow ContainerUseUnitShippedMove entity: ContainerUse kind: saga trigger: rule
+flowchart TD
+    A([Move to unit shipped recorded]) --> B[Set the status to unit shipped]
+    B --> C[Clear unit discharged at for the next move]
+    C --> Z([Unit Shipped])
+
+    %%step B UpdateEntity field: status value: unit_shipped
+    %%step C UpdateEntity field: unit_discharged_at value: null
+
+%%meta name: Container Use unit discharged move
+%%meta kind: workflow
+%%workflow ContainerUseUnitDischargedMove entity: ContainerUse kind: saga trigger: rule
+flowchart TD
+    A([Move to unit discharged recorded]) --> B[Set the status to unit discharged]
+    B --> C[Clear unit gated out at for the next move]
+    C --> Z([Unit Discharged])
+
+    %%step B UpdateEntity field: status value: unit_discharged
+    %%step C UpdateEntity field: unit_gated_out_at value: null
+
+%%meta name: Container Use unit gated out move
+%%meta kind: workflow
+%%workflow ContainerUseUnitGatedOutMove entity: ContainerUse kind: saga trigger: rule
+flowchart TD
+    A([Move to unit gated out recorded]) --> B[Set the status to unit gated out]
+    B --> C[Clear unit returned at for the next move]
+    C --> Z([Unit Gated Out])
+
+    %%step B UpdateEntity field: status value: unit_gated_out
+    %%step C UpdateEntity field: unit_returned_at value: null
+
+%%meta name: Container Use unit returned move
+%%meta kind: workflow
+%%workflow ContainerUseUnitReturnedMove entity: ContainerUse kind: saga trigger: rule
+flowchart TD
+    A([Move to unit returned recorded]) --> B[Set the status to unit returned]
+    B --> Z([Unit Returned])
+
+    %%step B UpdateEntity field: status value: unit_returned
+
+%%meta name: Container Use unit cancelled move
+%%meta kind: workflow
+%%workflow ContainerUseUnitCancelledMove entity: ContainerUse kind: saga trigger: rule
+flowchart TD
+    A([Move to unit cancelled recorded]) --> B[Set the status to unit cancelled]
+    B --> Z([Unit Cancelled])
+
+    %%step B UpdateEntity field: status value: unit_cancelled
+
+%%meta name: Container Use State Progress
+%%meta kind: rules
+%%rule containerUseStateProgress on ContainerUse event: beforeUpdate priority: 90
+flowchart TD
+    A([Container Use updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveUnitExpectedToUnitCollected trigger-workflow when: status == "unit_expected" and unit_collected_at != null workflow: ContainerUseUnitCollectedMove
+    %%action moveUnitCollectedToUnitPacked trigger-workflow when: status == "unit_collected" and unit_packed_at != null workflow: ContainerUseUnitPackedMove
+    %%action moveUnitPackedToUnitCollected trigger-workflow when: status == "unit_packed" and unit_collected_at != null workflow: ContainerUseUnitCollectedMove
+    %%action moveUnitPackedToUnitShipped trigger-workflow when: status == "unit_packed" and unit_shipped_at != null workflow: ContainerUseUnitShippedMove
+    %%action moveUnitShippedToUnitDischarged trigger-workflow when: status == "unit_shipped" and unit_discharged_at != null workflow: ContainerUseUnitDischargedMove
+    %%action moveUnitDischargedToUnitGatedOut trigger-workflow when: status == "unit_discharged" and unit_gated_out_at != null workflow: ContainerUseUnitGatedOutMove
+    %%action moveUnitGatedOutToUnitReturned trigger-workflow when: status == "unit_gated_out" and unit_returned_at != null workflow: ContainerUseUnitReturnedMove
+    %%action moveUnitExpectedToUnitCancelled trigger-workflow when: status == "unit_expected" and unit_cancelled_at != null workflow: ContainerUseUnitCancelledMove
+    %%action moveUnitCollectedToUnitReturned trigger-workflow when: status == "unit_collected" and unit_returned_at != null workflow: ContainerUseUnitReturnedMove
+%%field ShippingInstruction.si_submitted_at help: When the move to si submitted was recorded on this shipping instruction. Recording it moves a shipping instruction from si draft or si correction to si submitted: the workflows set the status, which nobody changes by hand.
+%%field ShippingInstruction.si_correction_at help: When the move to si correction was recorded on this shipping instruction. Recording it moves a shipping instruction from si submitted or si accepted to si correction: the workflows set the status, which nobody changes by hand.
+%%field ShippingInstruction.si_accepted_at help: When the move to si accepted was recorded on this shipping instruction. Recording it moves a shipping instruction from si submitted to si accepted: the workflows set the status, which nobody changes by hand.
+%%field ShippingInstruction.si_withdrawn_at help: When the move to si withdrawn was recorded on this shipping instruction. Recording it moves a shipping instruction from si draft or si correction to si withdrawn: the workflows set the status, which nobody changes by hand.
+%%section entity: ShippingInstruction; name: Progress; help: The times that move this shipping instruction along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: si_submitted_at, si_correction_at | si_accepted_at, si_withdrawn_at
+
+%%meta name: Shipping Instruction si submitted move
+%%meta kind: workflow
+%%workflow ShippingInstructionSiSubmittedMove entity: ShippingInstruction kind: saga trigger: rule
+flowchart TD
+    A([Move to si submitted recorded]) --> B[Set the status to si submitted]
+    B --> C[Clear si correction at for the next move]
+    C --> D[Clear si accepted at for the next move]
+    D --> Z([Si Submitted])
+
+    %%step B UpdateEntity field: status value: si_submitted
+    %%step C UpdateEntity field: si_correction_at value: null
+    %%step D UpdateEntity field: si_accepted_at value: null
+
+%%meta name: Shipping Instruction si correction move
+%%meta kind: workflow
+%%workflow ShippingInstructionSiCorrectionMove entity: ShippingInstruction kind: saga trigger: rule
+flowchart TD
+    A([Move to si correction recorded]) --> B[Set the status to si correction]
+    B --> C[Clear si submitted at for the next move]
+    C --> D[Clear si withdrawn at for the next move]
+    D --> Z([Si Correction])
+
+    %%step B UpdateEntity field: status value: si_correction
+    %%step C UpdateEntity field: si_submitted_at value: null
+    %%step D UpdateEntity field: si_withdrawn_at value: null
+
+%%meta name: Shipping Instruction si accepted move
+%%meta kind: workflow
+%%workflow ShippingInstructionSiAcceptedMove entity: ShippingInstruction kind: saga trigger: rule
+flowchart TD
+    A([Move to si accepted recorded]) --> B[Set the status to si accepted]
+    B --> C[Clear si correction at for the next move]
+    C --> Z([Si Accepted])
+
+    %%step B UpdateEntity field: status value: si_accepted
+    %%step C UpdateEntity field: si_correction_at value: null
+
+%%meta name: Shipping Instruction si withdrawn move
+%%meta kind: workflow
+%%workflow ShippingInstructionSiWithdrawnMove entity: ShippingInstruction kind: saga trigger: rule
+flowchart TD
+    A([Move to si withdrawn recorded]) --> B[Set the status to si withdrawn]
+    B --> Z([Si Withdrawn])
+
+    %%step B UpdateEntity field: status value: si_withdrawn
+
+%%meta name: Shipping Instruction State Progress
+%%meta kind: rules
+%%rule shippingInstructionStateProgress on ShippingInstruction event: beforeUpdate priority: 90
+flowchart TD
+    A([Shipping Instruction updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveSiDraftToSiSubmitted trigger-workflow when: status == "si_draft" and si_submitted_at != null workflow: ShippingInstructionSiSubmittedMove
+    %%action moveSiSubmittedToSiCorrection trigger-workflow when: status == "si_submitted" and si_correction_at != null workflow: ShippingInstructionSiCorrectionMove
+    %%action moveSiCorrectionToSiSubmitted trigger-workflow when: status == "si_correction" and si_submitted_at != null workflow: ShippingInstructionSiSubmittedMove
+    %%action moveSiSubmittedToSiAccepted trigger-workflow when: status == "si_submitted" and si_accepted_at != null workflow: ShippingInstructionSiAcceptedMove
+    %%action moveSiDraftToSiWithdrawn trigger-workflow when: status == "si_draft" and si_withdrawn_at != null workflow: ShippingInstructionSiWithdrawnMove
+    %%action moveSiCorrectionToSiWithdrawn trigger-workflow when: status == "si_correction" and si_withdrawn_at != null workflow: ShippingInstructionSiWithdrawnMove
+    %%action moveSiAcceptedToSiCorrection trigger-workflow when: status == "si_accepted" and si_correction_at != null workflow: ShippingInstructionSiCorrectionMove
+%%field TransportDocument.doc_approved_at help: When the move to doc approved was recorded on this transport document. Recording it moves a transport document from doc draft to doc approved: the workflows set the status, which nobody changes by hand.
+%%field TransportDocument.doc_draft_at help: When the move to doc draft was recorded on this transport document. Recording it moves a transport document from doc approved to doc draft: the workflows set the status, which nobody changes by hand.
+%%field TransportDocument.doc_issued_at help: When the move to doc issued was recorded on this transport document. Recording it moves a transport document from doc approved, doc surrender pending or doc amend pending to doc issued: the workflows set the status, which nobody changes by hand.
+%%field TransportDocument.doc_surrender_pending_at help: When the move to doc surrender pending was recorded on this transport document. Recording it moves a transport document from doc issued to doc surrender pending: the workflows set the status, which nobody changes by hand.
+%%field TransportDocument.doc_surrendered_at help: When the move to doc surrendered was recorded on this transport document. Recording it moves a transport document from doc surrender pending to doc surrendered: the workflows set the status, which nobody changes by hand.
+%%field TransportDocument.doc_amend_pending_at help: When the move to doc amend pending was recorded on this transport document. Recording it moves a transport document from doc issued to doc amend pending: the workflows set the status, which nobody changes by hand.
+%%field TransportDocument.doc_void_at help: When the move to doc void was recorded on this transport document. Recording it moves a transport document from doc amend pending or doc draft to doc void: the workflows set the status, which nobody changes by hand.
+%%field TransportDocument.doc_accomplished_at help: When the move to doc accomplished was recorded on this transport document. Recording it moves a transport document from doc surrendered or doc issued to doc accomplished: the workflows set the status, which nobody changes by hand.
+%%section entity: TransportDocument; name: Progress; help: The times that move this transport document along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: doc_approved_at, doc_draft_at | doc_issued_at, doc_surrender_pending_at | doc_surrendered_at, doc_amend_pending_at | doc_void_at, doc_accomplished_at
+
+%%meta name: Transport Document doc approved move
+%%meta kind: workflow
+%%workflow TransportDocumentDocApprovedMove entity: TransportDocument kind: saga trigger: rule
+flowchart TD
+    A([Move to doc approved recorded]) --> B[Set the status to doc approved]
+    B --> C[Clear doc draft at for the next move]
+    C --> D[Clear doc issued at for the next move]
+    D --> Z([Doc Approved])
+
+    %%step B UpdateEntity field: status value: doc_approved
+    %%step C UpdateEntity field: doc_draft_at value: null
+    %%step D UpdateEntity field: doc_issued_at value: null
+
+%%meta name: Transport Document doc draft move
+%%meta kind: workflow
+%%workflow TransportDocumentDocDraftMove entity: TransportDocument kind: saga trigger: rule
+flowchart TD
+    A([Move to doc draft recorded]) --> B[Set the status to doc draft]
+    B --> C[Clear doc approved at for the next move]
+    C --> D[Clear doc void at for the next move]
+    D --> Z([Doc Draft])
+
+    %%step B UpdateEntity field: status value: doc_draft
+    %%step C UpdateEntity field: doc_approved_at value: null
+    %%step D UpdateEntity field: doc_void_at value: null
+
+%%meta name: Transport Document doc issued move
+%%meta kind: workflow
+%%workflow TransportDocumentDocIssuedMove entity: TransportDocument kind: saga trigger: rule
+flowchart TD
+    A([Move to doc issued recorded]) --> B[Set the status to doc issued]
+    B --> C[Clear doc surrender pending at for the next move]
+    C --> D[Clear doc amend pending at for the next move]
+    D --> E[Clear doc accomplished at for the next move]
+    E --> Z([Doc Issued])
+
+    %%step B UpdateEntity field: status value: doc_issued
+    %%step C UpdateEntity field: doc_surrender_pending_at value: null
+    %%step D UpdateEntity field: doc_amend_pending_at value: null
+    %%step E UpdateEntity field: doc_accomplished_at value: null
+
+%%meta name: Transport Document doc surrender pending move
+%%meta kind: workflow
+%%workflow TransportDocumentDocSurrenderPendingMove entity: TransportDocument kind: saga trigger: rule
+flowchart TD
+    A([Move to doc surrender pending recorded]) --> B[Set the status to doc surrender pending]
+    B --> C[Clear doc surrendered at for the next move]
+    C --> D[Clear doc issued at for the next move]
+    D --> Z([Doc Surrender Pending])
+
+    %%step B UpdateEntity field: status value: doc_surrender_pending
+    %%step C UpdateEntity field: doc_surrendered_at value: null
+    %%step D UpdateEntity field: doc_issued_at value: null
+
+%%meta name: Transport Document doc surrendered move
+%%meta kind: workflow
+%%workflow TransportDocumentDocSurrenderedMove entity: TransportDocument kind: saga trigger: rule
+flowchart TD
+    A([Move to doc surrendered recorded]) --> B[Set the status to doc surrendered]
+    B --> C[Clear doc accomplished at for the next move]
+    C --> Z([Doc Surrendered])
+
+    %%step B UpdateEntity field: status value: doc_surrendered
+    %%step C UpdateEntity field: doc_accomplished_at value: null
+
+%%meta name: Transport Document doc amend pending move
+%%meta kind: workflow
+%%workflow TransportDocumentDocAmendPendingMove entity: TransportDocument kind: saga trigger: rule
+flowchart TD
+    A([Move to doc amend pending recorded]) --> B[Set the status to doc amend pending]
+    B --> C[Clear doc void at for the next move]
+    C --> D[Clear doc issued at for the next move]
+    D --> Z([Doc Amend Pending])
+
+    %%step B UpdateEntity field: status value: doc_amend_pending
+    %%step C UpdateEntity field: doc_void_at value: null
+    %%step D UpdateEntity field: doc_issued_at value: null
+
+%%meta name: Transport Document doc void move
+%%meta kind: workflow
+%%workflow TransportDocumentDocVoidMove entity: TransportDocument kind: saga trigger: rule
+flowchart TD
+    A([Move to doc void recorded]) --> B[Set the status to doc void]
+    B --> Z([Doc Void])
+
+    %%step B UpdateEntity field: status value: doc_void
+
+%%meta name: Transport Document doc accomplished move
+%%meta kind: workflow
+%%workflow TransportDocumentDocAccomplishedMove entity: TransportDocument kind: saga trigger: rule
+flowchart TD
+    A([Move to doc accomplished recorded]) --> B[Set the status to doc accomplished]
+    B --> Z([Doc Accomplished])
+
+    %%step B UpdateEntity field: status value: doc_accomplished
+
+%%meta name: Transport Document State Progress
+%%meta kind: rules
+%%rule transportDocumentStateProgress on TransportDocument event: beforeUpdate priority: 90
+flowchart TD
+    A([Transport Document updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveDocDraftToDocApproved trigger-workflow when: status == "doc_draft" and doc_approved_at != null workflow: TransportDocumentDocApprovedMove
+    %%action moveDocApprovedToDocDraft trigger-workflow when: status == "doc_approved" and doc_draft_at != null workflow: TransportDocumentDocDraftMove
+    %%action moveDocApprovedToDocIssued trigger-workflow when: status == "doc_approved" and doc_issued_at != null workflow: TransportDocumentDocIssuedMove
+    %%action moveDocIssuedToDocSurrenderPending trigger-workflow when: status == "doc_issued" and doc_surrender_pending_at != null workflow: TransportDocumentDocSurrenderPendingMove
+    %%action moveDocSurrenderPendingToDocSurrendered trigger-workflow when: status == "doc_surrender_pending" and doc_surrendered_at != null workflow: TransportDocumentDocSurrenderedMove
+    %%action moveDocSurrenderPendingToDocIssued trigger-workflow when: status == "doc_surrender_pending" and doc_issued_at != null workflow: TransportDocumentDocIssuedMove
+    %%action moveDocIssuedToDocAmendPending trigger-workflow when: status == "doc_issued" and doc_amend_pending_at != null workflow: TransportDocumentDocAmendPendingMove
+    %%action moveDocAmendPendingToDocVoid trigger-workflow when: status == "doc_amend_pending" and doc_void_at != null workflow: TransportDocumentDocVoidMove
+    %%action moveDocAmendPendingToDocIssued trigger-workflow when: status == "doc_amend_pending" and doc_issued_at != null workflow: TransportDocumentDocIssuedMove
+    %%action moveDocSurrenderedToDocAccomplished trigger-workflow when: status == "doc_surrendered" and doc_accomplished_at != null workflow: TransportDocumentDocAccomplishedMove
+    %%action moveDocIssuedToDocAccomplished trigger-workflow when: status == "doc_issued" and doc_accomplished_at != null workflow: TransportDocumentDocAccomplishedMove
+    %%action moveDocDraftToDocVoid trigger-workflow when: status == "doc_draft" and doc_void_at != null workflow: TransportDocumentDocVoidMove
+%%field CustomsFiling.filing_submitted_at help: When the move to filing submitted was recorded on this customs filing. Recording it moves a customs filing from filing draft to filing submitted: the workflows set the status, which nobody changes by hand.
+%%field CustomsFiling.filing_rejected_at help: When the move to filing rejected was recorded on this customs filing. Recording it moves a customs filing from filing submitted to filing rejected: the workflows set the status, which nobody changes by hand.
+%%field CustomsFiling.filing_draft_at help: When the move to filing draft was recorded on this customs filing. Recording it moves a customs filing from filing rejected to filing draft: the workflows set the status, which nobody changes by hand.
+%%field CustomsFiling.filing_accepted_at help: When the move to filing accepted was recorded on this customs filing. Recording it moves a customs filing from filing submitted or filing held to filing accepted: the workflows set the status, which nobody changes by hand.
+%%field CustomsFiling.filing_held_at help: When the move to filing held was recorded on this customs filing. Recording it moves a customs filing from filing accepted to filing held: the workflows set the status, which nobody changes by hand.
+%%field CustomsFiling.filing_cleared_at help: When the move to filing cleared was recorded on this customs filing. Recording it moves a customs filing from filing accepted to filing cleared: the workflows set the status, which nobody changes by hand.
+%%field CustomsFiling.filing_withdrawn_at help: When the move to filing withdrawn was recorded on this customs filing. Recording it moves a customs filing from filing draft or filing rejected to filing withdrawn: the workflows set the status, which nobody changes by hand.
+%%section entity: CustomsFiling; name: Progress; help: The times that move this customs filing along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: filing_submitted_at, filing_rejected_at | filing_draft_at, filing_accepted_at | filing_held_at, filing_cleared_at | filing_withdrawn_at
+
+%%meta name: Customs Filing filing submitted move
+%%meta kind: workflow
+%%workflow CustomsFilingFilingSubmittedMove entity: CustomsFiling kind: saga trigger: rule
+flowchart TD
+    A([Move to filing submitted recorded]) --> B[Set the status to filing submitted]
+    B --> C[Clear filing rejected at for the next move]
+    C --> D[Clear filing accepted at for the next move]
+    D --> Z([Filing Submitted])
+
+    %%step B UpdateEntity field: status value: filing_submitted
+    %%step C UpdateEntity field: filing_rejected_at value: null
+    %%step D UpdateEntity field: filing_accepted_at value: null
+
+%%meta name: Customs Filing filing rejected move
+%%meta kind: workflow
+%%workflow CustomsFilingFilingRejectedMove entity: CustomsFiling kind: saga trigger: rule
+flowchart TD
+    A([Move to filing rejected recorded]) --> B[Set the status to filing rejected]
+    B --> C[Clear filing draft at for the next move]
+    C --> D[Clear filing withdrawn at for the next move]
+    D --> Z([Filing Rejected])
+
+    %%step B UpdateEntity field: status value: filing_rejected
+    %%step C UpdateEntity field: filing_draft_at value: null
+    %%step D UpdateEntity field: filing_withdrawn_at value: null
+
+%%meta name: Customs Filing filing draft move
+%%meta kind: workflow
+%%workflow CustomsFilingFilingDraftMove entity: CustomsFiling kind: saga trigger: rule
+flowchart TD
+    A([Move to filing draft recorded]) --> B[Set the status to filing draft]
+    B --> C[Clear filing submitted at for the next move]
+    C --> D[Clear filing withdrawn at for the next move]
+    D --> Z([Filing Draft])
+
+    %%step B UpdateEntity field: status value: filing_draft
+    %%step C UpdateEntity field: filing_submitted_at value: null
+    %%step D UpdateEntity field: filing_withdrawn_at value: null
+
+%%meta name: Customs Filing filing accepted move
+%%meta kind: workflow
+%%workflow CustomsFilingFilingAcceptedMove entity: CustomsFiling kind: saga trigger: rule
+flowchart TD
+    A([Move to filing accepted recorded]) --> B[Set the status to filing accepted]
+    B --> C[Clear filing held at for the next move]
+    C --> D[Clear filing cleared at for the next move]
+    D --> Z([Filing Accepted])
+
+    %%step B UpdateEntity field: status value: filing_accepted
+    %%step C UpdateEntity field: filing_held_at value: null
+    %%step D UpdateEntity field: filing_cleared_at value: null
+
+%%meta name: Customs Filing filing held move
+%%meta kind: workflow
+%%workflow CustomsFilingFilingHeldMove entity: CustomsFiling kind: saga trigger: rule
+flowchart TD
+    A([Move to filing held recorded]) --> B[Set the status to filing held]
+    B --> C[Clear filing accepted at for the next move]
+    C --> Z([Filing Held])
+
+    %%step B UpdateEntity field: status value: filing_held
+    %%step C UpdateEntity field: filing_accepted_at value: null
+
+%%meta name: Customs Filing filing cleared move
+%%meta kind: workflow
+%%workflow CustomsFilingFilingClearedMove entity: CustomsFiling kind: saga trigger: rule
+flowchart TD
+    A([Move to filing cleared recorded]) --> B[Set the status to filing cleared]
+    B --> Z([Filing Cleared])
+
+    %%step B UpdateEntity field: status value: filing_cleared
+
+%%meta name: Customs Filing filing withdrawn move
+%%meta kind: workflow
+%%workflow CustomsFilingFilingWithdrawnMove entity: CustomsFiling kind: saga trigger: rule
+flowchart TD
+    A([Move to filing withdrawn recorded]) --> B[Set the status to filing withdrawn]
+    B --> Z([Filing Withdrawn])
+
+    %%step B UpdateEntity field: status value: filing_withdrawn
+
+%%meta name: Customs Filing State Progress
+%%meta kind: rules
+%%rule customsFilingStateProgress on CustomsFiling event: beforeUpdate priority: 90
+flowchart TD
+    A([Customs Filing updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveFilingDraftToFilingSubmitted trigger-workflow when: status == "filing_draft" and filing_submitted_at != null workflow: CustomsFilingFilingSubmittedMove
+    %%action moveFilingSubmittedToFilingRejected trigger-workflow when: status == "filing_submitted" and filing_rejected_at != null workflow: CustomsFilingFilingRejectedMove
+    %%action moveFilingRejectedToFilingDraft trigger-workflow when: status == "filing_rejected" and filing_draft_at != null workflow: CustomsFilingFilingDraftMove
+    %%action moveFilingSubmittedToFilingAccepted trigger-workflow when: status == "filing_submitted" and filing_accepted_at != null workflow: CustomsFilingFilingAcceptedMove
+    %%action moveFilingAcceptedToFilingHeld trigger-workflow when: status == "filing_accepted" and filing_held_at != null workflow: CustomsFilingFilingHeldMove
+    %%action moveFilingHeldToFilingAccepted trigger-workflow when: status == "filing_held" and filing_accepted_at != null workflow: CustomsFilingFilingAcceptedMove
+    %%action moveFilingAcceptedToFilingCleared trigger-workflow when: status == "filing_accepted" and filing_cleared_at != null workflow: CustomsFilingFilingClearedMove
+    %%action moveFilingDraftToFilingWithdrawn trigger-workflow when: status == "filing_draft" and filing_withdrawn_at != null workflow: CustomsFilingFilingWithdrawnMove
+    %%action moveFilingRejectedToFilingWithdrawn trigger-workflow when: status == "filing_rejected" and filing_withdrawn_at != null workflow: CustomsFilingFilingWithdrawnMove
+%%field ReleaseOrder.release_held_at help: When the move to release held was recorded on this release order. Recording it moves a release order from release requested to release held: the workflows set the status, which nobody changes by hand.
+%%field ReleaseOrder.release_requested_at help: When the move to release requested was recorded on this release order. Recording it moves a release order from release held to release requested: the workflows set the status, which nobody changes by hand.
+%%field ReleaseOrder.release_authorised_at help: When the move to release authorised was recorded on this release order. Recording it moves a release order from release requested to release authorised: the workflows set the status, which nobody changes by hand.
+%%field ReleaseOrder.release_executed_at help: When the move to release executed was recorded on this release order. Recording it moves a release order from release authorised to release executed: the workflows set the status, which nobody changes by hand.
+%%field ReleaseOrder.release_revoked_at help: When the move to release revoked was recorded on this release order. Recording it moves a release order from release authorised to release revoked: the workflows set the status, which nobody changes by hand.
+%%field ReleaseOrder.release_expired_at help: When the move to release expired was recorded on this release order. Recording it moves a release order from release authorised to release expired: the workflows set the status, which nobody changes by hand.
+%%section entity: ReleaseOrder; name: Progress; help: The times that move this release order along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: release_held_at, release_requested_at | release_authorised_at, release_executed_at | release_revoked_at, release_expired_at
+
+%%meta name: Release Order release held move
+%%meta kind: workflow
+%%workflow ReleaseOrderReleaseHeldMove entity: ReleaseOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to release held recorded]) --> B[Set the status to release held]
+    B --> C[Clear release requested at for the next move]
+    C --> Z([Release Held])
+
+    %%step B UpdateEntity field: status value: release_held
+    %%step C UpdateEntity field: release_requested_at value: null
+
+%%meta name: Release Order release requested move
+%%meta kind: workflow
+%%workflow ReleaseOrderReleaseRequestedMove entity: ReleaseOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to release requested recorded]) --> B[Set the status to release requested]
+    B --> C[Clear release held at for the next move]
+    C --> D[Clear release authorised at for the next move]
+    D --> Z([Release Requested])
+
+    %%step B UpdateEntity field: status value: release_requested
+    %%step C UpdateEntity field: release_held_at value: null
+    %%step D UpdateEntity field: release_authorised_at value: null
+
+%%meta name: Release Order release authorised move
+%%meta kind: workflow
+%%workflow ReleaseOrderReleaseAuthorisedMove entity: ReleaseOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to release authorised recorded]) --> B[Set the status to release authorised]
+    B --> C[Clear release executed at for the next move]
+    C --> D[Clear release revoked at for the next move]
+    D --> E[Clear release expired at for the next move]
+    E --> Z([Release Authorised])
+
+    %%step B UpdateEntity field: status value: release_authorised
+    %%step C UpdateEntity field: release_executed_at value: null
+    %%step D UpdateEntity field: release_revoked_at value: null
+    %%step E UpdateEntity field: release_expired_at value: null
+
+%%meta name: Release Order release executed move
+%%meta kind: workflow
+%%workflow ReleaseOrderReleaseExecutedMove entity: ReleaseOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to release executed recorded]) --> B[Set the status to release executed]
+    B --> Z([Release Executed])
+
+    %%step B UpdateEntity field: status value: release_executed
+
+%%meta name: Release Order release revoked move
+%%meta kind: workflow
+%%workflow ReleaseOrderReleaseRevokedMove entity: ReleaseOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to release revoked recorded]) --> B[Set the status to release revoked]
+    B --> Z([Release Revoked])
+
+    %%step B UpdateEntity field: status value: release_revoked
+
+%%meta name: Release Order release expired move
+%%meta kind: workflow
+%%workflow ReleaseOrderReleaseExpiredMove entity: ReleaseOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to release expired recorded]) --> B[Set the status to release expired]
+    B --> Z([Release Expired])
+
+    %%step B UpdateEntity field: status value: release_expired
+
+%%meta name: Release Order State Progress
+%%meta kind: rules
+%%rule releaseOrderStateProgress on ReleaseOrder event: beforeUpdate priority: 90
+flowchart TD
+    A([Release Order updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveReleaseRequestedToReleaseHeld trigger-workflow when: status == "release_requested" and release_held_at != null workflow: ReleaseOrderReleaseHeldMove
+    %%action moveReleaseHeldToReleaseRequested trigger-workflow when: status == "release_held" and release_requested_at != null workflow: ReleaseOrderReleaseRequestedMove
+    %%action moveReleaseRequestedToReleaseAuthorised trigger-workflow when: status == "release_requested" and release_authorised_at != null workflow: ReleaseOrderReleaseAuthorisedMove
+    %%action moveReleaseAuthorisedToReleaseExecuted trigger-workflow when: status == "release_authorised" and release_executed_at != null workflow: ReleaseOrderReleaseExecutedMove
+    %%action moveReleaseAuthorisedToReleaseRevoked trigger-workflow when: status == "release_authorised" and release_revoked_at != null workflow: ReleaseOrderReleaseRevokedMove
+    %%action moveReleaseAuthorisedToReleaseExpired trigger-workflow when: status == "release_authorised" and release_expired_at != null workflow: ReleaseOrderReleaseExpiredMove
+%%field Delivery.delivery_dispatched_at help: When the move to delivery dispatched was recorded on this delivery. Recording it moves a delivery from delivery planned to delivery dispatched: the workflows set the status, which nobody changes by hand.
+%%field Delivery.delivery_failed_at help: When the move to delivery failed was recorded on this delivery. Recording it moves a delivery from delivery dispatched to delivery failed: the workflows set the status, which nobody changes by hand.
+%%field Delivery.delivery_planned_at help: When the move to delivery planned was recorded on this delivery. Recording it moves a delivery from delivery failed to delivery planned: the workflows set the status, which nobody changes by hand.
+%%field Delivery.delivery_partial_at help: When the move to delivery partial was recorded on this delivery. Recording it moves a delivery from delivery dispatched to delivery partial: the workflows set the status, which nobody changes by hand.
+%%field Delivery.delivery_complete_at help: When the move to delivery complete was recorded on this delivery. Recording it moves a delivery from delivery dispatched or delivery partial to delivery complete: the workflows set the status, which nobody changes by hand.
+%%field Delivery.delivery_cancelled_at help: When the move to delivery cancelled was recorded on this delivery. Recording it moves a delivery from delivery planned or delivery failed to delivery cancelled: the workflows set the status, which nobody changes by hand.
+%%section entity: Delivery; name: Progress; help: The times that move this delivery along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: delivery_dispatched_at, delivery_failed_at | delivery_planned_at, delivery_partial_at | delivery_complete_at, delivery_cancelled_at
+
+%%meta name: Delivery delivery dispatched move
+%%meta kind: workflow
+%%workflow DeliveryDeliveryDispatchedMove entity: Delivery kind: saga trigger: rule
+flowchart TD
+    A([Move to delivery dispatched recorded]) --> B[Set the status to delivery dispatched]
+    B --> C[Clear delivery failed at for the next move]
+    C --> D[Clear delivery partial at for the next move]
+    D --> E[Clear delivery complete at for the next move]
+    E --> Z([Delivery Dispatched])
+
+    %%step B UpdateEntity field: status value: delivery_dispatched
+    %%step C UpdateEntity field: delivery_failed_at value: null
+    %%step D UpdateEntity field: delivery_partial_at value: null
+    %%step E UpdateEntity field: delivery_complete_at value: null
+
+%%meta name: Delivery delivery failed move
+%%meta kind: workflow
+%%workflow DeliveryDeliveryFailedMove entity: Delivery kind: saga trigger: rule
+flowchart TD
+    A([Move to delivery failed recorded]) --> B[Set the status to delivery failed]
+    B --> C[Clear delivery planned at for the next move]
+    C --> D[Clear delivery cancelled at for the next move]
+    D --> Z([Delivery Failed])
+
+    %%step B UpdateEntity field: status value: delivery_failed
+    %%step C UpdateEntity field: delivery_planned_at value: null
+    %%step D UpdateEntity field: delivery_cancelled_at value: null
+
+%%meta name: Delivery delivery planned move
+%%meta kind: workflow
+%%workflow DeliveryDeliveryPlannedMove entity: Delivery kind: saga trigger: rule
+flowchart TD
+    A([Move to delivery planned recorded]) --> B[Set the status to delivery planned]
+    B --> C[Clear delivery dispatched at for the next move]
+    C --> D[Clear delivery cancelled at for the next move]
+    D --> Z([Delivery Planned])
+
+    %%step B UpdateEntity field: status value: delivery_planned
+    %%step C UpdateEntity field: delivery_dispatched_at value: null
+    %%step D UpdateEntity field: delivery_cancelled_at value: null
+
+%%meta name: Delivery delivery partial move
+%%meta kind: workflow
+%%workflow DeliveryDeliveryPartialMove entity: Delivery kind: saga trigger: rule
+flowchart TD
+    A([Move to delivery partial recorded]) --> B[Set the status to delivery partial]
+    B --> C[Clear delivery complete at for the next move]
+    C --> Z([Delivery Partial])
+
+    %%step B UpdateEntity field: status value: delivery_partial
+    %%step C UpdateEntity field: delivery_complete_at value: null
+
+%%meta name: Delivery delivery complete move
+%%meta kind: workflow
+%%workflow DeliveryDeliveryCompleteMove entity: Delivery kind: saga trigger: rule
+flowchart TD
+    A([Move to delivery complete recorded]) --> B[Set the status to delivery complete]
+    B --> Z([Delivery Complete])
+
+    %%step B UpdateEntity field: status value: delivery_complete
+
+%%meta name: Delivery delivery cancelled move
+%%meta kind: workflow
+%%workflow DeliveryDeliveryCancelledMove entity: Delivery kind: saga trigger: rule
+flowchart TD
+    A([Move to delivery cancelled recorded]) --> B[Set the status to delivery cancelled]
+    B --> Z([Delivery Cancelled])
+
+    %%step B UpdateEntity field: status value: delivery_cancelled
+
+%%meta name: Delivery State Progress
+%%meta kind: rules
+%%rule deliveryStateProgress on Delivery event: beforeUpdate priority: 90
+flowchart TD
+    A([Delivery updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveDeliveryPlannedToDeliveryDispatched trigger-workflow when: status == "delivery_planned" and delivery_dispatched_at != null workflow: DeliveryDeliveryDispatchedMove
+    %%action moveDeliveryDispatchedToDeliveryFailed trigger-workflow when: status == "delivery_dispatched" and delivery_failed_at != null workflow: DeliveryDeliveryFailedMove
+    %%action moveDeliveryFailedToDeliveryPlanned trigger-workflow when: status == "delivery_failed" and delivery_planned_at != null workflow: DeliveryDeliveryPlannedMove
+    %%action moveDeliveryDispatchedToDeliveryPartial trigger-workflow when: status == "delivery_dispatched" and delivery_partial_at != null workflow: DeliveryDeliveryPartialMove
+    %%action moveDeliveryDispatchedToDeliveryComplete trigger-workflow when: status == "delivery_dispatched" and delivery_complete_at != null workflow: DeliveryDeliveryCompleteMove
+    %%action moveDeliveryPartialToDeliveryComplete trigger-workflow when: status == "delivery_partial" and delivery_complete_at != null workflow: DeliveryDeliveryCompleteMove
+    %%action moveDeliveryPlannedToDeliveryCancelled trigger-workflow when: status == "delivery_planned" and delivery_cancelled_at != null workflow: DeliveryDeliveryCancelledMove
+    %%action moveDeliveryFailedToDeliveryCancelled trigger-workflow when: status == "delivery_failed" and delivery_cancelled_at != null workflow: DeliveryDeliveryCancelledMove
+%%field StorageCharge.storage_reviewed_at help: When the move to storage reviewed was recorded on this storage charge. Recording it moves a storage charge from storage estimated to storage reviewed: the workflows set the status, which nobody changes by hand.
+%%field StorageCharge.storage_agreed_at help: When the move to storage agreed was recorded on this storage charge. Recording it moves a storage charge from storage reviewed or storage disputed to storage agreed: the workflows set the status, which nobody changes by hand.
+%%field StorageCharge.storage_disputed_at help: When the move to storage disputed was recorded on this storage charge. Recording it moves a storage charge from storage reviewed to storage disputed: the workflows set the status, which nobody changes by hand.
+%%field StorageCharge.storage_waived_at help: When the move to storage waived was recorded on this storage charge. Recording it moves a storage charge from storage disputed or storage reviewed to storage waived: the workflows set the status, which nobody changes by hand.
+%%section entity: StorageCharge; name: Progress; help: The times that move this storage charge along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: storage_reviewed_at, storage_agreed_at | storage_disputed_at, storage_waived_at
+
+%%meta name: Storage Charge storage reviewed move
+%%meta kind: workflow
+%%workflow StorageChargeStorageReviewedMove entity: StorageCharge kind: saga trigger: rule
+flowchart TD
+    A([Move to storage reviewed recorded]) --> B[Set the status to storage reviewed]
+    B --> C[Clear storage agreed at for the next move]
+    C --> D[Clear storage disputed at for the next move]
+    D --> E[Clear storage waived at for the next move]
+    E --> Z([Storage Reviewed])
+
+    %%step B UpdateEntity field: status value: storage_reviewed
+    %%step C UpdateEntity field: storage_agreed_at value: null
+    %%step D UpdateEntity field: storage_disputed_at value: null
+    %%step E UpdateEntity field: storage_waived_at value: null
+
+%%meta name: Storage Charge storage agreed move
+%%meta kind: workflow
+%%workflow StorageChargeStorageAgreedMove entity: StorageCharge kind: saga trigger: rule
+flowchart TD
+    A([Move to storage agreed recorded]) --> B[Set the status to storage agreed]
+    B --> Z([Storage Agreed])
+
+    %%step B UpdateEntity field: status value: storage_agreed
+
+%%meta name: Storage Charge storage disputed move
+%%meta kind: workflow
+%%workflow StorageChargeStorageDisputedMove entity: StorageCharge kind: saga trigger: rule
+flowchart TD
+    A([Move to storage disputed recorded]) --> B[Set the status to storage disputed]
+    B --> C[Clear storage agreed at for the next move]
+    C --> D[Clear storage waived at for the next move]
+    D --> Z([Storage Disputed])
+
+    %%step B UpdateEntity field: status value: storage_disputed
+    %%step C UpdateEntity field: storage_agreed_at value: null
+    %%step D UpdateEntity field: storage_waived_at value: null
+
+%%meta name: Storage Charge storage waived move
+%%meta kind: workflow
+%%workflow StorageChargeStorageWaivedMove entity: StorageCharge kind: saga trigger: rule
+flowchart TD
+    A([Move to storage waived recorded]) --> B[Set the status to storage waived]
+    B --> Z([Storage Waived])
+
+    %%step B UpdateEntity field: status value: storage_waived
+
+%%meta name: Storage Charge State Progress
+%%meta kind: rules
+%%rule storageChargeStateProgress on StorageCharge event: beforeUpdate priority: 90
+flowchart TD
+    A([Storage Charge updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveStorageEstimatedToStorageReviewed trigger-workflow when: status == "storage_estimated" and storage_reviewed_at != null workflow: StorageChargeStorageReviewedMove
+    %%action moveStorageReviewedToStorageAgreed trigger-workflow when: status == "storage_reviewed" and storage_agreed_at != null workflow: StorageChargeStorageAgreedMove
+    %%action moveStorageReviewedToStorageDisputed trigger-workflow when: status == "storage_reviewed" and storage_disputed_at != null workflow: StorageChargeStorageDisputedMove
+    %%action moveStorageDisputedToStorageAgreed trigger-workflow when: status == "storage_disputed" and storage_agreed_at != null workflow: StorageChargeStorageAgreedMove
+    %%action moveStorageDisputedToStorageWaived trigger-workflow when: status == "storage_disputed" and storage_waived_at != null workflow: StorageChargeStorageWaivedMove
+    %%action moveStorageReviewedToStorageWaived trigger-workflow when: status == "storage_reviewed" and storage_waived_at != null workflow: StorageChargeStorageWaivedMove
+%%field Invoice.invoice_review_at help: When the move to invoice review was recorded on this invoice. Recording it moves an invoice from invoice draft to invoice review: the workflows set the status, which nobody changes by hand.
+%%field Invoice.invoice_draft_at help: When the move to invoice draft was recorded on this invoice. Recording it moves an invoice from invoice review to invoice draft: the workflows set the status, which nobody changes by hand.
+%%field Invoice.invoice_posted_at help: When the move to invoice posted was recorded on this invoice. Recording it moves an invoice from invoice review, invoice partial or invoice settled to invoice posted: the workflows set the status, which nobody changes by hand.
+%%field Invoice.invoice_partial_at help: When the move to invoice partial was recorded on this invoice. Recording it moves an invoice from invoice posted or invoice settled to invoice partial: the workflows set the status, which nobody changes by hand.
+%%field Invoice.invoice_settled_at help: When the move to invoice settled was recorded on this invoice. Recording it moves an invoice from invoice posted or invoice partial to invoice settled: the workflows set the status, which nobody changes by hand.
+%%field Invoice.invoice_void_at help: When the move to invoice void was recorded on this invoice. Recording it moves an invoice from invoice draft or invoice review to invoice void: the workflows set the status, which nobody changes by hand.
+%%section entity: Invoice; name: Progress; help: The times that move this invoice along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: invoice_review_at, invoice_draft_at | invoice_posted_at, invoice_partial_at | invoice_settled_at, invoice_void_at
+
+%%meta name: Invoice invoice review move
+%%meta kind: workflow
+%%workflow InvoiceInvoiceReviewMove entity: Invoice kind: saga trigger: rule
+flowchart TD
+    A([Move to invoice review recorded]) --> B[Set the status to invoice review]
+    B --> C[Clear invoice draft at for the next move]
+    C --> D[Clear invoice posted at for the next move]
+    D --> E[Clear invoice void at for the next move]
+    E --> Z([Invoice Review])
+
+    %%step B UpdateEntity field: status value: invoice_review
+    %%step C UpdateEntity field: invoice_draft_at value: null
+    %%step D UpdateEntity field: invoice_posted_at value: null
+    %%step E UpdateEntity field: invoice_void_at value: null
+
+%%meta name: Invoice invoice draft move
+%%meta kind: workflow
+%%workflow InvoiceInvoiceDraftMove entity: Invoice kind: saga trigger: rule
+flowchart TD
+    A([Move to invoice draft recorded]) --> B[Set the status to invoice draft]
+    B --> C[Clear invoice review at for the next move]
+    C --> D[Clear invoice void at for the next move]
+    D --> Z([Invoice Draft])
+
+    %%step B UpdateEntity field: status value: invoice_draft
+    %%step C UpdateEntity field: invoice_review_at value: null
+    %%step D UpdateEntity field: invoice_void_at value: null
+
+%%meta name: Invoice invoice posted move
+%%meta kind: workflow
+%%workflow InvoiceInvoicePostedMove entity: Invoice kind: saga trigger: rule
+flowchart TD
+    A([Move to invoice posted recorded]) --> B[Set the status to invoice posted]
+    B --> C[Clear invoice partial at for the next move]
+    C --> D[Clear invoice settled at for the next move]
+    D --> Z([Invoice Posted])
+
+    %%step B UpdateEntity field: status value: invoice_posted
+    %%step C UpdateEntity field: invoice_partial_at value: null
+    %%step D UpdateEntity field: invoice_settled_at value: null
+
+%%meta name: Invoice invoice partial move
+%%meta kind: workflow
+%%workflow InvoiceInvoicePartialMove entity: Invoice kind: saga trigger: rule
+flowchart TD
+    A([Move to invoice partial recorded]) --> B[Set the status to invoice partial]
+    B --> C[Clear invoice settled at for the next move]
+    C --> D[Clear invoice posted at for the next move]
+    D --> Z([Invoice Partial])
+
+    %%step B UpdateEntity field: status value: invoice_partial
+    %%step C UpdateEntity field: invoice_settled_at value: null
+    %%step D UpdateEntity field: invoice_posted_at value: null
+
+%%meta name: Invoice invoice settled move
+%%meta kind: workflow
+%%workflow InvoiceInvoiceSettledMove entity: Invoice kind: saga trigger: rule
+flowchart TD
+    A([Move to invoice settled recorded]) --> B[Set the status to invoice settled]
+    B --> C[Clear invoice partial at for the next move]
+    C --> D[Clear invoice posted at for the next move]
+    D --> Z([Invoice Settled])
+
+    %%step B UpdateEntity field: status value: invoice_settled
+    %%step C UpdateEntity field: invoice_partial_at value: null
+    %%step D UpdateEntity field: invoice_posted_at value: null
+
+%%meta name: Invoice invoice void move
+%%meta kind: workflow
+%%workflow InvoiceInvoiceVoidMove entity: Invoice kind: saga trigger: rule
+flowchart TD
+    A([Move to invoice void recorded]) --> B[Set the status to invoice void]
+    B --> Z([Invoice Void])
+
+    %%step B UpdateEntity field: status value: invoice_void
+
+%%meta name: Invoice State Progress
+%%meta kind: rules
+%%rule invoiceStateProgress on Invoice event: beforeUpdate priority: 90
+flowchart TD
+    A([Invoice updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveInvoiceDraftToInvoiceReview trigger-workflow when: status == "invoice_draft" and invoice_review_at != null workflow: InvoiceInvoiceReviewMove
+    %%action moveInvoiceReviewToInvoiceDraft trigger-workflow when: status == "invoice_review" and invoice_draft_at != null workflow: InvoiceInvoiceDraftMove
+    %%action moveInvoiceReviewToInvoicePosted trigger-workflow when: status == "invoice_review" and invoice_posted_at != null workflow: InvoiceInvoicePostedMove
+    %%action moveInvoicePostedToInvoicePartial trigger-workflow when: status == "invoice_posted" and invoice_partial_at != null workflow: InvoiceInvoicePartialMove
+    %%action moveInvoicePostedToInvoiceSettled trigger-workflow when: status == "invoice_posted" and invoice_settled_at != null workflow: InvoiceInvoiceSettledMove
+    %%action moveInvoicePartialToInvoiceSettled trigger-workflow when: status == "invoice_partial" and invoice_settled_at != null workflow: InvoiceInvoiceSettledMove
+    %%action moveInvoicePartialToInvoicePosted trigger-workflow when: status == "invoice_partial" and invoice_posted_at != null workflow: InvoiceInvoicePostedMove
+    %%action moveInvoiceSettledToInvoicePartial trigger-workflow when: status == "invoice_settled" and invoice_partial_at != null workflow: InvoiceInvoicePartialMove
+    %%action moveInvoiceSettledToInvoicePosted trigger-workflow when: status == "invoice_settled" and invoice_posted_at != null workflow: InvoiceInvoicePostedMove
+    %%action moveInvoiceDraftToInvoiceVoid trigger-workflow when: status == "invoice_draft" and invoice_void_at != null workflow: InvoiceInvoiceVoidMove
+    %%action moveInvoiceReviewToInvoiceVoid trigger-workflow when: status == "invoice_review" and invoice_void_at != null workflow: InvoiceInvoiceVoidMove
+%%field Settlement.cash_review_at help: When the move to cash review was recorded on this settlement. Recording it moves a settlement from cash draft to cash review: the workflows set the status, which nobody changes by hand.
+%%field Settlement.cash_draft_at help: When the move to cash draft was recorded on this settlement. Recording it moves a settlement from cash review to cash draft: the workflows set the status, which nobody changes by hand.
+%%field Settlement.cash_posted_at help: When the move to cash posted was recorded on this settlement. Recording it moves a settlement from cash review to cash posted: the workflows set the status, which nobody changes by hand.
+%%field Settlement.cash_reversed_at help: When the move to cash reversed was recorded on this settlement. Recording it moves a settlement from cash posted to cash reversed: the workflows set the status, which nobody changes by hand.
+%%section entity: Settlement; name: Progress; help: The times that move this settlement along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: cash_review_at, cash_draft_at | cash_posted_at, cash_reversed_at
+
+%%meta name: Settlement cash review move
+%%meta kind: workflow
+%%workflow SettlementCashReviewMove entity: Settlement kind: saga trigger: rule
+flowchart TD
+    A([Move to cash review recorded]) --> B[Set the status to cash review]
+    B --> C[Clear cash draft at for the next move]
+    C --> D[Clear cash posted at for the next move]
+    D --> Z([Cash Review])
+
+    %%step B UpdateEntity field: status value: cash_review
+    %%step C UpdateEntity field: cash_draft_at value: null
+    %%step D UpdateEntity field: cash_posted_at value: null
+
+%%meta name: Settlement cash draft move
+%%meta kind: workflow
+%%workflow SettlementCashDraftMove entity: Settlement kind: saga trigger: rule
+flowchart TD
+    A([Move to cash draft recorded]) --> B[Set the status to cash draft]
+    B --> C[Clear cash review at for the next move]
+    C --> Z([Cash Draft])
+
+    %%step B UpdateEntity field: status value: cash_draft
+    %%step C UpdateEntity field: cash_review_at value: null
+
+%%meta name: Settlement cash posted move
+%%meta kind: workflow
+%%workflow SettlementCashPostedMove entity: Settlement kind: saga trigger: rule
+flowchart TD
+    A([Move to cash posted recorded]) --> B[Set the status to cash posted]
+    B --> C[Clear cash reversed at for the next move]
+    C --> Z([Cash Posted])
+
+    %%step B UpdateEntity field: status value: cash_posted
+    %%step C UpdateEntity field: cash_reversed_at value: null
+
+%%meta name: Settlement cash reversed move
+%%meta kind: workflow
+%%workflow SettlementCashReversedMove entity: Settlement kind: saga trigger: rule
+flowchart TD
+    A([Move to cash reversed recorded]) --> B[Set the status to cash reversed]
+    B --> Z([Cash Reversed])
+
+    %%step B UpdateEntity field: status value: cash_reversed
+
+%%meta name: Settlement State Progress
+%%meta kind: rules
+%%rule settlementStateProgress on Settlement event: beforeUpdate priority: 90
+flowchart TD
+    A([Settlement updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveCashDraftToCashReview trigger-workflow when: status == "cash_draft" and cash_review_at != null workflow: SettlementCashReviewMove
+    %%action moveCashReviewToCashDraft trigger-workflow when: status == "cash_review" and cash_draft_at != null workflow: SettlementCashDraftMove
+    %%action moveCashReviewToCashPosted trigger-workflow when: status == "cash_review" and cash_posted_at != null workflow: SettlementCashPostedMove
+    %%action moveCashPostedToCashReversed trigger-workflow when: status == "cash_posted" and cash_reversed_at != null workflow: SettlementCashReversedMove
+%%field Allocation.allocation_posted_at help: When the move to allocation posted was recorded on this allocation. Recording it moves an allocation from allocation draft to allocation posted: the workflows set the status, which nobody changes by hand.
+%%field Allocation.allocation_reversed_at help: When the move to allocation reversed was recorded on this allocation. Recording it moves an allocation from allocation posted to allocation reversed: the workflows set the status, which nobody changes by hand.
+%%section entity: Allocation; name: Progress; help: The times that move this allocation along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: allocation_posted_at, allocation_reversed_at
+
+%%meta name: Allocation allocation posted move
+%%meta kind: workflow
+%%workflow AllocationAllocationPostedMove entity: Allocation kind: saga trigger: rule
+flowchart TD
+    A([Move to allocation posted recorded]) --> B[Set the status to allocation posted]
+    B --> C[Clear allocation reversed at for the next move]
+    C --> Z([Allocation Posted])
+
+    %%step B UpdateEntity field: status value: allocation_posted
+    %%step C UpdateEntity field: allocation_reversed_at value: null
+
+%%meta name: Allocation allocation reversed move
+%%meta kind: workflow
+%%workflow AllocationAllocationReversedMove entity: Allocation kind: saga trigger: rule
+flowchart TD
+    A([Move to allocation reversed recorded]) --> B[Set the status to allocation reversed]
+    B --> Z([Allocation Reversed])
+
+    %%step B UpdateEntity field: status value: allocation_reversed
+
+%%meta name: Allocation State Progress
+%%meta kind: rules
+%%rule allocationStateProgress on Allocation event: beforeUpdate priority: 90
+flowchart TD
+    A([Allocation updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveAllocationDraftToAllocationPosted trigger-workflow when: status == "allocation_draft" and allocation_posted_at != null workflow: AllocationAllocationPostedMove
+    %%action moveAllocationPostedToAllocationReversed trigger-workflow when: status == "allocation_posted" and allocation_reversed_at != null workflow: AllocationAllocationReversedMove
+%%field CostAccrual.accrual_approved_at help: When the move to accrual approved was recorded on this cost accrual. Recording it moves a cost accrual from accrual open to accrual approved: the workflows set the status, which nobody changes by hand.
+%%field CostAccrual.accrual_partial_at help: When the move to accrual partial was recorded on this cost accrual. Recording it moves a cost accrual from accrual approved to accrual partial: the workflows set the status, which nobody changes by hand.
+%%field CostAccrual.accrual_matched_at help: When the move to accrual matched was recorded on this cost accrual. Recording it moves a cost accrual from accrual approved or accrual partial to accrual matched: the workflows set the status, which nobody changes by hand.
+%%field CostAccrual.accrual_cancelled_at help: When the move to accrual cancelled was recorded on this cost accrual. Recording it moves a cost accrual from accrual open or accrual approved to accrual cancelled: the workflows set the status, which nobody changes by hand.
+%%section entity: CostAccrual; name: Progress; help: The times that move this cost accrual along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: accrual_approved_at, accrual_partial_at | accrual_matched_at, accrual_cancelled_at
+
+%%meta name: Cost Accrual accrual approved move
+%%meta kind: workflow
+%%workflow CostAccrualAccrualApprovedMove entity: CostAccrual kind: saga trigger: rule
+flowchart TD
+    A([Move to accrual approved recorded]) --> B[Set the status to accrual approved]
+    B --> C[Clear accrual partial at for the next move]
+    C --> D[Clear accrual matched at for the next move]
+    D --> E[Clear accrual cancelled at for the next move]
+    E --> Z([Accrual Approved])
+
+    %%step B UpdateEntity field: status value: accrual_approved
+    %%step C UpdateEntity field: accrual_partial_at value: null
+    %%step D UpdateEntity field: accrual_matched_at value: null
+    %%step E UpdateEntity field: accrual_cancelled_at value: null
+
+%%meta name: Cost Accrual accrual partial move
+%%meta kind: workflow
+%%workflow CostAccrualAccrualPartialMove entity: CostAccrual kind: saga trigger: rule
+flowchart TD
+    A([Move to accrual partial recorded]) --> B[Set the status to accrual partial]
+    B --> C[Clear accrual matched at for the next move]
+    C --> Z([Accrual Partial])
+
+    %%step B UpdateEntity field: status value: accrual_partial
+    %%step C UpdateEntity field: accrual_matched_at value: null
+
+%%meta name: Cost Accrual accrual matched move
+%%meta kind: workflow
+%%workflow CostAccrualAccrualMatchedMove entity: CostAccrual kind: saga trigger: rule
+flowchart TD
+    A([Move to accrual matched recorded]) --> B[Set the status to accrual matched]
+    B --> Z([Accrual Matched])
+
+    %%step B UpdateEntity field: status value: accrual_matched
+
+%%meta name: Cost Accrual accrual cancelled move
+%%meta kind: workflow
+%%workflow CostAccrualAccrualCancelledMove entity: CostAccrual kind: saga trigger: rule
+flowchart TD
+    A([Move to accrual cancelled recorded]) --> B[Set the status to accrual cancelled]
+    B --> Z([Accrual Cancelled])
+
+    %%step B UpdateEntity field: status value: accrual_cancelled
+
+%%meta name: Cost Accrual State Progress
+%%meta kind: rules
+%%rule costAccrualStateProgress on CostAccrual event: beforeUpdate priority: 90
+flowchart TD
+    A([Cost Accrual updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveAccrualOpenToAccrualApproved trigger-workflow when: status == "accrual_open" and accrual_approved_at != null workflow: CostAccrualAccrualApprovedMove
+    %%action moveAccrualApprovedToAccrualPartial trigger-workflow when: status == "accrual_approved" and accrual_partial_at != null workflow: CostAccrualAccrualPartialMove
+    %%action moveAccrualApprovedToAccrualMatched trigger-workflow when: status == "accrual_approved" and accrual_matched_at != null workflow: CostAccrualAccrualMatchedMove
+    %%action moveAccrualPartialToAccrualMatched trigger-workflow when: status == "accrual_partial" and accrual_matched_at != null workflow: CostAccrualAccrualMatchedMove
+    %%action moveAccrualOpenToAccrualCancelled trigger-workflow when: status == "accrual_open" and accrual_cancelled_at != null workflow: CostAccrualAccrualCancelledMove
+    %%action moveAccrualApprovedToAccrualCancelled trigger-workflow when: status == "accrual_approved" and accrual_cancelled_at != null workflow: CostAccrualAccrualCancelledMove
+%%field SupplierStatement.statement_review_at help: When the move to statement review was recorded on this supplier statement. Recording it moves a supplier statement from statement received or statement disputed to statement review: the workflows set the status, which nobody changes by hand.
+%%field SupplierStatement.statement_disputed_at help: When the move to statement disputed was recorded on this supplier statement. Recording it moves a supplier statement from statement review to statement disputed: the workflows set the status, which nobody changes by hand.
+%%field SupplierStatement.statement_agreed_at help: When the move to statement agreed was recorded on this supplier statement. Recording it moves a supplier statement from statement review to statement agreed: the workflows set the status, which nobody changes by hand.
+%%section entity: SupplierStatement; name: Progress; help: The times that move this supplier statement along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: statement_review_at, statement_disputed_at | statement_agreed_at
+
+%%meta name: Supplier Statement statement review move
+%%meta kind: workflow
+%%workflow SupplierStatementStatementReviewMove entity: SupplierStatement kind: saga trigger: rule
+flowchart TD
+    A([Move to statement review recorded]) --> B[Set the status to statement review]
+    B --> C[Clear statement disputed at for the next move]
+    C --> D[Clear statement agreed at for the next move]
+    D --> Z([Statement Review])
+
+    %%step B UpdateEntity field: status value: statement_review
+    %%step C UpdateEntity field: statement_disputed_at value: null
+    %%step D UpdateEntity field: statement_agreed_at value: null
+
+%%meta name: Supplier Statement statement disputed move
+%%meta kind: workflow
+%%workflow SupplierStatementStatementDisputedMove entity: SupplierStatement kind: saga trigger: rule
+flowchart TD
+    A([Move to statement disputed recorded]) --> B[Set the status to statement disputed]
+    B --> C[Clear statement review at for the next move]
+    C --> Z([Statement Disputed])
+
+    %%step B UpdateEntity field: status value: statement_disputed
+    %%step C UpdateEntity field: statement_review_at value: null
+
+%%meta name: Supplier Statement statement agreed move
+%%meta kind: workflow
+%%workflow SupplierStatementStatementAgreedMove entity: SupplierStatement kind: saga trigger: rule
+flowchart TD
+    A([Move to statement agreed recorded]) --> B[Set the status to statement agreed]
+    B --> Z([Statement Agreed])
+
+    %%step B UpdateEntity field: status value: statement_agreed
+
+%%meta name: Supplier Statement State Progress
+%%meta kind: rules
+%%rule supplierStatementStateProgress on SupplierStatement event: beforeUpdate priority: 90
+flowchart TD
+    A([Supplier Statement updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveStatementReceivedToStatementReview trigger-workflow when: status == "statement_received" and statement_review_at != null workflow: SupplierStatementStatementReviewMove
+    %%action moveStatementReviewToStatementDisputed trigger-workflow when: status == "statement_review" and statement_disputed_at != null workflow: SupplierStatementStatementDisputedMove
+    %%action moveStatementDisputedToStatementReview trigger-workflow when: status == "statement_disputed" and statement_review_at != null workflow: SupplierStatementStatementReviewMove
+    %%action moveStatementReviewToStatementAgreed trigger-workflow when: status == "statement_review" and statement_agreed_at != null workflow: SupplierStatementStatementAgreedMove
+%%field Claim.claim_notified_at help: When the move to claim notified was recorded on this claim. Recording it moves a claim from claim open to claim notified: the workflows set the status, which nobody changes by hand.
+%%field Claim.claim_negotiating_at help: When the move to claim negotiating was recorded on this claim. Recording it moves a claim from claim notified to claim negotiating: the workflows set the status, which nobody changes by hand.
+%%field Claim.claim_rejected_at help: When the move to claim rejected was recorded on this claim. Recording it moves a claim from claim notified or claim negotiating to claim rejected: the workflows set the status, which nobody changes by hand.
+%%field Claim.claim_settled_at help: When the move to claim settled was recorded on this claim. Recording it moves a claim from claim negotiating to claim settled: the workflows set the status, which nobody changes by hand.
+%%field Claim.claim_withdrawn_at help: When the move to claim withdrawn was recorded on this claim. Recording it moves a claim from claim open, claim notified or claim negotiating to claim withdrawn: the workflows set the status, which nobody changes by hand.
+%%section entity: Claim; name: Progress; help: The times that move this claim along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: claim_notified_at, claim_negotiating_at | claim_rejected_at, claim_settled_at | claim_withdrawn_at
+
+%%meta name: Claim claim notified move
+%%meta kind: workflow
+%%workflow ClaimClaimNotifiedMove entity: Claim kind: saga trigger: rule
+flowchart TD
+    A([Move to claim notified recorded]) --> B[Set the status to claim notified]
+    B --> C[Clear claim negotiating at for the next move]
+    C --> D[Clear claim rejected at for the next move]
+    D --> E[Clear claim withdrawn at for the next move]
+    E --> Z([Claim Notified])
+
+    %%step B UpdateEntity field: status value: claim_notified
+    %%step C UpdateEntity field: claim_negotiating_at value: null
+    %%step D UpdateEntity field: claim_rejected_at value: null
+    %%step E UpdateEntity field: claim_withdrawn_at value: null
+
+%%meta name: Claim claim negotiating move
+%%meta kind: workflow
+%%workflow ClaimClaimNegotiatingMove entity: Claim kind: saga trigger: rule
+flowchart TD
+    A([Move to claim negotiating recorded]) --> B[Set the status to claim negotiating]
+    B --> C[Clear claim settled at for the next move]
+    C --> D[Clear claim rejected at for the next move]
+    D --> E[Clear claim withdrawn at for the next move]
+    E --> Z([Claim Negotiating])
+
+    %%step B UpdateEntity field: status value: claim_negotiating
+    %%step C UpdateEntity field: claim_settled_at value: null
+    %%step D UpdateEntity field: claim_rejected_at value: null
+    %%step E UpdateEntity field: claim_withdrawn_at value: null
+
+%%meta name: Claim claim rejected move
+%%meta kind: workflow
+%%workflow ClaimClaimRejectedMove entity: Claim kind: saga trigger: rule
+flowchart TD
+    A([Move to claim rejected recorded]) --> B[Set the status to claim rejected]
+    B --> Z([Claim Rejected])
+
+    %%step B UpdateEntity field: status value: claim_rejected
+
+%%meta name: Claim claim settled move
+%%meta kind: workflow
+%%workflow ClaimClaimSettledMove entity: Claim kind: saga trigger: rule
+flowchart TD
+    A([Move to claim settled recorded]) --> B[Set the status to claim settled]
+    B --> Z([Claim Settled])
+
+    %%step B UpdateEntity field: status value: claim_settled
+
+%%meta name: Claim claim withdrawn move
+%%meta kind: workflow
+%%workflow ClaimClaimWithdrawnMove entity: Claim kind: saga trigger: rule
+flowchart TD
+    A([Move to claim withdrawn recorded]) --> B[Set the status to claim withdrawn]
+    B --> Z([Claim Withdrawn])
+
+    %%step B UpdateEntity field: status value: claim_withdrawn
+
+%%meta name: Claim State Progress
+%%meta kind: rules
+%%rule claimStateProgress on Claim event: beforeUpdate priority: 90
+flowchart TD
+    A([Claim updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveClaimOpenToClaimNotified trigger-workflow when: status == "claim_open" and claim_notified_at != null workflow: ClaimClaimNotifiedMove
+    %%action moveClaimNotifiedToClaimNegotiating trigger-workflow when: status == "claim_notified" and claim_negotiating_at != null workflow: ClaimClaimNegotiatingMove
+    %%action moveClaimNotifiedToClaimRejected trigger-workflow when: status == "claim_notified" and claim_rejected_at != null workflow: ClaimClaimRejectedMove
+    %%action moveClaimNegotiatingToClaimSettled trigger-workflow when: status == "claim_negotiating" and claim_settled_at != null workflow: ClaimClaimSettledMove
+    %%action moveClaimNegotiatingToClaimRejected trigger-workflow when: status == "claim_negotiating" and claim_rejected_at != null workflow: ClaimClaimRejectedMove
+    %%action moveClaimOpenToClaimWithdrawn trigger-workflow when: status == "claim_open" and claim_withdrawn_at != null workflow: ClaimClaimWithdrawnMove
+    %%action moveClaimNotifiedToClaimWithdrawn trigger-workflow when: status == "claim_notified" and claim_withdrawn_at != null workflow: ClaimClaimWithdrawnMove
+    %%action moveClaimNegotiatingToClaimWithdrawn trigger-workflow when: status == "claim_negotiating" and claim_withdrawn_at != null workflow: ClaimClaimWithdrawnMove
+%%field Task.task_working_at help: When the move to task working was recorded on this task. Recording it moves a task from task open or task blocked to task working: the workflows set the status, which nobody changes by hand.
+%%field Task.task_blocked_at help: When the move to task blocked was recorded on this task. Recording it moves a task from task working to task blocked: the workflows set the status, which nobody changes by hand.
+%%field Task.task_done_at help: When the move to task done was recorded on this task. Recording it moves a task from task working to task done: the workflows set the status, which nobody changes by hand.
+%%field Task.task_cancelled_at help: When the move to task cancelled was recorded on this task. Recording it moves a task from task open, task working or task blocked to task cancelled: the workflows set the status, which nobody changes by hand.
+%%section entity: Task; name: Progress; help: The times that move this task along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: task_working_at, task_blocked_at | task_done_at, task_cancelled_at
+
+%%meta name: Task task working move
+%%meta kind: workflow
+%%workflow TaskTaskWorkingMove entity: Task kind: saga trigger: rule
+flowchart TD
+    A([Move to task working recorded]) --> B[Set the status to task working]
+    B --> C[Clear task blocked at for the next move]
+    C --> D[Clear task done at for the next move]
+    D --> E[Clear task cancelled at for the next move]
+    E --> Z([Task Working])
+
+    %%step B UpdateEntity field: status value: task_working
+    %%step C UpdateEntity field: task_blocked_at value: null
+    %%step D UpdateEntity field: task_done_at value: null
+    %%step E UpdateEntity field: task_cancelled_at value: null
+
+%%meta name: Task task blocked move
+%%meta kind: workflow
+%%workflow TaskTaskBlockedMove entity: Task kind: saga trigger: rule
+flowchart TD
+    A([Move to task blocked recorded]) --> B[Set the status to task blocked]
+    B --> C[Clear task working at for the next move]
+    C --> D[Clear task cancelled at for the next move]
+    D --> Z([Task Blocked])
+
+    %%step B UpdateEntity field: status value: task_blocked
+    %%step C UpdateEntity field: task_working_at value: null
+    %%step D UpdateEntity field: task_cancelled_at value: null
+
+%%meta name: Task task done move
+%%meta kind: workflow
+%%workflow TaskTaskDoneMove entity: Task kind: saga trigger: rule
+flowchart TD
+    A([Move to task done recorded]) --> B[Set the status to task done]
+    B --> Z([Task Done])
+
+    %%step B UpdateEntity field: status value: task_done
+
+%%meta name: Task task cancelled move
+%%meta kind: workflow
+%%workflow TaskTaskCancelledMove entity: Task kind: saga trigger: rule
+flowchart TD
+    A([Move to task cancelled recorded]) --> B[Set the status to task cancelled]
+    B --> Z([Task Cancelled])
+
+    %%step B UpdateEntity field: status value: task_cancelled
+
+%%meta name: Task State Progress
+%%meta kind: rules
+%%rule taskStateProgress on Task event: beforeUpdate priority: 90
+flowchart TD
+    A([Task updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveTaskOpenToTaskWorking trigger-workflow when: status == "task_open" and task_working_at != null workflow: TaskTaskWorkingMove
+    %%action moveTaskWorkingToTaskBlocked trigger-workflow when: status == "task_working" and task_blocked_at != null workflow: TaskTaskBlockedMove
+    %%action moveTaskBlockedToTaskWorking trigger-workflow when: status == "task_blocked" and task_working_at != null workflow: TaskTaskWorkingMove
+    %%action moveTaskWorkingToTaskDone trigger-workflow when: status == "task_working" and task_done_at != null workflow: TaskTaskDoneMove
+    %%action moveTaskOpenToTaskCancelled trigger-workflow when: status == "task_open" and task_cancelled_at != null workflow: TaskTaskCancelledMove
+    %%action moveTaskWorkingToTaskCancelled trigger-workflow when: status == "task_working" and task_cancelled_at != null workflow: TaskTaskCancelledMove
+    %%action moveTaskBlockedToTaskCancelled trigger-workflow when: status == "task_blocked" and task_cancelled_at != null workflow: TaskTaskCancelledMove
+%%field VgmDeclaration.vgm_submitted_at help: When the move to vgm submitted was recorded on this vgm declaration. Recording it moves a vgm declaration from vgm draft to vgm submitted: the workflows set the status, which nobody changes by hand.
+%%field VgmDeclaration.vgm_accepted_at help: When the move to vgm accepted was recorded on this vgm declaration. Recording it moves a vgm declaration from vgm submitted to vgm accepted: the workflows set the status, which nobody changes by hand.
+%%field VgmDeclaration.vgm_rejected_at help: When the move to vgm rejected was recorded on this vgm declaration. Recording it moves a vgm declaration from vgm submitted to vgm rejected: the workflows set the status, which nobody changes by hand.
+%%field VgmDeclaration.vgm_superseded_at help: When the move to vgm superseded was recorded on this vgm declaration. Recording it moves a vgm declaration from vgm accepted to vgm superseded: the workflows set the status, which nobody changes by hand.
+%%section entity: VgmDeclaration; name: Progress; help: The times that move this vgm declaration along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: vgm_submitted_at, vgm_accepted_at | vgm_rejected_at, vgm_superseded_at
+
+%%meta name: Vgm Declaration vgm submitted move
+%%meta kind: workflow
+%%workflow VgmDeclarationVgmSubmittedMove entity: VgmDeclaration kind: saga trigger: rule
+flowchart TD
+    A([Move to vgm submitted recorded]) --> B[Set the status to vgm submitted]
+    B --> C[Clear vgm accepted at for the next move]
+    C --> D[Clear vgm rejected at for the next move]
+    D --> Z([Vgm Submitted])
+
+    %%step B UpdateEntity field: status value: vgm_submitted
+    %%step C UpdateEntity field: vgm_accepted_at value: null
+    %%step D UpdateEntity field: vgm_rejected_at value: null
+
+%%meta name: Vgm Declaration vgm accepted move
+%%meta kind: workflow
+%%workflow VgmDeclarationVgmAcceptedMove entity: VgmDeclaration kind: saga trigger: rule
+flowchart TD
+    A([Move to vgm accepted recorded]) --> B[Set the status to vgm accepted]
+    B --> C[Clear vgm superseded at for the next move]
+    C --> Z([Vgm Accepted])
+
+    %%step B UpdateEntity field: status value: vgm_accepted
+    %%step C UpdateEntity field: vgm_superseded_at value: null
+
+%%meta name: Vgm Declaration vgm rejected move
+%%meta kind: workflow
+%%workflow VgmDeclarationVgmRejectedMove entity: VgmDeclaration kind: saga trigger: rule
+flowchart TD
+    A([Move to vgm rejected recorded]) --> B[Set the status to vgm rejected]
+    B --> Z([Vgm Rejected])
+
+    %%step B UpdateEntity field: status value: vgm_rejected
+
+%%meta name: Vgm Declaration vgm superseded move
+%%meta kind: workflow
+%%workflow VgmDeclarationVgmSupersededMove entity: VgmDeclaration kind: saga trigger: rule
+flowchart TD
+    A([Move to vgm superseded recorded]) --> B[Set the status to vgm superseded]
+    B --> Z([Vgm Superseded])
+
+    %%step B UpdateEntity field: status value: vgm_superseded
+
+%%meta name: Vgm Declaration State Progress
+%%meta kind: rules
+%%rule vgmDeclarationStateProgress on VgmDeclaration event: beforeUpdate priority: 90
+flowchart TD
+    A([Vgm Declaration updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveVgmDraftToVgmSubmitted trigger-workflow when: status == "vgm_draft" and vgm_submitted_at != null workflow: VgmDeclarationVgmSubmittedMove
+    %%action moveVgmSubmittedToVgmAccepted trigger-workflow when: status == "vgm_submitted" and vgm_accepted_at != null workflow: VgmDeclarationVgmAcceptedMove
+    %%action moveVgmSubmittedToVgmRejected trigger-workflow when: status == "vgm_submitted" and vgm_rejected_at != null workflow: VgmDeclarationVgmRejectedMove
+    %%action moveVgmAcceptedToVgmSuperseded trigger-workflow when: status == "vgm_accepted" and vgm_superseded_at != null workflow: VgmDeclarationVgmSupersededMove

@@ -165,7 +165,9 @@ if (!IS_NEST) {
     const operations = (body as { operations: unknown[] }).operations;
     const transitions = (body as { transitions: unknown[] }).transitions;
     expect(operations.length > 0, "no operation restrictions");
-    expect(transitions.length > 0, "no transition restrictions");
+    // A state is moved by background workflows only, so %%rbac grants no
+    // transition to anybody and none is seeded.
+    expect(transitions.length === 0, `transition restrictions were seeded: ${transitions.length}`);
   });
 }
 
@@ -233,6 +235,78 @@ await check("a record can be created", async () => {
   );
   accountId = String((body as { id?: string; data?: { id?: string } }).id ?? body.data?.id ?? "");
   expect(accountId && accountId !== "undefined", "the create returned no id");
+});
+
+/*
+ * The state field is system-managed. A lead's status starts at the machine's
+ * initial state whatever the create sent, a person's write may not change it
+ * (administrator included), and recording the fact a move depends on —
+ * `working_at` — is what moves it, through the rule and saga the model
+ * declares for that edge.
+ */
+let leadId = "";
+
+await check("a new record starts in its initial state, whatever the create sent", async () => {
+  const fields = rowsOf((await call("GET", "/bus/lead/fields/form")).body) as Array<{
+    column_name: string;
+    is_mandatory: boolean;
+    sys_reference_id: number;
+  }>;
+  expect(
+    !fields.some((field) => field.column_name === "status"),
+    "the state field is offered as a form input"
+  );
+  const record: Record<string, unknown> = { status: "qualified" };
+  for (const field of fields) {
+    if (!field.is_mandatory || field.column_name === "id") continue;
+    if (field.sys_reference_id >= 1000) {
+      const values = rowsOf(
+        (
+          await call(
+            "GET",
+            `/sys/ref-list?sys_reference_id=${field.sys_reference_id}&referenceId=${field.sys_reference_id}`
+          )
+        ).body
+      ) as Array<{ value: string }>;
+      expect(Boolean(values[0]?.value), `no ref-list values for ${field.column_name}`);
+      record[field.column_name] = values[0]!.value;
+    } else if (/_id$/.test(field.column_name)) {
+      record[field.column_name] = adminId;
+    } else if (/email/.test(field.column_name)) {
+      record[field.column_name] = `ci-${Date.now()}@example.com`;
+    } else {
+      record[field.column_name] = "CI";
+    }
+  }
+  const { status, body } = await call("POST", "/bus/lead", record);
+  expect(status === 200 || status === 201, `status ${status}: ${JSON.stringify(body).slice(0, 300)}`);
+  const created = ((body as { data?: Record<string, unknown> }).data ?? body) as Record<string, unknown>;
+  leadId = String(created.id ?? "");
+  expect(created.status === "new", `expected status "new", got ${JSON.stringify(created.status)}`);
+});
+
+await check("a person's change to the state is refused", async () => {
+  const { status, body } = await call("PATCH", `/bus/lead/${leadId}`, { status: "qualified" });
+  expect(status === 403, `expected 403, got ${status}`);
+  expect(
+    JSON.stringify(body).includes("STATE_FIELD_SYSTEM_MANAGED"),
+    `the refusal does not name STATE_FIELD_SYSTEM_MANAGED: ${JSON.stringify(body).slice(0, 300)}`
+  );
+});
+
+await check("recording the fact a move depends on moves the state", async () => {
+  const { status } = await call("PATCH", `/bus/lead/${leadId}`, {
+    working_at: new Date().toISOString(),
+  });
+  expect(status === 200, `the write was refused: ${status}`);
+  let now: unknown;
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const { body } = await call("GET", `/bus/lead/${leadId}`);
+    now = (((body as { data?: Record<string, unknown> }).data ?? body) as Record<string, unknown>).status;
+    if (now === "working") break;
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+  expect(now === "working", `expected the saga to move the lead to "working", got ${JSON.stringify(now)}`);
 });
 
 await check("the record comes back in a listing", async () => {

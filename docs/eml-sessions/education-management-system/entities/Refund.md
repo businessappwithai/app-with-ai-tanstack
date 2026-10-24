@@ -23,6 +23,10 @@
 | `invoice_status_after` | string | OPTIONAL | What the invoice becomes once this refund is paid, worked out by the refund hook: part_paid when money remains paid against it, issued when the refund returns all of it. Blank when the invoice stays as it is, as with an overdue, draft or cancelled invoice. The rule reads it because it can only see the record being written. |
 | `applied_to_invoice_at` | datetime | OPTIONAL | When the paid refund was taken off the invoice's amount paid. It is stamped once by the refund hook; while it is blank the refund has not reached the invoice, and once it is set no later edit applies it a second time. |
 | `reference` | string | OPTIONAL | The bank or payment-provider reference proving the repayment. Required where the channel supplies one. |
+| `under_review_at` | datetime | OPTIONAL | When the move to under review was recorded on this refund. Recording it moves a refund from requested to under review: the workflows set the status, which nobody changes by hand. |
+| `cancelled_at` | datetime | OPTIONAL | When the move to cancelled was recorded on this refund. Recording it moves a refund from requested or under review to cancelled: the workflows set the status, which nobody changes by hand. |
+| `approved_at` | datetime | OPTIONAL | When the move to approved was recorded on this refund. Recording it moves a refund from under review to approved: the workflows set the status, which nobody changes by hand. |
+| `rejected_at` | datetime | OPTIONAL | When the move to rejected was recorded on this refund. Recording it moves a refund from under review to rejected: the workflows set the status, which nobody changes by hand. |
 
 ## Enums
 
@@ -61,12 +65,24 @@ cancelled --> [*]
 
 - `refuseNonPositiveRefund validation-error when: amount <= 0 message: A refund must be a positive amount linked to the immutable payment it reverses.`
 - `requireRefundDecisionTime validation-error when: status == "approved" and decided_at == null message: An approved refund needs the decision time for reconciliation and service reporting.`
+- `requireRefundDecisionTimeOnMove validation-error when: approved_at != null and decided_at == null message: An approved refund needs the decision time for reconciliation and service reporting.`
 - `requireRefundApproval validation-error when: status == "approved" and approved_by_id == null message: An approved refund needs the staff member who authorised the return of funds.`
+- `requireRefundApprovalOnMove validation-error when: approved_at != null and approved_by_id == null message: An approved refund needs the staff member who authorised the return of funds.`
 - `requireRefundRejectionNotes validation-error when: status == "rejected" and decision_notes == null message: A rejected refund needs the reason finance will explain to the family.`
+- `requireRefundRejectionNotesOnMove validation-error when: rejected_at != null and decision_notes == null message: A rejected refund needs the reason finance will explain to the family.`
 - `requireRefundPaidTime validation-error when: status == "paid" and paid_at == null message: A refund is paid only when the money actually left the school.`
 - `refuseSelfApprovedRefund validation-error when: approved_by_id != null and approved_by_id == requested_by_id message: The person who approves a refund cannot be the person who requested it. A second member of staff must authorise the return of funds.`
 - `returnInvoiceToPartPaid trigger-workflow when: status == "paid" and applied_to_invoice_at == null and invoice_status_after == "part_paid" workflow: RefundReopensInvoice`
 - `returnInvoiceToIssued trigger-workflow when: status == "paid" and applied_to_invoice_at == null and invoice_status_after == "issued" workflow: RefundReissuesInvoice`
+
+### `refundStateProgress` on `beforeUpdate` — **`%%action` decision table — it can act**
+
+- `moveRequestedToUnderReview trigger-workflow when: status == "requested" and under_review_at != null workflow: RefundUnderReviewMove`
+- `moveRequestedToCancelled trigger-workflow when: status == "requested" and cancelled_at != null workflow: RefundCancelledMove`
+- `moveUnderReviewToApproved trigger-workflow when: status == "under_review" and approved_at != null workflow: RefundApprovedMove`
+- `moveUnderReviewToRejected trigger-workflow when: status == "under_review" and rejected_at != null workflow: RefundRejectedMove`
+- `moveUnderReviewToCancelled trigger-workflow when: status == "under_review" and cancelled_at != null workflow: RefundCancelledMove`
+- `moveApprovedToPaid trigger-workflow when: status == "approved" and paid_at != null workflow: RefundPaidMove`
 
 ## Hooks
 
@@ -80,9 +96,23 @@ Paying a refund puts the money back on the invoice. `resolveRefundInvoiceEffect`
 Sagas that touch it:
 
 - **RefundReopensInvoice** *(triggered on this entity)*
-  - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: part_paid`
+  - `B UpdateEntity entity: FeeInvoice targetSource: fee_invoice_id field: status value: part_paid`
 - **RefundReissuesInvoice** *(triggered on this entity)*
-  - `B UpdateEntity entity: FeeInvoice targetField: fee_invoice_id field: status value: issued`
+  - `B UpdateEntity entity: FeeInvoice targetSource: fee_invoice_id field: status value: issued`
+- **RefundUnderReviewMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: under_review`
+  - `C UpdateEntity field: approved_at value: null`
+  - `D UpdateEntity field: rejected_at value: null`
+  - `E UpdateEntity field: cancelled_at value: null`
+- **RefundCancelledMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: cancelled`
+- **RefundApprovedMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: approved`
+  - `C UpdateEntity field: paid_at value: null`
+- **RefundRejectedMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: rejected`
+- **RefundPaidMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: paid`
 
 ## Access
 
@@ -91,8 +121,6 @@ Sagas that touch it:
 | `read` | principal · finance_officer · guardian |
 | `create` | finance_officer |
 | `update` | finance_officer · principal |
-| `approve` | principal |
-| `pay` | finance_officer |
 
 ## Open questions
 

@@ -30,6 +30,7 @@ import {
   type ParentContext,
 } from "./ad-window-configs";
 import { DocStatusBadge } from "./doc-status-badge";
+import { StateBadge } from "./state-badge";
 import { VersionConflictDialog } from "./version-conflict-dialog";
 import { helpTableNameFromEndpoint, WindowHelpButton } from "./window-help-button";
 import { format } from "date-fns";
@@ -989,6 +990,16 @@ export function ADDetailShell({
               </button>
               <span aria-hidden="true" className="text-muted-foreground/40">|</span>
               <h1 className="text-xl font-semibold text-foreground truncate">{currentName}</h1>
+              <StateBadge
+                fields={
+                  // The grid fields always carry the state field; the form
+                  // fields never do, because it is not an input.
+                  (level.gridFields?.length
+                    ? level.gridFields
+                    : (entityMeta?.columns ?? [])) as FieldMetadata[]
+                }
+                record={currentRecord as Record<string, unknown> | null}
+              />
               {!!currentRecord?.doc_status && currentRecord.doc_status !== "none" && (
                 <DocStatusBadge
                   status={currentRecord.doc_status as string}

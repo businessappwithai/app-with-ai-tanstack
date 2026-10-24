@@ -1,6 +1,6 @@
 {
   "file": "/home/user/app-with-ai-tanstack/examples/hospital-management-system.mmd",
-  "checkedAt": "2026-10-23T19:37:09.990Z",
+  "checkedAt": "2026-10-24T06:01:53.861Z",
   "languageVersion": "1.2.0",
   "summary": {
     "errors": 0,
@@ -13,7 +13,7 @@
       "severity": "info",
       "code": "EML123",
       "message": "Self-referential relationship on \"DEPARTMENT\".",
-      "line": 1202,
+      "line": 1415,
       "hint": "Self-references are valid (e.g. Category ||--o{ Category). Ensure parent_id is modelled.",
       "autoFixable": false
     },
@@ -21,7 +21,7 @@
       "severity": "info",
       "code": "EML123",
       "message": "Self-referential relationship on \"EMPLOYEE\".",
-      "line": 1209,
+      "line": 1422,
       "hint": "Self-references are valid (e.g. Category ||--o{ Category). Ensure parent_id is modelled.",
       "autoFixable": false
     },
@@ -29,7 +29,7 @@
       "severity": "info",
       "code": "EML123",
       "message": "Self-referential relationship on \"APPOINTMENT\".",
-      "line": 1229,
+      "line": 1442,
       "hint": "Self-references are valid (e.g. Category ||--o{ Category). Ensure parent_id is modelled.",
       "autoFixable": false
     },
@@ -37,7 +37,7 @@
       "severity": "info",
       "code": "EML123",
       "message": "Self-referential relationship on \"BED_ASSIGNMENT\".",
-      "line": 1247,
+      "line": 1460,
       "hint": "Self-references are valid (e.g. Category ||--o{ Category). Ensure parent_id is modelled.",
       "autoFixable": false
     },
@@ -45,7 +45,7 @@
       "severity": "info",
       "code": "EML123",
       "message": "Self-referential relationship on \"MEDICAL_RECORD\".",
-      "line": 1254,
+      "line": 1467,
       "hint": "Self-references are valid (e.g. Category ||--o{ Category). Ensure parent_id is modelled.",
       "autoFixable": false
     },
@@ -53,7 +53,7 @@
       "severity": "info",
       "code": "EML123",
       "message": "Self-referential relationship on \"DIAGNOSTIC_RESULT\".",
-      "line": 1272,
+      "line": 1485,
       "hint": "Self-references are valid (e.g. Category ||--o{ Category). Ensure parent_id is modelled.",
       "autoFixable": false
     },
@@ -61,7 +61,7 @@
       "severity": "info",
       "code": "EML123",
       "message": "Self-referential relationship on \"ACCOUNT\".",
-      "line": 1376,
+      "line": 1589,
       "hint": "Self-references are valid (e.g. Category ||--o{ Category). Ensure parent_id is modelled.",
       "autoFixable": false
     },
@@ -69,7 +69,7 @@
       "severity": "info",
       "code": "EML123",
       "message": "Self-referential relationship on \"COST_CENTER\".",
-      "line": 1386,
+      "line": 1599,
       "hint": "Self-references are valid (e.g. Category ||--o{ Category). Ensure parent_id is modelled.",
       "autoFixable": false
     },
@@ -77,7 +77,7 @@
       "severity": "info",
       "code": "EML155",
       "message": "\"SUPPLIER_INVOICE_LINE\" is a line item of \"SUPPLIER_INVOICE\", which is itself a line item of \"SUPPLIER\", so \"SUPPLIER_INVOICE_LINE\" is generated as a top-level entity.",
-      "line": 2232,
+      "line": 2445,
       "hint": "A line item's tab sits one level inside a top-level entity's window; there is no third level. \"SUPPLIER_INVOICE_LINE\" keeps its foreign key supplier_invoice_line_id but gets a window and a dashboard card of its own, and the SUPPLIER_INVOICE page does not list it. If that is what you want, remove the `parent:` directive and the note goes; to list it under \"SUPPLIER\" instead, give it a foreign key to \"SUPPLIER\" and declare `parent: SUPPLIER`.",
       "autoFixable": false
     },
@@ -85,7 +85,7 @@
       "severity": "info",
       "code": "EML149",
       "message": "\"MEDICATION_ADMINISTRATION\" looks like a line item of \"MEDICATION\" but declares no parent.",
-      "line": 584,
+      "line": 648,
       "hint": "If a list of every MEDICATION_ADMINISTRATION away from its MEDICATION is not a screen anyone opens, declare `%%entity MEDICATION_ADMINISTRATION parent: MEDICATION` — the dictionary then drops its dashboard card and gives it a tab inside the MEDICATION window, linked on medication_administration_id. If it is a thing in its own right, leave it: a reference is the opposite on all three questions (§3.5.1).",
       "autoFixable": false
     },

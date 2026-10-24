@@ -170,58 +170,36 @@ describe("compileRbac", () => {
 describe("compileRbac — state transitions", () => {
   const compile = (source: string) => compileRbac(source, ENTITIES, MACHINES);
 
-  it("resolves a non-CRUD name against the entity's state machine", () => {
-    const { transitions, operations } = compile("%%rbac role:manager on Order.submit");
-    expect(operations).toEqual([]);
-    expect(transitions).toEqual([
-      {
-        entity: "Order",
-        tableName: "bus_order",
-        transition: "submit",
-        edges: [{ from: "draft", to: "submitted" }],
-        roles: ["manager"],
-      },
-    ]);
-  });
-
-  it("carries every edge an event names, not just the first", () => {
-    // `approve` appears twice — from draft and from submitted. Keeping one
-    // would leave the other path unguarded while looking restricted.
-    const { transitions } = compile("%%rbac role:manager on Order.approve");
-    expect(transitions[0]?.edges).toEqual([
-      { from: "submitted", to: "approved" },
-      { from: "draft", to: "approved" },
-    ]);
-  });
-
-  it("matches an event written with spaces or dashes in the diagram", () => {
-    // A diagram reads `submitted --> rejected : close won`; a directive spells
-    // the same event `close_won`.
-    const { transitions } = compile("%%rbac role:manager on Order.close_won");
-    expect(transitions[0]?.edges).toEqual([{ from: "submitted", to: "rejected" }]);
-  });
-
-  it("merges two directives naming the same transition", () => {
-    const { transitions } = compile(
-      ["%%rbac role:manager on Order.submit", "%%rbac role:admin on Order.submit"].join("\n")
+  // A state is changed only by background workflows (language/state-field.ts),
+  // so a transition is not a permission a role can hold. The checker reports
+  // such a line as EML215; the compiler skips it, so nothing reaches
+  // sys_transition_access and no role can move a record by writing its status.
+  it("grants no transition, and says why", () => {
+    const warnings: string[] = [];
+    const compiled = compileRbac("%%rbac role:manager on Order.submit", ENTITIES, MACHINES, (m) =>
+      warnings.push(m)
     );
-    expect(transitions).toHaveLength(1);
-    expect(transitions[0]?.roles).toEqual(["admin", "manager"]);
+    expect(compiled.operations).toEqual([]);
+    expect(compiled.transitions).toEqual([]);
+    expect(warnings[0]).toContain("only background workflows change a state");
   });
 
-  it("keeps CRUD and transition rules in separate buckets", () => {
+  it("skips a transition named with spaces or dashes in the diagram too", () => {
+    const warnings: string[] = [];
+    const compiled = compileRbac("%%rbac role:manager on Order.close_won", ENTITIES, MACHINES, (m) =>
+      warnings.push(m)
+    );
+    expect(compiled.transitions).toEqual([]);
+    expect(warnings[0]).toContain("grants a state transition");
+  });
+
+  it("keeps the CRUD rule beside a skipped transition", () => {
     const compiled = compile(
       ["%%rbac role:admin on Order.delete", "%%rbac role:manager on Order.submit"].join("\n")
     );
     expect(compiled.operations).toHaveLength(1);
-    expect(compiled.transitions).toHaveLength(1);
-  });
-
-  it("collects roles from both kinds for seeding", () => {
-    const compiled = compile(
-      ["%%rbac role:admin on Order.delete", "%%rbac role:manager on Order.submit"].join("\n")
-    );
-    expect(rbacRoleNames(compiled)).toEqual(["admin", "manager"]);
+    expect(compiled.transitions).toHaveLength(0);
+    expect(rbacRoleNames(compiled)).toEqual(["admin"]);
     expect(hasRbacRules(compiled)).toBe(true);
   });
 

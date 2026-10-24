@@ -114,6 +114,9 @@ erDiagram
         integer passenger_count
         string owner_id FK
         text cancellation_reason OPTIONAL
+        datetime cancelled_at OPTIONAL
+        datetime active_at OPTIONAL
+        datetime completed_at OPTIONAL
     }
     Allocation {
         string id PK
@@ -125,6 +128,9 @@ erDiagram
         datetime ends_at
         string owner_id FK
         text notes OPTIONAL
+        datetime reserved_at OPTIONAL
+        datetime voided_at OPTIONAL
+        datetime released_at OPTIONAL
     }
     ServiceProvider {
         string id PK
@@ -145,6 +151,8 @@ erDiagram
         datetime due_at
         datetime finished_at OPTIONAL
         text completion_notes OPTIONAL
+        datetime underway_at OPTIONAL
+        datetime waived_at OPTIONAL
     }
     BaggageBatch {
         string id PK
@@ -155,6 +163,11 @@ erDiagram
         integer counted_bags
         decimal weight_kg
         text exception_notes OPTIONAL
+        datetime reconciled_at OPTIONAL
+        datetime exception_at OPTIONAL
+        datetime loaded_at OPTIONAL
+        datetime delivered_at OPTIONAL
+        datetime collecting_at OPTIONAL
     }
     CargoConsignment {
         string id PK
@@ -166,6 +179,10 @@ erDiagram
         boolean is_dangerous_goods
         text goods_description
         text release_reference OPTIONAL
+        datetime received_at OPTIONAL
+        datetime held_at OPTIONAL
+        datetime cleared_at OPTIONAL
+        datetime dispatched_at OPTIONAL
     }
     Asset {
         string id PK
@@ -188,6 +205,10 @@ erDiagram
         text defect_description
         text repair_notes OPTIONAL
         boolean requires_resource_closure
+        datetime authorised_at OPTIONAL
+        datetime repairing_at OPTIONAL
+        datetime verified_at OPTIONAL
+        datetime closed_at OPTIONAL
     }
     SafetyCase {
         string id PK
@@ -202,6 +223,9 @@ erDiagram
         text description
         text immediate_action
         text closure_evidence OPTIONAL
+        datetime investigating_at OPTIONAL
+        datetime mitigated_at OPTIONAL
+        datetime resolved_at OPTIONAL
     }
     CorrectiveAction {
         string id PK
@@ -212,6 +236,9 @@ erDiagram
         datetime due_at
         text instruction
         text evidence OPTIONAL
+        datetime accepted_at OPTIONAL
+        datetime implemented_at OPTIONAL
+        datetime validated_at OPTIONAL
     }
     SecurityPass {
         string id PK
@@ -225,6 +252,9 @@ erDiagram
         datetime valid_until
         string approved_by_id FK OPTIONAL
         text revocation_reason OPTIONAL
+        datetime issued_at OPTIONAL
+        datetime revoked_at OPTIONAL
+        datetime expired_at OPTIONAL
     }
     Tariff {
         string id PK
@@ -252,6 +282,10 @@ erDiagram
         string currency
         string invoice_id FK OPTIONAL
         boolean is_transferred
+        datetime approved_at OPTIONAL
+        datetime disputed_at OPTIONAL
+        datetime billed_at OPTIONAL
+        datetime assessed_at OPTIONAL
     }
     Invoice {
         string id PK
@@ -265,6 +299,9 @@ erDiagram
         money total_amount
         money received_amount
         text void_reason OPTIONAL
+        datetime issued_at OPTIONAL
+        datetime void_at OPTIONAL
+        datetime settled_at OPTIONAL
     }
     InvoiceLine {
         string id PK
@@ -282,6 +319,8 @@ erDiagram
         money amount
         string method
         text reconciliation_notes OPTIONAL
+        datetime reconciled_at OPTIONAL
+        datetime reversed_at OPTIONAL
     }
     Aircraft ||--o{ Flight : "supports"
     AircraftType ||--o{ Aircraft : "supports"
@@ -445,7 +484,7 @@ erDiagram
 %%field Flight.passenger_count help: Actual or latest expected passengers on this movement, excluding crew.
 %%field Flight.owner_id help: Operations controller accountable for this movement's coordination.
 %%field Flight.cancellation_reason help: Airline or airport explanation required when the movement is cancelled.
-%%section entity: Flight; name: Movement; help: Identify the dated movement and its operating responsibility.; rows: reference, status | flight_number, direction | airline_id, aircraft_id
+%%section entity: Flight; name: Movement; help: Identify the dated movement and its operating responsibility.; rows: reference | flight_number, direction | airline_id, aircraft_id
 %%section entity: Flight; name: Route and timetable; help: Record the local service date and UTC movement times.; rows: airport_id, route_airport_code | service_date, scheduled_at | estimated_at, actual_at
 %%section entity: Flight; name: Duty coordination; help: Confirm the passenger workload and accountable controller.; rows: passenger_count, owner_id
 %%section entity: Flight; name: Cancellation; help: Retain the reason a planned movement did not operate.; rows: cancellation_reason
@@ -468,7 +507,7 @@ erDiagram
 %%field Allocation.ends_at help: End of the reserved interval in UTC, including handover and clearance time.
 %%field Allocation.owner_id help: Controller who owns the reservation and resolves conflicting requests.
 %%field Allocation.notes help: Handover instructions or the reason for a nonstandard reservation.
-%%section entity: Allocation; name: Reservation; help: Link the movement to the facility and confirm approval.; rows: reference, status | flight_id, resource_id
+%%section entity: Allocation; name: Reservation; help: Link the movement to the facility and confirm approval.; rows: reference | flight_id, resource_id
 %%section entity: Allocation; name: Use interval; help: Include setup and clearance buffers in the UTC reservation interval.; rows: starts_at, ends_at | owner_id | notes
 %%rbac role:airport_manager|operations_controller|ground_supervisor|terminal_supervisor|safety_officer|maintenance_engineer|finance_officer|security_officer on Allocation.read
 %%rbac role:airport_manager|operations_controller on Allocation.create
@@ -503,7 +542,7 @@ erDiagram
 %%field TurnaroundTask.due_at help: UTC deadline agreed against the movement's turnaround plan.
 %%field TurnaroundTask.finished_at help: UTC time the ground team actually finished, required for finished work.
 %%field TurnaroundTask.completion_notes help: Evidence of completion or the authorised reason for waiving the task.
-%%section entity: TurnaroundTask; name: Ground assignment; help: Assign the required handling activity and its accountable team.; rows: reference, service_type | flight_id, service_provider_id | owner_id, status
+%%section entity: TurnaroundTask; name: Ground assignment; help: Assign the required handling activity and its accountable team.; rows: reference, service_type | flight_id, service_provider_id | owner_id
 %%section entity: TurnaroundTask; name: Completion evidence; help: Record when the work was due and what the team actually delivered.; rows: due_at, finished_at | completion_notes
 %%rbac role:airport_manager|operations_controller|ground_supervisor on TurnaroundTask.read
 %%rbac role:airport_manager|operations_controller|ground_supervisor on TurnaroundTask.create
@@ -522,7 +561,7 @@ erDiagram
 %%field BaggageBatch.counted_bags help: Bags physically scanned or counted for this batch.
 %%field BaggageBatch.weight_kg help: Aggregate bag weight in kilograms from the accepted load sheet.
 %%field BaggageBatch.exception_notes help: Reason counts differ or a bag was withheld from the batch.
-%%section entity: BaggageBatch; name: Baggage reconciliation; help: Compare the handling manifest with physical counts for the movement.; rows: reference, status | flight_id, weight_kg | expected_bags, counted_bags
+%%section entity: BaggageBatch; name: Baggage reconciliation; help: Compare the handling manifest with physical counts for the movement.; rows: reference | flight_id, weight_kg | expected_bags, counted_bags
 %%section entity: BaggageBatch; name: Exceptions; help: Explain discrepancies before loading or closing the batch.; rows: exception_notes
 %%rbac role:airport_manager|operations_controller|ground_supervisor|terminal_supervisor|security_officer on BaggageBatch.read
 %%rbac role:airport_manager|operations_controller|ground_supervisor|terminal_supervisor|security_officer on BaggageBatch.create
@@ -540,7 +579,7 @@ erDiagram
 %%field CargoConsignment.is_dangerous_goods help: True requires specialist acceptance and handling precautions before clearance.
 %%field CargoConsignment.goods_description help: Plain description that handlers can use to verify the consignment.
 %%field CargoConsignment.release_reference help: Customs or authorised release evidence required before dispatch.
-%%section entity: CargoConsignment; name: Waybill; help: Identify the movement and physical cargo quantity.; rows: reference, status | flight_id, is_dangerous_goods | pieces, weight_kg
+%%section entity: CargoConsignment; name: Waybill; help: Identify the movement and physical cargo quantity.; rows: reference | flight_id, is_dangerous_goods | pieces, weight_kg
 %%section entity: CargoConsignment; name: Acceptance and release; help: Describe the goods and preserve evidence allowing them to leave custody.; rows: goods_description | release_reference
 %%rbac role:airport_manager|operations_controller|ground_supervisor|security_officer on CargoConsignment.read
 %%rbac role:airport_manager|operations_controller|ground_supervisor|security_officer on CargoConsignment.create
@@ -578,7 +617,7 @@ erDiagram
 %%field WorkOrder.defect_description help: Observed failure and operational effect, without guessing an unverified cause.
 %%field WorkOrder.repair_notes help: Work performed and test evidence required before supervisor verification.
 %%field WorkOrder.requires_resource_closure help: True means operations must separately close the affected resource before work starts.
-%%section entity: WorkOrder; name: Maintenance instruction; help: Identify the defect, accountable engineer and operational urgency.; rows: reference, status | asset_id, owner_id | priority, requires_resource_closure
+%%section entity: WorkOrder; name: Maintenance instruction; help: Identify the defect, accountable engineer and operational urgency.; rows: reference | asset_id, owner_id | priority, requires_resource_closure
 %%section entity: WorkOrder; name: Work and handback; help: Describe the fault and retain evidence that the equipment is fit to return.; rows: due_at | defect_description | repair_notes
 %%rbac role:airport_manager|maintenance_engineer|operations_controller|safety_officer on WorkOrder.read
 %%rbac role:airport_manager|maintenance_engineer|operations_controller|safety_officer on WorkOrder.create
@@ -601,7 +640,7 @@ erDiagram
 %%field SafetyCase.description help: Factual observation including location and immediate operational effect.
 %%field SafetyCase.immediate_action help: Containment already taken to protect people and aircraft.
 %%field SafetyCase.closure_evidence help: Evidence that controls are effective, required before final resolution.
-%%section entity: SafetyCase; name: Occurrence; help: Identify the event, its location and the accountable investigation team.; rows: reference, status | airport_id, flight_id | reported_by_id, owner_id
+%%section entity: SafetyCase; name: Occurrence; help: Identify the event, its location and the accountable investigation team.; rows: reference | airport_id, flight_id | reported_by_id, owner_id
 %%section entity: SafetyCase; name: Initial assessment; help: Record severity and facts while they are still available.; rows: severity, occurred_at | description | immediate_action
 %%section entity: SafetyCase; name: Verified resolution; help: Preserve the evidence used by the safety officer to resolve the case.; rows: closure_evidence
 %%rbac role:airport_manager|safety_officer|operations_controller on SafetyCase.read
@@ -623,7 +662,7 @@ erDiagram
 %%field CorrectiveAction.due_at help: UTC deadline agreed with the action owner.
 %%field CorrectiveAction.instruction help: Specific change and measurable acceptance criteria agreed by the safety officer.
 %%field CorrectiveAction.evidence help: Proof of implementation and effectiveness, required for validation.
-%%section entity: CorrectiveAction; name: Remedial commitment; help: Agree who will correct which investigation finding and by when.; rows: reference, status | safety_case_id, owner_id | due_at
+%%section entity: CorrectiveAction; name: Remedial commitment; help: Agree who will correct which investigation finding and by when.; rows: reference | safety_case_id, owner_id | due_at
 %%section entity: CorrectiveAction; name: Acceptance evidence; help: Describe the measurable change and retain verification evidence.; rows: instruction | evidence
 %%rbac role:airport_manager|safety_officer|operations_controller on CorrectiveAction.read
 %%rbac role:airport_manager|safety_officer|operations_controller on CorrectiveAction.create
@@ -645,7 +684,7 @@ erDiagram
 %%field SecurityPass.valid_until help: UTC expiry after which the pass must not admit its holder.
 %%field SecurityPass.approved_by_id help: Security employee who verified eligibility before issue.
 %%field SecurityPass.revocation_reason help: Reason for immediate withdrawal, required when revoking access.
-%%section entity: SecurityPass; name: Pass holder; help: Identify the person and organisation sponsoring access.; rows: reference, status | holder_name, sponsor | airport_id, access_zone
+%%section entity: SecurityPass; name: Pass holder; help: Identify the person and organisation sponsoring access.; rows: reference | holder_name, sponsor | airport_id, access_zone
 %%section entity: SecurityPass; name: Authorisation; help: Check both validity boundaries and the approving security employee.; rows: valid_from, valid_until | approved_by_id
 %%section entity: SecurityPass; name: Withdrawal; help: Retain the reason an issued pass was withdrawn.; rows: revocation_reason
 %%rbac role:airport_manager|security_officer on SecurityPass.read
@@ -689,7 +728,7 @@ erDiagram
 %%field Charge.currency help: ISO three-letter currency copied from the tariff and matched to the invoice.
 %%field Charge.invoice_id help: Invoice receiving this charge, empty until finance groups approved charges.
 %%field Charge.is_transferred help: Set by the invoice transfer saga so repeated saves do not create another invoice line.
-%%section entity: Charge; name: Charge assessment; help: Identify the consumed service and the finance review position.; rows: reference, status | flight_id, tariff_id
+%%section entity: Charge; name: Charge assessment; help: Identify the consumed service and the finance review position.; rows: reference | flight_id, tariff_id
 %%section entity: Charge; name: Valuation; help: Use the tariff unit and currency consistently when calculating amounts.; rows: quantity, unit_price | net_amount, tax_amount | gross_amount, currency
 %%section entity: Charge; name: Billing transfer; help: Assign the invoice before transferring the approved charge exactly once.; rows: invoice_id, is_transferred
 %%rbac role:airport_manager|finance_officer on Charge.read
@@ -712,7 +751,7 @@ erDiagram
 %%field Invoice.total_amount help: Sum of the included gross charge lines in invoice currency, verified before issue.
 %%field Invoice.received_amount help: Reconciled receipt total in invoice currency, verified before settlement.
 %%field Invoice.void_reason help: Reason the document was cancelled, required for a void invoice.
-%%section entity: Invoice; name: Billing document; help: Identify the billed airline, issuing airport and document state.; rows: reference, status | airport_id, airline_id
+%%section entity: Invoice; name: Billing document; help: Identify the billed airline, issuing airport and document state.; rows: reference | airport_id, airline_id
 %%section entity: Invoice; name: Payment terms; help: Confirm issue, due date and totals in one invoice currency.; rows: issued_on, due_on | currency, total_amount | received_amount
 %%section entity: Invoice; name: Cancellation evidence; help: Explain why the issued commercial record must be voided.; rows: void_reason
 %%rbac role:airport_manager|finance_officer on Invoice.read
@@ -746,7 +785,7 @@ erDiagram
 %%field Receipt.method help: Bank transfer, cash or card identifies the evidence needed for reconciliation.
 %%field Receipt.method enum: PaymentMethod
 %%field Receipt.reconciliation_notes help: Bank statement match or reason for reversing the receipt.
-%%section entity: Receipt; name: Payment receipt; help: Identify the payment and the invoice it reduces.; rows: reference, status | invoice_id, method | received_on, amount
+%%section entity: Receipt; name: Payment receipt; help: Identify the payment and the invoice it reduces.; rows: reference | invoice_id, method | received_on, amount
 %%section entity: Receipt; name: Bank reconciliation; help: Retain the evidence used to count or reverse the payment.; rows: reconciliation_notes
 %%rbac role:airport_manager|finance_officer on Receipt.read
 %%rbac role:airport_manager|finance_officer on Receipt.create
@@ -786,10 +825,6 @@ stateDiagram-v2
     active --> cancelled : cancel
     completed --> [*]
     cancelled --> [*]
-    %%rbac role:airport_manager|operations_controller on Flight.activate
-    %%rbac role:airport_manager|operations_controller on Flight.cancel
-    %%rbac role:airport_manager|operations_controller on Flight.complete
-    %%rbac role:airport_manager|operations_controller on Flight.schedule
 
 %%meta name: Allocation Lifecycle
 %%meta kind: workflow
@@ -802,9 +837,6 @@ stateDiagram-v2
     reserved --> voided : void
     released --> [*]
     voided --> [*]
-    %%rbac role:airport_manager|operations_controller on Allocation.release
-    %%rbac role:airport_manager|operations_controller on Allocation.reserve
-    %%rbac role:airport_manager|operations_controller on Allocation.void
 
 %%meta name: TurnaroundTask Lifecycle
 %%meta kind: workflow
@@ -817,9 +849,6 @@ stateDiagram-v2
     underway --> waived : waive
     finished --> [*]
     waived --> [*]
-    %%rbac role:airport_manager|operations_controller|ground_supervisor on TurnaroundTask.dispatch
-    %%rbac role:airport_manager|operations_controller|ground_supervisor on TurnaroundTask.finish
-    %%rbac role:airport_manager|operations_controller|ground_supervisor on TurnaroundTask.waive
 
 %%meta name: BaggageBatch Lifecycle
 %%meta kind: workflow
@@ -835,11 +864,6 @@ stateDiagram-v2
     loaded --> exception : flag
     exception --> collecting : recount
     delivered --> [*]
-    %%rbac role:airport_manager|ground_supervisor|terminal_supervisor on BaggageBatch.deliver
-    %%rbac role:airport_manager|ground_supervisor|terminal_supervisor on BaggageBatch.flag
-    %%rbac role:airport_manager|ground_supervisor|terminal_supervisor on BaggageBatch.load
-    %%rbac role:airport_manager|ground_supervisor|terminal_supervisor on BaggageBatch.reconcile
-    %%rbac role:airport_manager|ground_supervisor|terminal_supervisor on BaggageBatch.recount
 
 %%meta name: CargoConsignment Lifecycle
 %%meta kind: workflow
@@ -852,10 +876,6 @@ stateDiagram-v2
     held --> cleared : clear
     cleared --> dispatched : dispatch
     dispatched --> [*]
-    %%rbac role:airport_manager|ground_supervisor|security_officer on CargoConsignment.clear
-    %%rbac role:airport_manager|ground_supervisor|security_officer on CargoConsignment.dispatch
-    %%rbac role:airport_manager|ground_supervisor|security_officer on CargoConsignment.hold
-    %%rbac role:airport_manager|ground_supervisor|security_officer on CargoConsignment.receive
 
 %%meta name: WorkOrder Lifecycle
 %%meta kind: workflow
@@ -868,11 +888,6 @@ stateDiagram-v2
     verified --> closed : close
     verified --> repairing : rework
     closed --> [*]
-    %%rbac role:airport_manager|maintenance_engineer on WorkOrder.authorise
-    %%rbac role:airport_manager|maintenance_engineer on WorkOrder.close
-    %%rbac role:airport_manager|maintenance_engineer on WorkOrder.rework
-    %%rbac role:airport_manager|maintenance_engineer on WorkOrder.start
-    %%rbac role:airport_manager|maintenance_engineer on WorkOrder.verify
 
 %%meta name: SafetyCase Lifecycle
 %%meta kind: workflow
@@ -885,11 +900,6 @@ stateDiagram-v2
     mitigated --> investigating : reassess
     resolved --> investigating : reopen
     resolved --> [*]
-    %%rbac role:airport_manager|safety_officer on SafetyCase.investigate
-    %%rbac role:airport_manager|safety_officer on SafetyCase.mitigate
-    %%rbac role:airport_manager|safety_officer on SafetyCase.reassess
-    %%rbac role:airport_manager|safety_officer on SafetyCase.reopen
-    %%rbac role:airport_manager|safety_officer on SafetyCase.resolve
 
 %%meta name: CorrectiveAction Lifecycle
 %%meta kind: workflow
@@ -901,10 +911,6 @@ stateDiagram-v2
     implemented --> validated : validate
     implemented --> accepted : rework
     validated --> [*]
-    %%rbac role:airport_manager|safety_officer on CorrectiveAction.accept
-    %%rbac role:airport_manager|safety_officer on CorrectiveAction.implement
-    %%rbac role:airport_manager|safety_officer on CorrectiveAction.rework
-    %%rbac role:airport_manager|safety_officer on CorrectiveAction.validate
 
 %%meta name: SecurityPass Lifecycle
 %%meta kind: workflow
@@ -917,9 +923,6 @@ stateDiagram-v2
     issued --> expired : expire
     revoked --> [*]
     expired --> [*]
-    %%rbac role:airport_manager|security_officer on SecurityPass.expire
-    %%rbac role:airport_manager|security_officer on SecurityPass.issue
-    %%rbac role:airport_manager|security_officer on SecurityPass.revoke
 
 %%meta name: Charge Lifecycle
 %%meta kind: workflow
@@ -932,10 +935,6 @@ stateDiagram-v2
     approved --> disputed : dispute
     disputed --> assessed : reassess
     billed --> [*]
-    %%rbac role:airport_manager|finance_officer on Charge.approve
-    %%rbac role:airport_manager|finance_officer on Charge.bill
-    %%rbac role:airport_manager|finance_officer on Charge.dispute
-    %%rbac role:airport_manager|finance_officer on Charge.reassess
 
 %%meta name: Invoice Lifecycle
 %%meta kind: workflow
@@ -948,9 +947,6 @@ stateDiagram-v2
     issued --> void : void
     settled --> [*]
     void --> [*]
-    %%rbac role:airport_manager|finance_officer on Invoice.issue
-    %%rbac role:airport_manager|finance_officer on Invoice.settle
-    %%rbac role:airport_manager|finance_officer on Invoice.void
 
 %%meta name: Receipt Lifecycle
 %%meta kind: workflow
@@ -961,8 +957,6 @@ stateDiagram-v2
     recorded --> reversed : reverse
     reconciled --> reversed : reverse
     reversed --> [*]
-    %%rbac role:airport_manager|finance_officer on Receipt.reconcile
-    %%rbac role:airport_manager|finance_officer on Receipt.reverse
 
 %%meta name: Flight Validation
 %%meta kind: rules
@@ -973,7 +967,9 @@ flowchart TD
     B -->|No| D([Reject with explanation])
     %%action passengersNonnegative validation-error when: passenger_count < 0 message: Passenger counts cannot be negative.
     %%action actualBeforeCompletion validation-error when: status == "completed" and actual_at == null message: Record the observed UTC movement time before completion.
+    %%action actualBeforeCompletionOnMove validation-error when: completed_at != null and actual_at == null message: Record the observed UTC movement time before completion.
     %%action flightCancelReason validation-error when: status == "cancelled" and cancellation_reason == null message: Record why the movement was cancelled.
+    %%action flightCancelReasonOnMove validation-error when: cancelled_at != null and cancellation_reason == null message: Record why the movement was cancelled.
 
 %%meta name: Allocation Validation
 %%meta kind: rules
@@ -993,6 +989,7 @@ flowchart TD
     B -->|No| D([Reject with explanation])
     %%action taskFinishedTime validation-error when: status == "finished" and finished_at == null message: Record when the handling work actually finished.
     %%action waiverEvidence validation-error when: status == "waived" and completion_notes == null message: Explain who authorised waiving this handling activity.
+    %%action waiverEvidenceOnMove validation-error when: waived_at != null and completion_notes == null message: Explain who authorised waiving this handling activity.
 
 %%meta name: BaggageBatch Validation
 %%meta kind: rules
@@ -1002,6 +999,7 @@ flowchart TD
     B -->|Yes| C([Accept])
     B -->|No| D([Reject with explanation])
     %%action reconciledCounts validation-error when: status == "reconciled" and expected_bags != counted_bags message: Resolve the count discrepancy before reconciliation.
+    %%action reconciledCountsOnMove validation-error when: reconciled_at != null and expected_bags != counted_bags message: Resolve the count discrepancy before reconciliation.
     %%action bagCountNonnegative validation-error when: counted_bags < 0 or expected_bags < 0 message: Baggage counts cannot be negative.
 
 %%meta name: CargoConsignment Validation
@@ -1013,6 +1011,7 @@ flowchart TD
     B -->|No| D([Reject with explanation])
     %%action cargoQuantity validation-error when: pieces <= 0 or weight_kg <= 0 message: Cargo needs positive piece count and gross weight.
     %%action cargoRelease validation-error when: status == "dispatched" and release_reference == null message: Record release authority before dispatching cargo.
+    %%action cargoReleaseOnMove validation-error when: dispatched_at != null and release_reference == null message: Record release authority before dispatching cargo.
 
 %%meta name: WorkOrder Validation
 %%meta kind: rules
@@ -1022,6 +1021,7 @@ flowchart TD
     B -->|Yes| C([Accept])
     B -->|No| D([Reject with explanation])
     %%action repairEvidence validation-error when: status == "verified" and repair_notes == null message: Record repair and test evidence before verification.
+    %%action repairEvidenceOnMove validation-error when: verified_at != null and repair_notes == null message: Record repair and test evidence before verification.
 
 %%meta name: SafetyCase Validation
 %%meta kind: rules
@@ -1031,6 +1031,7 @@ flowchart TD
     B -->|Yes| C([Accept])
     B -->|No| D([Reject with explanation])
     %%action safetyClosure validation-error when: status == "resolved" and closure_evidence == null message: Record verified control effectiveness before resolving the case.
+    %%action safetyClosureOnMove validation-error when: resolved_at != null and closure_evidence == null message: Record verified control effectiveness before resolving the case.
 
 %%meta name: CorrectiveAction Validation
 %%meta kind: rules
@@ -1040,6 +1041,7 @@ flowchart TD
     B -->|Yes| C([Accept])
     B -->|No| D([Reject with explanation])
     %%action actionEvidence validation-error when: status == "validated" and evidence == null message: Retain effectiveness evidence before validating the action.
+    %%action actionEvidenceOnMove validation-error when: validated_at != null and evidence == null message: Retain effectiveness evidence before validating the action.
 
 %%meta name: SecurityPass Validation
 %%meta kind: rules
@@ -1050,7 +1052,9 @@ flowchart TD
     B -->|No| D([Reject with explanation])
     %%action passInterval validation-error when: valid_until <= valid_from message: Pass expiry must follow its valid-from instant.
     %%action passApproval validation-error when: status == "issued" and approved_by_id == null message: Record the approving security employee before issuing the pass.
+    %%action passApprovalOnMove validation-error when: issued_at != null and approved_by_id == null message: Record the approving security employee before issuing the pass.
     %%action passRevocation validation-error when: status == "revoked" and revocation_reason == null message: Explain why access authority was withdrawn.
+    %%action passRevocationOnMove validation-error when: revoked_at != null and revocation_reason == null message: Explain why access authority was withdrawn.
 
 %%meta name: Tariff Validation
 %%meta kind: rules
@@ -1070,6 +1074,7 @@ flowchart TD
     B -->|No| D([Reject with explanation])
     %%action chargePositive validation-error when: quantity <= 0 or unit_price < 0 or tax_amount < 0 message: Quantity must be positive and price and tax cannot be negative.
     %%action chargeInvoice validation-error when: status == "billed" and invoice_id == null message: Choose the airline invoice before transferring a billed charge.
+    %%action chargeInvoiceOnMove validation-error when: billed_at != null and invoice_id == null message: Choose the airline invoice before transferring a billed charge.
     %%action calculateNet transform when: true field: net_amount value: quantity * unit_price
     %%action calculateGross transform when: true field: gross_amount value: net_amount + tax_amount
     %%action transferBilledCharge trigger-workflow when: status == "billed" and is_transferred == false workflow: ChargeInvoiceTransfer message: Snapshot the approved charge into the chosen invoice
@@ -1083,7 +1088,9 @@ flowchart TD
     B -->|No| D([Reject with explanation])
     %%action invoiceDates validation-error when: due_on < issued_on message: The payment deadline cannot precede the invoice date.
     %%action invoiceSettlement validation-error when: status == "settled" and received_amount < total_amount message: Reconciled receipts must cover the invoice before settlement.
+    %%action invoiceSettlementOnMove validation-error when: settled_at != null and received_amount < total_amount message: Reconciled receipts must cover the invoice before settlement.
     %%action voidEvidence validation-error when: status == "void" and void_reason == null message: Record why the commercial document is void.
+    %%action voidEvidenceOnMove validation-error when: void_at != null and void_reason == null message: Record why the commercial document is void.
 
 %%meta name: Receipt Validation
 %%meta kind: rules
@@ -1176,3 +1183,686 @@ flowchart TD
     A([Operation requested]) --> B[Run domain checks]
     B --> Z([Continue or reject])
     %%hook customValidate blockClosureWithoutReservationReview on Resource
+
+%% ---- The state field is system-managed: each move is a rule and a saga ----
+%% Nobody changes a state by hand. Recording the time a move depends on starts
+%% the saga that sets the state; generated by the state-rule migration.
+%%field Flight.cancelled_at help: When the move to cancelled was recorded on this flight. Recording it moves a flight from planned, scheduled or active to cancelled: the workflows set the status, which nobody changes by hand.
+%%field Flight.active_at help: When the move to active was recorded on this flight. Recording it moves a flight from scheduled to active: the workflows set the status, which nobody changes by hand.
+%%field Flight.completed_at help: When the move to completed was recorded on this flight. Recording it moves a flight from active to completed: the workflows set the status, which nobody changes by hand.
+%%section entity: Flight; name: Progress; help: The times that move this flight along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: cancelled_at, active_at | completed_at
+
+%%meta name: Flight scheduled move
+%%meta kind: workflow
+%%workflow FlightScheduledMove entity: Flight kind: saga trigger: rule
+flowchart TD
+    A([Move to scheduled recorded]) --> B[Set the status to scheduled]
+    B --> C[Clear active at for the next move]
+    C --> D[Clear cancelled at for the next move]
+    D --> Z([Scheduled])
+
+    %%step B UpdateEntity field: status value: scheduled
+    %%step C UpdateEntity field: active_at value: null
+    %%step D UpdateEntity field: cancelled_at value: null
+
+%%meta name: Flight cancelled move
+%%meta kind: workflow
+%%workflow FlightCancelledMove entity: Flight kind: saga trigger: rule
+flowchart TD
+    A([Move to cancelled recorded]) --> B[Set the status to cancelled]
+    B --> Z([Cancelled])
+
+    %%step B UpdateEntity field: status value: cancelled
+
+%%meta name: Flight active move
+%%meta kind: workflow
+%%workflow FlightActiveMove entity: Flight kind: saga trigger: rule
+flowchart TD
+    A([Move to active recorded]) --> B[Set the status to active]
+    B --> C[Clear completed at for the next move]
+    C --> D[Clear cancelled at for the next move]
+    D --> Z([Active])
+
+    %%step B UpdateEntity field: status value: active
+    %%step C UpdateEntity field: completed_at value: null
+    %%step D UpdateEntity field: cancelled_at value: null
+
+%%meta name: Flight completed move
+%%meta kind: workflow
+%%workflow FlightCompletedMove entity: Flight kind: saga trigger: rule
+flowchart TD
+    A([Move to completed recorded]) --> B[Set the status to completed]
+    B --> Z([Completed])
+
+    %%step B UpdateEntity field: status value: completed
+
+%%meta name: Flight State Progress
+%%meta kind: rules
+%%rule flightStateProgress on Flight event: beforeUpdate priority: 90
+flowchart TD
+    A([Flight updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action movePlannedToScheduled trigger-workflow when: status == "planned" and scheduled_at != null workflow: FlightScheduledMove
+    %%action movePlannedToCancelled trigger-workflow when: status == "planned" and cancelled_at != null workflow: FlightCancelledMove
+    %%action moveScheduledToActive trigger-workflow when: status == "scheduled" and active_at != null workflow: FlightActiveMove
+    %%action moveScheduledToCancelled trigger-workflow when: status == "scheduled" and cancelled_at != null workflow: FlightCancelledMove
+    %%action moveActiveToCompleted trigger-workflow when: status == "active" and completed_at != null workflow: FlightCompletedMove
+    %%action moveActiveToCancelled trigger-workflow when: status == "active" and cancelled_at != null workflow: FlightCancelledMove
+%%field Allocation.reserved_at help: When the move to reserved was recorded on this allocation. Recording it moves an allocation from requested to reserved: the workflows set the status, which nobody changes by hand.
+%%field Allocation.voided_at help: When the move to voided was recorded on this allocation. Recording it moves an allocation from requested or reserved to voided: the workflows set the status, which nobody changes by hand.
+%%field Allocation.released_at help: When the move to released was recorded on this allocation. Recording it moves an allocation from reserved to released: the workflows set the status, which nobody changes by hand.
+%%section entity: Allocation; name: Progress; help: The times that move this allocation along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: reserved_at, voided_at | released_at
+
+%%meta name: Allocation reserved move
+%%meta kind: workflow
+%%workflow AllocationReservedMove entity: Allocation kind: saga trigger: rule
+flowchart TD
+    A([Move to reserved recorded]) --> B[Set the status to reserved]
+    B --> C[Clear released at for the next move]
+    C --> D[Clear voided at for the next move]
+    D --> Z([Reserved])
+
+    %%step B UpdateEntity field: status value: reserved
+    %%step C UpdateEntity field: released_at value: null
+    %%step D UpdateEntity field: voided_at value: null
+
+%%meta name: Allocation voided move
+%%meta kind: workflow
+%%workflow AllocationVoidedMove entity: Allocation kind: saga trigger: rule
+flowchart TD
+    A([Move to voided recorded]) --> B[Set the status to voided]
+    B --> Z([Voided])
+
+    %%step B UpdateEntity field: status value: voided
+
+%%meta name: Allocation released move
+%%meta kind: workflow
+%%workflow AllocationReleasedMove entity: Allocation kind: saga trigger: rule
+flowchart TD
+    A([Move to released recorded]) --> B[Set the status to released]
+    B --> Z([Released])
+
+    %%step B UpdateEntity field: status value: released
+
+%%meta name: Allocation State Progress
+%%meta kind: rules
+%%rule allocationStateProgress on Allocation event: beforeUpdate priority: 90
+flowchart TD
+    A([Allocation updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveRequestedToReserved trigger-workflow when: status == "requested" and reserved_at != null workflow: AllocationReservedMove
+    %%action moveRequestedToVoided trigger-workflow when: status == "requested" and voided_at != null workflow: AllocationVoidedMove
+    %%action moveReservedToReleased trigger-workflow when: status == "reserved" and released_at != null workflow: AllocationReleasedMove
+    %%action moveReservedToVoided trigger-workflow when: status == "reserved" and voided_at != null workflow: AllocationVoidedMove
+%%field TurnaroundTask.underway_at help: When the move to underway was recorded on this turnaround task. Recording it moves a turnaround task from queued to underway: the workflows set the status, which nobody changes by hand.
+%%field TurnaroundTask.waived_at help: When the move to waived was recorded on this turnaround task. Recording it moves a turnaround task from queued or underway to waived: the workflows set the status, which nobody changes by hand.
+%%section entity: TurnaroundTask; name: Progress; help: The times that move this turnaround task along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: underway_at, waived_at
+
+%%meta name: Turnaround Task underway move
+%%meta kind: workflow
+%%workflow TurnaroundTaskUnderwayMove entity: TurnaroundTask kind: saga trigger: rule
+flowchart TD
+    A([Move to underway recorded]) --> B[Set the status to underway]
+    B --> C[Clear finished at for the next move]
+    C --> D[Clear waived at for the next move]
+    D --> Z([Underway])
+
+    %%step B UpdateEntity field: status value: underway
+    %%step C UpdateEntity field: finished_at value: null
+    %%step D UpdateEntity field: waived_at value: null
+
+%%meta name: Turnaround Task waived move
+%%meta kind: workflow
+%%workflow TurnaroundTaskWaivedMove entity: TurnaroundTask kind: saga trigger: rule
+flowchart TD
+    A([Move to waived recorded]) --> B[Set the status to waived]
+    B --> Z([Waived])
+
+    %%step B UpdateEntity field: status value: waived
+
+%%meta name: Turnaround Task finished move
+%%meta kind: workflow
+%%workflow TurnaroundTaskFinishedMove entity: TurnaroundTask kind: saga trigger: rule
+flowchart TD
+    A([Move to finished recorded]) --> B[Set the status to finished]
+    B --> Z([Finished])
+
+    %%step B UpdateEntity field: status value: finished
+
+%%meta name: Turnaround Task State Progress
+%%meta kind: rules
+%%rule turnaroundTaskStateProgress on TurnaroundTask event: beforeUpdate priority: 90
+flowchart TD
+    A([Turnaround Task updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveQueuedToUnderway trigger-workflow when: status == "queued" and underway_at != null workflow: TurnaroundTaskUnderwayMove
+    %%action moveQueuedToWaived trigger-workflow when: status == "queued" and waived_at != null workflow: TurnaroundTaskWaivedMove
+    %%action moveUnderwayToFinished trigger-workflow when: status == "underway" and finished_at != null workflow: TurnaroundTaskFinishedMove
+    %%action moveUnderwayToWaived trigger-workflow when: status == "underway" and waived_at != null workflow: TurnaroundTaskWaivedMove
+%%field BaggageBatch.reconciled_at help: When the move to reconciled was recorded on this baggage batch. Recording it moves a baggage batch from collecting to reconciled: the workflows set the status, which nobody changes by hand.
+%%field BaggageBatch.exception_at help: When the move to exception was recorded on this baggage batch. Recording it moves a baggage batch from collecting, reconciled or loaded to exception: the workflows set the status, which nobody changes by hand.
+%%field BaggageBatch.loaded_at help: When the move to loaded was recorded on this baggage batch. Recording it moves a baggage batch from reconciled to loaded: the workflows set the status, which nobody changes by hand.
+%%field BaggageBatch.delivered_at help: When the move to delivered was recorded on this baggage batch. Recording it moves a baggage batch from reconciled or loaded to delivered: the workflows set the status, which nobody changes by hand.
+%%field BaggageBatch.collecting_at help: When the move to collecting was recorded on this baggage batch. Recording it moves a baggage batch from exception to collecting: the workflows set the status, which nobody changes by hand.
+%%section entity: BaggageBatch; name: Progress; help: The times that move this baggage batch along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: reconciled_at, exception_at | loaded_at, delivered_at | collecting_at
+
+%%meta name: Baggage Batch reconciled move
+%%meta kind: workflow
+%%workflow BaggageBatchReconciledMove entity: BaggageBatch kind: saga trigger: rule
+flowchart TD
+    A([Move to reconciled recorded]) --> B[Set the status to reconciled]
+    B --> C[Clear loaded at for the next move]
+    C --> D[Clear delivered at for the next move]
+    D --> E[Clear exception at for the next move]
+    E --> Z([Reconciled])
+
+    %%step B UpdateEntity field: status value: reconciled
+    %%step C UpdateEntity field: loaded_at value: null
+    %%step D UpdateEntity field: delivered_at value: null
+    %%step E UpdateEntity field: exception_at value: null
+
+%%meta name: Baggage Batch exception move
+%%meta kind: workflow
+%%workflow BaggageBatchExceptionMove entity: BaggageBatch kind: saga trigger: rule
+flowchart TD
+    A([Move to exception recorded]) --> B[Set the status to exception]
+    B --> C[Clear collecting at for the next move]
+    C --> Z([Exception])
+
+    %%step B UpdateEntity field: status value: exception
+    %%step C UpdateEntity field: collecting_at value: null
+
+%%meta name: Baggage Batch loaded move
+%%meta kind: workflow
+%%workflow BaggageBatchLoadedMove entity: BaggageBatch kind: saga trigger: rule
+flowchart TD
+    A([Move to loaded recorded]) --> B[Set the status to loaded]
+    B --> C[Clear delivered at for the next move]
+    C --> D[Clear exception at for the next move]
+    D --> Z([Loaded])
+
+    %%step B UpdateEntity field: status value: loaded
+    %%step C UpdateEntity field: delivered_at value: null
+    %%step D UpdateEntity field: exception_at value: null
+
+%%meta name: Baggage Batch delivered move
+%%meta kind: workflow
+%%workflow BaggageBatchDeliveredMove entity: BaggageBatch kind: saga trigger: rule
+flowchart TD
+    A([Move to delivered recorded]) --> B[Set the status to delivered]
+    B --> Z([Delivered])
+
+    %%step B UpdateEntity field: status value: delivered
+
+%%meta name: Baggage Batch collecting move
+%%meta kind: workflow
+%%workflow BaggageBatchCollectingMove entity: BaggageBatch kind: saga trigger: rule
+flowchart TD
+    A([Move to collecting recorded]) --> B[Set the status to collecting]
+    B --> C[Clear reconciled at for the next move]
+    C --> D[Clear exception at for the next move]
+    D --> Z([Collecting])
+
+    %%step B UpdateEntity field: status value: collecting
+    %%step C UpdateEntity field: reconciled_at value: null
+    %%step D UpdateEntity field: exception_at value: null
+
+%%meta name: Baggage Batch State Progress
+%%meta kind: rules
+%%rule baggageBatchStateProgress on BaggageBatch event: beforeUpdate priority: 90
+flowchart TD
+    A([Baggage Batch updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveCollectingToReconciled trigger-workflow when: status == "collecting" and reconciled_at != null workflow: BaggageBatchReconciledMove
+    %%action moveCollectingToException trigger-workflow when: status == "collecting" and exception_at != null workflow: BaggageBatchExceptionMove
+    %%action moveReconciledToLoaded trigger-workflow when: status == "reconciled" and loaded_at != null workflow: BaggageBatchLoadedMove
+    %%action moveReconciledToDelivered trigger-workflow when: status == "reconciled" and delivered_at != null workflow: BaggageBatchDeliveredMove
+    %%action moveReconciledToException trigger-workflow when: status == "reconciled" and exception_at != null workflow: BaggageBatchExceptionMove
+    %%action moveLoadedToDelivered trigger-workflow when: status == "loaded" and delivered_at != null workflow: BaggageBatchDeliveredMove
+    %%action moveLoadedToException trigger-workflow when: status == "loaded" and exception_at != null workflow: BaggageBatchExceptionMove
+    %%action moveExceptionToCollecting trigger-workflow when: status == "exception" and collecting_at != null workflow: BaggageBatchCollectingMove
+%%field CargoConsignment.received_at help: When the move to received was recorded on this cargo consignment. Recording it moves a cargo consignment from booked to received: the workflows set the status, which nobody changes by hand.
+%%field CargoConsignment.held_at help: When the move to held was recorded on this cargo consignment. Recording it moves a cargo consignment from received to held: the workflows set the status, which nobody changes by hand.
+%%field CargoConsignment.cleared_at help: When the move to cleared was recorded on this cargo consignment. Recording it moves a cargo consignment from received or held to cleared: the workflows set the status, which nobody changes by hand.
+%%field CargoConsignment.dispatched_at help: When the move to dispatched was recorded on this cargo consignment. Recording it moves a cargo consignment from cleared to dispatched: the workflows set the status, which nobody changes by hand.
+%%section entity: CargoConsignment; name: Progress; help: The times that move this cargo consignment along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: received_at, held_at | cleared_at, dispatched_at
+
+%%meta name: Cargo Consignment received move
+%%meta kind: workflow
+%%workflow CargoConsignmentReceivedMove entity: CargoConsignment kind: saga trigger: rule
+flowchart TD
+    A([Move to received recorded]) --> B[Set the status to received]
+    B --> C[Clear held at for the next move]
+    C --> D[Clear cleared at for the next move]
+    D --> Z([Received])
+
+    %%step B UpdateEntity field: status value: received
+    %%step C UpdateEntity field: held_at value: null
+    %%step D UpdateEntity field: cleared_at value: null
+
+%%meta name: Cargo Consignment held move
+%%meta kind: workflow
+%%workflow CargoConsignmentHeldMove entity: CargoConsignment kind: saga trigger: rule
+flowchart TD
+    A([Move to held recorded]) --> B[Set the status to held]
+    B --> C[Clear cleared at for the next move]
+    C --> Z([Held])
+
+    %%step B UpdateEntity field: status value: held
+    %%step C UpdateEntity field: cleared_at value: null
+
+%%meta name: Cargo Consignment cleared move
+%%meta kind: workflow
+%%workflow CargoConsignmentClearedMove entity: CargoConsignment kind: saga trigger: rule
+flowchart TD
+    A([Move to cleared recorded]) --> B[Set the status to cleared]
+    B --> C[Clear dispatched at for the next move]
+    C --> Z([Cleared])
+
+    %%step B UpdateEntity field: status value: cleared
+    %%step C UpdateEntity field: dispatched_at value: null
+
+%%meta name: Cargo Consignment dispatched move
+%%meta kind: workflow
+%%workflow CargoConsignmentDispatchedMove entity: CargoConsignment kind: saga trigger: rule
+flowchart TD
+    A([Move to dispatched recorded]) --> B[Set the status to dispatched]
+    B --> Z([Dispatched])
+
+    %%step B UpdateEntity field: status value: dispatched
+
+%%meta name: Cargo Consignment State Progress
+%%meta kind: rules
+%%rule cargoConsignmentStateProgress on CargoConsignment event: beforeUpdate priority: 90
+flowchart TD
+    A([Cargo Consignment updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveBookedToReceived trigger-workflow when: status == "booked" and received_at != null workflow: CargoConsignmentReceivedMove
+    %%action moveReceivedToHeld trigger-workflow when: status == "received" and held_at != null workflow: CargoConsignmentHeldMove
+    %%action moveReceivedToCleared trigger-workflow when: status == "received" and cleared_at != null workflow: CargoConsignmentClearedMove
+    %%action moveHeldToCleared trigger-workflow when: status == "held" and cleared_at != null workflow: CargoConsignmentClearedMove
+    %%action moveClearedToDispatched trigger-workflow when: status == "cleared" and dispatched_at != null workflow: CargoConsignmentDispatchedMove
+%%field WorkOrder.authorised_at help: When the move to authorised was recorded on this work order. Recording it moves a work order from reported to authorised: the workflows set the status, which nobody changes by hand.
+%%field WorkOrder.repairing_at help: When the move to repairing was recorded on this work order. Recording it moves a work order from authorised or verified to repairing: the workflows set the status, which nobody changes by hand.
+%%field WorkOrder.verified_at help: When the move to verified was recorded on this work order. Recording it moves a work order from repairing to verified: the workflows set the status, which nobody changes by hand.
+%%field WorkOrder.closed_at help: When the move to closed was recorded on this work order. Recording it moves a work order from verified to closed: the workflows set the status, which nobody changes by hand.
+%%section entity: WorkOrder; name: Progress; help: The times that move this work order along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: authorised_at, repairing_at | verified_at, closed_at
+
+%%meta name: Work Order authorised move
+%%meta kind: workflow
+%%workflow WorkOrderAuthorisedMove entity: WorkOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to authorised recorded]) --> B[Set the status to authorised]
+    B --> C[Clear repairing at for the next move]
+    C --> Z([Authorised])
+
+    %%step B UpdateEntity field: status value: authorised
+    %%step C UpdateEntity field: repairing_at value: null
+
+%%meta name: Work Order repairing move
+%%meta kind: workflow
+%%workflow WorkOrderRepairingMove entity: WorkOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to repairing recorded]) --> B[Set the status to repairing]
+    B --> C[Clear verified at for the next move]
+    C --> Z([Repairing])
+
+    %%step B UpdateEntity field: status value: repairing
+    %%step C UpdateEntity field: verified_at value: null
+
+%%meta name: Work Order verified move
+%%meta kind: workflow
+%%workflow WorkOrderVerifiedMove entity: WorkOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to verified recorded]) --> B[Set the status to verified]
+    B --> C[Clear closed at for the next move]
+    C --> D[Clear repairing at for the next move]
+    D --> Z([Verified])
+
+    %%step B UpdateEntity field: status value: verified
+    %%step C UpdateEntity field: closed_at value: null
+    %%step D UpdateEntity field: repairing_at value: null
+
+%%meta name: Work Order closed move
+%%meta kind: workflow
+%%workflow WorkOrderClosedMove entity: WorkOrder kind: saga trigger: rule
+flowchart TD
+    A([Move to closed recorded]) --> B[Set the status to closed]
+    B --> Z([Closed])
+
+    %%step B UpdateEntity field: status value: closed
+
+%%meta name: Work Order State Progress
+%%meta kind: rules
+%%rule workOrderStateProgress on WorkOrder event: beforeUpdate priority: 90
+flowchart TD
+    A([Work Order updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveReportedToAuthorised trigger-workflow when: status == "reported" and authorised_at != null workflow: WorkOrderAuthorisedMove
+    %%action moveAuthorisedToRepairing trigger-workflow when: status == "authorised" and repairing_at != null workflow: WorkOrderRepairingMove
+    %%action moveRepairingToVerified trigger-workflow when: status == "repairing" and verified_at != null workflow: WorkOrderVerifiedMove
+    %%action moveVerifiedToClosed trigger-workflow when: status == "verified" and closed_at != null workflow: WorkOrderClosedMove
+    %%action moveVerifiedToRepairing trigger-workflow when: status == "verified" and repairing_at != null workflow: WorkOrderRepairingMove
+%%field SafetyCase.investigating_at help: When the move to investigating was recorded on this safety case. Recording it moves a safety case from logged, mitigated or resolved to investigating: the workflows set the status, which nobody changes by hand.
+%%field SafetyCase.mitigated_at help: When the move to mitigated was recorded on this safety case. Recording it moves a safety case from investigating to mitigated: the workflows set the status, which nobody changes by hand.
+%%field SafetyCase.resolved_at help: When the move to resolved was recorded on this safety case. Recording it moves a safety case from mitigated to resolved: the workflows set the status, which nobody changes by hand.
+%%section entity: SafetyCase; name: Progress; help: The times that move this safety case along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: investigating_at, mitigated_at | resolved_at
+
+%%meta name: Safety Case investigating move
+%%meta kind: workflow
+%%workflow SafetyCaseInvestigatingMove entity: SafetyCase kind: saga trigger: rule
+flowchart TD
+    A([Move to investigating recorded]) --> B[Set the status to investigating]
+    B --> C[Clear mitigated at for the next move]
+    C --> Z([Investigating])
+
+    %%step B UpdateEntity field: status value: investigating
+    %%step C UpdateEntity field: mitigated_at value: null
+
+%%meta name: Safety Case mitigated move
+%%meta kind: workflow
+%%workflow SafetyCaseMitigatedMove entity: SafetyCase kind: saga trigger: rule
+flowchart TD
+    A([Move to mitigated recorded]) --> B[Set the status to mitigated]
+    B --> C[Clear resolved at for the next move]
+    C --> D[Clear investigating at for the next move]
+    D --> Z([Mitigated])
+
+    %%step B UpdateEntity field: status value: mitigated
+    %%step C UpdateEntity field: resolved_at value: null
+    %%step D UpdateEntity field: investigating_at value: null
+
+%%meta name: Safety Case resolved move
+%%meta kind: workflow
+%%workflow SafetyCaseResolvedMove entity: SafetyCase kind: saga trigger: rule
+flowchart TD
+    A([Move to resolved recorded]) --> B[Set the status to resolved]
+    B --> C[Clear investigating at for the next move]
+    C --> Z([Resolved])
+
+    %%step B UpdateEntity field: status value: resolved
+    %%step C UpdateEntity field: investigating_at value: null
+
+%%meta name: Safety Case State Progress
+%%meta kind: rules
+%%rule safetyCaseStateProgress on SafetyCase event: beforeUpdate priority: 90
+flowchart TD
+    A([Safety Case updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveLoggedToInvestigating trigger-workflow when: status == "logged" and investigating_at != null workflow: SafetyCaseInvestigatingMove
+    %%action moveInvestigatingToMitigated trigger-workflow when: status == "investigating" and mitigated_at != null workflow: SafetyCaseMitigatedMove
+    %%action moveMitigatedToResolved trigger-workflow when: status == "mitigated" and resolved_at != null workflow: SafetyCaseResolvedMove
+    %%action moveMitigatedToInvestigating trigger-workflow when: status == "mitigated" and investigating_at != null workflow: SafetyCaseInvestigatingMove
+    %%action moveResolvedToInvestigating trigger-workflow when: status == "resolved" and investigating_at != null workflow: SafetyCaseInvestigatingMove
+%%field CorrectiveAction.accepted_at help: When the move to accepted was recorded on this corrective action. Recording it moves a corrective action from proposed or implemented to accepted: the workflows set the status, which nobody changes by hand.
+%%field CorrectiveAction.implemented_at help: When the move to implemented was recorded on this corrective action. Recording it moves a corrective action from accepted to implemented: the workflows set the status, which nobody changes by hand.
+%%field CorrectiveAction.validated_at help: When the move to validated was recorded on this corrective action. Recording it moves a corrective action from implemented to validated: the workflows set the status, which nobody changes by hand.
+%%section entity: CorrectiveAction; name: Progress; help: The times that move this corrective action along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: accepted_at, implemented_at | validated_at
+
+%%meta name: Corrective Action accepted move
+%%meta kind: workflow
+%%workflow CorrectiveActionAcceptedMove entity: CorrectiveAction kind: saga trigger: rule
+flowchart TD
+    A([Move to accepted recorded]) --> B[Set the status to accepted]
+    B --> C[Clear implemented at for the next move]
+    C --> Z([Accepted])
+
+    %%step B UpdateEntity field: status value: accepted
+    %%step C UpdateEntity field: implemented_at value: null
+
+%%meta name: Corrective Action implemented move
+%%meta kind: workflow
+%%workflow CorrectiveActionImplementedMove entity: CorrectiveAction kind: saga trigger: rule
+flowchart TD
+    A([Move to implemented recorded]) --> B[Set the status to implemented]
+    B --> C[Clear validated at for the next move]
+    C --> D[Clear accepted at for the next move]
+    D --> Z([Implemented])
+
+    %%step B UpdateEntity field: status value: implemented
+    %%step C UpdateEntity field: validated_at value: null
+    %%step D UpdateEntity field: accepted_at value: null
+
+%%meta name: Corrective Action validated move
+%%meta kind: workflow
+%%workflow CorrectiveActionValidatedMove entity: CorrectiveAction kind: saga trigger: rule
+flowchart TD
+    A([Move to validated recorded]) --> B[Set the status to validated]
+    B --> Z([Validated])
+
+    %%step B UpdateEntity field: status value: validated
+
+%%meta name: Corrective Action State Progress
+%%meta kind: rules
+%%rule correctiveActionStateProgress on CorrectiveAction event: beforeUpdate priority: 90
+flowchart TD
+    A([Corrective Action updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveProposedToAccepted trigger-workflow when: status == "proposed" and accepted_at != null workflow: CorrectiveActionAcceptedMove
+    %%action moveAcceptedToImplemented trigger-workflow when: status == "accepted" and implemented_at != null workflow: CorrectiveActionImplementedMove
+    %%action moveImplementedToValidated trigger-workflow when: status == "implemented" and validated_at != null workflow: CorrectiveActionValidatedMove
+    %%action moveImplementedToAccepted trigger-workflow when: status == "implemented" and accepted_at != null workflow: CorrectiveActionAcceptedMove
+%%field SecurityPass.issued_at help: When the move to issued was recorded on this security pass. Recording it moves a security pass from applied to issued: the workflows set the status, which nobody changes by hand.
+%%field SecurityPass.revoked_at help: When the move to revoked was recorded on this security pass. Recording it moves a security pass from applied or issued to revoked: the workflows set the status, which nobody changes by hand.
+%%field SecurityPass.expired_at help: When the move to expired was recorded on this security pass. Recording it moves a security pass from issued to expired: the workflows set the status, which nobody changes by hand.
+%%section entity: SecurityPass; name: Progress; help: The times that move this security pass along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: issued_at, revoked_at | expired_at
+
+%%meta name: Security Pass issued move
+%%meta kind: workflow
+%%workflow SecurityPassIssuedMove entity: SecurityPass kind: saga trigger: rule
+flowchart TD
+    A([Move to issued recorded]) --> B[Set the status to issued]
+    B --> C[Clear revoked at for the next move]
+    C --> D[Clear expired at for the next move]
+    D --> Z([Issued])
+
+    %%step B UpdateEntity field: status value: issued
+    %%step C UpdateEntity field: revoked_at value: null
+    %%step D UpdateEntity field: expired_at value: null
+
+%%meta name: Security Pass revoked move
+%%meta kind: workflow
+%%workflow SecurityPassRevokedMove entity: SecurityPass kind: saga trigger: rule
+flowchart TD
+    A([Move to revoked recorded]) --> B[Set the status to revoked]
+    B --> Z([Revoked])
+
+    %%step B UpdateEntity field: status value: revoked
+
+%%meta name: Security Pass expired move
+%%meta kind: workflow
+%%workflow SecurityPassExpiredMove entity: SecurityPass kind: saga trigger: rule
+flowchart TD
+    A([Move to expired recorded]) --> B[Set the status to expired]
+    B --> Z([Expired])
+
+    %%step B UpdateEntity field: status value: expired
+
+%%meta name: Security Pass State Progress
+%%meta kind: rules
+%%rule securityPassStateProgress on SecurityPass event: beforeUpdate priority: 90
+flowchart TD
+    A([Security Pass updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveAppliedToIssued trigger-workflow when: status == "applied" and issued_at != null workflow: SecurityPassIssuedMove
+    %%action moveAppliedToRevoked trigger-workflow when: status == "applied" and revoked_at != null workflow: SecurityPassRevokedMove
+    %%action moveIssuedToRevoked trigger-workflow when: status == "issued" and revoked_at != null workflow: SecurityPassRevokedMove
+    %%action moveIssuedToExpired trigger-workflow when: status == "issued" and expired_at != null workflow: SecurityPassExpiredMove
+%%field Charge.approved_at help: When the move to approved was recorded on this charge. Recording it moves a charge from assessed to approved: the workflows set the status, which nobody changes by hand.
+%%field Charge.disputed_at help: When the move to disputed was recorded on this charge. Recording it moves a charge from assessed or approved to disputed: the workflows set the status, which nobody changes by hand.
+%%field Charge.billed_at help: When the move to billed was recorded on this charge. Recording it moves a charge from approved to billed: the workflows set the status, which nobody changes by hand.
+%%field Charge.assessed_at help: When the move to assessed was recorded on this charge. Recording it moves a charge from disputed to assessed: the workflows set the status, which nobody changes by hand.
+%%section entity: Charge; name: Progress; help: The times that move this charge along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: approved_at, disputed_at | billed_at, assessed_at
+
+%%meta name: Charge approved move
+%%meta kind: workflow
+%%workflow ChargeApprovedMove entity: Charge kind: saga trigger: rule
+flowchart TD
+    A([Move to approved recorded]) --> B[Set the status to approved]
+    B --> C[Clear billed at for the next move]
+    C --> D[Clear disputed at for the next move]
+    D --> Z([Approved])
+
+    %%step B UpdateEntity field: status value: approved
+    %%step C UpdateEntity field: billed_at value: null
+    %%step D UpdateEntity field: disputed_at value: null
+
+%%meta name: Charge disputed move
+%%meta kind: workflow
+%%workflow ChargeDisputedMove entity: Charge kind: saga trigger: rule
+flowchart TD
+    A([Move to disputed recorded]) --> B[Set the status to disputed]
+    B --> C[Clear assessed at for the next move]
+    C --> Z([Disputed])
+
+    %%step B UpdateEntity field: status value: disputed
+    %%step C UpdateEntity field: assessed_at value: null
+
+%%meta name: Charge billed move
+%%meta kind: workflow
+%%workflow ChargeBilledMove entity: Charge kind: saga trigger: rule
+flowchart TD
+    A([Move to billed recorded]) --> B[Set the status to billed]
+    B --> Z([Billed])
+
+    %%step B UpdateEntity field: status value: billed
+
+%%meta name: Charge assessed move
+%%meta kind: workflow
+%%workflow ChargeAssessedMove entity: Charge kind: saga trigger: rule
+flowchart TD
+    A([Move to assessed recorded]) --> B[Set the status to assessed]
+    B --> C[Clear approved at for the next move]
+    C --> D[Clear disputed at for the next move]
+    D --> Z([Assessed])
+
+    %%step B UpdateEntity field: status value: assessed
+    %%step C UpdateEntity field: approved_at value: null
+    %%step D UpdateEntity field: disputed_at value: null
+
+%%meta name: Charge State Progress
+%%meta kind: rules
+%%rule chargeStateProgress on Charge event: beforeUpdate priority: 90
+flowchart TD
+    A([Charge updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveAssessedToApproved trigger-workflow when: status == "assessed" and approved_at != null workflow: ChargeApprovedMove
+    %%action moveAssessedToDisputed trigger-workflow when: status == "assessed" and disputed_at != null workflow: ChargeDisputedMove
+    %%action moveApprovedToBilled trigger-workflow when: status == "approved" and billed_at != null workflow: ChargeBilledMove
+    %%action moveApprovedToDisputed trigger-workflow when: status == "approved" and disputed_at != null workflow: ChargeDisputedMove
+    %%action moveDisputedToAssessed trigger-workflow when: status == "disputed" and assessed_at != null workflow: ChargeAssessedMove
+%%field Invoice.issued_at help: When the move to issued was recorded on this invoice. Recording it moves an invoice from draft to issued: the workflows set the status, which nobody changes by hand.
+%%field Invoice.void_at help: When the move to void was recorded on this invoice. Recording it moves an invoice from draft or issued to void: the workflows set the status, which nobody changes by hand.
+%%field Invoice.settled_at help: When the move to settled was recorded on this invoice. Recording it moves an invoice from issued to settled: the workflows set the status, which nobody changes by hand.
+%%section entity: Invoice; name: Progress; help: The times that move this invoice along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: issued_at, void_at | settled_at
+
+%%meta name: Invoice issued move
+%%meta kind: workflow
+%%workflow InvoiceIssuedMove entity: Invoice kind: saga trigger: rule
+flowchart TD
+    A([Move to issued recorded]) --> B[Set the status to issued]
+    B --> C[Clear settled at for the next move]
+    C --> D[Clear void at for the next move]
+    D --> Z([Issued])
+
+    %%step B UpdateEntity field: status value: issued
+    %%step C UpdateEntity field: settled_at value: null
+    %%step D UpdateEntity field: void_at value: null
+
+%%meta name: Invoice void move
+%%meta kind: workflow
+%%workflow InvoiceVoidMove entity: Invoice kind: saga trigger: rule
+flowchart TD
+    A([Move to void recorded]) --> B[Set the status to void]
+    B --> Z([Void])
+
+    %%step B UpdateEntity field: status value: void
+
+%%meta name: Invoice settled move
+%%meta kind: workflow
+%%workflow InvoiceSettledMove entity: Invoice kind: saga trigger: rule
+flowchart TD
+    A([Move to settled recorded]) --> B[Set the status to settled]
+    B --> Z([Settled])
+
+    %%step B UpdateEntity field: status value: settled
+
+%%meta name: Invoice State Progress
+%%meta kind: rules
+%%rule invoiceStateProgress on Invoice event: beforeUpdate priority: 90
+flowchart TD
+    A([Invoice updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveDraftToIssued trigger-workflow when: status == "draft" and issued_at != null workflow: InvoiceIssuedMove
+    %%action moveDraftToVoid trigger-workflow when: status == "draft" and void_at != null workflow: InvoiceVoidMove
+    %%action moveIssuedToSettled trigger-workflow when: status == "issued" and settled_at != null workflow: InvoiceSettledMove
+    %%action moveIssuedToVoid trigger-workflow when: status == "issued" and void_at != null workflow: InvoiceVoidMove
+%%field Receipt.reconciled_at help: When the move to reconciled was recorded on this receipt. Recording it moves a receipt from recorded to reconciled: the workflows set the status, which nobody changes by hand.
+%%field Receipt.reversed_at help: When the move to reversed was recorded on this receipt. Recording it moves a receipt from recorded or reconciled to reversed: the workflows set the status, which nobody changes by hand.
+%%section entity: Receipt; name: Progress; help: The times that move this receipt along its lifecycle. Recording one is how its status changes; the status itself is shown in the header.; rows: reconciled_at, reversed_at
+
+%%meta name: Receipt reconciled move
+%%meta kind: workflow
+%%workflow ReceiptReconciledMove entity: Receipt kind: saga trigger: rule
+flowchart TD
+    A([Move to reconciled recorded]) --> B[Set the status to reconciled]
+    B --> C[Clear reversed at for the next move]
+    C --> Z([Reconciled])
+
+    %%step B UpdateEntity field: status value: reconciled
+    %%step C UpdateEntity field: reversed_at value: null
+
+%%meta name: Receipt reversed move
+%%meta kind: workflow
+%%workflow ReceiptReversedMove entity: Receipt kind: saga trigger: rule
+flowchart TD
+    A([Move to reversed recorded]) --> B[Set the status to reversed]
+    B --> Z([Reversed])
+
+    %%step B UpdateEntity field: status value: reversed
+
+%%meta name: Receipt State Progress
+%%meta kind: rules
+%%rule receiptStateProgress on Receipt event: beforeUpdate priority: 90
+flowchart TD
+    A([Receipt updated]) --> B{Is the time of a move recorded?}
+    B -->|Yes| C[Start that move's workflow]
+    B -->|No| E([Nothing to move])
+    C --> E
+
+    %%action moveRecordedToReconciled trigger-workflow when: status == "recorded" and reconciled_at != null workflow: ReceiptReconciledMove
+    %%action moveRecordedToReversed trigger-workflow when: status == "recorded" and reversed_at != null workflow: ReceiptReversedMove
+    %%action moveReconciledToReversed trigger-workflow when: status == "reconciled" and reversed_at != null workflow: ReceiptReversedMove

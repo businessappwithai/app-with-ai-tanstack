@@ -19,6 +19,9 @@
 | `needs_summary` | text | — | A concise functional description of what affects learning, access, health or behaviour. Record only what staff need to support the student. |
 | `adjustments` | text | — | The practical changes staff must make in lessons, assessment, access or care; written so a teacher can act without reading sensitive background evidence. |
 | `review_notes` | text | OPTIONAL | The latest review outcome, including what worked, what changed and who was consulted. Earlier versions remain in the generated audit history. |
+| `active_at` | datetime | OPTIONAL | When the move to active was recorded on this support plan. Recording it moves a support plan from draft or under review to active: the workflows set the status, which nobody changes by hand. |
+| `under_review_at` | datetime | OPTIONAL | When the move to under review was recorded on this support plan. Recording it moves a support plan from active to under review: the workflows set the status, which nobody changes by hand. |
+| `closed_at` | datetime | OPTIONAL | When the move to closed was recorded on this support plan. Recording it moves a support plan from active or under review to closed: the workflows set the status, which nobody changes by hand. |
 
 ## Enums
 
@@ -52,6 +55,15 @@ closed --> [*]
 ### `supportPlanControl` on `beforeUpdate` — **`%%action` decision table — it can act**
 
 - `requireSupportPlanClosureDate validation-error when: status == "closed" and closed_on == null message: A closed support plan needs the date its adjustments stopped applying.`
+- `requireSupportPlanClosureDateOnMove validation-error when: closed_at != null and closed_on == null message: A closed support plan needs the date its adjustments stopped applying.`
+
+### `supportPlanStateProgress` on `beforeUpdate` — **`%%action` decision table — it can act**
+
+- `moveDraftToActive trigger-workflow when: status == "draft" and active_at != null workflow: SupportPlanActiveMove`
+- `moveActiveToUnderReview trigger-workflow when: status == "active" and under_review_at != null workflow: SupportPlanUnderReviewMove`
+- `moveUnderReviewToActive trigger-workflow when: status == "under_review" and active_at != null workflow: SupportPlanActiveMove`
+- `moveActiveToClosed trigger-workflow when: status == "active" and closed_at != null workflow: SupportPlanClosedMove`
+- `moveUnderReviewToClosed trigger-workflow when: status == "under_review" and closed_at != null workflow: SupportPlanClosedMove`
 
 ## Hooks
 
@@ -63,6 +75,19 @@ closed --> [*]
 
 Keeps `Student.has_support_plan` true while the student has a plan that is `active` or `under_review`: `syncStudentSupportFlagOnCreate`, `…OnUpdate` and `…OnDelete` recompute the flag from the student's plans after each write, so a draft or closed plan does not set it and closing the last live plan clears it.
 
+Sagas that touch it:
+
+- **SupportPlanActiveMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: active`
+  - `C UpdateEntity field: under_review_at value: null`
+  - `D UpdateEntity field: closed_at value: null`
+- **SupportPlanUnderReviewMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: under_review`
+  - `C UpdateEntity field: active_at value: null`
+  - `D UpdateEntity field: closed_at value: null`
+- **SupportPlanClosedMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: closed`
+
 ## Access
 
 | Operation | Roles |
@@ -70,8 +95,6 @@ Keeps `Student.has_support_plan` true while the student has a plan that is `acti
 | `read` | principal · registrar · head_of_department · teacher · counsellor |
 | `create` | counsellor · registrar |
 | `update` | counsellor · registrar |
-| `activate` | counsellor · principal |
-| `close` | counsellor · principal |
 
 ## Open questions
 

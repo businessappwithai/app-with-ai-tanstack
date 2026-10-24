@@ -47,6 +47,7 @@ import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";
 import { buildFkConstraints } from "./fk-constraints";
 import { formLayoutFor } from "../../parsers/section.parser";
+import { STATE_FIELD_REFUSAL_CODE, stateFieldOf } from "../../../../../language/state-field";
 
 /**
  * Carry an entity's `%%section` layout into the template context.
@@ -511,7 +512,7 @@ export class NestJsBackendGenerator extends BaseGenerator {
   ): string {
     const entity = busEntities.find((candidate) => candidate.tableName === tableName);
     const columns = (entity?.attributes ?? []).map((a) => a.columnName ?? a.name);
-    return columns.includes("status") ? "status" : "workflow_status";
+    return stateFieldOf(columns.filter((name): name is string => !!name)) ?? "workflow_status";
   }
 
   /**
@@ -1013,8 +1014,20 @@ export class NestJsBackendGenerator extends BaseGenerator {
   /** Shared JDM file writer — used by both full generation and generateSingleEntity. */
   private async writeEntityJdm(busEntity: any, outputDir: string): Promise<void> {
     try {
+      // A state field is never required of the writer: the system puts a new
+      // record into the machine's initial state, and a person may not send one.
+      // A "<Status> is required" row would refuse every create the guard had
+      // just stripped the state from.
+      const hasMachine = (this.options.compiledWorkflows ?? []).some(
+        (workflow) => workflow.entity === busEntity.name || workflow.entity === busEntity.className
+      );
+      const columns: string[] = (busEntity.attributes ?? []).map((a: any) => a.columnName ?? a.name);
+      const stateField = hasMachine ? stateFieldOf(columns) : undefined;
       let jdmContent = await this.renderTemplate("src/modules/rules/jdm/entity.jdm.json.hbs", {
         ...busEntity,
+        attributes: (busEntity.attributes ?? []).map((a: any) =>
+          stateField && (a.columnName ?? a.name) === stateField ? { ...a, required: false } : a
+        ),
       });
       jdmContent = cleanJsonContent(jdmContent);
       jdmContent = JSON.stringify(normalizeJdmDecisionTables(JSON.parse(jdmContent)), null, 2);
@@ -1811,6 +1824,15 @@ export async function executeCustomValidateHooks(
       this.renderWorkflowTransitionsSeed(context)
     );
 
+    // The state field of every entity with a state machine, and the state a new
+    // record starts in. The guard reads it to refuse a person's write to that
+    // column, and the bus service to start a new record in its initial state.
+    await fs.mkdir(path.join(outputDir, "src/common"), { recursive: true });
+    await fs.writeFile(
+      path.join(outputDir, "src/common/state-fields.ts"),
+      this.renderStateFields(context)
+    );
+
     // Seed default AnkaReport layouts for every entity into sys_report_designs.
     const reportDesignsSeedContent = await this.renderTemplate(
       "../../common/seeds/report-designs.ts.hbs",
@@ -1860,7 +1882,7 @@ export async function executeCustomValidateHooks(
       // Status lives on whichever column the model gave the entity; `status` is
       // the conventional one, `workflow_status` the fallback every bus table has.
       const columns: string[] = (entity.attributes ?? []).map((a: any) => a.columnName ?? a.name);
-      const statusField = columns.includes("status") ? "status" : "workflow_status";
+      const statusField = stateFieldOf(columns) ?? "workflow_status";
 
       const description = workflow
         ? describeWorkflow(workflow)
@@ -2012,6 +2034,62 @@ export async function seed(db: Kysely<any>): Promise<void> {
    * to refuse a status-field write that has no matching edge from the record's
    * current state — enforcing the topology, not just who may cross an edge.
    */
+  /**
+   * `src/common/state-fields.ts`: table → its state field and initial state.
+   *
+   * The state field is system-managed (language/state-field.ts): no person
+   * writes it through /bus, a new record starts in the machine's initial state,
+   * and only background workflows — saga steps, rules, hooks — move it. Written
+   * as a module rather than read from sys_workflow_transitions because the
+   * initial edge (`[*] --> x`) is not a row there, and the answer must not
+   * depend on a seed having run.
+   */
+  private renderStateFields(context: any): string {
+    const byEntity = new Map<string, CompiledWorkflow>();
+    for (const workflow of this.options.compiledWorkflows ?? []) {
+      if (!byEntity.has(workflow.entity)) byEntity.set(workflow.entity, workflow);
+    }
+    const rows: string[] = [];
+    for (const entity of context.entities ?? []) {
+      const workflow = byEntity.get(entity.name) ?? byEntity.get(entity.className);
+      if (!workflow) continue;
+      const columns: string[] = (entity.attributes ?? []).map((a: any) => a.columnName ?? a.name);
+      const field = stateFieldOf(columns) ?? "workflow_status";
+      const initial = workflow.initial ? `'${workflow.initial}'` : "null";
+      rows.push(`  ${entity.tableName}: { field: '${field}', initial: ${initial} },`);
+    }
+    return [
+      `/**`,
+      ` * The state field of every entity with a state machine — generated from the`,
+      ` * model, do not edit.`,
+      ` *`,
+      ` * A state field is never changed by a person through a form or a direct API`,
+      ` * write: only background workflows (saga steps, rules, hooks) change it, and a`,
+      ` * new record starts in its machine's initial state. The form shows it`,
+      ` * read-only in the record header and the list grid always shows it.`,
+      ` */`,
+      `export interface StateField {`,
+      `  /** The column the state machine drives. */`,
+      `  field: string;`,
+      `  /** The state a new record starts in — the \`[*] --> x\` edge. */`,
+      `  initial: string | null;`,
+      `}`,
+      ``,
+      `export const STATE_FIELDS: Readonly<Record<string, StateField>> = {`,
+      ...rows,
+      `};`,
+      ``,
+      `/** \`details.code\` of the refusal a person's write to a state field receives. */`,
+      `export const STATE_FIELD_REFUSAL_CODE = '${STATE_FIELD_REFUSAL_CODE}';`,
+      ``,
+      `/** The state field of a \`bus_\` table, or undefined when it has no state machine. */`,
+      `export function stateFieldOf(tableName: string): StateField | undefined {`,
+      `  return STATE_FIELDS[tableName];`,
+      `}`,
+      ``,
+    ].join("\n");
+  }
+
   private renderWorkflowTransitionsSeed(context: any): string {
     const byEntity = new Map<string, CompiledWorkflow>();
     for (const workflow of this.options.compiledWorkflows ?? []) {
@@ -2024,7 +2102,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       if (!workflow || workflow.transitions.length === 0) continue;
 
       const columns: string[] = (entity.attributes ?? []).map((a: any) => a.columnName ?? a.name);
-      const statusField = columns.includes("status") ? "status" : "workflow_status";
+      const statusField = stateFieldOf(columns) ?? "workflow_status";
 
       for (const t of workflow.transitions) {
         if (t.from === "[*]" || t.to === "[*]") continue; // initial/terminal not stored

@@ -222,8 +222,12 @@ Gate B.
 
 ## 10. Revisions 1.1.0 and 1.2.0 — what the model added, and what that supersedes
 
-The model now has **25 entities, 16 state machines, 15 rules, 7 sagas, 26 hooks, 8 declared roles,
-94 access restrictions and 45 `%%report` directives** (it had 19, 11, 10, 5, 19, 8, 68 and 40).
+The model now has **25 entities, 16 state machines, 31 rules, 63 sagas, 26 hooks, 8 declared roles,
+71 access restrictions and 45 `%%report` directives** (it had 19, 11, 10, 5, 19, 8, 68 and 40).
+The state rule accounts for most of the growth: no person changes a status, so every move a lifecycle
+draws is made by a saga a rule starts when the fact behind it is recorded — 56 move sagas, one
+`<entity>StateProgress` rule per lifecycle, and the 23 `%%rbac` lines that granted a transition to a
+role removed, because there is no longer a transition to grant.
 Revision 1.1.0 added the five entities below; the later change closed the four gaps it had left open
 (`progress.md` questions 6–8, and the refund approver): `ConcernFeedback` is the 25th entity, two
 refund sagas and seven hooks were added, the invoice machine gained three edges, and `refundControl`

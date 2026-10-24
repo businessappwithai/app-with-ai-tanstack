@@ -776,6 +776,13 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/ad-detail-shell.tsx",
       },
       {
+        // The record's state, read-only in the detail header. ad-detail-shell
+        // imports it, so leaving it out of this list fails the generated
+        // app's build.
+        src: "src/components/admin/state-badge.tsx",
+        dest: "src/components/admin/state-badge.tsx",
+      },
+      {
         // The entity icon control on the Table and Column detail screen: a
         // lucide name or an uploaded image, written to sys_table.icon.
         // admin/table/$tableId/index.tsx imports it, so leaving it out of this

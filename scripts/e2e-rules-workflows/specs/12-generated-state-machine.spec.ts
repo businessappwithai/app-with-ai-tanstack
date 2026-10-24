@@ -6,9 +6,13 @@
  *   open -> in_progress, open -> closed, in_progress -> resolved,
  *   resolved -> in_progress, resolved -> closed
  *
- * The guard refuses a status write with no matching edge — for every caller,
- * administrator included — and `GET /api/workflows/transitions` offers only the
- * moves that exist. Each case drives the API and asserts what the record did.
+ * No person changes the status: a write that changes it is refused with
+ * STATE_FIELD_SYSTEM_MANAGED, administrator included. A ticket moves when the
+ * fact behind a move is recorded (`in_progress_at`, `resolved_at`,
+ * `closed_at`): the model's ticketStateProgress rule starts the saga that
+ * writes the state, and only along an edge the diagram drew.
+ * `GET /api/workflows/transitions` still lists the moves that exist. Each case
+ * drives the API and asserts what the record did.
  *
  * Run with `bun run test:e2e:rules-workflows -- --generated --model
  * scripts/e2e-rules-workflows/models/rule-kinds.eml.mmd`; skipped otherwise.
@@ -66,6 +70,13 @@ test.describe("a generated application enforces a drawn state machine", () => {
   const setStatus = (id: string, status: string) =>
     api.patch(`/api/bus/ticket/${id}`, { data: { status }, failOnStatusCode: false });
 
+  /** Record the fact a move rests on — the time it happened. */
+  const record = (id: string, fact: string) =>
+    api.patch(`/api/bus/ticket/${id}`, {
+      data: { [fact]: new Date().toISOString() },
+      failOnStatusCode: false,
+    });
+
   const statusOf = async (id: string): Promise<string | undefined> => {
     const body = (await (await api.get(`/api/bus/ticket/${id}`)).json()) as {
       status?: string;
@@ -93,31 +104,48 @@ test.describe("a generated application enforces a drawn state machine", () => {
     }
   });
 
-  test("a drawn move is accepted, and the record keeps it", async () => {
+  test("a person's change to the status is refused, administrator included", async () => {
     const id = await createTicket();
+    expect(await statusOf(id), "a new ticket starts in the initial state").toBe("open");
     const response = await setStatus(id, "in_progress");
+    expect(response.status(), await response.text()).toBe(403);
+    expect(await response.text()).toContain("STATE_FIELD_SYSTEM_MANAGED");
+    expect(await statusOf(id), "the refused write must leave the record alone").toBe("open");
+  });
+
+  test("recording the fact behind a drawn move makes the move", async () => {
+    const id = await createTicket();
+    const response = await record(id, "in_progress_at");
     expect(response.status(), await response.text()).toBeLessThan(300);
     expect(await statusOf(id)).toBe("in_progress");
   });
 
-  test("a move the diagram never drew is refused, administrator or not", async () => {
+  test("a fact with no drawn move from here moves nothing", async () => {
     const id = await createTicket();
     // open -> resolved is not an edge: it must go through in_progress.
-    const response = await setStatus(id, "resolved");
-    expect(response.status(), await response.text()).toBeGreaterThanOrEqual(400);
-    expect(response.status()).toBeLessThan(500);
-    expect(await statusOf(id), "the refused write must leave the record alone").toBe("open");
+    const response = await record(id, "resolved_at");
+    expect(response.status(), await response.text()).toBeLessThan(300);
+    expect(await statusOf(id)).toBe("open");
   });
 
   test("a whole path is walkable, and a closed ticket goes nowhere", async () => {
     const id = await createTicket();
-    for (const next of ["in_progress", "resolved", "in_progress", "resolved", "closed"]) {
-      const response = await setStatus(id, next);
-      expect(response.status(), `to ${next}: ${await response.text()}`).toBeLessThan(300);
+    const path: Array<[string, string]> = [
+      ["in_progress_at", "in_progress"],
+      ["resolved_at", "resolved"],
+      ["in_progress_at", "in_progress"],
+      ["resolved_at", "resolved"],
+      ["closed_at", "closed"],
+    ];
+    for (const [fact, state] of path) {
+      const response = await record(id, fact);
+      expect(response.status(), `${fact}: ${await response.text()}`).toBeLessThan(300);
+      expect(await statusOf(id), `after recording ${fact}`).toBe(state);
     }
+    await record(id, "in_progress_at");
     expect(await statusOf(id)).toBe("closed");
     const back = await setStatus(id, "open");
-    expect(back.status()).toBeGreaterThanOrEqual(400);
+    expect(back.status()).toBe(403);
     expect(await statusOf(id)).toBe("closed");
   });
 });

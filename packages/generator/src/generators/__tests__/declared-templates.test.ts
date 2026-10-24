@@ -61,10 +61,18 @@ const TEMPLATE_ROOTS = [
  * to disk rather than rendered — deliberately, so the two cannot drift. The
  * string in the generator is where it is *written*, not where it is read from.
  *
+ * `state-fields.ts` is the table → state field map the guard and the bus
+ * service read. It is rendered from the compiled state machines by
+ * `renderStateFields`, not from a template, because the initial state is not
+ * stored anywhere a template could read it.
+ *
  * An addition here needs a reason written beside it. That is the point of the
  * allowlist being short: a new entry is a review conversation, not a habit.
  */
-const OUTPUT_ONLY_PATHS = new Set(["src/common/logging/log-spec.json"]);
+const OUTPUT_ONLY_PATHS = new Set([
+  "src/common/logging/log-spec.json",
+  "src/common/state-fields.ts",
+]);
 
 /** Generator sources, excluding tests and generated bundles. */
 function generatorSources(dir: string, found: string[] = []): string[] {

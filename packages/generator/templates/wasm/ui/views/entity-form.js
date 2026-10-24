@@ -112,15 +112,27 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
 
   let fields;
   let record = {};
+  /* The state field, when the entity has a state machine. It is never among
+     the form fields — no person changes it — so it is read from the grid
+     fields, which always carry it, and shown in the header. */
+  let stateField = null;
   try {
     fields = await api.get(`/bus/${entity.routeName}/fields/form`);
     if (!isNew) record = await api.get(`/bus/${entity.routeName}/${id}`);
+    try {
+      const grid = await api.get(`/bus/${entity.routeName}/fields/grid`);
+      stateField = grid.find((field) => field.is_state_field) ?? null;
+    } catch {
+      stateField = null;
+    }
   } catch (error) {
     mount(root, el("div.empty", el("h3", "Could not open this record"), el("p", error.message)));
     return;
   }
 
-  const editable = fields.filter((field) => !["id", "version"].includes(field.column_name));
+  const editable = fields.filter(
+    (field) => !["id", "version"].includes(field.column_name) && !field.is_state_field
+  );
   // Optimistic locking: the version this form opened the record at. A save
   // sends it as If-Match and the server refuses it with 409 if someone has
   // saved since; "Overwrite" moves it to the version that conflict reported.
@@ -308,6 +320,7 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
       el(
         "header.record__head",
         el("h2.record__title", isNew ? `New ${entity.singularName}` : recordTitle(record, editable, entity)),
+        stateBadge(stateField, record, entity, isNew),
         el("button.record__close", { title: "Close", "aria-label": "Close", onclick: onClose }, "✕")
       ),
       form,
@@ -567,35 +580,18 @@ async function sidePanels(entity, id, record, onSaved) {
           "div.side__card",
           el("h3.side__title", "Process"),
           el("p.side__meta", `${workflow.workflow} — currently ${workflow.current ?? "unset"}`),
+          el(
+            "p.side__meta",
+            "The application's workflows move it on, when what each move depends on is recorded. Nobody changes it by hand."
+          ),
           workflow.transitions.length
             ? el(
-                "div.side__transitions",
+                "ul.side__transitions",
                 workflow.transitions.map((transition) =>
-                  el(
-                    "button.btn",
-                    {
-                      disabled: !transition.permitted,
-                      title: transition.permitted
-                        ? `Move to ${transition.to}`
-                        : `Requires ${transition.requiredRoles.join(" or ")}`,
-                      onclick: async () => {
-                        try {
-                          await api.put(`/bus/${entity.routeName}/${id}`, {
-                            [workflow.column]: transition.to,
-                          });
-                          toast(`Moved to ${transition.to}`, "success");
-                          await onSaved(null);
-                          window.location.reload();
-                        } catch (error) {
-                          toast(error.message, "error");
-                        }
-                      },
-                    },
-                    transition.trigger || `→ ${transition.to}`
-                  )
+                  el("li", transition.trigger ? `${title(transition.trigger)} → ${title(transition.to)}` : `→ ${title(transition.to)}`)
                 )
               )
-            : el("p.side__empty", "No transitions available from here.")
+            : el("p.side__empty", "This is a final state.")
         )
       );
     }
@@ -876,6 +872,28 @@ function showProblem(box, error) {
   );
   box.hidden = false;
   box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+/**
+ * The record's state, read-only, in the form's header.
+ *
+ * A state field is changed only by the application's background workflows, so
+ * it is never an input: it is shown here beside the title, and as a column of
+ * the list. A new record shows the state it will start in.
+ */
+function stateBadge(field, record, entity, isNew) {
+  if (!field) return null;
+  const value = isNew ? null : record[field.column_name];
+  const label = value == null || value === "" ? null : title(value);
+  return el(
+    "span.record__state",
+    {
+      "data-testid": "record-state",
+      title: `${field.name} — changed only by the application's workflows, never by hand`,
+      "aria-label": `${field.name}: ${label ?? "set when saved"}`,
+    },
+    label ?? "Set when saved"
+  );
 }
 
 function recordTitle(record, fields, entity) {

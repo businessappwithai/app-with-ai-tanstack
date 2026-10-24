@@ -20,6 +20,10 @@
 | `sanction` | string | OPTIONAL | none — recorded, no sanction; warning — spoken or written; detention — supervised time; parental_meeting — the family is asked in; suspension — the student is barred from sessions and their status changes; exclusion — permanent, and the governors are involved. Required before an incident can move to action_taken. |
 | `sanction_notes` | text | OPTIONAL | The detail of the sanction — how long, when, who supervised. The field the appeal is answered from, and the reason a bare enum was not enough. |
 | `closed_on` | date | OPTIONAL | When the matter was finished. The open-incidents report is everything with no date here, and the ageing on that list is the pastoral team's real workload. |
+| `under_review_at` | datetime | OPTIONAL | When the move to under review was recorded on this discipline incident. Recording it moves a discipline incident from reported to under review: the workflows set the status, which nobody changes by hand. |
+| `dismissed_at` | datetime | OPTIONAL | When the move to dismissed was recorded on this discipline incident. Recording it moves a discipline incident from reported or under review to dismissed: the workflows set the status, which nobody changes by hand. |
+| `action_taken_at` | datetime | OPTIONAL | When the move to action taken was recorded on this discipline incident. Recording it moves a discipline incident from under review to action taken: the workflows set the status, which nobody changes by hand. |
+| `closed_at` | datetime | OPTIONAL | When the move to closed was recorded on this discipline incident. Recording it moves a discipline incident from action taken to closed: the workflows set the status, which nobody changes by hand. |
 
 ## Enums
 
@@ -55,9 +59,19 @@ dismissed --> [*]
 ### `conductOutcome` on `beforeUpdate` — **`%%action` decision table — it can act**
 
 - `requireSanction validation-error when: status == "action_taken" and sanction == null message: An incident cannot move to action taken with no sanction recorded — including a sanction of none, which is itself a decision.`
+- `requireSanctionOnMove validation-error when: action_taken_at != null and sanction == null message: An incident cannot move to action taken with no sanction recorded — including a sanction of none, which is itself a decision.`
 - `requireSanctionNotes validation-error when: sanction == "suspension" and sanction_notes == null message: A suspension needs its detail — how long, from when, and who agreed it. The appeal is answered from this field.`
 - `requireClosureDate validation-error when: status == "closed" and closed_on == null message: A closed incident needs the date it was closed; the ageing on the open list is measured from it.`
+- `requireClosureDateOnMove validation-error when: closed_at != null and closed_on == null message: A closed incident needs the date it was closed; the ageing on the open list is measured from it.`
 - `suspendOnSuspension trigger-workflow when: sanction == "suspension" workflow: SuspensionEscalation`
+
+### `disciplineIncidentStateProgress` on `beforeUpdate` — **`%%action` decision table — it can act**
+
+- `moveReportedToUnderReview trigger-workflow when: status == "reported" and under_review_at != null workflow: DisciplineIncidentUnderReviewMove`
+- `moveReportedToDismissed trigger-workflow when: status == "reported" and dismissed_at != null workflow: DisciplineIncidentDismissedMove`
+- `moveUnderReviewToActionTaken trigger-workflow when: status == "under_review" and action_taken_at != null workflow: DisciplineIncidentActionTakenMove`
+- `moveUnderReviewToDismissed trigger-workflow when: status == "under_review" and dismissed_at != null workflow: DisciplineIncidentDismissedMove`
+- `moveActionTakenToClosed trigger-workflow when: status == "action_taken" and closed_at != null workflow: DisciplineIncidentClosedMove`
 
 ## Hooks
 
@@ -70,7 +84,18 @@ A suspension sanction suspends the student — trigger `DisciplineIncident` → 
 Sagas that touch it:
 
 - **SuspensionEscalation** *(triggered on this entity)*
-  - `B UpdateEntity entity: Student targetField: student_id field: status value: suspended`
+  - `B UpdateEntity entity: Student targetSource: student_id field: status value: suspended`
+- **DisciplineIncidentUnderReviewMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: under_review`
+  - `C UpdateEntity field: action_taken_at value: null`
+  - `D UpdateEntity field: dismissed_at value: null`
+- **DisciplineIncidentDismissedMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: dismissed`
+- **DisciplineIncidentActionTakenMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: action_taken`
+  - `C UpdateEntity field: closed_at value: null`
+- **DisciplineIncidentClosedMove** *(triggered on this entity)*
+  - `B UpdateEntity field: status value: closed`
 
 ## Access
 
@@ -79,8 +104,6 @@ Sagas that touch it:
 | `read` | principal · counsellor |
 | `create` | counsellor · principal |
 | `update` | counsellor · principal |
-| `apply_sanction` | counsellor · principal |
-| `dismiss` | principal |
 
 ## Open questions
 

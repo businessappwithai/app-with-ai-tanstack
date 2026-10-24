@@ -21,7 +21,7 @@ import { badRequest, json, noContent, notFound, readJson } from "../lib/http.js"
 import { requireAdmin, requireUser } from "../lib/guards.js";
 import { resolveEntity } from "./bus.routes.js";
 import { ident } from "../lib/db.js";
-import { stateMachineFor } from "../lib/workflows.js";
+import { stateFieldFor } from "../lib/workflows.js";
 
 export function workflowRoutes(model) {
   const router = new Router();
@@ -182,51 +182,39 @@ export function workflowRoutes(model) {
   });
 
   /**
-   * Where a record can go next.
+   * Where a record can go next — information, not an offer.
    *
-   * The transitions are filtered by the caller's roles here as well as being
-   * enforced on the write, because a UI that offers a button the server will
-   * refuse is worse than one that offers nothing.
+   * A state is changed only by the application's background workflows, never
+   * by a person (lib/workflows.js stateFieldFor), so nothing here is a button:
+   * the form shows the current state read-only in its header and lists these
+   * as the moves the workflows may make from it.
    */
-  router.get("/entity/:entityName/:id/transitions", async (_request, { db, params, user }) => {
+  router.get("/entity/:entityName/:id/transitions", async (_request, { db, params }) => {
     const entity = resolveEntity(model, params.entityName);
     if (!entity) throw notFound(`No entity "${params.entityName}"`);
 
-    const workflow = await stateMachineFor(db, model, entity.name);
-    if (!workflow) return json({ workflow: null, current: null, transitions: [] });
+    const state = await stateFieldFor(db, model, entity);
+    if (!state) return json({ workflow: null, column: null, current: null, transitions: [], systemManaged: true });
 
-    const column = ["status", "state", "workflow_state"].find((candidate) =>
-      entity.attributes.some((attribute) => attribute.columnName === candidate)
-    );
     const record = await db.one(
       `SELECT * FROM ${ident(entity.tableName)} WHERE id = $1 AND deleted_at IS NULL`,
       [params.id]
     );
     if (!record) throw notFound(`No ${entity.name} with id ${params.id}`);
 
-    const current = column ? record[column] : null;
-    const restrictions = await db.query(
-      "SELECT from_state, to_state, role_name FROM sys_transition_access WHERE table_name = $1 AND is_active = true",
-      [entity.tableName]
+    const current = record[state.field] ?? null;
+    const transitions = (state.machine.transitions || []).filter(
+      (transition) =>
+        String(transition.from) === String(current ?? state.initial ?? "") && transition.to !== "[*]"
     );
-    const held = new Set((user.roles || []).map((role) => role.toLowerCase().replace(/[\s-]+/g, "_")));
 
-    const transitions = (workflow.transitions || [])
-      .filter((transition) => String(transition.from) === String(current ?? workflow.initial ?? ""))
-      .map((transition) => {
-        const required = restrictions
-          .filter(
-            (row) => row.from_state === String(transition.from) && row.to_state === String(transition.to)
-          )
-          .map((row) => row.role_name);
-        const permitted =
-          !required.length ||
-          user.isAdmin ||
-          required.some((role) => held.has(role.toLowerCase().replace(/[\s-]+/g, "_")));
-        return { ...transition, requiredRoles: required, permitted };
-      });
-
-    return json({ workflow: workflow.name, column, current, transitions });
+    return json({
+      workflow: state.machine.name,
+      column: state.field,
+      current,
+      transitions,
+      systemManaged: true,
+    });
   });
 
   return router;
