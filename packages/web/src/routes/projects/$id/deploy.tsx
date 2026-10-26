@@ -82,12 +82,7 @@ function DeployPage() {
     }
   }, [projectId, getProject, currentProject, loadProject]);
 
-  const [envVars, setEnvVars] = useState<EnvVariable[]>([
-    { key: "DATABASE_URL", value: "", isSecret: true },
-    { key: "DATABASE_NAME", value: "", isSecret: false },
-    { key: "PORT", value: (project?.port || 4001).toString(), isSecret: false },
-    { key: "NODE_ENV", value: "production", isSecret: false },
-  ]);
+  const [envVars, setEnvVars] = useState<EnvVariable[]>([]);
   const [showSecrets, setShowSecrets] = useState<{ [key: string]: boolean }>({});
   const [deploymentTarget, setDeploymentTarget] = useState<DeployTarget>("local");
   const [isDeploying, setIsDeploying] = useState(false);
@@ -118,23 +113,7 @@ function DeployPage() {
         setDeploymentUrl(project.deploymentUrl);
         setDeploymentComplete(true);
       }
-      const databaseName =
-        project.name
-          ?.toLowerCase()
-          .replace(/[^a-z0-9]+/g, "_")
-          .replace(/^_+|_+$/g, "") || "app";
-      setEnvVars((vars) =>
-        vars.map((v) =>
-          v.key === "DATABASE_NAME" && !v.value ? { ...v, value: databaseName } : v
-        )
-      );
-      if (project.databaseUrl) {
-        setEnvVars((vars) =>
-          vars.map((v) =>
-            v.key === "DATABASE_URL" ? { ...v, value: project.databaseUrl || "" } : v
-          )
-        );
-      }
+
     }
   }, [project, setCurrentStep]);
 
@@ -492,21 +471,42 @@ function DeployPage() {
                   ))}
                 </div>
                 {deploymentTarget !== "local" && (
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    Cloud deployments use{" "}
-                    <a href="https://www.pulumi.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Pulumi</a>
-                    {" "}— make sure the{" "}
-                    <code className="font-mono bg-muted px-1 rounded">pulumi</code>
-                    {" "}CLI is installed and Docker is running.
+                  <p className="mt-3 text-xs text-emerald-600">
+                    Pulumi is installed automatically on first cloud deploy — nothing to configure.
                   </p>
                 )}
               </div>
 
+              {/* Auto-provisioned badge — local only */}
+              {deploymentTarget === "local" && (
+                <div className="flex items-start gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 mb-6">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Infrastructure is auto-provisioned</p>
+                    <div className="flex flex-wrap gap-4 mt-1.5">
+                      {[
+                        "Postgres container started",
+                        "Docker network created",
+                        "DATABASE_URL wired automatically",
+                      ].map((item) => (
+                        <span key={item} className="text-xs text-emerald-600 dark:text-emerald-500 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Environment variables panel */}
                 <div className="bg-card border border-border rounded-2xl p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-foreground">Environment Variables</h2>
+                  <div className="flex items-center justify-between mb-2">
+                    <h2 className="text-xl font-bold text-foreground">
+                      Additional Variables
+                      <span className="ml-2 text-sm font-normal text-muted-foreground">(optional)</span>
+                    </h2>
                     <button
                       type="button"
                       onClick={handleAddEnvVar}
@@ -517,6 +517,11 @@ function DeployPage() {
                       Add
                     </button>
                   </div>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    App-specific secrets your code reads from <code className="font-mono bg-muted px-1 rounded">process.env</code> — e.g.{" "}
+                    <code className="font-mono bg-muted px-1 rounded">STRIPE_SECRET_KEY</code>,{" "}
+                    <code className="font-mono bg-muted px-1 rounded">SENDGRID_API_KEY</code>.
+                  </p>
 
                   <div className="space-y-3 max-h-96 overflow-y-auto">
                     {envVars.map((envVar, index) => (

@@ -55,6 +55,90 @@ async function dockerAvailable(): Promise<{ ok: boolean; reason?: string }> {
   });
 }
 
+/** Slugify a project name for use in docker resource names. */
+function toSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "app";
+}
+
+/**
+ * Ensure a Postgres container is running on a dedicated Docker network.
+ * Returns the DATABASE_URL pointing at the container (via its network hostname).
+ * Idempotent: calling twice reuses the existing container and network.
+ */
+async function ensurePostgres(
+  slug: string,
+  dbName: string,
+  log: (level: string, msg: string) => void
+): Promise<string> {
+  const network = `appwithai-${slug}`;
+  const container = `appwithai-${slug}-db`;
+  const password = "postgres";
+  const user = "postgres";
+
+  // Create network (ignore "already exists")
+  await new Promise<void>((resolve) => {
+    const p = spawn("docker", ["network", "create", network], { stdio: ["ignore", "ignore", "pipe"] });
+    p.on("close", () => resolve());
+    p.on("error", () => resolve());
+  });
+
+  // Check if container is already running
+  const running = await new Promise<boolean>((resolve) => {
+    const p = spawn("docker", ["inspect", "--format", "{{.State.Running}}", container], {
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    let out = "";
+    p.stdout.on("data", (c) => { out += String(c); });
+    p.on("close", (code) => resolve(code === 0 && out.trim() === "true"));
+    p.on("error", () => resolve(false));
+  });
+
+  if (!running) {
+    log("info", `Starting Postgres container (${container}) on network ${network}…`);
+    const startCode = await new Promise<number>((resolve) => {
+      const p = spawn(
+        "docker",
+        [
+          "run", "-d", "--rm",
+          "--name", container,
+          "--network", network,
+          "-e", `POSTGRES_USER=${user}`,
+          "-e", `POSTGRES_PASSWORD=${password}`,
+          "-e", `POSTGRES_DB=${dbName}`,
+          "postgres:16-alpine",
+        ],
+        { stdio: ["ignore", "ignore", "pipe"] }
+      );
+      p.on("error", () => resolve(-1));
+      p.on("close", (code) => resolve(code ?? -1));
+    });
+    if (startCode !== 0) throw new Error(`Failed to start Postgres container — is Docker running?`);
+
+    // Wait for Postgres to accept connections (up to 30s)
+    log("info", "Waiting for Postgres to be ready…");
+    let ready = false;
+    for (let i = 0; i < 30; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      ready = await new Promise<boolean>((resolve) => {
+        const p = spawn(
+          "docker",
+          ["exec", container, "pg_isready", "-U", user, "-d", dbName],
+          { stdio: ["ignore", "ignore", "ignore"] }
+        );
+        p.on("close", (code) => resolve(code === 0));
+        p.on("error", () => resolve(false));
+      });
+      if (ready) break;
+    }
+    if (!ready) throw new Error("Postgres container did not become ready within 30s");
+    log("success", "Postgres ready");
+  } else {
+    log("info", `Reusing existing Postgres container (${container})`);
+  }
+
+  return `postgresql://${user}:${password}@${container}:5432/${dbName}`;
+}
+
 export const Route = createFileRoute("/api/deploy")({
   server: {
     handlers: {
@@ -229,16 +313,33 @@ export const Route = createFileRoute("/api/deploy")({
 
               const liveUrl = `http://localhost:${project.port}`;
 
-              // Run the container with the env vars the deploy page submitted.
+              // Build the env var list from what the user submitted.
               const runEnvArgs: string[] = [];
               for (const ev of envVars ?? []) {
                 if (ev.key && ev.value !== undefined) runEnvArgs.push("-e", `${ev.key}=${ev.value}`);
               }
+
+              // Auto-provision a Postgres container + Docker network when DATABASE_URL is absent.
+              const slug = toSlug(project.name);
+              const dbName = slug.replace(/-/g, "_") || "app";
+              const network = `appwithai-${slug}`;
+              const hasDatabaseUrl = (envVars ?? []).some((ev) => ev.key === "DATABASE_URL" && ev.value);
+              if (!hasDatabaseUrl) {
+                try {
+                  const databaseUrl = await ensurePostgres(slug, dbName, log);
+                  runEnvArgs.push("-e", `DATABASE_URL=${databaseUrl}`);
+                  runEnvArgs.push("-e", `DATABASE_NAME=${dbName}`);
+                } catch (err) {
+                  log("warning", `Could not auto-provision Postgres: ${err instanceof Error ? err.message : err}. Set DATABASE_URL manually if needed.`);
+                }
+              }
+
               log("info", `Starting container on port ${project.port}…`);
               const runProc = spawn(
                 "docker",
                 [
                   "run", "-d", "--rm",
+                  "--network", network,
                   "-p", `${project.port}:${project.port}`,
                   "-p", `${project.port + 1}:${project.port + 1}`,
                   ...runEnvArgs,

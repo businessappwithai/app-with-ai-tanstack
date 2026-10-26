@@ -95,14 +95,12 @@ export const Route = createFileRoute("/api/cloud-deploy")({
               const docker = await dockerAvailable();
               if (!docker.ok) return fail(`Docker is required to push the image: ${docker.reason}`);
 
-              const { pulumiAvailable, deployAWS, deployGCP, deployAzure, deployOracle } =
+              const { ensurePulumi, deployAWS, deployGCP, deployAzure, deployOracle } =
                 await import("@/lib/pulumi/index");
 
-              const pulumi = await pulumiAvailable();
-              if (!pulumi.ok) return fail(
-                `Pulumi CLI is required for cloud deployment: ${pulumi.reason}. ` +
-                "Install it from https://www.pulumi.com/docs/install/"
-              );
+              const pulumi = await ensurePulumi((msg) => log("info", msg));
+              if (!pulumi.ok) return fail(`Cannot set up Pulumi: ${pulumi.reason}`);
+              const pulumiBin = pulumi.bin;
 
               // Prepare Pulumi state directory
               const stateDir = path.join(projectPath, ".pulumi-state", provider);
@@ -111,6 +109,12 @@ export const Route = createFileRoute("/api/cloud-deploy")({
               const appEnvVars = Object.fromEntries(
                 envVars.filter(v => v.key && v.value).map(v => [v.key, v.value])
               );
+
+              // Add the resolved pulumi bin directory to PATH so provider modules find it
+              const pulumiBinDir = pulumiBin.replace(/\/pulumi$/, "");
+              if (!process.env.PATH?.includes(pulumiBinDir)) {
+                process.env.PATH = `${pulumiBinDir}:${process.env.PATH ?? ""}`;
+              }
 
               const deployInput = {
                 projectId,
