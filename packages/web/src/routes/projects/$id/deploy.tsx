@@ -770,6 +770,14 @@ function DeployPage() {
                           Stop Server
                         </button>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => { setDeploymentComplete(false); setLogs([]); setError(null); }}
+                        className="ml-4 flex items-center gap-2 px-4 py-2 border border-border hover:bg-muted text-foreground font-semibold rounded-xl transition-all active:scale-[0.98]"
+                      >
+                        <Rocket className="w-4 h-4" />
+                        Deploy again
+                      </button>
                     </>
                   )}
                   {error && (
