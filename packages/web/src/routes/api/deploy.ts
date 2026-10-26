@@ -64,7 +64,11 @@ export const Route = createFileRoute("/api/deploy")({
         // "denied" arrives inside a 200, and the caller has already been given
         // a build. Unguarded, this route ran `docker build` over somebody
         // else's generated application for anyone who could name a project id.
-        const { projectId } = (await request.json().catch(() => ({}))) as { projectId?: string };
+        const body = (await request.json().catch(() => ({}))) as {
+          projectId?: string;
+          envVars?: Array<{ key: string; value: string }>;
+        };
+        const { projectId, envVars } = body;
         if (!projectId) {
           return new Response(JSON.stringify({ error: "Missing required field: projectId" }), {
             status: 400,
@@ -222,19 +226,57 @@ export const Route = createFileRoute("/api/deploy")({
 
               log("success", `Built ${tag}`);
               log("info", `Also tagged ${latest}`);
-              log(
-                "info",
-                `Run it with: docker run -p ${project.port}:${project.port} ` +
-                  `-e DATABASE_URL=… ${latest}`
-              );
 
               const liveUrl = `http://localhost:${project.port}`;
+
+              // Run the container with the env vars the deploy page submitted.
+              const runEnvArgs: string[] = [];
+              for (const ev of envVars ?? []) {
+                if (ev.key && ev.value !== undefined) runEnvArgs.push("-e", `${ev.key}=${ev.value}`);
+              }
+              log("info", `Starting container on port ${project.port}…`);
+              const runProc = spawn(
+                "docker",
+                [
+                  "run", "-d", "--rm",
+                  "-p", `${project.port}:${project.port}`,
+                  "-p", `${project.port + 1}:${project.port + 1}`,
+                  ...runEnvArgs,
+                  latest,
+                ],
+                { stdio: ["ignore", "pipe", "pipe"] }
+              );
+              let containerIdRaw = "";
+              let runErrRaw = "";
+              runProc.stdout.on("data", (chunk) => { containerIdRaw += String(chunk); });
+              runProc.stderr.on("data", (chunk) => { runErrRaw += String(chunk); });
+              const runCode = await new Promise<number>((resolve) => {
+                runProc.on("error", () => resolve(-1));
+                runProc.on("close", (c) => resolve(c ?? -1));
+              });
+
+              let containerId: string | undefined;
+              if (runCode === 0) {
+                containerId = containerIdRaw.trim();
+                log("success", `Container started: ${containerId.slice(0, 12)}`);
+              } else {
+                log("error", `Could not start container: ${runErrRaw.trim() || "unknown error"}`);
+                log("info", `Start it by hand: docker run -p ${project.port}:${project.port} ${runEnvArgs.join(" ")} ${latest}`);
+              }
+
               await projectDb
-                .update(projectId, { deploymentStatus: "deployed", deployment_url: liveUrl })
-                .catch(() => {
-                  // Recording the outcome is a convenience; the image exists
-                  // either way and failing here would be misleading.
-                });
+                .update(projectId, {
+                  deploymentStatus: containerId ? "running" : "deployed",
+                  deployment_url: liveUrl,
+                })
+                .catch(() => {});
+
+              if (containerId) {
+                const { deploymentDb } = await import("@appwithai/core/services");
+                await deploymentDb
+                  .upsert({ project_id: projectId, status: "running", deployment_url: liveUrl, port: project.port, process_id: containerId })
+                  .catch(() => {});
+              }
 
               send({ complete: true, image: tag, url: liveUrl });
               finish();

@@ -91,6 +91,16 @@ export const Route = createFileRoute("/api/projects/$id/deployment/")({
         try {
           const { deploymentDb } = await import("@appwithai/core/services");
           const id = params.id as string;
+          // Stop the running Docker container before removing the record.
+          const dep = await deploymentDb.getDeployment(id);
+          if (dep?.process_id) {
+            const { spawn } = await import("node:child_process");
+            await new Promise<void>((resolve) => {
+              const proc = spawn("docker", ["stop", dep.process_id as string], { stdio: "ignore" });
+              proc.on("close", resolve);
+              proc.on("error", resolve);
+            });
+          }
           await deploymentDb.delete(id);
           return new Response(JSON.stringify({ success: true }), {
             headers: { "Content-Type": "application/json" },

@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as ApiCloudDeployRouteImport } from './routes/api/cloud-deploy'
 import { Route as ApiCopilotkitRouteImport } from './routes/api/copilotkit'
 import { Route as ApiDeployRouteImport } from './routes/api/deploy'
 import { Route as ApiGenerateRouteImport } from './routes/api/generate'
@@ -115,6 +116,11 @@ const TestRoute = TestRouteImport.update({
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCloudDeployRoute = ApiCloudDeployRouteImport.update({
+  id: '/api/cloud-deploy',
+  path: '/api/cloud-deploy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCopilotkitRoute = ApiCopilotkitRouteImport.update({
@@ -470,6 +476,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/test': typeof TestRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/cloud-deploy': typeof ApiCloudDeployRoute
   '/api/copilotkit': typeof ApiCopilotkitRouteWithChildren
   '/api/deploy': typeof ApiDeployRoute
   '/api/generate': typeof ApiGenerateRoute
@@ -544,6 +551,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/test': typeof TestRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/cloud-deploy': typeof ApiCloudDeployRoute
   '/api/copilotkit': typeof ApiCopilotkitRouteWithChildren
   '/api/deploy': typeof ApiDeployRoute
   '/api/generate': typeof ApiGenerateRoute
@@ -619,6 +627,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/test': typeof TestRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/cloud-deploy': typeof ApiCloudDeployRoute
   '/api/copilotkit': typeof ApiCopilotkitRouteWithChildren
   '/api/deploy': typeof ApiDeployRoute
   '/api/generate': typeof ApiGenerateRoute
@@ -695,6 +704,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/test'
     | '/admin/users'
+    | '/api/cloud-deploy'
     | '/api/copilotkit'
     | '/api/deploy'
     | '/api/generate'
@@ -769,6 +779,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/test'
     | '/admin/users'
+    | '/api/cloud-deploy'
     | '/api/copilotkit'
     | '/api/deploy'
     | '/api/generate'
@@ -843,6 +854,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/test'
     | '/admin/users'
+    | '/api/cloud-deploy'
     | '/api/copilotkit'
     | '/api/deploy'
     | '/api/generate'
@@ -918,6 +930,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   TestRoute: typeof TestRoute
   AdminUsersRoute: typeof AdminUsersRoute
+  ApiCloudDeployRoute: typeof ApiCloudDeployRoute
   ApiCopilotkitRoute: typeof ApiCopilotkitRouteWithChildren
   ApiDeployRoute: typeof ApiDeployRoute
   ApiGenerateRoute: typeof ApiGenerateRoute
@@ -1032,6 +1045,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cloud-deploy': {
+      id: '/api/cloud-deploy'
+      path: '/api/cloud-deploy'
+      fullPath: '/api/cloud-deploy'
+      preLoaderRoute: typeof ApiCloudDeployRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/copilotkit': {
@@ -1523,6 +1543,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   TestRoute: TestRoute,
   AdminUsersRoute: AdminUsersRoute,
+  ApiCloudDeployRoute: ApiCloudDeployRoute,
   ApiCopilotkitRoute: ApiCopilotkitRouteWithChildren,
   ApiDeployRoute: ApiDeployRoute,
   ApiGenerateRoute: ApiGenerateRoute,
