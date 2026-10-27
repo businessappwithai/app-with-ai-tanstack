@@ -319,6 +319,22 @@ export const Route = createFileRoute("/api/deploy")({
                 if (ev.key && ev.value !== undefined) runEnvArgs.push("-e", `${ev.key}=${ev.value}`);
               }
 
+              // The image runs with NODE_ENV=production, where Better Auth stops
+              // trusting localhost implicitly and accepts only the origins named
+              // in CORS_ORIGIN. The container is published on this project's
+              // port, so that is the address people open. Without it every
+              // sign-in answered 403 "Invalid origin" — which looks like a wrong
+              // password rather than a missing environment variable.
+              const hasCorsOrigin = (envVars ?? []).some(
+                (ev) => ev.key === "CORS_ORIGIN" && ev.value
+              );
+              if (!hasCorsOrigin) {
+                runEnvArgs.push(
+                  "-e",
+                  `CORS_ORIGIN=${liveUrl},http://127.0.0.1:${project.port}`
+                );
+              }
+
               // Auto-provision a Postgres container + Docker network when DATABASE_URL is absent.
               const slug = toSlug(project.name);
               const dbName = slug.replace(/-/g, "_") || "app";
