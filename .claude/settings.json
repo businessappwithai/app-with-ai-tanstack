@@ -1,4 +1,9 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(docker info:*)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
