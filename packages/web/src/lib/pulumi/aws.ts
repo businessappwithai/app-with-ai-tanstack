@@ -34,8 +34,8 @@ function makeAWSProgram(input: DeployInput) {
       },
       registry: {
         server: repo.repositoryUrl,
-        username: authToken.apply(t => decodeUser(t.authorizationToken)),
-        password: authToken.apply(t => decodePass(t.authorizationToken)),
+        username: authToken.apply((t: { authorizationToken: string }) => decodeUser(t.authorizationToken)),
+        password: authToken.apply((t: { authorizationToken: string }) => decodePass(t.authorizationToken)),
       },
     });
 
@@ -73,7 +73,7 @@ function makeAWSProgram(input: DeployInput) {
       instanceConfiguration: { cpu: "1024", memory: "2048" },
     }, { dependsOn: [image] });
 
-    return { url: service.serviceUrl.apply(u => `https://${u}`) };
+    return { url: service.serviceUrl.apply((u: string) => `https://${u}`) };
   };
 }
 

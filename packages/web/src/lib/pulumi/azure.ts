@@ -1,5 +1,16 @@
 import type { DeployInput, AzureCredentials } from "./types";
 
+/** The fields read from `listRegistryCredentialsOutput`. */
+interface RegistryCredentials {
+  username?: string;
+  passwords?: { value?: string }[];
+}
+
+/** The fields read from a container app's `configuration`. */
+interface ContainerAppConfiguration {
+  ingress?: { fqdn?: string };
+}
+
 function makeAzureProgram(input: DeployInput) {
   return async (): Promise<Record<string, unknown>> => {
     const azure = await import("@pulumi/azure-native");
@@ -44,8 +55,8 @@ function makeAzureProgram(input: DeployInput) {
       },
       registry: {
         server: registry.loginServer,
-        username: creds.apply(c => c.username ?? ""),
-        password: creds.apply(c => c.passwords?.[0]?.value ?? ""),
+        username: creds.apply((c: RegistryCredentials) => c.username ?? ""),
+        password: creds.apply((c: RegistryCredentials) => c.passwords?.[0]?.value ?? ""),
       },
     });
 
@@ -71,12 +82,12 @@ function makeAzureProgram(input: DeployInput) {
         },
         registries: [{
           server: registry.loginServer,
-          username: creds.apply(c => c.username ?? ""),
+          username: creds.apply((c: RegistryCredentials) => c.username ?? ""),
           passwordSecretRef: "acr-pass",
         }],
         secrets: [{
           name: "acr-pass",
-          value: creds.apply(c => c.passwords?.[0]?.value ?? ""),
+          value: creds.apply((c: RegistryCredentials) => c.passwords?.[0]?.value ?? ""),
         }],
       },
       template: {
@@ -91,7 +102,7 @@ function makeAzureProgram(input: DeployInput) {
     }, { dependsOn: [image] });
 
     return {
-      url: app.configuration.apply(c => `https://${c?.ingress?.fqdn ?? "pending"}`),
+      url: app.configuration.apply((c: ContainerAppConfiguration | undefined) => `https://${c?.ingress?.fqdn ?? "pending"}`),
     };
   };
 }

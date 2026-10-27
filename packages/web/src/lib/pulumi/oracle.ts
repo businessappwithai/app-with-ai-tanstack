@@ -49,7 +49,7 @@ function makeOracleProgram(input: DeployInput) {
       registry: {
         server: ocirHost,
         username: pulumi.interpolate`${tenancySlug}/${userOcid}`,
-        password: authToken.token.apply(t => t ?? ""),
+        password: authToken.token.apply((t: string | undefined) => t ?? ""),
       },
     });
 
@@ -58,9 +58,9 @@ function makeOracleProgram(input: DeployInput) {
     const vcns = oci.core.getVcnsOutput({ compartmentId });
     const subnets = oci.core.getSubnetsOutput({
       compartmentId,
-      vcnId: vcns.virtualNetworks.apply(v => v[0]?.id ?? ""),
+      vcnId: vcns.virtualNetworks.apply((v: { id: string }[]) => v[0]?.id ?? ""),
     });
-    const subnetId = subnets.subnets.apply(s => s[0]?.id ?? "");
+    const subnetId = subnets.subnets.apply((s: { id: string }[]) => s[0]?.id ?? "");
 
     // Container Instance
     const envVarArr = Object.entries(input.appEnvVars).map(([name, value]) => ({ name, value }));
@@ -68,14 +68,14 @@ function makeOracleProgram(input: DeployInput) {
       compartmentId,
       displayName: slug,
       availabilityDomain: oci.identity.getAvailabilityDomainsOutput({ compartmentId })
-        .availabilityDomains.apply(ads => ads[0]?.name ?? ""),
+        .availabilityDomains.apply((ads: { name: string }[]) => ads[0]?.name ?? ""),
       shape: "CI.Standard.E4.Flex",
       shapeConfig: { ocpus: 1, memoryInGbs: 2 },
       vnics: [{ subnetId, isPublicIpAssigned: true }],
       imageRegistryCredentials: [{
         registryEndpoint: ocirHost,
         username: pulumi.interpolate`${tenancySlug}/${userOcid}`,
-        password: authToken.token.apply(t => t ?? ""),
+        password: authToken.token.apply((t: string | undefined) => t ?? ""),
       }],
       containers: [{
         imageUrl: image.imageName,
@@ -85,7 +85,7 @@ function makeOracleProgram(input: DeployInput) {
       }],
     }, { dependsOn: [image] });
 
-    const publicIp = ci.vnics.apply(v => v[0]?.publicIp ?? "");
+    const publicIp = ci.vnics.apply((v: { publicIp?: string }[]) => v[0]?.publicIp ?? "");
     return { url: pulumi.interpolate`http://${publicIp}:${input.frontendPort}` };
   };
 }
