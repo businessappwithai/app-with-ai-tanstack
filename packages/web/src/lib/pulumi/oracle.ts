@@ -1,10 +1,9 @@
 import type { DeployInput, OracleCredentials } from "./types";
+import { installPlugins, loadPulumiSdk, type PulumiSdk } from "./sdk";
 
-function makeOracleProgram(input: DeployInput) {
+function makeOracleProgram(input: DeployInput, sdk: PulumiSdk) {
   return async (): Promise<Record<string, unknown>> => {
-    const oci = await import("@pulumi/oci");
-    const docker = await import("@pulumi/docker");
-    const pulumi = await import("@pulumi/pulumi");
+    const { provider: oci, docker, pulumi } = sdk;
 
     const slug = input.projectName
       .toLowerCase()
@@ -64,7 +63,7 @@ function makeOracleProgram(input: DeployInput) {
 
     // Container Instance
     const envVarArr = Object.entries(input.appEnvVars).map(([name, value]) => ({ name, value }));
-    const ci = new oci.containerinstances.ContainerInstance(`${slug}-ci`, {
+    const ci = new oci.containerengine.ContainerInstance(`${slug}-ci`, {
       compartmentId,
       displayName: slug,
       availabilityDomain: oci.identity.getAvailabilityDomainsOutput({ compartmentId })
@@ -72,7 +71,8 @@ function makeOracleProgram(input: DeployInput) {
       shape: "CI.Standard.E4.Flex",
       shapeConfig: { ocpus: 1, memoryInGbs: 2 },
       vnics: [{ subnetId, isPublicIpAssigned: true }],
-      imageRegistryCredentials: [{
+      imagePullSecrets: [{
+        secretType: "BASIC",
         registryEndpoint: ocirHost,
         username: pulumi.interpolate`${tenancySlug}/${userOcid}`,
         password: authToken.token.apply((t: string | undefined) => t ?? ""),
@@ -85,7 +85,10 @@ function makeOracleProgram(input: DeployInput) {
       }],
     }, { dependsOn: [image] });
 
-    const publicIp = ci.vnics.apply((v: { publicIp?: string }[]) => v[0]?.publicIp ?? "");
+    // A container instance's VNIC carries its private address only; the public one
+    // is read from the VNIC itself.
+    const vnicId = ci.vnics.apply((v: { vnicId: string }[]) => v[0]?.vnicId ?? "");
+    const publicIp = oci.core.getVnicOutput({ vnicId }).publicIpAddress;
     return { url: pulumi.interpolate`http://${publicIp}:${input.frontendPort}` };
   };
 }
@@ -95,7 +98,8 @@ export async function deployOracle(
   creds: OracleCredentials,
   onLog: (msg: string) => void
 ): Promise<string> {
-  const { LocalWorkspace } = await import("@pulumi/pulumi/automation");
+  const sdk = await loadPulumiSdk("oracle", onLog);
+  const { LocalWorkspace } = sdk.automation;
   const fs = await import("node:fs/promises");
   const path = await import("node:path");
   const os = await import("node:os");
@@ -108,7 +112,7 @@ export async function deployOracle(
     const stack = await LocalWorkspace.createOrSelectStack({
       stackName: input.stackName,
       projectName: "appwithai",
-      program: makeOracleProgram(input),
+      program: makeOracleProgram(input, sdk),
     }, {
       envVars: {
         PULUMI_BACKEND_URL: `file://${input.stateDir}`,
@@ -128,8 +132,7 @@ export async function deployOracle(
     await stack.setConfig("oci:region", { value: creds.region });
     await stack.setConfig("oci:compartmentOcid", { value: creds.compartmentOcid, secret: true });
 
-    onLog("Installing OCI provider plugin…");
-    await stack.workspace.installPlugin("oci", "v2.0.0");
+    await installPlugins(stack, sdk, onLog);
 
     const up = await stack.up({ onOutput: (o) => onLog(o.trimEnd()) });
     const url = up.outputs["url"]?.value as string;

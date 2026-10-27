@@ -1,10 +1,9 @@
 import type { DeployInput, GCPCredentials } from "./types";
+import { installPlugins, loadPulumiSdk, type PulumiSdk } from "./sdk";
 
-function makeGCPProgram(input: DeployInput) {
+function makeGCPProgram(input: DeployInput, sdk: PulumiSdk) {
   return async (): Promise<Record<string, unknown>> => {
-    const gcp = await import("@pulumi/gcp");
-    const docker = await import("@pulumi/docker");
-    const pulumi = await import("@pulumi/pulumi");
+    const { provider: gcp, docker, pulumi } = sdk;
 
     const slug = input.projectName
       .toLowerCase()
@@ -76,7 +75,8 @@ export async function deployGCP(
   creds: GCPCredentials,
   onLog: (msg: string) => void
 ): Promise<string> {
-  const { LocalWorkspace } = await import("@pulumi/pulumi/automation");
+  const sdk = await loadPulumiSdk("gcp", onLog);
+  const { LocalWorkspace } = sdk.automation;
   const fs = await import("node:fs/promises");
   const path = await import("node:path");
   const os = await import("node:os");
@@ -89,7 +89,7 @@ export async function deployGCP(
     const stack = await LocalWorkspace.createOrSelectStack({
       stackName: input.stackName,
       projectName: "appwithai",
-      program: makeGCPProgram(input),
+      program: makeGCPProgram(input, sdk),
     }, {
       envVars: {
         PULUMI_BACKEND_URL: `file://${input.stateDir}`,
@@ -104,8 +104,7 @@ export async function deployGCP(
     await stack.setConfig("gcp:project", { value: creds.projectId });
     await stack.setConfig("gcp:region", { value: creds.region });
 
-    onLog("Installing GCP provider plugin…");
-    await stack.workspace.installPlugin("gcp", "v7.0.0");
+    await installPlugins(stack, sdk, onLog);
 
     const up = await stack.up({ onOutput: (o) => onLog(o.trimEnd()) });
     const url = up.outputs["url"]?.value as string;
