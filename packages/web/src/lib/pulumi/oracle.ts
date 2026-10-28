@@ -64,7 +64,7 @@ function makeOracleProgram(input: DeployInput) {
 
     // Container Instance
     const envVarArr = Object.entries(input.appEnvVars).map(([name, value]) => ({ name, value }));
-    const ci = new oci.containerinstances.ContainerInstance(`${slug}-ci`, {
+    const ci = new oci.containerengine.ContainerInstance(`${slug}-ci`, {
       compartmentId,
       displayName: slug,
       availabilityDomain: oci.identity.getAvailabilityDomainsOutput({ compartmentId })
@@ -72,10 +72,15 @@ function makeOracleProgram(input: DeployInput) {
       shape: "CI.Standard.E4.Flex",
       shapeConfig: { ocpus: 1, memoryInGbs: 2 },
       vnics: [{ subnetId, isPublicIpAssigned: true }],
-      imageRegistryCredentials: [{
+      // OCI calls registry credentials image pull secrets, and a BASIC one
+      // carries its username and password base64-encoded.
+      imagePullSecrets: [{
         registryEndpoint: ocirHost,
-        username: pulumi.interpolate`${tenancySlug}/${userOcid}`,
-        password: authToken.token.apply(t => t ?? ""),
+        secretType: "BASIC",
+        username: pulumi.interpolate`${tenancySlug}/${userOcid}`.apply(u =>
+          Buffer.from(u).toString("base64")
+        ),
+        password: authToken.token.apply(t => Buffer.from(t ?? "").toString("base64")),
       }],
       containers: [{
         imageUrl: image.imageName,
@@ -85,7 +90,11 @@ function makeOracleProgram(input: DeployInput) {
       }],
     }, { dependsOn: [image] });
 
-    const publicIp = ci.vnics.apply(v => v[0]?.publicIp ?? "");
+    // A container instance's VNIC carries only its id; the public address is
+    // read from the VNIC itself.
+    const publicIp = ci.vnics.apply(v => v[0]?.vnicId ?? "").apply(vnicId =>
+      vnicId ? oci.core.getVnicOutput({ vnicId }).publicIpAddress : ""
+    );
     return { url: pulumi.interpolate`http://${publicIp}:${input.frontendPort}` };
   };
 }
