@@ -177,8 +177,15 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
         // stops the browser submitting a form nobody can see the fault in.
         if (input.type !== "checkbox") input.required = state.mandatory && !input.disabled;
       }
+      /* The marker exists exactly while the field is required — added and
+         removed, never hidden — so `.field:has(.field__required)` keeps
+         naming the required fields and nothing else. */
       const marker = node.querySelector(".field__required");
-      if (marker) marker.hidden = !state.mandatory;
+      if (state.mandatory && !marker) {
+        node.querySelector(".field__label")?.after(requiredMarker());
+      } else if (!state.mandatory && marker) {
+        marker.remove();
+      }
       node.classList.toggle("field--logic-locked", state.readOnly && !field.is_read_only);
       if (state.mandatory) required += 1;
     }
@@ -766,9 +773,7 @@ async function control(field, record, entity, inputs) {
       el(
         "div.field__head",
         el("label.field__label", { for: id }, field.name),
-        /* Always drawn and shown or hidden by `applyLogic`: mandatory logic
-           can make an optional field required while the form is open. */
-        el("span.field__required", { title: "Required", hidden: !field.is_mandatory }, "*"),
+        field.is_mandatory ? requiredMarker() : null,
         el(`span.chip.chip--${chipKind}`, chipLabel),
         el(
           "button.field__help",
@@ -784,6 +789,10 @@ async function control(field, record, entity, inputs) {
       input
     ),
   ];
+}
+
+function requiredMarker() {
+  return el("span.field__required", { title: "Required" }, "*");
 }
 
 /**

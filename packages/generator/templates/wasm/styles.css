@@ -460,7 +460,7 @@ details.group > summary.group__name { cursor: pointer; }
 /* Field logic: `.field` is a grid, which beats the UA's [hidden] rule, so
    display logic needs saying explicitly; a field locked by read-only logic
    is told apart from one that is always read-only. */
-.field[hidden], .field__required[hidden] { display: none; }
+.field[hidden] { display: none; }
 .field--logic-locked .field__input { background: var(--surface-2); }
 .chip {
   display: inline-flex; align-items: center; gap: 3px;
