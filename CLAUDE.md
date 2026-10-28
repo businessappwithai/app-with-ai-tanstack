@@ -476,6 +476,35 @@ EML140–145 — it is `^\s*%%field` now; and the admin detail shell drew a reco
 list endpoint, which for `/sys/fields` returned nine of thirty columns, so Same Line,
 Heading, Obscure Type and the logics showed "—" — it now reads the record by id.
 
+### The Field window — every property does something, and there is no X/Y
+
+Admin → Windows, Tabs & Fields → **Field** edits `sys_field`, and every column of it is read
+by the generated NestJS application. `bus.service` `getEntityMetadata` serves them;
+`dynamic-form.tsx` and `dynamic-table.tsx` draw them; the API enforces the ones that decide
+what may be saved. `generators/__tests__/field-properties.test.ts` fails if a `sys_field`
+column is neither served nor listed (with a reason) as not about the screen.
+
+| Property | Effect |
+|---|---|
+| Sequence, Same Line, Column Span | **The whole layout.** Fields in Sequence order; in a section of more than one column each starts a new row unless Same Line (beside the one before it); Column Span widens it |
+| Description | The line under the field (the field's, else the column's); the list heading's tooltip |
+| Reference Type Override | Replaces the column's `sys_reference_id` before anything reads it (the column was added by migration `021_field_dictionary`, which the window had been writing to without) |
+| Display Length / Num Lines | Input and list column width in characters / a text field drawn that many lines tall |
+| Heading / Field Only / Encrypted | A heading with no input / no label (`sr-only`, still read out) / a password input, masked in view and list |
+| Obscure Type | 904, 944, A04, A44, as iDempiere masks: view mode and the list, never while typing |
+| Default Value | The field's, else the column's: a literal, `Y`/`N`, `@#Date@`. Filled by the form on create **and** by `create` in the API |
+| Sort Number | The list's default order (smallest magnitude, negative descending); below a window Order By the administrator declared, above the seeded `updated_at DESC` |
+| Read Only | Editable on create, refused on update (400) unless sent back unchanged (`sameValue`) |
+| Included Tab | Another tab's rows for this record, listed at the field's place, linked by the tab's link column else `<table>_id` |
+| Active | Off: on no form and in no list; the column keeps its data |
+| Entity Type | Recorded only |
+
+Default Value and Obscure Type are one module, `templates/common/field-values.ts`, copied to
+`backend/src/common/` and `frontend/src/lib/` like `field-logic.ts`. **X and Y Position were
+removed** — from both stacks' schemas (an existing database drops them), the seed, the
+dictionary generator, the section parser, `model.json` and the admin window. A `%%section`
+row is now `is_same_line` on its right-hand field and `column_span` 2 on a field alone.
+
 ### Optimistic locking — one contract, every target
 
 Every generated table carries the managed `version` column, and every target
@@ -1308,7 +1337,7 @@ it. Three of the codes (EML170, EML172, EML177) are in `DICTIONARY_COMPLETENESS`
 
 | Stack | Where the layout lands |
 |---|---|
-| Both | `DictionaryGenerator` → one `sys_field_group` per section (`_tabRef`, `columns: 2`) and each field's `_groupRef`, `seq_no`, `is_same_line`, `x_position`, `y_position`, `column_span` |
+| Both | `DictionaryGenerator` → one `sys_field_group` per section (`_tabRef`, `columns: 2`) and each field's `_groupRef`, `seq_no`, `is_same_line`, `column_span` (no X/Y position — Sequence, Same Line and Column Span are the whole layout) |
 | NestJS | `withFormLayout` in `nestjs-backend.generator.ts` puts `formGroups` and `attribute.layout` in the seed context; `sys-dictionary.ts.hbs` inserts the groups (after Highlights) instead of the generic four; `bus.service` serves `col_span`; `dynamic-form.tsx` spans with literal classes (`COL_SPAN`) because Tailwind never generates an interpolated one |
 | Browser | `model-bundle.ts` → `fieldGroups` and per-field placement in `model.json`; `migrate.js` writes them; `schema.sys.sql` gained the columns (and `ADD COLUMN IF NOT EXISTS` for an older database); `entity-form.js` draws `.group__fields--2` and `.field--wide`, collapsed sections as `<details>` |
 

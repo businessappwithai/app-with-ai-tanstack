@@ -752,7 +752,7 @@ export class SysService {
     // Whitelist only valid sys_field columns (strip joined columns from sys_column/sys_table)
     const SYS_FIELD_COLS = new Set([
       'sys_tab_id', 'sys_column_id', 'sys_field_group_id', 'name', 'description', 'help',
-      'seq_no', 'seq_no_grid', 'display_length', 'column_span', 'x_position', 'y_position',
+      'seq_no', 'seq_no_grid', 'display_length', 'column_span',
       'num_lines', 'is_displayed', 'is_displayed_grid', 'is_read_only', 'is_same_line',
       'is_heading', 'is_field_only', 'is_encrypted', 'default_value', 'sort_no', 'obscure_type',
       'display_logic', 'read_only_logic', 'mandatory_logic', 'is_active', 'sys_reference_id',
@@ -792,7 +792,7 @@ export class SysService {
     // Every property the Field window offers, not only the first few: a field
     // created with Same Line, a group or a logic expression keeps it.
     const optional = [
-      'help', 'display_length', 'column_span', 'x_position', 'y_position', 'num_lines',
+      'help', 'display_length', 'column_span', 'num_lines',
       'is_same_line', 'is_heading', 'is_field_only', 'is_encrypted', 'default_value', 'sort_no',
       'obscure_type', 'display_logic', 'read_only_logic', 'mandatory_logic', 'sys_reference_id',
       'included_tab_id',

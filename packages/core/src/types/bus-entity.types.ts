@@ -784,8 +784,6 @@ export function generateSysFields(
     seq_no: seqNumbers[index] ?? (index + 1) * 10,
     seq_no_grid: (index + 1) * 10,
     display_length: undefined,
-    x_position: undefined,
-    y_position: undefined,
     column_span: undefined,
     num_lines: undefined,
     is_displayed: true,

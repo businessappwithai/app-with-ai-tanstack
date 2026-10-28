@@ -515,6 +515,9 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     // checker do.
     const fieldLogic = await this.component("../../common/field-logic.ts");
     await fs.writeFile(path.join(outputDir, "src/lib/field-logic.ts"), fieldLogic);
+    // Default Value and Obscure Type, read the same way the API reads them.
+    const fieldValues = await this.component("../../common/field-values.ts");
+    await fs.writeFile(path.join(outputDir, "src/lib/field-values.ts"), fieldValues);
 
     // TanStack DB collections, synced by ElectricSQL through the role-scoped
     // shape proxy. The dictionary lives in these collections; nothing else on

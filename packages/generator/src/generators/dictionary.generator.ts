@@ -310,8 +310,6 @@ export class DictionaryGenerator {
           field._groupRef = groupIds.get(place.group);
           field.seq_no = place.seqNo;
           field.is_same_line = place.sameLine;
-          field.x_position = place.xPosition;
-          field.y_position = place.yPosition;
           field.column_span = place.columnSpan;
         }
         /* The key is on no form; ordering it first keeps it out of the way of

@@ -606,8 +606,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
       group: string;
       seqNo: number;
       sameLine: boolean;
-      xPosition: number;
-      yPosition: number;
       columnSpan: number;
     };
   }> = [];
@@ -630,8 +628,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
       group: {{tsString layout.group}},
       seqNo: {{layout.seqNo}},
       sameLine: {{layout.sameLine}},
-      xPosition: {{layout.xPosition}},
-      yPosition: {{layout.yPosition}},
       columnSpan: {{layout.columnSpan}},
     },
     {{/if}}
@@ -870,8 +866,6 @@ export async function seed(db: Kysely<any>): Promise<void> {
       is_read_only: ['created_at', 'updated_at', 'deleted_at'].includes(col.name),
       is_encrypted: false,
       is_same_line: col.layout?.sameLine ?? false,
-      x_position: col.layout?.xPosition ?? null,
-      y_position: col.layout?.yPosition ?? null,
       column_span: col.layout?.columnSpan ?? null,
       is_heading: false,
       is_field_only: false,

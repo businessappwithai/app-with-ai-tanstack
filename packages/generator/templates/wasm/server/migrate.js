@@ -357,10 +357,10 @@ async function seedDictionary(db, model, tick = () => {}) {
                               is_displayed, is_displayed_grid, is_read_only, is_mandatory,
                               is_updateable, is_insertable, seq_no, seq_no_grid, display_length,
                               field_type, sys_reference_id, default_value, is_key,
-                              is_same_line, x_position, y_position, column_span,
+                              is_same_line, column_span,
                               display_logic, read_only_logic, mandatory_logic)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,
-               $23,$24,$25)
+               $23)
        ON CONFLICT (sys_tab_id, sys_column_id) DO NOTHING`,
       [
         tabId,
@@ -382,8 +382,6 @@ async function seedDictionary(db, model, tick = () => {}) {
         field.defaultValue ?? null,
         !!field.isKey,
         !!field.isSameLine,
-        field.xPosition ?? null,
-        field.yPosition ?? null,
         field.columnSpan ?? null,
         field.displayLogic ?? null,
         field.readOnlyLogic ?? null,

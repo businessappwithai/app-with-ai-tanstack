@@ -25,9 +25,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { DynamicTable } from "@/components/tables/dynamic-table";
 import { type FieldMetadata, useEntities, useFormFields, useRefList } from "@/hooks/use-entities";
 import { apiClient } from "@/lib/api-client";
 import { fieldLogicState } from "@/lib/field-logic";
+import { obscureValue, resolveDefaultValue } from "@/lib/field-values";
 import { getFieldTypeColor, getFieldTypeLabel, validateFormData } from "@/lib/field-schema";
 import { getFieldLabel } from "@/lib/i18n-fields";
 import { useTranslations } from "@/lib/translations";
@@ -398,8 +400,10 @@ function FieldRenderer({
         const currentValue = fieldApi.state.value;
         const charCount = typeof currentValue === "string" ? currentValue.length : undefined;
 
+        // Field Only: the input with no label on screen. The label stays for a
+        // screen reader, which still has to be told what the input is.
         const labelBlock = (
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className={cn("flex items-center gap-2 mb-1.5", field.is_field_only && "sr-only")}>
             <Label
               htmlFor={field.column_name}
               className={cn("text-sm font-medium", error && "text-destructive")}
@@ -417,12 +421,23 @@ function FieldRenderer({
           </div>
         );
 
-        const errorBlock = error && (
+        // Description: the short line under the input. An error takes its place.
+        const errorBlock = error ? (
           <div className="flex items-center gap-1 mt-1.5 text-destructive">
             <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
             <p className="text-xs">{error}</p>
           </div>
-        );
+        ) : field.description ? (
+          <p className="mt-1 text-xs text-muted-foreground" data-testid="field-description">
+            {field.description}
+          </p>
+        ) : null;
+
+        // Display Length: the input is as wide as that many characters (and no
+        // wider than its cell). Unset, it fills the cell.
+        const widthStyle = field.display_length
+          ? { maxWidth: `${Math.max(field.display_length, 4) + 3}ch` }
+          : undefined;
 
         const inputStyles = cn(
           error && "border-destructive ring-destructive/20",
@@ -437,7 +452,9 @@ function FieldRenderer({
           if (isRefField) {
             return (
               <div>
-                <div className="flex items-center gap-1.5 mb-0.5">
+                <div
+                  className={cn("flex items-center gap-1.5 mb-0.5", field.is_field_only && "sr-only")}
+                >
                   <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
                   {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
                   {field.help && <FieldHelpButton help={field.help} fieldName={fieldLabel} />}
@@ -456,6 +473,9 @@ function FieldRenderer({
           const displayValue = (() => {
             if (currentValue === null || currentValue === undefined || currentValue === "")
               return "—";
+            // Encrypted: never shown. Obscure Type: masked as iDempiere masks it.
+            if (field.is_encrypted) return "••••••••";
+            if (field.obscure_type) return obscureValue(currentValue, field.obscure_type);
             if (typeof currentValue === "boolean") return currentValue ? "Yes" : "No";
             // Same formats the grid uses (see components/tables/dynamic-table.tsx).
             // `toLocaleDateString` rendered 15 January 2000 as "1/15/2000" here
@@ -482,14 +502,22 @@ function FieldRenderer({
 
           return (
             <div>
-              <div className="flex items-center gap-1.5 mb-0.5">
+              <div
+                className={cn("flex items-center gap-1.5 mb-0.5", field.is_field_only && "sr-only")}
+              >
                 <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
                 {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
                 {field.help && <FieldHelpButton help={field.help} fieldName={fieldLabel} />}
               </div>
-              <div className="text-sm text-foreground font-medium min-h-[1.25rem]">
+              <div
+                className="text-sm text-foreground font-medium min-h-[1.25rem]"
+                data-testid={`field-value-${field.column_name}`}
+              >
                 {displayValue}
               </div>
+              {field.description && (
+                <p className="mt-0.5 text-xs text-muted-foreground">{field.description}</p>
+              )}
             </div>
           );
         }
@@ -510,6 +538,7 @@ function FieldRenderer({
                   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
                   inputStyles
                 )}
+                style={widthStyle}
               >
                 <option value="">Select {fieldLabel}...</option>
                 {field.options.map((opt) => (
@@ -542,6 +571,7 @@ function FieldRenderer({
                     "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
                     inputStyles
                   )}
+                  style={widthStyle}
                 >
                   <option value="">Select {fieldLabel}...</option>
                   {refListValues?.map((refValue) => (
@@ -577,6 +607,32 @@ function FieldRenderer({
           );
         }
 
+        // Encrypted: whatever its type, the value is typed into a password input
+        // and never shown as it is typed.
+        if (field.is_encrypted && field.sys_reference_id !== REFERENCE_TYPE.YES_NO) {
+          return (
+            <div>
+              {labelBlock}
+              <Input
+                id={field.column_name}
+                name={field.column_name}
+                type="password"
+                autoComplete="off"
+                value={currentValue === null || currentValue === undefined ? "" : String(currentValue)}
+                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                onBlur={fieldApi.handleBlur}
+                disabled={isReadOnly}
+                className={cn(inputStyles)}
+                style={widthStyle}
+              />
+              {errorBlock}
+            </div>
+          );
+        }
+
+        // Num Lines: a string field given more than one line is a text box.
+        const lines = field.num_lines && field.num_lines > 1 ? field.num_lines : undefined;
+
         switch (field.sys_reference_id) {
           case REFERENCE_TYPE.TEXT:
             return (
@@ -590,7 +646,8 @@ function FieldRenderer({
                   onBlur={fieldApi.handleBlur}
                   disabled={isReadOnly}
                   className={cn(inputStyles)}
-                  rows={4}
+                  style={widthStyle}
+                  rows={lines ?? 4}
                 />
                 <FieldConstraints field={field} charCount={charCount} />
                 {errorBlock}
@@ -640,6 +697,7 @@ function FieldRenderer({
                   onBlur={fieldApi.handleBlur}
                   disabled={isReadOnly}
                   className={cn(inputStyles)}
+                  style={widthStyle}
                 />
                 {errorBlock}
               </div>
@@ -658,6 +716,7 @@ function FieldRenderer({
                   onBlur={fieldApi.handleBlur}
                   disabled={isReadOnly}
                   className={cn(inputStyles)}
+                  style={widthStyle}
                 />
                 {errorBlock}
               </div>
@@ -678,6 +737,7 @@ function FieldRenderer({
                   onBlur={fieldApi.handleBlur}
                   disabled={isReadOnly}
                   className={cn(inputStyles)}
+                  style={widthStyle}
                 />
                 {errorBlock}
               </div>
@@ -696,6 +756,7 @@ function FieldRenderer({
                   onBlur={fieldApi.handleBlur}
                   disabled={isReadOnly}
                   className={cn(inputStyles)}
+                  style={widthStyle}
                 />
                 <FieldConstraints field={field} charCount={charCount} />
                 {errorBlock}
@@ -715,6 +776,7 @@ function FieldRenderer({
                   onBlur={fieldApi.handleBlur}
                   disabled={isReadOnly}
                   className={cn(inputStyles)}
+                  style={widthStyle}
                   placeholder="https://..."
                 />
                 <FieldConstraints field={field} charCount={charCount} />
@@ -735,6 +797,7 @@ function FieldRenderer({
                   onBlur={fieldApi.handleBlur}
                   disabled={isReadOnly}
                   className={cn(inputStyles)}
+                  style={widthStyle}
                 />
                 <FieldConstraints field={field} charCount={charCount} />
                 {errorBlock}
@@ -754,6 +817,7 @@ function FieldRenderer({
                   onBlur={fieldApi.handleBlur}
                   disabled={isReadOnly}
                   className={cn(inputStyles)}
+                  style={widthStyle}
                 />
                 <FieldConstraints field={field} charCount={charCount} />
                 {errorBlock}
@@ -761,6 +825,27 @@ function FieldRenderer({
             );
 
           default:
+            if (lines) {
+              return (
+                <div>
+                  {labelBlock}
+                  <Textarea
+                    id={field.column_name}
+                    name={field.column_name}
+                    value={(currentValue as string) || ""}
+                    onChange={(e) => fieldApi.handleChange(e.target.value)}
+                    onBlur={fieldApi.handleBlur}
+                    disabled={isReadOnly}
+                    maxLength={field.field_length}
+                    className={cn(inputStyles)}
+                    style={widthStyle}
+                    rows={lines}
+                  />
+                  <FieldConstraints field={field} charCount={charCount} />
+                  {errorBlock}
+                </div>
+              );
+            }
             return (
               <div>
                 {labelBlock}
@@ -774,6 +859,7 @@ function FieldRenderer({
                   disabled={isReadOnly}
                   maxLength={field.field_length}
                   className={cn(inputStyles)}
+                  style={widthStyle}
                 />
                 <FieldConstraints field={field} charCount={charCount} />
                 {errorBlock}
@@ -806,6 +892,63 @@ function FormChangeNotifier({
   return null;
 }
 
+
+/**
+ * Whether a field is something a person fills in. A Heading has no input, and
+ * an Included Tab is another tab's rows: neither is validated, counted as
+ * required, or sent on save.
+ */
+function isInputField(field: FieldMetadata): boolean {
+  return field.is_displayed && !field.is_heading && !field.included_tab;
+}
+
+/**
+ * Included Tab — another tab's rows for the record this form shows, drawn at
+ * the field's place, the way Compiere draws an AD_Field.Included_Tab_ID. It
+ * lists; the tab itself, in its window, is where its rows are edited. A record
+ * not saved yet has no rows to list.
+ */
+function IncludedTab({
+  tab,
+  recordId,
+}: {
+  tab: NonNullable<FieldMetadata["included_tab"]>;
+  recordId?: string;
+}) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["included-tab", tab.table_name, tab.link_column, recordId],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        limit: "50",
+        [`filter.${tab.link_column}`]: `equals:${recordId}`,
+      });
+      const response = await apiClient.get<{ data: Record<string, unknown>[] }>(
+        `/bus/${tab.table_name}?${params.toString()}`
+      );
+      return response.data ?? [];
+    },
+    enabled: !!recordId,
+  });
+
+  return (
+    <div className="rounded-md border border-border" data-testid={`included-tab-${tab.table_name}`}>
+      <div className="border-b border-border bg-muted/40 px-3 py-2 text-sm font-semibold">
+        {tab.name}
+      </div>
+      <div className="p-3">
+        {!recordId ? (
+          <p className="text-xs text-muted-foreground">
+            Save this record to see its {tab.name.toLowerCase()}.
+          </p>
+        ) : isLoading ? (
+          <Skeleton className="h-16 w-full" />
+        ) : (
+          <DynamicTable tableName={tab.table_name} data={data ?? []} />
+        )}
+      </div>
+    </div>
+  );
+}
 
 /*
  * A field's span, as whole class names. Tailwind writes only the classes it
@@ -860,7 +1003,7 @@ export function DynamicForm({
       // Zod validation
       if (fields) {
         const displayedFields = fields.filter((f) => {
-          if (!f.is_displayed || f.column_name === parentField) return false;
+          if (!isInputField(f) || f.column_name === parentField) return false;
           if (mode === "create" && f.column_name === pkColumnName) return false;
           return true;
         });
@@ -958,6 +1101,23 @@ export function DynamicForm({
    * created from the interface at all, though the API accepted the same
    * payload. Seed the value the control is already showing.
    */
+  /*
+   * Default Value. A new record starts with each field's default — the
+   * field's own, else its column's — read the way the API reads it on create
+   * (lib/field-values.ts), so what the form shows is what would be saved.
+   * Only an empty field is filled: a value the caller passed in wins.
+   */
+  useEffect(() => {
+    if (mode !== "create" || !dictionaryFields) return;
+    for (const field of dictionaryFields) {
+      if (!field.default_value || field.column_name === parentField) continue;
+      const current = form.getFieldValue(field.column_name as never);
+      if (current !== undefined && current !== null && current !== "") continue;
+      const value = resolveDefaultValue(field.default_value, field.sys_reference_id);
+      if (value !== undefined) form.setFieldValue(field.column_name as never, value as never);
+    }
+  }, [dictionaryFields, mode, parentField]);
+
   useEffect(() => {
     if (mode !== "create" || !fields) return;
     for (const field of fields) {
@@ -1032,7 +1192,7 @@ export function DynamicForm({
     // Zod validation
     if (fields) {
       const displayedFields = fields.filter((f) => {
-        if (!f.is_displayed || f.column_name === parentField) return false;
+        if (!isInputField(f) || f.column_name === parentField) return false;
         if (mode === "create" && f.column_name === pkColumnName) return false;
         return true;
       });
@@ -1070,12 +1230,12 @@ export function DynamicForm({
   };
 
   const requiredCount = fields.filter((f) => {
-    if (!f.is_displayed || !f.is_mandatory || f.column_name === parentField) return false;
+    if (!isInputField(f) || !f.is_mandatory || f.column_name === parentField) return false;
     if (mode === "create" && f.column_name === pkColumnName) return false;
     return true;
   }).length;
   const totalDisplayed = fields.filter((f) => {
-    if (!f.is_displayed || f.column_name === parentField) return false;
+    if (!isInputField(f) || f.column_name === parentField) return false;
     if (mode === "create" && f.column_name === pkColumnName) return false;
     return true;
   }).length;
@@ -1129,6 +1289,14 @@ export function DynamicForm({
 
         {Array.from(groupedFields.entries()).map(([groupName, fieldsInGroup]) => {
           const groupColumns = fieldsInGroup[0]?.group_columns || 1;
+          /*
+           * Sequence, Same Line and Column Span are the whole layout, read as
+           * Compiere reads them: the fields are in Sequence order already, and
+           * in a section of more than one column every field starts a new row
+           * unless it is Same Line, in which case it sits beside the field
+           * before it. Column Span widens a field across the section.
+           */
+          const rowMode = groupColumns > 1;
 
           return (
             <div key={groupName || "ungrouped"} className="space-y-4">
@@ -1152,28 +1320,65 @@ export function DynamicForm({
                   groupColumns === 4 && "grid-cols-1 md:grid-cols-4"
                 )}
               >
-                {fieldsInGroup.map((field: FieldMetadata) => (
-                  <div
-                    key={field.sys_field_id}
-                    className={cn(
-                      field.col_span &&
-                        field.col_span > 1 &&
-                        COL_SPAN[Math.min(groupColumns, field.col_span)]
-                    )}
-                  >
-                    <FieldRenderer
-                      field={field}
-                      form={form}
-                      serverErrors={serverErrors}
-                      zodErrors={zodErrors}
-                      tableName={tableName}
-                      readOnlyFields={
-                        mode === "edit" ? [...readOnlyFields, pkColumnName] : readOnlyFields
-                      }
-                      parentContext={parentContext}
-                    />
-                  </div>
-                ))}
+                {fieldsInGroup.map((field: FieldMetadata, index: number) => {
+                  // Heading and Included Tab take the whole width of the section.
+                  if (field.is_heading) {
+                    return (
+                      <div
+                        key={field.sys_field_id}
+                        className="col-span-full border-b border-border pb-1 pt-2"
+                        data-testid={`field-heading-${field.column_name}`}
+                      >
+                        <h4 className="text-sm font-semibold text-foreground">
+                          {getFieldLabel(tableName, (field as any).tab_name, field.name, field.name)}
+                        </h4>
+                        {field.description && (
+                          <p className="text-xs text-muted-foreground">{field.description}</p>
+                        )}
+                      </div>
+                    );
+                  }
+                  if (field.included_tab) {
+                    return (
+                      <div key={field.sys_field_id} className="col-span-full">
+                        <IncludedTab
+                          tab={field.included_tab}
+                          recordId={
+                            mode === "create"
+                              ? undefined
+                              : (initialData.id as string | undefined) ??
+                                (initialData[pkColumnName] as string | undefined)
+                          }
+                        />
+                      </div>
+                    );
+                  }
+                  const newRow = rowMode && index > 0 && !field.is_same_line;
+                  return (
+                    <div
+                      key={field.sys_field_id}
+                      className={cn(
+                        field.col_span &&
+                          field.col_span > 1 &&
+                          COL_SPAN[Math.min(groupColumns, field.col_span)],
+                        newRow && "md:col-start-1"
+                      )}
+                      data-same-line={field.is_same_line ? "true" : undefined}
+                    >
+                      <FieldRenderer
+                        field={field}
+                        form={form}
+                        serverErrors={serverErrors}
+                        zodErrors={zodErrors}
+                        tableName={tableName}
+                        readOnlyFields={
+                          mode === "edit" ? [...readOnlyFields, pkColumnName] : readOnlyFields
+                        }
+                        parentContext={parentContext}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );

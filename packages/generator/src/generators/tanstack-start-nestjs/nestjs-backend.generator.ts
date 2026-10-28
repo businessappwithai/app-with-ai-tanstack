@@ -1709,6 +1709,12 @@ export async function executeCustomValidateHooks(
         slug: "add_rule_title",
         template: "src/migrations/020_add_rule_title.ts.hbs",
       },
+      // The Field window's Reference Type Override gets its column; X and Y
+      // Position go — Sequence, Same Line and Column Span lay a form out.
+      {
+        slug: "field_dictionary",
+        template: "src/migrations/021_field_dictionary.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -1839,6 +1845,12 @@ export async function executeCustomValidateHooks(
     await fs.copyFile(
       path.join(this.resolvedTemplateDir, "../../common/field-logic.ts"),
       path.join(outputDir, "src/common/field-logic.ts")
+    );
+    // Default Value, read as the form reads it, so a record created through the
+    // API starts with what the form would have shown.
+    await fs.copyFile(
+      path.join(this.resolvedTemplateDir, "../../common/field-values.ts"),
+      path.join(outputDir, "src/common/field-values.ts")
     );
 
     // Seed default AnkaReport layouts for every entity into sys_report_designs.

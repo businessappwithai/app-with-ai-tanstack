@@ -626,8 +626,6 @@ export function buildModelBundle(
             ? dictionary.sysFieldGroups.find((group) => group._tempId === field._groupRef)?.name
             : undefined,
           isSameLine: field.is_same_line,
-          xPosition: field.x_position,
-          yPosition: field.y_position,
           columnSpan: field.column_span,
           fieldType: attribute?.type,
           referenceId: attribute?.referenceId,
