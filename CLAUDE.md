@@ -20,12 +20,17 @@ Docker images and locally. There are no exceptions: the WASM build and the
 
 - **Never use another Bun.** Not 1.3, not 1.4.0–1.4.3, not a newer release. Bun's
   bundler output depends on the exact version, so a committed bundle built on
-  another one is byte-wrong for CI; and on a Bun older than 1.4.3, `bun check`
-  silently runs a package script named `check` instead of the type checker.
+  another one is byte-wrong for CI; and a Bun older than 1.4.3 has no type
+  checker behind `bun check` at all.
 - **The linter is `bun check`, and only `bun check`.** Every `lint` and
   `type-check` script runs it; no repository carries Biome, ESLint, Prettier or
   any other linter or formatter, and none runs `tsc` as its static check. Style
   is kept by hand.
+- **No `package.json` may have a script named `check`.** On 1.4.4 as on every
+  earlier Bun, `bun check` in a directory whose manifest has a `check` script
+  runs that script instead of the type checker, silently. Measured in the
+  orchestrator: its `lint` (`bun check`) ran the whole `check` chain, which ran
+  `lint` again. Name an aggregate script `check:all`.
 - **Never use npm, pnpm or yarn** as the package manager.
 - **Pin it exactly** wherever a version is stated: `BUN_VERSION: "1.4.4"` in CI,
   `bun-version: 1.4.4` in a `setup-bun` step, `oven/bun:1.4.4` in Dockerfiles,
