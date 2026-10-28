@@ -28,7 +28,7 @@ permissions:
 # forward is a deliberate step: bump it, run the four build scripts, and commit
 # the bundles they rewrite in the same change.
 env:
-  BUN_VERSION: "1.4.3"
+  BUN_VERSION: "1.4.4"
 
 # A newer push makes an in-flight run redundant, except on main, where each
 # commit's result is worth keeping.

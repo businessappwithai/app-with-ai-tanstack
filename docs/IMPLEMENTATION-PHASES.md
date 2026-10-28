@@ -438,7 +438,7 @@ Note: These are estimates and do not account for review cycles, infrastructure p
 
 ## Appendix: Technology Compatibility Matrix
 
-| Technology | Bun.js 1.4.3+ | PostgreSQL | Knex.js | Fastify | Next.js 14 |
+| Technology | Bun.js 1.4.4+ | PostgreSQL | Knex.js | Fastify | Next.js 14 |
 |-----------|-------------|------------|---------|---------|------------|
 | Better Auth | ✅ | ✅ | Custom adapter | ✅ (beta) | ✅ |
 | Trigger.dev SDK v3 | ✅ | N/A | N/A | N/A | ✅ |

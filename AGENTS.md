@@ -38,7 +38,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 # APPWITHAI
 
 **Project**: AI-powered ERD design + full-stack code generation  
-**Version**: 5.1.1 | **Runtime**: Bun.js 1.4.3 (pinned — see below)
+**Version**: 5.1.1 | **Runtime**: Bun.js 1.4.4 (pinned — see below)
 
 ## Commands
 
@@ -145,7 +145,7 @@ Two traps worth knowing. The job's steps **fail fast**, so the first stale
 artifact hides the rest — run all five locally or you will fix one per CI cycle.
 And if `--check` reports your runtime differs from CI's, do not rebuild locally:
 build where CI builds, e.g.
-`docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.3 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
+`docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.4 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
 
 ### `bun run dev` builds the workspace packages first
 `packages/web` imports `@appwithai/core`, `@appwithai/generator` and
@@ -208,7 +208,7 @@ failures move around between runs.
 
 | Layer | Technology |
 |-------|------------|
-| Runtime | Bun.js 1.4.3 (pinned) |
+| Runtime | Bun.js 1.4.4 (pinned) |
 | AI Orchestration | Mastra.ai v1.59+, CopilotKit v1.68+ |
 | AI Model | Local OpenAI-compatible endpoint (:8000) |
 | Retrieval | `@mastra/pg` PgVector (HNSW) |

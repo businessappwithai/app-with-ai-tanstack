@@ -41,7 +41,7 @@ describe.each([
 
   it("keeps the runtime stage on Bun", () => {
     const last = source.split(/^FROM /m).pop() ?? "";
-    expect(last.startsWith("oven/bun:1.4.3-alpine")).toBe(true);
+    expect(last.startsWith("oven/bun:1.4.4-alpine")).toBe(true);
   });
 });
 

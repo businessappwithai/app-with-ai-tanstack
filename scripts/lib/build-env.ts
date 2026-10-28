@@ -33,7 +33,7 @@ const WORKFLOW = ".github/workflows/ci.yml";
 /** Every CI job runs on `ubuntu-latest`; the workflow holds no variable for it. */
 const CI_PLATFORM = "linux-x64";
 
-/** e.g. `bun 1.4.3 on linux-x64` — or node, if somehow run without Bun. */
+/** e.g. `bun 1.4.4 on linux-x64` — or node, if somehow run without Bun. */
 function runtimeLabel(): string {
   const runtime =
     typeof Bun === "undefined" ? `node ${process.versions.node}` : `bun ${Bun.version}`;

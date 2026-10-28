@@ -30,7 +30,7 @@
 # deploy rather than something you are looking at.
 
 # syntax=docker/dockerfile:1.7
-FROM oven/bun:1.4.3 AS source
+FROM oven/bun:1.4.4 AS source
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git ca-certificates \
@@ -46,7 +46,7 @@ RUN git clone --depth 1 --branch "${REPORT_REF}" "${REPORT_REPO}" . \
     || (git clone "${REPORT_REPO}" . && git checkout "${REPORT_REF}")
 
 # ─── build ──────────────────────────────────────────────────────────────────
-FROM oven/bun:1.4.3 AS builder
+FROM oven/bun:1.4.4 AS builder
 
 WORKDIR /app
 COPY --from=source /src .
@@ -64,7 +64,7 @@ RUN bun install && bun pm cache rm
 RUN bun run build
 
 # ─── runtime ────────────────────────────────────────────────────────────────
-FROM oven/bun:1.4.3-slim
+FROM oven/bun:1.4.4-slim
 
 WORKDIR /app
 
@@ -108,7 +108,7 @@ ENV NODE_ENV=production \
     PUBLIC_DIR=/app/dist/client
 
 # The probe is bun rather than curl, which is why there is no apt-get in this
-# stage: `oven/bun:1.4.3-slim` ships no curl, and installing one buys exactly one
+# stage: `oven/bun:1.4.4-slim` ships no curl, and installing one buys exactly one
 # healthcheck. `127.0.0.1`, never `localhost` — inside the container localhost
 # also resolves to `::1`, the server listens on IPv4 only, and the probe then
 # reports a refused connection against a server answering 200 to the host.
