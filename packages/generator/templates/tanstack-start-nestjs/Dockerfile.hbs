@@ -75,7 +75,7 @@ ENV VITE_API_URL=${VITE_API_URL} \
     VITE_APP_URL=${VITE_APP_URL}
 
 RUN cd backend && bun run build
-ARG BUILD_HEAP_MB=4096
+ARG BUILD_HEAP_MB=8192
 RUN cd frontend && NODE_OPTIONS=--max-old-space-size=${BUILD_HEAP_MB} node ./node_modules/.bin/vinxi build
 
 # Drop the dev tree now that it has done its job. Pruning here rather than

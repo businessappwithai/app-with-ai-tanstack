@@ -52,7 +52,7 @@ ENV VITE_ELECTRIC_PROXY_URL=${VITE_ELECTRIC_PROXY_URL}
 
 # Raise this if the build reports "heap out of memory"; lower it on a small
 # Docker VM. Docker Desktop: Settings > Resources > Memory.
-ARG BUILD_HEAP_MB=4096
+ARG BUILD_HEAP_MB=8192
 RUN NODE_OPTIONS=--max-old-space-size=${BUILD_HEAP_MB} node ./node_modules/.bin/vinxi build
 
 # Prune to production dependencies *here* rather than re-installing in the
