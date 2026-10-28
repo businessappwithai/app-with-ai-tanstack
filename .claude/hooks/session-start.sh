@@ -2,9 +2,9 @@
 # SessionStart hook for Claude Code cloud sessions.
 #
 # This project runs on exactly one Bun (see CLAUDE.md, "Bun 1.4.4, and only Bun 1.4.4")
-# and the cloud image ships whichever Bun it was built with. On a Bun older than 1.4.3 `bun check`
-# silently runs a package script named `check` instead of the type checker, so a
-# session that starts on the wrong Bun can report a clean type-check it never ran.
+# and the cloud image ships whichever Bun it was built with. A Bun older than 1.4.3
+# has no type checker behind `bun check`, and a different Bun builds different bundle
+# bytes, so a session on the wrong Bun can report a check that never ran.
 # This installs the pinned version and installs dependencies from the lockfile.
 #
 # The pin lives in .bun-version; change it there, in the four repositories together.
