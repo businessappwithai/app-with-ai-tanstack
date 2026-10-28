@@ -515,6 +515,17 @@ browser application's scripts are the plain Node commands they always were — C
 "No Bun left" check and the overlay footprint are unchanged. The generated test suite
 (`tests/`) stays on `node --test` by design; CI type-checks it with `bun check`.
 
+**A generated application has no lockfile, so its pins are the lockfile.** `bun install`
+resolves every range on the day it runs. Two families are held: TanStack Start 1.97 by the
+`overrides` that `full-stack.generator.ts` writes into the root manifest, and CopilotKit at
+exactly `1.68.1` in `frontend/package.json.hbs` — the version this repository's own lock runs,
+whose packages pin each other exactly. The caret it replaced resolved, on 2026-10-28, to a
+1.83.0 published that morning whose `channels-*@0.12.0` dependencies the registry listed and
+served 404, so every fresh generation failed to install. `templates/__tests__/pinned-dependencies.test.ts`
+holds both. When testing a generated app by hand, **add** to its `overrides`, never replace
+the object — dropping the TanStack pins reproduces a cascade of `Export named … not found`
+errors from `tsr` and `vinxi` that looks like an upstream break and is not.
+
 **Its static check is `bun check` too, and it has no linter.** The backend and the
 frontend each carry `"type-check": "bun check"` and no `biome.json`; their own CI
 runs it, and `appwithai generate` runs it after the install (`utils/type-check.ts`).
