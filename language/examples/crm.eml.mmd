@@ -553,6 +553,29 @@ erDiagram
     %%field SupportCase.description           ui: textarea
     %%field Contract.auto_renew               default: false
 
+    %% ---- Field logic -----------------------------------------------------------
+    %% Compiere's Display, Read Only and Mandatory Logic: `@column@=value` over the
+    %% record being edited, `!` for not equal, joined by & and | and read left to
+    %% right. The form shows, locks and requires these fields as the record is
+    %% edited; the API refuses a save that breaks a mandatory or read-only rule.
+    %%field Opportunity.loss_reason            display: @stage@=closed_lost
+    %%field Opportunity.loss_reason            mandatory: @stage@=closed_lost
+    %%field Opportunity.actual_close_date      display: @stage@=closed_won | @stage@=closed_lost
+    %%field Opportunity.amount                 readonly: @stage@=closed_won | @stage@=closed_lost
+    %%field Lead.disqualification_reason       display: @status@=disqualified
+    %%field Lead.disqualification_reason       mandatory: @status@=disqualified
+    %%field Quote.discount_percent             readonly: @status@!draft
+    %%field Quote.discount_amount              readonly: @status@!draft
+    %%field Contract.renewal_notice_days       display: @auto_renew@=Y
+    %%field Contract.renewal_notice_days       mandatory: @auto_renew@=Y
+    %%field SupportCase.resolution_notes       display: @status@=resolved | @status@=closed
+    %%field SupportCase.resolution_notes       mandatory: @status@=resolved
+    %%field SupportCase.resolution_notes       readonly: @status@=closed
+    %%field SupportCase.satisfaction_score     display: @status@=closed
+    %%field Activity.completed_at              display: @status@=completed
+    %%field Activity.completed_at              mandatory: @status@=completed
+    %%field Activity.duration_minutes          display: @activity_type@!note & @activity_type@!email
+
     %% ---- Help text -----------------------------------------------------------
     %% What `%%entity … help:` and `%%field … help:` buy: they are compiled into
     %% sys_table.description and sys_column.description, which are the only help

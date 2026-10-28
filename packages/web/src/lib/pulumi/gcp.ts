@@ -52,7 +52,8 @@ function makeGCPProgram(input: DeployInput) {
       template: {
         containers: [{
           image: image.imageName,
-          ports: [{ containerPort: input.frontendPort }],
+          // Cloud Run v2 takes one port, not a list (ServiceTemplateContainerPorts).
+          ports: { containerPort: input.frontendPort },
           envs: Object.entries(input.appEnvVars).map(([name, value]) => ({ name, value })),
           resources: { limits: { cpu: "1000m", memory: "512Mi" } },
         }],

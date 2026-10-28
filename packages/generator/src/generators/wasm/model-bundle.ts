@@ -572,6 +572,9 @@ export function buildModelBundle(
           column.column_name
         ),
         seqNo: column.seq_no,
+        /* `%%field … readonly: | mandatory:` — Compiere's column logic. */
+        readOnlyLogic: column.read_only_logic,
+        mandatoryLogic: column.mandatory_logic,
       })),
       // The model's `%%section` groups, and nothing else.
       //
@@ -630,6 +633,11 @@ export function buildModelBundle(
           referenceId: attribute?.referenceId,
           defaultValue: attribute?.defaultValue ?? undefined,
           isKey: attribute?.columnName === "id",
+          /* Field logic (applicationDictionary.fieldLogic): evaluated by the
+             form as the record is edited and by bus.routes.js on every write. */
+          displayLogic: field.display_logic,
+          readOnlyLogic: field.read_only_logic,
+          mandatoryLogic: field.mandatory_logic,
         };
       }),
     },

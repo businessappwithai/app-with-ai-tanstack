@@ -471,6 +471,50 @@ var appwithai_language_default = {
         EML103: "A column the generator manages, declared in the model - the declaration is ignored."
       }
     },
+    fieldLogic: {
+      description: "Compiere's Display Logic, Read Only Logic and Mandatory Logic: three conditions a field carries in the Application Dictionary, each a boolean expression over the values of the record being edited. They are declared on the column with %%field and kept as three separate rules, as Compiere keeps them, because showing a field, letting it be changed and requiring it are three different decisions.",
+      declare: {
+        display: "%%field <Entity>.<column> display: <logic> - the field is on the form only while the logic is true. Compiled to sys_field.display_logic.",
+        readonly: "%%field <Entity>.<column> readonly: <logic> - the field cannot be changed while the logic is true. Compiled to sys_column.read_only_logic and sys_field.read_only_logic.",
+        mandatory: "%%field <Entity>.<column> mandatory: <logic> - the field must have a value while the logic is true. Compiled to sys_column.mandatory_logic and sys_field.mandatory_logic."
+      },
+      syntax: {
+        condition: `<operand> <operator> <operand>, where an operand is @column@ (a column of the same entity), a quoted literal 'x' or "x", or a bare word. One side must be a column.`,
+        operators: {
+          "=": "equal",
+          "!": "not equal (!=, ^ and <> are read the same)",
+          ">": "greater than",
+          "<": "less than",
+          ">=": "greater than or equal",
+          "<=": "less than or equal"
+        },
+        joins: "& (and) and | (or), evaluated strictly left to right with no precedence and no parentheses - a | b & c is (a | b) & c, as Compiere's Evaluator reads it.",
+        values: "A Yes/No column reads Y or N; an empty value is the empty string (@x@='' tests for it, @x@!'' for a value); two operands that both read as numbers compare as numbers, anything else as text - so an ISO date compares in date order.",
+        examples: [
+          "@IsSOTrx@=Y",
+          "@DocStatus@!DR",
+          "@GrandTotal@>1000",
+          "@IsSOTrx@=Y & @DocStatus@=DR",
+          "@DocStatus@=CO | @DocStatus@=CL"
+        ],
+        oneReading: "language/field-logic.ts parses and evaluates it. The checker validates with it and the generated applications evaluate with a byte-identical copy (templates/common/field-logic.ts) and, in the browser stack, its JavaScript twin (templates/wasm/server/lib/field-logic.js), held to the same cases by a parity test."
+      },
+      columnAndField: "Compiere keeps the column (sys_column - storage: data type, mandatory, updateable) apart from the field (sys_field - one window's view of it: shown, read-only, mandatory, layout). The model's read-only and mandatory logic is written to both, so a new window over the same table inherits it; display logic belongs to the field alone. A field's own logic, when an administrator sets one, wins over the column's.",
+      evaluation: {
+        displayed: "The field's is_displayed flag, and then its display logic.",
+        readOnly: "The field's is_read_only flag, or its read-only logic.",
+        mandatory: "The column's is_mandatory flag, or the mandatory logic - and only while the field is displayed: a value nobody can see is not one anybody can be made to enter.",
+        dependencies: "The form re-evaluates all three on every change to a column the logic reads, so a field appears, locks or becomes required as the record is edited."
+      },
+      enforcement: "The form's evaluation is a convenience; the API is the control. Both generated stacks evaluate the same logic on every create and update: a field whose mandatory logic is true for the record as it will be saved, and which is displayed, must have a value (400, 'Validation failed'); a field whose read-only logic is true for the record as it is stored cannot be changed by an update (400). A create has nothing stored to lock, so read-only logic does not refuse one. Display logic hides a field and never refuses a write.",
+      notSupported: "Compiere's global context variables (@#AD_Client_ID@), SQL logic (@SQL=...) and Java callouts. Logic reads the record's own columns only; a rule that needs another table, a role or a computed value belongs in %%action or a %%hook.",
+      checkerCodes: {
+        EML156: "error - a display:, readonly: or mandatory: value that does not parse as Compiere logic.",
+        EML157: "error - the logic reads @column@ that the entity does not declare.",
+        EML158: "warning - display logic that depends on its own field: once hidden, nobody can see it to change it back.",
+        EML159: "warning - logic placed on the primary key or on the state field, neither of which is ever an input."
+      }
+    },
     optimisticLocking: {
       description: "Every generated stack refuses a save made against a record version someone else has already moved past, instead of letting the second save silently overwrite the first. It rides on the managed `version` column, so a model declares nothing to get it.",
       contract: {
@@ -1315,12 +1359,15 @@ var appwithai_language_default = {
         form: "%%field <Entity>.<attr> <key>: <value>",
         status: "compiled",
         consumedBy: [
-          "packages/generator/src/parsers/mermaid.parser.ts (the `enum:` and `help:` keys; the other keys are reserved)"
+          "packages/generator/src/parsers/mermaid.parser.ts (the `enum:`, `help:`, `display:`, `readonly:` and `mandatory:` keys; the other keys are reserved)"
         ],
-        purpose: "Extended field metadata: enum reference and help text, both compiled; ui control, default value, min/max and format are reserved.",
+        purpose: "Extended field metadata: enum reference, help text and Compiere field logic (display:, readonly:, mandatory: - see applicationDictionary.fieldLogic), all compiled; ui control, default value, min/max and format are reserved.",
         examples: [
           "%%field Order.status enum: OrderStatus",
           "%%field Contact.account_id help: The company this person works for. Leave empty for a personal contact.",
+          "%%field Opportunity.loss_reason display: @stage@=closed_lost",
+          "%%field Opportunity.amount readonly: @stage@=closed_won | @stage@=closed_lost",
+          "%%field Contract.renewal_notice_days mandatory: @auto_renew@=Y",
           "%%field Product.price min: 0",
           "%%field User.email unique: true"
         ]
@@ -6156,6 +6203,7 @@ class MermaidParser {
     const declaredEnums = new Map;
     const enumBindings = [];
     const fieldHelpText = [];
+    const fieldLogic = [];
     const entityHelpText = new Map;
     const entityIcons = new Map;
     const entityParents = new Map;
@@ -6179,6 +6227,9 @@ class MermaidParser {
         const fieldHelp = this.parseFieldHelpDirective(trimmed);
         if (fieldHelp)
           fieldHelpText.push(fieldHelp);
+        const logic = this.parseFieldLogicDirective(trimmed);
+        if (logic)
+          fieldLogic.push(logic);
         const entityHelp = this.parseEntityHelpDirective(trimmed);
         if (entityHelp)
           entityHelpText.set(entityHelp.entity, entityHelp.help);
@@ -6228,6 +6279,7 @@ class MermaidParser {
     }
     this.attachIndexes(entities, declaredIndexes);
     this.attachHelp(entities, fieldHelpText, entityHelpText);
+    this.attachFieldLogic(entities, fieldLogic);
     this.attachIcons(entities, entityIcons);
     this.attachParents(entities, entityParents);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
@@ -6327,6 +6379,26 @@ class MermaidParser {
       return null;
     const help = match[3].trim();
     return help ? { entity: match[1], column: match[2], help } : null;
+  }
+  parseFieldLogicDirective(line) {
+    const match = line.match(/^%%field\s+([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s+(display|readonly|mandatory)\s*:\s*(.+)$/);
+    if (!match?.[1] || !match[2] || !match[3] || !match[4])
+      return null;
+    const logic = match[4].trim();
+    return logic ? { entity: match[1], column: match[2], kind: match[3], logic } : null;
+  }
+  attachFieldLogic(entities, logic) {
+    for (const { entity: name, column, kind, logic: expression } of logic) {
+      const attribute = entities.find((candidate) => candidate.name === name)?.attributes.find((candidate) => candidate.name === column);
+      if (!attribute)
+        continue;
+      if (kind === "display")
+        attribute.displayLogic = expression;
+      else if (kind === "readonly")
+        attribute.readOnlyLogic = expression;
+      else
+        attribute.mandatoryLogic = expression;
+    }
   }
   parseEntityHelpDirective(line) {
     const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+(?:help|description)\s*:\s*(.+)$/);
@@ -8378,6 +8450,149 @@ function applyFieldEnumRefs(model) {
 // language/checker.ts
 init_language();
 
+// language/field-logic.ts
+var OPERATOR_ALIASES = {
+  "=": "=",
+  "==": "=",
+  "!": "!",
+  "!=": "!",
+  "^": "!",
+  "<>": "!",
+  ">": ">",
+  "<": "<",
+  ">=": ">=",
+  "<=": "<="
+};
+var OPERATOR_TOKENS = ["!=", "<>", ">=", "<=", "==", "=", "!", "^", ">", "<"];
+var VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+function splitConditions(source) {
+  const parts = [];
+  const joins = [];
+  let current = "";
+  let quote = null;
+  let inVariable = false;
+  for (const ch of source) {
+    if (quote) {
+      current += ch;
+      if (ch === quote)
+        quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+      current += ch;
+      continue;
+    }
+    if (ch === "@")
+      inVariable = !inVariable;
+    if (!inVariable && (ch === "&" || ch === "|")) {
+      parts.push(current);
+      joins.push(ch);
+      current = "";
+      continue;
+    }
+    if (!inVariable && (ch === "(" || ch === ")")) {
+      return "Parentheses are not supported: conditions are evaluated left to right.";
+    }
+    current += ch;
+  }
+  if (quote)
+    return "A quoted value is not closed.";
+  if (inVariable)
+    return "A variable is not closed: write it as @column@.";
+  parts.push(current);
+  return { parts, joins };
+}
+function parseOperand(raw) {
+  const text = raw.trim();
+  if (text === "")
+    return { kind: "literal", value: "" };
+  if (text.startsWith("@")) {
+    if (!text.endsWith("@") || text.length < 3)
+      return `"${text}" is not a variable: write @column@.`;
+    const name = text.slice(1, -1).trim();
+    if (!VARIABLE_NAME.test(name))
+      return `"${text}" is not a column name.`;
+    return { kind: "variable", name };
+  }
+  const first = text[0];
+  if (first === "'" || first === '"') {
+    if (text.length < 2 || text[text.length - 1] !== first)
+      return `${text} is not closed.`;
+    return { kind: "literal", value: text.slice(1, -1) };
+  }
+  if (text.includes("@"))
+    return `"${text}" mixes a variable into a value.`;
+  return { kind: "literal", value: text };
+}
+function splitComparison(text) {
+  let quote = null;
+  let inVariable = false;
+  for (let i = 0;i < text.length; i++) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === quote)
+        quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+      continue;
+    }
+    if (ch === "@") {
+      inVariable = !inVariable;
+      continue;
+    }
+    if (inVariable)
+      continue;
+    for (const token of OPERATOR_TOKENS) {
+      if (text.startsWith(token, i)) {
+        return [text.slice(0, i), token, text.slice(i + token.length)];
+      }
+    }
+  }
+  return null;
+}
+function parseLogic(source) {
+  const text = (source ?? "").trim();
+  if (!text)
+    return { ok: false, error: "The expression is empty." };
+  const split = splitConditions(text);
+  if (typeof split === "string")
+    return { ok: false, error: split };
+  const conditions = [];
+  const variables = [];
+  for (const part of split.parts) {
+    const trimmed = part.trim();
+    if (!trimmed)
+      return { ok: false, error: "A condition is missing beside & or |." };
+    const comparison = splitComparison(trimmed);
+    if (!comparison) {
+      return {
+        ok: false,
+        error: `"${trimmed}" has no comparison: write @column@=value, @column@!value, > or <.`
+      };
+    }
+    const [leftRaw, token, rightRaw] = comparison;
+    const left = parseOperand(leftRaw);
+    if (typeof left === "string")
+      return { ok: false, error: left };
+    const right = parseOperand(rightRaw);
+    if (typeof right === "string")
+      return { ok: false, error: right };
+    if (left.kind !== "variable" && right.kind !== "variable") {
+      return { ok: false, error: `"${trimmed}" compares two constants: one side must be @column@.` };
+    }
+    for (const operand of [left, right]) {
+      if (operand.kind === "variable" && !variables.includes(operand.name)) {
+        variables.push(operand.name);
+      }
+    }
+    conditions.push({ left, operator: OPERATOR_ALIASES[token], right });
+  }
+  return { ok: true, logic: { conditions, joins: split.joins, variables } };
+}
+
 // language/state-field.ts
 var STATE_FIELD_CANDIDATES = ["status", "state", "stage"];
 function stateFieldOf(columns) {
@@ -8518,7 +8733,18 @@ class CheckEngine {
     "description",
     "parent"
   ]);
-  validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
+  validFieldKeys = new Set([
+    "enum",
+    "ui",
+    "default",
+    "min",
+    "max",
+    "help",
+    "format",
+    "display",
+    "readonly",
+    "mandatory"
+  ]);
   validMetaKeys = new Set(["name", "kind", "version", "entity", "stack", "description"]);
   validWorkflowKinds = new Set(["hook", "state", "saga"]);
   validTriggerSources = /^(cron:|webhook:|message:)/;
@@ -8870,6 +9096,55 @@ class CheckEngine {
       }
     }
   }
+  checkFieldLogic(entityName, attrName, key, expression, lineNo) {
+    const parsed = parseLogic(expression);
+    if (!parsed.ok) {
+      this.error("EML156", `%%field ${entityName}.${attrName} ${key}: does not parse — ${parsed.error}`, {
+        line: lineNo,
+        hint: "Write Compiere logic: @column@=value, @column@!value (not equal), >, <, >=, <=, joined by & and | and read left to right. A Yes/No column is Y or N; an empty value is ''.",
+        context: expression
+      });
+      return;
+    }
+    const entity = this.model.entities.find((candidate) => candidate.name === entityName);
+    if (!entity)
+      return;
+    const columns = new Set(entity.attributes.map((attribute) => attribute.name));
+    for (const variable of parsed.logic.variables) {
+      if (!columns.has(variable)) {
+        this.error("EML157", `%%field ${entityName}.${attrName} ${key}: reads @${variable}@, which ${entityName} does not declare.`, {
+          line: lineNo,
+          hint: `Field logic reads the record being edited, so it can name only ${entityName}'s own columns: ${[...columns].join(", ")}.`
+        });
+      }
+    }
+    if (key === "display" && parsed.logic.variables.includes(attrName)) {
+      this.warn("EML158", `%%field ${entityName}.${attrName} display: depends on its own value.`, {
+        line: lineNo,
+        hint: "A field hidden by its own value can never be shown again from the form, because nobody can see it to change it. Make it depend on another column."
+      });
+    }
+  }
+  checkFieldLogicTargets(entityAttrMap) {
+    const stateFields = this.stateFields();
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%field\b/)) {
+      const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)\s+(display|readonly|mandatory)\s*:/);
+      if (!m)
+        continue;
+      const [entityName, attrName, key] = caps(m, 3);
+      if (!entityAttrMap.get(entityName)?.has(attrName))
+        continue;
+      const entity = this.model.entities.find((candidate) => candidate.name === entityName);
+      const isKey = entity?.primaryKey === attrName;
+      const isState = stateFields.get(entityName) === attrName;
+      if (!isKey && !isState)
+        continue;
+      this.warn("EML159", `%%field ${entityName}.${attrName} ${key}: is on ${isKey ? "the primary key" : "the state field"}, which is never an input.`, {
+        line: lineNo,
+        hint: isKey ? "The key is on no form. Put the logic on the column a person fills in." : "The state field is system-managed: shown read-only in the record header and written only by workflows. Logic may read it (@" + attrName + "@=…) on other fields, but cannot be placed on it."
+      });
+    }
+  }
   checkFieldDirectives() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
     const enumNames = new Set(this.model.enums.map((e) => e.name));
@@ -8877,7 +9152,7 @@ class CheckEngine {
     for (const e of this.model.entities) {
       entityAttrMap.set(e.name, new Set(e.attributes.map((a) => a.name)));
     }
-    const fieldLines = this.src.findAll(/^%%field\b/);
+    const fieldLines = this.src.findAll(/^\s*%%field\b/);
     for (const { lineNo, text } of fieldLines) {
       const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
       if (!m) {
@@ -8921,7 +9196,11 @@ class CheckEngine {
           hint: `${key}: should be a number, e.g.  ${key}: 0`
         });
       }
+      if (key === "display" || key === "readonly" || key === "mandatory") {
+        this.checkFieldLogic(entityName, attrName, key, value.trim(), lineNo);
+      }
     }
+    this.checkFieldLogicTargets(entityAttrMap);
     const boundFields = new Set(this.src.findAll(/^\s*%%field\s+\w+\.\w+\s+enum\s*:/).map(({ text }) => {
       const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)/);
       return m ? `${m[1]}.${m[2]}` : "";
@@ -11262,6 +11541,13 @@ ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS is_same_line BOOLEAN DEFAULT fals
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS x_position INTEGER;
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS y_position INTEGER;
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS column_span INTEGER;
+-- Field logic: Compiere's Display, Read Only and Mandatory Logic. Display is the
+-- field's alone; read-only and mandatory are the column's, repeated on the field.
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS display_logic TEXT;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS read_only_logic TEXT;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS mandatory_logic TEXT;
+ALTER TABLE sys_column ADD COLUMN IF NOT EXISTS read_only_logic TEXT;
+ALTER TABLE sys_column ADD COLUMN IF NOT EXISTS mandatory_logic TEXT;
 
 CREATE TABLE IF NOT EXISTS sys_category (
   sys_category_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -13344,6 +13630,273 @@ export function test(source, scope = {}) {
 
 export { FUNCTIONS };
 `,
+  "server/lib/field-logic.js": `/**
+ * Field logic — Compiere's Display Logic, Read Only Logic and Mandatory Logic,
+ * for the browser application.
+ *
+ * The JavaScript twin of language/field-logic.ts, which is the one reading of
+ * the syntax (\`@column@=value\`, \`!\` for not equal, \`>\`, \`<\`, \`>=\`, \`<=\`, joined
+ * by \`&\` and \`|\` and read left to right). This runtime is plain JavaScript with
+ * no build step, so it carries its own copy; \`browser-runtime-field-logic.test.ts\`
+ * runs the same cases through both and fails if they disagree. Change the
+ * TypeScript first, then this.
+ *
+ * Imported by the server (bus.routes.js enforces mandatory and read-only logic
+ * on every write) and by the form (ui/views/entity-form.js shows, locks and
+ * requires fields as the record is edited) — one copy for both sides of the
+ * Service Worker.
+ */
+
+const OPERATOR_ALIASES = {
+  "=": "=",
+  "==": "=",
+  "!": "!",
+  "!=": "!",
+  "^": "!",
+  "<>": "!",
+  ">": ">",
+  "<": "<",
+  ">=": ">=",
+  "<=": "<="
+};
+const OPERATOR_TOKENS = ["!=", "<>", ">=", "<=", "==", "=", "!", "^", ">", "<"];
+const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+function splitConditions(source) {
+  const parts = [];
+  const joins = [];
+  let current = "";
+  let quote = null;
+  let inVariable = false;
+  for (const ch of source) {
+    if (quote) {
+      current += ch;
+      if (ch === quote)
+        quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+      current += ch;
+      continue;
+    }
+    if (ch === "@")
+      inVariable = !inVariable;
+    if (!inVariable && (ch === "&" || ch === "|")) {
+      parts.push(current);
+      joins.push(ch);
+      current = "";
+      continue;
+    }
+    if (!inVariable && (ch === "(" || ch === ")")) {
+      return "Parentheses are not supported: conditions are evaluated left to right.";
+    }
+    current += ch;
+  }
+  if (quote)
+    return "A quoted value is not closed.";
+  if (inVariable)
+    return "A variable is not closed: write it as @column@.";
+  parts.push(current);
+  return { parts, joins };
+}
+function parseOperand(raw) {
+  const text = raw.trim();
+  if (text === "")
+    return { kind: "literal", value: "" };
+  if (text.startsWith("@")) {
+    if (!text.endsWith("@") || text.length < 3)
+      return \`"\${text}" is not a variable: write @column@.\`;
+    const name = text.slice(1, -1).trim();
+    if (!VARIABLE_NAME.test(name))
+      return \`"\${text}" is not a column name.\`;
+    return { kind: "variable", name };
+  }
+  const first = text[0];
+  if (first === "'" || first === '"') {
+    if (text.length < 2 || text[text.length - 1] !== first)
+      return \`\${text} is not closed.\`;
+    return { kind: "literal", value: text.slice(1, -1) };
+  }
+  if (text.includes("@"))
+    return \`"\${text}" mixes a variable into a value.\`;
+  return { kind: "literal", value: text };
+}
+function splitComparison(text) {
+  let quote = null;
+  let inVariable = false;
+  for (let i = 0;i < text.length; i++) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === quote)
+        quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+      continue;
+    }
+    if (ch === "@") {
+      inVariable = !inVariable;
+      continue;
+    }
+    if (inVariable)
+      continue;
+    for (const token of OPERATOR_TOKENS) {
+      if (text.startsWith(token, i)) {
+        return [text.slice(0, i), token, text.slice(i + token.length)];
+      }
+    }
+  }
+  return null;
+}
+export function parseLogic(source) {
+  const text = (source ?? "").trim();
+  if (!text)
+    return { ok: false, error: "The expression is empty." };
+  const split = splitConditions(text);
+  if (typeof split === "string")
+    return { ok: false, error: split };
+  const conditions = [];
+  const variables = [];
+  for (const part of split.parts) {
+    const trimmed = part.trim();
+    if (!trimmed)
+      return { ok: false, error: "A condition is missing beside & or |." };
+    const comparison = splitComparison(trimmed);
+    if (!comparison) {
+      return {
+        ok: false,
+        error: \`"\${trimmed}" has no comparison: write @column@=value, @column@!value, > or <.\`
+      };
+    }
+    const [leftRaw, token, rightRaw] = comparison;
+    const left = parseOperand(leftRaw);
+    if (typeof left === "string")
+      return { ok: false, error: left };
+    const right = parseOperand(rightRaw);
+    if (typeof right === "string")
+      return { ok: false, error: right };
+    if (left.kind !== "variable" && right.kind !== "variable") {
+      return { ok: false, error: \`"\${trimmed}" compares two constants: one side must be @column@.\` };
+    }
+    for (const operand of [left, right]) {
+      if (operand.kind === "variable" && !variables.includes(operand.name)) {
+        variables.push(operand.name);
+      }
+    }
+    conditions.push({ left, operator: OPERATOR_ALIASES[token], right });
+  }
+  return { ok: true, logic: { conditions, joins: split.joins, variables } };
+}
+export function contextValue(value) {
+  if (value === null || value === undefined)
+    return "";
+  if (value === true)
+    return "Y";
+  if (value === false)
+    return "N";
+  if (value instanceof Date)
+    return Number.isNaN(value.getTime()) ? "" : value.toISOString();
+  if (typeof value === "object")
+    return JSON.stringify(value);
+  return String(value);
+}
+function asNumber(text) {
+  if (text.trim() === "")
+    return null;
+  const number = Number(text);
+  return Number.isFinite(number) ? number : null;
+}
+function compare(left, operator, right) {
+  const l = asNumber(left);
+  const r = asNumber(right);
+  const numeric = l !== null && r !== null;
+  switch (operator) {
+    case "=":
+      return numeric ? l === r : left === right;
+    case "!":
+      return numeric ? l !== r : left !== right;
+    case ">":
+      return numeric ? l > r : left > right;
+    case "<":
+      return numeric ? l < r : left < right;
+    case ">=":
+      return numeric ? l >= r : left >= right;
+    case "<=":
+      return numeric ? l <= r : left <= right;
+  }
+}
+function resolve(operand, record) {
+  return operand.kind === "variable" ? contextValue(record[operand.name]) : operand.value;
+}
+export function evaluateLogic(source, record, fallback = false) {
+  if (!source || !source.trim())
+    return fallback;
+  const parsed = parseLogic(source);
+  if (!parsed.ok)
+    return false;
+  const { conditions, joins } = parsed.logic;
+  let result = false;
+  conditions.forEach((condition, index) => {
+    const value = compare(resolve(condition.left, record), condition.operator, resolve(condition.right, record));
+    if (index === 0)
+      result = value;
+    else
+      result = joins[index - 1] === "&" ? result && value : result || value;
+  });
+  return result;
+}
+export function logicVariables(source) {
+  if (!source || !source.trim())
+    return [];
+  const parsed = parseLogic(source);
+  return parsed.ok ? parsed.logic.variables : [];
+}
+export function fieldLogicState(field, record) {
+  const displayed = field.is_displayed !== false && evaluateLogic(field.display_logic, record, true);
+  const readOnly = field.is_read_only === true || evaluateLogic(field.read_only_logic, record);
+  const mandatory = displayed && (field.is_mandatory === true || evaluateLogic(field.mandatory_logic, record));
+  return { displayed, readOnly, mandatory };
+}
+function isBlank(value) {
+  return value === null || value === undefined || String(value).trim() === "";
+}
+export function sameValue(a, b) {
+  if (isBlank(a) && isBlank(b))
+    return true;
+  const left = contextValue(a);
+  const right = contextValue(b);
+  if (left === right)
+    return true;
+  const l = asNumber(left);
+  const r = asNumber(right);
+  if (l !== null && r !== null)
+    return l === r;
+  if (/^\\d{4}-\\d{2}-\\d{2}/.test(left) && /^\\d{4}-\\d{2}-\\d{2}/.test(right)) {
+    const lt = Date.parse(left);
+    const rt = Date.parse(right);
+    if (!Number.isNaN(lt) && !Number.isNaN(rt))
+      return lt === rt;
+  }
+  return false;
+}
+export function logicViolations(fields, record, changes, stored) {
+  const errors = [];
+  for (const field of fields) {
+    const label = field.name || field.column_name;
+    if (field.mandatory_logic && field.mandatory_logic.trim()) {
+      const displayed = field.is_displayed !== false && evaluateLogic(field.display_logic, record, true);
+      if (displayed && evaluateLogic(field.mandatory_logic, record) && isBlank(record[field.column_name])) {
+        errors.push(\`\${label} is required when \${field.mandatory_logic.trim()}\`);
+      }
+    }
+    if (stored && field.read_only_logic && field.read_only_logic.trim() && Object.prototype.hasOwnProperty.call(changes, field.column_name) && !sameValue(changes[field.column_name], stored[field.column_name]) && evaluateLogic(field.read_only_logic, stored)) {
+      errors.push(\`\${label} is read-only when \${field.read_only_logic.trim()}\`);
+    }
+  }
+  return errors;
+}
+`,
   "server/lib/guards.js": `/**
  * Access control — what \`%%rbac\` compiled to, enforced.
  *
@@ -15160,8 +15713,9 @@ async function seedDictionary(db, model, tick = () => {}) {
     await db.query(
       \`INSERT INTO sys_column (sys_table_id, column_name, name, description, sys_reference_id,
                                is_mandatory, is_updateable, is_key, is_parent, is_identifier,
-                               is_selection_column, field_length, default_value, ref_table_name, seq_no)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+                               is_selection_column, field_length, default_value, ref_table_name, seq_no,
+                               read_only_logic, mandatory_logic)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
        ON CONFLICT (sys_table_id, column_name) DO NOTHING\`,
       [
         tableId,
@@ -15179,6 +15733,8 @@ async function seedDictionary(db, model, tick = () => {}) {
         column.defaultValue ?? null,
         column.refTableName ?? null,
         column.seqNo ?? 0,
+        column.readOnlyLogic ?? null,
+        column.mandatoryLogic ?? null,
       ]
     );
     tick();
@@ -15260,8 +15816,10 @@ async function seedDictionary(db, model, tick = () => {}) {
                               is_displayed, is_displayed_grid, is_read_only, is_mandatory,
                               is_updateable, is_insertable, seq_no, seq_no_grid, display_length,
                               field_type, sys_reference_id, default_value, is_key,
-                              is_same_line, x_position, y_position, column_span)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+                              is_same_line, x_position, y_position, column_span,
+                              display_logic, read_only_logic, mandatory_logic)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,
+               $23,$24,$25)
        ON CONFLICT (sys_tab_id, sys_column_id) DO NOTHING\`,
       [
         tabId,
@@ -15286,6 +15844,9 @@ async function seedDictionary(db, model, tick = () => {}) {
         field.xPosition ?? null,
         field.yPosition ?? null,
         field.columnSpan ?? null,
+        field.displayLogic ?? null,
+        field.readOnlyLogic ?? null,
+        field.mandatoryLogic ?? null,
       ]
     );
     tick();
@@ -16029,6 +16590,7 @@ import { STATE_FIELD_REFUSAL_CODE, stateFieldFor, stateMachineFor } from "../lib
 import { runTriggeredSagas } from "../lib/sagas.js";
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
+import { logicViolations } from "../lib/field-logic.js";
 import { recordAudit } from "./audit.routes.js";
 import { labelsForRows } from "../lib/labels.js";
 import { toRouteName } from "../lib/naming.js";
@@ -16090,6 +16652,9 @@ async function entityMetadata(db, entity, model) {
             f.is_read_only, f.is_mandatory, f.is_updateable, f.is_insertable,
             f.seq_no, f.seq_no_grid, f.field_type, f.sys_field_group_id,
             f.is_same_line, f.column_span,
+            f.display_logic,
+            COALESCE(f.read_only_logic, c.read_only_logic) AS read_only_logic,
+            COALESCE(f.mandatory_logic, c.mandatory_logic) AS mandatory_logic,
             g.name AS group_name, g.description AS group_description,
             g.columns AS group_columns, g.is_collapsed_by_default AS group_collapsed,
             g.seq_no AS group_seq_no
@@ -16155,6 +16720,13 @@ async function entityMetadata(db, entity, model) {
       group_collapsed: column.group_collapsed ?? false,
       is_same_line: column.is_same_line ?? false,
       col_span: column.column_span ?? null,
+      /* Field logic (Compiere's Display, Read Only and Mandatory Logic). The
+         field's own wins over the column's; the state field carries none, as
+         it is never an input. The form evaluates these as the record is
+         edited, and \`enforceFieldLogic\` below on every write. */
+      display_logic: isState ? null : (column.display_logic ?? null),
+      read_only_logic: isState ? null : (column.read_only_logic ?? null),
+      mandatory_logic: isState ? null : (column.mandatory_logic ?? null),
       };
     }),
     window: window ? { sys_window_id: window.sys_window_id, name: window.name } : undefined,
@@ -16270,6 +16842,27 @@ function validate(entity, values, mode) {
 }
 
 const isBlank = (value) => value == null || String(value).trim() === "";
+
+/**
+ * Field logic, enforced. The form hides, locks and requires fields as the
+ * record is edited, but the form is a convenience and this is the control —
+ * the same refusals the NestJS stack gives (lib/field-logic.js
+ * \`logicViolations\`): a displayed field whose mandatory logic holds for the
+ * record as it will be saved must have a value, and a field whose read-only
+ * logic holds for the record as it is stored cannot be changed.
+ *
+ * Read from the dictionary rows rather than from model.json, so a condition an
+ * administrator edits under Windows, Tabs & Fields applies on the next write.
+ */
+async function enforceFieldLogic(db, entity, model, record, changes, stored) {
+  const metadata = await entityMetadata(db, entity, model);
+  const fields = metadata.columns.filter(
+    (column) => column.mandatory_logic || column.read_only_logic
+  );
+  if (!fields.length) return;
+  const errors = logicViolations(fields, record, changes, stored);
+  if (errors.length) throw badRequest("Validation failed", errors);
+}
 
 /**
  * The column a state machine moves, when the entity has one.
@@ -16472,6 +17065,7 @@ export function busRoutes(model) {
     values = before.record;
 
     validate(entity, values, "create");
+    await enforceFieldLogic(db, entity, model, values, values, null);
 
     const outcome = await evaluateRules(await rulesFor(db, entity, "CREATE"), values, {
       columns: entity.attributes.map((attribute) => attribute.columnName),
@@ -16568,6 +17162,7 @@ export function busRoutes(model) {
     // The rule sees the record it would become, not the fragment submitted:
     // \`status == 'draft'\` has to be answerable when the write only sets a title.
     const merged = { ...current, ...values };
+    await enforceFieldLogic(db, entity, model, merged, values, current);
     const outcome = await evaluateRules(await rulesFor(db, entity, "UPDATE"), merged, {
       columns: entity.attributes.map((attribute) => attribute.columnName),
     });
@@ -18177,7 +18772,8 @@ function withReading(model) {
 import { Router } from "../lib/router.js";
 import { ident } from "../lib/db.js";
 import { columnsOf, labelForTable } from "../lib/labels.js";
-import { json, notFound, readJson } from "../lib/http.js";
+import { badRequest, json, notFound, readJson } from "../lib/http.js";
+import { parseLogic } from "../lib/field-logic.js";
 import { readableTables, requireAdmin, requireUser } from "../lib/guards.js";
 import { recordAudit } from "./audit.routes.js";
 
@@ -18346,9 +18942,25 @@ export function sysRoutes(model) {
       "is_mandatory",
       "seq_no",
       "seq_no_grid",
+      "display_logic",
+      "read_only_logic",
+      "mandatory_logic",
     ]) {
       if (key in body) allowed[key] = body[key];
     }
+    /* Field logic is checked here as the checker checks it in the model
+       (EML156): a condition that does not parse would hide or lock nothing and
+       say nothing, so it is refused with the reason rather than stored. */
+    const problems = [];
+    for (const key of ["display_logic", "read_only_logic", "mandatory_logic"]) {
+      if (!(key in allowed)) continue;
+      const text = allowed[key] == null ? "" : String(allowed[key]).trim();
+      allowed[key] = text || null;
+      if (!text) continue;
+      const parsed = parseLogic(text);
+      if (!parsed.ok) problems.push(\`\${key}: \${parsed.error}\`);
+    }
+    if (problems.length) throw badRequest("Validation failed", problems);
     const updated = await db.update("sys_field", allowed, { sys_field_id: params.id });
     if (!updated) throw notFound("No such field");
     return json(updated);
@@ -19140,6 +19752,11 @@ details.group > summary.group__name { cursor: pointer; }
 .field__head { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 .field__label { font-size: 13px; font-weight: 600; }
 .field__required { color: var(--destructive); }
+/* Field logic: \`.field\` is a grid, which beats the UA's [hidden] rule, so
+   display logic needs saying explicitly; a field locked by read-only logic
+   is told apart from one that is always read-only. */
+.field[hidden] { display: none; }
+.field--logic-locked .field__input { background: var(--surface-2); }
 .chip {
   display: inline-flex; align-items: center; gap: 3px;
   font-size: 10.5px; font-family: var(--mono); padding: 1px 7px; border-radius: 4px;
@@ -21686,7 +22303,7 @@ export async function dictionaryView(root, { user } = {}) {
                   "thead",
                   el(
                     "tr",
-                    ["Field", "Column", "On form", "In grid", "Form seq", "Grid seq", "Required", "Read only", "Type", "Help"].map(
+                    ["Field", "Column", "On form", "In grid", "Form seq", "Grid seq", "Required", "Read only", "Logic", "Type", "Help"].map(
                       (heading) => el("th", heading)
                     )
                   )
@@ -21704,6 +22321,7 @@ export async function dictionaryView(root, { user } = {}) {
                       el("td", displayValue(field.seq_no_grid ?? "—")),
                       el("td", yesNo(field.is_mandatory)),
                       el("td", yesNo(field.is_read_only)),
+                      el("td", logicCell(field)),
                       el("td", field.field_type || "—"),
                       el("td.dict__help", field.description || "—")
                     )
@@ -21713,6 +22331,18 @@ export async function dictionaryView(root, { user } = {}) {
             )
       )
     );
+  }
+
+  /* Compiere's Display, Read Only and Mandatory Logic, as the dictionary row
+     holds them — what makes the field appear, lock or become required. */
+  function logicCell(field) {
+    const parts = [
+      ["Display", field.display_logic],
+      ["Read only", field.read_only_logic],
+      ["Mandatory", field.mandatory_logic],
+    ].filter(([, logic]) => logic);
+    if (!parts.length) return "—";
+    return parts.map(([label, logic]) => el("div", \`\${label}: \`, el("code", logic)));
   }
 
   async function showColumns(table) {
@@ -22789,6 +23419,7 @@ function purgeSection(project, navigate) {
 import { el, helpToast, mount, spinner, toast, displayValue } from "../dom.js";
 import { api } from "../api.js";
 import { setActions, childEntitiesOf } from "../main.js";
+import { fieldLogicState } from "../../server/lib/field-logic.js";
 
 const referenceCache = new Map();
 const lookupCache = new Map();
@@ -22898,14 +23529,65 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
   // sends it as If-Match and the server refuses it with 409 if someone has
   // saved since; "Overwrite" moves it to the version that conflict reported.
   let openedVersion = record.version;
-  const requiredCount = editable.filter((field) => field.is_mandatory).length;
-
   const inputs = new Map();
   const violationBox = el("div.violations", { hidden: true });
 
   const controls = await Promise.all(
     editable.map((field) => control(field, record, entity, inputs))
   );
+
+  /*
+   * Field logic — Compiere's Display, Read Only and Mandatory Logic.
+   *
+   * Each field may carry \`@column@=value\` conditions over the record being
+   * edited (\`%%field … display: | readonly: | mandatory:\`). They are evaluated
+   * against what the form holds now, not what was loaded, and again on every
+   * change, so a field appears, locks or becomes required as the record is
+   * edited — the dependency refresh Compiere's GridField does. The server
+   * judges the same logic on save (bus.routes.js \`enforceFieldLogic\`); this is
+   * what lets a person see the rule before they break it.
+   */
+  const requiredLabel = el("span.record__required");
+  const currentValues = () => {
+    const values = { ...record };
+    for (const [column, input] of inputs) {
+      values[column] = input.type === "checkbox" ? input.checked : input.value;
+    }
+    return values;
+  };
+  const applyLogic = () => {
+    const values = currentValues();
+    let required = 0;
+    for (const [field, node] of controls) {
+      const state = fieldLogicState(field, values);
+      const input = inputs.get(field.column_name);
+      node.hidden = !state.displayed;
+      if (input) {
+        input.disabled = input.dataset.baseDisabled === "true" || state.readOnly;
+        // \`required\` only on a field that is shown: a hidden required input
+        // stops the browser submitting a form nobody can see the fault in.
+        if (input.type !== "checkbox") input.required = state.mandatory && !input.disabled;
+      }
+      /* The marker exists exactly while the field is required — added and
+         removed, never hidden — so \`.field:has(.field__required)\` keeps
+         naming the required fields and nothing else. */
+      const marker = node.querySelector(".field__required");
+      if (state.mandatory && !marker) {
+        node.querySelector(".field__label")?.after(requiredMarker());
+      } else if (!state.mandatory && marker) {
+        marker.remove();
+      }
+      node.classList.toggle("field--logic-locked", state.readOnly && !field.is_read_only);
+      if (state.mandatory) required += 1;
+    }
+    requiredLabel.textContent = required ? \`\${required} required\` : "";
+    requiredLabel.hidden = !required;
+  };
+  applyLogic();
+  for (const input of inputs.values()) {
+    input.addEventListener("input", applyLogic);
+    input.addEventListener("change", applyLogic);
+  }
 
   /* \`%%section\`: the model's own headings, in its order, each a two-column
      grid in which a field alone on its row spans both columns. A model with
@@ -22996,7 +23678,7 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     el(
       "div.record__meta",
       \`\${editable.length} field\${editable.length === 1 ? "" : "s"}\`,
-      requiredCount ? el("span.record__required", \`\${requiredCount} required\`) : null,
+      requiredLabel,
       el("button.btn.btn--primary.btn--small", { type: "submit" }, isNew ? "Create" : "Save")
     ),
     violationBox,
@@ -23470,6 +24152,9 @@ async function control(field, record, entity, inputs) {
   }
 
   if (field.is_read_only || (record.id && field.is_updateable === false)) input.disabled = true;
+  /* What the dictionary fixes, kept apart from what read-only logic decides
+     from moment to moment — \`applyLogic\` re-derives \`disabled\` from both. */
+  input.dataset.baseDisabled = input.disabled ? "true" : "false";
   inputs.set(field.column_name, input);
 
   return [
@@ -23479,7 +24164,7 @@ async function control(field, record, entity, inputs) {
       el(
         "div.field__head",
         el("label.field__label", { for: id }, field.name),
-        field.is_mandatory ? el("span.field__required", { title: "Required" }, "*") : null,
+        field.is_mandatory ? requiredMarker() : null,
         el(\`span.chip.chip--\${chipKind}\`, chipLabel),
         el(
           "button.field__help",
@@ -23495,6 +24180,10 @@ async function control(field, record, entity, inputs) {
       input
     ),
   ];
+}
+
+function requiredMarker() {
+  return el("span.field__required", { title: "Required" }, "*");
 }
 
 /**
@@ -23515,6 +24204,11 @@ function fieldHelpBody(field, attribute) {
   if (attribute.maxLength) facts.push(\`Up to \${attribute.maxLength} characters\`);
   if (field.is_mandatory) facts.push("Required");
   if (field.is_read_only) facts.push("Read-only");
+  /* The dictionary's logic, as written — what makes the field appear, lock or
+     become required, which is otherwise invisible from the form. */
+  if (field.display_logic) facts.push(\`Shown when \${field.display_logic}\`);
+  if (field.read_only_logic) facts.push(\`Read-only when \${field.read_only_logic}\`);
+  if (field.mandatory_logic) facts.push(\`Required when \${field.mandatory_logic}\`);
   if (attribute.enumValues?.length) facts.push(\`One of: \${attribute.enumValues.join(", ")}\`);
   if (attribute.refTable) facts.push(\`References \${attribute.refTable}\`);
 
@@ -26946,7 +27640,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 637129;
+var RUNTIME_BYTES = 653407;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -27430,8 +28124,8 @@ class DictionaryGenerator {
           is_allow_copy: attr.name !== entity.primaryKey,
           seq_no: attr.seqNo,
           callout: undefined,
-          read_only_logic: undefined,
-          mandatory_logic: undefined,
+          read_only_logic: attr.readOnlyLogic,
+          mandatory_logic: attr.mandatoryLogic,
           format_pattern: undefined,
           entity_type: this.config.defaultEntityType,
           is_active: true,
@@ -27489,7 +28183,10 @@ class DictionaryGenerator {
         ...field,
         _tempId: `field_${++fieldCounter}`,
         _tabRef: tabId,
-        _columnRef: columnEntries[idx]?._tempId ?? ""
+        _columnRef: columnEntries[idx]?._tempId ?? "",
+        display_logic: busAttrs[idx]?.displayLogic,
+        read_only_logic: busAttrs[idx]?.readOnlyLogic,
+        mandatory_logic: busAttrs[idx]?.mandatoryLogic
       }));
       const layout = formLayoutFor(entity);
       if (layout) {
@@ -28539,7 +29236,9 @@ function buildModelBundle(parsed, project) {
         fieldLength: column.field_length,
         defaultValue: column.default_value,
         refTableName: refTableFor(entities, tableByTemp.get(column._tableRef) ?? "", column.column_name),
-        seqNo: column.seq_no
+        seqNo: column.seq_no,
+        readOnlyLogic: column.read_only_logic,
+        mandatoryLogic: column.mandatory_logic
       })),
       fieldGroups: dictionary.sysFieldGroups.filter((group) => group._tabRef).map((group) => ({
         tableName: tableByTemp.get(dictionary.sysTabs.find((tab) => tab._tempId === group._tabRef)?._tableRef ?? "") ?? "",
@@ -28574,7 +29273,10 @@ function buildModelBundle(parsed, project) {
           fieldType: attribute?.type,
           referenceId: attribute?.referenceId,
           defaultValue: attribute?.defaultValue ?? undefined,
-          isKey: attribute?.columnName === "id"
+          isKey: attribute?.columnName === "id",
+          displayLogic: field.display_logic,
+          readOnlyLogic: field.read_only_logic,
+          mandatoryLogic: field.mandatory_logic
         };
       })
     }

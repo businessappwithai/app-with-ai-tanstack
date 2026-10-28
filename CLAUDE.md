@@ -435,6 +435,37 @@ before it was taught:
   database, which is why the full run did: **run the suite twice on one database** before
   calling a harness change done.
 
+### Field logic — Compiere's Display, Read Only and Mandatory Logic
+
+`%%field <E>.<c> display: | readonly: | mandatory: <logic>` in Compiere's own syntax
+(`@column@=value`, `!` not equal, `>`/`<`/`>=`/`<=`, `&`/`|` read left to right, no
+parentheses; `Y`/`N` for booleans, `''` for empty). `language/field-logic.ts` is the one
+reading — parse, evaluate, `fieldLogicState`, and `logicViolations` (what the API refuses).
+
+| Reader | Copy |
+|---|---|
+| checker (EML156–EML159), parser, dictionary | `language/field-logic.ts` itself |
+| NestJS backend + frontend | `templates/common/field-logic.ts` — **byte-identical**, copied to `backend/src/common/` and `frontend/src/lib/` |
+| browser stack (server and form) | `templates/wasm/server/lib/field-logic.js` — the JS twin, held to the same cases |
+
+`generators/__tests__/field-logic.test.ts` fails if a copy drifts. Edit the TypeScript,
+`cp` it to `templates/common/`, and regenerate the twin with
+`bun build language/field-logic.ts --format esm --no-bundle` under its header comment.
+
+Display logic lands on `sys_field`; read-only and mandatory on `sys_column` **and**
+`sys_field` (the field's wins). The form re-evaluates on every change; `bus.service`
+(`enforceFieldLogic`) and `bus.routes.js` refuse a write — mandatory judged on the record
+as it will be saved and only while displayed, read-only on the record **as stored** and
+only for a real change (`sameValue`: `12.50` = `12.5`, a Date = its ISO text). Workflows
+write directly and are not judged. The admin Field and Column windows refuse logic that
+does not parse (400 with the reason).
+
+Two things learned driving the CRM: the checker's `%%field` scan was anchored at column 0,
+so every **indented** `%%field` line (the reference models indent all of them) skipped
+EML140–145 — it is `^\s*%%field` now; and the admin detail shell drew a record from its
+list endpoint, which for `/sys/fields` returned nine of thirty columns, so Same Line,
+Heading, Obscure Type and the logics showed "—" — it now reads the record by id.
+
 ### Optimistic locking — one contract, every target
 
 Every generated table carries the managed `version` column, and every target
@@ -483,6 +514,17 @@ The WASM overlay strips both prefixes (`bun --bun `, `HOST=127.0.0.1 bun --bun `
 browser application's scripts are the plain Node commands they always were — CI's
 "No Bun left" check and the overlay footprint are unchanged. The generated test suite
 (`tests/`) stays on `node --test` by design; CI type-checks it with `bun check`.
+
+**A generated application has no lockfile, so its pins are the lockfile.** `bun install`
+resolves every range on the day it runs. Two families are held: TanStack Start 1.97 by the
+`overrides` that `full-stack.generator.ts` writes into the root manifest, and CopilotKit at
+exactly `1.68.1` in `frontend/package.json.hbs` — the version this repository's own lock runs,
+whose packages pin each other exactly. The caret it replaced resolved, on 2026-10-28, to a
+1.83.0 published that morning whose `channels-*@0.12.0` dependencies the registry listed and
+served 404, so every fresh generation failed to install. `templates/__tests__/pinned-dependencies.test.ts`
+holds both. When testing a generated app by hand, **add** to its `overrides`, never replace
+the object — dropping the TanStack pins reproduces a cascade of `Export named … not found`
+errors from `tsr` and `vinxi` that looks like an upstream break and is not.
 
 **Its static check is `bun check` too, and it has no linter.** The backend and the
 frontend each carry `"type-check": "bun check"` and no `biome.json`; their own CI

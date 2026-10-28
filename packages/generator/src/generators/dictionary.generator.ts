@@ -183,8 +183,10 @@ export class DictionaryGenerator {
           is_allow_copy: attr.name !== entity.primaryKey,
           seq_no: attr.seqNo,
           callout: undefined,
-          read_only_logic: undefined,
-          mandatory_logic: undefined,
+          /* `%%field <E>.<c> readonly: | mandatory:` — Compiere's column
+             logic, inherited by every window over this table. */
+          read_only_logic: attr.readOnlyLogic,
+          mandatory_logic: attr.mandatoryLogic,
           format_pattern: undefined,
           entity_type: this.config.defaultEntityType,
           is_active: true,
@@ -266,6 +268,12 @@ export class DictionaryGenerator {
         _tempId: `field_${++fieldCounter}`,
         _tabRef: tabId,
         _columnRef: columnEntries[idx]?._tempId ?? "",
+        /* Field logic: display belongs to the field alone; read-only and
+           mandatory are the column's, repeated on the field so this window
+           states what it does without a join (see fieldLogic.columnAndField). */
+        display_logic: busAttrs[idx]?.displayLogic,
+        read_only_logic: busAttrs[idx]?.readOnlyLogic,
+        mandatory_logic: busAttrs[idx]?.mandatoryLogic,
       }));
 
       /*

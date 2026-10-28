@@ -28,6 +28,7 @@ import type { EmlAttribute, EmlEntity, EmlModel, EmlRule, EmlWorkflow } from "./
 import { parseEml } from "./cli/src/parser";
 import { caps } from "./cli/src/util";
 import { loadLanguageDefinition, stepNodeTypes } from "./index";
+import { parseLogic } from "./field-logic";
 import { parseSectionDirectives, sectionsByEntity, UNPLACED_SECTION } from "./sections";
 import { stateFieldOf } from "./state-field";
 
@@ -340,7 +341,18 @@ class CheckEngine {
        parent's window linked on the foreign key it already declared. */
     "parent",
   ]);
-  private validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
+  private validFieldKeys = new Set([
+    "enum",
+    "ui",
+    "default",
+    "min",
+    "max",
+    "help",
+    "format",
+    "display",
+    "readonly",
+    "mandatory",
+  ]);
   private validMetaKeys = new Set(["name", "kind", "version", "entity", "stack", "description"]);
   private validWorkflowKinds = new Set(["hook", "state", "saga"]);
   private validTriggerSources = /^(cron:|webhook:|message:)/;
@@ -920,6 +932,85 @@ class CheckEngine {
   // EML140-EML149: %%field directive checks
   // -------------------------------------------------------------------------
 
+  /**
+   * `%%field <E>.<c> display: | readonly: | mandatory: <logic>` — Compiere's
+   * Display, Read Only and Mandatory Logic. language/field-logic.ts is the one
+   * reading of the syntax; the generated form and API evaluate with a copy of it.
+   */
+  private checkFieldLogic(
+    entityName: string,
+    attrName: string,
+    key: string,
+    expression: string,
+    lineNo: number
+  ): void {
+    const parsed = parseLogic(expression);
+    if (!parsed.ok) {
+      this.error("EML156", `%%field ${entityName}.${attrName} ${key}: does not parse — ${parsed.error}`, {
+        line: lineNo,
+        hint: "Write Compiere logic: @column@=value, @column@!value (not equal), >, <, >=, <=, joined by & and | and read left to right. A Yes/No column is Y or N; an empty value is ''.",
+        context: expression,
+      });
+      return;
+    }
+    const entity = this.model.entities.find((candidate) => candidate.name === entityName);
+    if (!entity) return;
+    const columns = new Set(entity.attributes.map((attribute) => attribute.name));
+    for (const variable of parsed.logic.variables) {
+      if (!columns.has(variable)) {
+        this.error(
+          "EML157",
+          `%%field ${entityName}.${attrName} ${key}: reads @${variable}@, which ${entityName} does not declare.`,
+          {
+            line: lineNo,
+            hint: `Field logic reads the record being edited, so it can name only ${entityName}'s own columns: ${[...columns].join(", ")}.`,
+          }
+        );
+      }
+    }
+    if (key === "display" && parsed.logic.variables.includes(attrName)) {
+      this.warn(
+        "EML158",
+        `%%field ${entityName}.${attrName} display: depends on its own value.`,
+        {
+          line: lineNo,
+          hint: "A field hidden by its own value can never be shown again from the form, because nobody can see it to change it. Make it depend on another column.",
+        }
+      );
+    }
+  }
+
+  /**
+   * EML159 — logic on a column no person edits: the key, or the state field a
+   * `kind: state` workflow drives. Neither is ever an input on the form, so a
+   * condition on it is never evaluated.
+   */
+  private checkFieldLogicTargets(entityAttrMap: Map<string, Set<string>>): void {
+    const stateFields = this.stateFields();
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%field\b/)) {
+      const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)\s+(display|readonly|mandatory)\s*:/);
+      if (!m) continue;
+      const [entityName, attrName, key] = caps(m, 3);
+      if (!entityAttrMap.get(entityName)?.has(attrName)) continue;
+      const entity = this.model.entities.find((candidate) => candidate.name === entityName);
+      const isKey = entity?.primaryKey === attrName;
+      const isState = stateFields.get(entityName) === attrName;
+      if (!isKey && !isState) continue;
+      this.warn(
+        "EML159",
+        `%%field ${entityName}.${attrName} ${key}: is on ${isKey ? "the primary key" : "the state field"}, which is never an input.`,
+        {
+          line: lineNo,
+          hint: isKey
+            ? "The key is on no form. Put the logic on the column a person fills in."
+            : "The state field is system-managed: shown read-only in the record header and written only by workflows. Logic may read it (@" +
+              attrName +
+              "@=…) on other fields, but cannot be placed on it.",
+        }
+      );
+    }
+  }
+
   private checkFieldDirectives(): void {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
     const enumNames = new Set(this.model.enums.map((e) => e.name));
@@ -929,7 +1020,10 @@ class CheckEngine {
     }
 
     // Re-scan source for %%field directives (model doesn't expose them directly)
-    const fieldLines = this.src.findAll(/^%%field\b/);
+    // Indented or not: the reference models indent their directives to sit
+    // inside the block they annotate, and an anchor at column 0 skipped every
+    // one of them, so a misspelt key or an undeclared enum went unreported.
+    const fieldLines = this.src.findAll(/^\s*%%field\b/);
     for (const { lineNo, text } of fieldLines) {
       const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
       if (!m) {
@@ -995,7 +1089,14 @@ class CheckEngine {
           }
         );
       }
+
+      // EML156-EML159: display:, readonly: and mandatory: — field logic
+      if (key === "display" || key === "readonly" || key === "mandatory") {
+        this.checkFieldLogic(entityName, attrName, key, value.trim(), lineNo);
+      }
     }
+
+    this.checkFieldLogicTargets(entityAttrMap);
 
     // EML146: A lifecycle column nobody bound to an enum.
     //

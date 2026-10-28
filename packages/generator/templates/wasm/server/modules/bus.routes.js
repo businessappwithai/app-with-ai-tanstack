@@ -22,6 +22,7 @@ import { STATE_FIELD_REFUSAL_CODE, stateFieldFor, stateMachineFor } from "../lib
 import { runTriggeredSagas } from "../lib/sagas.js";
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
+import { logicViolations } from "../lib/field-logic.js";
 import { recordAudit } from "./audit.routes.js";
 import { labelsForRows } from "../lib/labels.js";
 import { toRouteName } from "../lib/naming.js";
@@ -83,6 +84,9 @@ async function entityMetadata(db, entity, model) {
             f.is_read_only, f.is_mandatory, f.is_updateable, f.is_insertable,
             f.seq_no, f.seq_no_grid, f.field_type, f.sys_field_group_id,
             f.is_same_line, f.column_span,
+            f.display_logic,
+            COALESCE(f.read_only_logic, c.read_only_logic) AS read_only_logic,
+            COALESCE(f.mandatory_logic, c.mandatory_logic) AS mandatory_logic,
             g.name AS group_name, g.description AS group_description,
             g.columns AS group_columns, g.is_collapsed_by_default AS group_collapsed,
             g.seq_no AS group_seq_no
@@ -148,6 +152,13 @@ async function entityMetadata(db, entity, model) {
       group_collapsed: column.group_collapsed ?? false,
       is_same_line: column.is_same_line ?? false,
       col_span: column.column_span ?? null,
+      /* Field logic (Compiere's Display, Read Only and Mandatory Logic). The
+         field's own wins over the column's; the state field carries none, as
+         it is never an input. The form evaluates these as the record is
+         edited, and `enforceFieldLogic` below on every write. */
+      display_logic: isState ? null : (column.display_logic ?? null),
+      read_only_logic: isState ? null : (column.read_only_logic ?? null),
+      mandatory_logic: isState ? null : (column.mandatory_logic ?? null),
       };
     }),
     window: window ? { sys_window_id: window.sys_window_id, name: window.name } : undefined,
@@ -263,6 +274,27 @@ function validate(entity, values, mode) {
 }
 
 const isBlank = (value) => value == null || String(value).trim() === "";
+
+/**
+ * Field logic, enforced. The form hides, locks and requires fields as the
+ * record is edited, but the form is a convenience and this is the control —
+ * the same refusals the NestJS stack gives (lib/field-logic.js
+ * `logicViolations`): a displayed field whose mandatory logic holds for the
+ * record as it will be saved must have a value, and a field whose read-only
+ * logic holds for the record as it is stored cannot be changed.
+ *
+ * Read from the dictionary rows rather than from model.json, so a condition an
+ * administrator edits under Windows, Tabs & Fields applies on the next write.
+ */
+async function enforceFieldLogic(db, entity, model, record, changes, stored) {
+  const metadata = await entityMetadata(db, entity, model);
+  const fields = metadata.columns.filter(
+    (column) => column.mandatory_logic || column.read_only_logic
+  );
+  if (!fields.length) return;
+  const errors = logicViolations(fields, record, changes, stored);
+  if (errors.length) throw badRequest("Validation failed", errors);
+}
 
 /**
  * The column a state machine moves, when the entity has one.
@@ -465,6 +497,7 @@ export function busRoutes(model) {
     values = before.record;
 
     validate(entity, values, "create");
+    await enforceFieldLogic(db, entity, model, values, values, null);
 
     const outcome = await evaluateRules(await rulesFor(db, entity, "CREATE"), values, {
       columns: entity.attributes.map((attribute) => attribute.columnName),
@@ -561,6 +594,7 @@ export function busRoutes(model) {
     // The rule sees the record it would become, not the fragment submitted:
     // `status == 'draft'` has to be answerable when the write only sets a title.
     const merged = { ...current, ...values };
+    await enforceFieldLogic(db, entity, model, merged, values, current);
     const outcome = await evaluateRules(await rulesFor(db, entity, "UPDATE"), merged, {
       columns: entity.attributes.map((attribute) => attribute.columnName),
     });

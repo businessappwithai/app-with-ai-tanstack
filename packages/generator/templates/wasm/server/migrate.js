@@ -254,8 +254,9 @@ async function seedDictionary(db, model, tick = () => {}) {
     await db.query(
       `INSERT INTO sys_column (sys_table_id, column_name, name, description, sys_reference_id,
                                is_mandatory, is_updateable, is_key, is_parent, is_identifier,
-                               is_selection_column, field_length, default_value, ref_table_name, seq_no)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+                               is_selection_column, field_length, default_value, ref_table_name, seq_no,
+                               read_only_logic, mandatory_logic)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
        ON CONFLICT (sys_table_id, column_name) DO NOTHING`,
       [
         tableId,
@@ -273,6 +274,8 @@ async function seedDictionary(db, model, tick = () => {}) {
         column.defaultValue ?? null,
         column.refTableName ?? null,
         column.seqNo ?? 0,
+        column.readOnlyLogic ?? null,
+        column.mandatoryLogic ?? null,
       ]
     );
     tick();
@@ -354,8 +357,10 @@ async function seedDictionary(db, model, tick = () => {}) {
                               is_displayed, is_displayed_grid, is_read_only, is_mandatory,
                               is_updateable, is_insertable, seq_no, seq_no_grid, display_length,
                               field_type, sys_reference_id, default_value, is_key,
-                              is_same_line, x_position, y_position, column_span)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+                              is_same_line, x_position, y_position, column_span,
+                              display_logic, read_only_logic, mandatory_logic)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,
+               $23,$24,$25)
        ON CONFLICT (sys_tab_id, sys_column_id) DO NOTHING`,
       [
         tabId,
@@ -380,6 +385,9 @@ async function seedDictionary(db, model, tick = () => {}) {
         field.xPosition ?? null,
         field.yPosition ?? null,
         field.columnSpan ?? null,
+        field.displayLogic ?? null,
+        field.readOnlyLogic ?? null,
+        field.mandatoryLogic ?? null,
       ]
     );
     tick();

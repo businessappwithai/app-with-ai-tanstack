@@ -27,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { type FieldMetadata, useEntities, useFormFields, useRefList } from "@/hooks/use-entities";
 import { apiClient } from "@/lib/api-client";
+import { fieldLogicState } from "@/lib/field-logic";
 import { getFieldTypeColor, getFieldTypeLabel, validateFormData } from "@/lib/field-schema";
 import { getFieldLabel } from "@/lib/i18n-fields";
 import { useTranslations } from "@/lib/translations";
@@ -363,7 +364,9 @@ function FieldRenderer({
   const formMode = (form as any).mode || "edit";
   const fieldLabel = getFieldLabel(tableName, (field as any).tab_name, field.name, field.name);
   const isDisabled =
-    (field.is_read_only && formMode !== "create") || readOnlyFields.includes(field.column_name);
+    (field.is_read_only && formMode !== "create") ||
+    field.logic_read_only === true ||
+    readOnlyFields.includes(field.column_name);
   const isReadOnly = isDisabled || isFormReadOnly;
 
   const { data: refListValues, isLoading: isLoadingRefList } = useRefList(
@@ -837,7 +840,7 @@ export function DynamicForm({
     isLoading: fieldsLoading,
     error,
   } = useFormFields(tableName, { enabled: !externalFields });
-  const fields = externalFields || fetchedFields;
+  const dictionaryFields = externalFields || fetchedFields;
   const [zodErrors, setZodErrors] = useState<Record<string, string>>({});
 
   // Derive the entity PK column name from the table name (bus_patient → patient_id),
@@ -902,6 +905,40 @@ export function DynamicForm({
   (form as any).readOnly = readOnly;
   (form as any).mode = mode;
 
+  /*
+   * Field logic — Compiere's Display, Read Only and Mandatory Logic.
+   *
+   * Every field the dictionary sends may carry conditions over the record
+   * (`@stage@=closed_lost`). They are evaluated against what the form holds
+   * now — and, beneath it, the parent record a detail tab sits in — so a field
+   * appears, locks or becomes required as the record is edited, the dependency
+   * refresh Compiere's GridField does. Everything below (grouping, the
+   * required count, validation, what a save sends) reads these effective
+   * fields, so the logic is applied once rather than at each of those places.
+   * The API judges the same conditions on save; this is what lets a person see
+   * the rule before they break it.
+   */
+  const liveValues = form.useStore((state: any) => state.values) as Record<string, unknown>;
+  const fields = useMemo(() => {
+    if (!dictionaryFields) return dictionaryFields;
+    const hasLogic = dictionaryFields.some(
+      (f) => f.display_logic || f.read_only_logic || f.mandatory_logic
+    );
+    if (!hasLogic) return dictionaryFields;
+    const context = { ...(parentContext ?? {}), ...initialData, ...liveValues };
+    return dictionaryFields.map((field) => {
+      const state = fieldLogicState(field, context);
+      const logicReadOnly = !field.is_read_only && state.readOnly;
+      return {
+        ...field,
+        is_displayed: state.displayed,
+        is_mandatory: state.mandatory,
+        is_read_only: field.is_read_only || state.readOnly,
+        logic_read_only: logicReadOnly,
+      };
+    });
+  }, [dictionaryFields, liveValues, initialData, parentContext]);
+
   useEffect(() => {
     if (Object.keys(initialData).length > 0) {
       Object.entries(initialData).forEach(([key, value]) => {
@@ -949,7 +986,7 @@ export function DynamicForm({
       groups.get(groupName)!.push(field);
     });
     return groups;
-  }, [fields, parentField]);
+  }, [fields, parentField, mode, pkColumnName]);
 
   if (isLoading) {
     return (

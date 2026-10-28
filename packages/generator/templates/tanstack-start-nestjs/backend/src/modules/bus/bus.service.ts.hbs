@@ -20,6 +20,7 @@ import type { PromotionActor, PromotionResult } from './entity-promotion.service
 import { WorkflowService } from '../workflow/workflow.service';
 import { currentRequestContext, getLogger } from '../../common/logging/logger.service';
 import { stateFieldOf } from '../../common/state-fields';
+import { logicViolations } from '../../common/field-logic';
 import {
   DEFAULT_ORDER_BY_CLAUSE,
   parseOrderByClause,
@@ -60,6 +61,15 @@ export interface FieldMetadata {
    * input — only the application's workflows change it.
    */
   is_state_field?: boolean;
+  /**
+   * Compiere's field logic — `@column@=value` conditions over the record being
+   * edited (common/field-logic.ts). The field's own logic wins over the
+   * column's. The form re-evaluates them as the record changes, and `create`
+   * and `update` below refuse what mandatory and read-only logic forbid.
+   */
+  display_logic?: string | null;
+  read_only_logic?: string | null;
+  mandatory_logic?: string | null;
   /** Query param name for cascading filter (e.g. 'filter.country_id') */
   ref_filter_param?: string;
   /** Form field whose value feeds the cascading filter (e.g. 'country_id') */
@@ -384,6 +394,7 @@ export class BusService {
     }
 
     await executeCustomValidateHooks(entity, processedData);
+    this.enforceFieldLogic(metadata, processedData, processedData, null);
     await this.enforceBusinessRules(tableName, processedData, 'create');
 
     let result: any;
@@ -487,6 +498,7 @@ export class BusService {
     if (current) {
       const merged = { ...current, ...processedData };
       await executeCustomValidateHooks(entity, merged);
+      this.enforceFieldLogic(await this.getEntityMetadata(entity), merged, processedData, current);
       await this.enforceBusinessRules(tableName, merged, 'update');
     }
 
@@ -739,6 +751,11 @@ export class BusService {
         // `%%section`: a field alone on its row spans the group's two columns.
         'sys_field.column_span as col_span',
         'sys_field.is_same_line',
+        'sys_field.display_logic',
+        'sys_field.read_only_logic as field_read_only_logic',
+        'sys_field.mandatory_logic as field_mandatory_logic',
+        'sys_column.read_only_logic as column_read_only_logic',
+        'sys_column.mandatory_logic as column_mandatory_logic',
         'sys_field_group.name as group_name',
         'sys_field_group.columns as group_columns',
         'sys_field_group.description as group_description',
@@ -858,6 +875,14 @@ export class BusService {
           group_layout_type: col.group_layout_type || null,
           col_span: col.col_span || null,
           is_same_line: col.is_same_line === true,
+          // The state field carries no logic: it is never an input.
+          display_logic: isStateField ? null : col.display_logic || null,
+          read_only_logic: isStateField
+            ? null
+            : col.field_read_only_logic || col.column_read_only_logic || null,
+          mandatory_logic: isStateField
+            ? null
+            : col.field_mandatory_logic || col.column_mandatory_logic || null,
         };
       }),
       window: window
@@ -929,6 +954,29 @@ export class BusService {
 
     this.metadataCache.set(tableName, metadata);
     return metadata;
+  }
+
+  /**
+   * Field logic, enforced. The form shows, locks and requires fields as the
+   * record is edited; this is the control behind it, so an API client, an
+   * import or a stale form gets the same answer: a displayed field whose
+   * mandatory logic holds for the record as it will be saved must have a value,
+   * and a field whose read-only logic holds for the record as it is stored
+   * cannot be changed. Read from the dictionary, so an administrator's edit
+   * under Windows, Tabs & Fields applies on the next write.
+   */
+  private enforceFieldLogic(
+    metadata: EntityMetadata,
+    record: Record<string, any>,
+    changes: Record<string, any>,
+    stored: Record<string, any> | null,
+  ): void {
+    const fields = metadata.columns.filter((col) => col.mandatory_logic || col.read_only_logic);
+    if (fields.length === 0) return;
+    const errors = logicViolations(fields, record, changes, stored);
+    if (errors.length > 0) {
+      throw new BadRequestException({ message: 'Validation failed', errors });
+    }
   }
 
   async getFormFields(entity: string): Promise<FieldMetadata[]> {

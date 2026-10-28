@@ -199,7 +199,7 @@ export async function dictionaryView(root, { user } = {}) {
                   "thead",
                   el(
                     "tr",
-                    ["Field", "Column", "On form", "In grid", "Form seq", "Grid seq", "Required", "Read only", "Type", "Help"].map(
+                    ["Field", "Column", "On form", "In grid", "Form seq", "Grid seq", "Required", "Read only", "Logic", "Type", "Help"].map(
                       (heading) => el("th", heading)
                     )
                   )
@@ -217,6 +217,7 @@ export async function dictionaryView(root, { user } = {}) {
                       el("td", displayValue(field.seq_no_grid ?? "—")),
                       el("td", yesNo(field.is_mandatory)),
                       el("td", yesNo(field.is_read_only)),
+                      el("td", logicCell(field)),
                       el("td", field.field_type || "—"),
                       el("td.dict__help", field.description || "—")
                     )
@@ -226,6 +227,18 @@ export async function dictionaryView(root, { user } = {}) {
             )
       )
     );
+  }
+
+  /* Compiere's Display, Read Only and Mandatory Logic, as the dictionary row
+     holds them — what makes the field appear, lock or become required. */
+  function logicCell(field) {
+    const parts = [
+      ["Display", field.display_logic],
+      ["Read only", field.read_only_logic],
+      ["Mandatory", field.mandatory_logic],
+    ].filter(([, logic]) => logic);
+    if (!parts.length) return "—";
+    return parts.map(([label, logic]) => el("div", `${label}: `, el("code", logic)));
   }
 
   async function showColumns(table) {

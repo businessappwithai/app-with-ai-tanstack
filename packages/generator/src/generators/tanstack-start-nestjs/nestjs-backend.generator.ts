@@ -1833,6 +1833,14 @@ export async function executeCustomValidateHooks(
       this.renderStateFields(context)
     );
 
+    // Field logic — the bus service enforces mandatory and read-only logic on
+    // every write, and the sys service refuses a condition that does not parse.
+    // The same module the checker and the front end read (templates/common).
+    await fs.copyFile(
+      path.join(this.resolvedTemplateDir, "../../common/field-logic.ts"),
+      path.join(outputDir, "src/common/field-logic.ts")
+    );
+
     // Seed default AnkaReport layouts for every entity into sys_report_designs.
     const reportDesignsSeedContent = await this.renderTemplate(
       "../../common/seeds/report-designs.ts.hbs",

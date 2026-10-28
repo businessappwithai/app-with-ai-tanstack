@@ -509,6 +509,13 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("field-schema template not found, skipping:", (e as Error).message);
     }
 
+    // Field logic — Compiere's Display, Read Only and Mandatory Logic. A copy of
+    // language/field-logic.ts (templates/common/field-logic.ts, held identical
+    // by a test), so the form reads a condition exactly as the API and the
+    // checker do.
+    const fieldLogic = await this.component("../../common/field-logic.ts");
+    await fs.writeFile(path.join(outputDir, "src/lib/field-logic.ts"), fieldLogic);
+
     // TanStack DB collections, synced by ElectricSQL through the role-scoped
     // shape proxy. The dictionary lives in these collections; nothing else on
     // the client holds it.

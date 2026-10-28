@@ -31,6 +31,8 @@ import type {
 import { snakeCase } from "@appwithai/core/utils";
 import { getCardinalityKind, getDefaultType, getTypeMap } from "./language-maps";
 
+type FieldLogicKey = "display" | "readonly" | "mandatory";
+
 // Type mapping from Mermaid types to our standard types.
 // Sourced from language/appwithai-language.json at runtime (with a built-in
 // fallback) so the parser stays in lockstep with the EML language definition.
@@ -139,6 +141,8 @@ export class MermaidParser {
     const declaredEnums = new Map<string, string[]>();
     const enumBindings: Array<{ entity: string; column: string; enumName: string }> = [];
     const fieldHelpText: Array<{ entity: string; column: string; help: string }> = [];
+    const fieldLogic: Array<{ entity: string; column: string; kind: FieldLogicKey; logic: string }> =
+      [];
     const entityHelpText = new Map<string, string>();
     const entityIcons = new Map<string, string>();
     const entityParents = new Map<string, string>();
@@ -164,6 +168,8 @@ export class MermaidParser {
         if (binding) enumBindings.push(binding);
         const fieldHelp = this.parseFieldHelpDirective(trimmed);
         if (fieldHelp) fieldHelpText.push(fieldHelp);
+        const logic = this.parseFieldLogicDirective(trimmed);
+        if (logic) fieldLogic.push(logic);
         const entityHelp = this.parseEntityHelpDirective(trimmed);
         if (entityHelp) entityHelpText.set(entityHelp.entity, entityHelp.help);
         const entityIcon = this.parseEntityIconDirective(trimmed);
@@ -223,6 +229,7 @@ export class MermaidParser {
 
     this.attachIndexes(entities, declaredIndexes);
     this.attachHelp(entities, fieldHelpText, entityHelpText);
+    this.attachFieldLogic(entities, fieldLogic);
     this.attachIcons(entities, entityIcons);
     this.attachParents(entities, entityParents);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
@@ -429,6 +436,40 @@ export class MermaidParser {
     if (!match?.[1] || !match[2] || !match[3]) return null;
     const help = match[3].trim();
     return help ? { entity: match[1], column: match[2], help } : null;
+  }
+
+  /**
+   * `%%field Opportunity.loss_reason display: @stage@=closed_lost` — and
+   * `readonly:` and `mandatory:` the same way. The expression is kept as
+   * written: the checker validates it (EML156) and the runtimes evaluate it.
+   */
+  private parseFieldLogicDirective(
+    line: string
+  ): { entity: string; column: string; kind: FieldLogicKey; logic: string } | null {
+    const match = line.match(
+      /^%%field\s+([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s+(display|readonly|mandatory)\s*:\s*(.+)$/
+    );
+    if (!match?.[1] || !match[2] || !match[3] || !match[4]) return null;
+    const logic = match[4].trim();
+    return logic
+      ? { entity: match[1], column: match[2], kind: match[3] as FieldLogicKey, logic }
+      : null;
+  }
+
+  /** Hang field logic on the columns it names; an unknown column is EML142. */
+  private attachFieldLogic(
+    entities: Entity[],
+    logic: Array<{ entity: string; column: string; kind: FieldLogicKey; logic: string }>
+  ): void {
+    for (const { entity: name, column, kind, logic: expression } of logic) {
+      const attribute = entities
+        .find((candidate) => candidate.name === name)
+        ?.attributes.find((candidate) => candidate.name === column);
+      if (!attribute) continue;
+      if (kind === "display") attribute.displayLogic = expression;
+      else if (kind === "readonly") attribute.readOnlyLogic = expression;
+      else attribute.mandatoryLogic = expression;
+    }
   }
 
   /** `%%entity Order help: One purchase, from raising to closing.` */

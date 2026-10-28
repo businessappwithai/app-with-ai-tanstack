@@ -87,6 +87,17 @@ export interface FieldMetadata {
   options?: { value: string; label: string }[]; // Static options list for inline enums
   tab_name?: string; // Tab name for i18n field labels
   help?: string; // Contextual help text shown via ? icon
+  /**
+   * Compiere's field logic — `@column@=value` conditions over the record being
+   * edited, joined by `&`/`|` (lib/field-logic.ts). The form re-evaluates them
+   * on every change: display hides the field, read-only locks it, mandatory
+   * requires it. The API enforces the last two on save.
+   */
+  display_logic?: string | null;
+  read_only_logic?: string | null;
+  mandatory_logic?: string | null;
+  /** Set by the form when read-only logic, not the dictionary flag, locks the field. */
+  logic_read_only?: boolean;
 }
 
 export interface TableMetadata {

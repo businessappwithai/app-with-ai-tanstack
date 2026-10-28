@@ -470,6 +470,50 @@ var appwithai_language_default = {
         EML103: "A column the generator manages, declared in the model - the declaration is ignored."
       }
     },
+    fieldLogic: {
+      description: "Compiere's Display Logic, Read Only Logic and Mandatory Logic: three conditions a field carries in the Application Dictionary, each a boolean expression over the values of the record being edited. They are declared on the column with %%field and kept as three separate rules, as Compiere keeps them, because showing a field, letting it be changed and requiring it are three different decisions.",
+      declare: {
+        display: "%%field <Entity>.<column> display: <logic> - the field is on the form only while the logic is true. Compiled to sys_field.display_logic.",
+        readonly: "%%field <Entity>.<column> readonly: <logic> - the field cannot be changed while the logic is true. Compiled to sys_column.read_only_logic and sys_field.read_only_logic.",
+        mandatory: "%%field <Entity>.<column> mandatory: <logic> - the field must have a value while the logic is true. Compiled to sys_column.mandatory_logic and sys_field.mandatory_logic."
+      },
+      syntax: {
+        condition: `<operand> <operator> <operand>, where an operand is @column@ (a column of the same entity), a quoted literal 'x' or "x", or a bare word. One side must be a column.`,
+        operators: {
+          "=": "equal",
+          "!": "not equal (!=, ^ and <> are read the same)",
+          ">": "greater than",
+          "<": "less than",
+          ">=": "greater than or equal",
+          "<=": "less than or equal"
+        },
+        joins: "& (and) and | (or), evaluated strictly left to right with no precedence and no parentheses - a | b & c is (a | b) & c, as Compiere's Evaluator reads it.",
+        values: "A Yes/No column reads Y or N; an empty value is the empty string (@x@='' tests for it, @x@!'' for a value); two operands that both read as numbers compare as numbers, anything else as text - so an ISO date compares in date order.",
+        examples: [
+          "@IsSOTrx@=Y",
+          "@DocStatus@!DR",
+          "@GrandTotal@>1000",
+          "@IsSOTrx@=Y & @DocStatus@=DR",
+          "@DocStatus@=CO | @DocStatus@=CL"
+        ],
+        oneReading: "language/field-logic.ts parses and evaluates it. The checker validates with it and the generated applications evaluate with a byte-identical copy (templates/common/field-logic.ts) and, in the browser stack, its JavaScript twin (templates/wasm/server/lib/field-logic.js), held to the same cases by a parity test."
+      },
+      columnAndField: "Compiere keeps the column (sys_column - storage: data type, mandatory, updateable) apart from the field (sys_field - one window's view of it: shown, read-only, mandatory, layout). The model's read-only and mandatory logic is written to both, so a new window over the same table inherits it; display logic belongs to the field alone. A field's own logic, when an administrator sets one, wins over the column's.",
+      evaluation: {
+        displayed: "The field's is_displayed flag, and then its display logic.",
+        readOnly: "The field's is_read_only flag, or its read-only logic.",
+        mandatory: "The column's is_mandatory flag, or the mandatory logic - and only while the field is displayed: a value nobody can see is not one anybody can be made to enter.",
+        dependencies: "The form re-evaluates all three on every change to a column the logic reads, so a field appears, locks or becomes required as the record is edited."
+      },
+      enforcement: "The form's evaluation is a convenience; the API is the control. Both generated stacks evaluate the same logic on every create and update: a field whose mandatory logic is true for the record as it will be saved, and which is displayed, must have a value (400, 'Validation failed'); a field whose read-only logic is true for the record as it is stored cannot be changed by an update (400). A create has nothing stored to lock, so read-only logic does not refuse one. Display logic hides a field and never refuses a write.",
+      notSupported: "Compiere's global context variables (@#AD_Client_ID@), SQL logic (@SQL=...) and Java callouts. Logic reads the record's own columns only; a rule that needs another table, a role or a computed value belongs in %%action or a %%hook.",
+      checkerCodes: {
+        EML156: "error - a display:, readonly: or mandatory: value that does not parse as Compiere logic.",
+        EML157: "error - the logic reads @column@ that the entity does not declare.",
+        EML158: "warning - display logic that depends on its own field: once hidden, nobody can see it to change it back.",
+        EML159: "warning - logic placed on the primary key or on the state field, neither of which is ever an input."
+      }
+    },
     optimisticLocking: {
       description: "Every generated stack refuses a save made against a record version someone else has already moved past, instead of letting the second save silently overwrite the first. It rides on the managed `version` column, so a model declares nothing to get it.",
       contract: {
@@ -1314,12 +1358,15 @@ var appwithai_language_default = {
         form: "%%field <Entity>.<attr> <key>: <value>",
         status: "compiled",
         consumedBy: [
-          "packages/generator/src/parsers/mermaid.parser.ts (the `enum:` and `help:` keys; the other keys are reserved)"
+          "packages/generator/src/parsers/mermaid.parser.ts (the `enum:`, `help:`, `display:`, `readonly:` and `mandatory:` keys; the other keys are reserved)"
         ],
-        purpose: "Extended field metadata: enum reference and help text, both compiled; ui control, default value, min/max and format are reserved.",
+        purpose: "Extended field metadata: enum reference, help text and Compiere field logic (display:, readonly:, mandatory: - see applicationDictionary.fieldLogic), all compiled; ui control, default value, min/max and format are reserved.",
         examples: [
           "%%field Order.status enum: OrderStatus",
           "%%field Contact.account_id help: The company this person works for. Leave empty for a personal contact.",
+          "%%field Opportunity.loss_reason display: @stage@=closed_lost",
+          "%%field Opportunity.amount readonly: @stage@=closed_won | @stage@=closed_lost",
+          "%%field Contract.renewal_notice_days mandatory: @auto_renew@=Y",
           "%%field Product.price min: 0",
           "%%field User.email unique: true"
         ]
@@ -2410,6 +2457,149 @@ function applyFieldEnumRefs(model) {
 // language/checker.ts
 init_language();
 
+// language/field-logic.ts
+var OPERATOR_ALIASES = {
+  "=": "=",
+  "==": "=",
+  "!": "!",
+  "!=": "!",
+  "^": "!",
+  "<>": "!",
+  ">": ">",
+  "<": "<",
+  ">=": ">=",
+  "<=": "<="
+};
+var OPERATOR_TOKENS = ["!=", "<>", ">=", "<=", "==", "=", "!", "^", ">", "<"];
+var VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+function splitConditions(source) {
+  const parts = [];
+  const joins = [];
+  let current = "";
+  let quote = null;
+  let inVariable = false;
+  for (const ch of source) {
+    if (quote) {
+      current += ch;
+      if (ch === quote)
+        quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+      current += ch;
+      continue;
+    }
+    if (ch === "@")
+      inVariable = !inVariable;
+    if (!inVariable && (ch === "&" || ch === "|")) {
+      parts.push(current);
+      joins.push(ch);
+      current = "";
+      continue;
+    }
+    if (!inVariable && (ch === "(" || ch === ")")) {
+      return "Parentheses are not supported: conditions are evaluated left to right.";
+    }
+    current += ch;
+  }
+  if (quote)
+    return "A quoted value is not closed.";
+  if (inVariable)
+    return "A variable is not closed: write it as @column@.";
+  parts.push(current);
+  return { parts, joins };
+}
+function parseOperand(raw) {
+  const text = raw.trim();
+  if (text === "")
+    return { kind: "literal", value: "" };
+  if (text.startsWith("@")) {
+    if (!text.endsWith("@") || text.length < 3)
+      return `"${text}" is not a variable: write @column@.`;
+    const name = text.slice(1, -1).trim();
+    if (!VARIABLE_NAME.test(name))
+      return `"${text}" is not a column name.`;
+    return { kind: "variable", name };
+  }
+  const first = text[0];
+  if (first === "'" || first === '"') {
+    if (text.length < 2 || text[text.length - 1] !== first)
+      return `${text} is not closed.`;
+    return { kind: "literal", value: text.slice(1, -1) };
+  }
+  if (text.includes("@"))
+    return `"${text}" mixes a variable into a value.`;
+  return { kind: "literal", value: text };
+}
+function splitComparison(text) {
+  let quote = null;
+  let inVariable = false;
+  for (let i = 0;i < text.length; i++) {
+    const ch = text[i];
+    if (quote) {
+      if (ch === quote)
+        quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+      continue;
+    }
+    if (ch === "@") {
+      inVariable = !inVariable;
+      continue;
+    }
+    if (inVariable)
+      continue;
+    for (const token of OPERATOR_TOKENS) {
+      if (text.startsWith(token, i)) {
+        return [text.slice(0, i), token, text.slice(i + token.length)];
+      }
+    }
+  }
+  return null;
+}
+function parseLogic(source) {
+  const text = (source ?? "").trim();
+  if (!text)
+    return { ok: false, error: "The expression is empty." };
+  const split = splitConditions(text);
+  if (typeof split === "string")
+    return { ok: false, error: split };
+  const conditions = [];
+  const variables = [];
+  for (const part of split.parts) {
+    const trimmed = part.trim();
+    if (!trimmed)
+      return { ok: false, error: "A condition is missing beside & or |." };
+    const comparison = splitComparison(trimmed);
+    if (!comparison) {
+      return {
+        ok: false,
+        error: `"${trimmed}" has no comparison: write @column@=value, @column@!value, > or <.`
+      };
+    }
+    const [leftRaw, token, rightRaw] = comparison;
+    const left = parseOperand(leftRaw);
+    if (typeof left === "string")
+      return { ok: false, error: left };
+    const right = parseOperand(rightRaw);
+    if (typeof right === "string")
+      return { ok: false, error: right };
+    if (left.kind !== "variable" && right.kind !== "variable") {
+      return { ok: false, error: `"${trimmed}" compares two constants: one side must be @column@.` };
+    }
+    for (const operand of [left, right]) {
+      if (operand.kind === "variable" && !variables.includes(operand.name)) {
+        variables.push(operand.name);
+      }
+    }
+    conditions.push({ left, operator: OPERATOR_ALIASES[token], right });
+  }
+  return { ok: true, logic: { conditions, joins: split.joins, variables } };
+}
+
 // language/sections.ts
 var KEYS = new Set(["entity", "name", "help", "rows", "collapsed"]);
 var REQUIRED = ["entity", "name", "rows"];
@@ -2623,7 +2813,18 @@ class CheckEngine {
     "description",
     "parent"
   ]);
-  validFieldKeys = new Set(["enum", "ui", "default", "min", "max", "help", "format"]);
+  validFieldKeys = new Set([
+    "enum",
+    "ui",
+    "default",
+    "min",
+    "max",
+    "help",
+    "format",
+    "display",
+    "readonly",
+    "mandatory"
+  ]);
   validMetaKeys = new Set(["name", "kind", "version", "entity", "stack", "description"]);
   validWorkflowKinds = new Set(["hook", "state", "saga"]);
   validTriggerSources = /^(cron:|webhook:|message:)/;
@@ -2975,6 +3176,55 @@ class CheckEngine {
       }
     }
   }
+  checkFieldLogic(entityName, attrName, key, expression, lineNo) {
+    const parsed = parseLogic(expression);
+    if (!parsed.ok) {
+      this.error("EML156", `%%field ${entityName}.${attrName} ${key}: does not parse — ${parsed.error}`, {
+        line: lineNo,
+        hint: "Write Compiere logic: @column@=value, @column@!value (not equal), >, <, >=, <=, joined by & and | and read left to right. A Yes/No column is Y or N; an empty value is ''.",
+        context: expression
+      });
+      return;
+    }
+    const entity = this.model.entities.find((candidate) => candidate.name === entityName);
+    if (!entity)
+      return;
+    const columns = new Set(entity.attributes.map((attribute) => attribute.name));
+    for (const variable of parsed.logic.variables) {
+      if (!columns.has(variable)) {
+        this.error("EML157", `%%field ${entityName}.${attrName} ${key}: reads @${variable}@, which ${entityName} does not declare.`, {
+          line: lineNo,
+          hint: `Field logic reads the record being edited, so it can name only ${entityName}'s own columns: ${[...columns].join(", ")}.`
+        });
+      }
+    }
+    if (key === "display" && parsed.logic.variables.includes(attrName)) {
+      this.warn("EML158", `%%field ${entityName}.${attrName} display: depends on its own value.`, {
+        line: lineNo,
+        hint: "A field hidden by its own value can never be shown again from the form, because nobody can see it to change it. Make it depend on another column."
+      });
+    }
+  }
+  checkFieldLogicTargets(entityAttrMap) {
+    const stateFields = this.stateFields();
+    for (const { lineNo, text } of this.src.findAll(/^\s*%%field\b/)) {
+      const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)\s+(display|readonly|mandatory)\s*:/);
+      if (!m)
+        continue;
+      const [entityName, attrName, key] = caps(m, 3);
+      if (!entityAttrMap.get(entityName)?.has(attrName))
+        continue;
+      const entity = this.model.entities.find((candidate) => candidate.name === entityName);
+      const isKey = entity?.primaryKey === attrName;
+      const isState = stateFields.get(entityName) === attrName;
+      if (!isKey && !isState)
+        continue;
+      this.warn("EML159", `%%field ${entityName}.${attrName} ${key}: is on ${isKey ? "the primary key" : "the state field"}, which is never an input.`, {
+        line: lineNo,
+        hint: isKey ? "The key is on no form. Put the logic on the column a person fills in." : "The state field is system-managed: shown read-only in the record header and written only by workflows. Logic may read it (@" + attrName + "@=…) on other fields, but cannot be placed on it."
+      });
+    }
+  }
   checkFieldDirectives() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
     const enumNames = new Set(this.model.enums.map((e) => e.name));
@@ -2982,7 +3232,7 @@ class CheckEngine {
     for (const e of this.model.entities) {
       entityAttrMap.set(e.name, new Set(e.attributes.map((a) => a.name)));
     }
-    const fieldLines = this.src.findAll(/^%%field\b/);
+    const fieldLines = this.src.findAll(/^\s*%%field\b/);
     for (const { lineNo, text } of fieldLines) {
       const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)\s+([A-Za-z_]\w*)\s*:\s*(.+)$/);
       if (!m) {
@@ -3026,7 +3276,11 @@ class CheckEngine {
           hint: `${key}: should be a number, e.g.  ${key}: 0`
         });
       }
+      if (key === "display" || key === "readonly" || key === "mandatory") {
+        this.checkFieldLogic(entityName, attrName, key, value.trim(), lineNo);
+      }
     }
+    this.checkFieldLogicTargets(entityAttrMap);
     const boundFields = new Set(this.src.findAll(/^\s*%%field\s+\w+\.\w+\s+enum\s*:/).map(({ text }) => {
       const m = text.trim().match(/^%%field\s+(\w+)\.(\w+)/);
       return m ? `${m[1]}.${m[2]}` : "";
@@ -9056,6 +9310,7 @@ class MermaidParser {
     const declaredEnums = new Map;
     const enumBindings = [];
     const fieldHelpText = [];
+    const fieldLogic = [];
     const entityHelpText = new Map;
     const entityIcons = new Map;
     const entityParents = new Map;
@@ -9079,6 +9334,9 @@ class MermaidParser {
         const fieldHelp = this.parseFieldHelpDirective(trimmed);
         if (fieldHelp)
           fieldHelpText.push(fieldHelp);
+        const logic = this.parseFieldLogicDirective(trimmed);
+        if (logic)
+          fieldLogic.push(logic);
         const entityHelp = this.parseEntityHelpDirective(trimmed);
         if (entityHelp)
           entityHelpText.set(entityHelp.entity, entityHelp.help);
@@ -9128,6 +9386,7 @@ class MermaidParser {
     }
     this.attachIndexes(entities, declaredIndexes);
     this.attachHelp(entities, fieldHelpText, entityHelpText);
+    this.attachFieldLogic(entities, fieldLogic);
     this.attachIcons(entities, entityIcons);
     this.attachParents(entities, entityParents);
     const enums = this.attachEnums(entities, declaredEnums, enumBindings);
@@ -9227,6 +9486,26 @@ class MermaidParser {
       return null;
     const help = match[3].trim();
     return help ? { entity: match[1], column: match[2], help } : null;
+  }
+  parseFieldLogicDirective(line) {
+    const match = line.match(/^%%field\s+([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s+(display|readonly|mandatory)\s*:\s*(.+)$/);
+    if (!match?.[1] || !match[2] || !match[3] || !match[4])
+      return null;
+    const logic = match[4].trim();
+    return logic ? { entity: match[1], column: match[2], kind: match[3], logic } : null;
+  }
+  attachFieldLogic(entities, logic) {
+    for (const { entity: name, column, kind, logic: expression } of logic) {
+      const attribute = entities.find((candidate) => candidate.name === name)?.attributes.find((candidate) => candidate.name === column);
+      if (!attribute)
+        continue;
+      if (kind === "display")
+        attribute.displayLogic = expression;
+      else if (kind === "readonly")
+        attribute.readOnlyLogic = expression;
+      else
+        attribute.mandatoryLogic = expression;
+    }
   }
   parseEntityHelpDirective(line) {
     const match = line.match(/^%%entity\s+([A-Za-z_]\w*)\s+(?:help|description)\s*:\s*(.+)$/);
