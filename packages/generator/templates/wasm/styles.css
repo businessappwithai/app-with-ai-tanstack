@@ -457,6 +457,11 @@ details.group > summary.group__name { cursor: pointer; }
 .field__head { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
 .field__label { font-size: 13px; font-weight: 600; }
 .field__required { color: var(--destructive); }
+/* Field logic: `.field` is a grid, which beats the UA's [hidden] rule, so
+   display logic needs saying explicitly; a field locked by read-only logic
+   is told apart from one that is always read-only. */
+.field[hidden], .field__required[hidden] { display: none; }
+.field--logic-locked .field__input { background: var(--surface-2); }
 .chip {
   display: inline-flex; align-items: center; gap: 3px;
   font-size: 10.5px; font-family: var(--mono); padding: 1px 7px; border-radius: 4px;

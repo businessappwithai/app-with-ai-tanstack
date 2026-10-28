@@ -227,6 +227,13 @@ ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS is_same_line BOOLEAN DEFAULT fals
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS x_position INTEGER;
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS y_position INTEGER;
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS column_span INTEGER;
+-- Field logic: Compiere's Display, Read Only and Mandatory Logic. Display is the
+-- field's alone; read-only and mandatory are the column's, repeated on the field.
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS display_logic TEXT;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS read_only_logic TEXT;
+ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS mandatory_logic TEXT;
+ALTER TABLE sys_column ADD COLUMN IF NOT EXISTS read_only_logic TEXT;
+ALTER TABLE sys_column ADD COLUMN IF NOT EXISTS mandatory_logic TEXT;
 
 CREATE TABLE IF NOT EXISTS sys_category (
   sys_category_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

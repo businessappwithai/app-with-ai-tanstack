@@ -14,7 +14,8 @@
 import { Router } from "../lib/router.js";
 import { ident } from "../lib/db.js";
 import { columnsOf, labelForTable } from "../lib/labels.js";
-import { json, notFound, readJson } from "../lib/http.js";
+import { badRequest, json, notFound, readJson } from "../lib/http.js";
+import { parseLogic } from "../lib/field-logic.js";
 import { readableTables, requireAdmin, requireUser } from "../lib/guards.js";
 import { recordAudit } from "./audit.routes.js";
 
@@ -183,9 +184,25 @@ export function sysRoutes(model) {
       "is_mandatory",
       "seq_no",
       "seq_no_grid",
+      "display_logic",
+      "read_only_logic",
+      "mandatory_logic",
     ]) {
       if (key in body) allowed[key] = body[key];
     }
+    /* Field logic is checked here as the checker checks it in the model
+       (EML156): a condition that does not parse would hide or lock nothing and
+       say nothing, so it is refused with the reason rather than stored. */
+    const problems = [];
+    for (const key of ["display_logic", "read_only_logic", "mandatory_logic"]) {
+      if (!(key in allowed)) continue;
+      const text = allowed[key] == null ? "" : String(allowed[key]).trim();
+      allowed[key] = text || null;
+      if (!text) continue;
+      const parsed = parseLogic(text);
+      if (!parsed.ok) problems.push(`${key}: ${parsed.error}`);
+    }
+    if (problems.length) throw badRequest("Validation failed", problems);
     const updated = await db.update("sys_field", allowed, { sys_field_id: params.id });
     if (!updated) throw notFound("No such field");
     return json(updated);

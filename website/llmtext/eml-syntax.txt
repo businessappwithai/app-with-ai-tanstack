@@ -1137,7 +1137,7 @@ the checker reads it.
 |---|---|---|
 | `%%meta` | `%%meta <key>: <value>` | compiled |
 | `%%enum` | `%%enum <Name>: a, b, c` | compiled |
-| `%%field` | `%%field <E>.<attr> <k>: <v>` | compiled *(`enum:` and `help:` keys)* |
+| `%%field` | `%%field <E>.<attr> <k>: <v>` | compiled *(`enum:`, `help:`, and the field logic `display:`, `readonly:`, `mandatory:` — §3.7.9)* |
 | `%%index` | `%%index <E>(<a>[, <b>]) [unique]` | compiled |
 | `%%category` | `%%category name: X; icon: Y; entities: A, B` | compiled |
 | `%%section` | `%%section entity: <E>; name: <H>; help: <why>; rows: a, b \| c` | compiled *(the form layout, §3.7.6)* |

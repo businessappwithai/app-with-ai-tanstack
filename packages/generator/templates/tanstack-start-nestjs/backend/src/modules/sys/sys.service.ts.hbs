@@ -16,6 +16,19 @@ import { sql } from 'kysely';
 import { randomUUID } from 'crypto';
 import { DatabaseService } from '../../database/database.service';
 import { BusService } from '../bus/bus.service';
+import { parseLogic } from '../../common/field-logic';
+
+/**
+ * The database table behind a sys_table row. The model's tables are recorded
+ * with their prefix (`bus_contract`) and a table created here without one, so
+ * prefixing unconditionally sent every column change on a generated table to
+ * `bus_bus_contract`, which does not exist: changing a column's length,
+ * mandatory flag or default in Table and Column failed with a 409.
+ */
+function physicalTableName(tableName: unknown): string {
+  const name = String(tableName);
+  return name.startsWith('bus_') ? name : `bus_${name}`;
+}
 import type { Kysely } from 'kysely';
 
 interface PaginationOptions {
@@ -223,7 +236,7 @@ export class SysService {
 
   async createTable(data: Record<string, unknown>) {
     const now = new Date().toISOString();
-    const dbTableName = `bus_${data.table_name}`;
+    const dbTableName = physicalTableName(data.table_name);
 
     const table = await this.db.kysely.transaction().execute(async (trx) => {
       const [inserted] = await trx.insertInto('sys_table')
@@ -292,7 +305,7 @@ export class SysService {
     const tableId = (data.sys_table_id ?? data.tableId) as string;
     if (!tableId) throw new NotFoundException('sys_table_id is required');
     const parentTable = await this.findTableById(tableId);
-    const dbTableName = `bus_${parentTable.table_name}`;
+    const dbTableName = physicalTableName(parentTable.table_name);
     const columnName = data.column_name as string;
     const sqlType = this.mapRefToSqlType(data.sys_reference_id as number, data.field_length as number | undefined);
 
@@ -515,7 +528,7 @@ export class SysService {
       .set({ is_active: false, updated_at: now, updated_by: 'system' } as any)
       .where('sys_table_id', '=', id).execute();
 
-    const dbTableName = `bus_${table.table_name}`;
+    const dbTableName = physicalTableName(table.table_name);
     await sql`DROP TABLE IF EXISTS ${sql.id(dbTableName)}`.execute(this.db.kysely);
 
     this.invalidateFieldCache();
@@ -551,6 +564,7 @@ export class SysService {
   }
 
   async updateColumn(id: string, data: Record<string, unknown>) {
+    data = this.normalizeLogic(data);
     const existing = await this.findColumnById(id);
     if ('column_name' in data && data.column_name !== existing.column_name) {
       throw new ConflictException('The database column name cannot be changed after creation');
@@ -562,7 +576,7 @@ export class SysService {
     }
 
     const parentTable = await this.findTableById(existing.sys_table_id as string);
-    const dbTableName = `bus_${parentTable.table_name}`;
+    const dbTableName = physicalTableName(parentTable.table_name);
     const columnName = existing.column_name as string;
 
     await this.db.kysely.transaction().execute(async (trx) => {
@@ -616,7 +630,7 @@ export class SysService {
   async deleteColumn(id: string) {
     const column = await this.findColumnById(id);
     const parentTable = await this.findTableById(column.sys_table_id as string);
-    const dbTableName = `bus_${parentTable.table_name}`;
+    const dbTableName = physicalTableName(parentTable.table_name);
     const now = new Date().toISOString();
 
     await (this.db.kysely.updateTable('sys_field' as any)
@@ -668,17 +682,13 @@ export class SysService {
       .selectFrom('sys_field')
       .innerJoin('sys_column', 'sys_column.sys_column_id', 'sys_field.sys_column_id')
       .innerJoin('sys_table', 'sys_table.sys_table_id', 'sys_column.sys_table_id')
+      // Every sys_field column, not a selection of them. The Windows, Tabs &
+      // Fields detail page opens a field from this list, so a column left out
+      // here showed as "—" on the record and was saved back as nothing: Same
+      // Line, Heading, Field Only, Encrypted, Sort Number, Obscure Type, the
+      // field group and all three logic expressions.
+      .selectAll('sys_field')
       .select([
-        'sys_field.sys_field_id',
-        'sys_field.sys_tab_id',
-        'sys_field.sys_column_id',
-        'sys_field.name',
-        'sys_field.seq_no',
-        'sys_field.seq_no_grid',
-        'sys_field.is_displayed',
-        'sys_field.is_displayed_grid',
-        'sys_field.is_read_only',
-        'sys_field.is_active',
         'sys_column.column_name',
         'sys_column.name as column_display_name',
         'sys_table.table_name',
@@ -709,8 +719,31 @@ export class SysService {
     return field;
   }
 
+  /**
+   * Display, Read Only and Mandatory Logic — Compiere's `@column@=value`
+   * conditions (common/field-logic.ts). Checked on the way in, as the checker
+   * checks the model's (EML156): a condition that does not parse would hide or
+   * lock nothing and say nothing, so it is refused with the reason instead of
+   * stored. An empty value clears the logic.
+   */
+  private normalizeLogic(data: Record<string, unknown>): Record<string, unknown> {
+    const errors: string[] = [];
+    const out = { ...data };
+    for (const key of ['display_logic', 'read_only_logic', 'mandatory_logic']) {
+      if (!(key in out)) continue;
+      const text = out[key] == null ? '' : String(out[key]).trim();
+      out[key] = text || null;
+      if (!text) continue;
+      const parsed = parseLogic(text);
+      if (!parsed.ok) errors.push(`${key}: ${parsed.error}`);
+    }
+    if (errors.length > 0) throw new BadRequestException({ message: 'Validation failed', errors });
+    return out;
+  }
+
   async updateField(id: string, data: Record<string, unknown>, version?: number) {
     const field = await this.findFieldById(id);
+    data = this.normalizeLogic(data);
 
     if (version !== undefined && (field as any).version !== version) {
       throw new ConflictException('Field was modified by another user');
@@ -723,6 +756,7 @@ export class SysService {
       'num_lines', 'is_displayed', 'is_displayed_grid', 'is_read_only', 'is_same_line',
       'is_heading', 'is_field_only', 'is_encrypted', 'default_value', 'sort_no', 'obscure_type',
       'display_logic', 'read_only_logic', 'mandatory_logic', 'is_active', 'sys_reference_id',
+      'included_tab_id', 'entity_type',
     ]);
     const { version: _v, ...rawData } = data as any;
     const safeData = Object.fromEntries(Object.entries(rawData).filter(([k]) => SYS_FIELD_COLS.has(k)));
@@ -753,13 +787,25 @@ export class SysService {
   }
 
   async createField(data: Record<string, unknown>) {
+    data = this.normalizeLogic(data);
     const now = new Date().toISOString();
+    // Every property the Field window offers, not only the first few: a field
+    // created with Same Line, a group or a logic expression keeps it.
+    const optional = [
+      'help', 'display_length', 'column_span', 'x_position', 'y_position', 'num_lines',
+      'is_same_line', 'is_heading', 'is_field_only', 'is_encrypted', 'default_value', 'sort_no',
+      'obscure_type', 'display_logic', 'read_only_logic', 'mandatory_logic', 'sys_reference_id',
+      'included_tab_id',
+    ];
+    const extra = Object.fromEntries(
+      optional.filter((key) => data[key] !== undefined && data[key] !== '').map((key) => [key, data[key]])
+    );
     const [field] = await (this.db.kysely.insertInto('sys_field' as any)
       .values({
         sys_field_id: randomUUID(),
         sys_tab_id: data.sys_tab_id ?? null,
         sys_column_id: data.sys_column_id ?? null,
-        sys_field_group_id: data.sys_field_group_id ?? null,
+        sys_field_group_id: data.sys_field_group_id || null,
         name: data.name ?? null,
         description: data.description ?? null,
         seq_no: data.seq_no ?? 999,
@@ -767,6 +813,7 @@ export class SysService {
         is_displayed: data.is_displayed ?? true,
         is_displayed_grid: data.is_displayed_grid ?? true,
         is_read_only: data.is_read_only ?? false,
+        ...extra,
         is_active: true,
         entity_type: 'U',
         created_at: now,
@@ -794,7 +841,20 @@ export class SysService {
   // SYS_FIELD_GROUP
   // ============================================================
 
-  async findAllFieldGroups(tableName?: string) {
+  async findAllFieldGroups(tableName?: string, tabId?: string) {
+    // The Field window's Field Group lookup asks by tab: a field can only sit
+    // in a group of the tab it is on.
+    if (tabId) {
+      const groups = await this.db.kysely
+        .selectFrom('sys_field_group')
+        .selectAll()
+        .where('sys_field_group.is_active', '=', true)
+        .where('sys_field_group.sys_tab_id', '=', tabId)
+        .orderBy('sys_field_group.seq_no')
+        .orderBy('sys_field_group.name')
+        .execute();
+      return { data: groups, meta: { total: groups.length } };
+    }
     if (tableName) {
       // Find the sys_tab_id for this table, then return field groups linked to it
       const tab = await this.db.kysely

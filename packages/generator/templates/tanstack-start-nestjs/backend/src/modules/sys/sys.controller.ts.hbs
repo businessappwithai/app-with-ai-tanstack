@@ -328,8 +328,8 @@ export class SysController {
 
   @Get('field-groups')
   @ApiOperation({ summary: 'List all field groups' })
-  async findAllFieldGroups(@Query('entity') entity?: string) {
-    return this.sysService.findAllFieldGroups(entity);
+  async findAllFieldGroups(@Query('entity') entity?: string, @Query('tabId') tabId?: string) {
+    return this.sysService.findAllFieldGroups(entity, tabId);
   }
 
   @Get('field-groups/:id')

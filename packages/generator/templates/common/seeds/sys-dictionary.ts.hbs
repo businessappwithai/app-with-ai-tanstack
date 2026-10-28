@@ -598,6 +598,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
     name: string;
     displayName: string;
     isKey: boolean;
+    displayLogic: string | null;
+    readOnlyLogic: string | null;
+    mandatoryLogic: string | null;
     /** `%%section` placement — absent on an entity that declares no sections. */
     layout?: {
       group: string;
@@ -617,6 +620,11 @@ export async function seed(db: Kysely<any>): Promise<void> {
     name: '{{columnName}}',
     displayName: '{{displayName}}',
     isKey: {{#if (eq name ../primaryKey)}}true{{else}}false{{/if}},
+    {{!-- `%%field <E>.<c> display: | readonly: | mandatory:` — Compiere's
+          field logic, written to sys_field below. --}}
+    displayLogic: {{#if displayLogic}}{{tsString displayLogic}}{{else}}null{{/if}},
+    readOnlyLogic: {{#if readOnlyLogic}}{{tsString readOnlyLogic}}{{else}}null{{/if}},
+    mandatoryLogic: {{#if mandatoryLogic}}{{tsString mandatoryLogic}}{{else}}null{{/if}},
     {{#if layout}}
     layout: {
       group: {{tsString layout.group}},
@@ -650,6 +658,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
           meant a table with both `name` and `code` marked both, and the record
           read "Acme ACME-01" wherever it was referenced. --}}
     is_identifier: {{#if isIdentifier}}true{{else}}false{{/if}},
+    {{!-- Compiere's column logic, inherited by every window over this table. --}}
+    read_only_logic: {{#if readOnlyLogic}}{{tsString readOnlyLogic}}{{else}}null{{/if}},
+    mandatory_logic: {{#if mandatoryLogic}}{{tsString mandatoryLogic}}{{else}}null{{/if}},
     is_selection_column: {{#if (or (eq name 'name') unique)}}true{{else}}false{{/if}},
     is_translated: false,
     is_encrypted: false,
@@ -864,6 +875,9 @@ export async function seed(db: Kysely<any>): Promise<void> {
       column_span: col.layout?.columnSpan ?? null,
       is_heading: false,
       is_field_only: false,
+      display_logic: col.displayLogic,
+      read_only_logic: col.readOnlyLogic,
+      mandatory_logic: col.mandatoryLogic,
       entity_type: 'U',
       is_active: true,
       created_by: createdBy,

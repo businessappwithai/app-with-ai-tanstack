@@ -368,6 +368,50 @@
         "EML103": "A column the generator manages, declared in the model - the declaration is ignored."
       }
     },
+    "fieldLogic": {
+      "description": "Compiere's Display Logic, Read Only Logic and Mandatory Logic: three conditions a field carries in the Application Dictionary, each a boolean expression over the values of the record being edited. They are declared on the column with %%field and kept as three separate rules, as Compiere keeps them, because showing a field, letting it be changed and requiring it are three different decisions.",
+      "declare": {
+        "display": "%%field <Entity>.<column> display: <logic> - the field is on the form only while the logic is true. Compiled to sys_field.display_logic.",
+        "readonly": "%%field <Entity>.<column> readonly: <logic> - the field cannot be changed while the logic is true. Compiled to sys_column.read_only_logic and sys_field.read_only_logic.",
+        "mandatory": "%%field <Entity>.<column> mandatory: <logic> - the field must have a value while the logic is true. Compiled to sys_column.mandatory_logic and sys_field.mandatory_logic."
+      },
+      "syntax": {
+        "condition": "<operand> <operator> <operand>, where an operand is @column@ (a column of the same entity), a quoted literal 'x' or \"x\", or a bare word. One side must be a column.",
+        "operators": {
+          "=": "equal",
+          "!": "not equal (!=, ^ and <> are read the same)",
+          ">": "greater than",
+          "<": "less than",
+          ">=": "greater than or equal",
+          "<=": "less than or equal"
+        },
+        "joins": "& (and) and | (or), evaluated strictly left to right with no precedence and no parentheses - a | b & c is (a | b) & c, as Compiere's Evaluator reads it.",
+        "values": "A Yes/No column reads Y or N; an empty value is the empty string (@x@='' tests for it, @x@!'' for a value); two operands that both read as numbers compare as numbers, anything else as text - so an ISO date compares in date order.",
+        "examples": [
+          "@IsSOTrx@=Y",
+          "@DocStatus@!DR",
+          "@GrandTotal@>1000",
+          "@IsSOTrx@=Y & @DocStatus@=DR",
+          "@DocStatus@=CO | @DocStatus@=CL"
+        ],
+        "oneReading": "language/field-logic.ts parses and evaluates it. The checker validates with it and the generated applications evaluate with a byte-identical copy (templates/common/field-logic.ts) and, in the browser stack, its JavaScript twin (templates/wasm/server/lib/field-logic.js), held to the same cases by a parity test."
+      },
+      "columnAndField": "Compiere keeps the column (sys_column - storage: data type, mandatory, updateable) apart from the field (sys_field - one window's view of it: shown, read-only, mandatory, layout). The model's read-only and mandatory logic is written to both, so a new window over the same table inherits it; display logic belongs to the field alone. A field's own logic, when an administrator sets one, wins over the column's.",
+      "evaluation": {
+        "displayed": "The field's is_displayed flag, and then its display logic.",
+        "readOnly": "The field's is_read_only flag, or its read-only logic.",
+        "mandatory": "The column's is_mandatory flag, or the mandatory logic - and only while the field is displayed: a value nobody can see is not one anybody can be made to enter.",
+        "dependencies": "The form re-evaluates all three on every change to a column the logic reads, so a field appears, locks or becomes required as the record is edited."
+      },
+      "enforcement": "The form's evaluation is a convenience; the API is the control. Both generated stacks evaluate the same logic on every create and update: a field whose mandatory logic is true for the record as it will be saved, and which is displayed, must have a value (400, 'Validation failed'); a field whose read-only logic is true for the record as it is stored cannot be changed by an update (400). A create has nothing stored to lock, so read-only logic does not refuse one. Display logic hides a field and never refuses a write.",
+      "notSupported": "Compiere's global context variables (@#AD_Client_ID@), SQL logic (@SQL=...) and Java callouts. Logic reads the record's own columns only; a rule that needs another table, a role or a computed value belongs in %%action or a %%hook.",
+      "checkerCodes": {
+        "EML156": "error - a display:, readonly: or mandatory: value that does not parse as Compiere logic.",
+        "EML157": "error - the logic reads @column@ that the entity does not declare.",
+        "EML158": "warning - display logic that depends on its own field: once hidden, nobody can see it to change it back.",
+        "EML159": "warning - logic placed on the primary key or on the state field, neither of which is ever an input."
+      }
+    },
     "optimisticLocking": {
       "description": "Every generated stack refuses a save made against a record version someone else has already moved past, instead of letting the second save silently overwrite the first. It rides on the managed `version` column, so a model declares nothing to get it.",
       "contract": {
@@ -1202,12 +1246,15 @@
         "form": "%%field <Entity>.<attr> <key>: <value>",
         "status": "compiled",
         "consumedBy": [
-          "packages/generator/src/parsers/mermaid.parser.ts (the `enum:` and `help:` keys; the other keys are reserved)"
+          "packages/generator/src/parsers/mermaid.parser.ts (the `enum:`, `help:`, `display:`, `readonly:` and `mandatory:` keys; the other keys are reserved)"
         ],
-        "purpose": "Extended field metadata: enum reference and help text, both compiled; ui control, default value, min/max and format are reserved.",
+        "purpose": "Extended field metadata: enum reference, help text and Compiere field logic (display:, readonly:, mandatory: - see applicationDictionary.fieldLogic), all compiled; ui control, default value, min/max and format are reserved.",
         "examples": [
           "%%field Order.status enum: OrderStatus",
           "%%field Contact.account_id help: The company this person works for. Leave empty for a personal contact.",
+          "%%field Opportunity.loss_reason display: @stage@=closed_lost",
+          "%%field Opportunity.amount readonly: @stage@=closed_won | @stage@=closed_lost",
+          "%%field Contract.renewal_notice_days mandatory: @auto_renew@=Y",
           "%%field Product.price min: 0",
           "%%field User.email unique: true"
         ]

@@ -435,6 +435,37 @@ before it was taught:
   database, which is why the full run did: **run the suite twice on one database** before
   calling a harness change done.
 
+### Field logic — Compiere's Display, Read Only and Mandatory Logic
+
+`%%field <E>.<c> display: | readonly: | mandatory: <logic>` in Compiere's own syntax
+(`@column@=value`, `!` not equal, `>`/`<`/`>=`/`<=`, `&`/`|` read left to right, no
+parentheses; `Y`/`N` for booleans, `''` for empty). `language/field-logic.ts` is the one
+reading — parse, evaluate, `fieldLogicState`, and `logicViolations` (what the API refuses).
+
+| Reader | Copy |
+|---|---|
+| checker (EML156–EML159), parser, dictionary | `language/field-logic.ts` itself |
+| NestJS backend + frontend | `templates/common/field-logic.ts` — **byte-identical**, copied to `backend/src/common/` and `frontend/src/lib/` |
+| browser stack (server and form) | `templates/wasm/server/lib/field-logic.js` — the JS twin, held to the same cases |
+
+`generators/__tests__/field-logic.test.ts` fails if a copy drifts. Edit the TypeScript,
+`cp` it to `templates/common/`, and regenerate the twin with
+`bun build language/field-logic.ts --format esm --no-bundle` under its header comment.
+
+Display logic lands on `sys_field`; read-only and mandatory on `sys_column` **and**
+`sys_field` (the field's wins). The form re-evaluates on every change; `bus.service`
+(`enforceFieldLogic`) and `bus.routes.js` refuse a write — mandatory judged on the record
+as it will be saved and only while displayed, read-only on the record **as stored** and
+only for a real change (`sameValue`: `12.50` = `12.5`, a Date = its ISO text). Workflows
+write directly and are not judged. The admin Field and Column windows refuse logic that
+does not parse (400 with the reason).
+
+Two things learned driving the CRM: the checker's `%%field` scan was anchored at column 0,
+so every **indented** `%%field` line (the reference models indent all of them) skipped
+EML140–145 — it is `^\s*%%field` now; and the admin detail shell drew a record from its
+list endpoint, which for `/sys/fields` returned nine of thirty columns, so Same Line,
+Heading, Obscure Type and the logics showed "—" — it now reads the record by id.
+
 ### Optimistic locking — one contract, every target
 
 Every generated table carries the managed `version` column, and every target

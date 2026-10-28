@@ -66,12 +66,19 @@ const TEMPLATE_ROOTS = [
  * `renderStateFields`, not from a template, because the initial state is not
  * stored anywhere a template could read it.
  *
+ * `src/common/field-logic.ts` (backend) and `src/lib/field-logic.ts` (front
+ * end) are where the field-logic evaluator is *written*: both are copies of one
+ * template, `templates/common/field-logic.ts`, itself held byte-identical to
+ * `language/field-logic.ts` by `field-logic.test.ts`. One source, two outputs.
+ *
  * An addition here needs a reason written beside it. That is the point of the
  * allowlist being short: a new entry is a review conversation, not a habit.
  */
 const OUTPUT_ONLY_PATHS = new Set([
   "src/common/logging/log-spec.json",
   "src/common/state-fields.ts",
+  "src/common/field-logic.ts",
+  "src/lib/field-logic.ts",
 ]);
 
 /** Generator sources, excluding tests and generated bundles. */

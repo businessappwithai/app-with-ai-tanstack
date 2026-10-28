@@ -1,7 +1,7 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ExternalLink, FilePlus2, FileX2, History, Home, MessageSquare, Pencil, Star } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ReportPrintModal } from "@/components/reports/ReportPrintModal";
 import { toast } from "sonner";
 import { DynamicForm } from "@/components/forms/dynamic-form";
@@ -753,14 +753,33 @@ export function ADDetailShell({
     const idx = records.findIndex((r) => String(r[level.idField]) === String(recordId));
     if (idx !== -1) {
       setCurrentIndex(idx);
-      if (!isEditing) {
-        setFormData(records[idx]);
-        setHasChanges(false);
-      }
     }
-  }, [records, recordId, level.idField, isEditing]);
+  }, [records, recordId, level.idField]);
 
-  const currentRecord = records.find((r) => String(r[level.idField]) === String(recordId)) ?? null;
+  /*
+   * The record itself, read by id.
+   *
+   * The sibling list is for prev/next, and a list endpoint is free to return a
+   * summary of each row — `/sys/fields` returned nine of sys_field's thirty
+   * columns, so the Field window showed "—" for Same Line, Heading, Encrypted,
+   * Obscure Type and all three logic expressions, and saved them back as
+   * nothing. The GET by id is the whole row; the list row is only what shows
+   * while it loads.
+   */
+  const { data: fullRecord } = useQuery({
+    queryKey: ["ad-detail-record", level.endpoint, recordId],
+    queryFn: () => apiClient.get<AnyRecord>(`${level.endpoint}/${recordId}`),
+    enabled: !!recordId,
+    retry: false,
+  });
+
+  const listRecord = records.find((r) => String(r[level.idField]) === String(recordId)) ?? null;
+  const currentRecord = useMemo(() => {
+    const full =
+      fullRecord && String(fullRecord[level.idField]) === String(recordId) ? fullRecord : null;
+    if (!listRecord && !full) return null;
+    return { ...(listRecord ?? {}), ...(full ?? {}) } as AnyRecord;
+  }, [listRecord, fullRecord, level.idField, recordId]);
   const globalIndex = (page - 1) * 100 + currentIndex;
   const canGoPrev = globalIndex > 0;
   const canGoNext = globalIndex < totalCount - 1;
@@ -798,6 +817,7 @@ export function ADDetailShell({
         setEditBase(saved && typeof saved === "object" ? (saved as AnyRecord) : null);
       }
       queryClient.invalidateQueries({ queryKey: ["ad-detail-list", level.endpoint] });
+      queryClient.invalidateQueries({ queryKey: ["ad-detail-record", level.endpoint, recordId] });
       refetch();
     },
     onError: async (err: any, variables) => {

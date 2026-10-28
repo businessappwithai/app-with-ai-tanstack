@@ -28,6 +28,7 @@
 import { el, helpToast, mount, spinner, toast, displayValue } from "../dom.js";
 import { api } from "../api.js";
 import { setActions, childEntitiesOf } from "../main.js";
+import { fieldLogicState } from "../../server/lib/field-logic.js";
 
 const referenceCache = new Map();
 const lookupCache = new Map();
@@ -137,14 +138,58 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
   // sends it as If-Match and the server refuses it with 409 if someone has
   // saved since; "Overwrite" moves it to the version that conflict reported.
   let openedVersion = record.version;
-  const requiredCount = editable.filter((field) => field.is_mandatory).length;
-
   const inputs = new Map();
   const violationBox = el("div.violations", { hidden: true });
 
   const controls = await Promise.all(
     editable.map((field) => control(field, record, entity, inputs))
   );
+
+  /*
+   * Field logic — Compiere's Display, Read Only and Mandatory Logic.
+   *
+   * Each field may carry `@column@=value` conditions over the record being
+   * edited (`%%field … display: | readonly: | mandatory:`). They are evaluated
+   * against what the form holds now, not what was loaded, and again on every
+   * change, so a field appears, locks or becomes required as the record is
+   * edited — the dependency refresh Compiere's GridField does. The server
+   * judges the same logic on save (bus.routes.js `enforceFieldLogic`); this is
+   * what lets a person see the rule before they break it.
+   */
+  const requiredLabel = el("span.record__required");
+  const currentValues = () => {
+    const values = { ...record };
+    for (const [column, input] of inputs) {
+      values[column] = input.type === "checkbox" ? input.checked : input.value;
+    }
+    return values;
+  };
+  const applyLogic = () => {
+    const values = currentValues();
+    let required = 0;
+    for (const [field, node] of controls) {
+      const state = fieldLogicState(field, values);
+      const input = inputs.get(field.column_name);
+      node.hidden = !state.displayed;
+      if (input) {
+        input.disabled = input.dataset.baseDisabled === "true" || state.readOnly;
+        // `required` only on a field that is shown: a hidden required input
+        // stops the browser submitting a form nobody can see the fault in.
+        if (input.type !== "checkbox") input.required = state.mandatory && !input.disabled;
+      }
+      const marker = node.querySelector(".field__required");
+      if (marker) marker.hidden = !state.mandatory;
+      node.classList.toggle("field--logic-locked", state.readOnly && !field.is_read_only);
+      if (state.mandatory) required += 1;
+    }
+    requiredLabel.textContent = required ? `${required} required` : "";
+    requiredLabel.hidden = !required;
+  };
+  applyLogic();
+  for (const input of inputs.values()) {
+    input.addEventListener("input", applyLogic);
+    input.addEventListener("change", applyLogic);
+  }
 
   /* `%%section`: the model's own headings, in its order, each a two-column
      grid in which a field alone on its row spans both columns. A model with
@@ -235,7 +280,7 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     el(
       "div.record__meta",
       `${editable.length} field${editable.length === 1 ? "" : "s"}`,
-      requiredCount ? el("span.record__required", `${requiredCount} required`) : null,
+      requiredLabel,
       el("button.btn.btn--primary.btn--small", { type: "submit" }, isNew ? "Create" : "Save")
     ),
     violationBox,
@@ -709,6 +754,9 @@ async function control(field, record, entity, inputs) {
   }
 
   if (field.is_read_only || (record.id && field.is_updateable === false)) input.disabled = true;
+  /* What the dictionary fixes, kept apart from what read-only logic decides
+     from moment to moment — `applyLogic` re-derives `disabled` from both. */
+  input.dataset.baseDisabled = input.disabled ? "true" : "false";
   inputs.set(field.column_name, input);
 
   return [
@@ -718,7 +766,9 @@ async function control(field, record, entity, inputs) {
       el(
         "div.field__head",
         el("label.field__label", { for: id }, field.name),
-        field.is_mandatory ? el("span.field__required", { title: "Required" }, "*") : null,
+        /* Always drawn and shown or hidden by `applyLogic`: mandatory logic
+           can make an optional field required while the form is open. */
+        el("span.field__required", { title: "Required", hidden: !field.is_mandatory }, "*"),
         el(`span.chip.chip--${chipKind}`, chipLabel),
         el(
           "button.field__help",
@@ -754,6 +804,11 @@ function fieldHelpBody(field, attribute) {
   if (attribute.maxLength) facts.push(`Up to ${attribute.maxLength} characters`);
   if (field.is_mandatory) facts.push("Required");
   if (field.is_read_only) facts.push("Read-only");
+  /* The dictionary's logic, as written — what makes the field appear, lock or
+     become required, which is otherwise invisible from the form. */
+  if (field.display_logic) facts.push(`Shown when ${field.display_logic}`);
+  if (field.read_only_logic) facts.push(`Read-only when ${field.read_only_logic}`);
+  if (field.mandatory_logic) facts.push(`Required when ${field.mandatory_logic}`);
   if (attribute.enumValues?.length) facts.push(`One of: ${attribute.enumValues.join(", ")}`);
   if (attribute.refTable) facts.push(`References ${attribute.refTable}`);
 
