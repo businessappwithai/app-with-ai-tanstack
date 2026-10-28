@@ -232,7 +232,7 @@ export function GoRulesEditorPanel({
               <select
                 key={column.columnId}
                 aria-label={`Input field ${column.field || "whole record"}`}
-                className="max-w-[9rem] rounded border border-border bg-background px-1 py-0.5"
+                className="max-w-[9rem] rounded border border-border bg-background px-1 py-0.5 text-foreground"
                 value={column.field}
                 onChange={(e) =>
                   commit(setInputField(graphValue, nodeId, column.columnId, e.target.value))
@@ -248,7 +248,7 @@ export function GoRulesEditorPanel({
             ))}
             <select
               aria-label="Add an input field"
-              className="max-w-[9rem] rounded border border-dashed border-border bg-background px-1 py-0.5"
+              className="max-w-[9rem] rounded border border-dashed border-border bg-background px-1 py-0.5 text-foreground"
               value=""
               onChange={(e) => {
                 if (e.target.value) commit(setInputField(graphValue, nodeId, null, e.target.value));
