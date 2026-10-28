@@ -9,26 +9,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## Bun 1.4.3, and only Bun 1.4.3
+## Bun 1.4.4, and only Bun 1.4.4
 
-**Every repository in this project uses Bun 1.4.3 and no other version** —
-`app-with-ai-tanstack`, `app-and-report-with-ai-tanstack`,
+**Every repository in this project uses Bun 1.4.4 and no other version** —
+`app-with-ai-tanstack`, `app-and-report-with-ai-rust` (the orchestrator),
 `enterprise_reporting_tanstack` and `businessappwithai.github.io`. That is the
-rule for every runtime, install, build, test and type-check, in CI, in Docker
-images and locally. There are no exceptions: the WASM build and the
-`appwithai-wasm` CLI run on 1.4.3 too (the second 1.3.11 pin they used to have
-is gone).
+rule for every runtime, install, build, test, type-check and lint, in CI, in
+Docker images and locally. There are no exceptions: the WASM build and the
+`appwithai-wasm` CLI run on 1.4.4 too.
 
-- **Never use another Bun.** Not 1.3, not 1.4.0–1.4.2, not a newer release. Bun's
+- **Never use another Bun.** Not 1.3, not 1.4.0–1.4.3, not a newer release. Bun's
   bundler output depends on the exact version, so a committed bundle built on
-  another one is byte-wrong for CI; and `bun check`, the type checker every
-  repository runs, first shipped in 1.4.3 — on 1.4.2, `bun check` silently runs a
-  package script named `check` instead, if there is one.
-- **Never use npm, pnpm or yarn** as the package manager, and never `tsc` as the
-  type checker — `bun check` is the static check, and there is no linter or
-  formatter.
-- **Pin it exactly** wherever a version is stated: `BUN_VERSION: "1.4.3"` in CI,
-  `oven/bun:1.4.3` in Dockerfiles, `"bun": ">=1.4.3"` in `engines`. Moving to a
+  another one is byte-wrong for CI; and on a Bun older than 1.4.3, `bun check`
+  silently runs a package script named `check` instead of the type checker.
+- **The linter is `bun check`, and only `bun check`.** Every `lint` and
+  `type-check` script runs it; no repository carries Biome, ESLint, Prettier or
+  any other linter or formatter, and none runs `tsc` as its static check. Style
+  is kept by hand.
+- **Never use npm, pnpm or yarn** as the package manager.
+- **Pin it exactly** wherever a version is stated: `BUN_VERSION: "1.4.4"` in CI,
+  `bun-version: 1.4.4` in a `setup-bun` step, `oven/bun:1.4.4` in Dockerfiles,
+  `"bun": ">=1.4.4"` in `engines`, `1.4.4` in `.bun-version`. Moving to a
   different Bun is one deliberate change made in all four repositories together,
   never in one alone.
 - **What a generated application runs on is a separate question.** The browser
@@ -38,10 +39,10 @@ is gone).
 
 **Here:** `BUN_VERSION` in `.github/workflows/ci.yml` (every job, the WASM ones
 included), `engines` in every manifest, and `scripts/require-bun.ts`, which
-every `type-check` script runs first and which refuses anything but 1.4.x at or
-above 1.4.3. The NestJS + TanStack application the generator writes pins 1.4.3
-too — its `engines`, its CI (`bun-version: 1.4.3`) and its Dockerfiles. The five
-committed bundles must be rebuilt on 1.4.3 on `linux-x64`, or CI rejects their
+every `type-check` and `lint` script runs first and which refuses anything but
+exactly 1.4.4. The NestJS + TanStack application the generator writes pins 1.4.4
+too — its `engines`, its CI (`bun-version: 1.4.4`) and its Dockerfiles. The five
+committed bundles must be rebuilt on 1.4.4 on `linux-x64`, or CI rejects their
 bytes.
 
 ---
@@ -82,7 +83,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 # APPWITHAI
 
 **Project**: AI-powered ERD design + full-stack code generation  
-**Version**: 5.1.1 | **Runtime**: Bun.js 1.4.3 (pinned — see below)
+**Version**: 5.1.1 | **Runtime**: Bun.js 1.4.4 (pinned — see below)
 
 ## Commands
 
@@ -92,7 +93,7 @@ Use `/browse` for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
 | `bun run dev:mastra` | Mastra AI → http://localhost:4111 |
 | `./scripts/start-llm.sh` | Local model server → :8000 |
 | `bun run build` | Build all packages |
-| `bun run type-check` | TypeScript (root tsconfig only) — `bun check`, Bun's own type checker, after `scripts/require-bun.ts` refuses anything older than Bun 1.4.3 |
+| `bun run type-check` | TypeScript (root tsconfig only) — `bun check`, Bun's own type checker, after `scripts/require-bun.ts` refuses anything but Bun 1.4.4 |
 | `bun run type-check:language` | Type-check `language/**` (separate config) |
 | `bun run test` | Vitest unit tests (runs `packages/web/vitest.config.ts`) |
 | `bun run test:e2e:server` | Playwright E2E with server startup |
@@ -173,7 +174,7 @@ Two traps worth knowing. The job's steps **fail fast**, so the first stale
 artifact hides the rest — run all five locally or you will fix one per CI cycle.
 And if `--check` reports your runtime differs from CI's, do not rebuild locally:
 build where CI builds, e.g.
-`docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.3 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
+`docker run --rm -v "$PWD":/w -w /w oven/bun:1.4.4 sh -c 'bun install --frozen-lockfile && bun run build:fullstack-browser'`.
 
 ### `bun run dev` builds the workspace packages first
 `packages/web` imports `@appwithai/core`, `@appwithai/generator` and
@@ -232,7 +233,11 @@ and it runs the suite via the generator's own `run.ts`, never `bun test` — the
 suites are ordered and stateful, and running them in one parallel process makes
 failures move around between runs.
 
-### There is no linter or formatter — the static check is `bun check`
+### The linter is `bun check` — there is no other linter or formatter
+
+`bun run lint` exists and runs exactly what `bun run type-check` runs: the Bun
+guard, then `bun check`. It is there so that anyone, or any tool, reaching for
+"the linter" gets Bun's checker rather than reinstalling one.
 
 Biome is gone: its config, its dependency, the `lint`, `lint:fix`, `format` and
 `format:check` scripts, the CI step that ran it, and its suppression comments.
@@ -261,7 +266,7 @@ formatting, not just after a change you think of as behavioural.
 
 | Layer | Technology |
 |-------|------------|
-| Runtime | Bun.js 1.4.3 (pinned) |
+| Runtime | Bun.js 1.4.4 (pinned) |
 | AI Orchestration | Mastra.ai v1.59+, CopilotKit v1.68+ |
 | AI Model | Local OpenAI-compatible endpoint (:8000) |
 | Retrieval | `@mastra/pg` PgVector (HNSW) |
@@ -507,7 +512,7 @@ TypeScript directly under Bun. Two exceptions, both measured rather than assumed
 
 | Script | Why it is not plain `bun --bun …` |
 |---|---|
-| frontend `build` | `NODE_OPTIONS=--max-old-space-size=8192 vinxi build`, on Node. **In the Dockerfiles it is run by an explicit `node` in a `node:22-alpine` stage** (bun copied in from `oven/bun:1.4.3-alpine`, heap from `BUILD_HEAP_MB`, default 4096; peak RSS ≈ 5.5 GB): `oven/bun` has no Node, so `bun run build` there ran vinxi on Bun, ignored the heap flag and was OOM-killed on Docker Desktop (client manifest never written, then `ENOENT .vite/manifest.json`). Held by `templates/__tests__/frontend-build-runtime.test.ts`. Bundling Monaco and the GoRules editor peaks at ~6.7 GB on Node with the heap raised (its default ~4 GB ceiling is what turned CI's "Generate an application and build it" red); under `bun --bun` the same build climbed past 10 GB and was killed on a 15 GB machine. Revisit when the editor bundle is trimmed (`@gorules/jdm-editor` imports the whole `monaco-editor`) |
+| frontend `build` | `NODE_OPTIONS=--max-old-space-size=8192 vinxi build`, on Node. **In the Dockerfiles it is run by an explicit `node` in a `node:22-alpine` stage** (bun copied in from `oven/bun:1.4.4-alpine`, heap from `BUILD_HEAP_MB`, default 4096; peak RSS ≈ 5.5 GB): `oven/bun` has no Node, so `bun run build` there ran vinxi on Bun, ignored the heap flag and was OOM-killed on Docker Desktop (client manifest never written, then `ENOENT .vite/manifest.json`). Held by `templates/__tests__/frontend-build-runtime.test.ts`. Bundling Monaco and the GoRules editor peaks at ~6.7 GB on Node with the heap raised (its default ~4 GB ceiling is what turned CI's "Generate an application and build it" red); under `bun --bun` the same build climbed past 10 GB and was killed on a 15 GB machine. Revisit when the editor bundle is trimmed (`@gorules/jdm-editor` imports the whole `monaco-editor`) |
 | frontend `dev` | `HOST=127.0.0.1 bun --bun vinxi dev`. vinxi asks get-port-please for a port, which binds `::` first; on a host with no IPv6 (this container) Node falls back to IPv4 and Bun throws "Failed to listen at ::", so the dev server never starts. With `HOST` set it probes that host only |
 
 The WASM overlay strips both prefixes (`bun --bun `, `HOST=127.0.0.1 bun --bun `), so the

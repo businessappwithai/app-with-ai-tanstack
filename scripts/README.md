@@ -58,5 +58,5 @@ naming the stale dependency and asking for `bun install`.
 
 ## Prerequisites
 
-Bun 1.4.3 — the version CI pins. PostgreSQL 14+ for anything that touches a
+Bun 1.4.4 — the version CI pins. PostgreSQL 14+ for anything that touches a
 database. See `CLAUDE.md` for why the bun version is load-bearing.

@@ -17,6 +17,7 @@
     "start": "bun --filter @appwithai/web start",
     "start:mastra": "bun --filter @appwithai/ai start",
     "type-check": "bun scripts/require-bun.ts && bun check",
+    "lint": "bun scripts/require-bun.ts && bun check",
     "type-check:language": "bun scripts/require-bun.ts && bun check -p tsconfig.language.json",
     "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist",
     "convert": "bun --filter @appwithai/ai convert",
@@ -67,7 +68,7 @@
     "typescript": "^7.0.2"
   },
   "engines": {
-    "bun": ">=1.4.3"
+    "bun": ">=1.4.4"
   },
   "preferredRuntime": "bun",
   "dependencies": {
