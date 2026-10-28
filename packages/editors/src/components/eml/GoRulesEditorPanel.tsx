@@ -24,6 +24,7 @@ import {
   setInputField,
   withoutStockImport,
 } from "../../lib/eml/rule-graph-constraints";
+import { withNodePositions } from "../../lib/eml/graph-layout";
 import { tableToGraph } from "../../lib/eml/rule-templates";
 
 interface GoRulesEditorPanelProps {
@@ -174,6 +175,9 @@ export function GoRulesEditorPanel({
       }
     }
     graph ??= tableToGraph(table, ruleName) as unknown as DecisionGraphType;
+    // A graph compiled from a `%%rule` flowchart has no node positions, and the
+    // canvas cannot draw a node without one (lib/eml/graph-layout.ts).
+    graph = withNodePositions(graph);
     return withRequestSchema(
       constrainGraph(graph, constraints),
       entityFields,
@@ -367,6 +371,12 @@ export function GoRulesEditorPanel({
             tabBarExtraContent={tabBarExtra}
             name={ruleName}
             simulate={simulate}
+            // Open on the whole graph. A compiled rule is wider than the canvas,
+            // and starting at 100% showed its first two nodes and nothing to say
+            // there were twelve more to the right.
+            onReactFlowInit={(instance) => {
+              requestAnimationFrame(() => instance.fitView({ padding: 0.15, maxZoom: 1 }));
+            }}
             panels={[
               {
                 id: "simulator",

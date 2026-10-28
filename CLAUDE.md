@@ -1013,6 +1013,16 @@ Four things those editors have to keep true:
   `rules.service.ts.hbs` checks fields on outputs only for `collect`, as
   `validateStoredRuleContent` does. Requiring one refused every edit to a rule
   the model declared.
+- **A graph compiled from a `%%rule` flowchart has no node positions** — the
+  rules engine needs none, the canvas needs one per node. Opening such a rule
+  threw `Cannot read properties of undefined (reading 'x')` and took the whole
+  Rules and workflows screen down (13 of the CRM's 30 rules).
+  `GoRulesEditorPanel` runs every graph through `withNodePositions`
+  (`lib/eml/graph-layout.ts`: column = longest path from a source; a position
+  already given is kept) and fits the view on open. Held by
+  `lib/eml/__tests__/graph-layout.test.ts`, which compiles the CRM's rules.
+  Those graphs still decide nothing — `%%rule` is `validated`, its conditions
+  are text in node labels — so a switch shows "No conditions".
 - **The Logic page refuses a rule or process with no entity or no name**
   (`lib/eml/section-problems.ts`), and so does `PUT /api/projects/:id/eml`. Saved
   without one it became `%%rule x on  event: …`, which the checker reads as a
