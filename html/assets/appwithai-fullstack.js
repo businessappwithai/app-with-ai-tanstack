@@ -6372,7 +6372,7 @@ var appwithai_language_default = {
       reviewUntilClean: "A clean checker run starts the review rather than ending it: re-read the file against the plan, confirm none of the nine codes and a clean audit, read every help line as the person on the generated screen would, and after any fix re-run the checker and the audit from zero. The review ends when a full pass finds nothing to change, not when a cycle count runs out."
     },
     formLayout: {
-      description: "How a record's form is laid out: headed sections, each of rows of one or two fields. It is the third layer of the dictionary - a column says what is stored, a field says that it is on the screen, and a section says where and beside what. Declared by `%%section`, compiled to one sys_field_group per section (sys_field_group.columns = 2, description = the section's help) and to each field's sys_field_group_id, seq_no, is_same_line, x_position (1 or 2), y_position (the row) and column_span (2 for a row of one). Both stacks draw it: the NestJS form as a two-column grid per group, the browser form the same way.",
+      description: "How a record's form is laid out: headed sections, each of rows of one or two fields. It is the third layer of the dictionary - a column says what is stored, a field says that it is on the screen, and a section says where and beside what. Declared by `%%section`, compiled to one sys_field_group per section (sys_field_group.columns = 2, description = the section's help) and to each field's sys_field_group_id, seq_no, is_same_line (the right-hand field of a pair) and column_span (2 for a row of one); the dictionary has no X or Y position. Both stacks draw it: the NestJS form as a two-column grid per group, the browser form the same way.",
       directive: "%%section entity: <Entity>; name: <Label>; help: <text>; rows: <column>, <column> | <column> | ...; collapsed: true",
       mandatory: "Every entity declares its sections, and every column but the primary key sits in exactly one row of one of them. A form is the screen people use all day; the model is the only place its layout is decided, and an entity without sections is generated as one flat, unheaded list in declared order - correct, and nothing anyone designed.",
       rows: [
@@ -7193,7 +7193,7 @@ var appwithai_language_default = {
         status: "compiled",
         consumedBy: [
           "packages/generator/src/parsers/section.parser.ts -> entity.formSections",
-          "packages/generator/src/generators/dictionary.generator.ts -> sys_field_group, sys_field.sys_field_group_id / is_same_line / x_position / column_span",
+          "packages/generator/src/generators/dictionary.generator.ts -> sys_field_group, sys_field.sys_field_group_id / is_same_line / column_span",
           "templates/common/seeds/sys-dictionary.ts.hbs (NestJS) and generators/wasm/model-bundle.ts (browser)"
         ],
         purpose: "Lay an entity's form out as headed sections of two-column rows. Each directive is one section of one entity: `name` is its heading, `help` the sentence under the heading, and `rows` its fields, rows separated by `|` and the one or two columns of a row by `,`. A row of two puts the columns side by side; a row of one spans the full width, which is where a text or memo column, or a reference worth its whole line, belongs. Sections render in declaration order and fields in row order. Repeating a section's `entity` and `name` continues it, so a long section can be written over several lines; `help` is read from the first. `collapsed: true` closes the section until it is opened. Every column of the entity but its primary key is placed in exactly one section - see applicationDictionary.formLayout. `entity`, `name` and `rows` are required. `help` may contain semicolons; no other value may.",
@@ -12304,8 +12304,6 @@ var SysFieldSchema = objectType({
   seq_no: numberType(),
   seq_no_grid: numberType(),
   display_length: numberType().optional(),
-  x_position: numberType().optional(),
-  y_position: numberType().optional(),
   column_span: numberType().optional(),
   num_lines: numberType().optional(),
   is_displayed: booleanType(),
@@ -12748,8 +12746,6 @@ function generateSysFields(tabId, columns, config = defaultDictionaryConfig) {
     seq_no: seqNumbers[index] ?? (index + 1) * 10,
     seq_no_grid: (index + 1) * 10,
     display_length: undefined,
-    x_position: undefined,
-    y_position: undefined,
     column_span: undefined,
     num_lines: undefined,
     is_displayed: true,
@@ -15435,8 +15431,6 @@ function formLayoutFor(entity) {
       group: groups[placement.section]?.name ?? UNPLACED_SECTION,
       seqNo: placement.order * 10,
       sameLine: placement.sameLine,
-      xPosition: placement.column,
-      yPosition: placement.row,
       columnSpan: placement.span
     });
   }
@@ -15459,8 +15453,6 @@ function formLayoutFor(entity) {
         group: name,
         seqNo: ++order * 10,
         sameLine: right,
-        xPosition: right ? 2 : 1,
-        yPosition: Math.floor(index / 2) + 1,
         columnSpan: alone ? 2 : 1
       });
     });
@@ -16516,6 +16508,10 @@ export async function executeCustomValidateHooks(
       {
         slug: "add_rule_title",
         template: "src/migrations/020_add_rule_title.ts.hbs"
+      },
+      {
+        slug: "field_dictionary",
+        template: "src/migrations/021_field_dictionary.ts.hbs"
       }
     ];
     const scaffoldSlugs = new Set(scaffold.map((m) => m.slug));
@@ -16555,7 +16551,7 @@ export async function executeCustomValidateHooks(
     } catch (e) {
       console.warn("Entity categories seed template failed, skipping:", e.message);
     }
-    const businessDataContent = await this.renderTemplate("../../common/seeds/business-data.ts.hbs", context);
+    const businessDataContent = await this.renderTemplate("../../common/seeds/business-data.ts.hbs", this.withMoveFacts(context));
     await writeFile(join(outputDir, "seeds/03_business_data.ts"), businessDataContent);
     try {
       const businessRulesContent = await this.renderTemplate("../../common/seeds/business-rules.ts.hbs", context);
@@ -16574,6 +16570,7 @@ export async function executeCustomValidateHooks(
     await mkdir(join(outputDir, "src/common"), { recursive: true });
     await writeFile(join(outputDir, "src/common/state-fields.ts"), this.renderStateFields(context));
     await copyFile(join(this.resolvedTemplateDir, "../../common/field-logic.ts"), join(outputDir, "src/common/field-logic.ts"));
+    await copyFile(join(this.resolvedTemplateDir, "../../common/field-values.ts"), join(outputDir, "src/common/field-values.ts"));
     const reportDesignsSeedContent = await this.renderTemplate("../../common/seeds/report-designs.ts.hbs", context);
     await writeFile(join(outputDir, "seeds/06_report_designs.ts"), reportDesignsSeedContent);
     const systemConfigContent = await this.renderTemplate("../../common/seeds/system-config.ts.hbs", context);
@@ -16703,6 +16700,24 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }
 }
 `;
+  }
+  withMoveFacts(context) {
+    const byEntity = new Map;
+    for (const workflow of this.options.compiledWorkflows ?? []) {
+      if (!byEntity.has(workflow.entity))
+        byEntity.set(workflow.entity, workflow);
+    }
+    const entities = (context.entities ?? []).map((entity) => {
+      const workflow = byEntity.get(entity.name) ?? byEntity.get(entity.className);
+      if (!workflow)
+        return entity;
+      const facts = new Set(workflow.states.map((state) => `${state.name}_at`));
+      return {
+        ...entity,
+        attributes: (entity.attributes ?? []).map((attribute) => facts.has(attribute.columnName ?? attribute.name) ? { ...attribute, isMoveFact: true } : attribute)
+      };
+    });
+    return { ...context, entities };
   }
   renderStateFields(context) {
     const byEntity = new Map;
@@ -17480,6 +17495,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     }
     const fieldLogic = await this.component("../../common/field-logic.ts");
     await writeFile(join(outputDir, "src/lib/field-logic.ts"), fieldLogic);
+    const fieldValues = await this.component("../../common/field-values.ts");
+    await writeFile(join(outputDir, "src/lib/field-values.ts"), fieldValues);
     try {
       const collectionsContent = await this.component("src/lib/sys-collections.ts");
       await writeFile(join(outputDir, "src/lib/sys-collections.ts"), collectionsContent);
@@ -18988,8 +19005,6 @@ class DictionaryGenerator {
           field._groupRef = groupIds.get(place.group);
           field.seq_no = place.seqNo;
           field.is_same_line = place.sameLine;
-          field.x_position = place.xPosition;
-          field.y_position = place.yPosition;
           field.column_span = place.columnSpan;
         }
         const key = keyed.get(entity.primaryKey);
@@ -19834,7 +19849,7 @@ function manualDictionary(model) {
       column,
       label: field.name,
       section: group?.name,
-      place: group ? `row ${field.y_position ?? "?"}, ${field.column_span === 2 ? "full width" : field.x_position === 2 ? "right" : "left"}` : undefined,
+      place: group ? field.column_span === 2 ? "full width" : field.is_same_line ? "beside the field before it" : "starts a row" : undefined,
       onForm: field.is_displayed !== false,
       inGrid: field.is_displayed_grid !== false && !GRID_NOISE.has(column),
       formSeq: field.seq_no ?? 0,

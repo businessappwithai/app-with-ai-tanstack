@@ -390,9 +390,11 @@ function manualDictionary(model: ParsedModel): ManualDictionary {
       label: field.name,
       section: group?.name,
       place: group
-        ? `row ${field.y_position ?? "?"}, ${
-            field.column_span === 2 ? "full width" : field.x_position === 2 ? "right" : "left"
-          }`
+        ? field.column_span === 2
+          ? "full width"
+          : field.is_same_line
+            ? "beside the field before it"
+            : "starts a row"
         : undefined,
       onForm: field.is_displayed !== false,
       /* `DictionaryGenerator` marks every column grid-visible and each consumer

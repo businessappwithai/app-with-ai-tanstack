@@ -104,6 +104,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
       {{#unless (eq name 'updated_at')}}
       {{#unless (eq name 'deleted_at')}}
       {{#unless (eq name 'version')}}
+      {{#if isMoveFact}}
+        {{!-- A state machine's move fact (`<state>_at`): left empty, so the first edit of a seeded row starts no move nobody recorded. --}}
+        {{name}}: null,
+      {{else}}
       {{#switch (typeToReferenceId type)}}
         {{#case 10}}{{name}}: {{#if (or isForeignKey (endsWith name '_id'))}}fk('{{name}}', {{@../index}}, {{#if required}}true{{else}}false{{/if}}){{else}}'{{#if (eq name "email")}}test{{@../index}}@example.com{{else}}{{seedValue name @../index ../../displayName enumValues}}{{/if}}'{{/if}},{{/case}}
         {{#case 30}}{{name}}: 'test{{@../index}}@example.com',{{/case}}
@@ -118,6 +122,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
         {{#case 14}}{{name}}: 'Sample {{name}} text {{@../index}}',{{/case}}
         {{#default}}{{name}}: '{{seedValue name @../index ../../displayName enumValues}}',{{/default}}
       {{/switch}}
+      {{/if}}
       {{/unless}}
       {{/unless}}
       {{/unless}}

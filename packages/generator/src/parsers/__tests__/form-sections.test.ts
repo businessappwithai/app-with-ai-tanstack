@@ -143,13 +143,16 @@ describe("the dictionary both stacks seed from", () => {
     );
   });
 
-  it("places each field by row and column, and spans a field alone on its row", () => {
+  it("places each field beside the one before it or on a new row, and spans a field alone on its row", () => {
     const columnName = new Map(context.sysColumns.map((c) => [c._tempId, c.column_name]));
     const field = (name: string) =>
       context.sysFields.find((candidate) => columnName.get(candidate._columnRef) === name);
-    expect(field("order_number")).toMatchObject({ x_position: 1, y_position: 1, is_same_line: false, column_span: 1 });
-    expect(field("order_date")).toMatchObject({ x_position: 2, y_position: 1, is_same_line: true, column_span: 1 });
-    expect(field("customer_id")).toMatchObject({ x_position: 1, y_position: 2, column_span: 2 });
+    expect(field("order_number")).toMatchObject({ is_same_line: false, column_span: 1 });
+    expect(field("order_date")).toMatchObject({ is_same_line: true, column_span: 1 });
+    expect(field("customer_id")).toMatchObject({ is_same_line: false, column_span: 2 });
+    // X and Y Position are not part of the dictionary any more.
+    expect(field("order_date")).not.toHaveProperty("x_position");
+    expect(field("order_date")).not.toHaveProperty("y_position");
     const order = ["order_number", "order_date", "customer_id", "total", "notes"].map(
       (name) => field(name)?.seq_no ?? 0
     );
@@ -161,7 +164,8 @@ describe("the dictionary both stacks seed from", () => {
     const groups = model.dictionary.fieldGroups.filter((group) => group.tableName === "bus_order");
     expect(groups.map((group) => group.name)).toEqual(["Order", "Money", "Notes"]);
     const date = model.dictionary.fields.find((candidate) => candidate.columnName === "order_date");
-    expect(date).toMatchObject({ fieldGroup: "Order", isSameLine: true, xPosition: 2 });
+    expect(date).toMatchObject({ fieldGroup: "Order", isSameLine: true, columnSpan: 1 });
+    expect(date).not.toHaveProperty("xPosition");
   });
 
   it("puts a column no row places into a trailing collapsed Other section", () => {
@@ -212,9 +216,10 @@ describe("the NestJS seed", () => {
     expect(order).not.toContain("name: 'Details'");
   });
 
-  it("places each field in its group, with its row, column and span", () => {
+  it("places each field in its group, with its same-line flag and span", () => {
     expect(rendered).toContain('group: "Order"');
-    expect(rendered).toMatch(/sameLine: true,\s+xPosition: 2,\s+yPosition: 1,\s+columnSpan: 1/);
+    expect(rendered).toMatch(/sameLine: true,\s+columnSpan: 1/);
+    expect(rendered).not.toMatch(/xPosition|yPosition|x_position|y_position/);
     expect(rendered).toContain("sys_field_group_id: col.layout ? orderGroupIds.get(col.layout.group) : undefined");
   });
 });

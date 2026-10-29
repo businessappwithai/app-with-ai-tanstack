@@ -418,7 +418,7 @@ entity's form:
 | `entity` | yes | the entity's tab |
 | `name` | yes | `sys_field_group.name` — the section heading |
 | `help` | completeness (`EML177`) | `sys_field_group.description` — the sentence under the heading |
-| `rows` | yes | each field's `sys_field_group_id`, `seq_no`, `is_same_line`, `x_position`, `y_position`, `column_span` |
+| `rows` | yes | each field's `sys_field_group_id`, `seq_no`, `is_same_line`, `column_span` |
 | `collapsed` | no | `sys_field_group.is_collapsed_by_default` |
 
 `rows` separates rows with `|` and the columns of a row with `,`. **A row holds

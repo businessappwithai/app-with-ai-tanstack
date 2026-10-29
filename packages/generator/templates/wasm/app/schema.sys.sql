@@ -208,8 +208,6 @@ CREATE TABLE IF NOT EXISTS sys_field (
   is_key BOOLEAN DEFAULT false,
   is_parent BOOLEAN DEFAULT false,
   is_same_line BOOLEAN DEFAULT false,
-  x_position INTEGER,
-  y_position INTEGER,
   column_span INTEGER,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -224,8 +222,10 @@ ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS columns INTEGER DEFAULT 1;
 ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS is_collapsed_by_default BOOLEAN DEFAULT false;
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS is_same_line BOOLEAN DEFAULT false;
-ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS x_position INTEGER;
-ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS y_position INTEGER;
+-- X and Y Position are gone from the dictionary: a form is laid out by Sequence,
+-- Same Line and Column Span alone. A database written before that loses them here.
+ALTER TABLE sys_field DROP COLUMN IF EXISTS x_position;
+ALTER TABLE sys_field DROP COLUMN IF EXISTS y_position;
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS column_span INTEGER;
 -- Field logic: Compiere's Display, Read Only and Mandatory Logic. Display is the
 -- field's alone; read-only and mandatory are the column's, repeated on the field.

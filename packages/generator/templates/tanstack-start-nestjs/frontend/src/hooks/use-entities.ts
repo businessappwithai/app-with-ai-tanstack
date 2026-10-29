@@ -48,8 +48,8 @@ export interface FieldMetadata {
   is_displayed: boolean;
   is_displayed_grid: boolean;
   is_read_only: boolean;
-  /** The field's help text — what a form shows beneath it. */
-  description?: string;
+  /** Description (the field's, else its column's) — the short line the form shows beneath it. */
+  description?: string | null;
   /**
    * The dictionary's display value (§3.7) — the columns that name a record,
    * and whether this one is the key. `use-bus-entity-level` picks the record
@@ -98,6 +98,34 @@ export interface FieldMetadata {
   mandatory_logic?: string | null;
   /** Set by the form when read-only logic, not the dictionary flag, locks the field. */
   logic_read_only?: boolean;
+  /*
+   * The rest of the Field window, as the API serves it (bus.service
+   * getEntityMetadata). Reference Type Override and Active arrive already
+   * applied — to sys_reference_id and is_displayed / is_displayed_grid.
+   */
+  /** Display Length — the input's width and the grid column's, in characters. */
+  display_length?: number | null;
+  /** Num Lines — a text field with more than one is drawn as a box that many rows tall. */
+  num_lines?: number | null;
+  /** Same Line — sits beside the field before it; otherwise the field starts a new row. */
+  is_same_line?: boolean;
+  /** Heading — drawn as a heading across the section, with no input. */
+  is_heading?: boolean;
+  /** Field Only — the input with no label. */
+  is_field_only?: boolean;
+  /** Encrypted — masked wherever it is shown, typed into a password input. */
+  is_encrypted?: boolean;
+  /** Obscure Type — 904 / 944 / A04 / A44 (lib/field-values.ts). */
+  obscure_type?: string | null;
+  /** Sort Number — the list's default order: smallest magnitude first, negative = descending. */
+  sort_no?: number | null;
+  /** Included Tab — another tab's rows for this record, drawn at this field's place. */
+  included_tab?: {
+    sys_tab_id: string;
+    name: string;
+    table_name: string;
+    link_column: string;
+  } | null;
 }
 
 export interface TableMetadata {

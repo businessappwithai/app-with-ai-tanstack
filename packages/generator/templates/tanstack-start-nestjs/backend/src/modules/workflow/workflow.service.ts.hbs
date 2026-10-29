@@ -795,8 +795,19 @@ export class WorkflowService {
     const now = new Date();
     const values: Record<string, unknown> = { created_at: now, updated_at: now };
     for (const [column, source] of entries) {
-      values[column.trim()] =
-        typeof source === 'string' && context[source] !== undefined ? context[source] : source;
+      // Three readings, in order: the name of a value (`opportunity.id`), one
+      // \{{reference}} (its value, typed), and text with references in it
+      // (`Commission \{{commission}}`), which a REST body already filled in and a
+      // created record wrote verbatim.
+      let value: unknown = source;
+      if (typeof source === 'string') {
+        if (context[source] !== undefined) value = context[source];
+        else if (/\{\{\s*[\w.]+\s*\}\}/.test(source)) {
+          const single = this.resolveReference(source, context);
+          value = single !== source ? single : this.interpolate(source, context);
+        }
+      }
+      values[column.trim()] = value;
     }
     // A record a workflow creates starts in its machine's initial state, as one
     // a person creates does, unless the step names the state itself.
@@ -943,7 +954,10 @@ export class WorkflowService {
     }
 
     const left = Number(context[task.source?.trim() ?? '']);
-    const right = Number(task.operand);
+    // The builder's "And this value" takes a number or a variable — `\{{commission}}`,
+    // the form every other field of a step uses. Read as a number, the reference
+    // was NaN and every formula over two variables was skipped as non-numeric.
+    const right = Number(this.resolveReference(task.operand, context));
     if (!Number.isFinite(left) || !Number.isFinite(right)) {
       this.logger.warn(
         `Formula: "${task.source}" (${String(context[task.source ?? ''])}) or operand "${task.operand}" is not numeric — skipping`,
@@ -1029,6 +1043,18 @@ export class WorkflowService {
       if (!row?.jdm_content) {
         this.logger.warn(`Decision: no active rule named "${ruleName}" — skipping`);
         return { nodeType: 'Decision', rule: ruleName, skipped: `no active rule named "${ruleName}"` };
+      }
+      const stored = typeof row.jdm_content === 'string' ? row.jdm_content : JSON.stringify(row.jdm_content);
+      // A %%rule drawn as a flowchart has nodes and no conditions. The engine
+      // refuses it with "missing field `content`", which names nothing a reader
+      // can act on; this names the rule and why it cannot answer.
+      if (this.rulesEngine.isDiagramOnly(stored)) {
+        this.logger.warn(`Decision: rule "${ruleName}" is a drawn flowchart with no conditions — skipping`);
+        return {
+          nodeType: 'Decision',
+          rule: ruleName,
+          skipped: `rule "${ruleName}" is a drawn flowchart: its nodes carry no conditions, so it decides nothing`,
+        };
       }
       // Prepared like every stored rule: a bare table is wrapped and quoted, a
       // function node's source is put where the engine reads it.
@@ -1133,6 +1159,15 @@ export class WorkflowService {
     } finally {
       clearTimeout(timeout);
     }
+  }
+
+  /**
+   * A field that is exactly one \{{key}} reference, as the value it names —
+   * a number stays a number, an id stays an id. Anything else is returned as is.
+   */
+  private resolveReference(text: string | undefined, context: Record<string, unknown>): unknown {
+    const match = /^\s*\{\{\s*([\w.]+)\s*\}\}\s*$/.exec(text ?? '');
+    return match ? context[match[1]!] : text;
   }
 
   /** Replace \{{key}} placeholders with values from the workflow context. */

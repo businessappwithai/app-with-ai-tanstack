@@ -20,7 +20,8 @@ import type { PromotionActor, PromotionResult } from './entity-promotion.service
 import { WorkflowService } from '../workflow/workflow.service';
 import { currentRequestContext, getLogger } from '../../common/logging/logger.service';
 import { stateFieldOf } from '../../common/state-fields';
-import { logicViolations } from '../../common/field-logic';
+import { logicViolations, sameValue } from '../../common/field-logic';
+import { resolveDefaultValue } from '../../common/field-values';
 import {
   DEFAULT_ORDER_BY_CLAUSE,
   parseOrderByClause,
@@ -70,6 +71,30 @@ export interface FieldMetadata {
   display_logic?: string | null;
   read_only_logic?: string | null;
   mandatory_logic?: string | null;
+  /*
+   * The rest of the Field window (sys_field), each served because the form or
+   * the grid acts on it. Reference Type Override and Active are applied here,
+   * to sys_reference_id and is_displayed / is_displayed_grid, so no reader can
+   * forget them.
+   */
+  /** Description — the label's tooltip. The field's, else the column's. */
+  description?: string | null;
+  /** Display Length — the input's width and the grid column's, in characters. */
+  display_length?: number | null;
+  /** Num Lines — a text field with more than one is drawn as that many rows. */
+  num_lines?: number | null;
+  /** Heading — the field is drawn as a heading across its section, with no input. */
+  is_heading?: boolean;
+  /** Field Only — the input is drawn with no label. */
+  is_field_only?: boolean;
+  /** Encrypted — displayed masked and typed into a password input. */
+  is_encrypted?: boolean;
+  /** Obscure Type — 904 / 944 / A04 / A44; masks the displayed value (common/field-values.ts). */
+  obscure_type?: string | null;
+  /** Sort Number — the list's default order: smallest magnitude first, negative = descending. */
+  sort_no?: number | null;
+  /** Included Tab — another tab drawn inside the form at this field's place. */
+  included_tab?: { sys_tab_id: string; name: string; table_name: string; link_column: string } | null;
   /** Query param name for cascading filter (e.g. 'filter.country_id') */
   ref_filter_param?: string;
   /** Form field whose value feeds the cascading filter (e.g. 'country_id') */
@@ -304,6 +329,26 @@ export class BusService {
 
     const nextOptions: PaginationOptions = { ...options };
 
+    // Sort Number: with no ordering asked for and none declared on the window,
+    // the field with the smallest non-zero Sort Number orders the list — a
+    // negative one descending. Below the window's clause, above updated_at.
+    // The seed writes the default (`updated_at DESC`) into every window so the
+    // Window record shows what the list does; that is the fallback, not a
+    // declaration, and must not stop Sort Number from applying.
+    const declaredOrder = metadata.window?.order_by_clause?.trim() ?? '';
+    const windowOrders =
+      declaredOrder !== '' &&
+      declaredOrder.replace(/\s+/g, ' ').toLowerCase() !== DEFAULT_ORDER_BY_CLAUSE.toLowerCase();
+    const sortField = windowOrders
+      ? undefined
+      : metadata.columns
+          .filter((column) => column.sort_no && queryable.has(column.column_name))
+          .sort((a, b) => Math.abs(a.sort_no!) - Math.abs(b.sort_no!))[0];
+    if (!nextOptions.orderBy && sortField) {
+      nextOptions.orderBy = sortField.column_name;
+      nextOptions.orderDir = sortField.sort_no! < 0 ? 'desc' : 'asc';
+    }
+
     if (!nextOptions.orderBy) {
       const clause = metadata.window?.order_by_clause?.trim() || DEFAULT_ORDER_BY_CLAUSE;
       const { terms, warnings } = parseOrderByClause(clause, queryable);
@@ -372,9 +417,13 @@ export class BusService {
       dataWithDefaults[state.field] = state.initial;
     }
 
+    // Default Value — the field's, else the column's, read as the form reads it
+    // (common/field-values.ts). A default that gives no value (a context
+    // variable, a database function) leaves the column to the database.
     for (const column of metadata.columns) {
       if (column.default_value && dataWithDefaults[column.column_name] === undefined) {
-        dataWithDefaults[column.column_name] = this.parseDefaultValue(column.default_value, column.sys_reference_id);
+        const value = resolveDefaultValue(column.default_value, column.sys_reference_id);
+        if (value !== undefined) dataWithDefaults[column.column_name] = value;
       }
     }
 
@@ -498,7 +547,9 @@ export class BusService {
     if (current) {
       const merged = { ...current, ...processedData };
       await executeCustomValidateHooks(entity, merged);
-      this.enforceFieldLogic(await this.getEntityMetadata(entity), merged, processedData, current);
+      const metadata = await this.getEntityMetadata(entity);
+      this.enforceReadOnlyFields(metadata, processedData, current);
+      this.enforceFieldLogic(metadata, merged, processedData, current);
       await this.enforceBusinessRules(tableName, merged, 'update');
     }
 
@@ -738,6 +789,7 @@ export class BusService {
         'sys_column.is_key',
         'sys_column.field_length',
         'sys_column.default_value',
+        'sys_column.description as column_description',
         'sys_column.seq_no',
         'sys_field.sys_field_id',
         'sys_field.seq_no as field_seq_no',
@@ -754,6 +806,18 @@ export class BusService {
         'sys_field.display_logic',
         'sys_field.read_only_logic as field_read_only_logic',
         'sys_field.mandatory_logic as field_mandatory_logic',
+        'sys_field.description as field_description',
+        'sys_field.display_length',
+        'sys_field.num_lines',
+        'sys_field.is_heading',
+        'sys_field.is_field_only',
+        'sys_field.is_encrypted',
+        'sys_field.obscure_type',
+        'sys_field.sort_no',
+        'sys_field.included_tab_id',
+        'sys_field.default_value as field_default_value',
+        'sys_field.sys_reference_id as field_reference_id',
+        'sys_field.is_active as field_is_active',
         'sys_column.read_only_logic as column_read_only_logic',
         'sys_column.mandatory_logic as column_mandatory_logic',
         'sys_field_group.name as group_name',
@@ -772,6 +836,58 @@ export class BusService {
       .where('sys_column.is_active', '=', true)
       .orderBy('sys_column.seq_no', 'asc')
       .execute();
+
+    // Reference Type Override: the field is drawn, validated and filtered as the
+    // reference it names. Applied before anything below reads the reference.
+    for (const col of columns as any[]) {
+      if (col.field_reference_id) col.sys_reference_id = col.field_reference_id;
+    }
+
+    // Included Tab: the tab, its table, and the column linking its rows to the
+    // record this form is showing — the tab's link column, else the child's
+    // reference to this table by name.
+    const includedTabIds = [
+      ...new Set((columns as any[]).map((c) => c.included_tab_id).filter(Boolean) as string[]),
+    ];
+    const includedTabs = new Map<string, NonNullable<FieldMetadata['included_tab']>>();
+    if (includedTabIds.length > 0) {
+      const tabs = await this.kysely
+        .selectFrom('sys_tab')
+        .innerJoin('sys_table', 'sys_table.sys_table_id', 'sys_tab.sys_table_id')
+        .leftJoin('sys_column as link', 'link.sys_column_id', 'sys_tab.link_column_id')
+        .select([
+          'sys_tab.sys_tab_id',
+          'sys_tab.name',
+          'sys_table.table_name',
+          'sys_table.sys_table_id',
+          'link.column_name as link_column',
+        ])
+        .where('sys_tab.sys_tab_id', 'in', includedTabIds)
+        .execute();
+      const parentRef = `${table.table_name.replace(/^bus_/, '')}_id`;
+      for (const tab of tabs as any[]) {
+        let link: string | null = tab.link_column ?? null;
+        if (!link) {
+          const ref = await this.kysely
+            .selectFrom('sys_column')
+            .select('column_name')
+            .where('sys_table_id', '=', tab.sys_table_id)
+            .where('column_name', '=', parentRef)
+            .executeTakeFirst();
+          link = (ref as any)?.column_name ?? null;
+        }
+        // A tab with nothing linking it to this record would list every row of
+        // its table inside this one, which is not what the field asks for.
+        if (link) {
+          includedTabs.set(tab.sys_tab_id, {
+            sys_tab_id: tab.sys_tab_id,
+            name: tab.name,
+            table_name: tab.table_name,
+            link_column: link,
+          });
+        }
+      }
+    }
 
     // A reference is only a lookup if the table it names exists. The name comes
     // from the column (`document_type_id` -> `bus_document_type`), and a model
@@ -840,6 +956,9 @@ export class BusService {
       },
       columns: columns.map((col: any) => {
         const isStateField = stateField !== null && col.column_name === stateField;
+        // Active: an inactive field is on no screen. Its column still holds data
+        // and is still validated; it is simply not drawn.
+        const fieldActive = col.sys_field_id ? col.field_is_active !== false : true;
         const refTableName = resolveRef(col);
         const options = !refTableName && enumOptionsMap[col.sys_reference_id]?.length
           ? enumOptionsMap[col.sys_reference_id]
@@ -857,14 +976,15 @@ export class BusService {
           is_identifier: col.is_identifier === true && !isDanglingRef(col),
           is_key: col.is_key === true,
           field_length: col.field_length,
-          default_value: col.default_value,
+          // The field's own Default Value wins over its column's.
+          default_value: col.field_default_value || col.default_value,
           ref_table_name: refTableName,
           ref_label_fields: refTableName ? (refLabelFieldsMap[refTableName] ?? []) : undefined,
           options,
           seq_no: col.field_seq_no || col.seq_no || 0,
           seq_no_grid: col.seq_no_grid || 0,
-          is_displayed: isStateField ? false : col.is_displayed !== false,
-          is_displayed_grid: isStateField ? true : col.is_displayed_grid !== false,
+          is_displayed: isStateField ? false : fieldActive && col.is_displayed !== false,
+          is_displayed_grid: isStateField ? true : fieldActive && col.is_displayed_grid !== false,
           is_read_only: isStateField ? true : col.field_is_read_only || false,
           is_state_field: isStateField,
           help: col.field_help || undefined,
@@ -883,6 +1003,15 @@ export class BusService {
           mandatory_logic: isStateField
             ? null
             : col.field_mandatory_logic || col.column_mandatory_logic || null,
+          description: col.field_description || col.column_description || null,
+          display_length: col.display_length ?? null,
+          num_lines: col.num_lines ?? null,
+          is_heading: col.is_heading === true,
+          is_field_only: col.is_field_only === true,
+          is_encrypted: col.is_encrypted === true,
+          obscure_type: col.obscure_type || null,
+          sort_no: col.sort_no ?? null,
+          included_tab: col.included_tab_id ? includedTabs.get(col.included_tab_id) ?? null : null,
         };
       }),
       window: window
@@ -979,6 +1108,32 @@ export class BusService {
     }
   }
 
+  /**
+   * Read Only, enforced. A field marked Read Only in the Field window can be
+   * filled in when a record is created — the form offers it then — and never
+   * changed afterwards, whoever asks. A request that sends the value back
+   * unchanged is not a change (`sameValue`: `12.50` = `12.5`, a Date = its ISO
+   * text), so a full-record save still works. The key and the state field have
+   * their own rules and are not judged here.
+   */
+  private enforceReadOnlyFields(
+    metadata: EntityMetadata,
+    changes: Record<string, any>,
+    stored: Record<string, any>,
+  ): void {
+    const errors: string[] = [];
+    for (const column of metadata.columns) {
+      if (!column.is_read_only || column.is_state_field || column.is_key) continue;
+      if (BusService.AUTO_MANAGED_COLUMNS.has(column.column_name)) continue;
+      if (!(column.column_name in changes)) continue;
+      if (sameValue(stored[column.column_name], changes[column.column_name])) continue;
+      errors.push(`${column.name} is read-only and cannot be changed.`);
+    }
+    if (errors.length > 0) {
+      throw new BadRequestException({ message: 'Validation failed', errors });
+    }
+  }
+
   async getFormFields(entity: string): Promise<FieldMetadata[]> {
     const metadata = await this.getEntityMetadata(entity);
     // The state field is never here: it is not an input. The record header
@@ -991,9 +1146,26 @@ export class BusService {
     return metadata.columns.filter((col) => col.is_displayed_grid).sort((a, b) => a.seq_no_grid - b.seq_no_grid);
   }
 
+  /** Reference types whose column cannot hold '' — numbers, dates, booleans, ids, JSON. */
+  private static readonly NON_TEXT_REFERENCES = new Set([11, 12, 13, 15, 16, 18, 19, 20, 22, 28, 29, 37]);
+
   async validateData(entity: string, data: Record<string, any>, mode: 'create' | 'update' | 'patch'): Promise<void> {
     const metadata = await this.getEntityMetadata(entity);
     const errors: string[] = [];
+
+    /*
+     * An emptied input is "no value", not a value. A browser's date, number and
+     * lookup inputs report a cleared field as '', which no non-text column can
+     * hold: the type check refused it ("must be a valid date") and nobody could
+     * clear an optional date once it was set. The form sends what the input
+     * holds, so the API reads '' as null for every column that is not text —
+     * on `data` itself, because the caller writes the object it validated.
+     */
+    for (const column of metadata.columns) {
+      if (data[column.column_name] === '' && BusService.NON_TEXT_REFERENCES.has(column.sys_reference_id)) {
+        data[column.column_name] = null;
+      }
+    }
 
     for (const column of metadata.columns) {
       // The state field is the application's to write, never a request's: the
@@ -1090,16 +1262,6 @@ export class BusService {
         break;
     }
     return null;
-  }
-
-  private parseDefaultValue(defaultValue: string, referenceId: number): any {
-    switch (referenceId) {
-      case 11: return parseInt(defaultValue, 10);
-      case 12: return parseFloat(defaultValue);
-      case 20: return defaultValue.toLowerCase() === 'true' || defaultValue === 'Y';
-      case 28: try { return JSON.parse(defaultValue); } catch { return {}; }
-      default: return defaultValue;
-    }
   }
 
   private static readonly COLUMN_TABLE_ALIASES: Record<string, string> = {

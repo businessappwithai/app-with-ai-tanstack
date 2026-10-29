@@ -268,9 +268,10 @@ A complete example, for a support case:
 **What it compiles to.** One `sys_field_group` per section on the entity's tab —
 `name` the heading, `description` the help, `columns = 2`,
 `is_collapsed_by_default` from `collapsed:` — and on every field
-`sys_field_group_id`, `seq_no` (section by section, row by row), `x_position` (1
-or 2), `y_position` (the row), `is_same_line` (the right-hand field of a pair) and
-`column_span` (2 for a row of one). Both generated applications draw it the same
+`sys_field_group_id`, `seq_no` (section by section, row by row), `is_same_line`
+(the right-hand field of a pair, drawn beside the one before it) and `column_span`
+(2 for a row of one). There is no X or Y position: Sequence, Same Line and
+Column Span are the whole of a form's layout. Both generated applications draw it the same
 way: the deployable one and the one that runs in a browser tab. A column a
 sectioned entity leaves out of every row is not lost — it is drawn in a trailing,
 collapsed *Other* section — and an entity with no sections at all is drawn as one

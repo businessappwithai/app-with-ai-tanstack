@@ -79,6 +79,10 @@ const OUTPUT_ONLY_PATHS = new Set([
   "src/common/state-fields.ts",
   "src/common/field-logic.ts",
   "src/lib/field-logic.ts",
+  // `templates/common/field-values.ts`, copied the same way: Default Value and
+  // Obscure Type for the bus service and for the form and grid.
+  "src/common/field-values.ts",
+  "src/lib/field-values.ts",
 ]);
 
 /** Generator sources, excluding tests and generated bundles. */

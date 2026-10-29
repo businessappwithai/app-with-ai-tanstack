@@ -7,8 +7,7 @@
  * them into what both stacks' dictionaries store:
  *
  *   section             → sys_field_group (columns = 2, description = help)
- *   row, left / right   → sys_field.x_position 1 / 2, y_position = the row
- *   the right of a pair → sys_field.is_same_line = true
+ *   the right of a pair → sys_field.is_same_line = true (it sits beside the left)
  *   a row of one        → sys_field.column_span = 2 (the full width)
  *   order on the form   → sys_field.seq_no, section by section, row by row
  *
@@ -59,8 +58,6 @@ export interface LayoutField {
   group: string;
   seqNo: number;
   sameLine: boolean;
-  xPosition: 1 | 2;
-  yPosition: number;
   columnSpan: 1 | 2;
 }
 
@@ -106,8 +103,6 @@ export function formLayoutFor(entity: Entity): EntityFormLayout | undefined {
       group: groups[placement.section]?.name ?? UNPLACED_SECTION,
       seqNo: placement.order * 10,
       sameLine: placement.sameLine,
-      xPosition: placement.column,
-      yPosition: placement.row,
       columnSpan: placement.span,
     });
   }
@@ -132,8 +127,6 @@ export function formLayoutFor(entity: Entity): EntityFormLayout | undefined {
         group: name,
         seqNo: (++order) * 10,
         sameLine: right,
-        xPosition: right ? 2 : 1,
-        yPosition: Math.floor(index / 2) + 1,
         columnSpan: alone ? 2 : 1,
       });
     });

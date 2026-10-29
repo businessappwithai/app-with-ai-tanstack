@@ -578,7 +578,7 @@ var appwithai_language_default = {
       reviewUntilClean: "A clean checker run starts the review rather than ending it: re-read the file against the plan, confirm none of the nine codes and a clean audit, read every help line as the person on the generated screen would, and after any fix re-run the checker and the audit from zero. The review ends when a full pass finds nothing to change, not when a cycle count runs out."
     },
     formLayout: {
-      description: "How a record's form is laid out: headed sections, each of rows of one or two fields. It is the third layer of the dictionary - a column says what is stored, a field says that it is on the screen, and a section says where and beside what. Declared by `%%section`, compiled to one sys_field_group per section (sys_field_group.columns = 2, description = the section's help) and to each field's sys_field_group_id, seq_no, is_same_line, x_position (1 or 2), y_position (the row) and column_span (2 for a row of one). Both stacks draw it: the NestJS form as a two-column grid per group, the browser form the same way.",
+      description: "How a record's form is laid out: headed sections, each of rows of one or two fields. It is the third layer of the dictionary - a column says what is stored, a field says that it is on the screen, and a section says where and beside what. Declared by `%%section`, compiled to one sys_field_group per section (sys_field_group.columns = 2, description = the section's help) and to each field's sys_field_group_id, seq_no, is_same_line (the right-hand field of a pair) and column_span (2 for a row of one); the dictionary has no X or Y position. Both stacks draw it: the NestJS form as a two-column grid per group, the browser form the same way.",
       directive: "%%section entity: <Entity>; name: <Label>; help: <text>; rows: <column>, <column> | <column> | ...; collapsed: true",
       mandatory: "Every entity declares its sections, and every column but the primary key sits in exactly one row of one of them. A form is the screen people use all day; the model is the only place its layout is decided, and an entity without sections is generated as one flat, unheaded list in declared order - correct, and nothing anyone designed.",
       rows: [
@@ -1399,7 +1399,7 @@ var appwithai_language_default = {
         status: "compiled",
         consumedBy: [
           "packages/generator/src/parsers/section.parser.ts -> entity.formSections",
-          "packages/generator/src/generators/dictionary.generator.ts -> sys_field_group, sys_field.sys_field_group_id / is_same_line / x_position / column_span",
+          "packages/generator/src/generators/dictionary.generator.ts -> sys_field_group, sys_field.sys_field_group_id / is_same_line / column_span",
           "templates/common/seeds/sys-dictionary.ts.hbs (NestJS) and generators/wasm/model-bundle.ts (browser)"
         ],
         purpose: "Lay an entity's form out as headed sections of two-column rows. Each directive is one section of one entity: `name` is its heading, `help` the sentence under the heading, and `rows` its fields, rows separated by `|` and the one or two columns of a row by `,`. A row of two puts the columns side by side; a row of one spans the full width, which is where a text or memo column, or a reference worth its whole line, belongs. Sections render in declaration order and fields in row order. Repeating a section's `entity` and `name` continues it, so a long section can be written over several lines; `help` is read from the first. `collapsed: true` closes the section until it is opened. Every column of the entity but its primary key is placed in exactly one section - see applicationDictionary.formLayout. `entity`, `name` and `rows` are required. `help` may contain semicolons; no other value may.",
@@ -6033,8 +6033,6 @@ var SysFieldSchema = objectType({
   seq_no: numberType(),
   seq_no_grid: numberType(),
   display_length: numberType().optional(),
-  x_position: numberType().optional(),
-  y_position: numberType().optional(),
   column_span: numberType().optional(),
   num_lines: numberType().optional(),
   is_displayed: booleanType(),
@@ -6695,8 +6693,6 @@ function formLayoutFor(entity) {
       group: groups[placement.section]?.name ?? UNPLACED_SECTION,
       seqNo: placement.order * 10,
       sameLine: placement.sameLine,
-      xPosition: placement.column,
-      yPosition: placement.row,
       columnSpan: placement.span
     });
   }
@@ -6719,8 +6715,6 @@ function formLayoutFor(entity) {
         group: name,
         seqNo: ++order * 10,
         sameLine: right,
-        xPosition: right ? 2 : 1,
-        yPosition: Math.floor(index / 2) + 1,
         columnSpan: alone ? 2 : 1
       });
     });
@@ -11522,8 +11516,6 @@ CREATE TABLE IF NOT EXISTS sys_field (
   is_key BOOLEAN DEFAULT false,
   is_parent BOOLEAN DEFAULT false,
   is_same_line BOOLEAN DEFAULT false,
-  x_position INTEGER,
-  y_position INTEGER,
   column_span INTEGER,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -11538,8 +11530,10 @@ ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS columns INTEGER DEFAULT 1;
 ALTER TABLE sys_field_group ADD COLUMN IF NOT EXISTS is_collapsed_by_default BOOLEAN DEFAULT false;
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS is_same_line BOOLEAN DEFAULT false;
-ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS x_position INTEGER;
-ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS y_position INTEGER;
+-- X and Y Position are gone from the dictionary: a form is laid out by Sequence,
+-- Same Line and Column Span alone. A database written before that loses them here.
+ALTER TABLE sys_field DROP COLUMN IF EXISTS x_position;
+ALTER TABLE sys_field DROP COLUMN IF EXISTS y_position;
 ALTER TABLE sys_field ADD COLUMN IF NOT EXISTS column_span INTEGER;
 -- Field logic: Compiere's Display, Read Only and Mandatory Logic. Display is the
 -- field's alone; read-only and mandatory are the column's, repeated on the field.
@@ -15816,10 +15810,10 @@ async function seedDictionary(db, model, tick = () => {}) {
                               is_displayed, is_displayed_grid, is_read_only, is_mandatory,
                               is_updateable, is_insertable, seq_no, seq_no_grid, display_length,
                               field_type, sys_reference_id, default_value, is_key,
-                              is_same_line, x_position, y_position, column_span,
+                              is_same_line, column_span,
                               display_logic, read_only_logic, mandatory_logic)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,
-               $23,$24,$25)
+               $23)
        ON CONFLICT (sys_tab_id, sys_column_id) DO NOTHING\`,
       [
         tabId,
@@ -15841,8 +15835,6 @@ async function seedDictionary(db, model, tick = () => {}) {
         field.defaultValue ?? null,
         !!field.isKey,
         !!field.isSameLine,
-        field.xPosition ?? null,
-        field.yPosition ?? null,
         field.columnSpan ?? null,
         field.displayLogic ?? null,
         field.readOnlyLogic ?? null,
@@ -27640,7 +27632,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 653407;
+var RUNTIME_BYTES = 653409;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -27953,8 +27945,6 @@ function generateSysFields(tabId, columns, config = defaultDictionaryConfig) {
     seq_no: seqNumbers[index] ?? (index + 1) * 10,
     seq_no_grid: (index + 1) * 10,
     display_length: undefined,
-    x_position: undefined,
-    y_position: undefined,
     column_span: undefined,
     num_lines: undefined,
     is_displayed: true,
@@ -28217,8 +28207,6 @@ class DictionaryGenerator {
           field._groupRef = groupIds.get(place.group);
           field.seq_no = place.seqNo;
           field.is_same_line = place.sameLine;
-          field.x_position = place.xPosition;
-          field.y_position = place.yPosition;
           field.column_span = place.columnSpan;
         }
         const key = keyed.get(entity.primaryKey);
@@ -29267,8 +29255,6 @@ function buildModelBundle(parsed, project) {
           seqNoGrid: field.seq_no_grid,
           fieldGroup: field._groupRef ? dictionary.sysFieldGroups.find((group) => group._tempId === field._groupRef)?.name : undefined,
           isSameLine: field.is_same_line,
-          xPosition: field.x_position,
-          yPosition: field.y_position,
           columnSpan: field.column_span,
           fieldType: attribute?.type,
           referenceId: attribute?.referenceId,
@@ -29504,7 +29490,7 @@ function manualDictionary(model) {
       column,
       label: field.name,
       section: group?.name,
-      place: group ? `row ${field.y_position ?? "?"}, ${field.column_span === 2 ? "full width" : field.x_position === 2 ? "right" : "left"}` : undefined,
+      place: group ? field.column_span === 2 ? "full width" : field.is_same_line ? "beside the field before it" : "starts a row" : undefined,
       onForm: field.is_displayed !== false,
       inGrid: field.is_displayed_grid !== false && !GRID_NOISE.has(column),
       formSeq: field.seq_no ?? 0,

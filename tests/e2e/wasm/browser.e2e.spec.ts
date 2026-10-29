@@ -191,10 +191,11 @@ test.describe
       }
 
       expect(tally.Entities).toBe("17");
-      // 13 and 37: one StateProgress rule per state machine, and one saga per
+      // 14 and 37: one StateProgress rule per state machine, and one saga per
       // state a record can move into — no person changes a state, so every
-      // move is a rule starting the saga that writes it.
-      expect(tally.Rules).toBe("13");
+      // move is a rule starting the saga that writes it. The fourteenth starts
+      // the closed-won handoff on the same fact as the closing move.
+      expect(tally.Rules).toBe("14");
       expect(tally.Processes).toBe("37");
       // 24: the CRM model declares a `%%rbac … .read` rule per entity on top of
       // its write restrictions, which is what gives each seeded role its own
@@ -722,7 +723,7 @@ test.describe("@browser assembling the real stack in a tab", () => {
       ).trim();
     }
     expect(tally.Entities).toBe("17");
-    expect(tally.Rules).toBe("13");
+    expect(tally.Rules).toBe("14");
     // The CLI writes 416 files for this model; the browser writes the same but
     // for the nine binary fonts, which do not survive a JSON transport.
     expect(Number(tally.Files)).toBeGreaterThan(400);

@@ -1709,6 +1709,12 @@ export async function executeCustomValidateHooks(
         slug: "add_rule_title",
         template: "src/migrations/020_add_rule_title.ts.hbs",
       },
+      // The Field window's Reference Type Override gets its column; X and Y
+      // Position go — Sequence, Same Line and Column Span lay a form out.
+      {
+        slug: "field_dictionary",
+        template: "src/migrations/021_field_dictionary.ts.hbs",
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -1776,10 +1782,14 @@ export async function executeCustomValidateHooks(
       console.warn("Entity categories seed template failed, skipping:", (e as Error).message);
     }
 
-    // Seed business data for E2E testing
+    // Seed business data for E2E testing. A state machine's move facts — the
+    // `<state>_at` column a person records to move a record along an edge — are
+    // left empty: filled with timestamps, the first edit of any seeded row
+    // matched every move at once, and with the rule's `collect` hit policy the
+    // last to run won (a prospecting opportunity jumped to closed_lost).
     const businessDataContent = await this.renderTemplate(
       "../../common/seeds/business-data.ts.hbs",
-      context
+      this.withMoveFacts(context)
     );
     await fs.writeFile(path.join(outputDir, "seeds/03_business_data.ts"), businessDataContent);
 
@@ -1839,6 +1849,12 @@ export async function executeCustomValidateHooks(
     await fs.copyFile(
       path.join(this.resolvedTemplateDir, "../../common/field-logic.ts"),
       path.join(outputDir, "src/common/field-logic.ts")
+    );
+    // Default Value, read as the form reads it, so a record created through the
+    // API starts with what the form would have shown.
+    await fs.copyFile(
+      path.join(this.resolvedTemplateDir, "../../common/field-values.ts"),
+      path.join(outputDir, "src/common/field-values.ts")
     );
 
     // Seed default AnkaReport layouts for every entity into sys_report_designs.
@@ -2052,6 +2068,33 @@ export async function seed(db: Kysely<any>): Promise<void> {
    * initial edge (`[*] --> x`) is not a row there, and the answer must not
    * depend on a seed having run.
    */
+  /**
+   * The seed context with each entity's move-fact columns marked
+   * (`attribute.isMoveFact`): `<state>_at` for every state its state machine
+   * declares. The seed writes them as null; the record's state is seeded on its
+   * own, and its history of moves is simply not recorded.
+   */
+  private withMoveFacts(context: any): any {
+    const byEntity = new Map<string, CompiledWorkflow>();
+    for (const workflow of this.options.compiledWorkflows ?? []) {
+      if (!byEntity.has(workflow.entity)) byEntity.set(workflow.entity, workflow);
+    }
+    const entities = (context.entities ?? []).map((entity: any) => {
+      const workflow = byEntity.get(entity.name) ?? byEntity.get(entity.className);
+      if (!workflow) return entity;
+      const facts = new Set(workflow.states.map((state) => `${state.name}_at`));
+      return {
+        ...entity,
+        attributes: (entity.attributes ?? []).map((attribute: any) =>
+          facts.has(attribute.columnName ?? attribute.name)
+            ? { ...attribute, isMoveFact: true }
+            : attribute
+        ),
+      };
+    });
+    return { ...context, entities };
+  }
+
   private renderStateFields(context: any): string {
     const byEntity = new Map<string, CompiledWorkflow>();
     for (const workflow of this.options.compiledWorkflows ?? []) {

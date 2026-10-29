@@ -3,6 +3,8 @@ import { emptyDecisionTable } from "../decision-table";
 import {
   cellValues,
   constrainGraph,
+  derivedNamesBefore,
+  functionOutputs,
   graphProblems,
   withoutStockImport,
 } from "../rule-graph-constraints";
@@ -86,5 +88,85 @@ describe("a cell under a constrained column", () => {
     // Report: .gstack/qa-reports/run-20261012T103545Z/qa-report.md
     expect(graphProblems(graphWith("null"), constraints)).toEqual([]);
     expect(graphProblems(graphWith("!= null"), constraints)).toEqual([]);
+  });
+});
+
+describe("a name an earlier node worked out", () => {
+  // Found building a thirty-rule flow in the generated CRM's editor: the verdict
+  // table read `score` (from a function) and `discountCap` (from an earlier table),
+  // and the editor called both "not a field of this entity".
+  const constraints = { fields: ["amount", "probability"], values: {}, workflowNames: [] };
+  const flow = (verdictCell: string, edges = true) => ({
+    nodes: [
+      { id: "rec", type: "inputNode" },
+      {
+        id: "derive",
+        type: "expressionNode",
+        content: { expressions: [{ id: "e1", key: "isLarge", value: "amount >= 100000" }] },
+      },
+      {
+        id: "band",
+        type: "decisionTableNode",
+        content: {
+          inputs: [{ id: "a", field: "amount" }],
+          outputs: [{ id: "o1", field: "discountCap" }, { id: "o2", field: "tier" }],
+          rules: [{ a: ">= 500000", o1: "25", o2: '"platinum"' }],
+        },
+      },
+      {
+        id: "score",
+        type: "functionNode",
+        content: {
+          source:
+            "export const handler = async (input) => {\n  let score = 50;\n  input.flag = true;\n  return { ...input, score, 'level': 1 };\n};",
+        },
+      },
+      {
+        id: "verdict",
+        type: "decisionTableNode",
+        content: {
+          inputs: [{ id: "c" }],
+          outputs: [{ id: "x", field: "action" }],
+          rules: [{ c: verdictCell, x: '"allow"' }],
+        },
+      },
+    ],
+    edges: edges
+      ? [
+          { sourceId: "rec", targetId: "derive" },
+          { sourceId: "derive", targetId: "band" },
+          { sourceId: "band", targetId: "score" },
+          { sourceId: "score", targetId: "verdict" },
+        ]
+      : [],
+  });
+
+  it("reads what a function hands on", () => {
+    expect(
+      functionOutputs({
+        source:
+          "export const handler = async (input) => {\n  input.flag = true;\n  return { ...input, score, 'level': 1, tier: \"a\" };\n};",
+      }).sort()
+    ).toEqual(["flag", "level", "score", "tier"]);
+    expect(functionOutputs("export const handler = async (input) => input;")).toEqual([]);
+  });
+
+  it("is a field to every table after the node that produced it", () => {
+    expect(derivedNamesBefore(flow(""), "verdict")).toEqual(
+      new Set(["isLarge", "discountCap", "tier", "score", "flag", "level"])
+    );
+    expect(
+      graphProblems(flow("discountCap >= 20 and score < 40 and isLarge and probability < 20"), constraints)
+    ).toEqual([]);
+  });
+
+  it("is still unknown to a table that runs before it, and so is a name nothing produces", () => {
+    expect(derivedNamesBefore(flow(""), "band")).toEqual(new Set(["isLarge"]));
+    expect(graphProblems(flow("score < 40", false), constraints)).toEqual([
+      '"score" is not a field of this entity.',
+    ]);
+    expect(graphProblems(flow("margin < 40"), constraints)).toEqual([
+      '"margin" is not a field of this entity.',
+    ]);
   });
 });

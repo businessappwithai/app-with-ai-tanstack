@@ -107,10 +107,10 @@ test.describe("@cli the standalone browser application", () => {
     // worth asserting: a parser that silently drops a section still writes a
     // complete-looking application.
     expect(out).toMatch(/Entities\s+17/);
-    // 13: the eight the model always had, plus one StateProgress rule per state
+    // 14: the eight the model always had, one StateProgress rule per state
     // machine — the rule that starts the saga writing a state, since no person
-    // changes one.
-    expect(out).toMatch(/Rules\s+13/);
+    // changes one — and opportunityHandoff, which starts the closed-won handoff.
+    expect(out).toMatch(/Rules\s+14/);
     // 24: the CRUD restrictions, one `.read` directive per entity among them —
     // which is how the CRM says which functional role each of its seventeen
     // entities belongs to. None is a transition: %%rbac grants none.
