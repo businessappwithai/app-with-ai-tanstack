@@ -1494,13 +1494,25 @@ flowchart TD
     %%step G REST url:https://hooks.example.com/crm/case-escalation method: POST bodyTemplate: {"case":"{{case_number}}","tier":"{{escalationTier}}","respondWithinHours":"{{responseHours}}"}
 
 %% ---- Section 25: Workflow — closed-won handoff (saga) ----------------------
-%% The other kind of trigger. Nothing gates this one on a rule: every
-%% opportunity that reaches closed_won is handed to delivery, because a deal
-%% that closes and is never onboarded is the failure mode this exists to stop.
-%% It runs on UPDATE, since closing is an update to an existing row.
+%% Every opportunity that reaches closed_won is handed to delivery, because a
+%% deal that closes and is never onboarded is the failure mode this exists to
+%% stop — and it is handed over once. The handoff starts from the same fact
+%% that moves the deal: a closed_won_at recorded on a deal in negotiation. The
+%% rule below matches on the write that closes the deal and never again, since
+%% the move it rides beside changes the stage. Run instead on every UPDATE, it
+%% drafted a contract and booked a kickoff on each edit of every opportunity.
+%%rule opportunityHandoff on Opportunity event: beforeUpdate priority: 80
+flowchart TD
+    A([Opportunity updated]) --> B{Is a deal in negotiation being closed won?}
+    B -->|Yes| C[Hand it to delivery]
+    B -->|No| D([Nothing to hand over])
+    C --> D
+
+    %%action handOffClosedWon trigger-workflow when: stage == "negotiation" and closed_won_at != null workflow: ClosedWonHandoff
+
 %%meta name: Closed Won Handoff
 %%meta kind: workflow
-%%workflow ClosedWonHandoff entity: Opportunity kind: saga trigger: automatic operation: UPDATE
+%%workflow ClosedWonHandoff entity: Opportunity kind: saga trigger: rule
 flowchart TD
     A([Opportunity closed won]) --> B{Size the engagement}
     B --> C[Compute the monthly run rate]

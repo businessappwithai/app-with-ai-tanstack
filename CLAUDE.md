@@ -951,9 +951,13 @@ held by `templates/__tests__/workflow-step-values.test.ts`:
 And one in the seed, found getting a deal to Closed Won at all: it filled every `<state>_at`
 move-fact column, so the first edit fired several moves at once and `closed_lost` won.
 `withMoveFacts` marks those columns and the seed leaves them null
-(`seed-move-facts.test.ts`). Running it also shows the CRM model's `ClosedWonHandoff`,
-declared `operation: UPDATE` with no guard, drafting an onboarding activity on every update of
-every opportunity — a model fault, not a runtime one.
+(`seed-move-facts.test.ts`). Running it also showed the CRM model's `ClosedWonHandoff`,
+declared `trigger: automatic operation: UPDATE` with no guard, drafting a contract and an
+onboarding kickoff on every update of every opportunity. A `%%guard stage eq "closed_won"` would
+not have fixed it — every later edit of a won deal still matches. It is `trigger: rule` now,
+started by `opportunityHandoff` on the same fact as the move (`stage == "negotiation" and
+closed_won_at != null`), which matches on the closing write and never again: one run across
+five stage moves and three later edits.
 
 ### The rule and workflow editors are one package, vendored into generated apps
 
