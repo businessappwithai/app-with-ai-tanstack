@@ -20,6 +20,7 @@ import { InjectDatabase } from '../../database/database.service.decorator';
 import { RulesEngine } from '../rules/rules-engine.service';
 import { automationGuards } from '../workflow-definitions/automation-compiler';
 import { stateFieldOf } from '../../common/state-fields';
+import { lifecycleOf, phaseOf } from '../../common/lifecycle';
 
 export interface TriggerWorkflowDto {
   entityName: string;
@@ -741,11 +742,34 @@ export class WorkflowService {
       };
     }
 
-    const result = await db
+    // A workflow writing a record's status makes a move like anyone else: only
+    // along an edge the diagram drew, from where the record is (common/lifecycle.ts).
+    // Roles are not asked — the workflow is the system — and the move stamps
+    // `<state>_at` and keeps the record's phase in step, as a button press does.
+    const lifecycle = lifecycleOf(targetTable);
+    const isMove = !!lifecycle?.hasMachine && lifecycle.column === field;
+    const fromStates = isMove
+      ? lifecycle!.edges.filter((edge) => edge.to === String(resolvedValue)).map((edge) => edge.from)
+      : [];
+    if (isMove && fromStates.length === 0) {
+      this.logger.warn(
+        `UpdateEntity: no drawn edge reaches "${String(resolvedValue)}" on ${targetTable} — skipped`,
+      );
+      return { nodeType: 'UpdateEntity', table: targetTable, field, skipped: `no drawn edge reaches "${String(resolvedValue)}"` };
+    }
+    const now = new Date();
+    const changes: Record<string, unknown> = { [field]: resolvedValue, updated_at: now };
+    if (isMove) {
+      changes.doc_status = phaseOf(lifecycle!, resolvedValue);
+      const stamp = `${String(resolvedValue)}_at`;
+      if (await this.hasColumn(db, targetTable, stamp)) changes[stamp] = now;
+    }
+    let update = db
       .updateTable(targetTable as any)
-      .set({ [field]: resolvedValue, updated_at: new Date() } as any)
-      .where(targetField as any, '=', targetValue)
-      .execute();
+      .set(changes as any)
+      .where(targetField as any, '=', targetValue);
+    if (isMove) update = update.where(field as any, 'in', fromStates);
+    const result = await update.execute();
 
     const rowsAffected = Number(result?.[0]?.numUpdatedRows ?? 0);
     if (rowsAffected === 0) {
@@ -766,6 +790,19 @@ export class WorkflowService {
       matchedOn: `${targetField}=${String(targetValue)}`,
       rowsAffected,
     };
+  }
+
+  /** Whether a table has a column — for the `<state>_at` a move stamps when the model keeps one. */
+  private async hasColumn(db: Kysely<any>, table: string, column: string): Promise<boolean> {
+    try {
+      const { rows } = await sql<{ found: number }>`
+        SELECT 1 AS found FROM information_schema.columns
+        WHERE table_name = ${table} AND column_name = ${column} LIMIT 1
+      `.execute(db);
+      return rows.length > 0;
+    } catch {
+      return false;
+    }
   }
 
   /**
