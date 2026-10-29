@@ -29,6 +29,7 @@
 import { ident } from "./db.js";
 import { evaluateRules } from "./rules.js";
 import { stateFieldFor } from "./workflows.js";
+import { lifecycleOf } from "./lifecycle.js";
 
 /**
  * How many state moves one write may set off. A saga that writes a state runs
@@ -99,6 +100,28 @@ async function updateEntity(db, model, triggering, record, step, context) {
   }
   if (match === undefined || match === null) {
     return { step: step.nodeId, skipped: "no row to update" };
+  }
+
+  // A saga writing a record's status makes a move like anyone else: only along
+  // an edge the diagram drew, from where the record is (lib/lifecycle.js), and
+  // it stamps `<state>_at` as a button press does. Roles are not asked.
+  const lifecycle = lifecycleOf(model, target.tableName);
+  if (lifecycle?.hasMachine && lifecycle.column === field) {
+    const from = lifecycle.edges.filter((edge) => edge.to === String(value)).map((edge) => edge.from);
+    if (from.length === 0) {
+      return { step: step.nodeId, skipped: `no drawn edge reaches "${String(value)}"` };
+    }
+    const stamp = `${String(value)}_at`;
+    const stamps = target.attributes.some((attribute) => attribute.columnName === stamp);
+    const rows = await db.query(
+      `UPDATE ${ident(target.tableName)}
+          SET ${ident(field)} = $1, updated_at = NOW(), version = COALESCE(version, 0) + 1
+              ${stamps ? `, ${ident(stamp)} = NOW()` : ""}
+        WHERE ${ident(column)} = $2 AND deleted_at IS NULL AND ${ident(field)} = ANY($3)
+        RETURNING id`,
+      [value, match, from]
+    );
+    return { step: step.nodeId, entity: target.name, field, value, rows: rows.length, ids: rows.map((row) => row.id) };
   }
 
   const rows = await db.query(

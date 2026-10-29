@@ -150,7 +150,7 @@ async function request(method, path, body, audience = "app", extraHeaders = {}) 
 
 export const api = {
   get: (path) => request("GET", path),
-  post: (path, body) => request("POST", path, body ?? {}),
+  post: (path, body, headers) => request("POST", path, body ?? {}, "app", headers),
   // `headers` is how a save sends If-Match — the version the form opened the
   // record at — so the server can refuse it if someone saved in between.
   put: (path, body, headers) => request("PUT", path, body ?? {}, "app", headers),

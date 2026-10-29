@@ -380,7 +380,7 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
       notesSlot,
       auditSlot
     ),
-    isNew ? null : el("div.split", el("div"), el("aside.side", await sidePanels(entity, id, record, onSaved)))
+    isNew ? null : el("div.split", el("div"), el("aside.side", await sidePanels(entity, id, record, onSaved, form, () => recordPanel(root, { entity, id, onClose, onSaved, navigate }))))
   );
 }
 
@@ -621,29 +621,83 @@ async function renderDetails(slot, entity, id, navigate) {
   if (sections.length) mount(slot, ...sections);
 }
 
-async function sidePanels(entity, id, record, onSaved) {
+async function sidePanels(entity, id, record, onSaved, form, reload) {
   const panels = [];
 
   try {
     const workflow = await api.get(`/workflows/entity/${entity.routeName}/${id}/transitions`);
     if (workflow.workflow) {
+      /* The record's action buttons: the moves this person may press from
+         where it is, from the server, which judges every press again. One
+         move or several, each a button; Reopen apart, at a locked end. */
+      let actions = [];
+      try {
+        actions = await api.get(`/bus/${entity.routeName}/${id}/actions`);
+      } catch {
+        actions = [];
+      }
+      const press = async (action, button) => {
+        button.disabled = true;
+        try {
+          await api.post(
+            `/bus/${entity.routeName}/${id}/transition`,
+            { event: action.event || undefined, to: action.to },
+            record.version == null ? {} : { "If-Match": `"${record.version}"` }
+          );
+          toast(action.kind === "reopen" ? "Reopened — the record is a draft again." : `${action.label} — done.`, "success");
+        } catch (error) {
+          toast(error.message || "The move was refused.", "error");
+        }
+        /* The list beside it, and this panel: the record has moved (or was
+           read afresh after a refusal), so its buttons are drawn again. */
+        await onSaved(null);
+        if (reload) await reload();
+      };
+      const moves = actions.filter((action) => action.kind === "move");
+      const reopen = actions.find((action) => action.kind === "reopen");
+      const button = (action, tone) => {
+        const node = el(
+          `button.btn.btn--small${tone}`,
+          { type: "button", "data-testid": `record-action-${action.event || action.to}` },
+          action.label
+        );
+        node.onclick = () => press(action, node);
+        return node;
+      };
+
+      if (workflow.locked && form) {
+        /* The end of a flow is Final and locked: nothing on the form can be
+           changed until the record is reopened. */
+        for (const control of form.querySelectorAll("input, select, textarea, button")) control.disabled = true;
+      }
+
       panels.push(
         el(
           "div.side__card",
+          { "data-testid": "record-actions" },
           el("h3.side__title", "Process"),
-          el("p.side__meta", `${workflow.workflow} — currently ${workflow.current ?? "unset"}`),
           el(
             "p.side__meta",
-            "The application's workflows move it on, when what each move depends on is recorded. Nobody changes it by hand."
+            { "data-testid": "record-lifecycle", "data-phase": workflow.phase ?? "" },
+            workflow.locked
+              ? `Final — ${title(workflow.current ?? "")}. Locked; reopen it to change it.`
+              : `${workflow.workflow} — currently ${title(workflow.current ?? "unset")}`
           ),
-          workflow.transitions.length
+          moves.length || reopen
             ? el(
-                "ul.side__transitions",
-                workflow.transitions.map((transition) =>
-                  el("li", transition.trigger ? `${title(transition.trigger)} → ${title(transition.to)}` : `→ ${title(transition.to)}`)
-                )
+                "div.side__actions",
+                moves.length > 1 ? el("p.side__meta", "Choose where this record goes next:") : null,
+                ...moves.map((move) => button(move, ".btn--primary")),
+                reopen ? button(reopen, "") : null
               )
-            : el("p.side__empty", "This is a final state.")
+            : el(
+                "p.side__empty",
+                workflow.locked
+                  ? "Only an administrator, or a role allowed to reopen it, can reopen this record."
+                  : workflow.transitions.length
+                    ? "Its next moves belong to another role."
+                    : "This is a final state."
+              )
         )
       );
     }

@@ -163,56 +163,100 @@ export interface LifecycleEntity {
 
 const quote = (value: string) => `'${String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
 
-/**
- * The whole `lifecycle.ts` module: one entry per business table between the fixed
- * head and tail. Both the backend (`src/common/lifecycle.ts`) and the front end
- * (`src/lib/lifecycle.ts`) are written from this one call, so the API and the
- * screen cannot read a lifecycle differently.
- */
-export function renderLifecycleModule(
+/** One table's lifecycle as data — what `lifecycle.ts` holds and `model.json` carries. */
+export interface LifecycleData {
+  column: string;
+  hasMachine: boolean;
+  draft: string;
+  afterDraft: string;
+  terminal: string[];
+  edges: Array<{ from: string; to: string; event: string; label: string }>;
+  values: string[];
+}
+
+/** Every business table's lifecycle, keyed by table name. */
+export function lifecycleTable(
   entities: LifecycleEntity[],
   workflows: CompiledWorkflow[]
-): string {
+): Record<string, LifecycleData> {
   const machineOf = (name?: string) =>
     name ? workflows.find((workflow) => workflow.entity === name) : undefined;
-  const rows: string[] = [];
+  const table: Record<string, LifecycleData> = {};
   for (const entity of entities) {
     const machine = machineOf(entity.name) ?? machineOf(entity.className);
     if (!machine) {
-      rows.push(
-        `  ${entity.tableName}: { column: '${DOC_STATUS_COLUMN}', hasMachine: false, draft: '${LIFECYCLE_DRAFT}', ` +
-          `afterDraft: '${LIFECYCLE_FINAL}', terminal: ['${LIFECYCLE_FINAL}'], edges: [], ` +
-          `values: ['${LIFECYCLE_DRAFT}', '${LIFECYCLE_FINAL}', '${LIFECYCLE_ERROR}'] },`
-      );
+      table[entity.tableName] = {
+        column: DOC_STATUS_COLUMN,
+        hasMachine: false,
+        draft: LIFECYCLE_DRAFT,
+        afterDraft: LIFECYCLE_FINAL,
+        terminal: [LIFECYCLE_FINAL],
+        edges: [],
+        values: [LIFECYCLE_DRAFT, LIFECYCLE_FINAL, LIFECYCLE_ERROR],
+      };
       continue;
     }
     const columns = (entity.attributes ?? [])
       .map((attribute) => attribute.columnName ?? attribute.name)
       .filter((name): name is string => !!name);
-    const column = stateFieldOf(columns) ?? "workflow_status";
     const draft = draftValueFor(machine);
-    const afterDraft = machine.initial ?? draft;
-    const edges = machine.transitions
-      .filter((edge) => edge.from !== "[*]" && edge.to !== "[*]")
-      .map((edge) => {
-        const event = edge.trigger ? normalizeEvent(edge.trigger) : "";
-        return (
-          `      { from: ${quote(edge.from)}, to: ${quote(edge.to)}, event: ${quote(event)}, ` +
-          `label: ${quote(moveLabel(edge.trigger, edge.to))} },`
-        );
-      });
+    table[entity.tableName] = {
+      column: stateFieldOf(columns) ?? "workflow_status",
+      hasMachine: true,
+      draft,
+      afterDraft: machine.initial ?? draft,
+      terminal: [...machine.terminal],
+      edges: machine.transitions
+        .filter((edge) => edge.from !== "[*]" && edge.to !== "[*]")
+        .map((edge) => ({
+          from: edge.from,
+          to: edge.to,
+          event: edge.trigger ? normalizeEvent(edge.trigger) : "",
+          label: moveLabel(edge.trigger, edge.to),
+        })),
+      values: [...machine.lifecycleValues],
+    };
+  }
+  return table;
+}
+
+/**
+ * The whole `lifecycle.ts` module: one entry per business table between the fixed
+ * head and tail. Both the backend (`src/common/lifecycle.ts`) and the front end
+ * (`src/lib/lifecycle.ts`) are written from this one call, so the API and the
+ * screen cannot read a lifecycle differently; the browser stack's `model.json`
+ * carries the same `lifecycleTable`.
+ */
+export function renderLifecycleModule(
+  entities: LifecycleEntity[],
+  workflows: CompiledWorkflow[]
+): string {
+  const rows: string[] = [];
+  for (const [tableName, lifecycle] of Object.entries(lifecycleTable(entities, workflows))) {
+    if (!lifecycle.hasMachine) {
+      rows.push(
+        `  ${tableName}: { column: ${quote(lifecycle.column)}, hasMachine: false, draft: ${quote(lifecycle.draft)}, ` +
+          `afterDraft: ${quote(lifecycle.afterDraft)}, terminal: [${lifecycle.terminal.map(quote).join(", ")}], edges: [], ` +
+          `values: [${lifecycle.values.map(quote).join(", ")}] },`
+      );
+      continue;
+    }
     rows.push(
       [
-        `  ${entity.tableName}: {`,
-        `    column: ${quote(column)},`,
+        `  ${tableName}: {`,
+        `    column: ${quote(lifecycle.column)},`,
         `    hasMachine: true,`,
-        `    draft: ${quote(draft)},`,
-        `    afterDraft: ${quote(afterDraft)},`,
-        `    terminal: [${machine.terminal.map(quote).join(", ")}],`,
+        `    draft: ${quote(lifecycle.draft)},`,
+        `    afterDraft: ${quote(lifecycle.afterDraft)},`,
+        `    terminal: [${lifecycle.terminal.map(quote).join(", ")}],`,
         `    edges: [`,
-        ...edges,
+        ...lifecycle.edges.map(
+          (edge) =>
+            `      { from: ${quote(edge.from)}, to: ${quote(edge.to)}, event: ${quote(edge.event)}, ` +
+            `label: ${quote(edge.label)} },`
+        ),
         `    ],`,
-        `    values: [${machine.lifecycleValues.map(quote).join(", ")}],`,
+        `    values: [${lifecycle.values.map(quote).join(", ")}],`,
         `  },`,
       ].join("\n")
     );
