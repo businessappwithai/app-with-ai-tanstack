@@ -41,7 +41,8 @@ describe("rules engine — a drawn rule with no %%action rows", () => {
   const source = readFileSync(RULES_ENGINE, "utf8");
 
   it("is skipped quietly instead of logged as an engine error on every write", () => {
-    expect(source).toMatch(/private isDiagramOnly\(/);
+    // Public: a workflow Decision step asks it too, to name a drawn rule rather than fail on it.
+    expect(source).toMatch(/\n  isDiagramOnly\(/);
     expect(source).toMatch(/if \(this\.isDiagramOnly\(jdmContent\)\)/);
   });
 });

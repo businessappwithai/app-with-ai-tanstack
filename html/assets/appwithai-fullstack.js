@@ -16551,7 +16551,7 @@ export async function executeCustomValidateHooks(
     } catch (e) {
       console.warn("Entity categories seed template failed, skipping:", e.message);
     }
-    const businessDataContent = await this.renderTemplate("../../common/seeds/business-data.ts.hbs", context);
+    const businessDataContent = await this.renderTemplate("../../common/seeds/business-data.ts.hbs", this.withMoveFacts(context));
     await writeFile(join(outputDir, "seeds/03_business_data.ts"), businessDataContent);
     try {
       const businessRulesContent = await this.renderTemplate("../../common/seeds/business-rules.ts.hbs", context);
@@ -16700,6 +16700,24 @@ export async function seed(db: Kysely<any>): Promise<void> {
   }
 }
 `;
+  }
+  withMoveFacts(context) {
+    const byEntity = new Map;
+    for (const workflow of this.options.compiledWorkflows ?? []) {
+      if (!byEntity.has(workflow.entity))
+        byEntity.set(workflow.entity, workflow);
+    }
+    const entities = (context.entities ?? []).map((entity) => {
+      const workflow = byEntity.get(entity.name) ?? byEntity.get(entity.className);
+      if (!workflow)
+        return entity;
+      const facts = new Set(workflow.states.map((state) => `${state.name}_at`));
+      return {
+        ...entity,
+        attributes: (entity.attributes ?? []).map((attribute) => facts.has(attribute.columnName ?? attribute.name) ? { ...attribute, isMoveFact: true } : attribute)
+      };
+    });
+    return { ...context, entities };
   }
   renderStateFields(context) {
     const byEntity = new Map;

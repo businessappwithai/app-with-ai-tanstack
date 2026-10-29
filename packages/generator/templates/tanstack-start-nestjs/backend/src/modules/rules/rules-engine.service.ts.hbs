@@ -258,7 +258,7 @@ export class RulesEngine implements OnModuleDestroy {
    * literal unless it already is one or is a number, a boolean or an object.
    */
   /** True for a graph whose logic nodes carry no `content` (a drawn, inert rule). */
-  private isDiagramOnly(jdmContent: string): boolean {
+  isDiagramOnly(jdmContent: string): boolean {
     try {
       const nodes = (JSON.parse(jdmContent) as { nodes?: Array<{ type?: string; content?: unknown }> })
         .nodes;

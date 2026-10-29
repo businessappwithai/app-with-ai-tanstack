@@ -929,6 +929,32 @@ Whatever the builder can write, `language/checker.ts` must accept — a checker
 that rejects the application's own output discredits both. That pairing is held
 by `packages/web/src/lib/automation/__tests__/checker-accepts-automations.test.ts`.
 
+### A process built in the editor, run on a real record — what it took
+
+A close-out process built entirely in the generated CRM's Rules and workflows screen
+(a check, a rule lookup, all six formula operations, two creates, an update, a repeat, a
+delete and a REST call) ran on a won deal and four steps did not do their job. Each is
+held by `templates/__tests__/workflow-step-values.test.ts`:
+
+- **A Formula's second value may be a variable.** The builder writes `right: {{x}}`, which
+  the compiler moves to `operand` verbatim; `Number("{{x}}")` was NaN and the step was
+  skipped. `resolveReference` reads a field that is exactly one reference as its value.
+- **A Create step's text values are interpolated**, as a REST body already was:
+  `Commission {{commission}}` was written into the record braces and all.
+- **A Decision on a drawn `%%rule` names the rule and says it decides nothing**, instead of
+  the engine's `missing field \`content\``. The rule picker still offers such rules.
+- **An emptied date, number or lookup is saved as null.** The form sends `''` for a cleared
+  input and the API refused it ("must be a valid date"), so an optional date, once set, could
+  never be cleared. `validateData` rewrites `''` to null for non-text references on the object
+  the controller then writes.
+
+And one in the seed, found getting a deal to Closed Won at all: it filled every `<state>_at`
+move-fact column, so the first edit fired several moves at once and `closed_lost` won.
+`withMoveFacts` marks those columns and the seed leaves them null
+(`seed-move-facts.test.ts`). Running it also shows the CRM model's `ClosedWonHandoff`,
+declared `operation: UPDATE` with no guard, drafting an onboarding activity on every update of
+every opportunity — a model fault, not a runtime one.
+
 ### The rule and workflow editors are one package, vendored into generated apps
 
 The modelling tool's Logic step and the generated application's **Admin → Rules & workflows**

@@ -1146,9 +1146,26 @@ export class BusService {
     return metadata.columns.filter((col) => col.is_displayed_grid).sort((a, b) => a.seq_no_grid - b.seq_no_grid);
   }
 
+  /** Reference types whose column cannot hold '' — numbers, dates, booleans, ids, JSON. */
+  private static readonly NON_TEXT_REFERENCES = new Set([11, 12, 13, 15, 16, 18, 19, 20, 22, 28, 29, 37]);
+
   async validateData(entity: string, data: Record<string, any>, mode: 'create' | 'update' | 'patch'): Promise<void> {
     const metadata = await this.getEntityMetadata(entity);
     const errors: string[] = [];
+
+    /*
+     * An emptied input is "no value", not a value. A browser's date, number and
+     * lookup inputs report a cleared field as '', which no non-text column can
+     * hold: the type check refused it ("must be a valid date") and nobody could
+     * clear an optional date once it was set. The form sends what the input
+     * holds, so the API reads '' as null for every column that is not text —
+     * on `data` itself, because the caller writes the object it validated.
+     */
+    for (const column of metadata.columns) {
+      if (data[column.column_name] === '' && BusService.NON_TEXT_REFERENCES.has(column.sys_reference_id)) {
+        data[column.column_name] = null;
+      }
+    }
 
     for (const column of metadata.columns) {
       // The state field is the application's to write, never a request's: the
