@@ -271,8 +271,9 @@ describe("state machines", () => {
           (await currentState(entity.route, String(record.id), machine.statusField));
         // Accepted: the first status of the flow (or wherever the model's own
         // workflows took it). Refused: Error, with the reason on the record.
-        expect(settled).not.toBe("draft");
+        // A machine whose own first status is a draft keeps the record there.
         expect(settled).toBeTruthy();
+        if (machine.initial.toLowerCase() !== "draft") expect(settled).not.toBe("draft");
       });
 
       it("offers exactly the drawn moves out of where the record is", async () => {

@@ -45,6 +45,8 @@ interface ADToolbarProps {
   canCreate?: boolean;
   isEditing?: boolean;
   isDetailView?: boolean;
+  /** False for a record at the end of its flow: Final is locked until reopened. */
+  canEdit?: boolean;
   isAdvancedSearchOpen?: boolean;
   hasPrintReport?: boolean;
 }
@@ -57,6 +59,7 @@ export function ADToolbar({
   onUndo,
   onRefresh,
   onEdit,
+  canEdit = true,
   onCancelEdit,
   onAdvancedSearchToggle,
   onPrint,
@@ -138,13 +141,16 @@ export function ADToolbar({
               <Button
                 size="sm"
                 onClick={onEdit}
+                disabled={!canEdit}
                 className="h-9 gap-2 px-4 text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white shadow-sm"
               >
                 <Pencil className="h-4 w-4" />
                 Edit
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Edit Record</TooltipContent>
+            <TooltipContent>
+              {canEdit ? "Edit Record" : "Final — this record is locked. Reopen it to change it."}
+            </TooltipContent>
           </Tooltip>
         )}
 

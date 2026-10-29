@@ -8,6 +8,18 @@
  * The vocabulary is language/state-field.ts's.
  */
 
+import {
+  DOC_STATUS_COLUMN,
+  draftValueFor,
+  LIFECYCLE_DRAFT,
+  LIFECYCLE_ERROR,
+  LIFECYCLE_FINAL,
+  moveLabel,
+  normalizeEvent,
+  stateFieldOf,
+} from "../../../../../language/state-field";
+import type { CompiledWorkflow } from "../../workflows";
+
 export const LIFECYCLE_MODULE_HEAD = `/**
  * Every business table's lifecycle — generated from the model, do not edit.
  *
@@ -140,3 +152,70 @@ export function findMove(
   return undefined;
 }
 `;
+
+/** What `renderLifecycleModule` needs of an entity: its names, its table, its columns. */
+export interface LifecycleEntity {
+  name: string;
+  className?: string;
+  tableName: string;
+  attributes?: Array<{ name?: string; columnName?: string }>;
+}
+
+const quote = (value: string) => `'${String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
+
+/**
+ * The whole `lifecycle.ts` module: one entry per business table between the fixed
+ * head and tail. Both the backend (`src/common/lifecycle.ts`) and the front end
+ * (`src/lib/lifecycle.ts`) are written from this one call, so the API and the
+ * screen cannot read a lifecycle differently.
+ */
+export function renderLifecycleModule(
+  entities: LifecycleEntity[],
+  workflows: CompiledWorkflow[]
+): string {
+  const machineOf = (name?: string) =>
+    name ? workflows.find((workflow) => workflow.entity === name) : undefined;
+  const rows: string[] = [];
+  for (const entity of entities) {
+    const machine = machineOf(entity.name) ?? machineOf(entity.className);
+    if (!machine) {
+      rows.push(
+        `  ${entity.tableName}: { column: '${DOC_STATUS_COLUMN}', hasMachine: false, draft: '${LIFECYCLE_DRAFT}', ` +
+          `afterDraft: '${LIFECYCLE_FINAL}', terminal: ['${LIFECYCLE_FINAL}'], edges: [], ` +
+          `values: ['${LIFECYCLE_DRAFT}', '${LIFECYCLE_FINAL}', '${LIFECYCLE_ERROR}'] },`
+      );
+      continue;
+    }
+    const columns = (entity.attributes ?? [])
+      .map((attribute) => attribute.columnName ?? attribute.name)
+      .filter((name): name is string => !!name);
+    const column = stateFieldOf(columns) ?? "workflow_status";
+    const draft = draftValueFor(machine);
+    const afterDraft = machine.initial ?? draft;
+    const edges = machine.transitions
+      .filter((edge) => edge.from !== "[*]" && edge.to !== "[*]")
+      .map((edge) => {
+        const event = edge.trigger ? normalizeEvent(edge.trigger) : "";
+        return (
+          `      { from: ${quote(edge.from)}, to: ${quote(edge.to)}, event: ${quote(event)}, ` +
+          `label: ${quote(moveLabel(edge.trigger, edge.to))} },`
+        );
+      });
+    rows.push(
+      [
+        `  ${entity.tableName}: {`,
+        `    column: ${quote(column)},`,
+        `    hasMachine: true,`,
+        `    draft: ${quote(draft)},`,
+        `    afterDraft: ${quote(afterDraft)},`,
+        `    terminal: [${machine.terminal.map(quote).join(", ")}],`,
+        `    edges: [`,
+        ...edges,
+        `    ],`,
+        `    values: [${machine.lifecycleValues.map(quote).join(", ")}],`,
+        `  },`,
+      ].join("\n")
+    );
+  }
+  return LIFECYCLE_MODULE_HEAD + rows.join("\n") + LIFECYCLE_MODULE_TAIL;
+}

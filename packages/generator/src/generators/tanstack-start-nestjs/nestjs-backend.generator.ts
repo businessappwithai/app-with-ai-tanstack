@@ -49,16 +49,10 @@ import { buildFkConstraints } from "./fk-constraints";
 import { formLayoutFor } from "../../parsers/section.parser";
 import {
   DOC_STATUS_COLUMN,
-  draftValueFor,
-  LIFECYCLE_DRAFT,
-  LIFECYCLE_ERROR,
-  LIFECYCLE_FINAL,
-  moveLabel,
-  normalizeEvent,
   STATE_FIELD_REFUSAL_CODE,
   stateFieldOf,
 } from "../../../../../language/state-field";
-import { LIFECYCLE_MODULE_HEAD, LIFECYCLE_MODULE_TAIL } from "./lifecycle-module";
+import { renderLifecycleModule } from "./lifecycle-module";
 
 /**
  * Carry an entity's `%%section` layout into the template context.
@@ -2215,48 +2209,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
    * administrator can change without regenerating.
    */
   private renderLifecycle(context: any): string {
-    const quote = (value: string) => `'${String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
-    const rows: string[] = [];
-    for (const entity of context.entities ?? []) {
-      const machine = this.machineOf(entity.name) ?? this.machineOf(entity.className);
-      if (!machine) {
-        rows.push(
-          `  ${entity.tableName}: { column: '${DOC_STATUS_COLUMN}', hasMachine: false, draft: '${LIFECYCLE_DRAFT}', ` +
-            `afterDraft: '${LIFECYCLE_FINAL}', terminal: ['${LIFECYCLE_FINAL}'], edges: [], ` +
-            `values: ['${LIFECYCLE_DRAFT}', '${LIFECYCLE_FINAL}', '${LIFECYCLE_ERROR}'] },`
-        );
-        continue;
-      }
-      const columns: string[] = (entity.attributes ?? []).map((a: any) => a.columnName ?? a.name);
-      const column = stateFieldOf(columns) ?? "workflow_status";
-      const draft = draftValueFor(machine);
-      const afterDraft = machine.initial ?? draft;
-      const edges = machine.transitions
-        .filter((edge) => edge.from !== "[*]" && edge.to !== "[*]")
-        .map((edge) => {
-          const event = edge.trigger ? normalizeEvent(edge.trigger) : "";
-          return (
-            `      { from: ${quote(edge.from)}, to: ${quote(edge.to)}, event: ${quote(event)}, ` +
-            `label: ${quote(moveLabel(edge.trigger, edge.to))} },`
-          );
-        });
-      rows.push(
-        [
-          `  ${entity.tableName}: {`,
-          `    column: ${quote(column)},`,
-          `    hasMachine: true,`,
-          `    draft: ${quote(draft)},`,
-          `    afterDraft: ${quote(afterDraft)},`,
-          `    terminal: [${machine.terminal.map(quote).join(", ")}],`,
-          `    edges: [`,
-          ...edges,
-          `    ],`,
-          `    values: [${machine.lifecycleValues.map(quote).join(", ")}],`,
-          `  },`,
-        ].join("\n")
-      );
-    }
-    return LIFECYCLE_MODULE_HEAD + rows.join("\n") + LIFECYCLE_MODULE_TAIL;
+    return renderLifecycleModule(context.entities ?? [], this.options.compiledWorkflows ?? []);
   }
 
   private renderWorkflowTransitionsSeed(context: any): string {

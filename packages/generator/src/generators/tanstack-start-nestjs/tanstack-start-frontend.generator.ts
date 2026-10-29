@@ -34,6 +34,8 @@ import { CliExecutor } from "../../utils/cli-executor";
 import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";
 import { ensureEditorsVendored } from "./vendor-editors";
+import { renderLifecycleModule } from "./lifecycle-module";
+import type { CompiledWorkflow } from "../../workflows";
 
 /**
  * Resolve template directory path, handling both dev and bundled environments
@@ -98,6 +100,12 @@ export interface TanStackStartFrontendOptions {
    * of rendering an empty list that reads like a broken request.
    */
   compiledReports?: CompiledReport[];
+  /**
+   * The model's state machines, for `src/lib/lifecycle.ts` — the same module the
+   * backend reads (`renderLifecycleModule`), so the form draws a record's phase
+   * and locks the end of its flow exactly where the API does.
+   */
+  compiledWorkflows?: CompiledWorkflow[];
 }
 
 export class TanStackStartFrontendGenerator extends BaseGenerator {
@@ -518,6 +526,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     // Default Value and Obscure Type, read the same way the API reads them.
     const fieldValues = await this.component("../../common/field-values.ts");
     await fs.writeFile(path.join(outputDir, "src/lib/field-values.ts"), fieldValues);
+    // Every table's lifecycle — Draft, the flow, Final — written by the same call
+    // that writes the backend's, so the screen and the API agree about a record.
+    await fs.writeFile(
+      path.join(outputDir, "src/lib/lifecycle.ts"),
+      renderLifecycleModule(context.entities ?? [], this.options.compiledWorkflows ?? [])
+    );
 
     // TanStack DB collections, synced by ElectricSQL through the role-scoped
     // shape proxy. The dictionary lives in these collections; nothing else on
@@ -786,11 +800,15 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/ad-detail-shell.tsx",
       },
       {
-        // The record's state, read-only in the detail header. ad-detail-shell
-        // imports it, so leaving it out of this list fails the generated
-        // app's build.
-        src: "src/components/admin/state-badge.tsx",
-        dest: "src/components/admin/state-badge.tsx",
+        // The record's lifecycle — Draft, its status, Final, Error — read-only
+        // in the detail header, and its action buttons beside it. ad-detail-shell
+        // imports both, so leaving either out of this list fails the build.
+        src: "src/components/admin/lifecycle-badge.tsx",
+        dest: "src/components/admin/lifecycle-badge.tsx",
+      },
+      {
+        src: "src/components/admin/record-actions.tsx",
+        dest: "src/components/admin/record-actions.tsx",
       },
       {
         // The entity icon control on the Table and Column detail screen: a
@@ -869,10 +887,6 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       {
         src: "src/lib/logic-host.ts",
         dest: "src/lib/logic-host.ts",
-      },
-      {
-        src: "src/components/admin/doc-status-badge.tsx",
-        dest: "src/components/admin/doc-status-badge.tsx",
       },
       // Missing provider files
       {
