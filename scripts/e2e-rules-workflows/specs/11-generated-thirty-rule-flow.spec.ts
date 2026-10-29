@@ -187,10 +187,18 @@ test("thirty business rules in one flow, built and tested in the rule editor", a
   await test.step("sign in and open a new rule on Opportunity", async () => {
     await page.goto("/auth/login", { timeout: 300_000 });
     await page.waitForSelector("input[type=password]", { timeout: 300_000 });
-    await page.fill("input[type=email]", EMAIL);
-    await page.fill("input[type=password]", PASSWORD);
-    await page.click("button[type=submit]");
-    await page.waitForURL((u) => !u.pathname.startsWith("/auth/login"), { timeout: 300_000 });
+    // A dev server still optimising dependencies reloads the page under the form, which
+    // empties it: fill and submit again until the page leaves the sign-in screen.
+    for (let attempt = 0; attempt < 5 && new URL(page.url()).pathname.startsWith("/auth/login"); attempt++) {
+      await page.waitForSelector("input[type=password]", { timeout: 300_000 });
+      await page.fill("input[type=email]", EMAIL);
+      await page.fill("input[type=password]", PASSWORD);
+      await page.click("button[type=submit]");
+      await page
+        .waitForURL((u) => !u.pathname.startsWith("/auth/login"), { timeout: 60_000 })
+        .catch(() => {});
+    }
+    expect(new URL(page.url()).pathname).not.toMatch(/^\/auth\/login/);
     await page.goto("/admin/rules/new", { waitUntil: "networkidle", timeout: 300_000 });
     await page.getByText("Select entity...").click();
     await page.getByRole("option", { name: "Opportunity", exact: true }).click();
@@ -298,6 +306,10 @@ test("thirty business rules in one flow, built and tested in the rule editor", a
     }
     await expect(graph.editor.locator("tbody tr >> visible=true").first()).toContainText("isStrategic");
     await expect(graph.editor.locator("tbody tr >> visible=true").nth(7)).toContainText("Standard deal");
+    // Every name the verdict table reads is either the record's or worked out before it:
+    // the editor must not call `score` or `discountCap` "not a field of this entity".
+    await expect(page.getByText(/is not a field of this entity/)).toHaveCount(0);
+    await expect(page.getByText(/is not an existing action/)).toHaveCount(0);
     await snap("verdict-table-eight-rows");
     await graph.openTab("Graph");
     await graph.fitView();

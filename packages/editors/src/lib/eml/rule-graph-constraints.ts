@@ -30,6 +30,7 @@ interface TableContent {
 }
 
 interface GraphNode {
+  id?: string;
   type?: string;
   name?: string;
   content?: unknown;
@@ -37,6 +38,7 @@ interface GraphNode {
 
 interface Graph {
   nodes?: GraphNode[];
+  edges?: Array<{ sourceId?: string; targetId?: string }>;
 }
 
 const STOCK_IMPORT = /^[ \t]*import\s+zen\s+from\s+['"]zen['"];?[ \t]*\r?\n?/m;
@@ -153,6 +155,73 @@ export function cellValues(cell: string): string[] {
 }
 
 /**
+ * The names a function's source hands on: the keys of every object it returns
+ * (`return { ...input, score }`, `return { tier: "gold" }`) and every property it
+ * sets on the record it was given (`input.score = 1`). Read, not run — a name
+ * built at run time is not seen, which errs towards a warning, never a refusal.
+ */
+export function functionOutputs(content: unknown): string[] {
+  const source =
+    typeof content === "string"
+      ? content
+      : typeof (content as { source?: unknown } | null)?.source === "string"
+        ? (content as { source: string }).source
+        : "";
+  const names = new Set<string>();
+  for (const block of source.matchAll(/return\s*\{([^{}]*)\}/g)) {
+    for (const part of (block[1] ?? "").split(",")) {
+      const entry = part.trim();
+      if (!entry || entry.startsWith("...")) continue;
+      const name = /^["']?([A-Za-z_$][\w$]*)["']?\s*(?::|$)/.exec(entry)?.[1];
+      if (name) names.add(name);
+    }
+  }
+  for (const m of source.matchAll(/\b(?:input|output|result)\.([A-Za-z_$][\w$]*)\s*=(?!=)/g)) {
+    names.add(m[1]!);
+  }
+  return [...names];
+}
+
+/** The names one node adds to what flows on: an expression's keys, a table's outputs, a function's returns. */
+function producedBy(node: GraphNode): string[] {
+  if (node.type === "expressionNode") {
+    const rows = ((node.content ?? {}) as { expressions?: Array<{ key?: string }> }).expressions;
+    return (rows ?? []).map((row) => (row.key ?? "").trim()).filter(Boolean);
+  }
+  if (node.type === "decisionTableNode") {
+    return (((node.content ?? {}) as TableContent).outputs ?? [])
+      .map((column) => (column.field ?? "").trim())
+      .filter(Boolean);
+  }
+  if (node.type === "functionNode") return functionOutputs(node.content);
+  return [];
+}
+
+/**
+ * The names a node can read besides the record's own fields: whatever the nodes
+ * before it produced. Found by walking the graph's lines backwards, so a value a
+ * later node works out is still unknown here — as it is to the engine.
+ */
+export function derivedNamesBefore(graph: Graph, nodeId: string | undefined): Set<string> {
+  const names = new Set<string>();
+  if (!nodeId) return names;
+  const byId = new Map((graph.nodes ?? []).map((node) => [node.id, node]));
+  const seen = new Set<string>([nodeId]);
+  const queue = [nodeId];
+  while (queue.length > 0) {
+    const target = queue.shift()!;
+    for (const edge of graph.edges ?? []) {
+      if (edge.targetId !== target || !edge.sourceId || seen.has(edge.sourceId)) continue;
+      seen.add(edge.sourceId);
+      queue.push(edge.sourceId);
+      const source = byId.get(edge.sourceId);
+      if (source) for (const name of producedBy(source)) names.add(name);
+    }
+  }
+  return names;
+}
+
+/**
  * What the graph names that the model does not have.
  *
  * Reads the decision tables: a column's field, a cell under a constrained
@@ -161,11 +230,16 @@ export function cellValues(cell: string): string[] {
  */
 export function graphProblems(graph: Graph, constraints: RuleConstraints): string[] {
   const problems = new Set<string>();
-  const fields = new Set(constraints.fields);
+  const entityFields = new Set(constraints.fields);
 
   for (const node of graph.nodes ?? []) {
     if (node.type !== "decisionTableNode") continue;
     const content = (node.content ?? {}) as TableContent;
+    // A table reads the record and whatever the nodes before it worked out: an
+    // expression's keys, an earlier table's outputs, what a function returned.
+    // Checking against the record alone called every one of those "not a field".
+    const derived = derivedNamesBefore(graph, node.id);
+    const fields = new Set([...entityFields, ...derived]);
     const columns = [
       ...(content.inputs ?? []).map((c) => ({ c, kind: "input" as const })),
       ...(content.outputs ?? []).map((c) => ({ c, kind: "output" as const })),

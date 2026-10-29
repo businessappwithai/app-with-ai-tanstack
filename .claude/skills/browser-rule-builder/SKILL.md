@@ -113,7 +113,10 @@ shown.
 
 ## Known editor behaviour (not your test's fault)
 
-- The yellow panel under the canvas reports `"score" is not a field of this entity`
-  for a name an input cell reads that a **Function** or an **upstream table** produced
-  — it knows Expression keys only. It is a warning; the rule saves and runs.
+- The yellow panel under the canvas lists names the model does not have. A name an
+  **earlier** node produces — an Expression's key, an upstream table's output, a key a
+  Function returns (`return { ...input, score }`, `input.score = …`) — counts as known
+  (`derivedNamesBefore` in `rule-graph-constraints.ts`). A name only a *later* node
+  produces is still flagged, as the engine would not have it either. Spec 11 asserts the
+  panel stays empty.
 - Both tables' `Inputs` pickers sit in the tab bar at once.
