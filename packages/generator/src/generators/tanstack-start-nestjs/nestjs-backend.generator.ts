@@ -1762,6 +1762,14 @@ export async function executeCustomValidateHooks(
         template: "src/migrations/022_record_lifecycle.ts.hbs",
         required: true,
       },
+      // A status flow an administrator redraws in Rules and workflows: the
+      // compiled lifecycle stored with the diagram, and a notification so
+      // every backend instance runs the new one on its next request.
+      {
+        slug: "editable_lifecycles",
+        template: "src/migrations/023_editable_lifecycles.ts.hbs",
+        required: true,
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -2266,9 +2274,17 @@ export async function seed(db: Kysely<any>): Promise<void> {
       // `as const` gives `TRANSITIONS.length` a literal type, so comparing it
       // to 0 is `TS2367` in the generated backend's own build. The empty case
       // returns the no-op module above.
-      `  // Replace all model-declared transitions on each table, keeping any`,
-      `  // hand-crafted rows (source = 'designer') untouched.`,
-      `  const tables = [...new Set(TRANSITIONS.map((t) => t.tableName))];`,
+      `  // Replace the model's transitions on each table — except a table whose`,
+      `  // flow an administrator redrew in Rules and workflows (a kind = 'state'`,
+      `  // definition): its edges are the administrator's, and the seed runs on`,
+      `  // every start.`,
+      `  const redrawn = new Set(`,
+      `    (await sql<{ entity_name: string }>\`SELECT entity_name FROM sys_workflow_definitions WHERE kind = 'state'\``,
+      `      .execute(db)`,
+      `      .then((result) => result.rows.map((row) => row.entity_name))`,
+      `      .catch(() => [] as string[]))`,
+      `  );`,
+      `  const tables = [...new Set(TRANSITIONS.map((t) => t.tableName))].filter((tbl) => !redrawn.has(tbl));`,
       `  for (const tbl of tables) {`,
       `    await sql\``,
       `      DELETE FROM sys_workflow_transitions`,
@@ -2276,6 +2292,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `    \`.execute(db);`,
       `  }`,
       `  for (const t of TRANSITIONS) {`,
+      `    if (redrawn.has(t.tableName)) continue;`,
       `    await db`,
       `      .insertInto('sys_workflow_transitions')`,
       `      .values({`,
@@ -2844,6 +2861,10 @@ export async function seed(db: Kysely<any>): Promise<void> {
       "workflow-definitions.module.ts",
       "workflow-definitions.service.ts",
       "automation-compiler.ts",
+      // The status flows an administrator redrew, loaded into common/lifecycle.ts,
+      // and GET /api/lifecycles for the front end.
+      "lifecycle-store.service.ts",
+      "lifecycles.controller.ts",
     ];
 
     for (const file of wdFiles) {

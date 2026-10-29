@@ -1,7 +1,30 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { type Kysely, sql } from "kysely";
 import { InjectDatabase } from "../../database/database.service.decorator";
+import {
+  LIFECYCLES,
+  lifecycleFromDiagram,
+  lifecycleOf,
+  modelLifecycleOf,
+  type Lifecycle,
+} from "../../common/lifecycle";
 import { compileAutomationBpmn, tableForEntity } from "./automation-compiler";
+import { LifecycleStore } from "./lifecycle-store.service";
+
+/** Who switched a move grant off because its edge left the flow — and may switch it back on. */
+const LIFECYCLE_EDIT = "lifecycle-edit";
+
+/**
+ * The table a status flow belongs to, by any spelling of its entity
+ * (`BookingChange`, `booking_change`, `bus_booking_change`).
+ */
+export function lifecycleTableFor(entity: string): string {
+  const direct = tableForEntity(entity ?? "");
+  if (LIFECYCLES[direct]) return direct;
+  const flat = (name: string) => name.toLowerCase().replace(/^bus_/, "").replace(/_/g, "");
+  const wanted = flat(entity ?? "");
+  return Object.keys(LIFECYCLES).find((table) => flat(table) === wanted) ?? direct;
+}
 
 export type WorkflowDefinitionDto = {
   name: string;
@@ -13,13 +36,13 @@ export type WorkflowDefinitionDto = {
   mermaid?: string;
   /**
    * "bpmn", "automation", or "state". Defaults to bpmn, which is what every older row is.
-   * A "state" definition is a status machine: it is never run, it is the diagram its
-   * edges were read from, and saving it replaces the entity's `sys_workflow_transitions`.
+   * A "state" definition is a record type's status flow: saving it is what the
+   * application runs from then on (LifecycleStore), in place of the model's.
    */
   kind?: "bpmn" | "automation" | "state";
-  /** The column a status machine moves. Defaults to `status`. */
+  /** Ignored for a status flow: its column is the model's (common/lifecycle.ts). */
   statusField?: string;
-  /** The edges of a status machine, as the editor drew them. */
+  /** Ignored for a status flow: `mermaid` is read, the same way the generator reads the model's. */
   transitions?: Array<{ from: string; to: string; name?: string }>;
   description?: string;
   isActive?: boolean;
@@ -53,7 +76,10 @@ const MODEL_OWNED_FIELDS = [
 
 @Injectable()
 export class WorkflowDefinitionsService {
-  constructor(@InjectDatabase() private readonly db: Kysely<any>) {}
+  constructor(
+    @InjectDatabase() private readonly db: Kysely<any>,
+    private readonly lifecycles: LifecycleStore,
+  ) {}
 
   /**
    * A page of definitions, newest first.
@@ -131,11 +157,8 @@ export class WorkflowDefinitionsService {
     // BPMN of both is what stopped the automation builder saving anything.
     const kind = dto.kind ?? (dto.mermaid?.trim() ? "automation" : "bpmn");
 
-    if (kind === "state") {
-      if (!dto.mermaid?.trim()) throw new BadRequestException("mermaid is required");
-      await this.assertStateMachineFree(dto.entityName);
-      await this.writeTransitions(dto);
-    } else if (kind === "automation") {
+    if (kind === "state") return this.createFlow(dto, userId);
+    if (kind === "automation") {
       if (!dto.mermaid?.trim()) throw new BadRequestException("mermaid is required");
       if (!/^\s*(flowchart|graph)\b/m.test(dto.mermaid)) {
         throw new BadRequestException("An automation must be a mermaid flowchart");
@@ -150,12 +173,12 @@ export class WorkflowDefinitionsService {
       .values({
         name: dto.name,
         entity_name: dto.entityName,
-        operation: kind === "state" ? "UPDATE" : (dto.operation ?? "ALL"),
+        operation: dto.operation ?? "ALL",
         // An automation built in the application stores its flowchart; what the
         // executor runs is the BPMN compiled from it, written here so that
         // publishing the automation is what makes it do something.
         bpmn_xml:
-          kind === "state" ? null : dto.bpmnXml ??
+          dto.bpmnXml ??
           (kind === "automation" && dto.mermaid
             ? compileAutomationBpmn(dto.mermaid, tableForEntity(dto.entityName), tableForEntity)
             : null),
@@ -180,6 +203,7 @@ export class WorkflowDefinitionsService {
     // A definition declared by a %%workflow section belongs to the model. The
     // next generation rewrites it, so accepting an edit here would look like it
     // worked and then quietly vanish.
+    if ((existing as any).kind === "state") return this.updateFlow(existing as any, dto);
     if ((existing as any).source === "model") {
       const attempted = MODEL_OWNED_FIELDS.filter((field) => dto[field] !== undefined);
       if (attempted.length > 0) {
@@ -191,25 +215,6 @@ export class WorkflowDefinitionsService {
     }
 
     const updates: Record<string, unknown> = { updated_at: new Date() };
-    if ((existing as any).kind === "state") {
-      if (dto.transitions) {
-        await this.writeTransitions({
-          ...dto,
-          entityName: dto.entityName ?? (existing as any).entity_name,
-        });
-      }
-      if (dto.mermaid !== undefined) updates.mermaid_code = dto.mermaid;
-      if (dto.name !== undefined) updates.name = dto.name;
-      if (dto.description !== undefined) updates.description = dto.description;
-      if (dto.isActive !== undefined) updates.is_active = dto.isActive;
-      const [saved] = await this.db
-        .updateTable("sys_workflow_definitions")
-        .set(updates as any)
-        .where("id", "=", id)
-        .returningAll()
-        .execute();
-      return saved;
-    }
     if (dto.name !== undefined) updates.name = dto.name;
     if (dto.entityName !== undefined) updates.entity_name = dto.entityName;
     if (dto.operation !== undefined) updates.operation = dto.operation;
@@ -247,65 +252,205 @@ export class WorkflowDefinitionsService {
 
   async remove(id: string) {
     const existing = await this.findOne(id);
+    if ((existing as any).kind === "state") return this.removeFlow(existing as any);
     if ((existing as any).source === "model") {
       throw new BadRequestException(
         `"${(existing as any).name}" is declared in the model — remove the %%workflow section and regenerate. ` +
           "Deactivate it instead if you need it off now.",
       );
     }
-    if ((existing as any).kind === "state") {
-      await sql`DELETE FROM sys_workflow_transitions WHERE table_name = ${tableForEntity(
-        (existing as any).entity_name,
-      )}`.execute(this.db);
-    }
     await this.db.deleteFrom("sys_workflow_definitions").where("id", "=", id).execute();
     return { deleted: true };
   }
 
-  /**
-   * One status machine per record type: its edges are what the entity guard enforces,
-   * and edges the model drew are not the application's to overwrite.
-   */
-  private async assertStateMachineFree(entityName: string) {
-    const table = tableForEntity(entityName);
-    const own = await this.db
+  // ── Status flows ─────────────────────────────────────────────────────────
+  //
+  // A kind = 'state' row is the flow of record for its table: LifecycleStore
+  // loads it into common/lifecycle.ts, and every reader — the action buttons, the
+  // transition API, the save pipeline, the guard — follows it. A table with no
+  // row runs the model's flow, so removing the row is how an edited flow goes
+  // back. Rows are filed under the table name and always `source = 'designer'`:
+  // the seed never writes one, so regenerating never overwrites an edit.
+
+  /** The diagram compiled for its table, or a 400 saying why it cannot be a flow. */
+  private compileFlow(table: string, mermaid: string | undefined): Lifecycle {
+    if (!mermaid?.trim()) throw new BadRequestException("mermaid is required");
+    const { lifecycle, problems } = lifecycleFromDiagram(table, mermaid);
+    if (!lifecycle) throw new BadRequestException(problems.join(" "));
+    return lifecycle;
+  }
+
+  private async createFlow(dto: WorkflowDefinitionDto, userId?: string) {
+    const table = lifecycleTableFor(dto.entityName);
+    const next = this.compileFlow(table, dto.mermaid);
+    const taken = await this.db
       .selectFrom("sys_workflow_definitions")
       .select("id")
       .where("kind", "=", "state")
-      .where("entity_name", "=", entityName)
+      .where("entity_name", "in", [table, dto.entityName])
       .executeTakeFirst();
-    if (own) {
-      throw new BadRequestException(`${entityName} already has a status machine — edit that one.`);
-    }
-    const drawn = await sql<{ n: number }>`
-      SELECT count(*)::int AS n FROM sys_workflow_transitions WHERE table_name = ${table}`.execute(
-      this.db,
-    );
-    if ((drawn.rows[0]?.n ?? 0) > 0) {
-      throw new BadRequestException(
-        `${entityName}'s status machine is declared in the model — edit the %%workflow section and regenerate.`,
-      );
-    }
+    if (taken) throw new BadRequestException(`${dto.entityName} already has a status flow — edit that one.`);
+
+    const created = await this.db.transaction().execute(async (trx) => {
+      await this.moveTo(trx, table, next);
+      const [row] = await trx
+        .insertInto("sys_workflow_definitions")
+        .values({
+          name: dto.name,
+          entity_name: table,
+          operation: "UPDATE",
+          bpmn_xml: null,
+          mermaid_code: dto.mermaid,
+          kind: "state",
+          lifecycle: JSON.stringify(next),
+          description: dto.description ?? null,
+          trigger_type: "automatic",
+          source: "designer",
+          is_active: dto.isActive ?? true,
+          created_by: userId ?? null,
+        } as any)
+        .returningAll()
+        .execute();
+      return row;
+    });
+    await this.lifecycles.reload();
+    return created;
   }
 
-  /** Replace the entity's edges with the ones the editor drew, in one transaction. */
-  private async writeTransitions(dto: Partial<WorkflowDefinitionDto>) {
-    const edges = dto.transitions ?? [];
-    for (const edge of edges) {
-      if (!edge.from?.trim() || !edge.to?.trim()) {
-        throw new BadRequestException("Every transition needs a from and a to state");
+  private async updateFlow(existing: Record<string, any>, dto: Partial<WorkflowDefinitionDto>) {
+    const table = lifecycleTableFor(existing.entity_name);
+    const mermaid = dto.mermaid ?? existing.mermaid_code ?? "";
+    const active = dto.isActive ?? existing.is_active !== false;
+    // Switched off, the table runs the model's flow again.
+    const next = active ? this.compileFlow(table, mermaid) : modelLifecycleOf(table);
+    const saved = await this.db.transaction().execute(async (trx) => {
+      if (next) await this.moveTo(trx, table, next);
+      const [row] = await trx
+        .updateTable("sys_workflow_definitions")
+        .set({
+          updated_at: new Date(),
+          entity_name: table,
+          mermaid_code: mermaid,
+          lifecycle: active && next ? JSON.stringify(next) : null,
+          is_active: active,
+          source: "designer",
+          ...(dto.name !== undefined ? { name: dto.name } : {}),
+          ...(dto.description !== undefined ? { description: dto.description } : {}),
+        } as any)
+        .where("id", "=", existing.id)
+        .returningAll()
+        .execute();
+      return row;
+    });
+    await this.lifecycles.reload();
+    return saved;
+  }
+
+  private async removeFlow(existing: Record<string, any>) {
+    const table = lifecycleTableFor(existing.entity_name);
+    const model = modelLifecycleOf(table);
+    await this.db.transaction().execute(async (trx) => {
+      if (model?.hasMachine) await this.moveTo(trx, table, model);
+      else await sql`DELETE FROM sys_workflow_transitions WHERE table_name = ${table}`.execute(trx);
+      await trx.deleteFrom("sys_workflow_definitions").where("id", "=", existing.id).execute();
+    });
+    await this.lifecycles.reload();
+    return { deleted: true, revertedToModel: !!model?.hasMachine };
+  }
+
+  /**
+   * Everything that has to agree with a table's flow before it runs, in the
+   * caller's transaction:
+   *
+   *   - no record may sit in a state the new flow drops (409 LIFECYCLE_STATES_IN_USE,
+   *     naming each state and how many records are in it) — a record must always
+   *     have a way out of where it is
+   *   - move grants follow the edges: a grant is keyed by from → to, so one on a
+   *     kept edge keeps working and takes the edge's new event name; one on an
+   *     edge the flow drops is switched off, not deleted, so drawing the edge
+   *     again restores the restriction instead of opening the move to everyone
+   *     who may update (the change fires `access_changed`)
+   *   - `sys_workflow_transitions`, the edges GET /workflows/transitions lists
+   */
+  private async moveTo(trx: Kysely<any>, table: string, next: Lifecycle) {
+    const current = lifecycleOf(table);
+    if (current) {
+      const dropped = current.values.filter((value) => !next.values.includes(value));
+      if (dropped.length > 0) {
+        const column = sql.ref(current.column);
+        const { rows } = await sql<{ state: string; n: number }>`
+          SELECT ${column} AS state, count(*)::int AS n FROM ${sql.table(table)}
+          WHERE ${column} IN (${sql.join(dropped)}) AND deleted_at IS NULL
+          GROUP BY ${column}`.execute(trx);
+        const inUse = rows.filter((row) => row.n > 0);
+        if (inUse.length > 0) {
+          const listed = inUse.map((row) => `"${row.state}" (${row.n})`).join(", ");
+          throw new ConflictException({
+            message:
+              `Records are still in ${listed}, which this flow no longer has. ` +
+              "Move them to a state the flow keeps, then save it again.",
+            error: "Conflict",
+            details: {
+              code: "LIFECYCLE_STATES_IN_USE",
+              table,
+              states: inUse.map((row) => ({ state: row.state, records: row.n })),
+            },
+          });
+        }
       }
     }
-    const table = tableForEntity(dto.entityName ?? "");
-    const field = dto.statusField?.trim() || "status";
-    await this.db.transaction().execute(async (trx) => {
-      await sql`DELETE FROM sys_workflow_transitions WHERE table_name = ${table}`.execute(trx);
-      for (const edge of edges) {
-        await sql`
-          INSERT INTO sys_workflow_transitions (table_name, status_field, from_state, to_state, transition_name)
-          VALUES (${table}, ${field}, ${edge.from}, ${edge.to}, ${edge.name ?? null})
-          ON CONFLICT (table_name, status_field, from_state, to_state) DO NOTHING`.execute(trx);
+
+    const grants = (await trx
+      .selectFrom("sys_access_grant" as any)
+      .select(["sys_access_grant_id", "action", "from_state", "to_state", "role_name", "is_active", "updated_by"] as any)
+      .where("kind" as any, "=", "move")
+      .where("table_name" as any, "=", table)
+      .execute()) as Array<Record<string, any>>;
+    for (const grant of grants) {
+      const edges = next.edges.filter((edge) => edge.from === grant.from_state && edge.to === grant.to_state);
+      if (edges.length === 0) {
+        if (grant.is_active) {
+          await trx
+            .updateTable("sys_access_grant" as any)
+            .set({ is_active: false, updated_by: LIFECYCLE_EDIT, updated_at: new Date() } as any)
+            .where("sys_access_grant_id" as any, "=", grant.sys_access_grant_id)
+            .execute();
+        }
+        continue;
       }
-    });
+      const edge = edges.find((candidate) => candidate.event === grant.action) ?? edges[0]!;
+      const action = edge.event || `${edge.from}->${edge.to}`;
+      const revive = !grant.is_active && grant.updated_by === LIFECYCLE_EDIT;
+      if (action === grant.action && !revive) continue;
+      const clash = await trx
+        .selectFrom("sys_access_grant" as any)
+        .select("sys_access_grant_id" as any)
+        .where("kind" as any, "=", "move")
+        .where("table_name" as any, "=", table)
+        .where("action" as any, "=", action)
+        .where("from_state" as any, "=", grant.from_state)
+        .where("to_state" as any, "=", grant.to_state)
+        .where("sys_access_grant_id" as any, "!=", grant.sys_access_grant_id)
+        .where("role_name" as any, "=", grant.role_name)
+        .executeTakeFirst();
+      await trx
+        .updateTable("sys_access_grant" as any)
+        .set({
+          ...(clash ? {} : { action }),
+          ...(revive ? { is_active: true } : {}),
+          updated_by: LIFECYCLE_EDIT,
+          updated_at: new Date(),
+        } as any)
+        .where("sys_access_grant_id" as any, "=", grant.sys_access_grant_id)
+        .execute();
+    }
+
+    await sql`DELETE FROM sys_workflow_transitions WHERE table_name = ${table}`.execute(trx);
+    for (const edge of next.edges) {
+      await sql`
+        INSERT INTO sys_workflow_transitions (table_name, status_field, from_state, to_state, transition_name)
+        VALUES (${table}, ${next.column}, ${edge.from}, ${edge.to}, ${edge.event || null})
+        ON CONFLICT (table_name, status_field, from_state, to_state) DO NOTHING`.execute(trx);
+    }
   }
 }

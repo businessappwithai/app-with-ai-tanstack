@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { apiClient } from "@/lib/api-client";
 import { lifecycleOf } from "@/lib/lifecycle";
+import { useLifecycles } from "@/lib/use-lifecycles";
 import { ifMatchHeader } from "@/lib/version-conflict";
 
 /** One move the server offers this caller from where the record is. */
@@ -46,6 +47,7 @@ interface RecordActionsProps {
  * refused rather than made twice.
  */
 export function RecordActions({ endpoint, tableName, record, disabled, onMoved }: RecordActionsProps) {
+  useLifecycles();
   const lifecycle = lifecycleOf(tableName);
   const id = record?.id ? String(record.id) : "";
   const at = lifecycle && record ? String(record[lifecycle.column] ?? "") : "";

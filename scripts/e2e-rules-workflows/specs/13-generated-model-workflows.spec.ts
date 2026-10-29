@@ -3,7 +3,8 @@
  *
  * Their rows are compiled for the engine, so the diagram an author drew is written into the
  * front end at generation (`lib/model-logic.ts`) and shown beside the workflows built in the
- * application — read-only, because the next generation rewrites them.
+ * application — read-only, because the next generation rewrites them. Status flows are the
+ * exception: the application runs a saved one in place of the model's, so they stay editable.
  *
  * Run with `LOGIC_TARGET=generated` against the education model (`AdmissionToEnrolment`).
  */

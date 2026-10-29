@@ -52,7 +52,7 @@ import { buildGraphRule, chainNames, type GraphRuleScenario } from "../lib/graph
 import { expectWorkflowShown, LogicPage, type WorkflowScenario } from "../lib/logic-page";
 import { RuleGraph } from "../lib/rule-graph";
 import { buildTableRule, runTryIt, setTypedCell, type TableRuleScenario } from "../lib/rule-table";
-import { type Author, authorWithProject, browserAs, GENERATED, MODEL_SOURCE } from "../lib/session";
+import { type Author, authorWithProject, browserAs, GENERATED } from "../lib/session";
 import { GRAPH_RULES } from "../scenarios/graph-rule-catalogue";
 import { TABLE_RULES } from "../scenarios/rule-catalogue";
 import { WORKFLOWS } from "../scenarios/workflow-catalogue";
@@ -201,19 +201,13 @@ function changedText(next: WorkflowScenario): string {
   return "https://example.com/revised";
 }
 
-/**
- * The entities whose status machine the model declares. A generated application refuses a
- * second machine on one of them — "declared in the model — edit the %%workflow section and
- * regenerate" — because the next generation would overwrite it; the modelling tool edits the
- * model itself and accepts it.
+/*
+ * In a generated application a status flow can be saved only for a record type the model gave
+ * one: the flow saved there is the one records follow, and its column is the model's. A record
+ * type with none has no column to keep one in, so the application refuses it — "has no status
+ * flow in the model". The modelling tool edits the model itself and accepts either.
  */
-const MODEL_STATE_ENTITIES = new Set(
-  [...MODEL_SOURCE.matchAll(/^%%workflow \w+ entity: (\w+) kind: state\b/gm)].map(
-    (m) => m[1] as string
-  )
-);
-
-/** Where a generated application's refused status machine is built instead: no machine declared. */
+/** A record type with no status flow in the model: a generated application refuses one for it. */
 const FREE_STATE_ENTITY = "Department";
 
 async function renameWorkflow(page: Page, wf: WorkflowScenario, title: string) {
@@ -243,31 +237,32 @@ if (kind !== "rules") {
       }, testInfo) => {
         test.setTimeout(420_000);
         const context = await browserAs(browser, author);
-        const declared =
-          GENERATED && scenario.kind === "status" && MODEL_STATE_ENTITIES.has(scenario.entity);
-        if (declared) {
-          await test.step("refused: the model declares this entity's status machine", async () => {
+        if (GENERATED && scenario.kind === "status") {
+          await test.step("refused: a record type with no flow in the model cannot gain one", async () => {
+            const free = { ...scenario, entity: FREE_STATE_ENTITY };
             const page = await context.newPage();
             const logic = new LogicPage(page, author.projectId);
             await logic.open();
-            await logic.createWorkflow(scenario);
+            await logic.createWorkflow(free);
             await page.getByRole("button", { name: "Save", exact: true }).click();
-            await expect(page.getByText(/status machine is declared in the model/)).toBeVisible({
+            await expect(page.getByText(/has no status flow in the model/)).toBeVisible({
               timeout: 20_000,
             });
             await expectWorkflowKept(page, author, {
-              id: workflowIdentifier(scenario.name),
-              title: scenario.name,
-              entity: scenario.entity,
+              id: workflowIdentifier(free.name),
+              title: free.name,
+              entity: free.entity,
               present: false,
             });
             await page.close();
           });
+          // Saving a flow for a declared record type replaces the one its seeded records follow,
+          // and is refused while any of them sits in a state the new flow drops — which these
+          // scenarios' invented states always would. The round trip on a real flow is the
+          // generated application's own suite (tests/suites/23-workflow-editors-api).
+          return;
         }
-        // The same machine, on an entity the model leaves free, for the four operations.
-        const wf: WorkflowScenario = declared
-          ? { ...scenario, entity: FREE_STATE_ENTITY }
-          : scenario;
+        const wf: WorkflowScenario = scenario;
         const page = await context.newPage();
         const errors = watchErrors(page);
         const logic = new LogicPage(page, author.projectId);

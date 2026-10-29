@@ -193,9 +193,11 @@ describe("the generated rules & workflows screen keeps what is built in it", () 
     expect(host).toContain("ruleSnapshots.get(rule.key) === snapshot");
   });
 
-  // A status machine is never run: it is its edges, which the entity guard enforces.
-  it("stores a status machine as edges and keeps it out of the executor", () => {
-    expect(service).toContain("writeTransitions");
+  // A status flow is never run as a process: it is the flow records follow, which the
+  // transition service reads through lifecycleOf once LifecycleStore has loaded it.
+  it("stores a status flow as the one records follow, and keeps it out of the executor", () => {
+    expect(service).toContain("lifecycleFromDiagram(table, mermaid)");
+    expect(service).toContain("await this.lifecycles.reload()");
     expect(read("backend/src/modules/workflow/workflow.service.ts.hbs")).toContain(
       ".where('kind' as any, '<>', 'state')"
     );
@@ -252,13 +254,24 @@ describe("the generated app runs the modelling tool's rule and workflow editors"
     expect(engine).toContain("content: { source: node.content }");
   });
 
-  // What the model declares is shown as the author drew it, read-only, and never written back:
-  // the next generation rewrites it, so an edit made here would look saved and then vanish.
-  it("lists the model's own workflows locked, and saves only the ones built here", () => {
+  // The model's hook and saga workflows are shown as the author drew them, read-only, and never
+  // written back: the next generation rewrites them, so an edit made here would look saved and
+  // then vanish.
+  it("lists the model's own automations locked, and saves only the ones built here", () => {
     const host = read("frontend/src/lib/logic-host.ts");
     expect(host).toContain('import { MODEL_WORKFLOWS } from "@/lib/model-logic"');
     expect(host).toContain("all.filter((workflow) => !modelKeys.has(workflow.key))");
     expect(page).toContain("lockedWorkflows={model?.locked}");
+  });
+
+  // A status flow is different: the API runs the stored one in place of the model's, so it is
+  // editable whoever drew it. A declared flow nobody changed is written only once it differs.
+  it("leaves the model's status flows editable, and writes one only when it changed", () => {
+    const host = read("frontend/src/lib/logic-host.ts");
+    expect(host).toContain('if (workflow.kind === "state") {');
+    expect(host).toContain("read.declaredSnapshots.set(workflow.key");
+    expect(host).toContain("if (!id && declaredSnapshots.get(workflow.key) === snapshot) continue;");
+    expect(page).toContain("queryClient.invalidateQueries({ queryKey: LIFECYCLES_QUERY_KEY })");
   });
 
   // The panel writes a number as ["null", "number"] so a blank field is a valid record; the

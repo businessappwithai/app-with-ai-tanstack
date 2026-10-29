@@ -32,6 +32,7 @@ import {
 import { LifecycleBadge } from "./lifecycle-badge";
 import { RecordActions } from "./record-actions";
 import { isLocked, lifecycleOf, phaseOf } from "@/lib/lifecycle";
+import { useLifecycles } from "@/lib/use-lifecycles";
 import { VersionConflictDialog } from "./version-conflict-dialog";
 import { helpTableNameFromEndpoint, WindowHelpButton } from "./window-help-button";
 import { format } from "date-fns";
@@ -626,6 +627,8 @@ export function ADDetailShell({
 }: ADDetailShellProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  // The status flow as the API runs it, should an administrator have redrawn it.
+  useLifecycles();
   const [page, setPage] = useState(1);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [formData, setFormData] = useState<AnyRecord>({});
