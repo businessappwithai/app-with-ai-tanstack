@@ -77,6 +77,8 @@ FIRST, before any other tool. When in doubt, invoke the skill.
 | Rule editor (GoRules graph, constraints, Monaco) | `rule-editor` |
 | Workflows on the Logic step, attaching rules to hooks | `workflow-editor` |
 | Playwright specs for the rule/workflow editors | `rule-editor-e2e` |
+| Build and test a business rule in a generated app, browser only | `browser-rule-builder` |
+| Build and test a workflow in a generated app, browser only | `browser-workflow-builder` |
 | Write a new EML model, or change an existing `.mmd` | `model-working-session` |
 | Generate, build or run an application from a model | `generate-and-run-app` |
 | Before committing, pushing or merging | `ship-checks` |
