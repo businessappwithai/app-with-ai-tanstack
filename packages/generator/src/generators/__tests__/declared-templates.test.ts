@@ -85,8 +85,9 @@ const OUTPUT_ONLY_PATHS = new Set([
   "src/lib/field-values.ts",
   // Every table's lifecycle, rendered by `renderLifecycle` from the compiled
   // state machines like `state-fields.ts`, around the fixed half in
-  // `lifecycle-module.ts`.
+  // `lifecycle-module.ts`; the front end's copy comes from the same call.
   "src/common/lifecycle.ts",
+  "src/lib/lifecycle.ts",
 ]);
 
 /** Generator sources, excluding tests and generated bundles. */
