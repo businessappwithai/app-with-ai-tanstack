@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { FieldMetadata } from "@/hooks/use-entities";
 import { isLocked, lifecycleOf, phaseOf, type LifecyclePhase } from "@/lib/lifecycle";
+import { useLifecycles } from "@/lib/use-lifecycles";
 
 interface LifecycleBadgeProps {
   /** The record's table, e.g. `bus_opportunity`. */
@@ -50,6 +51,7 @@ const PHASE: Record<
  * action buttons beside this badge are how it moves.
  */
 export function LifecycleBadge({ tableName, fields, record, className = "" }: LifecycleBadgeProps) {
+  useLifecycles();
   const lifecycle = lifecycleOf(tableName);
   if (!lifecycle || !record) return null;
   const value = record[lifecycle.column];

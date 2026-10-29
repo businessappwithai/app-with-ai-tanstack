@@ -888,6 +888,11 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         src: "src/lib/logic-host.ts",
         dest: "src/lib/logic-host.ts",
       },
+      // The status flows as the API runs them, laid over the compiled lib/lifecycle.ts.
+      {
+        src: "src/lib/use-lifecycles.ts",
+        dest: "src/lib/use-lifecycles.ts",
+      },
       // Missing provider files
       {
         src: "src/providers/browser-router-provider.tsx",

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { FieldMetadata } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 import { lifecycleOf } from "@/lib/lifecycle";
+import { useLifecycles } from "@/lib/use-lifecycles";
 import { ADToolbar } from "./ad-toolbar";
 import {
   type ADLevel,
@@ -333,6 +334,7 @@ export function ADListShell({
   // "Waiting for me": records in a status this person has a move out of,
   // assigned to them or to no one. Offered only where there is a flow to wait in.
   const [waitingForMe, setWaitingForMe] = useState(false);
+  useLifecycles();
   const hasFlow = !!lifecycleOf(helpTableNameFromEndpoint(level.endpoint))?.hasMachine;
   const [createErrors, setCreateErrors] = useState<string[]>([]);
 

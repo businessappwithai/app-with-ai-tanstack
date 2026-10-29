@@ -10,6 +10,11 @@
  *
  * Saving diffs against what was loaded, so an edit writes the rows that changed and nothing
  * else. What the model declares (`RULE_MODEL`) decides what a rule may name.
+ *
+ * A status flow is editable whether the model declared it or it was drawn here: the API runs
+ * the stored one (`kind = 'state'`) in place of the model's, so an edit changes how records
+ * move. A declared flow nobody has changed has no row; editing it writes one, and deleting
+ * that row puts the model's flow back. The model's hook and saga workflows stay read-only.
  */
 
 import type { ConstraintWorkflow, WorkbenchSave } from "@/editors/components/LogicWorkbench";
@@ -226,7 +231,7 @@ function toStoredWorkflow(row: WorkflowRow): StoredWorkflow {
 export interface LoadedLogic {
   rules: EditableRule[];
   workflows: EditableWorkflow[];
-  /** The workflows the model declares: shown, never saved, changed in the model. */
+  /** The hook and saga workflows the model declares: shown, never saved, changed in the model. */
   locked: ReadonlySet<string>;
 }
 
@@ -244,6 +249,9 @@ export function createLogicHost() {
   const workflowIds = new Map<string, string>();
   const modelKeys = new Set<string>();
   const workflowSnapshots = new Map<string, string>();
+  // A status flow the model declares and nobody has changed: no stored row, so its
+  // snapshot here is what decides whether a save has anything to write.
+  const declaredSnapshots = new Map<string, string>();
 
   const ruleBody = (rule: EditableRule, names: ReadonlyMap<string, string> = ruleNames) => {
     const wanted = slugifyRuleName(rule.title ?? rule.name);
@@ -322,6 +330,7 @@ export function createLogicHost() {
       workflowIds: new Map<string, string>(),
       workflowSnapshots: new Map<string, string>(),
       modelKeys: new Set<string>(),
+      declaredSnapshots: new Map<string, string>(),
     };
     for (const rule of rules) {
       read.ruleIds.set(rule.key, rule.key);
@@ -339,8 +348,10 @@ export function createLogicHost() {
     });
 
     // What the model declares, drawn as the author drew it. A workflow built here under the same
-    // name wins: it is the one that runs, and listing both would show one process twice.
+    // name wins: it is the one that runs, and listing both would show one process twice. So does
+    // a stored status flow for the same record type, since a record type has one flow.
     const built = new Set(workflows.map((workflow) => workflow.name));
+    const flowed = new Set(workflows.filter((workflow) => workflow.kind === "state").map((workflow) => workflow.entity));
     for (const declared of MODEL_WORKFLOWS) {
       const workflow = toEditableWorkflow({
         ...declared,
@@ -348,7 +359,12 @@ export function createLogicHost() {
         title: declared.title ?? declared.name,
       });
       if (built.has(workflow.name)) continue;
-      read.modelKeys.add(workflow.key);
+      if (workflow.kind === "state") {
+        if (flowed.has(workflow.entity)) continue;
+        read.declaredSnapshots.set(workflow.key, JSON.stringify(workflowBody(workflow)));
+      } else {
+        read.modelKeys.add(workflow.key);
+      }
       workflows.push(workflow);
     }
 
@@ -366,6 +382,7 @@ export function createLogicHost() {
       replace(workflowSnapshots, read.workflowSnapshots);
       modelKeys.clear();
       for (const key of read.modelKeys) modelKeys.add(key);
+      replace(declaredSnapshots, read.declaredSnapshots);
     }
     return { rules, workflows, locked: read.modelKeys };
   }
@@ -380,7 +397,7 @@ export function createLogicHost() {
 
   /** Write what changed: new rows created, edited rows updated, removed rows deleted. */
   async function writeChanges({ rules, workflows: all }: WorkbenchSave): Promise<void> {
-    // The model's own workflows are read-only on screen and never written from it.
+    // The model's own hook and saga workflows are read-only on screen and never written from it.
     const workflows = all.filter((workflow) => !modelKeys.has(workflow.key));
     const keptRules = new Set(rules.map((rule) => rule.key));
     for (const [key, id] of [...ruleIds]) {
@@ -430,11 +447,14 @@ export function createLogicHost() {
       const snapshot = JSON.stringify(body);
       const id = workflowIds.get(workflow.key);
       if (id && workflowSnapshots.get(workflow.key) === snapshot) continue;
+      // The model's flow, as declared: nothing to store, and storing it would only pin it.
+      if (!id && declaredSnapshots.get(workflow.key) === snapshot) continue;
       if (id) {
         await write("PUT", `/workflow-definitions/${id}`, body);
       } else {
         const created = (await write("POST", "/workflow-definitions", body)) as { id?: string };
         if (created.id) workflowIds.set(workflow.key, created.id);
+        declaredSnapshots.delete(workflow.key);
       }
       workflowSnapshots.set(workflow.key, snapshot);
     }

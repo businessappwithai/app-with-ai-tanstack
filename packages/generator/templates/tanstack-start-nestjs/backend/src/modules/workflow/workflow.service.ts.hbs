@@ -852,11 +852,14 @@ export class WorkflowService {
       }
       values[column.trim()] = value;
     }
-    // A record a workflow creates starts in its machine's initial state, as one
-    // a person creates does, unless the step names the state itself.
+    // A record a workflow creates starts in its flow's first state, as one a
+    // person creates does, unless the step names the state itself. The flow is
+    // lifecycleOf's, so a first state an administrator redrew is the one used.
     const state = stateFieldOf(targetTable);
-    if (state?.initial && (values[state.field] === undefined || values[state.field] === null)) {
-      values[state.field] = state.initial;
+    const flow = lifecycleOf(targetTable);
+    const initial = flow?.hasMachine ? flow.afterDraft : state?.initial;
+    if (state && initial && (values[state.field] === undefined || values[state.field] === null)) {
+      values[state.field] = initial;
     }
 
     const inserted = await db

@@ -7,7 +7,9 @@
  * are written into the front end once, at generation time, by the same reader the modelling
  * tool uses, and the screen shows them beside the ones built in the application.
  *
- * They are the model's: the next generation rewrites them, so the screen opens them read-only.
+ * They are the model's: the next generation rewrites them, so the screen opens the hook and
+ * saga workflows read-only. A status flow opens editable: saving it stores a flow the
+ * application runs in place of this one (the API's LifecycleStore).
  */
 
 import { type EmlWorkflowSection, extractWorkflowSections } from "../eml";
@@ -36,8 +38,9 @@ export function buildModelLogic(sources: string | string[]): ModelWorkflow[] {
 export function renderModelLogic(workflows: ModelWorkflow[]): string {
   return `/**
  * The workflows this application's model declares, as the author drew them — written when
- * the application was generated. The Rules & workflows screen lists them read-only: the
- * next generation rewrites them, so they are changed in the model, not here.
+ * the application was generated. The Rules & workflows screen lists the hook and saga
+ * workflows read-only: the next generation rewrites them, so they are changed in the model.
+ * A status flow is editable there: the one saved is what records follow from then on.
  */
 
 export interface ModelWorkflow {

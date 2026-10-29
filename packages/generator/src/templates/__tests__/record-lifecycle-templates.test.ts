@@ -8,7 +8,7 @@
  * reads what landed there.
  */
 
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { copyFileSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -27,6 +27,20 @@ const CACHE_KEYS = [
 
 let out = "";
 const read = (path: string) => readFileSync(join(out, path), "utf8");
+
+/**
+ * The generated `common/lifecycle.ts`, imported. Copied beside this test first:
+ * Vite will not load a module from the system temp directory.
+ */
+async function importLifecycle(): Promise<any> {
+  const copy = join(import.meta.dirname, `.generated-lifecycle-${process.pid}.ts`);
+  copyFileSync(join(out, "backend/src/common/lifecycle.ts"), copy);
+  try {
+    return await import(/* @vite-ignore */ copy);
+  } finally {
+    rmSync(copy, { force: true });
+  }
+}
 
 beforeAll(async () => {
   out = mkdtempSync(join(tmpdir(), "lifecycle-templates-"));
@@ -98,5 +112,83 @@ describe("the record lifecycle in a generated backend", () => {
     expect(read("backend/src/modules/bus/transition.service.ts")).toContain("TRANSITION_FORBIDDEN");
     expect(read("backend/src/modules/auth/guards/entity-access.guard.ts")).toContain("RECORD_FINAL");
     expect(read("backend/src/modules/auth/capability.service.ts")).toContain("sys_user_capability");
+  });
+});
+
+/**
+ * A status flow an administrator redraws in Rules and workflows is the one the
+ * application runs. Every reader asks lifecycleOf, so the generated module itself
+ * is exercised here: a diagram compiled the way the API compiles a saved one,
+ * laid over the model's, and read back through the same functions the transition
+ * service and the action buttons use.
+ */
+describe("a status flow an administrator redraws", () => {
+  it("migrates the stored compilation and announces every change", () => {
+    const migration = read("backend/src/migrations/0024_editable_lifecycles.ts");
+    expect(migration).toContain("ADD COLUMN IF NOT EXISTS lifecycle JSONB");
+    expect(migration).toContain("pg_notify('lifecycle_changed'");
+  });
+
+  it("loads stored flows at start and on notify, and serves them to the front end", () => {
+    const store = read("backend/src/modules/workflow-definitions/lifecycle-store.service.ts");
+    expect(store).toContain("LISTEN lifecycle_changed");
+    expect(store).toContain("applyLifecycleOverrides(next)");
+    const module = read("backend/src/modules/workflow-definitions/workflow-definitions.module.ts");
+    expect(module).toContain("LifecyclesController");
+    expect(module).toContain("LifecycleStore");
+    const service = read("backend/src/modules/workflow-definitions/workflow-definitions.service.ts");
+    expect(service).toContain("LIFECYCLE_STATES_IN_USE");
+    expect(service).toContain("await this.lifecycles.reload()");
+  });
+
+  it("never rewrites the edges of a table whose flow was redrawn", () => {
+    const seed = read("backend/seeds/05b_workflow_transitions.ts");
+    expect(seed).toContain("SELECT entity_name FROM sys_workflow_definitions WHERE kind = 'state'");
+    expect(seed).toContain("if (redrawn.has(t.tableName)) continue;");
+  });
+
+  it("runs the redrawn flow in place of the model's, through lifecycleOf", async () => {
+    const lifecycle: any = await importLifecycle();
+    const model = lifecycle.modelLifecycleOf("bus_opportunity");
+    const diagram = [
+      "stateDiagram-v2",
+      `    [*] --> ${model.afterDraft}`,
+      ...model.edges.map((edge: any) => `    ${edge.from} --> ${edge.to}${edge.event ? ` : ${edge.event}` : ""}`),
+      `    ${model.afterDraft} --> on_hold : put on hold`,
+      `    on_hold --> ${model.afterDraft} : resume`,
+      ...model.terminal.map((state: string) => `    ${state} --> [*]`),
+      "%%rbac role:sales_rep on Opportunity.resume",
+    ].join("\n");
+
+    const compiled = lifecycle.lifecycleFromDiagram("bus_opportunity", diagram);
+    expect(compiled.problems).toEqual([]);
+    expect(compiled.lifecycle.column).toBe("stage");
+    expect(compiled.lifecycle.values).toContain("on_hold");
+
+    lifecycle.applyLifecycleOverrides({ bus_opportunity: compiled.lifecycle });
+    expect(lifecycle.isLifecycleOverridden("bus_opportunity")).toBe(true);
+    const moves = lifecycle.movesFrom(lifecycle.lifecycleOf("bus_opportunity"), model.afterDraft);
+    expect(moves.map((move: any) => move.event)).toContain("put_on_hold");
+    expect(moves.find((move: any) => move.event === "put_on_hold").label).toBe("Put on hold");
+    expect(lifecycle.findMove(lifecycle.lifecycleOf("bus_opportunity"), "on_hold", { event: "resume" })?.to).toBe(
+      model.afterDraft,
+    );
+    // The model's flow is untouched, and a table with no flow cannot gain one.
+    expect(lifecycle.modelLifecycleOf("bus_opportunity").values).not.toContain("on_hold");
+    lifecycle.applyLifecycleOverrides({ bus_product: compiled.lifecycle });
+    expect(lifecycle.lifecycleOf("bus_product").hasMachine).toBe(false);
+    expect(lifecycle.lifecycleOf("bus_opportunity").values).not.toContain("on_hold");
+  });
+
+  it("refuses a diagram that cannot be a flow", async () => {
+    const lifecycle: any = await importLifecycle();
+    expect(lifecycle.lifecycleFromDiagram("bus_opportunity", "stateDiagram-v2\n    a --> b").problems).toHaveLength(2);
+    expect(
+      lifecycle.lifecycleFromDiagram("bus_opportunity", "stateDiagram-v2\n    [*] --> a\n    a --> final\n    final --> [*]")
+        .problems.join(" "),
+    ).toContain('"final" is the lifecycle\'s own');
+    expect(lifecycle.lifecycleFromDiagram("bus_product", "stateDiagram-v2\n    [*] --> a\n    a --> [*]").lifecycle).toBe(
+      undefined,
+    );
   });
 });

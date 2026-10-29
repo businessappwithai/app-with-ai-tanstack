@@ -34,6 +34,11 @@ export const LIFECYCLE_MODULE_HEAD = `/**
  *
  * Who may press a move is not stated here: that is sys_access_grant, which an
  * administrator can change in the running application.
+ *
+ * LIFECYCLES is the model's. An administrator can redraw a flow in Rules and
+ * workflows (sys_workflow_definitions, kind = 'state'); lifecycleOf answers with
+ * that one, so every reader follows the edit, and with the model's where there is
+ * none.
  */
 
 export type LifecyclePhase = 'draft' | 'active' | 'final' | 'error';
@@ -74,9 +79,143 @@ export const LIFECYCLES: Readonly<Record<string, Lifecycle>> = {
 export const LIFECYCLE_MODULE_TAIL = `
 };
 
-/** A table's lifecycle. Every business table has one. */
+/**
+ * The lifecycles an administrator changed in Rules and workflows, by table. A
+ * table with no entry here runs the model's lifecycle above. The backend fills it
+ * from sys_workflow_definitions (kind = 'state'); the front end from
+ * GET /api/lifecycles.
+ */
+let overrides: Record<string, Lifecycle> = {};
+let overridesVersion = 0;
+const overrideListeners = new Set<() => void>();
+
+/** A table's lifecycle: the administrator's, else the model's. Every business table has one. */
 export function lifecycleOf(tableName: string): Lifecycle | undefined {
+  return overrides[tableName] ?? LIFECYCLES[tableName];
+}
+
+/** The lifecycle the model declared, whatever an administrator has changed since. */
+export function modelLifecycleOf(tableName: string): Lifecycle | undefined {
   return LIFECYCLES[tableName];
+}
+
+/** True when the table runs a lifecycle an administrator changed. */
+export function isLifecycleOverridden(tableName: string): boolean {
+  return !!overrides[tableName];
+}
+
+/**
+ * Replace every administrator lifecycle at once. An entry for a table the model
+ * gave no status flow is ignored: the column a lifecycle is stored in is schema,
+ * so a flow can be changed here but not created.
+ */
+export function applyLifecycleOverrides(next: Record<string, Lifecycle | null | undefined>): void {
+  const kept: Record<string, Lifecycle> = {};
+  for (const [tableName, lifecycle] of Object.entries(next ?? {})) {
+    const model = LIFECYCLES[tableName];
+    if (!lifecycle || !model?.hasMachine) continue;
+    kept[tableName] = { ...lifecycle, column: model.column, hasMachine: true };
+  }
+  overrides = kept;
+  overridesVersion += 1;
+  for (const listener of overrideListeners) listener();
+}
+
+/** Called after every applyLifecycleOverrides; returns the unsubscribe. */
+export function subscribeLifecycles(listener: () => void): () => void {
+  overrideListeners.add(listener);
+  return () => {
+    overrideListeners.delete(listener);
+  };
+}
+
+/** Bumped by every applyLifecycleOverrides. */
+export function lifecycleOverridesVersion(): number {
+  return overridesVersion;
+}
+
+/** An edge's event in one token: \`close won\`, \`Close-Won\` and \`close_won\` are one event. */
+export function normalizeLifecycleEvent(event: string): string {
+  return event.trim().toLowerCase().replace(/[\\s-]+/g, '_');
+}
+
+/** What a button says: the event as words, or "Move to <state>" for an unlabelled edge. */
+export function lifecycleMoveLabel(event: string | undefined, to: string): string {
+  const words = (text: string) => text.replace(/[_-]+/g, ' ').trim();
+  const sentence = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+  if (event && event.trim()) return sentence(words(event));
+  return \`Move to \${sentence(words(to))}\`;
+}
+
+const DIAGRAM_EDGE = /^(\\[\\*\\]|[A-Za-z_]\\w*)\\s*-->\\s*(\\[\\*\\]|[A-Za-z_]\\w*)\\s*(?::\\s*(.+))?$/;
+
+/**
+ * A table's lifecycle read from a \`stateDiagram-v2\` the way the generator reads
+ * the model's (\`[*] --> first\`, \`a --> b : event\`, \`end --> [*]\`; \`%%\` lines
+ * ignored), on the model's column. Returns the problems instead when the diagram
+ * cannot be a lifecycle: no first state, no end state, a reserved state name, or a
+ * table the model gave no flow.
+ */
+export function lifecycleFromDiagram(
+  tableName: string,
+  diagram: string,
+): { lifecycle?: Lifecycle; problems: string[] } {
+  const model = LIFECYCLES[tableName];
+  if (!model?.hasMachine) {
+    return { problems: [\`\${tableName} has no status flow in the model, so it has no column to keep one in.\`] };
+  }
+  const states: string[] = [];
+  const terminal: string[] = [];
+  const edges: LifecycleEdge[] = [];
+  let initial: string | undefined;
+  const see = (name: string) => {
+    if (name !== '[*]' && !states.includes(name)) states.push(name);
+  };
+  for (const raw of String(diagram ?? '').split('\\n')) {
+    const line = raw.trim();
+    if (!line || line.startsWith('%%') || /^stateDiagram(-v2)?$/.test(line)) continue;
+    const match = line.match(DIAGRAM_EDGE);
+    if (!match) continue;
+    const [, from, to, label] = match as unknown as [string, string, string, string | undefined];
+    see(from);
+    see(to);
+    if (from === '[*]' && to === '[*]') continue;
+    if (from === '[*]') {
+      initial ??= to;
+      continue;
+    }
+    if (to === '[*]') {
+      if (!terminal.includes(from)) terminal.push(from);
+      continue;
+    }
+    const event = label ? normalizeLifecycleEvent(label) : '';
+    if (edges.some((edge) => edge.from === from && edge.to === to && edge.event === event)) continue;
+    edges.push({ from, to, event, label: lifecycleMoveLabel(label, to) });
+  }
+  const problems: string[] = [];
+  if (!initial) problems.push('The flow needs a first state: draw [*] --> <state>.');
+  if (terminal.length === 0) problems.push('The flow needs at least one end state: draw <state> --> [*].');
+  for (const reserved of [LIFECYCLE_FINAL, LIFECYCLE_ERROR]) {
+    if (states.includes(reserved)) {
+      problems.push(\`"\${reserved}" is the lifecycle's own; name the state something else.\`);
+    }
+  }
+  if (problems.length > 0) return { problems };
+  const draft = states.find((state) => state.toLowerCase() === LIFECYCLE_DRAFT) ?? LIFECYCLE_DRAFT;
+  const values = [draft, ...states.filter((state) => state !== draft)];
+  if (!values.includes(LIFECYCLE_ERROR)) values.push(LIFECYCLE_ERROR);
+  return {
+    lifecycle: {
+      column: model.column,
+      hasMachine: true,
+      draft,
+      afterDraft: initial!,
+      terminal,
+      edges,
+      values,
+    },
+    problems: [],
+  };
 }
 
 /** Where a value sits: Draft, part-way along the flow, Final, or Error. */

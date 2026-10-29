@@ -7,13 +7,18 @@
  * What is this application's is `lib/logic-host.ts`: where the rules and workflows are
  * read from and written to, and what the model says they may name.
  *
+ * A status flow saved here is the one the application runs from then on: the record's
+ * action buttons, the transition API and the badge all follow it (`lib/use-lifecycles.ts`).
+ *
  * Generated for: {{project.name}}
  */
 
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LogicWorkbench } from '@/editors/components/LogicWorkbench';
 import { createLogicHost, logicConstraints, logicEntities, simulateRule, type LoadedLogic } from '@/lib/logic-host';
+import { LIFECYCLES_QUERY_KEY } from '@/lib/use-lifecycles';
 
 export const Route = createFileRoute('/admin/automations')({
   component: RulesAndWorkflowsPage,
@@ -21,6 +26,7 @@ export const Route = createFileRoute('/admin/automations')({
 
 function RulesAndWorkflowsPage() {
   const host = useMemo(() => createLogicHost(), []);
+  const queryClient = useQueryClient();
   const [model, setModel] = useState<LoadedLogic | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -41,9 +47,15 @@ function RulesAndWorkflowsPage() {
 
   const save = useCallback(
     async (payload: Parameters<typeof host.save>[0]) => {
-      await host.save(payload);
+      try {
+        await host.save(payload);
+      } finally {
+        // A status flow saved (or refused part-way) changes how records move: every
+        // screen reading a lifecycle reads it again.
+        await queryClient.invalidateQueries({ queryKey: LIFECYCLES_QUERY_KEY });
+      }
     },
-    [host]
+    [host, queryClient]
   );
 
   return (
@@ -64,7 +76,7 @@ function RulesAndWorkflowsPage() {
           save={save}
           rulesHavePriority={false}
           lockedWorkflows={model?.locked}
-          lockedNote="This workflow is declared in the model. Edit the model and generate the application again to change it; it is shown here as the author drew it."
+          lockedNote="This automation is declared in the model. Edit the model and generate the application again to change it; it is shown here as the author drew it. Status flows are not locked: a flow saved here is the one records follow."
         />
       </div>
     </div>
