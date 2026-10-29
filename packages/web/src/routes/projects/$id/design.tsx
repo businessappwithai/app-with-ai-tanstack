@@ -48,6 +48,7 @@ import type { ERDVersion } from "@/lib/api/projects";
 import { erdVersionsApi } from "@/lib/api/projects";
 import { useCopilotInputLabel } from "@/hooks/useCopilotInputLabel";
 import { toRenderableMermaid } from "@/lib/mermaid-render";
+import type { EmlSummary } from "@/routes/api/eml/validate";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
 
@@ -113,6 +114,12 @@ function DesignPage() {
   const [erdCode, setErdCode] = useState("");
   // null = never validated in this session; [] = last run was clean.
   const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
+  // What the checker said at the last Validate; cleared on the next edit, so a
+  // report is never shown against text it was not run on.
+  const [checkReport, setCheckReport] = useState<{
+    check?: EmlSummary["check"];
+    failure?: string;
+  } | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveNotice, setSaveNotice] = useState("");
@@ -683,22 +690,53 @@ function DesignPage() {
     }
   }, [showVersions, projectId]);
 
+  /**
+   * Draw the ERD, then run the EML checker over the whole document.
+   *
+   * Drawing only proves Mermaid can read the `erDiagram` block; the checker is what
+   * reads the rules, workflows and dictionary directives, and it is the same engine
+   * generation runs, so what it reports here is what Generate would report.
+   */
   const handleValidate = async () => {
     setIsValidating(true);
+    setCheckReport(null);
     try {
       const id = `validate-${Date.now()}`;
       await mermaid.render(id, toRenderableMermaid(erdCode));
       setValidationErrors([]);
-      setSaveNotice(`Validated: the diagram parses (${entities.length} entities).`);
     } catch (error) {
       setValidationErrors([
         error instanceof Error ? error.message : "The diagram could not be parsed.",
       ]);
-      setSaveNotice("Validation failed: see the errors above the editor.");
+    }
+    try {
+      const response = await fetch("/api/eml/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eml: erdCode }),
+      });
+      if (!response.ok) throw new Error(`The checker answered ${response.status}`);
+      const summary = (await response.json()) as EmlSummary;
+      setCheckReport({ check: summary.check, failure: summary.checkFailure });
+      const check = summary.check;
+      setSaveNotice(
+        check
+          ? `Checked: ${check.errors} errors, ${check.warnings} warnings, ${check.infos} notes.`
+          : "The checker could not run: see the report above the editor."
+      );
+    } catch (error) {
+      const failure = error instanceof Error ? error.message : "The checker could not run";
+      setCheckReport({ failure });
+      setSaveNotice("The checker could not run: see the report above the editor.");
     } finally {
       setIsValidating(false);
     }
   };
+
+  // A report describes the text it was run on; the next edit makes it stale.
+  useEffect(() => {
+    setCheckReport(null);
+  }, [erdCode]);
 
   const handleSave = async (saveAsVersion = false) => {
     setIsSaving(true);
@@ -1691,6 +1729,13 @@ function DesignPage() {
                     )}
                   </div>
                 )}
+                {checkReport && (
+                  <CheckReportPanel
+                    report={checkReport}
+                    onLine={(line) => jumpToEntity(line - 1)}
+                    onClose={() => setCheckReport(null)}
+                  />
+                )}
                 <div className="relative">
                   <div className="flex h-[calc(100vh-320px)] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
                     <div
@@ -2328,5 +2373,68 @@ function DesignPage() {
         </div>
       )}
     </CopilotSidebar>
+  );
+}
+
+const SEVERITY_STYLE: Record<string, string> = {
+  error: "text-red-700 dark:text-red-400",
+  warning: "text-amber-700 dark:text-amber-300",
+  info: "text-muted-foreground",
+};
+
+/** The checker's verdict on the document, worst first, each line a jump into the editor. */
+function CheckReportPanel({
+  report,
+  onLine,
+  onClose,
+}: {
+  report: { check?: EmlSummary["check"]; failure?: string };
+  onLine: (line: number) => void;
+  onClose: () => void;
+}) {
+  const { check, failure } = report;
+  const tone = !check
+    ? "border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950"
+    : check.errors > 0
+      ? "border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950"
+      : "border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950";
+  return (
+    <div className={`mb-4 rounded-xl border px-4 py-3 text-sm ${tone}`} role="status">
+      <div className="flex items-start gap-2">
+        <p className="flex-1 font-medium">
+          {check
+            ? `EML checker: ${check.errors} errors · ${check.warnings} warnings · ` +
+              `${check.infos} notes`
+            : `The EML checker could not run: ${failure ?? "unknown error"}`}
+        </p>
+        <button type="button" aria-label="Close the checker report" onClick={onClose}>
+          <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+        </button>
+      </div>
+      {check && check.issues.length > 0 && (
+        <ul className="mt-2 max-h-64 space-y-1.5 overflow-y-auto text-xs">
+          {check.issues.map((issue, index) => (
+            <li key={`${issue.code}-${issue.line ?? "doc"}-${index}`}>
+              <span className={`font-mono font-semibold ${SEVERITY_STYLE[issue.severity] ?? ""}`}>
+                {issue.severity} {issue.code}
+              </span>{" "}
+              {issue.line ? (
+                <button
+                  type="button"
+                  onClick={() => onLine(issue.line ?? 1)}
+                  className="font-mono text-primary underline-offset-2 hover:underline"
+                >
+                  line {issue.line}
+                </button>
+              ) : (
+                <span className="font-mono text-muted-foreground">whole document</span>
+              )}{" "}
+              {issue.message}
+              {issue.hint && <span className="block text-muted-foreground">→ {issue.hint}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

@@ -1,10 +1,20 @@
 import type { DeployInput, AzureCredentials } from "./types";
+import { installPlugins, loadPulumiSdk, type PulumiSdk } from "./sdk";
 
-function makeAzureProgram(input: DeployInput) {
+/** The fields read from `listRegistryCredentialsOutput`. */
+interface RegistryCredentials {
+  username?: string;
+  passwords?: { value?: string }[];
+}
+
+/** The fields read from a container app's `configuration`. */
+interface ContainerAppConfiguration {
+  ingress?: { fqdn?: string };
+}
+
+function makeAzureProgram(input: DeployInput, sdk: PulumiSdk) {
   return async (): Promise<Record<string, unknown>> => {
-    const azure = await import("@pulumi/azure-native");
-    const docker = await import("@pulumi/docker");
-    const pulumi = await import("@pulumi/pulumi");
+    const { provider: azure, docker, pulumi } = sdk;
 
     const slug = input.projectName
       .toLowerCase()
@@ -44,8 +54,8 @@ function makeAzureProgram(input: DeployInput) {
       },
       registry: {
         server: registry.loginServer,
-        username: creds.apply(c => c.username ?? ""),
-        password: creds.apply(c => c.passwords?.[0]?.value ?? ""),
+        username: creds.apply((c: RegistryCredentials) => c.username ?? ""),
+        password: creds.apply((c: RegistryCredentials) => c.passwords?.[0]?.value ?? ""),
       },
     });
 
@@ -71,12 +81,12 @@ function makeAzureProgram(input: DeployInput) {
         },
         registries: [{
           server: registry.loginServer,
-          username: creds.apply(c => c.username ?? ""),
+          username: creds.apply((c: RegistryCredentials) => c.username ?? ""),
           passwordSecretRef: "acr-pass",
         }],
         secrets: [{
           name: "acr-pass",
-          value: creds.apply(c => c.passwords?.[0]?.value ?? ""),
+          value: creds.apply((c: RegistryCredentials) => c.passwords?.[0]?.value ?? ""),
         }],
       },
       template: {
@@ -91,7 +101,7 @@ function makeAzureProgram(input: DeployInput) {
     }, { dependsOn: [image] });
 
     return {
-      url: app.configuration.apply(c => `https://${c?.ingress?.fqdn ?? "pending"}`),
+      url: app.configuration.apply((c: ContainerAppConfiguration | undefined) => `https://${c?.ingress?.fqdn ?? "pending"}`),
     };
   };
 }
@@ -101,12 +111,13 @@ export async function deployAzure(
   creds: AzureCredentials,
   onLog: (msg: string) => void
 ): Promise<string> {
-  const { LocalWorkspace } = await import("@pulumi/pulumi/automation");
+  const sdk = await loadPulumiSdk("azure", onLog);
+  const { LocalWorkspace } = sdk.automation;
 
   const stack = await LocalWorkspace.createOrSelectStack({
     stackName: input.stackName,
     projectName: "appwithai",
-    program: makeAzureProgram(input),
+    program: makeAzureProgram(input, sdk),
   }, {
     envVars: {
       PULUMI_BACKEND_URL: `file://${input.stateDir}`,
@@ -124,8 +135,7 @@ export async function deployAzure(
   await stack.setConfig("azure-native:subscriptionId", { value: creds.subscriptionId });
   await stack.setConfig("azure-native:location", { value: creds.location });
 
-  onLog("Installing Azure provider plugin…");
-  await stack.workspace.installPlugin("azure-native", "v2.0.0");
+  await installPlugins(stack, sdk, onLog);
 
   const up = await stack.up({ onOutput: (o) => onLog(o.trimEnd()) });
   const url = up.outputs["url"]?.value as string;

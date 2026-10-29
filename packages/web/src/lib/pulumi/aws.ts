@@ -1,12 +1,10 @@
 import type { DeployInput, AWSCredentials } from "./types";
+import { installPlugins, loadPulumiSdk, type PulumiSdk } from "./sdk";
 
 /** Pulumi inline program that deploys to AWS App Runner via ECR. */
-function makeAWSProgram(input: DeployInput) {
+function makeAWSProgram(input: DeployInput, sdk: PulumiSdk) {
   return async (): Promise<Record<string, unknown>> => {
-    // Dynamic imports keep these packages out of the client bundle.
-    const aws = await import("@pulumi/aws");
-    const docker = await import("@pulumi/docker");
-    const pulumi = await import("@pulumi/pulumi");
+    const { provider: aws, docker, pulumi } = sdk;
 
     const slug = input.projectName
       .toLowerCase()
@@ -34,8 +32,8 @@ function makeAWSProgram(input: DeployInput) {
       },
       registry: {
         server: repo.repositoryUrl,
-        username: authToken.apply(t => decodeUser(t.authorizationToken)),
-        password: authToken.apply(t => decodePass(t.authorizationToken)),
+        username: authToken.apply((t: { authorizationToken: string }) => decodeUser(t.authorizationToken)),
+        password: authToken.apply((t: { authorizationToken: string }) => decodePass(t.authorizationToken)),
       },
     });
 
@@ -73,7 +71,7 @@ function makeAWSProgram(input: DeployInput) {
       instanceConfiguration: { cpu: "1024", memory: "2048" },
     }, { dependsOn: [image] });
 
-    return { url: service.serviceUrl.apply(u => `https://${u}`) };
+    return { url: service.serviceUrl.apply((u: string) => `https://${u}`) };
   };
 }
 
@@ -82,12 +80,13 @@ export async function deployAWS(
   creds: AWSCredentials,
   onLog: (msg: string) => void
 ): Promise<string> {
-  const { LocalWorkspace } = await import("@pulumi/pulumi/automation");
+  const sdk = await loadPulumiSdk("aws", onLog);
+  const { LocalWorkspace } = sdk.automation;
 
   const stack = await LocalWorkspace.createOrSelectStack({
     stackName: input.stackName,
     projectName: "appwithai",
-    program: makeAWSProgram(input),
+    program: makeAWSProgram(input, sdk),
   }, {
     envVars: {
       PULUMI_BACKEND_URL: `file://${input.stateDir}`,
@@ -101,8 +100,7 @@ export async function deployAWS(
 
   await stack.setConfig("aws:region", { value: creds.region });
 
-  onLog("Installing AWS provider plugin…");
-  await stack.workspace.installPlugin("aws", "v6.0.0");
+  await installPlugins(stack, sdk, onLog);
 
   const up = await stack.up({ onOutput: (o) => onLog(o.trimEnd()) });
   const url = up.outputs["url"]?.value as string;

@@ -1310,6 +1310,11 @@ the service cannot forget.
 
 **Mastra:** `MASTRA_DATABASE_URL` (default `file:./appwithai-mastra.db`), `MASTRA_PORT` (4111)
 
+**Cloud deploy:** `APPWITHAI_PULUMI_SDK_DIR` (default `~/.appwithai/pulumi-sdk`) — where
+`/api/cloud-deploy` installs the Pulumi SDK on first use, at the exact versions in
+`packages/web/src/lib/pulumi/sdk.ts`. No manifest declares `@pulumi/*`, by design; to move a
+version, install it beside those programs and `bun check` them against the real types.
+
 ---
 
 ## One protocol document — `website/llmtext/llms.txt`

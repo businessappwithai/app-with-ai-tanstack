@@ -6,7 +6,9 @@
  * Each cloud maps to a Pulumi inline program: AWS → App Runner, GCP → Cloud Run,
  * Azure → Container Apps, Oracle → Container Instances.
  *
- * Requires the `pulumi` CLI to be installed and Docker to be running.
+ * Requires Docker to be running. The `pulumi` CLI and the Pulumi SDK for the chosen
+ * provider are installed on first use (`ensurePulumi`, `loadPulumiSdk` in
+ * `lib/pulumi/`); the SDK is never a dependency of this workspace.
  */
 
 import fs from "node:fs/promises";
