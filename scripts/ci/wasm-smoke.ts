@@ -238,11 +238,10 @@ await check("a record can be created", async () => {
 });
 
 /*
- * The state field is system-managed. A lead's status starts at the machine's
- * initial state whatever the create sent, a person's write may not change it
- * (administrator included), and recording the fact a move depends on —
- * `working_at` — is what moves it, through the rule and saga the model
- * declares for that edge.
+ * The record lifecycle. A lead's status starts at the machine's initial state
+ * whatever the create sent, a write may not change it (administrator
+ * included), and a move is made by pressing it — POST …/transition, along an
+ * edge the diagram draws, against the version the record was read at.
  */
 let leadId = "";
 
@@ -294,19 +293,35 @@ await check("a person's change to the state is refused", async () => {
   );
 });
 
-await check("recording the fact a move depends on moves the state", async () => {
-  const { status } = await call("PATCH", `/bus/lead/${leadId}`, {
-    working_at: new Date().toISOString(),
-  });
-  expect(status === 200, `the write was refused: ${status}`);
-  let now: unknown;
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const { body } = await call("GET", `/bus/lead/${leadId}`);
-    now = (((body as { data?: Record<string, unknown> }).data ?? body) as Record<string, unknown>).status;
-    if (now === "working") break;
-    await new Promise((resolve) => setTimeout(resolve, 300));
-  }
-  expect(now === "working", `expected the saga to move the lead to "working", got ${JSON.stringify(now)}`);
+await check("a move is pressed, along a drawn edge, against the version read", async () => {
+  const read = await call("GET", `/bus/lead/${leadId}`);
+  const etag = read.etag ?? "";
+  expect(Boolean(etag), "the read carried no ETag");
+
+  const bare = await call("POST", `/bus/lead/${leadId}/transition`, { event: "engage" });
+  expect(bare.status === 428, `a press without If-Match should be 428, got ${bare.status}`);
+
+  const undrawn = await call("POST", `/bus/lead/${leadId}/transition`, { to: "qualified" }, { "If-Match": etag });
+  expect(undrawn.status === 409, `an undrawn move should be 409, got ${undrawn.status}`);
+  expect(
+    JSON.stringify(undrawn.body).includes("INVALID_TRANSITION"),
+    `the refusal does not name INVALID_TRANSITION: ${JSON.stringify(undrawn.body).slice(0, 300)}`
+  );
+
+  const actions = rowsOf((await call("GET", `/bus/lead/${leadId}/actions`)).body) as Array<{ event: string }>;
+  expect(
+    actions.some((action) => action.event === "engage"),
+    `the administrator is not offered "engage": ${JSON.stringify(actions)}`
+  );
+
+  const moved = await call("POST", `/bus/lead/${leadId}/transition`, { event: "engage" }, { "If-Match": etag });
+  expect(moved.status === 200, `the press was refused: ${moved.status} ${JSON.stringify(moved.body).slice(0, 300)}`);
+  const after = ((moved.body as { data?: Record<string, unknown> }).data ?? moved.body) as Record<string, unknown>;
+  expect(after.status === "working", `expected "working", got ${JSON.stringify(after.status)}`);
+  expect(Boolean(after.working_at), "the move did not stamp working_at");
+
+  const stale = await call("POST", `/bus/lead/${leadId}/transition`, { event: "nurture" }, { "If-Match": etag });
+  expect(stale.status === 409, `a press against an old version should be 409, got ${stale.status}`);
 });
 
 await check("the record comes back in a listing", async () => {
