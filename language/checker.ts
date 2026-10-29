@@ -3534,7 +3534,9 @@ class CheckEngine {
         "EML512",
         section.kind === "saga"
           ? `Saga "${section.name}" only moves ${section.entity} to a state; an action button makes that move now.`
-          : `Rule "${section.name}" only starts move sagas for ${section.entity}; an action button makes those moves now.`,
+          : section.kind === "action"
+            ? `Action "${section.name}" only starts a move saga for ${section.entity}; an action button makes that move now.`
+            : `Rule "${section.name}" only starts move sagas for ${section.entity}; an action button makes those moves now.`,
         {
           line: section.line,
           hint: "Remove it — the fixer does. The <state>_at columns stay: the application stamps them when the record reaches the state.",

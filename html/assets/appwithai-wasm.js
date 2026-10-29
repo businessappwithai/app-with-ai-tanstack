@@ -651,9 +651,10 @@ var appwithai_language_default = {
       EML154: "warning — a %%category with no `name:` key. category.parser.ts requires one and skips the line without it, so the whole grouping is silently lost and its entities fall into the default General category.",
       EML500: "A `kind: state` workflow bound to an entity with no status/state/stage column at all - the machine has nothing to track.",
       EML275: "error — a cross-entity UpdateEntity/DeleteEntity step whose targetField is not a column of the target entity. targetField is matched on the target table against the triggering record's id; a child reaching its parent writes targetSource: <fk column> instead.",
-      EML507: "warning — a `kind: state` machine can move its entity into a state no saga UpdateEntity step writes. The state field is system-managed, so nothing could ever put the record there. Reported once per machine, listing the states.",
+      EML509: "error — a `kind: state` machine draws a state named `final` or `error`. The record lifecycle reserves both as stored values: Final is every state the diagram ends, and Error is where a record whose Draft workflows failed goes. Compared exactly, so a `FINAL` status is an ordinary state.",
+      EML511: "info — a move the state diagram draws that no %%rbac line names. It is open to anyone who may update the entity, and the administrator; reported once per machine, listing the moves, so the choice is a visible one.",
+      EML512: "warning — a move rule (`<Entity>StateProgress`) or move saga (`<Entity><State>Move`) left from before action buttons: the saga only writes the state field and clears `_at` columns, the rule only starts such sagas. A button makes the move now, so they would move the record a second time. Auto-fixable: the section is removed and the `<state>_at` help rewritten (language/move-facts.ts).",
       EML508: "warning — a saga's UpdateEntity step writes a value into a state field that the entity's state machine does not draw.",
-      EML215: "error — a %%rbac line names a transition event of the entity's state machine. Only background workflows change a state, so a transition is not a permission. Auto-fixable: the line is removed.",
       EML178: "warning — a %%section row places the state field. The state is shown read-only in the form's header and as a list column, never in the form body. Auto-fixable: removed from the row."
     },
     reportDesigns: {
@@ -912,12 +913,14 @@ var appwithai_language_default = {
       start: "[*] --> FirstState",
       end: "LastState --> [*]",
       transition: "StateA --> StateB : eventName",
-      mappingHint: "States are treated as a status enum for the bound entity; transitions define the moves a background workflow may make.",
-      enforcement: "The edges are enforced, not merely documented. Every transition a diagram draws is compiled into sys_workflow_transitions, and the generated EntityAccessGuard refuses a write that moves a record to a state with no matching edge from the state it is in — answering 403 and leaving the record where it was. This holds for every caller, the master role included: an edge the diagram never drew is not a permission an administrator lacks, it is a move that does not exist, and allowing it would put the record in a state every rule and workflow downstream was written without. Keep that apart from who writes the state, which is never a person (see systemManaged).",
+      mappingHint: "States are the values of the bound entity's lifecycle column, between Draft and Error; transitions are the moves its action buttons make.",
+      enforcement: "The edges are enforced, not merely documented. A record moves only along an edge the diagram draws — by an action button (POST /api/bus/<entity>/<id>/transition) or by a workflow's UpdateEntity step — and a move with no edge from the record's state is refused with 409 `INVALID_TRANSITION`. This holds for every caller, the master role included: an edge the diagram never drew is not a permission an administrator lacks, it is a move that does not exist.",
+      lifecycle: "Every record has a lifecycle (language/state-field.ts is the one statement of it). It is saved in Draft. With no state machine it goes to Final when its workflows succeed, or to Error with their message when they fail; its column is `doc_status` (draft | final | error). With a machine its column is the state field, holding Draft, the machine's states and Error: a save from Draft or Error runs the workflows and, if they succeed, moves the record to the machine's initial state (staying in Draft when the machine starts there — a state named draft under any spelling is the lifecycle's Draft). Every state the diagram ends (x --> [*]) is Final. A Final record is locked: an update or delete is refused with 409 `RECORD_FINAL`, and only the `reopen` move, by the administrator or a role `%%rbac role:x on Entity.reopen` names, takes it back to Draft. An Error record stays editable; saving it starts over from Draft. A workflow that fails on a button press, or on saving a record in an intermediate state, rolls the change back with 422 and its message, and the record keeps its status. `final` and `error` are reserved state names (EML509).",
+      moves: "An action button for each edge out of the record's state, labelled with the edge's event (`close won` reads Close won) or, for an edge with no label, `Move to <state>`; a choice of several opens a menu. A move is limited to roles with `%%rbac role:<role> on <Entity>.<event>` (or `.from->to` for an edge with no label); a move no line names is open to anyone who may update the entity (EML511, info). A move may name an assignee who holds the next status's role. Each move stamps the `<state>_at` column when the entity has one and is logged in sys_record_transitions.",
       stateField: "The state field is the column the machine drives: `status`, else `state`, else `stage`, whichever the bound entity declares first in that order (language/state-field.ts is the one statement of it, read by the checker, the generator and both runtimes). An entity with none drives the managed `workflow_status` column and draws EML500.",
-      systemManaged: "A state field is never changed by a person through a form or a direct API write. Only background workflows change it: a saga's UpdateEntity step, a rule's trigger-workflow starting such a saga, a hook, or the application's own code. A new record starts in the machine's initial state whatever the request said. A person moves a record by recording the fact the move depends on - an approver, a decision, a date - and a %%rule turns that fact into the saga that writes the state. The generated API strips a state value that equals the stored one (so a whole-record save still works) and refuses one that differs with 403 and `details.code: \"STATE_FIELD_SYSTEM_MANAGED\"`, for every caller, the master role included. %%rbac cannot grant a transition (EML215), and every state a machine can move into needs a saga that writes it (EML507).",
+      systemManaged: 'Nobody types a status into a form. The lifecycle column is written by the save pipeline, an action button, or a workflow moving along a drawn edge. The generated API strips a value that equals the stored one (so a whole-record save still works) and refuses one that differs with 403 and `details.code: "STATE_FIELD_SYSTEM_MANAGED"`, for every caller, the master role included — the button is the way to move it. Move rules and sagas written before buttons existed are EML512, and the fixer removes them.',
       display: "Where an entity has a state field it is shown, and it is shown in two places only. On the record's form it is a read-only badge in the top header, beside the record's title - never an input, on create or on edit. In the list grid it is always a column, whatever else the grid shows; it is not grid noise and an administrator's grid-visibility toggle cannot hide it. It is therefore never placed in a %%section row (EML178), and its absence from every row is not a gap (EML170/EML172 do not count it).",
-      readingTheEdges: "GET /api/workflows/transitions returns the stored edges, optionally narrowed by ?table= and ?from=. A screen explaining where a record can go next reads it; no screen offers a person a status change. A table with no state diagram has no rows and nothing is enforced for it."
+      readingTheEdges: "GET /api/bus/<entity>/<id>/actions returns the moves the caller may make from the record's state (the buttons), and GET /api/workflows/transitions every stored edge, optionally narrowed by ?table= and ?from=."
     },
     workflowKinds: {
       hook: {
@@ -928,7 +931,7 @@ var appwithai_language_default = {
       },
       state: {
         form: "%%workflow <name> entity: <Entity> kind: state",
-        description: "A stateDiagram-v2 whose states map to a status enum for the bound entity. Transitions define the moves background workflows may make and are enforced as the entity's topology — see stateForm.enforcement. The state field is system-managed (stateForm.systemManaged): no %%rbac grants a transition, and every state a transition reaches is written by a saga. %%trigger directives declare external event sources. Fully parsed by the shipped hook-parser.",
+        description: "A stateDiagram-v2 whose states are the bound entity's lifecycle between Draft and Error. Each transition is an action button, limited to the roles a %%rbac line names, and the edges are enforced as the entity's topology — see stateForm.lifecycle, stateForm.moves and stateForm.enforcement. %%trigger directives declare external event sources. Fully parsed by the shipped hook-parser.",
         diagram: "stateDiagram-v2",
         shipped: true
       },
@@ -1448,12 +1451,12 @@ var appwithai_language_default = {
       },
       {
         keyword: "%%rbac",
-        form: "%%rbac <roleExpr> on <Entity>.<op>   where <op> is a CRUD operation (create|read|update|delete|*). A transition event is not an operation a role can hold (EML215).",
+        form: "%%rbac <roleExpr> on <Entity>.<target>   where <target> is a CRUD operation (create|read|update|delete|*), a move of the entity's state machine (its event, or from->to for an edge with no label), or reopen.",
         status: "compiled",
         consumedBy: [
           "packages/generator/src/rbac/index.ts (compiles both forms)",
           "packages/generator/src/rbac/roles.ts (derives the roles, one seeded account each, and per-entity visibility)",
-          "seeded into sys_operation_access / sys_transition_access",
+          "seeded into sys_access_grant (kind op | move | reopen), read through the sys_user_capability view",
           "enforced by the generated EntityAccessGuard on /bus CRUD",
           "app-and-report-with-ai-tanstack: common/build/reporting-pack.ts -> one reporting role per declared role, scoped to the tables that role may read"
         ],
@@ -1466,7 +1469,7 @@ var appwithai_language_default = {
         ],
         notes: {
           operations: "create | read | update | delete, plus * for all four. Aliases are accepted (insert/add, view/select/list, edit/write/modify, remove/destroy).",
-          transitions: "A state transition is not grantable. A name that matches a transition event of the entity's stateDiagram-v2 is an error (EML215, auto-fixable: the line is removed), because only background workflows change a state - see workflowConstructs.stateForm.systemManaged. Earlier generated applications stored such a line in sys_transition_access as a role restriction on the edge and let that role move the record by writing its status; nothing generated now writes that table, and the guard refuses every status write a person makes. Whether an edge exists at all is still decided by the state diagram, and a background workflow that writes an undrawn state is a model error the checker reports.",
+          transitions: "A move is grantable: `%%rbac role:sales_manager on Opportunity.close_won` shows the Close won button only to sales managers (and the administrator). The target is the edge's event in one token (`close won`, `Close-Won` and `close_won` are one event), `from->to` for an edge with no label, or `reopen` for the move from a Final state back to Draft. A move no line names is open to anyone who may update the entity (EML511, info). Several lines naming one move merge, as `|` inside one line does. A user's access is the union of their roles: a role only adds access, there is no deny.",
           notSysAccess: "A restriction on any operation other than read deliberately does not write sys_access. That is a grant table feeding sys_refresh_dictionary_scope(), where the first row added narrows a window to one role; a restriction on deleting must not become a restriction on looking. read is the one exception, and it is the exception on purpose - see functionalRoles.",
           functionalRoles: "read is the operation that decides which functional role an entity belongs to, and the only one that changes what a role sees. An entity a role may not read is absent from that role's navigation entirely - no menu entry, no dashboard card, no lookup - because a menu full of entries that answer 403 is a worse application than a shorter one. A model is expected to name every entity on at least one `%%rbac ... .read` directive, so that every entity belongs to somebody. Declaring none leaves every entity visible to every signed-in caller, which is what every model did before this rule existed.",
           seededAccounts: "Every role a directive names is created, and one account is seeded holding it, beside the administrator who bypasses everything and a role-less User. An application whose only account is the administrator cannot demonstrate its own access control, because the administrator is exempt from all of it. Both stacks derive the same list from rbac/roles.ts, and both sign-in screens print it with the number of entities each role can see.",
@@ -1621,7 +1624,7 @@ var appwithai_language_default = {
       "6. Workflow section, state form -> compileWorkflows -> BPMN seeded into sys_workflow_definitions; the trigger-workflow rules resolve it by name and the run puts a new record into the state machine's starting state. The same pass writes every edge the diagram draws into sys_workflow_transitions, which EntityAccessGuard reads to find the entity's state field and refuse any status write a person makes (stateForm.systemManaged), and which GET /api/workflows/transitions exposes so a screen can say where a record can go next. Saga UpdateEntity steps write the state through the executor, never through /bus.",
       "7. Workflow section, saga form -> compileSagaWorkflows -> one bpmn:serviceTask per %%step, ordered by the flowchart edges, seeded into sys_workflow_definitions with source 'model'. A definition declared in the model is owned by the model: the generated Workflow Designer shows it read-only, and regeneration rewrites it. Definitions authored in the app carry source 'designer' and are never touched by regeneration.",
       "8. The whole document -> language/rag.ts -> retrieval chunks (one per entity, rule, workflow and spec section) -> the pgvector model_context index the assistant searches.",
-      "9. %%rbac directives -> compileRbac -> per-operation rules in sys_operation_access (a transition is not grantable - EML215), enforced by EntityAccessGuard on the generated /bus CRUD routes. Restrictive, not granting: a target no directive names stays open.",
+      "9. %%rbac directives -> compileRbac -> sys_access_grant rows (operations, moves along the state machine, reopen), read per user through the sys_user_capability view and enforced by EntityAccessGuard on the generated /bus routes and by the transition service on every button. Restrictive, not granting: a target no directive names stays open.",
       "10. ERD section -> nestjs-backend.generator -> one default AnkaReport layout per entity seeded into sys_report_designs. The layout renders every non-audit, non-PK field as a two-column (label | value) report. Administrators can customise layouts at Admin → Report Designs. Records get a Print button on their detail view if a design exists for their table.",
       "11. %%enum and %%workflow kind: state -> the generated test suite's harness/model.ts, which carries the declared values and edges into the suites as data. This is the one consumer that reads the model rather than the dictionary compiled from it, and the distinction is the point: a suite that asserts a running application against the dictionary the same generator wrote proves only that the application is self-consistent, and passes just as happily when a value or an edge was dropped on the way. Asserting against the model's own word is what makes a dropped %%enum value or a missing state-machine edge fail a test rather than ship. Read by suite 02c (references) and suite 06b (state machines)."
     ],
@@ -1673,8 +1676,8 @@ var appwithai_language_default = {
       "A %%loop's loopId must be referenced by at least one %%step in: directive, and loops do not nest.",
       "At most one %%category in a document may declare default: true.",
       "A trigger-workflow action must name a workflow the document declares, or a workflow that already exists in the target application.",
-      "A %%rbac operation must be a CRUD operation (create/read/update/delete/*); naming a transition event is EML215.",
-      "Every state a kind: state machine can move into must be written by a saga's UpdateEntity step (EML507); the state field is never placed in a %%section row (EML178)."
+      "A %%rbac target must be a CRUD operation (create/read/update/delete/*), a move the entity's state machine draws, or reopen (EML214).",
+      "A state machine draws no state named final or error (EML509), and the state field is never placed in a %%section row (EML178); a rule or saga that only moves a record is retired (EML512)."
     ],
     note: "Levels describe what the shipped generator does, not an aspiration. A directive's own `status` field in `directives.reserved` is authoritative for that directive; these levels group them. When a compiler is added for a reserved directive, its status and this list move together."
   },
@@ -1705,10 +1708,10 @@ var appwithai_language_default = {
       EML174: "A %%section row with more than two columns - splits it into rows of two.",
       EML175: "A column placed in two %%section rows - removes the later placement.",
       EML178: "The state field placed in a %%section row - removes it from the row (a section left empty is removed).",
-      EML215: "%%rbac granting a state transition - deletes the line.",
       EML287: "Rule condition names a camelCase identifier - rewrites it as the snake_case column.",
       EML421: "State workflow has no initial transition - inserts `[*] --> <firstState>`.",
-      EML422: "State workflow has no terminal state - appends `<lastState> --> [*]`."
+      EML422: "State workflow has no terminal state - appends `<lastState> --> [*]`.",
+      EML512: "A move rule or saga an action button replaces - removes the section and rewrites the stock help on its <state>_at columns."
     },
     note: "language/checker.ts AUTO_FIXABLE_CODES and the fixer's dispatch table must list the same codes; a code in one and not the other is either a fix that never runs or a promise the fixer cannot keep."
   }
@@ -6722,6 +6725,45 @@ function formLayoutFor(entity) {
   return { groups, fields };
 }
 
+// language/state-field.ts
+var STATE_FIELD_CANDIDATES = ["status", "state", "stage"];
+function stateFieldOf(columns) {
+  const names = new Set(columns);
+  return STATE_FIELD_CANDIDATES.find((candidate) => names.has(candidate));
+}
+var LIFECYCLE_DRAFT = "draft";
+var LIFECYCLE_FINAL = "final";
+var LIFECYCLE_ERROR = "error";
+var DOC_STATUS_COLUMN = "doc_status";
+var REOPEN_EVENT = "reopen";
+var RESERVED_STATE_NAMES = [LIFECYCLE_FINAL, LIFECYCLE_ERROR];
+function draftValueFor(machine) {
+  const own = machine?.states.find((state) => state.name.toLowerCase() === LIFECYCLE_DRAFT);
+  return own?.name ?? LIFECYCLE_DRAFT;
+}
+function lifecycleValuesFor(machine) {
+  if (!machine)
+    return [LIFECYCLE_DRAFT, LIFECYCLE_FINAL, LIFECYCLE_ERROR];
+  const values = [draftValueFor(machine)];
+  for (const state of machine.states) {
+    if (!values.includes(state.name))
+      values.push(state.name);
+  }
+  if (!values.includes(LIFECYCLE_ERROR))
+    values.push(LIFECYCLE_ERROR);
+  return values;
+}
+function normalizeEvent(event) {
+  return event.trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+function moveLabel(event, to) {
+  const words = (text) => text.replace(/[_-]+/g, " ").trim();
+  const sentence = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+  if (event && event.trim())
+    return sentence(words(event));
+  return `Move to ${sentence(words(to))}`;
+}
+
 // packages/generator/src/rbac/index.ts
 var RBAC_OPERATIONS = ["create", "read", "update", "delete"];
 var OPERATION_ALIASES = {
@@ -6743,7 +6785,7 @@ var OPERATION_ALIASES = {
   remove: "delete",
   destroy: "delete"
 };
-var DIRECTIVE3 = /^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*]\w*)\s*$/;
+var DIRECTIVE3 = /^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*][\w-]*(?:->[A-Za-z_]\w*)?)\s*$/;
 function parseRoleExpression(expression) {
   const roles = [];
   for (const part of expression.split("|")) {
@@ -6761,17 +6803,28 @@ function compileRbac(source, knownEntities = [], stateMachines = [], onWarn = ()
   const known = new Set(knownEntities);
   const operations = new Map;
   const transitions = new Map;
-  const edgesFor = (entity, event) => {
+  const edgesFor = (entity, target) => {
     const found = [];
+    const arrow = /^([A-Za-z_]\w*)->([A-Za-z_]\w*)$/.exec(target);
     for (const machine of stateMachines) {
       if (machine.entity !== entity)
         continue;
+      const draft = machine.transitions.flatMap((edge) => [edge.from, edge.to]).find((state) => state.toLowerCase() === LIFECYCLE_DRAFT) ?? LIFECYCLE_DRAFT;
       for (const edge of machine.transitions) {
-        if (!edge.trigger)
-          continue;
-        const normalized = edge.trigger.trim().toLowerCase().replace(/[\s-]+/g, "_");
-        if (normalized === event.toLowerCase())
+        if (arrow) {
+          if (edge.from === arrow[1] && edge.to === arrow[2])
+            found.push({ from: edge.from, to: edge.to });
+        } else if (edge.trigger && normalizeEvent(edge.trigger) === normalizeEvent(target)) {
           found.push({ from: edge.from, to: edge.to });
+        }
+      }
+      const finals = machine.terminal ?? [];
+      if (arrow && found.length === 0 && finals.includes(arrow[1]) && arrow[2] === draft) {
+        found.push({ from: arrow[1], to: draft });
+      }
+      if (!arrow && found.length === 0 && normalizeEvent(target) === REOPEN_EVENT) {
+        for (const from of finals)
+          found.push({ from, to: draft });
       }
     }
     return found;
@@ -6813,10 +6866,18 @@ function compileRbac(source, knownEntities = [], stateMachines = [], onWarn = ()
     }
     const edges = edgesFor(entity, rawTarget);
     if (edges.length === 0) {
-      onWarn(`%%rbac on ${entity}.${rawTarget} names neither a CRUD operation ` + `(${RBAC_OPERATIONS.join(", ")}, *) nor a transition in ${entity}'s state machine — skipped.`);
+      onWarn(`%%rbac on ${entity}.${rawTarget} names neither a CRUD operation ` + `(${RBAC_OPERATIONS.join(", ")}, *), a move in ${entity}'s state machine, nor ` + `${REOPEN_EVENT} — skipped.`);
       continue;
     }
-    onWarn(`%%rbac on ${entity}.${rawTarget} grants a state transition; only background ` + `workflows change a state — skipped.`);
+    const transition = rawTarget.includes("->") ? rawTarget : normalizeEvent(rawTarget);
+    const key = `${entity}:${transition}`;
+    const existing = transitions.get(key);
+    if (existing) {
+      for (const role of roles)
+        existing.roles.add(role);
+    } else {
+      transitions.set(key, { entity, transition, edges, roles: new Set(roles) });
+    }
   }
   return {
     operations: [...operations.values()].map(({ entity, operation, roles }) => ({
@@ -7758,13 +7819,21 @@ function compileWorkflows(source, knownEntities = [], onWarn = () => {}) {
     if (!initial) {
       onWarn(`Workflow "${section.name}" has no starting state — records will not be stamped.`);
     }
+    for (const reserved of RESERVED_STATE_NAMES) {
+      if (states.has(reserved)) {
+        onWarn(`Workflow "${section.name}" draws a state named "${reserved}", which the record ` + `lifecycle reserves (checker EML509).`);
+      }
+    }
+    if (terminal.length === 0) {
+      onWarn(`Workflow "${section.name}" ends nowhere: no state reaches [*], so no record of ` + `${section.entity} can become Final (checker EML422).`);
+    }
+    const machine = { states: [...states.values()], initial, terminal };
     compiled.push({
       name: section.name,
       entity: section.entity,
-      states: [...states.values()],
+      ...machine,
       transitions,
-      initial,
-      terminal
+      lifecycleValues: lifecycleValuesFor(machine)
     });
   }
   return compiled;
@@ -8587,11 +8656,151 @@ function parseLogic(source) {
   return { ok: true, logic: { conditions, joins: split.joins, variables } };
 }
 
-// language/state-field.ts
-var STATE_FIELD_CANDIDATES = ["status", "state", "stage"];
-function stateFieldOf(columns) {
-  const names = new Set(columns);
-  return STATE_FIELD_CANDIDATES.find((candidate) => names.has(candidate));
+// language/move-facts.ts
+var SAGA = /^%%workflow\s+(\w+)\s+entity:\s*(\w+)\s+kind:\s*saga\b.*\btrigger:\s*rule\b/;
+var RULE = /^%%rule\s+(\w+)\s+on\s+(\w+)\b/;
+var STEP = /^%%step\s+\w+\s+(\w+)\b(.*)$/;
+var ACTION = /^%%action\s+\w+\s+trigger-workflow\b.*\bworkflow:\s*(\w+)\s*$/;
+var SECTION_START = /^(?:%%(?:meta\s+name:|workflow\b|rule\b|field\b|section\b|rbac\b|report\b|entity\b|enum\b|category\b|index\b|hook\b|jdm-graph\b)|%% -{2,}|erDiagram\b|stateDiagram(?:-v2)?\b)/;
+var FIELD_HELP = /^(\s*%%field\s+\w+\.\w+_at\s+help:\s*)When the move to (.+?) was recorded on this (.+?)\. Recording it moves .+?: the workflows set the status, which nobody changes by hand\.\s*$/;
+var SECTION_HELP = /help: The times that move this (.+?) along its lifecycle\. Recording one is how its status changes; the status itself is shown in the header\./;
+var HEADER = [
+  "%% ---- The state field is system-managed: each move is a rule and a saga ----",
+  "%% Nobody changes a state by hand. Recording the time a move depends on starts",
+  "%% the saga that sets the state; generated by the state-rule migration."
+];
+var HEADER_NOW = [
+  "%% ---- When each status was reached: stamped by the application ----",
+  "%% A record moves by an action button, along an edge its state diagram draws,",
+  "%% and the application writes the <state>_at time when it does."
+];
+function propsOf(rest) {
+  const props = {};
+  for (const m of rest.matchAll(/(\w+):\s*(\S+)/g))
+    props[m[1]] = m[2];
+  return props;
+}
+function blockEnd(lines, index) {
+  let end = index + 1;
+  while (end < lines.length && !SECTION_START.test(lines[end].trim()))
+    end++;
+  return end;
+}
+function blockStart(lines, index) {
+  let start = index;
+  while (start > 0 && /^%%meta\s+(?:name|kind):/.test(lines[start - 1].trim()))
+    start--;
+  return start;
+}
+function findRetiredMoves(source, stateFieldOf) {
+  const lines = source.split(`
+`);
+  const sections = [];
+  const retiredSagas = new Set;
+  for (let i = 0;i < lines.length; i++) {
+    const saga = SAGA.exec(lines[i].trim());
+    if (!saga)
+      continue;
+    const [, name = "", entity = ""] = saga;
+    const field = stateFieldOf(entity);
+    if (!field)
+      continue;
+    const end = blockEnd(lines, i);
+    let writesState = 0;
+    let other = false;
+    for (let j = i + 1;j < end; j++) {
+      const step = STEP.exec(lines[j].trim());
+      if (!step)
+        continue;
+      const [, type = "", rest = ""] = step;
+      const props = propsOf(rest);
+      const ownEntity = !props.entity || props.entity === entity;
+      if (type === "UpdateEntity" && ownEntity && props.field === field && props.value) {
+        writesState++;
+      } else if (type === "UpdateEntity" && ownEntity && /_at$/.test(props.field ?? "") && props.value === "null") {} else {
+        other = true;
+      }
+    }
+    if (writesState === 1 && !other) {
+      retiredSagas.add(name);
+      sections.push({ kind: "saga", name, entity, line: i + 1, start: blockStart(lines, i), end });
+    }
+  }
+  for (let i = 0;i < lines.length; i++) {
+    const rule = RULE.exec(lines[i].trim());
+    if (!rule)
+      continue;
+    const [, name = "", entity = ""] = rule;
+    const end = blockEnd(lines, i);
+    let actions = 0;
+    let other = false;
+    for (let j = i + 1;j < end; j++) {
+      const text = lines[j].trim();
+      if (!text.startsWith("%%action"))
+        continue;
+      actions++;
+      const action = ACTION.exec(text);
+      if (!action || !retiredSagas.has(action[1]))
+        other = true;
+    }
+    if (actions > 0 && !other) {
+      sections.push({ kind: "rule", name, entity, line: i + 1, start: blockStart(lines, i), end });
+    } else if (actions > 0) {
+      for (let j = i + 1;j < end; j++) {
+        const action = ACTION.exec(lines[j].trim());
+        if (!action || !retiredSagas.has(action[1]))
+          continue;
+        const actionName = /^%%action\s+(\w+)/.exec(lines[j].trim())?.[1] ?? action[1];
+        sections.push({ kind: "action", name: actionName, entity, line: j + 1, start: j, end: j + 1 });
+      }
+    }
+  }
+  const rewrites = [];
+  lines.forEach((text, index) => {
+    const field = FIELD_HELP.exec(text);
+    if (field) {
+      const [, head = "", state = "", noun = ""] = field;
+      rewrites.push({
+        line: index + 1,
+        replacement: `${head}When this ${noun} moved to ${state}. Stamped by the application when the move is made; nobody types it.`
+      });
+      return;
+    }
+    const section = SECTION_HELP.exec(text);
+    if (section) {
+      rewrites.push({
+        line: index + 1,
+        replacement: text.replace(SECTION_HELP, `help: When this ${section[1]} reached each status, stamped by the application as the record moves; the status itself is shown in the header.`)
+      });
+      return;
+    }
+    const header = HEADER.indexOf(text.trim());
+    if (header >= 0) {
+      rewrites.push({
+        line: index + 1,
+        replacement: text.replace(HEADER[header], HEADER_NOW[header])
+      });
+    }
+  });
+  sections.sort((a, b) => a.start - b.start);
+  return { sections, rewrites };
+}
+function sectionSpan(lines, index) {
+  const text = lines[index]?.trim() ?? "";
+  if (ACTION.test(text))
+    return { start: index, end: index + 1 };
+  if (!SAGA.test(text) && !RULE.test(text))
+    return;
+  return { start: blockStart(lines, index), end: blockEnd(lines, index) };
+}
+function rewriteStockHelp(lines) {
+  const { rewrites } = findRetiredMoves(lines.join(`
+`), () => {
+    return;
+  });
+  for (const rewrite of rewrites)
+    lines[rewrite.line - 1] = rewrite.replacement;
+  return rewrites.length;
 }
 
 // language/checker.ts
@@ -9664,6 +9873,9 @@ class CheckEngine {
     }
     return fields;
   }
+  finalStates(entity) {
+    return this.model.workflows.filter((wf) => wf.entity === entity && wf.kind === "state").flatMap((wf) => wf.transitions.filter((t) => t.to === "[*]").map((t) => t.from));
+  }
   checkRbac() {
     const entityNames = new Set(this.model.entities.map((e) => e.name));
     const crudOps = new Set([
@@ -9685,20 +9897,22 @@ class CheckEngine {
       "all",
       "any"
     ]);
-    const eventsFor = (entity) => {
-      const events = new Set;
+    const movesOf = (entity) => {
+      const moves = [];
       for (const wf of this.model.workflows) {
         if (wf.entity !== entity || wf.kind !== "state")
           continue;
         for (const t of wf.transitions) {
-          if (t.event)
-            events.add(t.event.trim().toLowerCase().replace(/[\s-]+/g, "_"));
+          if (t.from === "[*]" || t.to === "[*]")
+            continue;
+          moves.push({ workflow: wf.name, from: t.from, to: t.to, event: t.event });
         }
       }
-      return events;
+      return moves;
     };
+    const guarded = new Set;
     for (const { lineNo, text } of this.src.findAll(/^\s*%%rbac\b/)) {
-      const m = text.trim().match(/^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*]\w*)\s*$/);
+      const m = text.trim().match(/^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_*][\w-]*(?:->[A-Za-z_]\w*)?)\s*$/);
       if (!m) {
         this.error("EML210", `Invalid %%rbac syntax: "${text.trim()}"`, {
           line: lineNo,
@@ -9732,17 +9946,37 @@ class CheckEngine {
       const lower = target.toLowerCase();
       if (crudOps.has(lower))
         continue;
-      const events = eventsFor(entity);
-      if (events.has(lower)) {
-        this.error("EML215", `%%rbac on ${entity}.${target} grants a transition; a state is changed only by background workflows.`, {
-          line: lineNo,
-          hint: `Remove the line. Nobody moves ${entity} to another state through a form: a %%rule's trigger-workflow starts a saga whose UpdateEntity step writes the state, when a person records the fact the move depends on (a decision, a date, an approver). Grant that column's write with ${entity}.update instead.`
-        });
+      const moves = movesOf(entity);
+      const arrow = /^(\w+)->(\w+)$/.exec(target);
+      const named = arrow ? moves.filter((move) => move.from === arrow[1] && move.to === arrow[2]) : moves.filter((move) => move.event && normalizeEvent(move.event) === normalizeEvent(target));
+      if (named.length > 0) {
+        for (const move of named)
+          guarded.add(`${entity}:${move.from}->${move.to}`);
         continue;
       }
-      this.error("EML214", `%%rbac on ${entity}.${target} names neither a CRUD operation nor a transition of ${entity}.`, {
+      const finals = this.finalStates(entity);
+      if (arrow && finals.includes(arrow[1]) && arrow[2].toLowerCase() === LIFECYCLE_DRAFT)
+        continue;
+      if (!arrow && normalizeEvent(target) === REOPEN_EVENT && finals.length > 0)
+        continue;
+      const offered = [
+        ...new Set(moves.map((move) => move.event ? normalizeEvent(move.event) : `${move.from}->${move.to}`))
+      ];
+      this.error("EML214", `%%rbac on ${entity}.${target} names neither a CRUD operation nor a move of ${entity}.`, {
         line: lineNo,
-        hint: events.size ? `Use one of create, read, update, delete, * — or a transition of ${entity}: ${[...events].join(", ")}.` : `Use one of create, read, update, delete, * — ${entity} declares no state machine to take a transition from.`
+        hint: offered.length ? `Use one of create, read, update, delete, * — or a move of ${entity}: ${offered.join(", ")}, ${REOPEN_EVENT}.` : `Use one of create, read, update, delete, * — ${entity} declares no state machine to move along.`
+      });
+    }
+    for (const wf of this.model.workflows) {
+      if (wf.kind !== "state" || !wf.entity || !entityNames.has(wf.entity))
+        continue;
+      const open = movesOf(wf.entity).filter((move) => move.workflow === wf.name && !guarded.has(`${wf.entity}:${move.from}->${move.to}`));
+      if (open.length === 0)
+        continue;
+      const names = open.map((move) => move.event ? normalizeEvent(move.event) : `${move.from}->${move.to}`);
+      this.info("EML511", `${open.length} move${open.length === 1 ? "" : "s"} of "${wf.name}" ${open.length === 1 ? "is" : "are"} open to anyone who may update ${wf.entity}: ${[...new Set(names)].join(", ")}.`, {
+        line: this.src.findLine(new RegExp(`^%%workflow\\s+${wf.name}\\b`)),
+        hint: `To limit a button to the roles that own it, add  %%rbac role:<role> on ${wf.entity}.<move>  — the move is its event, or from->to for an edge with no label.`
       });
     }
   }
@@ -10611,24 +10845,20 @@ class CheckEngine {
     for (const wf of this.model.workflows) {
       if (wf.kind !== "state" || !wf.entity)
         continue;
-      const field = stateFields.get(wf.entity);
-      if (!field)
-        continue;
-      const unwritten = new Set;
-      for (const t of wf.transitions) {
-        if (t.from === "[*]" || t.to === "[*]" || !t.to)
+      for (const state of new Set([...wf.states, ...wf.transitions.flatMap((t) => [t.from, t.to])])) {
+        if (!RESERVED_STATE_NAMES.includes(state))
           continue;
-        const to = t.to.trim();
-        if (!this.sagaWrites.has(`${wf.entity}.${field}=${to}`))
-          unwritten.add(to);
-      }
-      if (unwritten.size > 0) {
-        const states = [...unwritten];
-        this.warn("EML507", `State workflow "${wf.name}" can move ${wf.entity} into ${states.length} state${states.length === 1 ? "" : "s"} no background workflow writes: ${states.join(", ")}.`, {
-          line: this.src.findLine(new RegExp(`^%%workflow\\s+${wf.name}\\b`)),
-          hint: `Only background workflows change ${wf.entity}.${field}. For each state, declare a saga whose step is  %%step B UpdateEntity entity: ${wf.entity} targetField: id field: ${field} value: <state>, and a %%rule action that starts it (trigger-workflow) when the fact the move depends on is recorded on the record.`
+        this.error("EML509", `State workflow "${wf.name}" draws a state named "${state}", which the record lifecycle reserves.`, {
+          line: this.src.findLine(new RegExp(`^\\s*(?:\\w+\\s*-->\\s*)?${state}\\b`)),
+          hint: `Rename it (e.g. ${state === "final" ? "completed" : "failed"}). Every state that ends the diagram (x --> [*]) is already Final, and Error is where a record whose workflows failed goes.`
         });
       }
+    }
+    for (const section of findRetiredMoves(this.src.text(), (entity) => stateFields.get(entity)).sections) {
+      this.warn("EML512", section.kind === "saga" ? `Saga "${section.name}" only moves ${section.entity} to a state; an action button makes that move now.` : section.kind === "action" ? `Action "${section.name}" only starts a move saga for ${section.entity}; an action button makes that move now.` : `Rule "${section.name}" only starts move sagas for ${section.entity}; an action button makes those moves now.`, {
+        line: section.line,
+        hint: "Remove it — the fixer does. The <state>_at columns stay: the application stamps them when the record reaches the state."
+      });
     }
     for (const write of this.sagaWrites) {
       const match = write.match(/^(\w+)\.(\w+)=(.+)$/);
@@ -10740,7 +10970,7 @@ var AUTO_FIXABLE_CODES = new Set([
   "EML174",
   "EML175",
   "EML178",
-  "EML215"
+  "EML512"
 ]);
 if (false) {}
 
@@ -10794,8 +11024,8 @@ function applyFix(lines, issue) {
       return fixDoublePlacement(lines, issue, base);
     case "EML178":
       return fixPlacedStateField(lines, issue, base);
-    case "EML215":
-      return fixTransitionGrant(lines, issue, base);
+    case "EML512":
+      return fixRetiredMove(lines, issue, base);
     default:
       base.description = `No auto-fix strategy for ${issue.code}.`;
       return base;
@@ -10903,17 +11133,24 @@ function fixPlacedStateField(lines, issue, base) {
   }
   return rewriteRows(lines, issue, base, () => rows, `Removed "${column}" from the section; the state is shown read-only in the form's header.`);
 }
-function fixTransitionGrant(lines, issue, base) {
+function fixRetiredMove(lines, issue, base) {
   const index = (issue.line ?? 0) - 1;
-  const before = lines[index];
-  if (before === undefined || !/^\s*%%rbac\b/.test(before)) {
-    base.description = `Line ${issue.line ?? "?"} is not a %%rbac line; left alone.`;
+  const span = sectionSpan(lines, index);
+  if (!span) {
+    base.description = `Line ${issue.line ?? "?"} is not a move rule or saga; left alone.`;
     return base;
   }
-  lines.splice(index, 1);
+  const name = lines[index].trim().split(/\s+/)[1];
+  const removed = lines.splice(span.start, span.end - span.start);
+  const rewritten = rewriteStockHelp(lines);
   base.applied = true;
-  base.description = "Removed a %%rbac line granting a state transition; only background workflows change a state.";
-  base.changes = [{ lineNo: index + 1, before, after: "", action: "delete" }];
+  base.description = `Removed ${name} (${removed.length} lines); an action button makes this move now.` + (rewritten ? ` Rewrote ${rewritten} help line${rewritten === 1 ? "" : "s"} on the <state>_at columns.` : "");
+  base.changes = removed.map((before, offset) => ({
+    lineNo: span.start + offset + 1,
+    before,
+    after: "",
+    action: "delete"
+  }));
   return base;
 }
 function fixMissingMetaName(lines, _issue, base) {
@@ -14433,6 +14670,100 @@ export async function labelsForRows(db, entity, rows) {
   return labels;
 }
 `,
+  "server/lib/lifecycle.js": `/**
+ * A record's lifecycle — Draft, its status flow, Final — and its moves.
+ *
+ * The JS twin of the NestJS stack's \`common/lifecycle.ts\`, read from the same
+ * data: \`model.lifecycle\` is the \`lifecycleTable\` that module is written from,
+ * so one model gives both stacks the same moves and the same lock.
+ *
+ * A record moves only when someone presses one of its moves: an edge its state
+ * diagram drew, or Reopen from the end of its flow back to Draft. Every end
+ * state is Final, and Final is locked. A record with no flow is never locked.
+ *
+ * Who may press a move is the model's \`%%rbac\` (\`model.rbac.transitions\`): a
+ * move it names belongs to those roles; one it does not is open to whoever may
+ * update the record; Reopen it does not name is the administrator's alone.
+ */
+
+import { holdsRole } from "./guards.js";
+
+export const LIFECYCLE_ERROR = "error";
+export const REOPEN_EVENT = "reopen";
+
+/** The lifecycle of a table, or null. */
+export function lifecycleOf(model, tableName) {
+  return model?.lifecycle?.[tableName] ?? null;
+}
+
+/** "draft" | "active" | "final" | "error". */
+export function phaseOf(lifecycle, value) {
+  const text = value == null ? "" : String(value);
+  if (text === LIFECYCLE_ERROR) return "error";
+  if (lifecycle.terminal.includes(text)) return "final";
+  if (text === "" || text === lifecycle.draft) return "draft";
+  return lifecycle.hasMachine ? "active" : "draft";
+}
+
+/** The end of a flow: Final, and locked until reopened. */
+export function isLocked(lifecycle, value) {
+  return !!lifecycle?.hasMachine && phaseOf(lifecycle, value) === "final";
+}
+
+/** Every move out of a value: the drawn edges, and Reopen from a locked end state. */
+export function movesFrom(lifecycle, value) {
+  const from = value == null ? "" : String(value);
+  const moves = lifecycle.edges
+    .filter((edge) => edge.from === from)
+    .map((edge) => ({ ...edge, kind: "move" }));
+  if (isLocked(lifecycle, from) && !moves.some((move) => move.to === lifecycle.draft)) {
+    moves.push({ from, to: lifecycle.draft, event: REOPEN_EVENT, label: "Reopen", kind: "reopen" });
+  }
+  return moves;
+}
+
+const oneToken = (text) => String(text ?? "").trim().toLowerCase().replace(/[\\s-]+/g, "_");
+
+/** The move a request names, by its event or by the state it goes to. */
+export function findMove(lifecycle, value, wanted) {
+  const event = wanted.event ? oneToken(wanted.event) : "";
+  const moves = movesFrom(lifecycle, value);
+  if (event && wanted.to) return moves.find((move) => move.event === event && move.to === wanted.to);
+  if (event) {
+    const named = moves.filter((move) => move.event === event);
+    return named.length === 1 ? named[0] : undefined;
+  }
+  if (wanted.to) {
+    const reaching = moves.filter((move) => move.to === wanted.to);
+    return reaching.length === 1 ? reaching[0] : undefined;
+  }
+  return undefined;
+}
+
+/** The roles \`%%rbac\` gives this move, or [] when it names none. */
+export function moveRoles(model, tableName, move) {
+  const roles = new Set();
+  for (const rule of model?.rbac?.transitions || []) {
+    if (rule.tableName !== tableName) continue;
+    if ((rule.edges || []).some((edge) => edge.from === move.from && edge.to === move.to)) {
+      for (const role of rule.roles || []) roles.add(role);
+    }
+  }
+  return [...roles];
+}
+
+/**
+ * May this person press this move? \`mayUpdate\` answers the fallback for a move
+ * nobody restricted — whether they may update the record at all.
+ */
+export async function mayPress(user, model, tableName, move, mayUpdate) {
+  const roles = moveRoles(model, tableName, move);
+  if (user?.isAdmin) return { allowed: true, roles };
+  if (roles.length > 0) return { allowed: holdsRole(user, roles), roles };
+  if (move.kind === "reopen") return { allowed: false, roles: [] };
+  return { allowed: await mayUpdate(), roles: [] };
+}
+`,
   "server/lib/naming.js": `/**
  * Naming, kept identical to @appwithai/core/utils.
  *
@@ -15316,7 +15647,7 @@ export async function evaluateRules(rules, record, options = {}) {
   return { violations, mutations, notifications, traces };
 }
 `,
-  "server/lib/sagas.js": "/**\n * The background workflows — a saga's steps, run after the write that started\n * them.\n *\n * A `kind: saga` workflow is a list of steps (`%%step`) compiled into\n * `model.sagas` and seeded into `sys_workflow_definitions`. A rule starts one\n * with a `trigger-workflow` action naming it; a saga declared `trigger:\n * automatic` runs on every write its `operation` names. Until this file, the\n * browser application stored the sagas and never ran one: the rule matched,\n * its row went into `_notifications`, and the step that should have moved an\n * invoice to `paid` did nothing.\n *\n * This is also the only writer of a state field. A person's request may not\n * change one (`bus.routes.js` refuses it); a saga's UpdateEntity step writes it\n * here, directly, the way the NestJS executor writes through Kysely without\n * passing its own access guard. Row targeting follows that executor exactly:\n *\n *   no entity                the triggering record\n *   entity + targetSource    the row whose id is that context value (a column of\n *                            the triggering record, or what an earlier step\n *                            published)\n *   entity + targetField     the rows whose targetField equals the triggering\n *                            record's id — children pointing back at it\n *\n * Steps it does not run here (Decision, REST, Agent, Formula beyond a copy) are\n * recorded as skipped in the run's detail rather than failing it.\n */\n\nimport { ident } from \"./db.js\";\nimport { evaluateRules } from \"./rules.js\";\nimport { stateFieldFor } from \"./workflows.js\";\n\n/**\n * How many state moves one write may set off. A saga that writes a state runs\n * the entity's rules again (below), and a model whose rules move a record back\n * and forth would otherwise never stop.\n */\nconst MAX_STATE_WRITE_DEPTH = 8;\n\n/** Find a saga definition by name: the table first, the model as a fallback. */\nasync function sagaNamed(db, model, name) {\n  try {\n    const row = await db.one(\n      \"SELECT definition FROM sys_workflow_definitions WHERE name = $1 AND kind = 'saga' AND is_active = true\",\n      [name]\n    );\n    if (row?.definition) {\n      return typeof row.definition === \"string\" ? JSON.parse(row.definition) : row.definition;\n    }\n  } catch {\n    /* fall through to the model */\n  }\n  return (model.sagas || []).find((saga) => saga.name === name) ?? null;\n}\n\nfunction entityNamed(model, name) {\n  const wanted = String(name ?? \"\").trim().toLowerCase().replace(/^bus_/, \"\");\n  return (\n    model.entities.find(\n      (entity) =>\n        entity.name.toLowerCase() === wanted ||\n        entity.tableName === `bus_${wanted}` ||\n        entity.tableName === wanted\n    ) ?? null\n  );\n}\n\n/** A literal step value as the column will hold it. */\nfunction literal(raw) {\n  const value = String(raw ?? \"\").trim();\n  if (value === \"true\") return true;\n  if (value === \"false\") return false;\n  if (value === \"null\") return null;\n  return value;\n}\n\nasync function updateEntity(db, model, triggering, record, step, context) {\n  const props = step.props || {};\n  const target = props.entity ? entityNamed(model, props.entity) : triggering;\n  const field = String(props.field ?? \"\").trim();\n  if (!target || !field) return { step: step.nodeId, skipped: \"no entity or field\" };\n\n  const value =\n    props.source && context[props.source.trim()] !== undefined\n      ? context[props.source.trim()]\n      : literal(props.value);\n\n  const targetSource = props.targetSource?.trim();\n  const targetField = props.targetField?.trim() || \"id\";\n  let column = \"id\";\n  let match;\n  if (targetSource) {\n    match = context[targetSource];\n  } else if (target === triggering) {\n    match = record.id;\n  } else if (targetField !== \"id\") {\n    column = targetField;\n    match = record.id;\n  }\n  if (match === undefined || match === null) {\n    return { step: step.nodeId, skipped: \"no row to update\" };\n  }\n\n  const rows = await db.query(\n    `UPDATE ${ident(target.tableName)}\n        SET ${ident(field)} = $1, updated_at = NOW(), version = COALESCE(version, 0) + 1\n      WHERE ${ident(column)} = $2 AND deleted_at IS NULL\n      RETURNING id`,\n    [value, match]\n  );\n  return {\n    step: step.nodeId,\n    entity: target.name,\n    field,\n    value,\n    rows: rows.length,\n    ids: rows.map((row) => row.id),\n  };\n}\n\nasync function createEntity(db, model, step, context) {\n  const props = step.props || {};\n  const target = entityNamed(model, props.entity);\n  if (!target) return { step: step.nodeId, skipped: \"unknown entity\" };\n  let fields = {};\n  try {\n    fields = props.fields ? JSON.parse(props.fields) : {};\n  } catch {\n    return { step: step.nodeId, skipped: \"fields is not JSON\" };\n  }\n  const values = {};\n  for (const [column, source] of Object.entries(fields)) {\n    values[column] =\n      typeof source === \"string\" && context[source] !== undefined ? context[source] : source;\n  }\n  // A record a workflow creates starts in its machine's initial state, as one\n  // a person creates does, unless the step names the state itself.\n  const state = await stateFieldFor(db, model, target);\n  if (state?.initial && (values[state.field] === undefined || values[state.field] === null)) {\n    values[state.field] = state.initial;\n  }\n  const created = await db.insert(target.tableName, values);\n  if (props.as) context[props.as.trim()] = created?.id;\n  return { step: step.nodeId, entity: target.name, created: created?.id ?? null };\n}\n\nasync function deleteEntity(db, model, triggering, record, step, context) {\n  const props = step.props || {};\n  const target = props.entity ? entityNamed(model, props.entity) : triggering;\n  if (!target) return { step: step.nodeId, skipped: \"unknown entity\" };\n  const targetSource = props.targetSource?.trim();\n  const targetField = props.targetField?.trim() || \"id\";\n  const column = targetSource ? \"id\" : target === triggering ? \"id\" : targetField;\n  const match = targetSource ? context[targetSource] : record.id;\n  if (match === undefined || match === null) return { step: step.nodeId, skipped: \"no row\" };\n  const rows = await db.query(\n    `UPDATE ${ident(target.tableName)} SET deleted_at = NOW()\n      WHERE ${ident(column)} = $1 AND deleted_at IS NULL RETURNING id`,\n    [match]\n  );\n  return { step: step.nodeId, entity: target.name, deleted: rows.length };\n}\n\n/** Run one saga against the record that started it. */\nexport async function runSaga(db, model, entity, record, saga, user) {\n  const context = { ...record };\n  const results = [];\n  let status = \"completed\";\n  for (const step of saga.steps || []) {\n    try {\n      if (step.type === \"UpdateEntity\") {\n        results.push(await updateEntity(db, model, entity, record, step, context));\n      } else if (step.type === \"CreateEntity\") {\n        results.push(await createEntity(db, model, step, context));\n      } else if (step.type === \"DeleteEntity\") {\n        results.push(await deleteEntity(db, model, entity, record, step, context));\n      } else {\n        results.push({ step: step.nodeId, skipped: `${step.type} is not run in the browser` });\n      }\n    } catch (error) {\n      results.push({ step: step.nodeId, error: error.message });\n      status = \"failed\";\n      break;\n    }\n  }\n\n  await db.insert(\"sys_workflow_runs\", {\n    workflow_name: saga.name,\n    entity_name: entity.name,\n    record_id: record.id,\n    trigger: \"saga\",\n    status,\n    detail: JSON.stringify({ steps: results }),\n    created_by: user?.id ?? null,\n  });\n  return { saga: saga.name, status, steps: results };\n}\n\n/**\n * Every saga a write starts: those its rules named with `trigger-workflow`,\n * and those declared `trigger: automatic` for this operation. Run after the\n * write, against the record as stored — as the NestJS stack does.\n *\n * A saga that writes an entity's state field is itself a write that rules may\n * be keyed on (`status == \"paid\" and …`), and a person's request is no longer\n * how a state changes, so nothing else would evaluate them. After such a step\n * the moved rows are re-read and their UPDATE rules run again; only the sagas\n * those rules start are run, as `followStateWrites` does in the NestJS rules\n * service, to a depth of MAX_STATE_WRITE_DEPTH.\n */\nexport async function runTriggeredSagas(\n  db, model, entity, record, operation, notifications, user, depth = 0\n) {\n  const names = new Set();\n  for (const item of notifications || []) {\n    const action = String(item.action || \"\").toLowerCase();\n    const name = item.workflowName || item.workflow;\n    if (action.startsWith(\"trigger\") && name) names.add(String(name));\n  }\n  if (depth === 0) {\n    for (const saga of model.sagas || []) {\n      if (saga.entity !== entity.name || saga.trigger !== \"automatic\") continue;\n      if (saga.operation === \"ALL\" || saga.operation === operation) names.add(saga.name);\n    }\n  }\n\n  const runs = [];\n  for (const name of names) {\n    const saga = await sagaNamed(db, model, name);\n    if (!saga) continue;\n    const run = await runSaga(db, model, entity, record, saga, user);\n    runs.push(run);\n    runs.push(...(await followStateWrites(db, model, run, user, depth)));\n  }\n  return runs;\n}\n\nasync function followStateWrites(db, model, run, user, depth) {\n  if (depth >= MAX_STATE_WRITE_DEPTH) return [];\n  const runs = [];\n  for (const result of run.steps) {\n    if (!result.ids?.length) continue;\n    const target = entityNamed(model, result.entity);\n    if (!target) continue;\n    const state = await stateFieldFor(db, model, target);\n    if (!state || state.field !== result.field) continue;\n    const rules = await db.query(\n      `SELECT name, jdm_content FROM sys_rule_definitions\n        WHERE entity_name = $1 AND operation IN ('UPDATE', 'ALL') AND is_active = true\n        ORDER BY priority ASC`,\n      [target.name]\n    );\n    for (const id of result.ids) {\n      const row = await db.one(\n        `SELECT * FROM ${ident(target.tableName)} WHERE id = $1 AND deleted_at IS NULL`,\n        [id]\n      );\n      if (!row) continue;\n      const outcome = await evaluateRules(rules, row, {\n        columns: target.attributes.map((attribute) => attribute.columnName),\n      });\n      runs.push(\n        ...(await runTriggeredSagas(\n          db, model, target, row, \"UPDATE\", outcome.notifications, user, depth + 1\n        ))\n      );\n    }\n  }\n  return runs;\n}\n",
+  "server/lib/sagas.js": "/**\n * The background workflows — a saga's steps, run after the write that started\n * them.\n *\n * A `kind: saga` workflow is a list of steps (`%%step`) compiled into\n * `model.sagas` and seeded into `sys_workflow_definitions`. A rule starts one\n * with a `trigger-workflow` action naming it; a saga declared `trigger:\n * automatic` runs on every write its `operation` names. Until this file, the\n * browser application stored the sagas and never ran one: the rule matched,\n * its row went into `_notifications`, and the step that should have moved an\n * invoice to `paid` did nothing.\n *\n * This is also the only writer of a state field. A person's request may not\n * change one (`bus.routes.js` refuses it); a saga's UpdateEntity step writes it\n * here, directly, the way the NestJS executor writes through Kysely without\n * passing its own access guard. Row targeting follows that executor exactly:\n *\n *   no entity                the triggering record\n *   entity + targetSource    the row whose id is that context value (a column of\n *                            the triggering record, or what an earlier step\n *                            published)\n *   entity + targetField     the rows whose targetField equals the triggering\n *                            record's id — children pointing back at it\n *\n * Steps it does not run here (Decision, REST, Agent, Formula beyond a copy) are\n * recorded as skipped in the run's detail rather than failing it.\n */\n\nimport { ident } from \"./db.js\";\nimport { evaluateRules } from \"./rules.js\";\nimport { stateFieldFor } from \"./workflows.js\";\nimport { lifecycleOf } from \"./lifecycle.js\";\n\n/**\n * How many state moves one write may set off. A saga that writes a state runs\n * the entity's rules again (below), and a model whose rules move a record back\n * and forth would otherwise never stop.\n */\nconst MAX_STATE_WRITE_DEPTH = 8;\n\n/** Find a saga definition by name: the table first, the model as a fallback. */\nasync function sagaNamed(db, model, name) {\n  try {\n    const row = await db.one(\n      \"SELECT definition FROM sys_workflow_definitions WHERE name = $1 AND kind = 'saga' AND is_active = true\",\n      [name]\n    );\n    if (row?.definition) {\n      return typeof row.definition === \"string\" ? JSON.parse(row.definition) : row.definition;\n    }\n  } catch {\n    /* fall through to the model */\n  }\n  return (model.sagas || []).find((saga) => saga.name === name) ?? null;\n}\n\nfunction entityNamed(model, name) {\n  const wanted = String(name ?? \"\").trim().toLowerCase().replace(/^bus_/, \"\");\n  return (\n    model.entities.find(\n      (entity) =>\n        entity.name.toLowerCase() === wanted ||\n        entity.tableName === `bus_${wanted}` ||\n        entity.tableName === wanted\n    ) ?? null\n  );\n}\n\n/** A literal step value as the column will hold it. */\nfunction literal(raw) {\n  const value = String(raw ?? \"\").trim();\n  if (value === \"true\") return true;\n  if (value === \"false\") return false;\n  if (value === \"null\") return null;\n  return value;\n}\n\nasync function updateEntity(db, model, triggering, record, step, context) {\n  const props = step.props || {};\n  const target = props.entity ? entityNamed(model, props.entity) : triggering;\n  const field = String(props.field ?? \"\").trim();\n  if (!target || !field) return { step: step.nodeId, skipped: \"no entity or field\" };\n\n  const value =\n    props.source && context[props.source.trim()] !== undefined\n      ? context[props.source.trim()]\n      : literal(props.value);\n\n  const targetSource = props.targetSource?.trim();\n  const targetField = props.targetField?.trim() || \"id\";\n  let column = \"id\";\n  let match;\n  if (targetSource) {\n    match = context[targetSource];\n  } else if (target === triggering) {\n    match = record.id;\n  } else if (targetField !== \"id\") {\n    column = targetField;\n    match = record.id;\n  }\n  if (match === undefined || match === null) {\n    return { step: step.nodeId, skipped: \"no row to update\" };\n  }\n\n  // A saga writing a record's status makes a move like anyone else: only along\n  // an edge the diagram drew, from where the record is (lib/lifecycle.js), and\n  // it stamps `<state>_at` as a button press does. Roles are not asked.\n  const lifecycle = lifecycleOf(model, target.tableName);\n  if (lifecycle?.hasMachine && lifecycle.column === field) {\n    const from = lifecycle.edges.filter((edge) => edge.to === String(value)).map((edge) => edge.from);\n    if (from.length === 0) {\n      return { step: step.nodeId, skipped: `no drawn edge reaches \"${String(value)}\"` };\n    }\n    const stamp = `${String(value)}_at`;\n    const stamps = target.attributes.some((attribute) => attribute.columnName === stamp);\n    const rows = await db.query(\n      `UPDATE ${ident(target.tableName)}\n          SET ${ident(field)} = $1, updated_at = NOW(), version = COALESCE(version, 0) + 1\n              ${stamps ? `, ${ident(stamp)} = NOW()` : \"\"}\n        WHERE ${ident(column)} = $2 AND deleted_at IS NULL AND ${ident(field)} = ANY($3)\n        RETURNING id`,\n      [value, match, from]\n    );\n    return { step: step.nodeId, entity: target.name, field, value, rows: rows.length, ids: rows.map((row) => row.id) };\n  }\n\n  const rows = await db.query(\n    `UPDATE ${ident(target.tableName)}\n        SET ${ident(field)} = $1, updated_at = NOW(), version = COALESCE(version, 0) + 1\n      WHERE ${ident(column)} = $2 AND deleted_at IS NULL\n      RETURNING id`,\n    [value, match]\n  );\n  return {\n    step: step.nodeId,\n    entity: target.name,\n    field,\n    value,\n    rows: rows.length,\n    ids: rows.map((row) => row.id),\n  };\n}\n\nasync function createEntity(db, model, step, context) {\n  const props = step.props || {};\n  const target = entityNamed(model, props.entity);\n  if (!target) return { step: step.nodeId, skipped: \"unknown entity\" };\n  let fields = {};\n  try {\n    fields = props.fields ? JSON.parse(props.fields) : {};\n  } catch {\n    return { step: step.nodeId, skipped: \"fields is not JSON\" };\n  }\n  const values = {};\n  for (const [column, source] of Object.entries(fields)) {\n    values[column] =\n      typeof source === \"string\" && context[source] !== undefined ? context[source] : source;\n  }\n  // A record a workflow creates starts in its machine's initial state, as one\n  // a person creates does, unless the step names the state itself.\n  const state = await stateFieldFor(db, model, target);\n  if (state?.initial && (values[state.field] === undefined || values[state.field] === null)) {\n    values[state.field] = state.initial;\n  }\n  const created = await db.insert(target.tableName, values);\n  if (props.as) context[props.as.trim()] = created?.id;\n  return { step: step.nodeId, entity: target.name, created: created?.id ?? null };\n}\n\nasync function deleteEntity(db, model, triggering, record, step, context) {\n  const props = step.props || {};\n  const target = props.entity ? entityNamed(model, props.entity) : triggering;\n  if (!target) return { step: step.nodeId, skipped: \"unknown entity\" };\n  const targetSource = props.targetSource?.trim();\n  const targetField = props.targetField?.trim() || \"id\";\n  const column = targetSource ? \"id\" : target === triggering ? \"id\" : targetField;\n  const match = targetSource ? context[targetSource] : record.id;\n  if (match === undefined || match === null) return { step: step.nodeId, skipped: \"no row\" };\n  const rows = await db.query(\n    `UPDATE ${ident(target.tableName)} SET deleted_at = NOW()\n      WHERE ${ident(column)} = $1 AND deleted_at IS NULL RETURNING id`,\n    [match]\n  );\n  return { step: step.nodeId, entity: target.name, deleted: rows.length };\n}\n\n/** Run one saga against the record that started it. */\nexport async function runSaga(db, model, entity, record, saga, user) {\n  const context = { ...record };\n  const results = [];\n  let status = \"completed\";\n  for (const step of saga.steps || []) {\n    try {\n      if (step.type === \"UpdateEntity\") {\n        results.push(await updateEntity(db, model, entity, record, step, context));\n      } else if (step.type === \"CreateEntity\") {\n        results.push(await createEntity(db, model, step, context));\n      } else if (step.type === \"DeleteEntity\") {\n        results.push(await deleteEntity(db, model, entity, record, step, context));\n      } else {\n        results.push({ step: step.nodeId, skipped: `${step.type} is not run in the browser` });\n      }\n    } catch (error) {\n      results.push({ step: step.nodeId, error: error.message });\n      status = \"failed\";\n      break;\n    }\n  }\n\n  await db.insert(\"sys_workflow_runs\", {\n    workflow_name: saga.name,\n    entity_name: entity.name,\n    record_id: record.id,\n    trigger: \"saga\",\n    status,\n    detail: JSON.stringify({ steps: results }),\n    created_by: user?.id ?? null,\n  });\n  return { saga: saga.name, status, steps: results };\n}\n\n/**\n * Every saga a write starts: those its rules named with `trigger-workflow`,\n * and those declared `trigger: automatic` for this operation. Run after the\n * write, against the record as stored — as the NestJS stack does.\n *\n * A saga that writes an entity's state field is itself a write that rules may\n * be keyed on (`status == \"paid\" and …`), and a person's request is no longer\n * how a state changes, so nothing else would evaluate them. After such a step\n * the moved rows are re-read and their UPDATE rules run again; only the sagas\n * those rules start are run, as `followStateWrites` does in the NestJS rules\n * service, to a depth of MAX_STATE_WRITE_DEPTH.\n */\nexport async function runTriggeredSagas(\n  db, model, entity, record, operation, notifications, user, depth = 0\n) {\n  const names = new Set();\n  for (const item of notifications || []) {\n    const action = String(item.action || \"\").toLowerCase();\n    const name = item.workflowName || item.workflow;\n    if (action.startsWith(\"trigger\") && name) names.add(String(name));\n  }\n  if (depth === 0) {\n    for (const saga of model.sagas || []) {\n      if (saga.entity !== entity.name || saga.trigger !== \"automatic\") continue;\n      if (saga.operation === \"ALL\" || saga.operation === operation) names.add(saga.name);\n    }\n  }\n\n  const runs = [];\n  for (const name of names) {\n    const saga = await sagaNamed(db, model, name);\n    if (!saga) continue;\n    const run = await runSaga(db, model, entity, record, saga, user);\n    runs.push(run);\n    runs.push(...(await followStateWrites(db, model, run, user, depth)));\n  }\n  return runs;\n}\n\nasync function followStateWrites(db, model, run, user, depth) {\n  if (depth >= MAX_STATE_WRITE_DEPTH) return [];\n  const runs = [];\n  for (const result of run.steps) {\n    if (!result.ids?.length) continue;\n    const target = entityNamed(model, result.entity);\n    if (!target) continue;\n    const state = await stateFieldFor(db, model, target);\n    if (!state || state.field !== result.field) continue;\n    const rules = await db.query(\n      `SELECT name, jdm_content FROM sys_rule_definitions\n        WHERE entity_name = $1 AND operation IN ('UPDATE', 'ALL') AND is_active = true\n        ORDER BY priority ASC`,\n      [target.name]\n    );\n    for (const id of result.ids) {\n      const row = await db.one(\n        `SELECT * FROM ${ident(target.tableName)} WHERE id = $1 AND deleted_at IS NULL`,\n        [id]\n      );\n      if (!row) continue;\n      const outcome = await evaluateRules(rules, row, {\n        columns: target.attributes.map((attribute) => attribute.columnName),\n      });\n      runs.push(\n        ...(await runTriggeredSagas(\n          db, model, target, row, \"UPDATE\", outcome.notifications, user, depth + 1\n        ))\n      );\n    }\n  }\n  return runs;\n}\n",
   "server/lib/workflows.js": `/**
  * Where a workflow is read from — the table, not the model.
  *
@@ -16586,6 +16917,7 @@ import { logicViolations } from "../lib/field-logic.js";
 import { recordAudit } from "./audit.routes.js";
 import { labelsForRows } from "../lib/labels.js";
 import { toRouteName } from "../lib/naming.js";
+import { findMove, isLocked, lifecycleOf, mayPress, movesFrom, phaseOf } from "../lib/lifecycle.js";
 
 /** Columns every generated table carries; never editable by a client. */
 const MANAGED = new Set([
@@ -17114,6 +17446,9 @@ export function busRoutes(model) {
     if (expectedVersion !== undefined && Number(current.version ?? 0) !== expectedVersion) {
       return versionConflict(entity, params.id, expectedVersion, Number(current.version ?? 0));
     }
+    // The end of a flow is Final and locked; Reopen is the way back.
+    const locked = lockedResponse(model, entity, current);
+    if (locked) return locked;
 
     const body = await readJson(request);
     let values = sanitize(entity, body);
@@ -17131,8 +17466,8 @@ export function busRoutes(model) {
           {
             statusCode: 403,
             message:
-              \`"\${state.field}" is changed only by the application's workflows, never through a form. \` +
-              "Record the fact the move depends on and its workflow will move it.",
+              \`"\${state.field}" is changed only by the record's moves, never through a form. \` +
+              "Use one of the record's action buttons (POST …/transition).",
             details: {
               code: STATE_FIELD_REFUSAL_CODE,
               entity: entity.tableName,
@@ -17219,6 +17554,8 @@ export function busRoutes(model) {
       [params.id]
     );
     if (!current) throw notFound(\`No \${entity.name} with id \${params.id}\`);
+    const locked = lockedResponse(model, entity, current);
+    if (locked) return locked;
 
     const before = await runHooks(model.hooks, "beforeDelete", entity.name, current);
     if (before.failures.length) throw badRequest("A lifecycle hook refused the delete", before.failures);
@@ -17252,7 +17589,195 @@ export function busRoutes(model) {
     return json({ success: true, id: params.id });
   });
 
+  /**
+   * The record's action buttons for this person, from where it is — the moves
+   * of its flow they may press, and Reopen at the end of it (lib/lifecycle.js).
+   */
+  router.get("/:entity/:id/actions", async (_request, { db, params, user }) => {
+    const entity = entityOr404(model, params.entity);
+    await checkOperationAccess(db, user, entity.tableName, "read");
+    const lifecycle = lifecycleOf(model, entity.tableName);
+    if (!lifecycle?.hasMachine) return json([]);
+    const record = await db.one(
+      \`SELECT * FROM \${ident(entity.tableName)} WHERE id = $1 AND deleted_at IS NULL\`,
+      [params.id]
+    );
+    if (!record) throw notFound(\`No \${entity.name} with id \${params.id}\`);
+    const mayUpdate = () => updateAllowed(db, user, entity.tableName);
+    const actions = [];
+    for (const move of movesFrom(lifecycle, record[lifecycle.column])) {
+      const decision = await mayPress(user, model, entity.tableName, move, mayUpdate);
+      if (!decision.allowed) continue;
+      actions.push({
+        event: move.event,
+        to: move.to,
+        label: move.label,
+        kind: move.kind,
+        restricted: decision.roles.length > 0,
+        roles: decision.roles,
+      });
+    }
+    return json(actions);
+  });
+
+  /**
+   * Press a move: \`{ event }\` or \`{ to }\`, with the version the record was read
+   * at as If-Match. The edge, the role and the record's rules are judged, then
+   * the state is written with its \`<state>_at\`, and the sagas the move starts
+   * run — the same contract as the NestJS stack's POST …/transition.
+   */
+  router.post("/:entity/:id/transition", async (request, { db, params, user }) => {
+    const entity = entityOr404(model, params.entity);
+    requireUser(user);
+    await checkOperationAccess(db, user, entity.tableName, "read");
+    const lifecycle = lifecycleOf(model, entity.tableName);
+    if (!lifecycle?.hasMachine) throw notFound(\`\${entity.name} has no status flow to move along\`);
+
+    const current = await db.one(
+      \`SELECT * FROM \${ident(entity.tableName)} WHERE id = $1 AND deleted_at IS NULL\`,
+      [params.id]
+    );
+    if (!current) throw notFound(\`No \${entity.name} with id \${params.id}\`);
+
+    const expectedVersion = parseIfMatch(request.headers.get("if-match"));
+    if (expectedVersion === undefined) {
+      return json(
+        {
+          statusCode: 428,
+          message: "A move needs the version the record was read at, as If-Match.",
+          details: { code: "PRECONDITION_REQUIRED" },
+        },
+        { status: 428 }
+      );
+    }
+    if (Number(current.version ?? 0) !== expectedVersion) {
+      return versionConflict(entity, params.id, expectedVersion, Number(current.version ?? 0));
+    }
+
+    const body = await readJson(request);
+    const from = current[lifecycle.column] == null ? null : String(current[lifecycle.column]);
+    const move = findMove(lifecycle, from, { event: body?.event, to: body?.to });
+    if (!move) {
+      const offered = movesFrom(lifecycle, from).map((item) => item.event || item.to);
+      return json(
+        {
+          statusCode: 409,
+          message:
+            \`"\${body?.event ?? body?.to ?? ""}" is not a move of this record from "\${from ?? "nothing"}". \` +
+            (offered.length ? \`Its moves are: \${offered.join(", ")}.\` : "It has no moves from here."),
+          details: { code: "INVALID_TRANSITION", entity: entity.tableName, id: params.id, from, offered },
+        },
+        { status: 409 }
+      );
+    }
+
+    const decision = await mayPress(user, model, entity.tableName, move, () =>
+      updateAllowed(db, user, entity.tableName)
+    );
+    if (!decision.allowed) {
+      return json(
+        {
+          statusCode: 403,
+          message:
+            move.kind === "reopen" && decision.roles.length === 0
+              ? "Only an administrator can reopen this record."
+              : \`"\${move.label}" can be pressed by: \${decision.roles.join(", ")}.\`,
+          details: { code: "TRANSITION_FORBIDDEN", entity: entity.tableName, id: params.id, roles: decision.roles },
+        },
+        { status: 403 }
+      );
+    }
+
+    const now = new Date().toISOString();
+    const values = {
+      [lifecycle.column]: move.to,
+      updated_by: user.id,
+      updated_at: now,
+      version: (current.version ?? 1) + 1,
+    };
+    const stamp = \`\${move.to}_at\`;
+    if (entity.attributes.some((attribute) => attribute.columnName === stamp)) values[stamp] = now;
+
+    // Refusing rules hold on a move as on a save, judged on the record as it
+    // will be: "a resolved case needs its notes".
+    const merged = { ...current, ...values };
+    const outcome = await evaluateRules(await rulesFor(db, entity, "UPDATE"), merged, {
+      columns: entity.attributes.map((attribute) => attribute.columnName),
+    });
+    if (outcome.violations.length) {
+      return json(
+        { statusCode: 422, message: "A business rule refused this move", violations: outcome.violations },
+        { status: 422 }
+      );
+    }
+
+    const updated = await db.update(entity.tableName, values, {
+      id: params.id,
+      version: current.version ?? null,
+    });
+    if (!updated) {
+      const latest = await db.one(\`SELECT version FROM \${ident(entity.tableName)} WHERE id = $1\`, [params.id]);
+      return versionConflict(entity, params.id, expectedVersion, Number(latest?.version ?? 0));
+    }
+    await recordWorkflowRun(db, model, entity, current, updated, user);
+    const runs = await runTriggeredSagas(db, model, entity, updated, "UPDATE", outcome.notifications, user);
+    const stored = runs.length
+      ? (await db.one(\`SELECT * FROM \${ident(entity.tableName)} WHERE id = $1\`, [params.id])) ?? updated
+      : updated;
+    await recordAudit(db, {
+      user,
+      action: "UPDATE",
+      entityType: entity.tableName,
+      entityId: params.id,
+      before: current,
+      after: stored,
+    });
+    return json(
+      {
+        ...stored,
+        lifecycle: {
+          column: lifecycle.column,
+          from,
+          to: move.to,
+          phase: phaseOf(lifecycle, move.to),
+          event: move.event,
+        },
+        _workflows: runs,
+      },
+      { headers: etagHeader(stored) }
+    );
+  });
+
   return router;
+}
+
+/** Whether this person may update the table — the fallback for a move nobody restricted. */
+async function updateAllowed(db, user, tableName) {
+  try {
+    await checkOperationAccess(db, user, tableName, "update");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 409 RECORD_FINAL for a record at the end of its flow, else null. */
+function lockedResponse(model, entity, current) {
+  const lifecycle = lifecycleOf(model, entity.tableName);
+  if (!lifecycle || !isLocked(lifecycle, current[lifecycle.column])) return null;
+  return json(
+    {
+      statusCode: 409,
+      message: "This record is Final and cannot be changed. Reopen it to make changes.",
+      details: {
+        code: "RECORD_FINAL",
+        entity: entity.tableName,
+        id: current.id,
+        state: current[lifecycle.column],
+      },
+    },
+    { status: 409 }
+  );
 }
 
 /** Only apply a rule's \`set\` when the target is a real column of the entity. */
@@ -19062,6 +19587,7 @@ export function sysRoutes(model) {
  * Reads are open to any signed-in user; every write is administrator-only.
  */
 
+import { isLocked, lifecycleOf, phaseOf } from "../lib/lifecycle.js";
 import { Router } from "../lib/router.js";
 import { badRequest, json, noContent, notFound, readJson } from "../lib/http.js";
 import { requireAdmin, requireUser } from "../lib/guards.js";
@@ -19230,10 +19756,11 @@ export function workflowRoutes(model) {
   /**
    * Where a record can go next — information, not an offer.
    *
-   * A state is changed only by the application's background workflows, never
-   * by a person (lib/workflows.js stateFieldFor), so nothing here is a button:
-   * the form shows the current state read-only in its header and lists these
-   * as the moves the workflows may make from it.
+   * A state is never typed: a person moves a record by pressing one of its
+   * moves (POST /bus/:entity/:id/transition), whose buttons come from
+   * GET /bus/:entity/:id/actions. This is the picture of the flow beside them —
+   * where the record is, which moves the diagram draws from there, and whether
+   * it has reached a locked end.
    */
   router.get("/entity/:entityName/:id/transitions", async (_request, { db, params }) => {
     const entity = resolveEntity(model, params.entityName);
@@ -19254,12 +19781,16 @@ export function workflowRoutes(model) {
         String(transition.from) === String(current ?? state.initial ?? "") && transition.to !== "[*]"
     );
 
+    const lifecycle = lifecycleOf(model, entity.tableName);
     return json({
       workflow: state.machine.name,
       column: state.field,
       current,
       transitions,
       systemManaged: true,
+      // Where the record is in its lifecycle, and whether that end is locked.
+      phase: lifecycle ? phaseOf(lifecycle, current) : null,
+      locked: lifecycle ? isLocked(lifecycle, current) : false,
     });
   });
 
@@ -19911,6 +20442,8 @@ details.group > summary.group__name { cursor: pointer; }
 .side__title { margin: 0 0 6px; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-faint); font-weight: 700; }
 .side__meta { margin: 0 0 11px; font-size: 13px; }
 .side__transitions { display: grid; gap: 7px; }
+.side__actions { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.side__actions .side__meta { flex-basis: 100%; margin: 0; }
 .side__empty { margin: 0; font-size: 12.5px; color: var(--text-faint); }
 .side__list { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font-size: 12.5px; }
 .side__list dt { color: var(--text-faint); }
@@ -21042,7 +21575,7 @@ async function request(method, path, body, audience = "app", extraHeaders = {}) 
 
 export const api = {
   get: (path) => request("GET", path),
-  post: (path, body) => request("POST", path, body ?? {}),
+  post: (path, body, headers) => request("POST", path, body ?? {}, "app", headers),
   // \`headers\` is how a save sends If-Match — the version the form opened the
   // record at — so the server can refuse it if someone saved in between.
   put: (path, body, headers) => request("PUT", path, body ?? {}, "app", headers),
@@ -23763,7 +24296,7 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
       notesSlot,
       auditSlot
     ),
-    isNew ? null : el("div.split", el("div"), el("aside.side", await sidePanels(entity, id, record, onSaved)))
+    isNew ? null : el("div.split", el("div"), el("aside.side", await sidePanels(entity, id, record, onSaved, form, () => recordPanel(root, { entity, id, onClose, onSaved, navigate }))))
   );
 }
 
@@ -24004,29 +24537,83 @@ async function renderDetails(slot, entity, id, navigate) {
   if (sections.length) mount(slot, ...sections);
 }
 
-async function sidePanels(entity, id, record, onSaved) {
+async function sidePanels(entity, id, record, onSaved, form, reload) {
   const panels = [];
 
   try {
     const workflow = await api.get(\`/workflows/entity/\${entity.routeName}/\${id}/transitions\`);
     if (workflow.workflow) {
+      /* The record's action buttons: the moves this person may press from
+         where it is, from the server, which judges every press again. One
+         move or several, each a button; Reopen apart, at a locked end. */
+      let actions = [];
+      try {
+        actions = await api.get(\`/bus/\${entity.routeName}/\${id}/actions\`);
+      } catch {
+        actions = [];
+      }
+      const press = async (action, button) => {
+        button.disabled = true;
+        try {
+          await api.post(
+            \`/bus/\${entity.routeName}/\${id}/transition\`,
+            { event: action.event || undefined, to: action.to },
+            record.version == null ? {} : { "If-Match": \`"\${record.version}"\` }
+          );
+          toast(action.kind === "reopen" ? "Reopened — the record is a draft again." : \`\${action.label} — done.\`, "success");
+        } catch (error) {
+          toast(error.message || "The move was refused.", "error");
+        }
+        /* The list beside it, and this panel: the record has moved (or was
+           read afresh after a refusal), so its buttons are drawn again. */
+        await onSaved(null);
+        if (reload) await reload();
+      };
+      const moves = actions.filter((action) => action.kind === "move");
+      const reopen = actions.find((action) => action.kind === "reopen");
+      const button = (action, tone) => {
+        const node = el(
+          \`button.btn.btn--small\${tone}\`,
+          { type: "button", "data-testid": \`record-action-\${action.event || action.to}\` },
+          action.label
+        );
+        node.onclick = () => press(action, node);
+        return node;
+      };
+
+      if (workflow.locked && form) {
+        /* The end of a flow is Final and locked: nothing on the form can be
+           changed until the record is reopened. */
+        for (const control of form.querySelectorAll("input, select, textarea, button")) control.disabled = true;
+      }
+
       panels.push(
         el(
           "div.side__card",
+          { "data-testid": "record-actions" },
           el("h3.side__title", "Process"),
-          el("p.side__meta", \`\${workflow.workflow} — currently \${workflow.current ?? "unset"}\`),
           el(
             "p.side__meta",
-            "The application's workflows move it on, when what each move depends on is recorded. Nobody changes it by hand."
+            { "data-testid": "record-lifecycle", "data-phase": workflow.phase ?? "" },
+            workflow.locked
+              ? \`Final — \${title(workflow.current ?? "")}. Locked; reopen it to change it.\`
+              : \`\${workflow.workflow} — currently \${title(workflow.current ?? "unset")}\`
           ),
-          workflow.transitions.length
+          moves.length || reopen
             ? el(
-                "ul.side__transitions",
-                workflow.transitions.map((transition) =>
-                  el("li", transition.trigger ? \`\${title(transition.trigger)} → \${title(transition.to)}\` : \`→ \${title(transition.to)}\`)
-                )
+                "div.side__actions",
+                moves.length > 1 ? el("p.side__meta", "Choose where this record goes next:") : null,
+                ...moves.map((move) => button(move, ".btn--primary")),
+                reopen ? button(reopen, "") : null
               )
-            : el("p.side__empty", "This is a final state.")
+            : el(
+                "p.side__empty",
+                workflow.locked
+                  ? "Only an administrator, or a role allowed to reopen it, can reopen this record."
+                  : workflow.transitions.length
+                    ? "Its next moves belong to another role."
+                    : "This is a final state."
+              )
         )
       );
     }
@@ -27632,7 +28219,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 653409;
+var RUNTIME_BYTES = 668852;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {
@@ -28296,6 +28883,44 @@ var snake = (value) => value.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A
 function tableNameFor(entity) {
   const base = snake(entity.tableName || entity.name);
   return base.startsWith("bus_") || base.startsWith("sys_") ? base : `bus_${base}`;
+}
+
+// packages/generator/src/generators/tanstack-start-nestjs/lifecycle-module.ts
+function lifecycleTable(entities, workflows) {
+  const machineOf = (name) => name ? workflows.find((workflow) => workflow.entity === name) : undefined;
+  const table = {};
+  for (const entity of entities) {
+    const machine = machineOf(entity.name) ?? machineOf(entity.className);
+    if (!machine) {
+      table[entity.tableName] = {
+        column: DOC_STATUS_COLUMN,
+        hasMachine: false,
+        draft: LIFECYCLE_DRAFT,
+        afterDraft: LIFECYCLE_FINAL,
+        terminal: [LIFECYCLE_FINAL],
+        edges: [],
+        values: [LIFECYCLE_DRAFT, LIFECYCLE_FINAL, LIFECYCLE_ERROR]
+      };
+      continue;
+    }
+    const columns = (entity.attributes ?? []).map((attribute) => attribute.columnName ?? attribute.name).filter((name) => !!name);
+    const draft = draftValueFor(machine);
+    table[entity.tableName] = {
+      column: stateFieldOf(columns) ?? "workflow_status",
+      hasMachine: true,
+      draft,
+      afterDraft: machine.initial ?? draft,
+      terminal: [...machine.terminal],
+      edges: machine.transitions.filter((edge) => edge.from !== "[*]" && edge.to !== "[*]").map((edge) => ({
+        from: edge.from,
+        to: edge.to,
+        event: edge.trigger ? normalizeEvent(edge.trigger) : "",
+        label: moveLabel(edge.trigger, edge.to)
+      })),
+      values: [...machine.lifecycleValues]
+    };
+  }
+  return table;
 }
 
 // packages/generator/src/rbac/roles.ts
@@ -29169,6 +29794,11 @@ function buildModelBundle(parsed, project) {
       seqNo: index
     })),
     rbac: parsed.rbac,
+    lifecycle: lifecycleTable(parsed.entities.map((entity) => ({
+      name: entity.name,
+      tableName: tableNameFor(entity),
+      attributes: entity.attributes.map((attribute) => ({ name: attribute.name }))
+    })), parsed.workflows),
     reporting,
     roles: access.roles,
     users: access.users,

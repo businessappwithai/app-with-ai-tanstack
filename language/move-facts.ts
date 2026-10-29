@@ -17,14 +17,20 @@
  * Recognised by shape, never by name alone. A saga is retired only when every
  * step is an `UpdateEntity` of its own entity that writes the state field or
  * clears an `_at` column; a rule only when every action starts one of those
- * sagas. Anything an author added to either keeps the whole section in the model.
+ * sagas. Anything an author added to a saga keeps the whole saga. A rule that also
+ * does other work keeps everything but the `%%action` lines that start a retired
+ * saga — left in, each would name a saga that no longer exists.
  *
  * Pure — no `node:` imports — so the browser bundles carry it too.
  */
 
 /** One section of a model the fixer removes, as 0-based line indices `[start, end)`. */
 export interface RetiredSection {
-  kind: "saga" | "rule";
+  /**
+   * `action`: one `%%action` line of a rule that does more than start move
+   * sagas — the line that starts a retired saga goes, the rest of the rule stays.
+   */
+  kind: "saga" | "rule" | "action";
   name: string;
   entity: string;
   /** 1-based line of the `%%workflow` / `%%rule` directive, for a diagnostic. */
@@ -152,6 +158,13 @@ export function findRetiredMoves(
     }
     if (actions > 0 && !other) {
       sections.push({ kind: "rule", name, entity, line: i + 1, start: blockStart(lines, i), end });
+    } else if (actions > 0) {
+      for (let j = i + 1; j < end; j++) {
+        const action = ACTION.exec(lines[j]!.trim());
+        if (!action || !retiredSagas.has(action[1]!)) continue;
+        const actionName = /^%%action\s+(\w+)/.exec(lines[j]!.trim())?.[1] ?? action[1]!;
+        sections.push({ kind: "action", name: actionName, entity, line: j + 1, start: j, end: j + 1 });
+      }
     }
   }
 
@@ -197,6 +210,7 @@ export function findRetiredMoves(
  */
 export function sectionSpan(lines: string[], index: number): { start: number; end: number } | undefined {
   const text = lines[index]?.trim() ?? "";
+  if (ACTION.test(text)) return { start: index, end: index + 1 };
   if (!SAGA.test(text) && !RULE.test(text)) return undefined;
   return { start: blockStart(lines, index), end: blockEnd(lines, index) };
 }
