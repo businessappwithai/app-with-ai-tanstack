@@ -95,15 +95,29 @@ export class BusController {
     @Query('orderDir') orderDir?: 'asc' | 'desc',
     @Query('search') search?: string,
     @Query() query?: Record<string, any>,
+    @Req() req?: any,
   ) {
     const methodName = 'findAll';
     this.logger.debug(`[${methodName}] Request - entity: ${entity}, page: ${page}, limit: ${limit}, orderBy: ${orderBy}, orderDir: ${orderDir}, search: ${search}`);
 
     // Extract filters from query params (exclude pagination params)
-    const { page: _p, limit: _l, orderBy: _ob, orderDir: _od, search: _s, ...rawFilters } = query || {};
+    const { page: _p, limit: _l, orderBy: _ob, orderDir: _od, search: _s, awaiting, ...rawFilters } =
+      query || {};
 
     // Parse filter parameters with format: filter.fieldName=operator:value
     const parsedFilters = this.parseFilters(rawFilters);
+
+    // `?awaiting=me` — the records waiting for this person: in a state they have
+    // a move out of, and assigned to them or to no one.
+    if (awaiting === 'me') {
+      const waiting = await this.transitions.awaitingStates(entity, {
+        id: req?.user?.id ?? null,
+        capabilities: req?.capabilities,
+      });
+      parsedFilters[waiting.column] = { operator: 'in', value: waiting.states };
+      const me = req?.user?.sysUserId;
+      if (me) parsedFilters.assigned_to = { operator: '= or null', value: me };
+    }
 
     if (Object.keys(parsedFilters).length > 0) {
       this.logger.debug(`[${methodName}] Filters: ${JSON.stringify(parsedFilters)}`);

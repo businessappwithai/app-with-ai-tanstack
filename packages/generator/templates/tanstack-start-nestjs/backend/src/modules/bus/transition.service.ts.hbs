@@ -151,6 +151,27 @@ export class TransitionService {
     return actions;
   }
 
+  /**
+   * The states a record can be in for this person to have a move to make — the
+   * "waiting for me" list is the records in one of them. A record moves between
+   * roles as it moves through its flow, so this is where it leaves one person's
+   * list and arrives in the next's.
+   */
+  async awaitingStates(entity: string, actor: TransitionActor): Promise<{ column: string; states: string[] }> {
+    const { tableName, lifecycle } = this.lifecycle(entity);
+    const states = new Set<string>();
+    for (const from of new Set(lifecycle.edges.map((edge) => edge.from))) {
+      for (const move of movesFrom(lifecycle, from)) {
+        if (move.kind !== 'move') continue;
+        if ((await this.decide(actor, tableName, move)).allowed) {
+          states.add(from);
+          break;
+        }
+      }
+    }
+    return { column: lifecycle.column, states: [...states] };
+  }
+
   private async record(
     db: Kysely<any>,
     row: {
