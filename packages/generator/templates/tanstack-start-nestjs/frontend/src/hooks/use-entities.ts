@@ -291,7 +291,7 @@ export interface WindowHelpData {
 export function useWindowHelp(tableName: string) {
   return useQuery<WindowHelpData | null>({
     queryKey: ['window-help', tableName],
-    queryFn: () => apiClient.get<WindowHelpData>(`/sys/window-help/${tableName}`),
+    queryFn: () => apiClient.get<WindowHelpData>(`/sys/window-help/${encodeURIComponent(tableName)}`),
     staleTime: 30 * 60 * 1000,
     enabled: !!tableName,
   });

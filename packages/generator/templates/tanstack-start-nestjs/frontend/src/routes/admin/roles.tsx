@@ -59,7 +59,7 @@ function RolesPage() {
             </Link>
             <UserCog className="w-4 h-4 text-primary" />
             <h1 className="font-display text-lg font-semibold">Role Management</h1>
-            <WindowHelpButton windowName="Role" entityLabel="Role" />
+            <WindowHelpButton windowName="/admin/roles" entityLabel="Role" />
             <button
               type="button"
               onClick={() => setShowForm((open) => !open)}

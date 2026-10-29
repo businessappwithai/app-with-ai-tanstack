@@ -1288,15 +1288,20 @@ export class SysService {
     // than an entity, so they have no sys_table row to look up. Fall back to
     // the window's own name, which is what those screens pass, so they can
     // carry help like every other window instead of being the only screens in
-    // the application that cannot explain themselves.
+    // the application that cannot explain themselves. A route (`/admin/roles`,
+    // an administrative window's description) is accepted too, and an
+    // administrative window wins a tie: a model may declare an entity named
+    // like one, and the seed then names the administrative window
+    // "Role Management", so the plain name would find the model's window.
     const windowId =
       table?.sys_window_id ??
       (
         await this.db.kysely
           .selectFrom('sys_window')
           .select(['sys_window_id'])
-          .where('name', '=', tableName)
+          .where((eb) => eb.or([eb('name', '=', tableName), eb('description', '=', tableName)]))
           .where('is_active', '=', true)
+          .orderBy(sql`entity_type = 'S'`, 'desc')
           .executeTakeFirst()
       )?.sys_window_id;
 
