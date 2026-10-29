@@ -1,11 +1,11 @@
 {
   "file": "/home/user/app-with-ai-tanstack/examples/hospital-management-system.mmd",
-  "checkedAt": "2026-10-24T06:01:53.861Z",
+  "checkedAt": "2026-10-29T02:29:50.658Z",
   "languageVersion": "1.2.0",
   "summary": {
     "errors": 0,
     "warnings": 0,
-    "infos": 113,
+    "infos": 164,
     "ok": true
   },
   "issues": [
@@ -87,6 +87,414 @@
       "message": "\"MEDICATION_ADMINISTRATION\" looks like a line item of \"MEDICATION\" but declares no parent.",
       "line": 648,
       "hint": "If a list of every MEDICATION_ADMINISTRATION away from its MEDICATION is not a screen anyone opens, declare `%%entity MEDICATION_ADMINISTRATION parent: MEDICATION` — the dictionary then drops its dashboard card and gives it a tab inside the MEDICATION window, linked on medication_administration_id. If it is a thing in its own right, leave it: a reference is the opposite on all three questions (§3.5.1).",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"EmployeeLifecycle\" are open to anyone who may update EMPLOYEE: advance.",
+      "line": 3093,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on EMPLOYEE.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"UserAccountLifecycle\" are open to anyone who may update USER_ACCOUNT: advance.",
+      "line": 3104,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on USER_ACCOUNT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"ConsentLifecycle\" are open to anyone who may update CONSENT: advance.",
+      "line": 3114,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on CONSENT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "8 moves of \"AppointmentLifecycle\" are open to anyone who may update APPOINTMENT: advance.",
+      "line": 3125,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on APPOINTMENT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"TriageProcess\" are open to anyone who may update ENCOUNTER: advance.",
+      "line": 3139,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on ENCOUNTER.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "6 moves of \"AdmissionLifecycle\" are open to anyone who may update ADMISSION: advance.",
+      "line": 3150,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on ADMISSION.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"BedLifecycle\" are open to anyone who may update BED: advance.",
+      "line": 3162,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on BED.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"BedAssignmentLifecycle\" are open to anyone who may update BED_ASSIGNMENT: advance.",
+      "line": 3173,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on BED_ASSIGNMENT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"MedicalRecordLifecycle\" are open to anyone who may update MEDICAL_RECORD: advance.",
+      "line": 3183,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on MEDICAL_RECORD.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "7 moves of \"ClinicalOrderLifecycle\" are open to anyone who may update CLINICAL_ORDER: advance.",
+      "line": 3192,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on CLINICAL_ORDER.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "2 moves of \"DiagnosisLifecycle\" are open to anyone who may update DIAGNOSIS: advance.",
+      "line": 3205,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on DIAGNOSIS.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"ProcedureRecordLifecycle\" are open to anyone who may update PROCEDURE_RECORD: advance.",
+      "line": 3213,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on PROCEDURE_RECORD.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"DiagnosticResultLifecycle\" are open to anyone who may update DIAGNOSTIC_RESULT: advance.",
+      "line": 3224,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on DIAGNOSTIC_RESULT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"DischargeSummaryLifecycle\" are open to anyone who may update DISCHARGE_SUMMARY: advance.",
+      "line": 3233,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on DISCHARGE_SUMMARY.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"PharmacyDispensing\" are open to anyone who may update PRESCRIPTION: advance.",
+      "line": 3242,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on PRESCRIPTION.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "6 moves of \"DispenseLifecycle\" are open to anyone who may update DISPENSE: advance.",
+      "line": 3253,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on DISPENSE.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"MedicationAdministrationLifecycle\" are open to anyone who may update MEDICATION_ADMINISTRATION: advance.",
+      "line": 3265,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on MEDICATION_ADMINISTRATION.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"StockLotLifecycle\" are open to anyone who may update STOCK_LOT: advance.",
+      "line": 3276,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on STOCK_LOT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"SupplierLifecycle\" are open to anyone who may update SUPPLIER: advance.",
+      "line": 3286,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on SUPPLIER.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"PurchaseRequisitionLifecycle\" are open to anyone who may update PURCHASE_REQUISITION: advance.",
+      "line": 3295,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on PURCHASE_REQUISITION.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "6 moves of \"PurchaseOrderLifecycle\" are open to anyone who may update PURCHASE_ORDER: advance.",
+      "line": 3306,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on PURCHASE_ORDER.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"GoodsReceiptLifecycle\" are open to anyone who may update GOODS_RECEIPT: advance.",
+      "line": 3318,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on GOODS_RECEIPT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "6 moves of \"SupplierInvoiceLifecycle\" are open to anyone who may update SUPPLIER_INVOICE: advance.",
+      "line": 3329,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on SUPPLIER_INVOICE.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"StockAdjustmentLifecycle\" are open to anyone who may update STOCK_ADJUSTMENT: advance.",
+      "line": 3341,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on STOCK_ADJUSTMENT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"BillingCycle\" are open to anyone who may update INVOICE: advance.",
+      "line": 3351,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on INVOICE.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"PaymentLifecycle\" are open to anyone who may update PAYMENT: advance.",
+      "line": 3362,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on PAYMENT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"RefundLifecycle\" are open to anyone who may update REFUND: advance.",
+      "line": 3372,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on REFUND.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"CoverageLifecycle\" are open to anyone who may update COVERAGE: advance.",
+      "line": 3382,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on COVERAGE.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "7 moves of \"PreauthorizationLifecycle\" are open to anyone who may update PREAUTHORIZATION: advance.",
+      "line": 3392,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on PREAUTHORIZATION.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "9 moves of \"ClaimLifecycle\" are open to anyone who may update CLAIM: advance.",
+      "line": 3405,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on CLAIM.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"EmployeeCredentialLifecycle\" are open to anyone who may update EMPLOYEE_CREDENTIAL: advance.",
+      "line": 3420,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on EMPLOYEE_CREDENTIAL.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"RosterAssignmentLifecycle\" are open to anyone who may update ROSTER_ASSIGNMENT: advance.",
+      "line": 3430,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on ROSTER_ASSIGNMENT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"AttendanceLifecycle\" are open to anyone who may update ATTENDANCE: advance.",
+      "line": 3440,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on ATTENDANCE.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"LeaveRequestLifecycle\" are open to anyone who may update LEAVE_REQUEST: advance.",
+      "line": 3449,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on LEAVE_REQUEST.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "6 moves of \"PayrollPeriodLifecycle\" are open to anyone who may update PAYROLL_PERIOD: advance.",
+      "line": 3459,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on PAYROLL_PERIOD.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"PayslipLifecycle\" are open to anyone who may update PAYSLIP: advance.",
+      "line": 3471,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on PAYSLIP.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"FiscalPeriodLifecycle\" are open to anyone who may update FISCAL_PERIOD: advance.",
+      "line": 3482,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on FISCAL_PERIOD.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"JournalEntryLifecycle\" are open to anyone who may update JOURNAL_ENTRY: advance.",
+      "line": 3491,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on JOURNAL_ENTRY.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"BankTransactionLifecycle\" are open to anyone who may update BANK_TRANSACTION: advance.",
+      "line": 3501,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on BANK_TRANSACTION.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"BankReconciliationLifecycle\" are open to anyone who may update BANK_RECONCILIATION: advance.",
+      "line": 3510,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on BANK_RECONCILIATION.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"BudgetLifecycle\" are open to anyone who may update BUDGET: advance.",
+      "line": 3519,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on BUDGET.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"FixedAssetLifecycle\" are open to anyone who may update FIXED_ASSET: advance.",
+      "line": 3529,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on FIXED_ASSET.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "2 moves of \"AssetAssignmentLifecycle\" are open to anyone who may update ASSET_ASSIGNMENT: advance.",
+      "line": 3539,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on ASSET_ASSIGNMENT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"MaintenanceWorkOrderLifecycle\" are open to anyone who may update MAINTENANCE_WORK_ORDER: advance.",
+      "line": 3547,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on MAINTENANCE_WORK_ORDER.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"DepreciationEntryLifecycle\" are open to anyone who may update DEPRECIATION_ENTRY: advance.",
+      "line": 3558,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on DEPRECIATION_ENTRY.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"ServiceRequestLifecycle\" are open to anyone who may update SERVICE_REQUEST: advance.",
+      "line": 3567,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on SERVICE_REQUEST.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "4 moves of \"BiomedicalWasteBatchLifecycle\" are open to anyone who may update BIOMEDICAL_WASTE_BATCH: advance.",
+      "line": 3577,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on BIOMEDICAL_WASTE_BATCH.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"AmbulanceTripLifecycle\" are open to anyone who may update AMBULANCE_TRIP: advance.",
+      "line": 3587,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on AMBULANCE_TRIP.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "3 moves of \"MealOrderLifecycle\" are open to anyone who may update MEAL_ORDER: advance.",
+      "line": 3598,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on MEAL_ORDER.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "5 moves of \"ComplaintLifecycle\" are open to anyone who may update COMPLAINT: advance.",
+      "line": 3607,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on COMPLAINT.<move>  — the move is its event, or from->to for an edge with no label.",
+      "autoFixable": false
+    },
+    {
+      "severity": "info",
+      "code": "EML511",
+      "message": "6 moves of \"HousekeepingTaskLifecycle\" are open to anyone who may update HOUSEKEEPING_TASK: advance.",
+      "line": 3618,
+      "hint": "To limit a button to the roles that own it, add  %%rbac role:<role> on HOUSEKEEPING_TASK.<move>  — the move is its event, or from->to for an edge with no label.",
       "autoFixable": false
     },
     {

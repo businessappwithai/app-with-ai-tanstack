@@ -191,19 +191,18 @@ test.describe
       }
 
       expect(tally.Entities).toBe("17");
-      // 14 and 37: one StateProgress rule per state machine, and one saga per
-      // state a record can move into — no person changes a state, so every
-      // move is a rule starting the saga that writes it. The fourteenth starts
-      // the closed-won handoff on the same fact as the closing move.
-      expect(tally.Rules).toBe("14");
-      expect(tally.Processes).toBe("37");
-      // 24: the CRM model declares a `%%rbac … .read` rule per entity on top of
+      // 9 and 10: a record moves by its action buttons, so no rule or saga
+      // moves it; the ninth rule starts the closed-won handoff when a deal is
+      // won. The processes are the five status flows and the five sagas.
+      expect(tally.Rules).toBe("9");
+      expect(tally.Processes).toBe("10");
+      // 72: the CRM model declares a `%%rbac … .read` rule per entity on top of
       // its write restrictions, which is what gives each seeded role its own
-      // set of windows; none is a transition. html/models/crm.eml.mmd is the
-      // copy this page loads and it must stay identical to
+      // set of windows, and 48 moves, each the button of the roles it names.
+      // html/models/crm.eml.mmd is the copy this page loads and it must stay identical to
       // language/examples/crm.eml.mmd — they had drifted, and this number is
       // what noticed.
-      expect(tally["Access rules"]).toBe("24");
+      expect(tally["Access rules"]).toBe("72");
 
       await expect(page.locator("#build-phases .build__phase").nth(2)).toHaveAttribute(
         "data-state",
@@ -723,7 +722,7 @@ test.describe("@browser assembling the real stack in a tab", () => {
       ).trim();
     }
     expect(tally.Entities).toBe("17");
-    expect(tally.Rules).toBe("14");
+    expect(tally.Rules).toBe("9");
     // The CLI writes 416 files for this model; the browser writes the same but
     // for the nine binary fonts, which do not survive a JSON transport.
     expect(Number(tally.Files)).toBeGreaterThan(400);

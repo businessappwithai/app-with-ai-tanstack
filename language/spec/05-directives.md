@@ -570,12 +570,13 @@ accepted (`insert`/`add`, `view`/`select`/`list`, `edit`/`write`/`modify`,
 %%rbac role:admin on Customer.*
 ```
 
-**A transition is not an operation a role can hold.** The state field an entity's
-`stateDiagram-v2` drives is system-managed: no person changes it, only background
-workflows do (`spec/03-workflows.md`). So a name that matches a transition event —
-`%%rbac role:sales_manager on Quote.approve` — is `EML215`, and the fixer deletes
-the line. To say who may approve, restrict who may record the approval: the
-column the approval rule reads is written under `Quote.update`.
+**A move is a role's.** A record moves by its action buttons along the edges its
+`stateDiagram-v2` draws (`spec/03-workflows.md`). A target that names a move —
+its event (`%%rbac role:sales_manager on Quote.approve`), `from->to` for an edge
+with no label, or `reopen` — gives that button to those roles, and only to them.
+A role given a move may press it without being allowed to edit the record. A move
+no line names is open to whoever may update the record. A user with several roles
+has the union of what they grant.
 
 ### `read` decides which functional role an entity belongs to
 
@@ -660,9 +661,8 @@ regeneration. Rules an administrator adds in the running application are marked
 ### Validation
 
 `EML210` malformed syntax · `EML211` names no role · `EML212` suspicious role
-expression · `EML213` undeclared entity · `EML214` the target is not a CRUD operation ·
-`EML215` the target is a transition — a state is changed only by background
-workflows.
+expression · `EML213` undeclared entity · `EML214` the target is neither a CRUD operation nor a
+move the entity's flow draws.
 
 All but `EML212` are **errors**, not warnings: a `%%rbac` rule that does not
 compile is not a rule that does nothing — it is an access restriction its author

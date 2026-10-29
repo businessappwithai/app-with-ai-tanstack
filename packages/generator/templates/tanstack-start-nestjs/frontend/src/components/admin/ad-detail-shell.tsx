@@ -29,8 +29,9 @@ import {
   buildAdminListUrl,
   type ParentContext,
 } from "./ad-window-configs";
-import { DocStatusBadge } from "./doc-status-badge";
-import { StateBadge } from "./state-badge";
+import { LifecycleBadge } from "./lifecycle-badge";
+import { RecordActions } from "./record-actions";
+import { isLocked, lifecycleOf, phaseOf } from "@/lib/lifecycle";
 import { VersionConflictDialog } from "./version-conflict-dialog";
 import { helpTableNameFromEndpoint, WindowHelpButton } from "./window-help-button";
 import { format } from "date-fns";
@@ -804,7 +805,17 @@ export function ADDetailShell({
         headers: ifMatchHeader(version ?? editBase?.version ?? currentRecord?.version),
       }),
     onSuccess: (saved) => {
-      toast.success("Saved");
+      // The save reports where the record ended up: moved on, or refused by a
+      // rule or workflow and in Error with the reason — still saved.
+      const promotion = (saved as { promotion?: { docStatus?: string; message?: string } } | null)
+        ?.promotion;
+      if (promotion?.docStatus === "error") {
+        toast.error(`Saved — Error: ${promotion.message ?? "a rule or workflow refused it"}`);
+      } else if (promotion?.docStatus === "final") {
+        toast.success("Saved — Final");
+      } else {
+        toast.success("Saved");
+      }
       setHasChanges(false);
       setSaveErrors([]);
       setConflict(null);
@@ -934,6 +945,20 @@ export function ADDetailShell({
 
   const hasReportDesign = !!(reportDesign?.layout);
 
+  // The record's lifecycle (lib/lifecycle.ts): its badge, its action buttons,
+  // the Error banner, and the end of a flow locked against editing.
+  const tableName = helpTableNameFromEndpoint(level.endpoint);
+  const lifecycle = lifecycleOf(tableName);
+  const lifecycleValue = lifecycle ? currentRecord?.[lifecycle.column] : undefined;
+  const locked = !!lifecycle && !!currentRecord && isLocked(lifecycle, lifecycleValue);
+  const inError = !!lifecycle && !!currentRecord && phaseOf(lifecycle, lifecycleValue) === "error";
+  const onMoved = () => {
+    queryClient.invalidateQueries({ queryKey: ["ad-detail-list", level.endpoint] });
+    queryClient.invalidateQueries({ queryKey: ["ad-detail-record", level.endpoint, recordId] });
+    queryClient.invalidateQueries({ queryKey: ["record-actions", level.endpoint, recordId] });
+    refetch();
+  };
+
   return (
     <div className="flex flex-col h-full">
       <ADToolbar
@@ -966,6 +991,7 @@ export function ADDetailShell({
         canCreate={false}
         isEditing={isEditing}
         isDetailView={true}
+        canEdit={!locked}
         hasPrintReport={hasReportDesign}
       />
 
@@ -1010,7 +1036,8 @@ export function ADDetailShell({
               </button>
               <span aria-hidden="true" className="text-muted-foreground/40">|</span>
               <h1 className="text-xl font-semibold text-foreground truncate">{currentName}</h1>
-              <StateBadge
+              <LifecycleBadge
+                tableName={tableName}
                 fields={
                   // The grid fields always carry the state field; the form
                   // fields never do, because it is not an input.
@@ -1020,12 +1047,13 @@ export function ADDetailShell({
                 }
                 record={currentRecord as Record<string, unknown> | null}
               />
-              {!!currentRecord?.doc_status && currentRecord.doc_status !== "none" && (
-                <DocStatusBadge
-                  status={currentRecord.doc_status as string}
-                  message={currentRecord.doc_status_message as string}
-                />
-              )}
+              <RecordActions
+                endpoint={level.endpoint}
+                tableName={tableName}
+                record={currentRecord as Record<string, unknown> | null}
+                disabled={isEditing && hasChanges}
+                onMoved={onMoved}
+              />
               <WindowHelpButton
                 tableName={helpTableNameFromEndpoint(level.endpoint)}
                 entityLabel={level.label}
@@ -1052,6 +1080,23 @@ export function ADDetailShell({
           )}
         </div>
       </div>
+
+      {inError && (
+        <div
+          role="alert"
+          data-testid="record-error"
+          className="mx-6 mt-3 rounded-md border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-800 dark:text-red-200"
+        >
+          <p className="font-semibold">The last save was refused, so this record is in Error.</p>
+          <p className="mt-1">
+            {(currentRecord?.doc_status_message as string) ||
+              "A rule or workflow refused it. Correct the record and save it again."}
+          </p>
+          <p className="mt-1 text-xs opacity-80">
+            Your changes are saved. Edit the record and save it again to run its rules and workflows.
+          </p>
+        </div>
+      )}
 
       {/* Print modal — only mounts when a design exists and the user clicks Print */}
       {hasReportDesign && currentRecord && reportDesign?.layout && (

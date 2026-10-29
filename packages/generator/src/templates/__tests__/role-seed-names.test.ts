@@ -19,10 +19,11 @@ const SEED = join(
   import.meta.dirname,
   "../../../templates/common/seeds/operation-access.ts.hbs"
 );
-const GUARD = join(
-  import.meta.dirname,
-  "../../../templates/tanstack-start-nestjs/backend/src/modules/auth/guards/entity-access.guard.ts.hbs"
-);
+const BACKEND = join(import.meta.dirname, "../../../templates/tanstack-start-nestjs/backend/src");
+/** The role key the grants are joined on, stored by the database on both sides. */
+const MIGRATION = join(BACKEND, "migrations/022_record_lifecycle.ts.hbs");
+/** The same fold in code, for a role a Better Auth session names directly. */
+const CAPABILITIES = join(BACKEND, "modules/auth/capability.service.ts.hbs");
 
 describe("%%rbac role seed", () => {
   const seed = readFileSync(SEED, "utf8");
@@ -33,9 +34,12 @@ describe("%%rbac role seed", () => {
     expect(seed).toContain(".replace(/[\\s_-]+/g, ' ')");
   });
 
-  it("folds names the way the entity-access guard does", () => {
-    // The two must agree, or a role the seed thinks is new is one the guard
-    // already treats as an existing role.
-    expect(readFileSync(GUARD, "utf8")).toContain(".replace(/[\\s\\-_]+/g, ' ')");
+  it("folds names the way access is decided", () => {
+    // The seed, the role key the grants join on, and the code fold must agree,
+    // or a role the seed thinks is new is one access already treats as existing.
+    const migration = readFileSync(MIGRATION, "utf8");
+    expect(migration).toContain("lower(regexp_replace(trim(name), '[[:space:]_-]+', ' ', 'g'))");
+    expect(migration).toContain("lower(regexp_replace(trim(role_name), '[[:space:]_-]+', ' ', 'g'))");
+    expect(readFileSync(CAPABILITIES, "utf8")).toContain(".replace(/[\\s_-]+/g, ' ')");
   });
 });

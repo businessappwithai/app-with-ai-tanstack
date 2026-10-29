@@ -120,6 +120,12 @@
       "surfaces": ["generated"]
     },
     {
+      "name": "cache",
+      "description": "The generated application's in-process caches: the expiry each one runs with, and settings that could not be read.",
+      "level": "info",
+      "surfaces": ["generated"]
+    },
+    {
       "name": "app",
       "description": "Process lifecycle: startup, readiness, configuration, shutdown.",
       "level": "info",
@@ -385,6 +391,20 @@
       "level": "error",
       "message": "Rule evaluation failed",
       "fields": ["entity", "rule", "err"]
+    },
+    {
+      "id": "cache.configured",
+      "channel": "cache",
+      "level": "info",
+      "message": "Cache configured",
+      "fields": ["cache", "ttlMs", "source"]
+    },
+    {
+      "id": "cache.config.invalid",
+      "channel": "cache",
+      "level": "warn",
+      "message": "Cache expiry setting is not a number of milliseconds; using the default",
+      "fields": ["cache", "variable", "defaultMs"]
     },
     {
       "id": "workflow.transition.applied",

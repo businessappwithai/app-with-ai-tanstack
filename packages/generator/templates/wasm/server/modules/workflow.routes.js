@@ -16,6 +16,7 @@
  * Reads are open to any signed-in user; every write is administrator-only.
  */
 
+import { isLocked, lifecycleOf, phaseOf } from "../lib/lifecycle.js";
 import { Router } from "../lib/router.js";
 import { badRequest, json, noContent, notFound, readJson } from "../lib/http.js";
 import { requireAdmin, requireUser } from "../lib/guards.js";
@@ -184,10 +185,11 @@ export function workflowRoutes(model) {
   /**
    * Where a record can go next — information, not an offer.
    *
-   * A state is changed only by the application's background workflows, never
-   * by a person (lib/workflows.js stateFieldFor), so nothing here is a button:
-   * the form shows the current state read-only in its header and lists these
-   * as the moves the workflows may make from it.
+   * A state is never typed: a person moves a record by pressing one of its
+   * moves (POST /bus/:entity/:id/transition), whose buttons come from
+   * GET /bus/:entity/:id/actions. This is the picture of the flow beside them —
+   * where the record is, which moves the diagram draws from there, and whether
+   * it has reached a locked end.
    */
   router.get("/entity/:entityName/:id/transitions", async (_request, { db, params }) => {
     const entity = resolveEntity(model, params.entityName);
@@ -208,12 +210,16 @@ export function workflowRoutes(model) {
         String(transition.from) === String(current ?? state.initial ?? "") && transition.to !== "[*]"
     );
 
+    const lifecycle = lifecycleOf(model, entity.tableName);
     return json({
       workflow: state.machine.name,
       column: state.field,
       current,
       transitions,
       systemManaged: true,
+      // Where the record is in its lifecycle, and whether that end is locked.
+      phase: lifecycle ? phaseOf(lifecycle, current) : null,
+      locked: lifecycle ? isLocked(lifecycle, current) : false,
     });
   });
 

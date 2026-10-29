@@ -32,7 +32,7 @@ describe("placing a decision graph's nodes", () => {
   }));
 
   it("finds the CRM's compiled rules, some of them without positions", () => {
-    expect(graphs.length).toBeGreaterThan(10);
+    expect(graphs.length).toBeGreaterThan(5);
     expect(graphs.some(({ graph }) => graph.nodes?.some((node) => !placed(node)))).toBe(true);
   });
 

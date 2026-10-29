@@ -14,6 +14,7 @@ import { getAuth } from '../../../lib/better-auth';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { DatabaseService } from '../../../database/database.service';
 import { setRequestContext } from '../../../common/logging/logger.service';
+import { CapabilityService } from '../capability.service';
 
 @Injectable()
 export class SessionAuthGuard implements CanActivate {
@@ -22,6 +23,7 @@ export class SessionAuthGuard implements CanActivate {
   constructor(
     @Inject(Reflector) private reflector: Reflector,
     @Optional() private readonly db?: DatabaseService,
+    @Optional() private readonly capabilities?: CapabilityService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -60,9 +62,29 @@ export class SessionAuthGuard implements CanActivate {
       });
       request.session = session;
 
-      // Enrich with sys_roles when sysUserId is set
+      // Everything the user's roles grant, in one query through
+      // sys_user_capability and cached per user (CapabilityService). The guards
+      // after this one — entity access, the moves — only look it up.
       const sysUserId = session.user.sysUserId as string | undefined;
-      if (sysUserId && this.db) {
+      if (this.capabilities) {
+        try {
+          const capabilities = await this.capabilities.forUser({
+            sysUserId,
+            id: (session.user as any)?.id ?? null,
+            roles: (session.user as any)?.roles,
+            role: (session.user as any)?.role,
+          });
+          request.capabilities = capabilities;
+          request.user.sysRoles = capabilities.roles;
+          request.user.isMaster = capabilities.isMaster;
+        } catch (error) {
+          // Not knowing what a user may do is not the same as their holding
+          // nothing: the access guard refuses on a missing answer.
+          this.logger.error(
+            `Could not read the caller's access: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+      } else if (sysUserId && this.db) {
         try {
           const roles = await this.db.kysely
             .selectFrom('sys_user_roles as ur')

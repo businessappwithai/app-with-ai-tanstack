@@ -26,6 +26,7 @@ import { logicViolations } from "../lib/field-logic.js";
 import { recordAudit } from "./audit.routes.js";
 import { labelsForRows } from "../lib/labels.js";
 import { toRouteName } from "../lib/naming.js";
+import { findMove, isLocked, lifecycleOf, mayPress, movesFrom, phaseOf } from "../lib/lifecycle.js";
 
 /** Columns every generated table carries; never editable by a client. */
 const MANAGED = new Set([
@@ -554,6 +555,9 @@ export function busRoutes(model) {
     if (expectedVersion !== undefined && Number(current.version ?? 0) !== expectedVersion) {
       return versionConflict(entity, params.id, expectedVersion, Number(current.version ?? 0));
     }
+    // The end of a flow is Final and locked; Reopen is the way back.
+    const locked = lockedResponse(model, entity, current);
+    if (locked) return locked;
 
     const body = await readJson(request);
     let values = sanitize(entity, body);
@@ -571,8 +575,8 @@ export function busRoutes(model) {
           {
             statusCode: 403,
             message:
-              `"${state.field}" is changed only by the application's workflows, never through a form. ` +
-              "Record the fact the move depends on and its workflow will move it.",
+              `"${state.field}" is changed only by the record's moves, never through a form. ` +
+              "Use one of the record's action buttons (POST …/transition).",
             details: {
               code: STATE_FIELD_REFUSAL_CODE,
               entity: entity.tableName,
@@ -659,6 +663,8 @@ export function busRoutes(model) {
       [params.id]
     );
     if (!current) throw notFound(`No ${entity.name} with id ${params.id}`);
+    const locked = lockedResponse(model, entity, current);
+    if (locked) return locked;
 
     const before = await runHooks(model.hooks, "beforeDelete", entity.name, current);
     if (before.failures.length) throw badRequest("A lifecycle hook refused the delete", before.failures);
@@ -692,7 +698,195 @@ export function busRoutes(model) {
     return json({ success: true, id: params.id });
   });
 
+  /**
+   * The record's action buttons for this person, from where it is — the moves
+   * of its flow they may press, and Reopen at the end of it (lib/lifecycle.js).
+   */
+  router.get("/:entity/:id/actions", async (_request, { db, params, user }) => {
+    const entity = entityOr404(model, params.entity);
+    await checkOperationAccess(db, user, entity.tableName, "read");
+    const lifecycle = lifecycleOf(model, entity.tableName);
+    if (!lifecycle?.hasMachine) return json([]);
+    const record = await db.one(
+      `SELECT * FROM ${ident(entity.tableName)} WHERE id = $1 AND deleted_at IS NULL`,
+      [params.id]
+    );
+    if (!record) throw notFound(`No ${entity.name} with id ${params.id}`);
+    const mayUpdate = () => updateAllowed(db, user, entity.tableName);
+    const actions = [];
+    for (const move of movesFrom(lifecycle, record[lifecycle.column])) {
+      const decision = await mayPress(user, model, entity.tableName, move, mayUpdate);
+      if (!decision.allowed) continue;
+      actions.push({
+        event: move.event,
+        to: move.to,
+        label: move.label,
+        kind: move.kind,
+        restricted: decision.roles.length > 0,
+        roles: decision.roles,
+      });
+    }
+    return json(actions);
+  });
+
+  /**
+   * Press a move: `{ event }` or `{ to }`, with the version the record was read
+   * at as If-Match. The edge, the role and the record's rules are judged, then
+   * the state is written with its `<state>_at`, and the sagas the move starts
+   * run — the same contract as the NestJS stack's POST …/transition.
+   */
+  router.post("/:entity/:id/transition", async (request, { db, params, user }) => {
+    const entity = entityOr404(model, params.entity);
+    requireUser(user);
+    await checkOperationAccess(db, user, entity.tableName, "read");
+    const lifecycle = lifecycleOf(model, entity.tableName);
+    if (!lifecycle?.hasMachine) throw notFound(`${entity.name} has no status flow to move along`);
+
+    const current = await db.one(
+      `SELECT * FROM ${ident(entity.tableName)} WHERE id = $1 AND deleted_at IS NULL`,
+      [params.id]
+    );
+    if (!current) throw notFound(`No ${entity.name} with id ${params.id}`);
+
+    const expectedVersion = parseIfMatch(request.headers.get("if-match"));
+    if (expectedVersion === undefined) {
+      return json(
+        {
+          statusCode: 428,
+          message: "A move needs the version the record was read at, as If-Match.",
+          details: { code: "PRECONDITION_REQUIRED" },
+        },
+        { status: 428 }
+      );
+    }
+    if (Number(current.version ?? 0) !== expectedVersion) {
+      return versionConflict(entity, params.id, expectedVersion, Number(current.version ?? 0));
+    }
+
+    const body = await readJson(request);
+    const from = current[lifecycle.column] == null ? null : String(current[lifecycle.column]);
+    const move = findMove(lifecycle, from, { event: body?.event, to: body?.to });
+    if (!move) {
+      const offered = movesFrom(lifecycle, from).map((item) => item.event || item.to);
+      return json(
+        {
+          statusCode: 409,
+          message:
+            `"${body?.event ?? body?.to ?? ""}" is not a move of this record from "${from ?? "nothing"}". ` +
+            (offered.length ? `Its moves are: ${offered.join(", ")}.` : "It has no moves from here."),
+          details: { code: "INVALID_TRANSITION", entity: entity.tableName, id: params.id, from, offered },
+        },
+        { status: 409 }
+      );
+    }
+
+    const decision = await mayPress(user, model, entity.tableName, move, () =>
+      updateAllowed(db, user, entity.tableName)
+    );
+    if (!decision.allowed) {
+      return json(
+        {
+          statusCode: 403,
+          message:
+            move.kind === "reopen" && decision.roles.length === 0
+              ? "Only an administrator can reopen this record."
+              : `"${move.label}" can be pressed by: ${decision.roles.join(", ")}.`,
+          details: { code: "TRANSITION_FORBIDDEN", entity: entity.tableName, id: params.id, roles: decision.roles },
+        },
+        { status: 403 }
+      );
+    }
+
+    const now = new Date().toISOString();
+    const values = {
+      [lifecycle.column]: move.to,
+      updated_by: user.id,
+      updated_at: now,
+      version: (current.version ?? 1) + 1,
+    };
+    const stamp = `${move.to}_at`;
+    if (entity.attributes.some((attribute) => attribute.columnName === stamp)) values[stamp] = now;
+
+    // Refusing rules hold on a move as on a save, judged on the record as it
+    // will be: "a resolved case needs its notes".
+    const merged = { ...current, ...values };
+    const outcome = await evaluateRules(await rulesFor(db, entity, "UPDATE"), merged, {
+      columns: entity.attributes.map((attribute) => attribute.columnName),
+    });
+    if (outcome.violations.length) {
+      return json(
+        { statusCode: 422, message: "A business rule refused this move", violations: outcome.violations },
+        { status: 422 }
+      );
+    }
+
+    const updated = await db.update(entity.tableName, values, {
+      id: params.id,
+      version: current.version ?? null,
+    });
+    if (!updated) {
+      const latest = await db.one(`SELECT version FROM ${ident(entity.tableName)} WHERE id = $1`, [params.id]);
+      return versionConflict(entity, params.id, expectedVersion, Number(latest?.version ?? 0));
+    }
+    await recordWorkflowRun(db, model, entity, current, updated, user);
+    const runs = await runTriggeredSagas(db, model, entity, updated, "UPDATE", outcome.notifications, user);
+    const stored = runs.length
+      ? (await db.one(`SELECT * FROM ${ident(entity.tableName)} WHERE id = $1`, [params.id])) ?? updated
+      : updated;
+    await recordAudit(db, {
+      user,
+      action: "UPDATE",
+      entityType: entity.tableName,
+      entityId: params.id,
+      before: current,
+      after: stored,
+    });
+    return json(
+      {
+        ...stored,
+        lifecycle: {
+          column: lifecycle.column,
+          from,
+          to: move.to,
+          phase: phaseOf(lifecycle, move.to),
+          event: move.event,
+        },
+        _workflows: runs,
+      },
+      { headers: etagHeader(stored) }
+    );
+  });
+
   return router;
+}
+
+/** Whether this person may update the table — the fallback for a move nobody restricted. */
+async function updateAllowed(db, user, tableName) {
+  try {
+    await checkOperationAccess(db, user, tableName, "update");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 409 RECORD_FINAL for a record at the end of its flow, else null. */
+function lockedResponse(model, entity, current) {
+  const lifecycle = lifecycleOf(model, entity.tableName);
+  if (!lifecycle || !isLocked(lifecycle, current[lifecycle.column])) return null;
+  return json(
+    {
+      statusCode: 409,
+      message: "This record is Final and cannot be changed. Reopen it to make changes.",
+      details: {
+        code: "RECORD_FINAL",
+        entity: entity.tableName,
+        id: current.id,
+        state: current[lifecycle.column],
+      },
+    },
+    { status: 409 }
+  );
 }
 
 /** Only apply a rule's `set` when the target is a real column of the entity. */

@@ -31,6 +31,7 @@ import {
   referenceFromColumnName,
 } from "@appwithai/core/types";
 import { tableNameFor } from "../../naming/tables";
+import { lifecycleTable } from "../tanstack-start-nestjs/lifecycle-module";
 import type { ParsedModel } from "../../pipeline/generate-application";
 import { deriveAccess } from "../../rbac/roles";
 import { buildReportingPack } from "../../reporting/pack";
@@ -486,6 +487,17 @@ export function buildModelBundle(
       seqNo: index,
     })),
     rbac: parsed.rbac,
+    /* Every table's lifecycle — Draft, the flow, Final — the same
+       `lifecycleTable` the NestJS stack's `lifecycle.ts` is written from, so
+       one model gives both stacks the same moves and the same lock. */
+    lifecycle: lifecycleTable(
+      parsed.entities.map((entity) => ({
+        name: entity.name,
+        tableName: tableNameFor(entity),
+        attributes: entity.attributes.map((attribute) => ({ name: attribute.name })),
+      })),
+      parsed.workflows
+    ),
     /* Queries, reports, charts, a dashboard and one reporting role per `%%rbac`
        role — read by `/api/reporting/*` and nothing else. Kept as a block
        rather than spread into the model so that what the reporting application

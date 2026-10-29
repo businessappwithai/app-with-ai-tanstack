@@ -94,7 +94,7 @@ export function emitWorkflowDiagram(workflow: EditableWorkflow): string {
     if (workflow.automation) return serializeAutomation(workflow.automation, { header: false });
     return emitSagaFlow(workflow.saga);
   }
-  return emitStateFlow(workflow.states);
+  return emitStateFlow(workflow.states, workflow.entity || workflow.states.entity);
 }
 
 export function validateWorkflow(workflow: EditableWorkflow): string[] {
@@ -356,7 +356,7 @@ export function WorkflowEditor({
               ? emitHookWorkflow(workflow.entity || "Entity", workflow.hooks)
               : workflow.kind === "saga"
                 ? emitSagaFlow(workflow.saga)
-                : emitStateFlow(workflow.states)
+                : emitStateFlow(workflow.states, workflow.entity || workflow.states.entity)
           }`}
         </pre>
       )}

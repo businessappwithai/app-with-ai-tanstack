@@ -221,6 +221,8 @@ export class FullStackGenerator {
         // `%%report` says the model declared none rather than showing an empty
         // table that reads like a failed query.
         compiledReports: this.options.compiledReports,
+        // The form reads each record's lifecycle from the same module the API does.
+        compiledWorkflows: this.options.compiledWorkflows,
         ...aiConfig,
         ...this.options.tanstackStartNestjs?.frontend,
       };

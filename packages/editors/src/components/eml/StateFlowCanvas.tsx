@@ -308,7 +308,32 @@ export function StateFlowCanvas({ flow, onChange }: StateFlowCanvasProps) {
               placeholder="submit"
             />
             <span className="mt-1 block text-[11px] leading-snug text-muted-foreground">
-              Names the action that moves a record along this arrow.
+              Names the action that moves a record along this arrow — the button's label.
+            </span>
+            <span className="mb-1 mt-3 block text-xs font-medium">Who may press it</span>
+            <input
+              className="w-full rounded-md border border-border px-2 py-1.5 text-sm"
+              aria-label="Roles that may press this move"
+              value={(selectedTransition.roles ?? []).join(", ")}
+              onChange={(event) =>
+                onChange({
+                  ...flow,
+                  transitions: flow.transitions.map((t) =>
+                    t.id === selectedTransition.id
+                      ? {
+                          ...t,
+                          // Kept as typed (an empty entry lets a comma stay
+                          // while the next role is written); emptied on save.
+                          roles: event.target.value.split(/[,|]/).map((role) => role.trimStart()),
+                        }
+                      : t
+                  ),
+                })
+              }
+              placeholder="sales_manager"
+            />
+            <span className="mt-1 block text-[11px] leading-snug text-muted-foreground">
+              Roles, separated by commas. Empty: anyone who may edit the record.
             </span>
           </label>
         )}

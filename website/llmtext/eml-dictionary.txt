@@ -215,8 +215,8 @@ one row**.
 
 **The state field is not in the form body — it is in the header and the grid.**
 On an entity with a `kind: state` machine, the column it drives (`status`, else
-`state`, else `stage`) is changed only by background workflows (§5.2), so it is
-never an input. The generated form shows it **read-only in its top header**,
+`state`, else `stage`) moves only by the record's action buttons (§5.2), so it
+is never an input. The generated form shows it **read-only in its top header**,
 beside the record's title, labelled from its enum; the list grid **always**
 shows it as a column, and an administrator's grid-visibility toggle cannot hide
 it. No `%%section` row places it (`EML178`, auto-fixed by removing it), and

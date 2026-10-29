@@ -142,6 +142,11 @@ export interface StateTransition {
   to: string;
   /** Optional trigger label, e.g. `submit`. */
   label?: string;
+  /**
+   * The roles that may press this move — its `%%rbac role:… on <Entity>.<event>`
+   * line. Empty: anyone who may update the record.
+   */
+  roles?: string[];
 }
 
 export interface StateFlow {
@@ -151,9 +156,30 @@ export interface StateFlow {
   initial?: string;
   /** States that end the process — `x --> [*]`. */
   terminal: string[];
+  /** The roles that may reopen a Final record (`%%rbac … on <Entity>.reopen`). */
+  reopenRoles?: string[];
+  /** The entity the `%%rbac` move lines name, as read. */
+  entity?: string;
+  /** Any other `%%` line of the section, kept as written so a save loses nothing. */
+  directives?: string[];
 }
 
 const START_MARKER = "[*]";
+const RBAC_MOVE = /^%%rbac\s+(\S+)\s+on\s+([A-Za-z_]\w*)\.([A-Za-z_][\w-]*(?:->[A-Za-z_]\w*)?)\s*$/;
+
+/** `close won`, `Close-Won` and `close_won` are one event. */
+function oneToken(event: string): string {
+  return event.trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
+function rolesOf(expression: string): string[] {
+  return expression
+    .split("|")
+    .map((part) => part.trim().replace(/^role:/i, "").trim())
+    .filter(Boolean);
+}
+
+const CRUD_TARGETS = new Set(["create", "read", "update", "delete", "*", "write", "modify", "remove", "destroy", "view", "list", "get", "insert", "add", "edit"]);
 
 /** Read a `stateDiagram-v2` into the editable model. */
 export function parseStateFlow(diagram: string): StateFlow {
@@ -168,9 +194,20 @@ export function parseStateFlow(diagram: string): StateFlow {
   };
 
   let index = 0;
+  const moveLines: Array<{ roles: string[]; entity: string; target: string; line: string }> = [];
+  const directives: string[] = [];
   for (const rawLine of (diagram ?? "").split("\n")) {
     const line = rawLine.trim();
-    if (!line || line.startsWith("%%") || /^stateDiagram(-v2)?$/.test(line)) continue;
+    if (line.startsWith("%%")) {
+      const move = RBAC_MOVE.exec(line);
+      if (move && !CRUD_TARGETS.has(move[3]!.toLowerCase())) {
+        moveLines.push({ roles: rolesOf(move[1]!), entity: move[2]!, target: move[3]!, line });
+      } else {
+        directives.push(line);
+      }
+      continue;
+    }
+    if (!line || /^stateDiagram(-v2)?$/.test(line)) continue;
 
     // `from --> to : label`
     const match = line.match(
@@ -221,11 +258,46 @@ export function parseStateFlow(diagram: string): StateFlow {
     state.position = { x: 80 + column * 300, y: 60 + row * 140 };
   }
 
-  return { states: ordered, transitions, initial, terminal };
+  // The %%rbac move lines: each names its edges by event or `from->to`, or is
+  // Reopen. A line naming no drawn move is kept as written.
+  let reopenRoles: string[] | undefined;
+  let entity: string | undefined;
+  for (const move of moveLines) {
+    entity ??= move.entity;
+    const arrow = /^(\w+)->(\w+)$/.exec(move.target);
+    const matched = transitions.filter((transition) =>
+      arrow
+        ? transition.from === arrow[1] && transition.to === arrow[2]
+        : !!transition.label && oneToken(transition.label) === oneToken(move.target)
+    );
+    if (matched.length > 0) {
+      for (const transition of matched) {
+        transition.roles = [...new Set([...(transition.roles ?? []), ...move.roles])];
+      }
+    } else if (!arrow && oneToken(move.target) === "reopen") {
+      reopenRoles = [...new Set([...(reopenRoles ?? []), ...move.roles])];
+    } else {
+      directives.push(move.line);
+    }
+  }
+
+  return {
+    states: ordered,
+    transitions,
+    initial,
+    terminal,
+    ...(reopenRoles ? { reopenRoles } : {}),
+    ...(entity ? { entity } : {}),
+    ...(directives.length ? { directives } : {}),
+  };
 }
 
-/** Write the editable model back out as a `stateDiagram-v2`. */
-export function emitStateFlow(flow: StateFlow): string {
+/**
+ * Write the editable model back out as a `stateDiagram-v2`, followed by the
+ * `%%rbac` line of every move given to roles and any other `%%` line the
+ * section carried. `entity` names the record type the move lines are about.
+ */
+export function emitStateFlow(flow: StateFlow, entity = flow.entity): string {
   const lines = ["stateDiagram-v2"];
 
   // `initial`, `terminal` and a transition's `from`/`to` all hold state *ids*,
@@ -256,6 +328,27 @@ export function emitStateFlow(flow: StateFlow): string {
   for (const state of flow.states) {
     if (!mentioned.has(state.id)) lines.push(`    ${state.name}`);
   }
+
+  // Who may press each move. Edges sharing an event share its line.
+  const owner = entity?.trim();
+  const moves = new Map<string, Set<string>>();
+  for (const transition of flow.transitions) {
+    const given = (transition.roles ?? []).map((role) => role.trim()).filter(Boolean);
+    if (!given.length) continue;
+    const label = transition.label?.trim();
+    const target = label ? oneToken(label) : `${named(transition.from)}->${named(transition.to)}`;
+    const roles = moves.get(target) ?? new Set<string>();
+    for (const role of given) roles.add(role);
+    moves.set(target, roles);
+  }
+  if (flow.reopenRoles?.length) moves.set("reopen", new Set(flow.reopenRoles));
+  const extra = [
+    ...(owner
+      ? [...moves].map(([target, roles]) => `    %%rbac role:${[...roles].join("|")} on ${owner}.${target}`)
+      : []),
+    ...(flow.directives ?? []).map((line) => `    ${line}`),
+  ];
+  if (extra.length) lines.push("", ...extra);
 
   return lines.join("\n");
 }

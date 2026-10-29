@@ -107,10 +107,10 @@ export interface ViewStateMachine extends CompiledWorkflow {
   /**
    * The sagas whose UpdateEntity step writes each state, keyed by state.
    *
-   * A state field is changed only by background workflows, so this is who
-   * moves a record along an edge: a state with no entry is one nothing can put
-   * a record in (the checker's EML507). The initial state is the system's to
-   * set and never appears.
+   * A record moves by its action buttons; a saga that writes a state moves it
+   * too, along a drawn edge. This is that second kind: who besides the buttons
+   * puts a record in each state. The initial state is the system's to set and
+   * never appears.
    */
   stateWriters: Record<string, string[]>;
 }
