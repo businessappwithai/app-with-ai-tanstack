@@ -811,6 +811,12 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/record-actions.tsx",
       },
       {
+        // Edit and two-step Delete on the User and Role screens. Both import
+        // it, so leaving it out of this list fails the generated app's build.
+        src: "src/components/admin/row-actions.tsx",
+        dest: "src/components/admin/row-actions.tsx",
+      },
+      {
         // The entity icon control on the Table and Column detail screen: a
         // lucide name or an uploaded image, written to sys_table.icon.
         // admin/table/$tableId/index.tsx imports it, so leaving it out of this

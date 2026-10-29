@@ -1050,7 +1050,19 @@ export async function seed(db: Kysely<any>): Promise<void> {
   ];
 
   for (const wd of adminWindowDefs) {
-    const existing = await db.selectFrom('sys_window').select(['sys_window_id', 'help', 'icon']).where('name', '=', wd.name).executeTakeFirst();
+    /*
+     * By name *and* entity_type 'S'. A model may declare an entity called User
+     * or Role, whose window is seeded above with the same name; matched on the
+     * name alone, that business window was taken for this one, the
+     * administrative screen was never created, and an application generated
+     * from such a model had no way to manage who can sign in.
+     */
+    const existing = await db
+      .selectFrom('sys_window')
+      .select(['sys_window_id', 'help', 'icon'])
+      .where('name', '=', wd.name)
+      .where('entity_type', '=', 'S')
+      .executeTakeFirst();
     const windowId = existing?.sys_window_id ?? uuidv4();
     if (!existing) {
       await db.insertInto('sys_window').values({

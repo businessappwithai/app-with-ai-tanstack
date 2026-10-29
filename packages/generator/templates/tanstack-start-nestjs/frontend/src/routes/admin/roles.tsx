@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { WindowHelpButton } from '@/components/admin/window-help-button';
 import { apiClient } from '@/lib/api-client';
 import { UserCog, ArrowLeft, Loader2, AlertCircle, Star, Plus } from 'lucide-react';
+import { RowActions, errorText } from '@/components/admin/row-actions';
 
 export const Route = createFileRoute('/admin/roles')({
   component: RolesPage,
@@ -30,13 +31,15 @@ function RolesPage() {
   // Administrators only — the server refuses anyone else with a 403.
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_ROLE);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ['admin', 'sys-roles'] });
 
   const createRole = useMutation({
     mutationFn: (input: typeof EMPTY_ROLE) => apiClient.post('/sys/roles', input),
     onSuccess: () => {
       setForm(EMPTY_ROLE);
       setShowForm(false);
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'sys-roles'] });
+      void refresh();
     },
   });
 
@@ -108,7 +111,7 @@ function RolesPage() {
             </label>
             {createRole.isError && (
               <p className="text-sm text-destructive">
-                {(createRole.error as Error)?.message ?? 'Could not create the role'}
+                {errorText(createRole.error, 'Could not create the role')}
               </p>
             )}
             <button
@@ -133,18 +136,30 @@ function RolesPage() {
           </div>
         )}
         {!isLoading && !error && (
-          <div className="swiss-card overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="swiss-card overflow-x-auto">
+            <table className="w-full min-w-[44rem] text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">Name</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">Description</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">Type</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                  <th className="px-4 py-3"><span className="sr-only">Actions</span></th>
                 </tr>
               </thead>
               <tbody>
-                {roles.map((r) => (
+                {roles.map((r) =>
+                  editingId === r.sys_role_id ? (
+                    <EditRoleRow
+                      key={r.sys_role_id}
+                      role={r}
+                      onDone={() => {
+                        setEditingId(null);
+                        void refresh();
+                      }}
+                      onCancel={() => setEditingId(null)}
+                    />
+                  ) : (
                   <tr key={r.sys_role_id} className="border-b border-border last:border-0 hover:bg-muted/20">
                     <td className="px-4 py-3 font-medium flex items-center gap-2">
                       {r.is_master_role && <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />}
@@ -163,11 +178,20 @@ function RolesPage() {
                         {r.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
+                    <td className="px-4 py-3">
+                      <RowActions
+                        label={r.name}
+                        onEdit={() => setEditingId(r.sys_role_id)}
+                        remove={() => apiClient.delete(`/sys/roles/${r.sys_role_id}`)}
+                        onRemoved={() => void refresh()}
+                      />
+                    </td>
                   </tr>
-                ))}
+                  ),
+                )}
                 {roles.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">No roles found</td>
+                    <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">No roles found</td>
                   </tr>
                 )}
               </tbody>
@@ -176,5 +200,94 @@ function RolesPage() {
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * One role, open for editing. The server decides what may change: a role the
+ * model's access rules name keeps its name (renaming it would take its access
+ * away), and Administrator and User keep theirs. Its refusal is shown here.
+ */
+function EditRoleRow({
+  role,
+  onDone,
+  onCancel,
+}: {
+  role: SysRole;
+  onDone: () => void;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState(role.name);
+  const [description, setDescription] = useState(role.description ?? '');
+  const [isMasterRole, setIsMasterRole] = useState(role.is_master_role);
+
+  const save = useMutation({
+    mutationFn: () => {
+      const body: Record<string, unknown> = {};
+      if (name.trim() !== role.name) body.name = name;
+      if (description !== (role.description ?? '')) body.description = description;
+      if (isMasterRole !== role.is_master_role) body.isMasterRole = isMasterRole;
+      return apiClient.patch(`/sys/roles/${role.sys_role_id}`, body);
+    },
+    onSuccess: onDone,
+  });
+
+  return (
+    <tr className="border-b border-border last:border-0 bg-muted/20">
+      <td colSpan={5} className="px-4 py-4">
+        <form
+          className="space-y-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            save.mutate();
+          }}
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-sm">
+              <span className="mb-1 block text-muted-foreground">Name</span>
+              <input
+                required
+                maxLength={100}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2"
+              />
+            </label>
+            <label className="text-sm">
+              <span className="mb-1 block text-muted-foreground">Description</span>
+              <input
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2"
+              />
+            </label>
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={isMasterRole} onChange={(event) => setIsMasterRole(event.target.checked)} />
+            <span>Master role (sees and changes everything, like the administrator)</span>
+          </label>
+          {save.isError && (
+            <p className="text-sm text-destructive">{errorText(save.error, 'Could not save the role')}</p>
+          )}
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={save.isPending}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-60"
+            >
+              {save.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-muted"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </td>
+    </tr>
   );
 }

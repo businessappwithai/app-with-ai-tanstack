@@ -66,6 +66,11 @@ export class SessionAuthGuard implements CanActivate {
       // sys_user_capability and cached per user (CapabilityService). The guards
       // after this one — entity access, the moves — only look it up.
       const sysUserId = session.user.sysUserId as string | undefined;
+      // A deactivated or deleted account is refused here, on every request —
+      // not when its session cookie next goes back to the database.
+      if (sysUserId && this.capabilities && !(await this.capabilities.isActive(sysUserId))) {
+        throw new UnauthorizedException('This account has been deactivated.');
+      }
       if (this.capabilities) {
         try {
           const capabilities = await this.capabilities.forUser({

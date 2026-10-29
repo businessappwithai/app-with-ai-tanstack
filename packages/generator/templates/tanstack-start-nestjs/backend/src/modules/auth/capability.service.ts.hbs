@@ -31,7 +31,7 @@
 
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit, Optional } from '@nestjs/common';
 import { DatabaseService } from '../../database/database.service';
-import { createCache } from '../../common/ttl-cache';
+import { cacheTtl, createCache } from '../../common/ttl-cache';
 
 export type GrantKind = 'op' | 'move' | 'reopen';
 
@@ -89,6 +89,8 @@ export class CapabilityService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(CapabilityService.name);
   private readonly users = createCache<string, Capabilities>('capabilities');
   private readonly policies = createCache<'policy', AccessPolicy>('accessPolicy', { maxEntries: 1 });
+  /** Whether an account is active. Same expiry as a user's capabilities — it is the same question. */
+  private readonly accounts = createCache<string, boolean>('accountActive', { ttlMs: cacheTtl('capabilities').ttlMs });
   private listener: { end(): Promise<void> } | null = null;
   private stopped = false;
   /** Queries made, for the test that holds this to one per cold user. */
@@ -109,6 +111,27 @@ export class CapabilityService implements OnModuleInit, OnModuleDestroy {
   invalidate(): void {
     this.users.clear();
     this.policies.clear();
+    this.accounts.clear();
+  }
+
+  /**
+   * Whether `sys_user` still holds this account as active. An account that was
+   * deactivated or deleted is not, and SessionAuthGuard refuses it — at once,
+   * rather than when Better Auth's five-minute session cookie next asks the
+   * database. Deactivating announces `access_changed`, which empties this.
+   */
+  async isActive(sysUserId: string): Promise<boolean> {
+    const cached = this.accounts.get(sysUserId);
+    if (cached !== undefined) return cached;
+    if (!this.db) return true;
+    const row = await this.db.kysely
+      .selectFrom('sys_user')
+      .select('is_active')
+      .where('sys_user_id', '=', sysUserId)
+      .executeTakeFirst();
+    const active = row?.is_active === true;
+    this.accounts.set(sysUserId, active);
+    return active;
   }
 
   /**

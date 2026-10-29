@@ -18017,6 +18017,10 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
         dest: "src/components/admin/record-actions.tsx"
       },
       {
+        src: "src/components/admin/row-actions.tsx",
+        dest: "src/components/admin/row-actions.tsx"
+      },
+      {
         src: "src/components/admin/entity-icon-field.tsx",
         dest: "src/components/admin/entity-icon-field.tsx"
       },
