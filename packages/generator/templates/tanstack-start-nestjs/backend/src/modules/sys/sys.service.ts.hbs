@@ -17,6 +17,7 @@ import { randomUUID } from 'crypto';
 import { DatabaseService } from '../../database/database.service';
 import { BusService } from '../bus/bus.service';
 import { parseLogic } from '../../common/field-logic';
+import { createCache } from '../../common/ttl-cache';
 
 /**
  * The database table behind a sys_table row. The model's tables are recorded
@@ -37,15 +38,11 @@ interface PaginationOptions {
   prefix?: string;
 }
 
-interface CacheEntry<T> {
-  data: T;
-  expiry: number;
-}
-
 @Injectable()
 export class SysService {
-  private fieldCache = new Map<string, CacheEntry<unknown>>();
-  private readonly CACHE_TTL_MS = 5 * 60 * 1000;
+  // The dictionary's field lists, each for CACHE_TTL_DICTIONARY_FIELDS_MS
+  // (common/ttl-cache.ts), dropped at once by a dictionary edit made here.
+  private readonly fieldCache = createCache<string, unknown>('dictionaryFields');
 
   constructor(
     private readonly db: DatabaseService,
@@ -54,9 +51,9 @@ export class SysService {
 
   private async getCached<T>(key: string, factory: () => Promise<T>): Promise<T> {
     const cached = this.fieldCache.get(key);
-    if (cached && cached.expiry > Date.now()) return cached.data as T;
+    if (cached !== undefined) return cached as T;
     const data = await factory();
-    this.fieldCache.set(key, { data, expiry: Date.now() + this.CACHE_TTL_MS });
+    this.fieldCache.set(key, data);
     return data;
   }
 

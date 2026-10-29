@@ -129,7 +129,12 @@ export class WorkflowService {
   async runLocalWorkflows(
     entityName: string,
     entityId: string,
-    operation: 'create' | 'update' | 'delete',
+    /**
+     * A write, or a move: `transition:<event>` runs the workflows bound to one
+     * button, `enter:<state>` those bound to reaching a state. A move does not
+     * run the `ALL` ones — those belong to writes.
+     */
+    operation: 'create' | 'update' | 'delete' | `transition:${string}` | `enter:${string}`,
     entityData: Record<string, unknown>,
     decisionVars: Record<string, unknown> = {},
     options: WorkflowRunOptions = {},
@@ -149,10 +154,11 @@ export class WorkflowService {
           eb(sql<string>`replace(lower(entity_name), '_', '')`, 'in', [flat, `bus${flat}`]),
         )
         .where((eb) =>
-          eb.or([
-            eb('operation', '=', operation.toUpperCase()),
-            eb('operation', '=', 'ALL'),
-          ]),
+          eb.or(
+            operation.includes(':')
+              ? [eb('operation', '=', operation.toUpperCase())]
+              : [eb('operation', '=', operation.toUpperCase()), eb('operation', '=', 'ALL')],
+          ),
         )
         .where('is_active', '=', true)
         // Rule-triggered definitions are reached only through a rule's

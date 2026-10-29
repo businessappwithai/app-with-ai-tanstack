@@ -125,6 +125,15 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:{{project.frontendPort}}}
       ELECTRIC_URL: http://electric:3000
+      # How long each in-process cache serves an entry, in ms; 0 turns one off.
+      # backend/.env.example says what each one holds.
+      CACHE_TTL_DEFAULT_MS: ${CACHE_TTL_DEFAULT_MS:-6000}
+      CACHE_TTL_CAPABILITIES_MS: ${CACHE_TTL_CAPABILITIES_MS:-6000}
+      CACHE_TTL_ACCESS_POLICY_MS: ${CACHE_TTL_ACCESS_POLICY_MS:-6000}
+      CACHE_TTL_ENTITY_METADATA_MS: ${CACHE_TTL_ENTITY_METADATA_MS:-6000}
+      CACHE_TTL_IDENTIFIER_FIELDS_MS: ${CACHE_TTL_IDENTIFIER_FIELDS_MS:-6000}
+      CACHE_TTL_DICTIONARY_FIELDS_MS: ${CACHE_TTL_DICTIONARY_FIELDS_MS:-6000}
+      CACHE_TTL_LIFECYCLE_MS: ${CACHE_TTL_LIFECYCLE_MS:-6000}
       # The AI assistant — retrieval over this application's own model.
       #
       # One endpoint serves it: OpenAI-compatible `POST /v1/embeddings`. Point
@@ -179,6 +188,15 @@ services:
       # connect on start and logs a gRPC login error. Audit rows go to PostgreSQL.
       IMMUDB_ENABLED: ${IMMUDB_ENABLED:-false}
       ELECTRIC_URL: http://electric:3000
+      # How long each in-process cache serves an entry, in ms; 0 turns one off.
+      # backend/.env.example says what each one holds.
+      CACHE_TTL_DEFAULT_MS: ${CACHE_TTL_DEFAULT_MS:-6000}
+      CACHE_TTL_CAPABILITIES_MS: ${CACHE_TTL_CAPABILITIES_MS:-6000}
+      CACHE_TTL_ACCESS_POLICY_MS: ${CACHE_TTL_ACCESS_POLICY_MS:-6000}
+      CACHE_TTL_ENTITY_METADATA_MS: ${CACHE_TTL_ENTITY_METADATA_MS:-6000}
+      CACHE_TTL_IDENTIFIER_FIELDS_MS: ${CACHE_TTL_IDENTIFIER_FIELDS_MS:-6000}
+      CACHE_TTL_DICTIONARY_FIELDS_MS: ${CACHE_TTL_DICTIONARY_FIELDS_MS:-6000}
+      CACHE_TTL_LIFECYCLE_MS: ${CACHE_TTL_LIFECYCLE_MS:-6000}
       # The AI assistant — retrieval over this application's own model.
       #
       # One endpoint serves it: OpenAI-compatible `POST /v1/embeddings`. Point

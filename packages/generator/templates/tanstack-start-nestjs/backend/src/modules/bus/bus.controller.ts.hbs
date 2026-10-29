@@ -27,9 +27,11 @@ import {
   UseGuards,
   Req,
   Res,
+  HttpException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { BusService } from './bus.service';
+import { TransitionService } from './transition.service';
 import { SessionAuthGuard } from '../auth/guards/session-auth.guard';
 import { EntityAccessGuard } from '../auth/guards/entity-access.guard';
 
@@ -70,7 +72,10 @@ function setEtag(reply: any, record: any): void {
 export class BusController {
   private readonly logger = new Logger(BusController.name);
 
-  constructor(private readonly busService: BusService) {
+  constructor(
+    private readonly busService: BusService,
+    private readonly transitions: TransitionService,
+  ) {
     this.logger.log('BusController initialized');
   }
 
@@ -330,6 +335,75 @@ export class BusController {
    * Partially update a record
    * PATCH /bus/:entity/:id
    */
+  /**
+   * The moves the caller may make on this record now — its action buttons.
+   * GET /bus/:entity/:id/actions
+   */
+  @Get(':entity/:id/actions')
+  @ApiOperation({ summary: "The record's action buttons for the caller" })
+  @ApiParam({ name: 'entity', description: 'Entity name' })
+  @ApiParam({ name: 'id', description: 'Record UUID' })
+  async actions(
+    @Param('entity') entity: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req?: any,
+  ) {
+    return this.transitions.availableActions(entity, id, {
+      id: req?.user?.id ?? null,
+      name: req?.user?.name ?? null,
+      capabilities: req?.capabilities,
+    });
+  }
+
+  /**
+   * Press a move: `{ "event": "close_won" }` or `{ "to": "closed_won" }`, with
+   * the version the record was read at as If-Match (428 without it).
+   * POST /bus/:entity/:id/transition
+   */
+  @Post(':entity/:id/transition')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Move a record along its lifecycle' })
+  @ApiParam({ name: 'entity', description: 'Entity name' })
+  @ApiParam({ name: 'id', description: 'Record UUID' })
+  @ApiResponse({ status: 200, description: 'Moved; the record and where it went' })
+  @ApiResponse({ status: 403, description: "TRANSITION_FORBIDDEN — the caller's roles do not grant it" })
+  @ApiResponse({ status: 409, description: 'INVALID_TRANSITION or VERSION_CONFLICT' })
+  @ApiResponse({ status: 422, description: 'A rule refused it, or a workflow it runs failed' })
+  @ApiResponse({ status: 428, description: 'No If-Match' })
+  async transition(
+    @Param('entity') entity: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { event?: string; to?: string; assignTo?: string | null; assignRole?: string | null },
+    @Headers('if-match') ifMatch?: string,
+    @Req() req?: any,
+    @Res({ passthrough: true }) reply?: any,
+  ) {
+    const version = parseIfMatch(ifMatch);
+    if (version === undefined) {
+      // A move made against a version nobody read could undo what someone else
+      // just did; the button always knows which version it was drawn for.
+      throw new HttpException(
+        {
+          message: 'A move needs the version the record was read at, as If-Match.',
+          error: 'Precondition Required',
+          details: { code: 'PRECONDITION_REQUIRED' },
+        },
+        428,
+      );
+    }
+    if (!body?.event && !body?.to) {
+      throw new BadRequestException('Name the move: { "event": … } or { "to": … }.');
+    }
+    const result = await this.transitions.move(
+      entity,
+      id,
+      { event: body.event, to: body.to, version, assignTo: body.assignTo, assignRole: body.assignRole },
+      { id: req?.user?.id ?? null, name: req?.user?.name ?? null, capabilities: req?.capabilities },
+    );
+    setEtag(reply, result.record);
+    return { ...result.record, lifecycle: result.lifecycle, ranWorkflows: result.ranWorkflows };
+  }
+
   @Post(':entity/:id/promote')
   @ApiOperation({ summary: 'Retry the draft → final promotion for a record' })
   @ApiParam({ name: 'entity', description: 'Entity name' })

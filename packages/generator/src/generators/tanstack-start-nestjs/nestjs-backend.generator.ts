@@ -47,7 +47,18 @@ import { BaseGenerator } from "../base.generator";
 import { DEFAULT_FRONTEND_PORT } from "../ports";
 import { buildFkConstraints } from "./fk-constraints";
 import { formLayoutFor } from "../../parsers/section.parser";
-import { STATE_FIELD_REFUSAL_CODE, stateFieldOf } from "../../../../../language/state-field";
+import {
+  DOC_STATUS_COLUMN,
+  draftValueFor,
+  LIFECYCLE_DRAFT,
+  LIFECYCLE_ERROR,
+  LIFECYCLE_FINAL,
+  moveLabel,
+  normalizeEvent,
+  STATE_FIELD_REFUSAL_CODE,
+  stateFieldOf,
+} from "../../../../../language/state-field";
+import { LIFECYCLE_MODULE_HEAD, LIFECYCLE_MODULE_TAIL } from "./lifecycle-module";
 
 /**
  * Carry an entity's `%%section` layout into the template context.
@@ -482,8 +493,16 @@ export class NestJsBackendGenerator extends BaseGenerator {
         ...rule,
         // The status column the machine drives. Mirrors the resolution in the
         // workflow-definitions seed, which is what puts a record into a state
-        // in the first place.
-        statusField: this.statusFieldFor(rule.tableName, busEntities),
+        // in the first place. An entity with no machine moves on doc_status.
+        statusField: this.hasMachine(rule.entity)
+          ? this.statusFieldFor(rule.tableName, busEntities)
+          : DOC_STATUS_COLUMN,
+        // A drawn edge is a move; anything else the compiler accepted is a Final
+        // state back to Draft — a reopen, which only the roles named may make.
+        edges: rule.edges.map((edge) => ({
+          ...edge,
+          kind: this.isDrawnEdge(rule.entity, edge.from, edge.to) ? "move" : "reopen",
+        })),
       })),
       rbacRoles: rbacRoleNames(rbac),
       hasRbac: hasRbacRules(rbac),
@@ -503,6 +522,21 @@ export class NestJsBackendGenerator extends BaseGenerator {
    * transition rule has to name the same column the transition writes. Reading
    * a different one would make every transition restriction inert.
    */
+  /** The entity's state machine, when the model draws one. */
+  private machineOf(entity: string): CompiledWorkflow | undefined {
+    return (this.options.compiledWorkflows ?? []).find((workflow) => workflow.entity === entity);
+  }
+
+  private hasMachine(entity: string): boolean {
+    return this.machineOf(entity) !== undefined;
+  }
+
+  private isDrawnEdge(entity: string, from: string, to: string): boolean {
+    return (this.machineOf(entity)?.transitions ?? []).some(
+      (edge) => edge.from === from && edge.to === to
+    );
+  }
+
   private statusFieldFor(
     tableName: string,
     busEntities: Array<{
@@ -827,6 +861,12 @@ export class NestJsBackendGenerator extends BaseGenerator {
     } catch (_e) {
       console.warn("Dictionary write guard template not found");
     }
+
+    // What a user's roles grant, one query and cached — read by every guard.
+    await fs.writeFile(
+      path.join(outputDir, "src/modules/auth/capability.service.ts"),
+      await this.renderTemplate("src/modules/auth/capability.service.ts.hbs", context)
+    );
 
     // Auth controller and module
     try {
@@ -1548,7 +1588,12 @@ export async function executeCustomValidateHooks(
     );
 
     // Draft → final promotion pipeline
-    for (const name of ["entity-promotion.service", "promotion-dispatcher.service"]) {
+    // …and the moves a record makes after it: its action buttons.
+    for (const name of [
+      "entity-promotion.service",
+      "promotion-dispatcher.service",
+      "transition.service",
+    ]) {
       const content = await this.renderTemplate(`src/modules/bus/${name}.ts.hbs`, context);
       await fs.writeFile(path.join(outputDir, `src/modules/bus/${name}.ts`), content);
     }
@@ -1715,6 +1760,14 @@ export async function executeCustomValidateHooks(
         slug: "field_dictionary",
         template: "src/migrations/021_field_dictionary.ts.hbs",
       },
+      // The record lifecycle: one grant table (the two access tables become
+      // views over it), the one-join capability view, the transition log and
+      // the assignee columns.
+      {
+        slug: "record_lifecycle",
+        template: "src/migrations/022_record_lifecycle.ts.hbs",
+        required: true,
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This
@@ -1841,6 +1894,17 @@ export async function executeCustomValidateHooks(
     await fs.writeFile(
       path.join(outputDir, "src/common/state-fields.ts"),
       this.renderStateFields(context)
+    );
+    // Every table's lifecycle — Draft, the status flow, Final — which the bus
+    // service, the transition service and the access guard all read.
+    await fs.writeFile(
+      path.join(outputDir, "src/common/lifecycle.ts"),
+      this.renderLifecycle(context)
+    );
+    // Every cache's expiry, read from .env (CACHE_TTL_<NAME>_MS).
+    await fs.copyFile(
+      path.join(this.resolvedTemplateDir, "src/common/ttl-cache.ts"),
+      path.join(outputDir, "src/common/ttl-cache.ts")
     );
 
     // Field logic — the bus service enforces mandatory and read-only logic on
@@ -2139,6 +2203,60 @@ export async function seed(db: Kysely<any>): Promise<void> {
       `}`,
       ``,
     ].join("\n");
+  }
+
+  /**
+   * `src/common/lifecycle.ts`: every business table's lifecycle.
+   *
+   * One statement of what language/state-field.ts defines, per table: the column
+   * the lifecycle is stored in, the value Draft is stored as, where a successful
+   * save goes, the Final values, and the drawn edges a button may move along. Who
+   * may press one is not here — that is `sys_access_grant`, which an
+   * administrator can change without regenerating.
+   */
+  private renderLifecycle(context: any): string {
+    const quote = (value: string) => `'${String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
+    const rows: string[] = [];
+    for (const entity of context.entities ?? []) {
+      const machine = this.machineOf(entity.name) ?? this.machineOf(entity.className);
+      if (!machine) {
+        rows.push(
+          `  ${entity.tableName}: { column: '${DOC_STATUS_COLUMN}', hasMachine: false, draft: '${LIFECYCLE_DRAFT}', ` +
+            `afterDraft: '${LIFECYCLE_FINAL}', terminal: ['${LIFECYCLE_FINAL}'], edges: [], ` +
+            `values: ['${LIFECYCLE_DRAFT}', '${LIFECYCLE_FINAL}', '${LIFECYCLE_ERROR}'] },`
+        );
+        continue;
+      }
+      const columns: string[] = (entity.attributes ?? []).map((a: any) => a.columnName ?? a.name);
+      const column = stateFieldOf(columns) ?? "workflow_status";
+      const draft = draftValueFor(machine);
+      const afterDraft = machine.initial ?? draft;
+      const edges = machine.transitions
+        .filter((edge) => edge.from !== "[*]" && edge.to !== "[*]")
+        .map((edge) => {
+          const event = edge.trigger ? normalizeEvent(edge.trigger) : "";
+          return (
+            `      { from: ${quote(edge.from)}, to: ${quote(edge.to)}, event: ${quote(event)}, ` +
+            `label: ${quote(moveLabel(edge.trigger, edge.to))} },`
+          );
+        });
+      rows.push(
+        [
+          `  ${entity.tableName}: {`,
+          `    column: ${quote(column)},`,
+          `    hasMachine: true,`,
+          `    draft: ${quote(draft)},`,
+          `    afterDraft: ${quote(afterDraft)},`,
+          `    terminal: [${machine.terminal.map(quote).join(", ")}],`,
+          `    edges: [`,
+          ...edges,
+          `    ],`,
+          `    values: [${machine.lifecycleValues.map(quote).join(", ")}],`,
+          `  },`,
+        ].join("\n")
+      );
+    }
+    return LIFECYCLE_MODULE_HEAD + rows.join("\n") + LIFECYCLE_MODULE_TAIL;
   }
 
   private renderWorkflowTransitionsSeed(context: any): string {

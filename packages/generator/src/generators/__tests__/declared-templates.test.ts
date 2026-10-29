@@ -83,6 +83,10 @@ const OUTPUT_ONLY_PATHS = new Set([
   // Obscure Type for the bus service and for the form and grid.
   "src/common/field-values.ts",
   "src/lib/field-values.ts",
+  // Every table's lifecycle, rendered by `renderLifecycle` from the compiled
+  // state machines like `state-fields.ts`, around the fixed half in
+  // `lifecycle-module.ts`.
+  "src/common/lifecycle.ts",
 ]);
 
 /** Generator sources, excluding tests and generated bundles. */

@@ -7,7 +7,7 @@
  * Generated: {{now}}
  */
 
-import { Injectable, NotFoundException, BadRequestException, ConflictException, Inject, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, UnprocessableEntityException, Inject, Logger } from '@nestjs/common';
 import type { Kysely } from 'kysely';
 import { randomUUID } from 'crypto';
 import { KYSELY_CONNECTION } from '../../database/database.constants';
@@ -16,10 +16,13 @@ import type { PaginationOptions, PaginatedResult } from '../../database/database
 import { executeBeforeCreateHooks, executeAfterCreateHooks, executeBeforeUpdateHooks, executeAfterUpdateHooks, executeBeforeDeleteHooks, executeAfterDeleteHooks, executeBeforeReadHooks, executeAfterReadHooks, executeBeforeListHooks, executeAfterListHooks, executeCustomValidateHooks } from '../hooks/hooks';
 import { RulesService } from '../rules/rules.service';
 import { PromotionDispatcher } from './promotion-dispatcher.service';
+import { EntityPromotionService } from './entity-promotion.service';
 import type { PromotionActor, PromotionResult } from './entity-promotion.service';
 import { WorkflowService } from '../workflow/workflow.service';
 import { currentRequestContext, getLogger } from '../../common/logging/logger.service';
 import { stateFieldOf } from '../../common/state-fields';
+import { lifecycleOf, phaseOf, saveMode, type Lifecycle } from '../../common/lifecycle';
+import { createCache } from '../../common/ttl-cache';
 import { logicViolations, sameValue } from '../../common/field-logic';
 import { resolveDefaultValue } from '../../common/field-values';
 import {
@@ -109,6 +112,12 @@ export interface EntityMetadata {
     description?: string;
     /** The state field, when the entity has a state machine. See FieldMetadata.is_state_field. */
     state_field?: string | null;
+    /**
+     * The record lifecycle (common/lifecycle.ts): the column it is stored in,
+     * Draft, the Final values and the drawn moves, so the form can draw a
+     * record's action buttons and lock a Final one without asking per record.
+     */
+    lifecycle?: Lifecycle | null;
   };
   columns: FieldMetadata[];
   window?: {
@@ -124,8 +133,10 @@ export interface EntityMetadata {
 @Injectable()
 export class BusService {
   private readonly logger = new Logger(BusService.name);
-  private metadataCache: Map<string, EntityMetadata> = new Map();
-  private readonly identifierFieldsCache = new Map<string, string[]>();
+  // Each expires after CACHE_TTL_<NAME>_MS (common/ttl-cache.ts) and is dropped
+  // at once when the dictionary is changed through this application.
+  private readonly metadataCache = createCache<string, EntityMetadata>('entityMetadata');
+  private readonly identifierFieldsCache = createCache<string, string[]>('identifierFields');
   private static readonly AUTO_MANAGED_COLUMNS = new Set(['id', 'created_at', 'updated_at', 'deleted_at', 'version']);
 
   constructor(
@@ -134,6 +145,7 @@ export class BusService {
     private readonly rulesService: RulesService,
     private readonly workflowService: WorkflowService,
     private readonly promotionDispatcher: PromotionDispatcher,
+    private readonly promotionService: EntityPromotionService,
   ) {
     this.logger.log('BusService initialized');
   }
@@ -178,7 +190,7 @@ export class BusService {
    * Only columns the dictionary declares as numbers (references 11 and 12) are
    * converted, so a code like "0042" in a text column stays text.
    */
-  private async withNumericValues(
+  async withNumericValues(
     tableName: string,
     record: Record<string, any>,
   ): Promise<Record<string, any>> {
@@ -238,7 +250,7 @@ export class BusService {
 {{/each}}
   ]);
 
-  private getTableName(entity: string): string {
+  getTableName(entity: string): string {
     const normalized = entity.toLowerCase().replace(/-/g, '_');
     if (normalized.startsWith('bus_')) return normalized;
     if (BusService.MODEL_TABLES.has(`bus_${normalized}`)) return `bus_${normalized}`;
@@ -409,12 +421,16 @@ export class BusService {
     const metadata = await this.getEntityMetadata(entity);
     const dataWithDefaults = { ...data };
 
-    // A new record starts in its state machine's initial state. A person's
+    // A new record starts in Draft (common/lifecycle.ts); the save pipeline
+    // moves it on — to the first status of its flow, or to Final. A person's
     // request never carries the state (the guard drops it); a workflow creating
     // a record may name one, and a hook may still set it below.
-    const state = stateFieldOf(tableName);
-    if (state?.initial && dataWithDefaults[state.field] === undefined) {
-      dataWithDefaults[state.field] = state.initial;
+    const lifecycle = lifecycleOf(tableName);
+    if (lifecycle && dataWithDefaults[lifecycle.column] === undefined) {
+      dataWithDefaults[lifecycle.column] = lifecycle.draft;
+    }
+    if (lifecycle?.hasMachine) {
+      dataWithDefaults.doc_status = phaseOf(lifecycle, dataWithDefaults[lifecycle.column]);
     }
 
     // Default Value — the field's, else the column's, read as the form reads it
@@ -544,6 +560,28 @@ export class BusService {
     // Validate business rules against the record as it would look after the
     // update, so rules over fields absent from a partial payload still hold.
     const current = await this.db.findById<Record<string, any>>(tableName, id);
+
+    // Where the record is decides what a save does (common/lifecycle.ts): from
+    // Draft or Error it runs the save pipeline again; part-way along its flow
+    // it is an edit whose workflows are one transaction with it; Final refuses.
+    const lifecycle = lifecycleOf(tableName);
+    const mode = lifecycle && current ? saveMode(lifecycle, current[lifecycle.column]) : 'pipeline';
+    if (mode === 'locked') {
+      throw new ConflictException({
+        message: 'This record is Final and cannot be changed. Reopen it to make changes.',
+        error: 'Conflict',
+        details: { code: 'RECORD_FINAL', entity, id, state: current?.[lifecycle!.column] ?? null },
+      });
+    }
+    // Back to Draft for the pipeline: the state field for a flow, else doc_status.
+    const lifecycleWrite: Record<string, unknown> =
+      mode === 'pipeline'
+        ? {
+            ...(lifecycle?.hasMachine ? { [lifecycle.column]: lifecycle.draft } : {}),
+            doc_status: 'draft',
+            doc_status_message: null,
+          }
+        : {};
     if (current) {
       const merged = { ...current, ...processedData };
       await executeCustomValidateHooks(entity, merged);
@@ -563,6 +601,7 @@ export class BusService {
     // first one wrote), and the UPDATE itself is conditioned on the version it
     // checked. Either alone closes the race; both are kept so neither a change
     // of isolation level nor a removed lock reopens it.
+    let inPlace: { ranRules: string[]; ranWorkflows: string[] } | undefined;
     const result = await this.db.transaction(async (trx) => {
       const existing = await trx
         .selectFrom(tableName as any)
@@ -585,14 +624,11 @@ export class BusService {
           ...processedData,
           updated_at: new Date(),
           version: currentVersion + 1,
-          // An edited record is a draft again until its rules and workflows
-          // have been re-run against the new values. Left `final`, a record
-          // that was finalised once would keep that badge through every later
-          // edit — including one a rule would have refused — and the second
-          // transaction would have nothing to change. The stale explanation
-          // from a previous failed finalisation goes with it.
-          doc_status: 'draft',
-          doc_status_message: null,
+          // A record saved from Draft or Error is a draft again until its rules
+          // and workflows have been re-run against the new values, and the stale
+          // explanation from a previous failure goes with it. A record part-way
+          // along its flow keeps its state: only its moves change that.
+          ...lifecycleWrite,
         } as any)
         .where('id' as any, '=', id)
         .where((eb: any) =>
@@ -607,7 +643,29 @@ export class BusService {
       if (rows.length === 0) {
         throw this.versionConflict(entity, id, expectedVersion ?? currentVersion, currentVersion + 1);
       }
-      return rows[0] ?? null;
+      const saved = rows[0] ?? null;
+      if (saved && mode === 'in-place') {
+        // The edit and its workflows commit together or not at all: a failure
+        // refuses the save and the record keeps the state and values it had.
+        try {
+          inPlace = await this.promotionService.runInTransaction(
+            trx,
+            tableName,
+            id,
+            'update',
+            await this.withNumericValues(tableName, saved),
+          );
+        } catch (error: any) {
+          throw new UnprocessableEntityException({
+            message:
+              `This change was not saved: ${error?.message ?? error}. ` +
+              'The record keeps its status and its previous values.',
+            error: 'Unprocessable Entity',
+            details: { code: 'WORKFLOW_FAILED', entity, id },
+          });
+        }
+      }
+      return saved;
     });
 
     if (!result) {
@@ -616,13 +674,32 @@ export class BusService {
 
     await executeAfterUpdateHooks(entity, result);
 
-    const promotion = await this.promotionDispatcher.dispatch(
-      tableName,
-      id,
-      'update',
-      await this.withNumericValues(tableName, result),
-      this.actor(),
-    );
+    const promotion: PromotionResult =
+      mode === 'in-place'
+        ? {
+            entityName: tableName,
+            entityId: id,
+            operation: 'update',
+            docStatus: 'active',
+            lifecycle: {
+              column: lifecycle!.column,
+              value: String(result[lifecycle!.column] ?? ''),
+              phase: 'active',
+            },
+            promoted: true,
+            message: 'Saved. The record keeps its status; its moves are its action buttons.',
+            ranRules: inPlace?.ranRules ?? [],
+            ranWorkflows: inPlace?.ranWorkflows ?? [],
+            durationMs: 0,
+            state: 'completed',
+          }
+        : await this.promotionDispatcher.dispatch(
+            tableName,
+            id,
+            'update',
+            await this.withNumericValues(tableName, result),
+            this.actor(),
+          );
 
     this.logger.log(`update: entity=${entity}, id=${id}, doc_status=${promotion.docStatus}`);
     getLogger('entity').event('entity.updated', {
@@ -736,8 +813,9 @@ export class BusService {
   async getEntityMetadata(entity: string): Promise<EntityMetadata> {
     const tableName = this.getTableName(entity);
 
-    if (this.metadataCache.has(tableName)) {
-      return this.metadataCache.get(tableName)!;
+    const cachedMetadata = this.metadataCache.get(tableName);
+    if (cachedMetadata) {
+      return cachedMetadata;
     }
 
     const normalizedEntity = entity.toLowerCase().replace(/-/g, '_');
@@ -953,6 +1031,7 @@ export class BusService {
         name: table.name,
         description: table.description,
         state_field: stateField,
+        lifecycle: lifecycleOf(table.table_name) ?? null,
       },
       columns: columns.map((col: any) => {
         const isStateField = stateField !== null && col.column_name === stateField;
@@ -1271,8 +1350,9 @@ export class BusService {
   };
 
   private async resolveRefLabelFields(refTableName: string): Promise<string[]> {
-    if (this.identifierFieldsCache.has(refTableName)) {
-      return this.identifierFieldsCache.get(refTableName)!;
+    const cachedFields = this.identifierFieldsCache.get(refTableName);
+    if (cachedFields) {
+      return cachedFields;
     }
     try {
       const sysTable = await this.kysely
