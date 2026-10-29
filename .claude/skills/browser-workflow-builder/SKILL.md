@@ -16,7 +16,7 @@ Two scripts beside this file are the worked example and run as they are:
 | Script | What it does |
 |---|---|
 | `examples/build-close-out-playbook.cjs` | Builds "Deal Close-Out Playbook" on Opportunity with all eight kinds of step and all six formula operations, a screenshot after each, saves, reloads, reopens, shows the EML |
-| `examples/drive-a-deal-to-closed-won.cjs` | Takes one opportunity through every stage in the record form, then edits the won deal so the playbook runs |
+| `examples/drive-a-deal-to-closed-won.cjs` | Takes one opportunity through every stage by pressing its action buttons, ending Final and locked |
 
 ```bash
 BASE_URL=http://127.0.0.1:4000 SHOTS_DIR=/tmp/build node examples/build-close-out-playbook.cjs
@@ -64,16 +64,18 @@ To change one step later: open the process, click its card by its `Step N` label
 
 ## Testing it — browser only
 
-1. **Pick a record that can take the path.** Seeded rows may carry values that send it
-   somewhere else (a deal whose `closed_lost_at` is already set goes to Closed Lost on
-   its first edit). Choose one whose facts are empty, or make one in the app's form.
-2. **Drive it the way a person would**: open `/<entity>/<id>`, `Edit`, fill the inputs
-   by id (`#qualification_at`), `Save Changes`, reopen. **A state is never typed** —
-   record the fact the move rests on (`<state>_at`), and the state badge
-   (`[data-testid=record-state]`) follows.
-3. **Know when it runs**: an `Updated` process whose check is `stage is closed_won` runs
-   on the **next person's edit after** the deal is won, not on the write that wins it —
-   the stage is written by a saga after that write commits. Edit once more.
+1. **Pick a record that can take the path** — a new one starts in Draft and an accepted
+   save moves it to its flow's first status; make one in the app's form if none fits.
+2. **Move it the way a person would**: open `/<entity>/<id>` and press its **action
+   buttons** in the header (`[data-testid=record-action-<event>]`; several next statuses
+   are a menu, `[data-testid=record-actions-menu]`). **A state is never typed.** Each
+   button is a role's: sign in as the role the model gives a move to, or as the
+   administrator, who may press every move. The badge (`[data-testid=record-lifecycle]`,
+   and `[data-testid=record-state]` for the status) follows. An end state is Final and
+   locked — Edit is disabled until Reopen.
+3. **Know when it runs**: a process bound to the move runs inside the press; one whose
+   check is `stage is closed_won` started by a rule runs when Close won is pressed — the
+   rules that start processes run again on the moved record.
 4. **Read what it did, on screen**:
    - **Admin → Run History** (`/admin/workflows`): one row per run, its status, and each
      step's result when expanded (`skipped: …` names a step that did not do its job).
@@ -92,6 +94,9 @@ Screenshot after every build step and every check, record video
 
 - Watch `opportunity`-wide automations with no condition (the CRM's `ClosedWonHandoff`
   used to be one): they run on every edit and fill the lists you are checking.
+- A process whose check is the end state of a flow cannot run on a later edit: a record
+  at the end of its flow is Final and locked. Bind it to the move instead, or start it
+  from a rule on the state (`stage == "closed_won"`).
 - A rule that is live on the entity (one a rule test left active) can refuse the edits
   that drive the process. Deactivate test rules in Admin → Business Rules first.
 - Clearing a date in the form used to be refused ("must be a valid date"); fixed in the

@@ -322,8 +322,8 @@ class CheckEngine {
   private issues: Issue[] = [];
   /**
    * `Entity.field=value` for every value a saga's UpdateEntity step writes.
-   * Filled by checkStepDirectives and read by EML507, which asks whether every
-   * state a machine can move into has a background workflow that puts it there.
+   * Filled by checkStepDirectives and read by EML508, which asks whether every
+   * state a saga writes is one its entity's machine draws.
    */
   private sagaWrites = new Set<string>();
   private src: SourceIndex;

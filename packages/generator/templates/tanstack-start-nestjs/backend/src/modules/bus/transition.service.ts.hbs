@@ -13,7 +13,8 @@
  *   4. the record's refusing rules judge it as it will be — the new state, the
  *      `<state>_at` the move stamps (422 with the rule's message)
  *   5. write the state, stamp `<state>_at`, raise the version, set the assignee
- *   6. the workflows bound to this move and to the state it reaches run, then
+ *   6. the update workflows and those bound to this move and to the state it
+ *      reaches run, then
  *      the rules that start a workflow run again on the moved record — a rule
  *      keyed on `stage == "closed_won"` starts its process here
  *
@@ -358,10 +359,15 @@ export class TransitionService {
 
     const ranWorkflows: string[] = [];
     try {
+      // A move is an update of the record, so the update processes run on it —
+      // a process checking `stage is closed_won` runs when Close won is pressed,
+      // and only then, since the record is locked after — and so do the ones
+      // bound to this move and to the state it reaches.
       const bound = [
+        'update' as const,
         move.event ? (`transition:${move.event}` as const) : undefined,
         `enter:${move.to}` as const,
-      ].filter((operation): operation is `transition:${string}` | `enter:${string}` => !!operation);
+      ].filter((operation): operation is 'update' | `transition:${string}` | `enter:${string}` => !!operation);
       for (const operation of bound) {
         await this.workflowService.runLocalWorkflows(tableName, id, operation, judged, {}, {
           db,

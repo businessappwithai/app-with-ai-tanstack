@@ -72,11 +72,11 @@ describe("record lifecycle", () => {
         if (!promotion) return;
 
         // A record whose rules all passed has moved on — into its flow, or to
-        // Final. One that a rule stopped is in Error, with the reason on it —
-        // assert the two agree rather than demanding an outcome the model may
-        // not permit.
+        // Final; a flow whose own first status is a draft keeps it in Draft. One
+        // that a rule stopped is in Error, with the reason on it — assert the two
+        // agree rather than demanding an outcome the model may not permit.
         if (promotion.promoted === true) {
-          expect(["active", "final"]).toContain(created.doc_status);
+          expect(["active", "final", "draft"]).toContain(created.doc_status);
         } else {
           expect(created.doc_status).toBe("error");
           expect(String(created.doc_status_message ?? "")).not.toBe("");
