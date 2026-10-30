@@ -349,3 +349,28 @@ generator on that branch; these eight were not. Full write-up, with evidence, in
 Also recorded, not a defect: `04-bulk-seed` times out at 60s on a 4-core
 container while writing 1000 records across nine entities. It is the suite
 `--run-tests-fast` skips.
+
+## Deferred by `/qa` on `claude/shipping-management-qa-08b4e1`, 2026-10-30
+
+Generated from `examples/shipping-management-system.eml.mmd` (NestJS + TanStack).
+Fixed in the same run: reference dropdowns capped at 20 records, and `Button`
+ignoring className overrides of its variants.
+
+1. **No navigation below the `md` breakpoint.** *(medium, UX)*
+   `components/layout/sidebar.tsx.hbs` is `hidden md:flex` and `app-layout.tsx`
+   offers nothing in its place: at 375px the header has notifications, theme and
+   avatar only. Reach another screen by the breadcrumb to Dashboard and its cards.
+   Needs a drawer with a header toggle.
+
+2. **"Dangerous Goodses".** *(low, content)* The list title and breadcrumb for
+   `DangerousGoods` pluralise a name that is already plural.
+
+3. **Search and New are unnamed on small screens.** *(low, accessibility)* At
+   375px the list toolbar's icon-only buttons are read as bare `[button]`.
+
+4. **React warns ~4s after any refused save.** *(low, console)* "Cannot update a
+   component while rendering a different component", raised inside `sonner` 1.7.4
+   under `ClientToaster` when the error toast dismisses. Third-party.
+
+Also recorded, not a defect: `Currency.decimal_places` accepts `-3` because the
+model declares no range for it.
