@@ -1209,8 +1209,6 @@ function ServiceWorkflowPage() {
                 </button>
               </div>
 
-              {workflowState === "generated" && (
-              )}
             </div>
           </div>
 
