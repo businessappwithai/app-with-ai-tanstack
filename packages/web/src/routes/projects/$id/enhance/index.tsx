@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Rocket, Zap as Bolt, Code, GitBranch, Settings, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, GitMerge, Rocket, Zap as Bolt, Code, GitBranch, Settings, Zap } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
@@ -199,16 +199,38 @@ function EnhancePage() {
             }}
           />
 
-          <JourneyArc currentStep="enhance" />
+          <JourneyArc currentStep="enhance" projectId={projectId} />
         </div>
       </header>
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-[1800px] mx-auto px-6 py-12">
+          {/* Rules, workflows & status machines */}
+          <div className="mb-10">
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/projects/$id/enhance/logic", params: { id: projectId } })}
+              className="group w-full flex items-center justify-between bg-card hover:bg-primary/5 border-2 border-primary/30 hover:border-primary rounded-2xl p-6 transition-all duration-200 text-left active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-5">
+                <div className="p-4 bg-primary/10 group-hover:bg-primary/20 rounded-xl transition-colors shrink-0">
+                  <GitMerge className="w-7 h-7 text-primary" style={{ color: "#FF8400" }} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground mb-1">Rules, Workflows &amp; Status Machines</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Define business rules, multi-step processes, and lifecycle state machines across all entities
+                  </p>
+                </div>
+              </div>
+              <ArrowRight className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-4" />
+            </button>
+          </div>
+
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-foreground mb-2">Available Services</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-2">Services</h2>
             <p className="text-muted-foreground">
-              Choose a service to define business logic hooks and workflows
+              Choose a service to define per-entity hooks and automations
             </p>
           </div>
 

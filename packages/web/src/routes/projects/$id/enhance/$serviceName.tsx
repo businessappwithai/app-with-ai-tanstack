@@ -21,7 +21,8 @@ import {
 } from "@appwithai/editors/lib/automation/model";
 import { emptyDecisionTable } from "@appwithai/editors/lib/eml/decision-table";
 import { type RuleConstraints, ruleConstraints } from "@appwithai/editors/lib/eml/rule-constraints";
-import { parseStateFlow } from "@appwithai/editors/lib/eml/workflow-flow";
+import { parseStateFlow, emitStateFlow, type StateFlow } from "@appwithai/editors/lib/eml/workflow-flow";
+import { emptyStateFlow, StateFlowCanvas } from "@appwithai/editors/components/eml/StateFlowCanvas";
 import {
   generateFlowchartFromHooks,
   type ParsedHookDefinition,
@@ -39,6 +40,7 @@ import {
   Download,
   FileCode,
   GitBranch,
+  GitMerge,
   Loader2,
   Plus,
   Save,
@@ -407,9 +409,13 @@ function ServiceWorkflowPage() {
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedHookFile[]>([]);
   const [selectedFileIndex, setSelectedFileIndex] = useState<number>(0);
   const [showGeneratedCode, setShowGeneratedCode] = useState(false);
-  const [activeTab, setActiveTab] = useState<"hooks" | "workflows" | "rules">(
-    ruleSearch ? "rules" : workflowSearch ? "workflows" : "hooks"
+  const [activeTab, setActiveTab] = useState<"workflows" | "rules" | "status">(
+    ruleSearch ? "rules" : workflowSearch ? "workflows" : "status"
   );
+  const [statusFlow, setStatusFlow] = useState<StateFlow | null>(null);
+  const [allStoredWorkflows, setAllStoredWorkflows] = useState<Array<{ name: string; entity: string; kind: string; diagram: string; trigger?: string; operation?: string; title?: string }>>([]);
+  const [isSavingStatus, setIsSavingStatus] = useState(false);
+  const [statusSavedAt, setStatusSavedAt] = useState<string | null>(null);
   const [rules, setRules] = useState<EditableRule[]>([]);
   const [rulesLoading, setRulesLoading] = useState(false);
   const [rulesLoaded, setRulesLoaded] = useState(false);
@@ -556,6 +562,13 @@ function ServiceWorkflowPage() {
         setRules(loaded);
         setSelectedRuleIndex(firstRuleOn(loaded, entityName));
         setRulesLoaded(true);
+
+        // Store all workflows so the Status Machines tab can save back the full list.
+        setAllStoredWorkflows(data.workflows ?? []);
+        const stateMachine = (data.workflows ?? []).find(
+          (w) => w.kind === "state" && w.entity === entityName
+        );
+        setStatusFlow(stateMachine ? parseStateFlow(stateMachine.diagram) : emptyStateFlow());
       } catch (error) {
         if (!cancelled) console.error("Error loading rules:", error);
       } finally {
@@ -1238,7 +1251,7 @@ function ServiceWorkflowPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setActiveTab("hooks");
+                    setActiveTab("status");
                     void navigate({
                       to: "/projects/$id/enhance/$serviceName",
                       params: { id: projectId, serviceName },
@@ -1246,14 +1259,14 @@ function ServiceWorkflowPage() {
                     });
                   }}
                   className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                    activeTab === "hooks"
+                    activeTab === "status"
                       ? "border-primary text-primary"
                       : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
-                  style={activeTab === "hooks" ? { borderColor: "#FF8400", color: "#FF8400" } : {}}
+                  style={activeTab === "status" ? { borderColor: "#FF8400", color: "#FF8400" } : {}}
                 >
-                  <GitBranch className="w-4 h-4 inline mr-2" />
-                  Hooks
+                  <GitMerge className="w-4 h-4 inline mr-2" />
+                  Status Machines
                 </button>
                 <button
                   type="button"
@@ -1277,7 +1290,7 @@ function ServiceWorkflowPage() {
                   }
                 >
                   <Settings className="w-4 h-4 inline mr-2" />
-                  Trigger.dev Workflows
+                  Workflows
                 </button>
                 <button
                   type="button"
@@ -1324,190 +1337,85 @@ function ServiceWorkflowPage() {
 
       {!showGeneratedCode ? (
         <div className="flex-1 flex overflow-hidden">
-          {activeTab === "hooks" ? (
-            <>
-              <div className="w-1/3 border-r border-border flex flex-col bg-card">
-                <div className="flex-1 p-4 border-b border-border overflow-y-auto">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                      <GitBranch className="w-4 h-4" />
-                      Available Hooks
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => setShowHooksList(!showHooksList)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      {showHooksList ? "Hide" : "Show"}
-                    </button>
-                  </div>
-
-                  {showHooksList && (
-                    <div className="space-y-4 mb-4">
-                      {["Create", "Update", "Delete", "Read", "Validation"].map((category) => {
-                        const categoryHooks = HOOK_TYPES.filter((h) => h.category === category);
-                        return (
-                          <div key={category}>
-                            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                              {category}
-                            </h4>
-                            <div className="space-y-2">
-                              {categoryHooks.map((hook) => {
-                                const isActive = selectedHooks.some((h) => h.type === hook.type);
-                                const isSelected =
-                                  selectedHooks[selectedHookIndex]?.type === hook.type;
-                                return (
-                                  <div key={hook.type} className="flex items-stretch gap-1">
-                                    <button
-                                      type="button"
-                                      onClick={() => !isActive && handleAddHook(hook.type)}
-                                      disabled={isActive}
-                                      className={`flex-1 flex items-start gap-2 px-3 py-2.5 rounded-lg text-sm transition-all ${
-                                        isActive
-                                          ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-                                          : "bg-secondary hover:bg-secondary/80 text-foreground border border-border hover:border-primary/40"
-                                      }`}
-                                      title={hook.description}
-                                    >
-                                      <div
-                                        className={`w-2 h-2 rounded-full ${hook.color} flex-shrink-0 mt-1`}
-                                      />
-                                      <div className="text-left flex-1 min-w-0">
-                                        <div className="font-medium text-foreground">
-                                          {hook.label}
-                                        </div>
-                                        <div className="text-xs text-muted-foreground line-clamp-2">
-                                          {hook.description}
-                                        </div>
-                                      </div>
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => selectAvailableHook(hook.type)}
-                                      aria-label={`Edit the ${hook.label} Trigger.dev workflow`}
-                                      title="Edit this hook's Trigger.dev workflow"
-                                      className={`flex items-center justify-center px-2 rounded-lg border transition-colors ${
-                                        isSelected
-                                          ? "border-primary text-primary bg-primary/5"
-                                          : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
-                                      }`}
-                                    >
-                                      {isSelected ? (
-                                        <CheckCircle2 className="w-4 h-4" />
-                                      ) : (
-                                        <Circle className="w-4 h-4" />
-                                      )}
-                                    </button>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+          {activeTab === "status" ? (
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card shrink-0">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <GitMerge className="w-4 h-4" />
+                    Status Machine — {entityName}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Draw states and transitions. States become the entity's status enum; transitions become the action buttons in the generated app.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {statusSavedAt && (
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                      Saved at {statusSavedAt}
+                    </span>
                   )}
-
-                  <h4 className="text-xs font-semibold text-muted-foreground mb-2 mt-4">
-                    Active Hooks ({selectedHooks.length})
-                  </h4>
-
-                  <div className="space-y-2">
-                    {selectedHooks.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No active hooks. Select hooks from above to add them.
-                      </p>
+                  <button
+                    type="button"
+                    disabled={isSavingStatus || !statusFlow}
+                    onClick={async () => {
+                      if (!statusFlow) return;
+                      setIsSavingStatus(true);
+                      try {
+                        const diagram = emitStateFlow(statusFlow, entityName);
+                        const updatedWorkflows = allStoredWorkflows.some(
+                          (w) => w.kind === "state" && w.entity === entityName
+                        )
+                          ? allStoredWorkflows.map((w) =>
+                              w.kind === "state" && w.entity === entityName
+                                ? { ...w, diagram }
+                                : w
+                            )
+                          : [
+                              ...allStoredWorkflows,
+                              { name: `${entityName}Status`, entity: entityName, kind: "state", diagram },
+                            ];
+                        const response = await fetch(`/api/projects/${projectId}/eml`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ workflows: updatedWorkflows }),
+                        });
+                        if (!response.ok) {
+                          const data = await response.json() as { error?: string };
+                          throw new Error(data.error ?? `Save failed (${response.status})`);
+                        }
+                        setAllStoredWorkflows(updatedWorkflows);
+                        setStatusSavedAt(new Date().toLocaleTimeString());
+                      } catch (error) {
+                        console.error("Failed to save status machine:", error);
+                      } finally {
+                        setIsSavingStatus(false);
+                      }
+                    }}
+                    className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-slate-900 disabled:opacity-50"
+                    style={{ backgroundColor: "#FF8400" }}
+                  >
+                    {isSavingStatus ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      selectedHooks.map((hook, index) => {
-                        const hookDef = HOOK_TYPES.find((h) => h.type === hook.type);
-                        return (
-                          <div
-                            key={`${hook.type}-${index}`}
-                            className={`bg-secondary rounded-lg p-3 border transition-colors ${
-                              selectedHookIndex === index
-                                ? "border-primary ring-1 ring-primary/30"
-                                : "border-border"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2 flex-1 min-w-0">
-                                <div
-                                  className={`w-2 h-2 rounded-full ${hookDef?.color || "bg-gray-500"} flex-shrink-0`}
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <span className="text-sm font-medium text-foreground block">
-                                    {hookDef?.label || hook.type}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {hook.name ? `Named: ${hook.name}` : "Unnamed hook"}
-                                  </span>
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedHookIndex(index);
-                                  setActiveTab("workflows");
-                                  void navigate({
-                                    to: "/projects/$id/enhance/$serviceName",
-                                    params: { id: projectId, serviceName },
-                                    search: { workflow: hook.name || hook.type },
-                                  });
-                                }}
-                                aria-label={`Edit the ${hook.name || hook.type} Trigger.dev workflow`}
-                                title="Edit this hook's Trigger.dev workflow"
-                                className={`p-1 rounded transition-colors flex-shrink-0 ml-2 ${
-                                  selectedHookIndex === index
-                                    ? "text-primary"
-                                    : "text-muted-foreground hover:text-foreground"
-                                }`}
-                              >
-                                {selectedHookIndex === index ? (
-                                  <CheckCircle2 className="w-4 h-4" />
-                                ) : (
-                                  <Circle className="w-4 h-4" />
-                                )}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveHook(index)}
-                                className="p-1 hover:bg-red-100 dark:hover:bg-red-950/30 rounded transition-colors flex-shrink-0 ml-1"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                              </button>
-                            </div>
-                            <textarea
-                              value={hook.code}
-                              onChange={(e) => handleHookCodeChange(index, e.target.value)}
-                              placeholder={`// Implement ${hookDef?.label || hook.type} logic here`}
-                              className="w-full h-24 p-2 text-xs font-mono bg-background border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                          </div>
-                        );
-                      })
+                      <Save className="h-4 w-4" />
                     )}
-                  </div>
+                    Save status machine
+                  </button>
                 </div>
               </div>
-
-              <div className="flex-1 flex flex-col bg-muted">
-                <div className="flex-1 p-6 bg-card">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                      <FileCode className="w-4 h-4" />
-                      Flowchart Code
-                    </h3>
+              <div className="flex-1 overflow-hidden">
+                {statusFlow ? (
+                  <StateFlowCanvas flow={statusFlow} onChange={setStatusFlow} />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Loading…
                   </div>
-                  <textarea
-                    value={flowchartCode}
-                    onChange={(e) => setFlowchartCode(e.target.value)}
-                    className="w-full h-full p-4 bg-muted border border-border rounded-xl text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                    spellCheck={false}
-                    placeholder="Enter Mermaid flowchart syntax here..."
-                  />
-                </div>
+                )}
               </div>
-            </>
+            </div>
           ) : activeTab === "workflows" ? (
             <div className="flex-1 flex overflow-hidden">
               {selectedHooks.length > 0 && (
