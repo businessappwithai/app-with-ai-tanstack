@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { FieldMetadata } from "@/hooks/use-entities";
 import { apiClient, type PaginatedResponse } from "@/lib/api-client";
 import { lifecycleOf } from "@/lib/lifecycle";
+import { pluralLabel } from "@/lib/plural-label";
 import { useLifecycles } from "@/lib/use-lifecycles";
 import { ADToolbar } from "./ad-toolbar";
 import {
@@ -31,19 +32,6 @@ interface FilterRow {
   column: string;
   operator: string;
   value: string;
-}
-
-function pluralLabel(label: string): string {
-  if (label.endsWith("y") && !/[aeiou]y$/i.test(label)) return label.slice(0, -1) + "ies";
-  if (
-    label.endsWith("s") ||
-    label.endsWith("sh") ||
-    label.endsWith("ch") ||
-    label.endsWith("x") ||
-    label.endsWith("z")
-  )
-    return label + "es";
-  return label + "s";
 }
 
 const FILTER_OPERATORS = {

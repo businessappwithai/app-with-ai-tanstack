@@ -349,3 +349,23 @@ generator on that branch; these eight were not. Full write-up, with evidence, in
 Also recorded, not a defect: `04-bulk-seed` times out at 60s on a 4-core
 container while writing 1000 records across nine entities. It is the suite
 `--run-tests-fast` skips.
+
+## Found by /qa on `claude/shipping-management-qa-08b4e1`, 2026-10-30 — RESOLVED
+
+Generated from `examples/shipping-management-system.eml.mmd` (NestJS + TanStack). All six
+findings fixed on the branch, each with a regression test under
+`packages/generator/src/templates/__tests__/` and rechecked in a regenerated app:
+
+- **Reference dropdowns offered only the first 20 records** — `TableReferenceField` passed no
+  `limit`; it now asks for `REFERENCE_LOOKUP_LIMIT` (500) like the other lookups.
+- **Record navigator arrows squashed to 4px** — `Button` now merges a caller's classes over its
+  variant's with `cn()`.
+- **No navigation below `md`** — a header menu button opens the sidebar in the `MobileSidebar`
+  drawer, which closes on navigation.
+- **"Dangerous Goodses"** — one shared `lib/plural-label.ts` that leaves an already-plural label
+  alone.
+- **Toolbar buttons unnamed below `sm`** — `sr-only sm:not-sr-only` instead of `hidden sm:inline`.
+- **React warning after a toast, every toast drawn twice** — two sonner Toasters were mounted; the
+  one in `__root.tsx` is gone.
+
+Not a defect: `Currency.decimal_places` accepts `-3` because the model declares no range for it.

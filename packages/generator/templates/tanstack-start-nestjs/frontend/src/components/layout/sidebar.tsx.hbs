@@ -223,12 +223,15 @@ const DASHBOARD_ENTRY: NavEntry = {
 
 interface SidebarProps {
   className?: string;
+  /** Drawn inside the mobile drawer: always shown, full width, never collapsed. */
+  inDrawer?: boolean;
 }
 
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar({ className, inDrawer = false }: SidebarProps) {
   const location = useLocation();
   const pathname = location.pathname;
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [collapsedRail, setIsCollapsed] = useState(false);
+  const isCollapsed = !inDrawer && collapsedRail;
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -354,37 +357,43 @@ export function Sidebar({ className }: SidebarProps) {
       className={cn(
         /* Hidden below `md`. The sidebar is a fixed 256px (64px collapsed) and
            a phone is 375px wide, so showing it there would leave 119px for the
-           record being read. Mobile keeps exactly what it has today — the
-           header, and the screen's own breadcrumb to navigate by. */
-        'relative hidden flex-col border-r bg-background md:flex',
-        isCollapsed ? 'w-16' : 'w-64',
+           record being read. Below `md` the header's menu button opens this same
+           sidebar in a drawer over the screen (`inDrawer`). */
+        inDrawer
+          ? 'flex w-full flex-1 flex-col bg-background'
+          : 'relative hidden flex-col border-r bg-background md:flex',
+        !inDrawer && (isCollapsed ? 'w-16' : 'w-64'),
         'transition-all duration-300',
         className
       )}
     >
       {/* Header */}
-      <div className="flex h-16 items-center justify-between border-b px-4">
+      {/* In the drawer, room on the right for its Close button. */}
+      <div className={cn('flex h-16 items-center justify-between border-b px-4', inDrawer && 'pr-12')}>
         {!isCollapsed && (
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
               <Database className="h-4 w-4 text-primary-foreground" />
             </div>
             <span className="font-semibold">{{project.name}}</span>
           </div>
         )}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="h-8 w-8"
-          aria-label={isCollapsed ? 'Expand the navigation' : 'Collapse the navigation'}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </Button>
+        {/* The drawer has its own Close in this corner; a rail toggle means nothing there. */}
+        {!inDrawer && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="h-8 w-8"
+            aria-label={isCollapsed ? 'Expand the navigation' : 'Collapse the navigation'}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </Button>
+        )}
       </div>
 
       {/*

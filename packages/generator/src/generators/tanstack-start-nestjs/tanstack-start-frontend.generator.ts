@@ -493,6 +493,11 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
     const csvContent = await this.component("src/lib/csv.ts");
     await fs.writeFile(path.join(outputDir, "src/lib/csv.ts"), csvContent);
 
+    // A window label's plural, for list titles and breadcrumbs. The list and record
+    // shells both import it, so leaving it out fails the generated build.
+    const pluralLabelContent = await this.component("src/lib/plural-label.ts");
+    await fs.writeFile(path.join(outputDir, "src/lib/plural-label.ts"), pluralLabelContent);
+
     // Optimistic locking: the If-Match header, recognising a stale save, and
     // which fields the other save changed. The record window and the update
     // hook both import it, so leaving it out fails the generated build.

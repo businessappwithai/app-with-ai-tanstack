@@ -17941,6 +17941,8 @@ class TanStackStartFrontendGenerator extends BaseGenerator {
     await writeFile(join(outputDir, "src/lib/api-client.ts"), apiClientContent);
     const csvContent = await this.component("src/lib/csv.ts");
     await writeFile(join(outputDir, "src/lib/csv.ts"), csvContent);
+    const pluralLabelContent = await this.component("src/lib/plural-label.ts");
+    await writeFile(join(outputDir, "src/lib/plural-label.ts"), pluralLabelContent);
     const versionConflictContent = await this.component("src/lib/version-conflict.ts");
     await writeFile(join(outputDir, "src/lib/version-conflict.ts"), versionConflictContent);
     try {
