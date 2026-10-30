@@ -26,6 +26,7 @@ print_header()  {
 WEB_PID_FILE=".appwithai-web.pid"
 MASTRA_PID_FILE=".appwithai-mastra.pid"
 MAX_RETRIES=3
+REQUIRED_BUN_VERSION="1.4.4"
 
 is_running() {
     local pid_file="$1"
@@ -83,7 +84,7 @@ start_with_retry() {
 
         if [ -n "$health_url" ]; then
             local ready=false
-            for i in $(seq 1 20); do
+            for i in $(seq 1 30); do
                 if curl -sf "$health_url" > /dev/null 2>&1; then
                     ready=true
                     break
@@ -109,22 +110,47 @@ start_with_retry() {
 
 print_header "Starting APPWITHAI"
 
-# Prerequisite checks
-if ! command -v bun &> /dev/null; then
-    print_error "Bun.js is not installed — install from https://bun.sh"
-    exit 1
+# ── Bun version enforcement ────────────────────────────────────────────────
+# This project requires exactly Bun 1.4.4. Install it if missing.
+BUN_CMD=""
+
+# Check ~/.bun/bin/bun first (preferred install location for version pinning)
+if [ -x "$HOME/.bun/bin/bun" ] && [ "$("$HOME/.bun/bin/bun" --version 2>/dev/null)" = "$REQUIRED_BUN_VERSION" ]; then
+    BUN_CMD="$HOME/.bun/bin/bun"
+elif command -v bun &>/dev/null && [ "$(bun --version 2>/dev/null)" = "$REQUIRED_BUN_VERSION" ]; then
+    BUN_CMD="$(command -v bun)"
+else
+    print_warning "Bun $REQUIRED_BUN_VERSION required — installing..."
+    curl -fsSL https://bun.sh/install | bash -s "bun-v${REQUIRED_BUN_VERSION}" 2>&1 | tail -5
+    if [ -x "$HOME/.bun/bin/bun" ] && [ "$("$HOME/.bun/bin/bun" --version 2>/dev/null)" = "$REQUIRED_BUN_VERSION" ]; then
+        BUN_CMD="$HOME/.bun/bin/bun"
+        print_success "Bun $REQUIRED_BUN_VERSION installed at $BUN_CMD"
+    else
+        print_error "Failed to install Bun $REQUIRED_BUN_VERSION"
+        print_info  "Install manually: curl -fsSL https://bun.sh/install | bash -s bun-v${REQUIRED_BUN_VERSION}"
+        exit 1
+    fi
 fi
-print_info "Bun.js $(bun --version)"
+
+# Put bun's bin directory first in PATH so that subprocesses (nohup bun run ...)
+# can find 'bunx' — which lives beside the bun binary and is not a separate install.
+BUN_BIN_DIR="$(dirname "$BUN_CMD")"
+export PATH="$BUN_BIN_DIR:$PATH"
+
+# Override 'bun' in case the shell alias pointed somewhere else
+alias bun="$BUN_CMD" 2>/dev/null || true
+
+print_success "Bun $("$BUN_CMD" --version) at $BUN_CMD"
 
 if [ ! -d "node_modules" ]; then
     print_warning "node_modules missing — running bun install..."
-    bun install
+    "$BUN_CMD" install
 fi
 
-# Warn if LLM server is not reachable
-LLM_URL="${LOCAL_AI_BASE_URL:-http://localhost:8000/v1}"
-if ! curl -sf "$LLM_URL/models" > /dev/null 2>&1; then
-    print_warning "Local LLM server not detected at $LLM_URL"
+# Warn if LLM server is not reachable (use 127.0.0.1 to avoid IPv6 ambiguity)
+LLM_BASE="${LOCAL_AI_BASE_URL:-http://127.0.0.1:8000/v1}"
+if ! curl -sf "${LLM_BASE}/models" > /dev/null 2>&1; then
+    print_warning "Local LLM server not detected at ${LLM_BASE}"
     print_info    "Start it first: ./scripts/start-llm.sh"
 fi
 
@@ -139,7 +165,7 @@ print_header "Starting Mastra AI Service"
 if ! script_exists "dev:mastra"; then
     print_error "Script 'dev:mastra' not found in package.json — skipping Mastra AI"
 else
-    if start_with_retry "Mastra AI" "$MASTRA_PID_FILE" "appwithai-mastra.log" "dev:mastra" "http://localhost:4111/api/health" 10; then
+    if start_with_retry "Mastra AI" "$MASTRA_PID_FILE" "appwithai-mastra.log" "dev:mastra" "http://127.0.0.1:4111/api/health" 10; then
         MASTRA_PID="$STARTED_PID"
         MASTRA_OK=true
         print_success "Mastra AI started (PID: $MASTRA_PID)"
@@ -155,7 +181,7 @@ if ! script_exists "dev"; then
 fi
 
 WEB_PID=""
-if start_with_retry "Web Server" "$WEB_PID_FILE" "appwithai-web.log" "dev" "http://localhost:3000" 5; then
+if start_with_retry "Web Server" "$WEB_PID_FILE" "appwithai-web.log" "dev" "http://127.0.0.1:3000" 15; then
     WEB_PID="$STARTED_PID"
     print_success "Web server started (PID: $WEB_PID)"
 else

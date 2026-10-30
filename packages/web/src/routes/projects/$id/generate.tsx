@@ -349,9 +349,6 @@ function GeneratePage() {
                 <div ref={logsEndRef} />
               </div>
 
-              {generationComplete && !error && (
-
-              )}
             </div>
           )}
         </div>
