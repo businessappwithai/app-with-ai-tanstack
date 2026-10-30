@@ -4,9 +4,10 @@
  * Main layout wrapper for authenticated pages with sidebar and header.
  */
 
-import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { Header, Sidebar } from "@/components/layout";
+import { MobileSidebar } from "@/components/ui/mobile-sidebar";
 import { useAuth } from "@/contexts/auth-context";
 import { APP_NAME } from "@/lib/app-meta";
 
@@ -42,6 +43,13 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const mainRef = useRef<HTMLElement>(null);
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const [isNavigationOpen, setNavigationOpen] = useState(false);
+
+  // Choosing a screen in the drawer navigates; the drawer then has done its job.
+  useEffect(() => {
+    setNavigationOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -67,8 +75,15 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
+      {/* Below `md` the sidebar is hidden; the header's menu button opens it here. */}
+      <MobileSidebar open={isNavigationOpen} onOpenChange={setNavigationOpen}>
+        <Sidebar inDrawer />
+      </MobileSidebar>
       <div className="flex flex-col flex-1 overflow-hidden">
-        <Header />
+        <Header
+          onOpenNavigation={() => setNavigationOpen(true)}
+          isNavigationOpen={isNavigationOpen}
+        />
         <main ref={mainRef} className="flex-1 overflow-auto p-6">
           {children}
         </main>

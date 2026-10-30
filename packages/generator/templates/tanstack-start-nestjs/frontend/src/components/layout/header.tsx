@@ -3,7 +3,7 @@
  */
 
 import { useNavigate } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,9 +20,12 @@ import { useAuth } from "@/contexts/auth-context";
 
 interface HeaderProps {
   className?: string;
+  /** Opens the navigation drawer. The button shows only below `md`, where the sidebar is hidden. */
+  onOpenNavigation?: () => void;
+  isNavigationOpen?: boolean;
 }
 
-export function Header({ className }: HeaderProps) {
+export function Header({ className, onOpenNavigation, isNavigationOpen }: HeaderProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -44,6 +47,20 @@ export function Header({ className }: HeaderProps) {
     <header
       className={`sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6 ${className || ""}`}
     >
+      {onOpenNavigation && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 md:hidden"
+          onClick={onOpenNavigation}
+          aria-label="Open the navigation"
+          aria-expanded={isNavigationOpen ?? false}
+          aria-haspopup="dialog"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
+
       {/*
        * No global search box here.
        *
