@@ -3,7 +3,6 @@ import { ArrowLeft, CheckCircle2, Database, Loader2, Rocket, Zap } from "lucide-
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
-import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
@@ -229,11 +228,11 @@ function GeneratePage() {
           <div className="flex items-center justify-between mb-2">
             <button
               type="button"
-              onClick={() => navigate({ to: "/projects/$id/logic", params: { id: projectId } })}
+              onClick={() => navigate({ to: "/projects/$id/design", params: { id: projectId } })}
               className="flex items-center gap-2 px-4 py-2 border border-border hover:bg-muted font-semibold rounded-xl transition-all active:scale-[0.98]"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Logic
+              Back to Design
             </button>
             <button
               type="button"
@@ -246,22 +245,6 @@ function GeneratePage() {
             </button>
           </div>
 
-          <ProgressStepper
-            currentStep="generate"
-            onStepClick={(step) => {
-              if (step === "init") {
-                navigate({ to: "/projects/$id/init", params: { id: projectId } });
-              } else if (step === "design") {
-                navigate({ to: "/projects/$id/design", params: { id: projectId } });
-              } else if (step === "logic") {
-                navigate({ to: "/projects/$id/logic", params: { id: projectId } });
-              } else if (step === "enhance") {
-                navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
-              } else if (step === "deploy") {
-                navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
-              }
-            }}
-          />
 
           <JourneyArc currentStep="generate" projectId={projectId} />
         </div>

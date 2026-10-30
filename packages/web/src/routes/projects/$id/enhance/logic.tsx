@@ -15,7 +15,6 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CopilotProvider } from "@/components/CopilotProvider";
-import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
 import { type ModelRule, ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
@@ -168,7 +167,6 @@ function EnhanceLogicPage() {
 
   return (
     <div role="main" className="min-h-screen bg-background">
-      <ProgressStepper currentStep="enhance" projectId={id} />
 
       <div className="mx-auto max-w-[1600px] px-4 py-6">
         <LogicWorkbench

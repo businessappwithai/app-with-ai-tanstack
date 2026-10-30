@@ -49,7 +49,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ProgressStepper } from "@/components/ProgressStepper";
 import { ruleForSave, toEditableRule } from "@/lib/eml/editable-rule";
 import { projectDryRun } from "@/lib/eml/project-dry-run";
 import { entityForService, firstRuleOn, rulesForEntity } from "@/lib/eml/service-entity";
@@ -1222,24 +1221,6 @@ function ServiceWorkflowPage() {
             </div>
           </div>
 
-          <ProgressStepper
-            currentStep="enhance"
-            onStepClick={(step) => {
-              if (step === "init") {
-                navigate({ to: "/projects/$id/init", params: { id: projectId } });
-              } else if (step === "design") {
-                navigate({ to: "/projects/$id/design", params: { id: projectId } });
-              } else if (step === "logic") {
-                navigate({ to: "/projects/$id/logic", params: { id: projectId } });
-              } else if (step === "generate") {
-                navigate({ to: "/projects/$id/generate", params: { id: projectId } });
-              } else if (step === "deploy") {
-                navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
-              } else if (step === "enhance") {
-                navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
-              }
-            }}
-          />
         </div>
       </header>
 
@@ -1418,48 +1399,70 @@ function ServiceWorkflowPage() {
             </div>
           ) : activeTab === "workflows" ? (
             <div className="flex-1 flex overflow-hidden">
-              {selectedHooks.length > 0 && (
-                <div className="w-56 shrink-0 border-r border-border flex flex-col bg-card">
-                  <div className="p-3 border-b border-border">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      Hook Workflows
-                    </h3>
-                  </div>
-                  <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                    {selectedHooks.map((hook, index) => {
-                      const hookDef = HOOK_TYPES.find((h) => h.type === hook.type);
-                      const isSelected = selectedHookIndex === index;
-                      return (
-                        <button
-                          key={`${hook.type}-${index}`}
-                          type="button"
-                          onClick={() => {
-                            setSelectedHookIndex(index);
-                            void navigate({
-                              to: "/projects/$id/enhance/$serviceName",
-                              params: { id: projectId, serviceName },
-                              search: { workflow: hook.name || hook.type },
-                            });
-                          }}
-                          className={`w-full flex items-center gap-2 rounded-md border px-2 py-1.5 text-left text-sm transition-colors ${
-                            isSelected
-                              ? "border-primary bg-primary/5"
-                              : "border-border hover:bg-muted"
-                          }`}
-                          style={isSelected ? { borderColor: "#FF8400" } : {}}
-                        >
-                          <div
-                            className={`w-2 h-2 rounded-full ${hookDef?.color || "bg-gray-500"} flex-shrink-0`}
-                          />
-                          <span className="min-w-0 flex-1 truncate font-medium">
-                            {hookDef?.label || hook.type}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
+              <div className="w-56 shrink-0 border-r border-border flex flex-col bg-card">
+                <div className="flex items-center justify-between p-3 border-b border-border">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Workflows
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void navigate({
+                        to: "/projects/$id/enhance/$serviceName",
+                        params: { id: projectId, serviceName },
+                        search: {},
+                      })
+                    }
+                    className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium hover:bg-muted"
+                  >
+                    <Plus className="h-3 w-3" />
+                    New
+                  </button>
                 </div>
-              )}
+                <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                  {!workflowSearch && (
+                    <button
+                      type="button"
+                      className="w-full flex items-center gap-2 rounded-md border border-primary bg-primary/5 px-2 py-1.5 text-left text-sm"
+                      style={{ borderColor: "#FF8400" }}
+                    >
+                      <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0" style={{ backgroundColor: "#FF8400" }} />
+                      <span className="min-w-0 flex-1 truncate font-medium">New workflow</span>
+                    </button>
+                  )}
+                  {selectedHooks.map((hook, index) => {
+                    const hookDef = HOOK_TYPES.find((h) => h.type === hook.type);
+                    const isSelected = workflowSearch === (hook.name || hook.type);
+                    return (
+                      <button
+                        key={`${hook.type}-${index}`}
+                        type="button"
+                        onClick={() => {
+                          setSelectedHookIndex(index);
+                          void navigate({
+                            to: "/projects/$id/enhance/$serviceName",
+                            params: { id: projectId, serviceName },
+                            search: { workflow: hook.name || hook.type },
+                          });
+                        }}
+                        className={`w-full flex items-center gap-2 rounded-md border px-2 py-1.5 text-left text-sm transition-colors ${
+                          isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:bg-muted"
+                        }`}
+                        style={isSelected ? { borderColor: "#FF8400" } : {}}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${hookDef?.color || "bg-gray-500"} flex-shrink-0`}
+                        />
+                        <span className="min-w-0 flex-1 truncate font-medium">
+                          {hookDef?.label || hook.type}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
               <AutomationBuilder
                 key={hookAutomation ? `hook-${selectedHookIndex}` : "automation"}
                 automation={hookAutomation ?? automation}
@@ -1547,7 +1550,7 @@ function ServiceWorkflowPage() {
                   <p className="border-t border-border px-4 py-3 text-[11px] text-muted-foreground">
                     {otherEntityRuleCount} {otherEntityRuleCount === 1 ? "rule is" : "rules are"} on
                     other record types — open {otherEntityRuleCount === 1 ? "it" : "them"} from that
-                    record type's service, or from the Logic step. Saving here keeps{" "}
+                    record type's service, or from the Rules & Workflows page. Saving here keeps{" "}
                     {otherEntityRuleCount === 1 ? "it" : "them"} unchanged.
                   </p>
                 )}

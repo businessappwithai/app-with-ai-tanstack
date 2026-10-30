@@ -2,7 +2,6 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Check, Info, Loader2, Settings, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
-import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
@@ -139,26 +138,6 @@ function InitPage() {
         </div>
       </header>
 
-      {/* Progress Stepper */}
-      <ProgressStepper
-        currentStep="init"
-        completedSteps={["init"]}
-        onStepClick={(step) => {
-          if (step === "init") {
-            // Already on init, do nothing
-          } else if (step === "design") {
-            navigate({ to: "/projects/$id/design", params: { id: projectId } });
-          } else if (step === "logic") {
-            navigate({ to: "/projects/$id/logic", params: { id: projectId } });
-          } else if (step === "generate") {
-            navigate({ to: "/projects/$id/generate", params: { id: projectId } });
-          } else if (step === "enhance") {
-            navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
-          } else if (step === "deploy") {
-            navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
-          }
-        }}
-      />
 
       {/* Journey Arc */}
       <div className="max-w-screen-md mx-auto px-6 mt-6">

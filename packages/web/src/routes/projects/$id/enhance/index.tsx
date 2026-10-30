@@ -3,7 +3,6 @@ import { ArrowLeft, ArrowRight, GitMerge, Rocket, Zap as Bolt, Code, GitBranch, 
 import type React from "react";
 import { useEffect, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
-import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { erdVersionsApi } from "@/lib/api/projects";
 import { requestContext } from "@/lib/request-context";
@@ -182,22 +181,6 @@ function EnhancePage() {
             </button>
           </div>
 
-          <ProgressStepper
-            currentStep="enhance"
-            onStepClick={(step) => {
-              if (step === "init") {
-                navigate({ to: "/projects/$id/init", params: { id: projectId } });
-              } else if (step === "design") {
-                navigate({ to: "/projects/$id/design", params: { id: projectId } });
-              } else if (step === "logic") {
-                navigate({ to: "/projects/$id/logic", params: { id: projectId } });
-              } else if (step === "generate") {
-                navigate({ to: "/projects/$id/generate", params: { id: projectId } });
-              } else if (step === "deploy") {
-                navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
-              }
-            }}
-          />
 
           <JourneyArc currentStep="enhance" projectId={projectId} />
         </div>

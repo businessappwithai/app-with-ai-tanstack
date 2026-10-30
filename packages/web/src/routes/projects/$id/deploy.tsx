@@ -17,7 +17,6 @@ import {
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
-import { ProgressStepper } from "@/components/ProgressStepper";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { requestContext } from "@/lib/request-context";
 import { useProjectStore } from "@/store/projectStore";
@@ -425,22 +424,6 @@ function DeployPage() {
             </div>
           </div>
 
-          <ProgressStepper
-            currentStep="deploy"
-            onStepClick={(step) => {
-              if (step === "init") {
-                navigate({ to: "/projects/$id/init", params: { id: projectId } });
-              } else if (step === "design") {
-                navigate({ to: "/projects/$id/design", params: { id: projectId } });
-              } else if (step === "logic") {
-                navigate({ to: "/projects/$id/logic", params: { id: projectId } });
-              } else if (step === "generate") {
-                navigate({ to: "/projects/$id/generate", params: { id: projectId } });
-              } else if (step === "enhance") {
-                navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
-              }
-            }}
-          />
 
           <JourneyArc currentStep="deploy" projectId={projectId} />
         </div>

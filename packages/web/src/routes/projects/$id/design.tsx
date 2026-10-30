@@ -40,7 +40,6 @@ import { CopilotProvider } from "@/components/CopilotProvider";
 import { DbOperationsModal } from "@/components/DbOperationsModal";
 import { ErdFlowViewer } from "@/components/ErdFlowViewer";
 import { JourneyArc } from "@/components/JourneyArc";
-import { ProgressStepper } from "@/components/ProgressStepper";
 import { ProjectGitHistory } from "@/components/project/ProjectGitHistory";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
 import { useModelAssistant } from "@/hooks/useModelAssistant";
@@ -817,7 +816,7 @@ function DesignPage() {
   const handleGenerate = async () => {
     await handleSave();
     goToNextStep();
-    navigate({ to: "/projects/$id/logic", params: { id: projectId } });
+    navigate({ to: "/projects/$id/generate", params: { id: projectId } });
   };
 
   const handleAiSubmit = async () => {
@@ -1379,25 +1378,6 @@ function DesignPage() {
                 </div>
               </div>
 
-              <ProgressStepper
-                currentStep="design"
-                completedSteps={["init", "design"]}
-                onStepClick={(step) => {
-                  if (step === "init") {
-                    navigate({ to: "/projects/$id/init", params: { id: projectId } });
-                  } else if (step === "design") {
-                    // Already on design
-                  } else if (step === "logic") {
-                    navigate({ to: "/projects/$id/logic", params: { id: projectId } });
-                  } else if (step === "generate") {
-                    navigate({ to: "/projects/$id/generate", params: { id: projectId } });
-                  } else if (step === "enhance") {
-                    navigate({ to: "/projects/$id/enhance", params: { id: projectId } });
-                  } else if (step === "deploy") {
-                    navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
-                  }
-                }}
-              />
             </div>
           </header>
         )}
