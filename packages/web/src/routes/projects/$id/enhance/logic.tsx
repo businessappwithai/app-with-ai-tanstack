@@ -12,7 +12,7 @@ import {
 } from "@appwithai/editors/lib/eml/workflow-model";
 import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import {  } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CopilotProvider } from "@/components/CopilotProvider";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
@@ -185,13 +185,23 @@ function EnhanceLogicPage() {
           enhanceHref={`/projects/${id}/enhance`}
           onSummaryChange={setSummary}
           header={
-            <WizardStepHeader
-              stepNumber={5}
-              estimatedTime="10-15 min"
-              subtitle={currentProject?.name}
-              title="Rules, workflows & status machines"
-              description="Define business rules, processes, and state machines for your application. These run inside the generated app."
-            />
+            <>
+              <button
+                type="button"
+                onClick={() => void navigate({ to: "/projects/$id/enhance", params: { id } })}
+                className="inline-flex items-center gap-2 mb-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Enhance
+              </button>
+              <WizardStepHeader
+                stepNumber={5}
+                estimatedTime="10-15 min"
+                subtitle={currentProject?.name}
+                title="Rules, workflows & status machines"
+                description="Define business rules, processes, and state machines for your application. These run inside the generated app."
+              />
+            </>
           }
         />
       </div>

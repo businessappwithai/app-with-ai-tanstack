@@ -943,36 +943,16 @@ export async function seed(db: Kysely<any>): Promise<void> {
   // from Window, Tab and Field like any other help.
   const adminWindowDefs = [
     {
-      name: 'Business Rules',
-      // The Rules & workflows screen: rules are written and attached to a workflow's hooks there.
+      name: 'Automations',
       route: '/admin/automations',
-      icon: 'shield-check',
+      icon: 'zap',
       help:
-        'Every rule that runs when a record is written. A rule belongs to one entity and one ' +
-        'operation — CREATE, UPDATE or ALL — and is evaluated as a decision table: the inputs are ' +
-        'columns of the record being saved, and the outputs are what the rule decides.\n\n' +
-        'Rules declared in the model are seeded here on generation. A rule can also emit an action: ' +
-        'reject the write with a message, overwrite a field, or trigger a workflow by name, which is ' +
-        'how a condition on a record starts a multi-step process.\n\n' +
-        'Rules run inside the transaction that saved the record. If one fails the write is rolled ' +
-        'back, so a rule is a guarantee about the data rather than a reminder after the fact.\n\n' +
-        'Rules are edited on the same screen as workflows, because a workflow\'s hook is what gives a ' +
-        'rule its moment: attach a rule to a hook there to choose when it runs.',
-    },
-    {
-      name: 'Workflow Designer',
-      route: '/admin/workflow-definitions',
-      icon: 'workflow',
-      help:
-        'Everything that runs automatically on your records. Each workflow is bound to one entity ' +
-        'and lists its steps in the order they run: look up a decision table, create a record on ' +
-        'another entity, write a field back, delete related rows, call an external service.\n\n' +
-        'The Runs when column is the difference that matters. EVERY WRITE means the workflow runs on ' +
-        'each matching save. WHEN A RULE TRIGGERS IT means it runs only when a business rule names ' +
-        'it, so the rule decides.\n\n' +
-        'Workflows marked FROM THE MODEL are owned by the model and are rewritten on the next ' +
-        'generation; anything built here is yours and is never overwritten. A run that fails rolls ' +
-        'back everything it changed and records the reason against the record.',
+        'Business rules and workflows in one place. Rules are decision tables that run on every ' +
+        'matching write — they can reject a save, overwrite a field, or trigger a workflow. ' +
+        'Workflows list the steps that run automatically: look up a table, create a record, ' +
+        'call a service, and more.\n\n' +
+        'Rules and workflows share this screen because a workflow hook is what gives a rule its ' +
+        'moment: attach a rule to a hook to choose when it runs.',
     },
     {
       name: 'Audit Log',

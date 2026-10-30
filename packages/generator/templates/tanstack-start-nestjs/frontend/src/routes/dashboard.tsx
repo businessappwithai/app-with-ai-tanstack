@@ -198,7 +198,7 @@ function DashboardPage() {
    * default one now; it is never withheld.
    */
   const adminWindowsFromPerms = (dashboard?.windows ?? [])
-    .filter((w) => w.category === 'admin' && !!w.route)
+    .filter((w) => w.category === 'admin' && !!w.route && w.route !== '/admin/automations' && w.route !== '/admin/workflow-definitions')
     .map((w) => ({
       name: w.name,
       href: w.route,
@@ -382,6 +382,20 @@ function DashboardPage() {
               {showEntitiesAsAdmin ? 'Hide business entities' : 'Show business entities'}
             </Button>
           </div>
+        )}
+
+        {/* Automations — administrator only */}
+        {isAdministrator && (
+          <section>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Dashlet
+                name="Automations"
+                description="Rules and workflows"
+                icon="zap"
+                href="/admin/automations"
+              />
+            </div>
+          </section>
         )}
 
         {/* Admin / Dictionary */}
