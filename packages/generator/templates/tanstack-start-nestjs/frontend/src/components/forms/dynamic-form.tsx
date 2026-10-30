@@ -1306,9 +1306,14 @@ export function DynamicForm({
                 <div className="border-b border-primary/20 pb-2">
                   <h3 className="text-sm font-semibold text-primary">{groupName}</h3>
                   {fieldsInGroup[0]?.group_description && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {fieldsInGroup[0].group_description}
-                    </p>
+                    <HelpButton
+                      label={groupName}
+                      topic={{
+                        key: `section:${groupName}`,
+                        title: groupName,
+                        body: <HelpText>{fieldsInGroup[0].group_description}</HelpText>,
+                      }}
+                    />
                   )}
                 </div>
               )}
@@ -1335,7 +1340,14 @@ export function DynamicForm({
                           {getFieldLabel(tableName, (field as any).tab_name, field.name, field.name)}
                         </h4>
                         {field.description && (
-                          <p className="text-xs text-muted-foreground">{field.description}</p>
+                          <HelpButton
+                            label={getFieldLabel(tableName, (field as any).tab_name, field.name, field.name)}
+                            topic={{
+                              key: `heading:${field.column_name}`,
+                              title: getFieldLabel(tableName, (field as any).tab_name, field.name, field.name),
+                              body: <HelpText>{field.description}</HelpText>,
+                            }}
+                          />
                         )}
                       </div>
                     );

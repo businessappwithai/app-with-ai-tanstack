@@ -241,6 +241,7 @@ function DeployPage() {
                 finalUrl = data.url ?? "";
                 setDeploymentComplete(true);
                 setDeploymentUrl(data.url ?? "");
+                setServerStatus("starting");
                 updateProject(projectId, {
                   deploymentUrl: data.url ?? "",
                   uptime: "0s",
@@ -376,7 +377,7 @@ function DeployPage() {
       <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <WizardStepHeader
-            stepNumber={6}
+            stepNumber={5}
             title="Deploy Your Application"
             description="Your application is ready to deploy. Configure your environment variables and watch your app go live with a live preview URL."
             estimatedTime="1-2 min"
@@ -895,6 +896,18 @@ function DeployPage() {
         </div>
       </div>
 
+      <footer className="border-t border-border bg-background/80 backdrop-blur-md sticky bottom-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/projects/$id/enhance", params: { id: projectId } })}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-background hover:bg-secondary text-foreground font-medium transition-all"
+          >
+            ← Back
+          </button>
+          <span />
+        </div>
+      </footer>
     </div>
   );
 }
