@@ -154,7 +154,7 @@ print_header "Starting Mastra AI Service"
 if ! script_exists "dev:mastra"; then
     print_warning "Script 'dev:mastra' not found in package.json — skipping Mastra AI"
 else
-    if start_with_retry "Mastra AI" "$MASTRA_PID_FILE" "appwithai-mastra.log" "dev:mastra" "http://127.0.0.1:4111/api/health" 10; then
+    if start_with_retry "Mastra AI" "$MASTRA_PID_FILE" "appwithai-mastra.log" "dev:mastra" "http://127.0.0.1:4111/health" 10; then
         MASTRA_PID="$STARTED_PID"
         MASTRA_OK=true
         print_success "Mastra AI started (PID: $MASTRA_PID)"
