@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Check, Info, Loader2, Settings, User } from "lucide-react";
+import { Check, Info, Loader2, Settings, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
@@ -119,14 +119,7 @@ function InitPage() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/projects" })}
-              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="font-bold text-xl tracking-tight">Project Configuration</h1>
+<h1 className="font-bold text-xl tracking-tight">Project Configuration</h1>
           </div>
           <button
             type="button"
@@ -141,7 +134,7 @@ function InitPage() {
 
       {/* Journey Arc */}
       <div className="max-w-screen-md mx-auto px-6 mt-6">
-        <JourneyArc currentStep="init" />
+        <JourneyArc currentStep="init" projectId={projectId} />
       </div>
 
       {/* Error Display */}
@@ -388,14 +381,7 @@ function InitPage() {
                 "Save Changes"
               )}
             </button>
-            <button
-              type="button"
-              onClick={handleContinue}
-              className="flex-1 bg-primary hover:bg-primary/90 text-slate-900 font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
-              style={{ backgroundColor: "#FF8400" }}
-            >
-              Continue to Design
-            </button>
+
           </div>
         </div>
       </main>

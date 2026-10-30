@@ -2,7 +2,6 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   Activity,
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   Clock,
   Eye,
@@ -386,14 +385,6 @@ function DeployPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => navigate({ to: "/projects/$id/enhance", params: { id: projectId } })}
-                  className="flex items-center gap-2 px-4 py-2 border border-border hover:bg-muted font-semibold rounded-xl transition-all active:scale-[0.98]"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Enhance
-                </button>
                 <button
                   type="button"
                   onClick={handleViewApp}

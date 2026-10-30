@@ -1210,13 +1210,6 @@ function ServiceWorkflowPage() {
               </div>
 
               {workflowState === "generated" && (
-                <button
-                  type="button"
-                  onClick={handleContinue}
-                  className="flex items-center gap-2 px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]"
-                >
-                  Continue to Deploy
-                </button>
               )}
             </div>
           </div>

@@ -1372,7 +1372,7 @@ function DesignPage() {
                       style={{ backgroundColor: "#FF8400" }}
                     >
                       <Zap className="w-4 h-4" />
-                      Continue to Step 3
+                      Validate & Save
                     </button>
                   </div>
                 </div>

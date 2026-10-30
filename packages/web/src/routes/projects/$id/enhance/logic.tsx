@@ -12,7 +12,7 @@ import {
 } from "@appwithai/editors/lib/eml/workflow-model";
 import { CopilotSidebar } from "@copilotkit/react-ui";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import {  } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CopilotProvider } from "@/components/CopilotProvider";
 import { WizardStepHeader } from "@/components/WizardStepHeader";
@@ -193,30 +193,6 @@ function EnhanceLogicPage() {
               description="Define business rules, processes, and state machines for your application. These run inside the generated app."
             />
           }
-          footerStart={() => (
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/projects/$id/enhance", params: { id } })}
-              className="flex items-center gap-1.5 rounded-md border border-border px-4 py-2 text-sm font-medium"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Enhance
-            </button>
-          )}
-          footerEnd={({ save: saveFirst, busy }) => (
-            <button
-              type="button"
-              onClick={async () => {
-                if (await saveFirst())
-                  void navigate({ to: "/projects/$id/deploy", params: { id } });
-              }}
-              disabled={busy}
-              className="flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-            >
-              Continue to deploy
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          )}
         />
       </div>
     </div>

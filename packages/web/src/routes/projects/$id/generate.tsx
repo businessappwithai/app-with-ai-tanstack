@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, CheckCircle2, Database, Loader2, Rocket, Zap } from "lucide-react";
+import { CheckCircle2, Database, Loader2, Zap } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { JourneyArc } from "@/components/JourneyArc";
@@ -225,28 +225,7 @@ function GeneratePage() {
             estimatedTime="3-5 min"
           />
 
-          <div className="flex items-center justify-between mb-2">
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/projects/$id/design", params: { id: projectId } })}
-              className="flex items-center gap-2 px-4 py-2 border border-border hover:bg-muted font-semibold rounded-xl transition-all active:scale-[0.98]"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Design
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/projects/$id/enhance", params: { id: projectId } })}
-              className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-slate-900 font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
-              style={{ backgroundColor: "#FF8400" }}
-            >
-              Continue to Enhance
-              <Rocket className="w-4 h-4" />
-            </button>
-          </div>
-
-
-          <JourneyArc currentStep="generate" projectId={projectId} />
+                    <JourneyArc currentStep="generate" projectId={projectId} />
         </div>
       </header>
 
@@ -371,15 +350,7 @@ function GeneratePage() {
               </div>
 
               {generationComplete && !error && (
-                <button
-                  type="button"
-                  onClick={handleContinue}
-                  className="mt-6 w-full flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-slate-900 font-bold text-lg rounded-2xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
-                  style={{ backgroundColor: "#FF8400" }}
-                >
-                  <CheckCircle2 className="w-5 h-5" />
-                  Continue to Enhancement
-                </button>
+
               )}
             </div>
           )}
