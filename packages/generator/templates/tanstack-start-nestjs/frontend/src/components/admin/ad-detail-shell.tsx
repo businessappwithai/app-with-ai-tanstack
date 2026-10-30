@@ -32,6 +32,7 @@ import {
 import { LifecycleBadge } from "./lifecycle-badge";
 import { RecordActions } from "./record-actions";
 import { isLocked, lifecycleOf, phaseOf } from "@/lib/lifecycle";
+import { pluralLabel } from "@/lib/plural-label";
 import { useLifecycles } from "@/lib/use-lifecycles";
 import { VersionConflictDialog } from "./version-conflict-dialog";
 import { helpTableNameFromEndpoint, WindowHelpButton } from "./window-help-button";
@@ -58,19 +59,6 @@ function dedupeParents(parentCtx: ParentContext[]): ParentContext[] {
     seen.add(key);
     return true;
   });
-}
-
-function pluralLabel(label: string): string {
-  if (label.endsWith("y") && !/[aeiou]y$/i.test(label)) return label.slice(0, -1) + "ies";
-  if (
-    label.endsWith("s") ||
-    label.endsWith("sh") ||
-    label.endsWith("ch") ||
-    label.endsWith("x") ||
-    label.endsWith("z")
-  )
-    return label + "es";
-  return label + "s";
 }
 
 interface ChildPanelProps {
