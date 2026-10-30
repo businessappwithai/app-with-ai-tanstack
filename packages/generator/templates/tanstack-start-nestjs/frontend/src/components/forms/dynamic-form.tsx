@@ -110,6 +110,10 @@ function getFieldIcon(sysReferenceId: number) {
   }
 }
 
+// How many referenced records a lookup reads. Without a limit the API answers its
+// default page of 20, and a dropdown could neither offer nor show a 21st record.
+const REFERENCE_LOOKUP_LIMIT = 500;
+
 function TableReferenceViewValue({ field, id }: { field: FieldMetadata; id: string }) {
   const idField = field.ref_id_field || "id";
   // Honour `ref_label_fields` (a list, so an entity identified by more than
@@ -128,7 +132,7 @@ function TableReferenceViewValue({ field, id }: { field: FieldMetadata; id: stri
 
   const { data } = useQuery({
     queryKey: ["table-ref-view", endpoint, id],
-    queryFn: () => apiClient.get<{ data: any[] }>(endpoint!, { limit: 500 }),
+    queryFn: () => apiClient.get<{ data: any[] }>(endpoint!, { limit: REFERENCE_LOOKUP_LIMIT }),
     enabled: !!endpoint && !!id,
   });
 
@@ -192,7 +196,8 @@ function TableReferenceField({
   // Custom endpoint (e.g. /sys/references) — use apiClient directly
   const { data: customData, isLoading: isLoadingCustom } = useQuery({
     queryKey: ["table-ref-custom", customEndpoint],
-    queryFn: () => apiClient.get<{ data: any[] }>(customEndpoint!, { limit: 500 }),
+    queryFn: () =>
+      apiClient.get<{ data: any[] }>(customEndpoint!, { limit: REFERENCE_LOOKUP_LIMIT }),
     enabled: !!customEndpoint,
   });
 
@@ -204,7 +209,7 @@ function TableReferenceField({
 
   const { data: records, isLoading: isLoadingRecords } = useEntities<any>(
     referencedTableName || "",
-    entityFilterParams,
+    { limit: REFERENCE_LOOKUP_LIMIT, ...entityFilterParams },
     {
       enabled: !!referencedTableName && !customEndpoint && (!field.ref_filter_param || filterValue != null),
     }
