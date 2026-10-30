@@ -84,7 +84,7 @@ export const STEP_LABELS: Record<ProjectStep, string> = {
 export const STEP_ROUTES: Record<ProjectStep, string> = {
   init: "/projects/$id/init",
   design: "/projects/$id/design",
-  logic: "/projects/$id/logic",
+  logic: "/projects/$id/enhance/logic",
   generate: "/projects/$id/generate",
   enhance: "/projects/$id/enhance",
   deploy: "/projects/$id/deploy",

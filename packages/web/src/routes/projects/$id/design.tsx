@@ -1410,7 +1410,7 @@ function DesignPage() {
               description="Review the Entity-Relationship Diagram that our AI extracted from your business description. Each entity represents a key concept in your domain. Edit relationships as needed before generating code."
               estimatedTime="3-5 min"
             />
-            <JourneyArc currentStep="design" />
+            <JourneyArc currentStep="design" projectId={projectId} />
           </div>
         )}
 

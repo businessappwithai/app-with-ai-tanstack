@@ -66,6 +66,7 @@ import { Route as ApiWorkflowsWorkflowIdRetryRouteImport } from './routes/api/wo
 import { Route as ApiWorkflowsWorkflowIdStatusRouteImport } from './routes/api/workflows/$workflowId/status'
 import { Route as ProjectsIdEnhanceIndexRouteImport } from './routes/projects/$id/enhance/index'
 import { Route as ProjectsIdEnhanceServiceNameRouteImport } from './routes/projects/$id/enhance/$serviceName'
+import { Route as ProjectsIdEnhanceLogicRouteImport } from './routes/projects/$id/enhance/logic'
 import { Route as ApiAdminUsersIdApproveRouteImport } from './routes/api/admin/users/$id/approve'
 import { Route as ApiAdminUsersIdRejectRouteImport } from './routes/api/admin/users/$id/reject'
 import { Route as ApiProjectsIdAutomationsIndexRouteImport } from './routes/api/projects/$id/automations/index'
@@ -373,6 +374,11 @@ const ProjectsIdEnhanceServiceNameRoute =
     path: '/projects/$id/enhance/$serviceName',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ProjectsIdEnhanceLogicRoute = ProjectsIdEnhanceLogicRouteImport.update({
+  id: '/projects/$id/enhance/logic',
+  path: '/projects/$id/enhance/logic',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminUsersIdApproveRoute = ApiAdminUsersIdApproveRouteImport.update({
   id: '/api/admin/users/$id/approve',
   path: '/api/admin/users/$id/approve',
@@ -521,6 +527,7 @@ export interface FileRoutesByFullPath {
   '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
   '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
   '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
+  '/projects/$id/enhance/logic': typeof ProjectsIdEnhanceLogicRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
   '/api/projects/$id/': typeof ApiProjectsIdIndexRoute
   '/api/rules/$ruleId/': typeof ApiRulesRuleIdIndexRoute
@@ -596,6 +603,7 @@ export interface FileRoutesByTo {
   '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
   '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
   '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
+  '/projects/$id/enhance/logic': typeof ProjectsIdEnhanceLogicRoute
   '/api/admin/users': typeof ApiAdminUsersIndexRoute
   '/api/projects/$id': typeof ApiProjectsIdIndexRoute
   '/api/rules/$ruleId': typeof ApiRulesRuleIdIndexRoute
@@ -672,6 +680,7 @@ export interface FileRoutesById {
   '/api/workflows/$workflowId/retry': typeof ApiWorkflowsWorkflowIdRetryRoute
   '/api/workflows/$workflowId/status': typeof ApiWorkflowsWorkflowIdStatusRoute
   '/projects/$id/enhance/$serviceName': typeof ProjectsIdEnhanceServiceNameRoute
+  '/projects/$id/enhance/logic': typeof ProjectsIdEnhanceLogicRoute
   '/api/admin/users/': typeof ApiAdminUsersIndexRoute
   '/api/projects/$id/': typeof ApiProjectsIdIndexRoute
   '/api/rules/$ruleId/': typeof ApiRulesRuleIdIndexRoute
@@ -749,6 +758,7 @@ export interface FileRouteTypes {
     | '/api/workflows/$workflowId/retry'
     | '/api/workflows/$workflowId/status'
     | '/projects/$id/enhance/$serviceName'
+    | '/projects/$id/enhance/logic'
     | '/api/admin/users/'
     | '/api/projects/$id/'
     | '/api/rules/$ruleId/'
@@ -824,6 +834,7 @@ export interface FileRouteTypes {
     | '/api/workflows/$workflowId/retry'
     | '/api/workflows/$workflowId/status'
     | '/projects/$id/enhance/$serviceName'
+    | '/projects/$id/enhance/logic'
     | '/api/admin/users'
     | '/api/projects/$id'
     | '/api/rules/$ruleId'
@@ -899,6 +910,7 @@ export interface FileRouteTypes {
     | '/api/workflows/$workflowId/retry'
     | '/api/workflows/$workflowId/status'
     | '/projects/$id/enhance/$serviceName'
+    | '/projects/$id/enhance/logic'
     | '/api/admin/users/'
     | '/api/projects/$id/'
     | '/api/rules/$ruleId/'
@@ -974,6 +986,7 @@ export interface RootRouteChildren {
   ApiWorkflowsWorkflowIdRetryRoute: typeof ApiWorkflowsWorkflowIdRetryRoute
   ApiWorkflowsWorkflowIdStatusRoute: typeof ApiWorkflowsWorkflowIdStatusRoute
   ProjectsIdEnhanceServiceNameRoute: typeof ProjectsIdEnhanceServiceNameRoute
+  ProjectsIdEnhanceLogicRoute: typeof ProjectsIdEnhanceLogicRoute
   ApiAdminUsersIndexRoute: typeof ApiAdminUsersIndexRoute
   ApiProjectsIdIndexRoute: typeof ApiProjectsIdIndexRoute
   ApiRulesRuleIdIndexRoute: typeof ApiRulesRuleIdIndexRoute
@@ -1397,6 +1410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIdEnhanceServiceNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/$id/enhance/logic': {
+      id: '/projects/$id/enhance/logic'
+      path: '/projects/$id/enhance/logic'
+      fullPath: '/projects/$id/enhance/logic'
+      preLoaderRoute: typeof ProjectsIdEnhanceLogicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/users/$id/approve': {
       id: '/api/admin/users/$id/approve'
       path: '/api/admin/users/$id/approve'
@@ -1587,6 +1607,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiWorkflowsWorkflowIdRetryRoute: ApiWorkflowsWorkflowIdRetryRoute,
   ApiWorkflowsWorkflowIdStatusRoute: ApiWorkflowsWorkflowIdStatusRoute,
   ProjectsIdEnhanceServiceNameRoute: ProjectsIdEnhanceServiceNameRoute,
+  ProjectsIdEnhanceLogicRoute: ProjectsIdEnhanceLogicRoute,
   ApiAdminUsersIndexRoute: ApiAdminUsersIndexRoute,
   ApiProjectsIdIndexRoute: ApiProjectsIdIndexRoute,
   ApiRulesRuleIdIndexRoute: ApiRulesRuleIdIndexRoute,

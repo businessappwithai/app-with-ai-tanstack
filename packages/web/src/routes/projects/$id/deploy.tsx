@@ -442,7 +442,7 @@ function DeployPage() {
             }}
           />
 
-          <JourneyArc currentStep="deploy" />
+          <JourneyArc currentStep="deploy" projectId={projectId} />
         </div>
       </header>
 

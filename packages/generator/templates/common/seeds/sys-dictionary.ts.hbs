@@ -1050,12 +1050,34 @@ export async function seed(db: Kysely<any>): Promise<void> {
   ];
 
   for (const wd of adminWindowDefs) {
-    const existing = await db.selectFrom('sys_window').select(['sys_window_id', 'help', 'icon']).where('name', '=', wd.name).executeTakeFirst();
+    /*
+     * Found by its route, which an administrative window never changes, and
+     * named so that no two windows share a name. A model may declare an entity
+     * called User or Role, whose window is seeded above under that name. Matched
+     * on the name, that business window was taken for this one and the screen
+     * that manages sign-in was never created; created under the same name, the
+     * dictionary held two windows called User. So where the plain name is
+     * taken, the administrative window is "User Management" — what its screen
+     * is headed anyway — and a row left with a clashing name is renamed.
+     */
+    const existing = await db
+      .selectFrom('sys_window')
+      .select(['sys_window_id', 'name', 'help', 'icon'])
+      .where('description', '=', wd.route)
+      .where('entity_type', '=', 'S')
+      .executeTakeFirst();
     const windowId = existing?.sys_window_id ?? uuidv4();
+    const clash = await db
+      .selectFrom('sys_window')
+      .select('sys_window_id')
+      .where('name', '=', wd.name)
+      .where('sys_window_id', '!=', windowId)
+      .executeTakeFirst();
+    const name = clash ? `${wd.name} Management` : wd.name;
     if (!existing) {
       await db.insertInto('sys_window').values({
         sys_window_id: windowId,
-        name: wd.name,
+        name,
         description: wd.route,
         help: wd.help,
         icon: wd.icon,
@@ -1066,7 +1088,13 @@ export async function seed(db: Kysely<any>): Promise<void> {
         created_at: now,
         updated_at: now,
       }).execute();
-    } else if (!existing.help || !existing.icon) {
+    } else if (clash && existing.name === wd.name) {
+      await db.updateTable('sys_window')
+        .set({ name, updated_by: createdBy, updated_at: now })
+        .where('sys_window_id', '=', windowId)
+        .execute();
+    }
+    if (existing && (!existing.help || !existing.icon)) {
       /*
        * Backfill only, per field. An administrator who has rewritten the help
        * text or chosen their own icon keeps it — re-seeding is not a licence to

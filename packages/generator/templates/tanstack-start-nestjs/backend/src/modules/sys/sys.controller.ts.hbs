@@ -553,6 +553,36 @@ export class SysController {
     return this.sysService.createSysUser(body);
   }
 
+  /**
+   * Change an account: name, email, whether it is active, its roles, and —
+   * when one is given — a new password. Administrators only.
+   */
+  @Patch('users/:id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Update a user account (administrators only)' })
+  async updateSysUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body()
+    body: {
+      name?: string;
+      email?: string;
+      password?: string;
+      isActive?: boolean;
+      roleNames?: string[];
+    },
+    @CurrentUser() user: CurrentUser,
+  ) {
+    return this.sysService.updateSysUser(id, body, user?.sysUserId);
+  }
+
+  /** Delete an account and its sign-in. Never your own, never the last administrator. */
+  @Delete('users/:id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Delete a user account (administrators only)' })
+  async deleteSysUser(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: CurrentUser) {
+    return this.sysService.deleteSysUser(id, user?.sysUserId);
+  }
+
   // ============================================================================
   // SYS_ROLE Endpoints
   // ============================================================================
@@ -571,6 +601,25 @@ export class SysController {
     @Body() body: { name: string; description?: string; isMasterRole?: boolean }
   ) {
     return this.sysService.createSysRole(body);
+  }
+
+  /** Change a role's name, description or master flag. Administrators only. */
+  @Patch('roles/:id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Update a role (administrators only)' })
+  async updateSysRole(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: { name?: string; description?: string; isMasterRole?: boolean },
+  ) {
+    return this.sysService.updateSysRole(id, body);
+  }
+
+  /** Delete a role nobody holds. Administrators only. */
+  @Delete('roles/:id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Delete a role (administrators only)' })
+  async deleteSysRole(@Param('id', ParseUUIDPipe) id: string) {
+    return this.sysService.deleteSysRole(id);
   }
 
   // ============================================================================

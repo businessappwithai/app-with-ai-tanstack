@@ -370,6 +370,8 @@ function FieldRenderer({
   const isFormReadOnly = (form as any).readOnly || false;
   const formMode = (form as any).mode || "edit";
   const fieldLabel = getFieldLabel(tableName, (field as any).tab_name, field.name, field.name);
+  // What the `?` shows: the help, or the description where a field has only that.
+  const fieldHelp = field.help || field.description || "";
   const isDisabled =
     (field.is_read_only && formMode !== "create") ||
     field.logic_read_only === true ||
@@ -422,20 +424,18 @@ function FieldRenderer({
                 <Lock className="w-2.5 h-2.5" /> Read-only
               </span>
             )}
-            {field.help && <FieldHelpButton help={field.help} fieldName={fieldLabel} />}
+            {fieldHelp && <FieldHelpButton help={fieldHelp} fieldName={fieldLabel} />}
           </div>
         );
 
-        // Description: the short line under the input. An error takes its place.
+        // Only an error is shown under the input. A field's help — and its
+        // description, which is the first sentence of the same text — is read
+        // by pressing its `?`, never printed under every control.
         const errorBlock = error ? (
           <div className="flex items-center gap-1 mt-1.5 text-destructive">
             <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
             <p className="text-xs">{error}</p>
           </div>
-        ) : field.description ? (
-          <p className="mt-1 text-xs text-muted-foreground" data-testid="field-description">
-            {field.description}
-          </p>
         ) : null;
 
         // Display Length: the input is as wide as that many characters (and no
@@ -462,7 +462,7 @@ function FieldRenderer({
                 >
                   <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
                   {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
-                  {field.help && <FieldHelpButton help={field.help} fieldName={fieldLabel} />}
+                  {fieldHelp && <FieldHelpButton help={fieldHelp} fieldName={fieldLabel} />}
                 </div>
                 <div className="text-sm text-foreground font-medium min-h-[1.25rem]">
                   {!currentValue || currentValue === "" ? (
@@ -512,7 +512,7 @@ function FieldRenderer({
               >
                 <span className="text-xs font-medium text-muted-foreground">{fieldLabel}</span>
                 {field.is_mandatory && <span className="text-red-400 text-xs">*</span>}
-                {field.help && <FieldHelpButton help={field.help} fieldName={fieldLabel} />}
+                {fieldHelp && <FieldHelpButton help={fieldHelp} fieldName={fieldLabel} />}
               </div>
               <div
                 className="text-sm text-foreground font-medium min-h-[1.25rem]"
@@ -520,9 +520,6 @@ function FieldRenderer({
               >
                 {displayValue}
               </div>
-              {field.description && (
-                <p className="mt-0.5 text-xs text-muted-foreground">{field.description}</p>
-              )}
             </div>
           );
         }

@@ -806,6 +806,9 @@ the model matches the business — and for the reasoning behind the ones it can.
    exactly once, each section with `help:` saying what that part of the form is
    for, named for what the person is doing rather than the kind of column it
    holds (§3.7.6). Clear every `EML170`, `EML172` and `EML177`.
+   **And every entity carries `%%entity <E> icon:`** — a lucide name that depicts
+   it, distinct within its category (§3.7). The audit does not score this one and
+   the checker does not know lucide's catalogue, so check each name yourself.
 12. **Every line item is declared as one.** Go through the entities and ask of
    each: is this a thing in its own right, or part of another thing? Every
    invoice line, order line, prescription item and delivery line gets
