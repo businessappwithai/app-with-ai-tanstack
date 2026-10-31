@@ -52,7 +52,7 @@ import {
 } from '../../common/lifecycle';
 import { CapabilityService, type Capabilities } from '../auth/capability.service';
 import { RulesService } from '../rules/rules.service';
-import { WorkflowService } from '../workflow/workflow.service';
+import { WorkflowRunError, WorkflowService } from '../workflow/workflow.service';
 import { BusService } from './bus.service';
 
 /** Who pressed it. `system` is a workflow: the edge is checked, roles are not. */
@@ -73,6 +73,12 @@ export interface TransitionRequest {
   /** Who the record is with after the move — a user, a role, or neither. */
   assignTo?: string | null;
   assignRole?: string | null;
+  /**
+   * The form was saved a moment ago, by the same press (the first of its two
+   * transactions). The record's update workflows ran with that save, so the move
+   * does not run them again — only the ones bound to this move and its state.
+   */
+  afterSave?: boolean;
 }
 
 /** One button, for the caller and the record where it is. */
@@ -242,8 +248,13 @@ export class TransitionService {
   ): Promise<TransitionResult> {
     const { tableName, lifecycle } = this.lifecycle(entity);
     let refusal: { from: string | null; to: string; event: string; message: string } | undefined;
+    let failure: WorkflowRunError | undefined;
     try {
-      const run = async (db: Kysely<any>) => this.moveIn(db, tableName, lifecycle, id, request, actor, (r) => (refusal = r));
+      const run = async (db: Kysely<any>) =>
+        this.moveIn(db, tableName, lifecycle, id, request, actor, (r, cause) => {
+          refusal = r;
+          failure = cause instanceof WorkflowRunError ? cause : undefined;
+        });
       return trx ? await run(trx) : await this.db.transaction().execute(run);
     } catch (error: any) {
       // The transaction rolled back, so a refusal is logged outside it.
@@ -256,6 +267,20 @@ export class TransitionService {
           actor,
         });
       }
+      // The rollback took the failed run and its reason with it. Put them back,
+      // on their own connection: Run History shows which workflow refused the
+      // move, and the record carries the reason without its status or version
+      // changing. Only when this call owned the transaction — inside a caller's
+      // (a workflow's own state write) the caller's rollback is the end of it.
+      if (failure && !trx) {
+        await this.workflowService.recordFailedRun(tableName, id, failure);
+        await this.db
+          .updateTable(tableName as any)
+          .set({ doc_status_message: refusal?.message ?? failure.message } as any)
+          .where('id' as any, '=', id)
+          .execute()
+          .catch(() => undefined);
+      }
       throw error;
     }
   }
@@ -267,7 +292,10 @@ export class TransitionService {
     id: string,
     request: TransitionRequest,
     actor: TransitionActor,
-    noteRefusal: (refusal: { from: string | null; to: string; event: string; message: string }) => void,
+    noteRefusal: (
+      refusal: { from: string | null; to: string; event: string; message: string },
+      cause?: unknown,
+    ) => void,
   ): Promise<TransitionResult> {
     const existing: any = await db
       .selectFrom(tableName as any)
@@ -364,7 +392,7 @@ export class TransitionService {
       // and only then, since the record is locked after — and so do the ones
       // bound to this move and to the state it reaches.
       const bound = [
-        'update' as const,
+        request.afterSave ? undefined : ('update' as const),
         move.event ? (`transition:${move.event}` as const) : undefined,
         `enter:${move.to}` as const,
       ].filter((operation): operation is 'update' | `transition:${string}` | `enter:${string}` => !!operation);
@@ -383,11 +411,20 @@ export class TransitionService {
       });
     } catch (error: any) {
       const message = error?.message ?? String(error);
-      noteRefusal({ from, to: move.to, event: move.event, message });
+      noteRefusal({ from, to: move.to, event: move.event, message }, error);
       throw new UnprocessableEntityException({
         message: `"${move.label}" did not go through: ${message}. The record is still "${from}".`,
         error: 'Unprocessable Entity',
-        details: { code: 'WORKFLOW_FAILED', entity: tableName, id, from, to: move.to },
+        details: {
+          code: 'WORKFLOW_FAILED',
+          entity: tableName,
+          id,
+          from,
+          to: move.to,
+          ...(error instanceof WorkflowRunError
+            ? { workflow: error.workflow, reason: error.reason }
+            : { reason: message }),
+        },
       });
     }
 

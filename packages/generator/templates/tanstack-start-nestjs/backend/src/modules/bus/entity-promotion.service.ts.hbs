@@ -29,7 +29,7 @@ import { AuditAction } from '../audit/audit.types';
 import { AuditService } from '../audit/audit.service';
 import { RulesService } from '../rules/rules.service';
 import type { MatchedAction } from '../rules/rules.service';
-import { WorkflowService } from '../workflow/workflow.service';
+import { WorkflowRunError, WorkflowService } from '../workflow/workflow.service';
 import { LIFECYCLE_ERROR, lifecycleOf, phaseOf, type LifecyclePhase } from '../../common/lifecycle';
 
 /**
@@ -383,6 +383,10 @@ export class EntityPromotionService {
   ): Promise<PromotionResult> {
     const error = err?.message ?? String(err);
     const message = this.buildFailureMessage(base, failedStep, error);
+    // A workflow that failed leaves the record where it was — the save stands, the
+    // record stays a draft, and the reason is on it. Only a refusing rule sends it
+    // to Error: that is a verdict on the values, and a workflow failing is not.
+    const workflowFailure = err instanceof WorkflowRunError && base.operation !== 'delete';
 
     this.logger.error(`Promotion failed for ${base.entityName}:${base.entityId} — ${failedStep}: ${error}`);
 
@@ -390,7 +394,11 @@ export class EntityPromotionService {
       // A delete that rolled back leaves the record exactly as it was, status
       // included: it was never a draft, and demoting it would corrupt a
       // finalised record because someone tried to remove it.
-      if (base.operation !== 'delete') {
+      if (workflowFailure) {
+        await this.markDraft(this.db, base.entityName, base.entityId, message);
+        // The rollback took the failed run with it; Run History should still show it.
+        await this.workflowService.recordFailedRun(base.entityName, base.entityId, err);
+      } else if (base.operation !== 'delete') {
         await this.markError(this.db, base.entityName, base.entityId, message);
       }
     } catch (statusErr: any) {
@@ -406,7 +414,9 @@ export class EntityPromotionService {
       // still has rather than claiming it was demoted to a draft.
       ...(base.operation === 'delete'
         ? await this.outcome(base.entityName, base.entityId, false)
-        : { docStatus: 'error' as const, lifecycle: this.errorLifecycle(base.entityName) }),
+        : workflowFailure
+          ? { docStatus: 'draft' as const, lifecycle: this.draftLifecycle(base.entityName) }
+          : { docStatus: 'error' as const, lifecycle: this.errorLifecycle(base.entityName) }),
       promoted: false,
       message,
       failedStep,
@@ -551,6 +561,19 @@ export class EntityPromotionService {
     const set: Record<string, unknown> = { doc_status: 'error', doc_status_message: message };
     if (lifecycle?.hasMachine) set[lifecycle.column] = LIFECYCLE_ERROR;
     await db.updateTable(tableName as any).set(set as any).where('id' as any, '=', entityId).execute();
+  }
+
+  /** A save whose workflow failed: still a draft, with the reason on the record. */
+  private async markDraft(db: Kysely<any>, tableName: string, entityId: string, message: string): Promise<void> {
+    const lifecycle = lifecycleOf(tableName);
+    const set: Record<string, unknown> = { doc_status: 'draft', doc_status_message: message };
+    if (lifecycle?.hasMachine) set[lifecycle.column] = lifecycle.draft;
+    await db.updateTable(tableName as any).set(set as any).where('id' as any, '=', entityId).execute();
+  }
+
+  private draftLifecycle(tableName: string): PromotionResult['lifecycle'] {
+    const lifecycle = lifecycleOf(tableName);
+    return { column: lifecycle?.column ?? 'doc_status', value: lifecycle?.draft ?? 'draft', phase: 'draft' };
   }
 
   private errorLifecycle(tableName: string): PromotionResult['lifecycle'] {

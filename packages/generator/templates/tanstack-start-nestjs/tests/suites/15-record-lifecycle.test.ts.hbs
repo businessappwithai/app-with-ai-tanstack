@@ -78,7 +78,9 @@ describe("record lifecycle", () => {
         if (promotion.promoted === true) {
           expect(["active", "final", "draft"]).toContain(created.doc_status);
         } else {
-          expect(created.doc_status).toBe("error");
+          // A refusing rule sends the record to Error; a workflow that failed leaves it
+          // a draft. Either way the reason is on the record.
+          expect(["error", "draft"]).toContain(created.doc_status);
           expect(String(created.doc_status_message ?? "")).not.toBe("");
         }
       });
