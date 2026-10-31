@@ -42,7 +42,7 @@ import {
   validateAutomation,
   valuesAvailableAt,
 } from "../../lib/automation/model";
-import type { StatusChoices } from "../../lib/eml/workflow-hooks";
+import { statusLabel, type StatusChoices } from "../../lib/eml/workflow-hooks";
 import { cn } from "../../lib/utils";
 import { LadderCard, LadderRung, LoopFrame, Token } from "./LadderCard";
 import {
@@ -1087,7 +1087,7 @@ function TriggerTitle({
         {onStatus ? (
           <>
             {" "}
-            and its status becomes <Token>{onStatus.replace(/_/g, " ")}</Token>
+            and its status becomes <Token>{statusLabel(onStatus)}</Token>
           </>
         ) : null}
       </>

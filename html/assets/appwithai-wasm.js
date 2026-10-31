@@ -6764,9 +6764,9 @@ function normalizeEvent(event) {
   return event.trim().toLowerCase().replace(/[\s-]+/g, "_");
 }
 function moveLabel(_event, to) {
-  const words = (text) => text.replace(/[_-]+/g, " ").trim();
-  const sentence = (text) => text.charAt(0).toUpperCase() + text.slice(1);
-  return sentence(words(to));
+  const words = to.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  const text = words === words.toUpperCase() ? words.toLowerCase() : words;
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 // packages/generator/src/rbac/index.ts

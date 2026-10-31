@@ -23,23 +23,17 @@ import { emptyDecisionTable } from "@appwithai/editors/lib/eml/decision-table";
 import { type RuleConstraints, ruleConstraints } from "@appwithai/editors/lib/eml/rule-constraints";
 import { parseStateFlow, emitStateFlow, type StateFlow } from "@appwithai/editors/lib/eml/workflow-flow";
 import { emptyStateFlow, StateFlowCanvas } from "@appwithai/editors/components/eml/StateFlowCanvas";
-import {
-  generateFlowchartFromHooks,
-  type ParsedHookDefinition,
-  validateHookDefinition,
-} from "@appwithai/editors/lib/workflow/hook-parser";
+import { validateHookDefinition } from "@appwithai/editors/lib/workflow/hook-parser";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowLeft,
   BookOpen,
   CheckCircle2,
-  Circle,
   Clock,
   Code,
   Download,
   FileCode,
-  GitBranch,
   GitMerge,
   Loader2,
   Plus,
@@ -132,105 +126,6 @@ interface GeneratedHookFile {
   hookName: string;
   code: string;
 }
-
-const HOOK_TEMPLATES: { [key in HookType]: string } = {
-  beforeCreate: `// BEFORE CREATE: Validate & transform data
-if (!data.email || !data.email.includes('@')) {
-  throw new Error('Valid email required');
-}
-return {
-  ...data,
-  email: data.email.toLowerCase(),
-  status: 'active',
-};`,
-
-  afterCreate: `// AFTER CREATE: Send welcome email
-await sendEmail({
-  to: data.email,
-  subject: 'Welcome!',
-  body: 'Hi ' + data.name + ', thanks for joining!',
-});
-console.log('User created: ' + data.id);`,
-
-  beforeUpdate: `// BEFORE UPDATE: Validate changes
-if (data.email && data.email !== existingUser.email) {
-  throw new Error('Email changes require verification');
-}
-return data;`,
-
-  afterUpdate: `// AFTER UPDATE: Log changes
-console.log('User updated:', {
-  userId: data.id,
-  changes: changedFields,
-  timestamp: new Date(),
-});`,
-
-  beforeDelete: `// BEFORE DELETE: Soft delete instead of removing
-return {
-  ...data,
-  deleted: true,
-  deletedAt: new Date(),
-};`,
-
-  afterDelete: `// AFTER DELETE: Clean up
-await deleteUserPreferences(userId);
-await deleteSessions(userId);
-console.log('User ' + userId + ' deleted');`,
-
-  beforeQuery: `// BEFORE QUERY: Filter by permissions
-if (currentUser.role !== 'admin') {
-  return {
-    ...query,
-    where: { id: currentUser.id }
-  };
-}
-return query;`,
-
-  afterQuery: `// AFTER QUERY: Transform results
-return users.map(user => ({
-  ...user,
-  isAdmin: user.role === 'admin',
-  accountAge: new Date() - user.createdAt,
-}));`,
-
-  customValidate: `// CUSTOM VALIDATION: Business logic
-if (data.age && data.age < 18) {
-  throw new Error('Must be 18 or older');
-}
-const existing = await findByEmail(data.email);
-if (existing && existing.id !== userId) {
-  throw new Error('Email already in use');
-}`,
-
-  beforeRead: `// BEFORE READ: Check permissions
-if (currentUser.id !== recordId && !currentUser.isAdmin) {
-  throw new Error('Not authorized');
-}
-return query;`,
-
-  afterRead: `// AFTER READ: Mask sensitive data
-if (currentUser.role !== 'admin') {
-  delete record.ssn;
-  delete record.bankAccount;
-}
-return record;`,
-
-  beforeList: `// BEFORE LIST: Only show active users
-return {
-  ...query,
-  where: {
-    ...query.where,
-    deleted: false,
-  }
-};`,
-
-  afterList: `// AFTER LIST: Add computed fields
-return users.map(user => ({
-  ...user,
-  initials: user.name.split(' ').map(n => n[0]).join(''),
-  isActive: new Date() - user.lastLogin < 30 * 24 * 60 * 60 * 1000,
-}));`,
-};
 
 const HOOK_TYPES: {
   type: HookType;
@@ -361,7 +256,7 @@ function ServiceWorkflowPage() {
   const ruleDryRun = useMemo(() => projectDryRun(projectId), [projectId]);
   const { rule: ruleSearch, workflow: workflowSearch } = Route.useSearch();
 
-  const { getProject, loadProject, setCurrentStep, goToNextStep, currentProject, isLoading } =
+  const { getProject, loadProject, setCurrentStep, currentProject, isLoading } =
     useProjectStore();
 
   // Prefer currentProject when it matches (it includes erdCode from a full GET).
@@ -404,7 +299,6 @@ function ServiceWorkflowPage() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [draftSaveError, setDraftSaveError] = useState("");
-  const [showHooksList, setShowHooksList] = useState(true);
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedHookFile[]>([]);
   const [selectedFileIndex, setSelectedFileIndex] = useState<number>(0);
   const [showGeneratedCode, setShowGeneratedCode] = useState(false);
@@ -811,85 +705,6 @@ function ServiceWorkflowPage() {
     }
   };
 
-  const handleAddHook = (hookType: HookType) => {
-    const capitalizedType = hookType.charAt(0).toUpperCase() + hookType.slice(1);
-
-    const newHook: HookDefinition = {
-      type: hookType,
-      name: `${entityName}${capitalizedType}`,
-      entity: entityName,
-      enabled: true,
-      code: HOOK_TEMPLATES[hookType] || `// ${hookType} hook for ${entityName}`,
-      order: selectedHooks.length,
-    };
-
-    setSelectedHooks([...selectedHooks, newHook]);
-    updateFlowchartWithHooks([...selectedHooks, newHook]);
-    setWorkflowState("draft");
-    setValidationErrors([]);
-  };
-
-  /**
-   * Pick a hook from the available list and open it in the workflow editor.
-   *
-   * A hook can only be edited once it exists, so choosing one that is not yet
-   * active adds it first — with the default handler name and template — and then
-   * selects it. Choosing one already active selects the existing entry rather
-   * than adding a second.
-   */
-  const selectAvailableHook = (hookType: HookType) => {
-    const existing = selectedHooks.findIndex((hook) => hook.type === hookType);
-    const hookName = existing >= 0 ? selectedHooks[existing]?.name || hookType : hookType;
-    if (existing >= 0) {
-      setSelectedHookIndex(existing);
-    } else {
-      handleAddHook(hookType);
-      setSelectedHookIndex(selectedHooks.length);
-    }
-    setActiveTab("workflows");
-    void navigate({
-      to: "/projects/$id/enhance/$serviceName",
-      params: { id: projectId, serviceName },
-      search: { workflow: hookName },
-    });
-  };
-
-  const handleRemoveHook = (hookIndex: number) => {
-    const updatedHooks = selectedHooks.filter((_, idx) => idx !== hookIndex);
-    setSelectedHooks(updatedHooks);
-    updateFlowchartWithHooks(updatedHooks);
-    setWorkflowState("draft");
-    setValidationErrors([]);
-  };
-
-  const handleHookCodeChange = (hookIndex: number, code: string) => {
-    const updatedHooks = [...selectedHooks];
-    if (updatedHooks[hookIndex]) {
-      updatedHooks[hookIndex] = {
-        ...updatedHooks[hookIndex],
-        code,
-      };
-    }
-    setSelectedHooks(updatedHooks);
-    setWorkflowState("draft");
-    setValidationErrors([]);
-  };
-
-  const updateFlowchartWithHooks = (hooks: HookDefinition[]) => {
-    const parsedHooks: ParsedHookDefinition[] = hooks.map((hook) => ({
-      type: hook.type,
-      name: hook.name,
-      entity: hook.entity,
-      order: hook.order,
-      rawComment: `%%hook ${hook.type} ${hook.name} on ${hook.entity}`,
-    }));
-
-    const flowchart = generateFlowchartFromHooks(entityName, parsedHooks);
-
-    setFlowchartCode(flowchart);
-    setWorkflow({ ...workflow, flowchartCode: flowchart, hooks });
-  };
-
   const handleValidate = () => {
     setIsValidating(true);
     setValidationErrors([]);
@@ -1045,11 +860,6 @@ function ServiceWorkflowPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  };
-
-  const handleContinue = async () => {
-    goToNextStep();
-    navigate({ to: "/projects/$id/deploy", params: { id: projectId } });
   };
 
   const getStateBadge = () => {

@@ -155,6 +155,7 @@ describe("a button is named after the status it moves to", () => {
 
   it("in the language's own reading", () => {
     expect(moveLabel("close_won", "closed_won")).toBe("Closed won");
+    expect(moveLabel("qualify", "QUALIFICATION")).toBe("Qualification");
   });
 
   it("keeps the event as the move's name", () => {

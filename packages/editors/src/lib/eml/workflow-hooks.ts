@@ -218,6 +218,18 @@ export function stateToken(name: string): string {
 }
 
 /**
+ * What a person reads for a state: `closed_won` → "Closed won", `QUALIFICATION`
+ * → "Qualification". The same words the record's button shows (`moveLabel` in
+ * `language/state-field.ts`, which this package cannot import), so the picker
+ * names the status the way the button that enters it does.
+ */
+export function statusLabel(name: string): string {
+  const words = name.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  const text = words === words.toUpperCase() ? words.toLowerCase() : words;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/**
  * How a workflow is stored when it is bound to a state: the generated
  * application's workflow runner selects by this exact (upper-cased) operation
  * when a button moves a record into the state.
@@ -256,7 +268,7 @@ export function statusChoicesFor(
       if (!value || seen.has(value)) continue;
       seen.add(value);
       const named = machine.states.states.find((state) => state.id === transition.to);
-      states.push({ value, label: named?.name || transition.to });
+      states.push({ value, label: statusLabel(named?.name || transition.to) });
     }
   }
   return { kind: "machine", states };

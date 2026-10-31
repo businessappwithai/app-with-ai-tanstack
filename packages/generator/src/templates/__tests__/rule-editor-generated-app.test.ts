@@ -308,16 +308,19 @@ describe("the generated app runs the modelling tool's rule and workflow editors"
   });
 });
 
-// The dictionary's "Business Rules" window used to open the old rules list, a screen with no
-// workflows beside it; rules are edited on Rules & workflows now.
-describe("the dictionary's Business Rules window", () => {
+// Rules and workflows share one screen, so the dictionary has one admin window for them,
+// "Automations". "Business Rules" used to open the old rules list with no workflows beside it,
+// and "Workflow Designer" a second list of its own.
+describe("the dictionary's Automations window", () => {
   const seed = readFileSync(
     path.resolve(__dirname, "../../../templates/common/seeds/sys-dictionary.ts.hbs"),
     "utf8"
   );
 
   it("opens the Rules & workflows screen", () => {
-    expect(seed).toMatch(/name: 'Business Rules',[^}]*?route: '\/admin\/automations'/s);
+    expect(seed).toMatch(/name: 'Automations',[^}]*?route: '\/admin\/automations'/s);
+    expect(seed).not.toMatch(/name: 'Business Rules',/);
+    expect(seed).not.toMatch(/route: '\/admin\/workflow-definitions'/);
   });
 });
 
