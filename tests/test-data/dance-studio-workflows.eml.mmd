@@ -571,6 +571,16 @@ flowchart TD
     %%step D UpdateEntity field: capacity value: 0
     %%step F UpdateEntity entity: Booking targetField: class_session_id field: status value: cancelled
 
+%% ---- 18b workflow — a saga bound to a move (hook and status together) -----
+%%meta name: Session Start Notice
+%%meta kind: workflow
+%%workflow SessionStartNotice entity: ClassSession kind: saga trigger: automatic operation: UPDATE status: running
+flowchart TD
+    A([Session started]) --> B(Name the closure note)
+    B --> C([Noted])
+
+    %%step B Formula target: closureNote operation: set value: Started on the studio's say-so.
+
 %% ---- 19 workflow — every Formula arithmetic operation ----------------------
 %%meta name: Pack Credit Drawdown
 %%meta kind: workflow

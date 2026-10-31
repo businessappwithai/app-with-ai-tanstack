@@ -6718,7 +6718,7 @@ var appwithai_language_default = {
     },
     workflowKinds: {
       hook: {
-        form: "%%workflow <name> entity: <Entity> kind: hook",
+        form: "%%workflow <name> entity: <Entity> kind: hook [status: <state>]",
         description: "A flowchart whose steps represent operations on a single entity. %%hook directives bind named handlers to the entity's CRUD lifecycle events. Fully parsed by the shipped hook-parser.",
         diagram: "flowchart",
         shipped: true
@@ -6730,7 +6730,7 @@ var appwithai_language_default = {
         shipped: true
       },
       saga: {
-        form: "%%workflow <name> entity: <Entity> kind: saga [trigger: automatic|rule] [operation: CREATE|UPDATE|DELETE|ALL]",
+        form: "%%workflow <name> entity: <Entity> kind: saga [trigger: automatic|rule] [operation: CREATE|UPDATE|DELETE|ALL] [status: <state>]",
         description: "A flowchart whose nodes are executable steps. Each node is bound to a step by a %%step directive naming the node id and its step type; the flowchart edges give the running order. Compiles to BPMN service tasks seeded into sys_workflow_definitions and run by the generated workflow executor. This is how a multi-entity, multi-step process — create a row here, update one there, delete a third, passing values between the steps — is expressed in the model rather than drawn by hand in the app.",
         diagram: "flowchart",
         shipped: true,
@@ -6740,7 +6740,8 @@ var appwithai_language_default = {
         },
         ordering: "Steps run in flowchart edge order, walking forward from every node with no incoming edge. A node with a %%step but no edges still runs, after the wired ones, in document order — the canvas implies a step runs even when the connection was left implicit.",
         example: "%%workflow CriticalDeviationEscalation entity: DeviationReport kind: saga trigger: rule operation: CREATE",
-        operation: "Which write runs the workflow. Defaults to CREATE. Only consulted for trigger: automatic — a rule-triggered workflow is resolved by name, so the rule decides."
+        operation: "Which write runs the workflow. Defaults to CREATE. Only consulted for trigger: automatic — a rule-triggered workflow is resolved by name, so the rule decides.",
+        status: "Bind the workflow to a move: `status: <state>` (a state of the entity's kind: state workflow) with trigger: automatic operation: UPDATE. A button press is two transactions — the first saves the form and leaves the status where it is, the second runs the workflows bound to the target state and moves the record only if every one succeeds. A failure rolls the second back: the saved values stay, the status does not move, and the reason is recorded. Checked by EML243 (the state must be drawn), EML244 (an update must start it) and EML245 (some arrow must lead into the state). An entity with no status machine has Draft and Final only; its update workflows already run on the way to Final, so it takes no status:."
       }
     },
     stepNodes: {
@@ -13976,16 +13977,22 @@ function extractWorkflowSections(source) {
     const kind = match?.[3];
     const trigger = directive.match(/\btrigger:\s*(\S+)/)?.[1];
     const operation = directive.match(/\boperation:\s*(\S+)/)?.[1]?.toUpperCase();
+    const status = directive.match(/\bstatus:\s*(\S+)/)?.[1];
+    const resolvedKind = kind === "state" || kind === "saga" ? kind : "hook";
     return {
       name: match?.[1] ?? "workflow",
       entity: match?.[2] ?? "",
-      kind: kind === "state" || kind === "saga" ? kind : "hook",
+      kind: resolvedKind,
       trigger: trigger === "rule" ? "rule" : trigger === "automatic" ? "automatic" : undefined,
       operation: operation === "CREATE" || operation === "UPDATE" || operation === "DELETE" || operation === "ALL" ? operation : undefined,
+      status: status && resolvedKind !== "state" ? stateToken(status) : undefined,
       title,
       diagram: body
     };
   });
+}
+function stateToken(name) {
+  return name.trim().toLowerCase().replace(/[\s-]+/g, "_");
 }
 function extractSections(source, lead) {
   const lines = source.split(`
@@ -24327,6 +24334,41 @@ class CheckEngine {
           hint: `Declare "${entityName}" in the erDiagram section.`
         });
       }
+      this.checkWorkflowStatus(text.trim(), lineNo, name, entityName, kind);
+    }
+  }
+  checkWorkflowStatus(text, lineNo, name, entityName, kind) {
+    const raw = text.match(/\bstatus:\s*(\S+)/)?.[1];
+    if (raw === undefined)
+      return;
+    const status = stateToken(raw);
+    const machines = this.model.workflows.filter((wf) => wf.entity === entityName && wf.kind === "state");
+    const edges = machines.flatMap((wf) => wf.transitions);
+    const states = new Set(edges.flatMap((t) => [t.from, t.to]).filter((state) => state !== "[*]"));
+    const known = [...states].map((state) => [stateToken(state), state]);
+    if (machines.length === 0 || !known.some(([token]) => token === status)) {
+      this.error("EML243", machines.length === 0 ? `%%workflow "${name}" is bound to status "${raw}", but ${entityName} has no status machine.` : `%%workflow "${name}" is bound to status "${raw}", which ${entityName}'s status machine does not draw.`, {
+        line: lineNo,
+        hint: machines.length === 0 ? `An entity with no status machine has Draft and Final only, and its workflows already run on the way to Final. Remove "status:", or draw a kind: state workflow for ${entityName}.` : `States drawn: ${known.map(([, state]) => state).join(", ")}.`,
+        context: text
+      });
+      return;
+    }
+    const updateStarted = kind === "hook" ? this.model.workflows.filter((wf) => wf.name === name && wf.kind === "hook").every((wf) => wf.hooks.every((hook) => /update/i.test(hook.type))) : kind === "saga" && /\boperation:\s*UPDATE\b/i.test(text) && !/\btrigger:\s*rule\b/.test(text);
+    if (!updateStarted) {
+      this.error("EML244", `%%workflow "${name}" is bound to status "${raw}" but is not started by an update.`, {
+        line: lineNo,
+        hint: kind === "saga" ? "A status-bound saga needs  trigger: automatic operation: UPDATE  — a move is an update." : "A status-bound hook workflow may carry beforeUpdate and afterUpdate hooks only.",
+        context: text
+      });
+    }
+    const entered = edges.some((t) => t.from !== "[*]" && stateToken(t.to) === status);
+    if (!entered) {
+      this.warn("EML245", `%%workflow "${name}" is bound to status "${raw}", which no button moves a record into.`, {
+        line: lineNo,
+        hint: `Only an arrow  <state> --> ${raw}  makes a move; the first state is entered by creating the record.`,
+        context: text
+      });
     }
   }
   checkActionDirectives() {

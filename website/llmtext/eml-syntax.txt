@@ -852,6 +852,16 @@ with no label is the button "Move to <state>".
 A saga writes across entities. Each `%%step` binds a flowchart node to an
 executable step, and **the flowchart's edges give the running order**.
 
+A saga (or a `kind: hook` workflow) may be bound to a move of the entity's status
+machine with `status: <state>` — `%%workflow Review entity: Contract kind: saga
+trigger: automatic operation: UPDATE status: to_be_reviewed`. A button press is
+two transactions: the first saves the form and leaves the status where it is, the
+second runs the workflows bound to the target state and moves the record only if
+every one succeeds; a failure rolls the second back, keeps the saved values and
+records the reason. `EML243` (the state must be drawn), `EML244` (an update must
+start it), `EML245` (some arrow must lead into it). An entity with no status
+machine has Draft and Final only and takes no `status:`.
+
 ```mermaid
 %%meta name: Lead Conversion
 %%meta kind: erd
