@@ -15697,7 +15697,7 @@ export async function evaluateRules(rules, record, options = {}) {
   return { violations, mutations, notifications, traces };
 }
 `,
-  "server/lib/sagas.js": "/**\n * The background workflows — a saga's steps, run after the write that started\n * them.\n *\n * A `kind: saga` workflow is a list of steps (`%%step`) compiled into\n * `model.sagas` and seeded into `sys_workflow_definitions`. A rule starts one\n * with a `trigger-workflow` action naming it; a saga declared `trigger:\n * automatic` runs on every write its `operation` names. Until this file, the\n * browser application stored the sagas and never ran one: the rule matched,\n * its row went into `_notifications`, and the step that should have moved an\n * invoice to `paid` did nothing.\n *\n * This is also the only writer of a state field. A person's request may not\n * change one (`bus.routes.js` refuses it); a saga's UpdateEntity step writes it\n * here, directly, the way the NestJS executor writes through Kysely without\n * passing its own access guard. Row targeting follows that executor exactly:\n *\n *   no entity                the triggering record\n *   entity + targetSource    the row whose id is that context value (a column of\n *                            the triggering record, or what an earlier step\n *                            published)\n *   entity + targetField     the rows whose targetField equals the triggering\n *                            record's id — children pointing back at it\n *\n * Steps it does not run here (Decision, REST, Agent, Formula beyond a copy) are\n * recorded as skipped in the run's detail rather than failing it.\n */\n\nimport { ident } from \"./db.js\";\nimport { evaluateRules } from \"./rules.js\";\nimport { stateFieldFor } from \"./workflows.js\";\nimport { lifecycleOf } from \"./lifecycle.js\";\n\n/**\n * How many state moves one write may set off. A saga that writes a state runs\n * the entity's rules again (below), and a model whose rules move a record back\n * and forth would otherwise never stop.\n */\nconst MAX_STATE_WRITE_DEPTH = 8;\n\n/** Find a saga definition by name: the table first, the model as a fallback. */\nasync function sagaNamed(db, model, name) {\n  try {\n    const row = await db.one(\n      \"SELECT definition FROM sys_workflow_definitions WHERE name = $1 AND kind = 'saga' AND is_active = true\",\n      [name]\n    );\n    if (row?.definition) {\n      return typeof row.definition === \"string\" ? JSON.parse(row.definition) : row.definition;\n    }\n  } catch {\n    /* fall through to the model */\n  }\n  return (model.sagas || []).find((saga) => saga.name === name) ?? null;\n}\n\nfunction entityNamed(model, name) {\n  const wanted = String(name ?? \"\").trim().toLowerCase().replace(/^bus_/, \"\");\n  return (\n    model.entities.find(\n      (entity) =>\n        entity.name.toLowerCase() === wanted ||\n        entity.tableName === `bus_${wanted}` ||\n        entity.tableName === wanted\n    ) ?? null\n  );\n}\n\n/** A literal step value as the column will hold it. */\nfunction literal(raw) {\n  const value = String(raw ?? \"\").trim();\n  if (value === \"true\") return true;\n  if (value === \"false\") return false;\n  if (value === \"null\") return null;\n  return value;\n}\n\nasync function updateEntity(db, model, triggering, record, step, context) {\n  const props = step.props || {};\n  const target = props.entity ? entityNamed(model, props.entity) : triggering;\n  const field = String(props.field ?? \"\").trim();\n  if (!target || !field) return { step: step.nodeId, skipped: \"no entity or field\" };\n\n  const value =\n    props.source && context[props.source.trim()] !== undefined\n      ? context[props.source.trim()]\n      : literal(props.value);\n\n  const targetSource = props.targetSource?.trim();\n  const targetField = props.targetField?.trim() || \"id\";\n  let column = \"id\";\n  let match;\n  if (targetSource) {\n    match = context[targetSource];\n  } else if (target === triggering) {\n    match = record.id;\n  } else if (targetField !== \"id\") {\n    column = targetField;\n    match = record.id;\n  }\n  if (match === undefined || match === null) {\n    return { step: step.nodeId, skipped: \"no row to update\" };\n  }\n\n  // A saga writing a record's status makes a move like anyone else: only along\n  // an edge the diagram drew, from where the record is (lib/lifecycle.js), and\n  // it stamps `<state>_at` as a button press does. Roles are not asked.\n  const lifecycle = lifecycleOf(model, target.tableName);\n  if (lifecycle?.hasMachine && lifecycle.column === field) {\n    const from = lifecycle.edges.filter((edge) => edge.to === String(value)).map((edge) => edge.from);\n    if (from.length === 0) {\n      return { step: step.nodeId, skipped: `no drawn edge reaches \"${String(value)}\"` };\n    }\n    const stamp = `${String(value)}_at`;\n    const stamps = target.attributes.some((attribute) => attribute.columnName === stamp);\n    const rows = await db.query(\n      `UPDATE ${ident(target.tableName)}\n          SET ${ident(field)} = $1, updated_at = NOW(), version = COALESCE(version, 0) + 1\n              ${stamps ? `, ${ident(stamp)} = NOW()` : \"\"}\n        WHERE ${ident(column)} = $2 AND deleted_at IS NULL AND ${ident(field)} = ANY($3)\n        RETURNING id`,\n      [value, match, from]\n    );\n    return { step: step.nodeId, entity: target.name, field, value, rows: rows.length, ids: rows.map((row) => row.id) };\n  }\n\n  const rows = await db.query(\n    `UPDATE ${ident(target.tableName)}\n        SET ${ident(field)} = $1, updated_at = NOW(), version = COALESCE(version, 0) + 1\n      WHERE ${ident(column)} = $2 AND deleted_at IS NULL\n      RETURNING id`,\n    [value, match]\n  );\n  return {\n    step: step.nodeId,\n    entity: target.name,\n    field,\n    value,\n    rows: rows.length,\n    ids: rows.map((row) => row.id),\n  };\n}\n\nasync function createEntity(db, model, step, context) {\n  const props = step.props || {};\n  const target = entityNamed(model, props.entity);\n  if (!target) return { step: step.nodeId, skipped: \"unknown entity\" };\n  let fields = {};\n  try {\n    fields = props.fields ? JSON.parse(props.fields) : {};\n  } catch {\n    return { step: step.nodeId, skipped: \"fields is not JSON\" };\n  }\n  const values = {};\n  for (const [column, source] of Object.entries(fields)) {\n    values[column] =\n      typeof source === \"string\" && context[source] !== undefined ? context[source] : source;\n  }\n  // A record a workflow creates starts in its machine's initial state, as one\n  // a person creates does, unless the step names the state itself.\n  const state = await stateFieldFor(db, model, target);\n  if (state?.initial && (values[state.field] === undefined || values[state.field] === null)) {\n    values[state.field] = state.initial;\n  }\n  const created = await db.insert(target.tableName, values);\n  if (props.as) context[props.as.trim()] = created?.id;\n  return { step: step.nodeId, entity: target.name, created: created?.id ?? null };\n}\n\nasync function deleteEntity(db, model, triggering, record, step, context) {\n  const props = step.props || {};\n  const target = props.entity ? entityNamed(model, props.entity) : triggering;\n  if (!target) return { step: step.nodeId, skipped: \"unknown entity\" };\n  const targetSource = props.targetSource?.trim();\n  const targetField = props.targetField?.trim() || \"id\";\n  const column = targetSource ? \"id\" : target === triggering ? \"id\" : targetField;\n  const match = targetSource ? context[targetSource] : record.id;\n  if (match === undefined || match === null) return { step: step.nodeId, skipped: \"no row\" };\n  const rows = await db.query(\n    `UPDATE ${ident(target.tableName)} SET deleted_at = NOW()\n      WHERE ${ident(column)} = $1 AND deleted_at IS NULL RETURNING id`,\n    [match]\n  );\n  return { step: step.nodeId, entity: target.name, deleted: rows.length };\n}\n\n/** Run one saga against the record that started it. */\nexport async function runSaga(db, model, entity, record, saga, user) {\n  const context = { ...record };\n  const results = [];\n  let status = \"completed\";\n  for (const step of saga.steps || []) {\n    try {\n      if (step.type === \"UpdateEntity\") {\n        results.push(await updateEntity(db, model, entity, record, step, context));\n      } else if (step.type === \"CreateEntity\") {\n        results.push(await createEntity(db, model, step, context));\n      } else if (step.type === \"DeleteEntity\") {\n        results.push(await deleteEntity(db, model, entity, record, step, context));\n      } else {\n        results.push({ step: step.nodeId, skipped: `${step.type} is not run in the browser` });\n      }\n    } catch (error) {\n      results.push({ step: step.nodeId, error: error.message });\n      status = \"failed\";\n      break;\n    }\n  }\n\n  await db.insert(\"sys_workflow_runs\", {\n    workflow_name: saga.name,\n    entity_name: entity.name,\n    record_id: record.id,\n    trigger: \"saga\",\n    status,\n    detail: JSON.stringify({ steps: results }),\n    created_by: user?.id ?? null,\n  });\n  return { saga: saga.name, status, steps: results };\n}\n\n/**\n * Every saga a write starts: those its rules named with `trigger-workflow`,\n * and those declared `trigger: automatic` for this operation. Run after the\n * write, against the record as stored — as the NestJS stack does.\n *\n * A saga that writes an entity's state field is itself a write that rules may\n * be keyed on (`status == \"paid\" and …`), and a person's request is no longer\n * how a state changes, so nothing else would evaluate them. After such a step\n * the moved rows are re-read and their UPDATE rules run again; only the sagas\n * those rules start are run, as `followStateWrites` does in the NestJS rules\n * service, to a depth of MAX_STATE_WRITE_DEPTH.\n */\nexport async function runTriggeredSagas(\n  db, model, entity, record, operation, notifications, user, depth = 0\n) {\n  const names = new Set();\n  for (const item of notifications || []) {\n    const action = String(item.action || \"\").toLowerCase();\n    const name = item.workflowName || item.workflow;\n    if (action.startsWith(\"trigger\") && name) names.add(String(name));\n  }\n  if (depth === 0) {\n    for (const saga of model.sagas || []) {\n      if (saga.entity !== entity.name || saga.trigger !== \"automatic\") continue;\n      if (saga.operation === \"ALL\" || saga.operation === operation) names.add(saga.name);\n    }\n  }\n\n  const runs = [];\n  for (const name of names) {\n    const saga = await sagaNamed(db, model, name);\n    if (!saga) continue;\n    const run = await runSaga(db, model, entity, record, saga, user);\n    runs.push(run);\n    runs.push(...(await followStateWrites(db, model, run, user, depth)));\n  }\n  return runs;\n}\n\nasync function followStateWrites(db, model, run, user, depth) {\n  if (depth >= MAX_STATE_WRITE_DEPTH) return [];\n  const runs = [];\n  for (const result of run.steps) {\n    if (!result.ids?.length) continue;\n    const target = entityNamed(model, result.entity);\n    if (!target) continue;\n    const state = await stateFieldFor(db, model, target);\n    if (!state || state.field !== result.field) continue;\n    const rules = await db.query(\n      `SELECT name, jdm_content FROM sys_rule_definitions\n        WHERE entity_name = $1 AND operation IN ('UPDATE', 'ALL') AND is_active = true\n        ORDER BY priority ASC`,\n      [target.name]\n    );\n    for (const id of result.ids) {\n      const row = await db.one(\n        `SELECT * FROM ${ident(target.tableName)} WHERE id = $1 AND deleted_at IS NULL`,\n        [id]\n      );\n      if (!row) continue;\n      const outcome = await evaluateRules(rules, row, {\n        columns: target.attributes.map((attribute) => attribute.columnName),\n      });\n      runs.push(\n        ...(await runTriggeredSagas(\n          db, model, target, row, \"UPDATE\", outcome.notifications, user, depth + 1\n        ))\n      );\n    }\n  }\n  return runs;\n}\n",
+  "server/lib/sagas.js": "/**\n * The background workflows — a saga's steps, run after the write that started\n * them.\n *\n * A `kind: saga` workflow is a list of steps (`%%step`) compiled into\n * `model.sagas` and seeded into `sys_workflow_definitions`. A rule starts one\n * with a `trigger-workflow` action naming it; a saga declared `trigger:\n * automatic` runs on every write its `operation` names. Until this file, the\n * browser application stored the sagas and never ran one: the rule matched,\n * its row went into `_notifications`, and the step that should have moved an\n * invoice to `paid` did nothing.\n *\n * This is also the only writer of a state field. A person's request may not\n * change one (`bus.routes.js` refuses it); a saga's UpdateEntity step writes it\n * here, directly, the way the NestJS executor writes through Kysely without\n * passing its own access guard. Row targeting follows that executor exactly:\n *\n *   no entity                the triggering record\n *   entity + targetSource    the row whose id is that context value (a column of\n *                            the triggering record, or what an earlier step\n *                            published)\n *   entity + targetField     the rows whose targetField equals the triggering\n *                            record's id — children pointing back at it\n *\n * Steps it does not run here (Decision, REST, Agent, Formula beyond a copy) are\n * recorded as skipped in the run's detail rather than failing it.\n */\n\nimport { ident } from \"./db.js\";\nimport { evaluateRules } from \"./rules.js\";\nimport { stateFieldFor } from \"./workflows.js\";\nimport { lifecycleOf } from \"./lifecycle.js\";\n\n/**\n * How many state moves one write may set off. A saga that writes a state runs\n * the entity's rules again (below), and a model whose rules move a record back\n * and forth would otherwise never stop.\n */\nconst MAX_STATE_WRITE_DEPTH = 8;\n\n/** Find a saga definition by name: the table first, the model as a fallback. */\nasync function sagaNamed(db, model, name) {\n  try {\n    const row = await db.one(\n      \"SELECT definition FROM sys_workflow_definitions WHERE name = $1 AND kind = 'saga' AND is_active = true\",\n      [name]\n    );\n    if (row?.definition) {\n      return typeof row.definition === \"string\" ? JSON.parse(row.definition) : row.definition;\n    }\n  } catch {\n    /* fall through to the model */\n  }\n  return (model.sagas || []).find((saga) => saga.name === name) ?? null;\n}\n\nfunction entityNamed(model, name) {\n  const wanted = String(name ?? \"\").trim().toLowerCase().replace(/^bus_/, \"\");\n  return (\n    model.entities.find(\n      (entity) =>\n        entity.name.toLowerCase() === wanted ||\n        entity.tableName === `bus_${wanted}` ||\n        entity.tableName === wanted\n    ) ?? null\n  );\n}\n\n/** A literal step value as the column will hold it. */\nfunction literal(raw) {\n  const value = String(raw ?? \"\").trim();\n  if (value === \"true\") return true;\n  if (value === \"false\") return false;\n  if (value === \"null\") return null;\n  return value;\n}\n\nasync function updateEntity(db, model, triggering, record, step, context) {\n  const props = step.props || {};\n  const target = props.entity ? entityNamed(model, props.entity) : triggering;\n  const field = String(props.field ?? \"\").trim();\n  if (!target || !field) return { step: step.nodeId, skipped: \"no entity or field\" };\n\n  const value =\n    props.source && context[props.source.trim()] !== undefined\n      ? context[props.source.trim()]\n      : literal(props.value);\n\n  const targetSource = props.targetSource?.trim();\n  const targetField = props.targetField?.trim() || \"id\";\n  let column = \"id\";\n  let match;\n  if (targetSource) {\n    match = context[targetSource];\n  } else if (target === triggering) {\n    match = record.id;\n  } else if (targetField !== \"id\") {\n    column = targetField;\n    match = record.id;\n  }\n  if (match === undefined || match === null) {\n    return { step: step.nodeId, skipped: \"no row to update\" };\n  }\n\n  // A saga writing a record's status makes a move like anyone else: only along\n  // an edge the diagram drew, from where the record is (lib/lifecycle.js), and\n  // it stamps `<state>_at` as a button press does. Roles are not asked.\n  const lifecycle = lifecycleOf(model, target.tableName);\n  if (lifecycle?.hasMachine && lifecycle.column === field) {\n    const from = lifecycle.edges.filter((edge) => edge.to === String(value)).map((edge) => edge.from);\n    if (from.length === 0) {\n      return { step: step.nodeId, skipped: `no drawn edge reaches \"${String(value)}\"` };\n    }\n    const stamp = `${String(value)}_at`;\n    const stamps = target.attributes.some((attribute) => attribute.columnName === stamp);\n    const rows = await db.query(\n      `UPDATE ${ident(target.tableName)}\n          SET ${ident(field)} = $1, updated_at = NOW(), version = COALESCE(version, 0) + 1\n              ${stamps ? `, ${ident(stamp)} = NOW()` : \"\"}\n        WHERE ${ident(column)} = $2 AND deleted_at IS NULL AND ${ident(field)} = ANY($3)\n        RETURNING id`,\n      [value, match, from]\n    );\n    return { step: step.nodeId, entity: target.name, field, value, rows: rows.length, ids: rows.map((row) => row.id) };\n  }\n\n  const rows = await db.query(\n    `UPDATE ${ident(target.tableName)}\n        SET ${ident(field)} = $1, updated_at = NOW(), version = COALESCE(version, 0) + 1\n      WHERE ${ident(column)} = $2 AND deleted_at IS NULL\n      RETURNING id`,\n    [value, match]\n  );\n  return {\n    step: step.nodeId,\n    entity: target.name,\n    field,\n    value,\n    rows: rows.length,\n    ids: rows.map((row) => row.id),\n  };\n}\n\nasync function createEntity(db, model, step, context) {\n  const props = step.props || {};\n  const target = entityNamed(model, props.entity);\n  if (!target) return { step: step.nodeId, skipped: \"unknown entity\" };\n  let fields = {};\n  try {\n    fields = props.fields ? JSON.parse(props.fields) : {};\n  } catch {\n    return { step: step.nodeId, skipped: \"fields is not JSON\" };\n  }\n  const values = {};\n  for (const [column, source] of Object.entries(fields)) {\n    values[column] =\n      typeof source === \"string\" && context[source] !== undefined ? context[source] : source;\n  }\n  // A record a workflow creates starts in its machine's initial state, as one\n  // a person creates does, unless the step names the state itself.\n  const state = await stateFieldFor(db, model, target);\n  if (state?.initial && (values[state.field] === undefined || values[state.field] === null)) {\n    values[state.field] = state.initial;\n  }\n  const created = await db.insert(target.tableName, values);\n  if (props.as) context[props.as.trim()] = created?.id;\n  return { step: step.nodeId, entity: target.name, created: created?.id ?? null };\n}\n\nasync function deleteEntity(db, model, triggering, record, step, context) {\n  const props = step.props || {};\n  const target = props.entity ? entityNamed(model, props.entity) : triggering;\n  if (!target) return { step: step.nodeId, skipped: \"unknown entity\" };\n  const targetSource = props.targetSource?.trim();\n  const targetField = props.targetField?.trim() || \"id\";\n  const column = targetSource ? \"id\" : target === triggering ? \"id\" : targetField;\n  const match = targetSource ? context[targetSource] : record.id;\n  if (match === undefined || match === null) return { step: step.nodeId, skipped: \"no row\" };\n  const rows = await db.query(\n    `UPDATE ${ident(target.tableName)} SET deleted_at = NOW()\n      WHERE ${ident(column)} = $1 AND deleted_at IS NULL RETURNING id`,\n    [match]\n  );\n  return { step: step.nodeId, entity: target.name, deleted: rows.length };\n}\n\n/**\n * A saga that failed while its caller owns the transaction. The caller rolls\n * back — the run row dies with it — so it carries the workflow and the reason to\n * put the failure back afterwards (`recordFailedSaga`) and to tell the person.\n */\nexport class SagaFailure extends Error {\n  constructor(workflow, reason, steps, operation) {\n    super(`Workflow \"${workflow}\" failed: ${reason}`);\n    this.name = \"SagaFailure\";\n    this.workflow = workflow;\n    this.reason = reason;\n    this.steps = steps;\n    this.operation = operation;\n  }\n}\n\n/**\n * Put a failed run back after the transaction that held it rolled back, on the\n * caller's own connection. Never throws: Run History is a record of the failure,\n * not part of it.\n */\nexport async function recordFailedSaga(db, entity, record, failure, user) {\n  try {\n    await db.insert(\"sys_workflow_runs\", {\n      workflow_name: failure.workflow,\n      entity_name: entity.name,\n      record_id: record.id,\n      trigger: \"saga\",\n      status: \"failed\",\n      detail: JSON.stringify({ operation: failure.operation ?? null, steps: failure.steps ?? [], error: failure.reason }),\n      created_by: user?.id ?? null,\n    });\n  } catch {\n    /* the move is already refused; a missing history row must not hide that */\n  }\n}\n\n/** Run one saga against the record that started it. */\nexport async function runSaga(db, model, entity, record, saga, user, options = {}) {\n  const context = { ...record };\n  const results = [];\n  let status = \"completed\";\n  for (const step of saga.steps || []) {\n    try {\n      if (step.type === \"UpdateEntity\") {\n        results.push(await updateEntity(db, model, entity, record, step, context));\n      } else if (step.type === \"CreateEntity\") {\n        results.push(await createEntity(db, model, step, context));\n      } else if (step.type === \"DeleteEntity\") {\n        results.push(await deleteEntity(db, model, entity, record, step, context));\n      } else {\n        results.push({ step: step.nodeId, skipped: `${step.type} is not run in the browser` });\n      }\n    } catch (error) {\n      results.push({ step: step.nodeId, error: error.message });\n      status = \"failed\";\n      // The caller owns a transaction: let it roll back rather than record a\n      // half-applied run that the rollback would take with it anyway.\n      if (options.throwOnError) {\n        throw new SagaFailure(saga.name, error.message, results, options.operation);\n      }\n      break;\n    }\n  }\n\n  await db.insert(\"sys_workflow_runs\", {\n    workflow_name: saga.name,\n    entity_name: entity.name,\n    record_id: record.id,\n    trigger: \"saga\",\n    status,\n    detail: JSON.stringify({ steps: results }),\n    created_by: user?.id ?? null,\n  });\n  return { saga: saga.name, status, steps: results };\n}\n\n/**\n * Every saga a write starts: those its rules named with `trigger-workflow`,\n * and those declared `trigger: automatic` for this operation. Run after the\n * write, against the record as stored — as the NestJS stack does.\n *\n * A saga that writes an entity's state field is itself a write that rules may\n * be keyed on (`status == \"paid\" and …`), and a person's request is no longer\n * how a state changes, so nothing else would evaluate them. After such a step\n * the moved rows are re-read and their UPDATE rules run again; only the sagas\n * those rules start are run, as `followStateWrites` does in the NestJS rules\n * service, to a depth of MAX_STATE_WRITE_DEPTH.\n *\n * `options` is for a button press, which is a write the person's request does\n * not make but a move does:\n *\n *   bound          the operations a move runs workflows under, in order —\n *                  `TRANSITION:<EVENT>` and `ENTER:<STATE>`. A saga declared\n *                  `status: <state>` is stored as `ENTER:<STATE>`, so a plain\n *                  save (UPDATE) never selects it.\n *   skipAutomatic  the form was saved a moment ago by the same press, and the\n *                  record's update sagas ran with that save.\n *   throwOnError   the caller owns a transaction: a failing saga throws\n *                  (SagaFailure) so it rolls back, instead of being recorded.\n */\nexport async function runTriggeredSagas(\n  db, model, entity, record, operation, notifications, user, depth = 0, options = {}\n) {\n  const names = new Map();\n  const add = (name, boundTo) => {\n    if (!names.has(name)) names.set(name, boundTo);\n  };\n  const automatic = () => {\n    if (depth !== 0 || options.skipAutomatic) return;\n    for (const saga of model.sagas || []) {\n      if (saga.entity !== entity.name || saga.trigger !== \"automatic\") continue;\n      if (saga.operation === \"ALL\" || saga.operation === operation) add(saga.name);\n    }\n  };\n  const bound = () => {\n    if (depth !== 0) return;\n    for (const wanted of options.bound || []) {\n      for (const saga of model.sagas || []) {\n        if (saga.entity !== entity.name || saga.trigger !== \"automatic\") continue;\n        if (String(saga.operation).toUpperCase() === wanted) add(saga.name, wanted);\n      }\n    }\n  };\n  const notified = () => {\n    for (const item of notifications || []) {\n      const action = String(item.action || \"\").toLowerCase();\n      const name = item.workflowName || item.workflow;\n      if (action.startsWith(\"trigger\") && name) add(String(name));\n    }\n  };\n  // A move runs the record's update sagas, then those bound to it, then the ones\n  // its rules start — the order the NestJS stack keeps. A write keeps its own.\n  if (options.bound) {\n    automatic();\n    bound();\n    notified();\n  } else {\n    notified();\n    automatic();\n  }\n\n  const runs = [];\n  for (const [name, boundTo] of names) {\n    const saga = await sagaNamed(db, model, name);\n    if (!saga) continue;\n    const run = await runSaga(db, model, entity, record, saga, user, {\n      throwOnError: options.throwOnError,\n      operation: boundTo ?? operation,\n    });\n    runs.push(run);\n    runs.push(...(await followStateWrites(db, model, run, user, depth, options)));\n  }\n  return runs;\n}\n\nasync function followStateWrites(db, model, run, user, depth, options = {}) {\n  if (depth >= MAX_STATE_WRITE_DEPTH) return [];\n  const runs = [];\n  for (const result of run.steps) {\n    if (!result.ids?.length) continue;\n    const target = entityNamed(model, result.entity);\n    if (!target) continue;\n    const state = await stateFieldFor(db, model, target);\n    if (!state || state.field !== result.field) continue;\n    const rules = await db.query(\n      `SELECT name, jdm_content FROM sys_rule_definitions\n        WHERE entity_name = $1 AND operation IN ('UPDATE', 'ALL') AND is_active = true\n        ORDER BY priority ASC`,\n      [target.name]\n    );\n    for (const id of result.ids) {\n      const row = await db.one(\n        `SELECT * FROM ${ident(target.tableName)} WHERE id = $1 AND deleted_at IS NULL`,\n        [id]\n      );\n      if (!row) continue;\n      const outcome = await evaluateRules(rules, row, {\n        columns: target.attributes.map((attribute) => attribute.columnName),\n      });\n      runs.push(\n        ...(await runTriggeredSagas(\n          db, model, target, row, \"UPDATE\", outcome.notifications, user, depth + 1,\n          { throwOnError: options.throwOnError }\n        ))\n      );\n    }\n  }\n  return runs;\n}\n",
   "server/lib/workflows.js": `/**
  * Where a workflow is read from — the table, not the model.
  *
@@ -16956,11 +16956,11 @@ export function authRoutes(model) {
  */
 
 import { Router } from "../lib/router.js";
-import { badRequest, json, notFound, readJson } from "../lib/http.js";
+import { badRequest, errorResponse, json, notFound, readJson } from "../lib/http.js";
 import { ident } from "../lib/db.js";
 import { checkOperationAccess, requireUser } from "../lib/guards.js";
 import { STATE_FIELD_REFUSAL_CODE, stateFieldFor, stateMachineFor } from "../lib/workflows.js";
-import { runTriggeredSagas } from "../lib/sagas.js";
+import { recordFailedSaga, runTriggeredSagas, SagaFailure } from "../lib/sagas.js";
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
 import { logicViolations } from "../lib/field-logic.js";
@@ -17675,6 +17675,15 @@ export function busRoutes(model) {
    * at as If-Match. The edge, the role and the record's rules are judged, then
    * the state is written with its \`<state>_at\`, and the sagas the move starts
    * run — the same contract as the NestJS stack's POST …/transition.
+   *
+   * With \`data\` — the form as it stands — the press is two transactions. The
+   * first saves the form, the record staying in the status it is in (the same
+   * handler a PATCH reaches, so the same rules and field logic judge it). The
+   * second is the move: the sagas bound to the status it reaches (\`status:
+   * <state>\`, stored \`ENTER:<STATE>\`) run in it, and the status is written only
+   * if every one succeeds. A saga that fails undoes the move alone: the typing
+   * stays saved, the status stays where it was, and the refusal says so
+   * (\`details.phase: "workflow"\`, the new \`details.version\`).
    */
   router.post("/:entity/:id/transition", async (request, { db, params, user }) => {
     const entity = entityOr404(model, params.entity);
@@ -17683,13 +17692,13 @@ export function busRoutes(model) {
     const lifecycle = lifecycleOf(model, entity.tableName);
     if (!lifecycle?.hasMachine) throw notFound(\`\${entity.name} has no status flow to move along\`);
 
-    const current = await db.one(
+    let current = await db.one(
       \`SELECT * FROM \${ident(entity.tableName)} WHERE id = $1 AND deleted_at IS NULL\`,
       [params.id]
     );
     if (!current) throw notFound(\`No \${entity.name} with id \${params.id}\`);
 
-    const expectedVersion = parseIfMatch(request.headers.get("if-match"));
+    let expectedVersion = parseIfMatch(request.headers.get("if-match"));
     if (expectedVersion === undefined) {
       return json(
         {
@@ -17700,24 +17709,54 @@ export function busRoutes(model) {
         { status: 428 }
       );
     }
+
+    const body = await readJson(request);
+
+    // Transaction one: save the form in the status the record is in. It commits
+    // before the move starts, so a failing saga cannot take it back.
+    let savedFirst = false;
+    if (body?.data && typeof body.data === "object" && Object.keys(body.data).length > 0) {
+      let saved;
+      try {
+        saved = await write(
+          new Request(request.url, {
+            method: "PATCH",
+            headers: { "content-type": "application/json", "if-match": \`"\${expectedVersion}"\` },
+            body: JSON.stringify(body.data),
+          }),
+          { db, params, user }
+        );
+      } catch (error) {
+        // A save the form's own PATCH would refuse (validation, a hook) is refused the same way.
+        return withPhase(errorResponse(error, "PATCH"), "save");
+      }
+      if (saved.status >= 400) return withPhase(saved, "save");
+      current = await db.one(
+        \`SELECT * FROM \${ident(entity.tableName)} WHERE id = $1 AND deleted_at IS NULL\`,
+        [params.id]
+      );
+      expectedVersion = Number(current.version ?? 0);
+      savedFirst = true;
+    }
     if (Number(current.version ?? 0) !== expectedVersion) {
       return versionConflict(entity, params.id, expectedVersion, Number(current.version ?? 0));
     }
 
-    const body = await readJson(request);
     const from = current[lifecycle.column] == null ? null : String(current[lifecycle.column]);
     const move = findMove(lifecycle, from, { event: body?.event, to: body?.to });
     if (!move) {
       const offered = movesFrom(lifecycle, from).map((item) => item.event || item.to);
-      return json(
-        {
-          statusCode: 409,
-          message:
-            \`"\${body?.event ?? body?.to ?? ""}" is not a move of this record from "\${from ?? "nothing"}". \` +
-            (offered.length ? \`Its moves are: \${offered.join(", ")}.\` : "It has no moves from here."),
-          details: { code: "INVALID_TRANSITION", entity: entity.tableName, id: params.id, from, offered },
-        },
-        { status: 409 }
+      return afterSave(
+        json(
+          {
+            statusCode: 409,
+            message:
+              \`"\${body?.event ?? body?.to ?? ""}" is not a move of this record from "\${from ?? "nothing"}". \` +
+              (offered.length ? \`Its moves are: \${offered.join(", ")}.\` : "It has no moves from here."),
+            details: { code: "INVALID_TRANSITION", entity: entity.tableName, id: params.id, from, offered },
+          },
+          { status: 409 }
+        )
       );
     }
 
@@ -17725,83 +17764,137 @@ export function busRoutes(model) {
       updateAllowed(db, user, entity.tableName)
     );
     if (!decision.allowed) {
-      return json(
-        {
-          statusCode: 403,
-          message:
-            move.kind === "reopen" && decision.roles.length === 0
-              ? "Only an administrator can reopen this record."
-              : \`"\${move.label}" can be pressed by: \${decision.roles.join(", ")}.\`,
-          details: { code: "TRANSITION_FORBIDDEN", entity: entity.tableName, id: params.id, roles: decision.roles },
-        },
-        { status: 403 }
+      return afterSave(
+        json(
+          {
+            statusCode: 403,
+            message:
+              move.kind === "reopen" && decision.roles.length === 0
+                ? "Only an administrator can reopen this record."
+                : \`"\${move.label}" can be pressed by: \${decision.roles.join(", ")}.\`,
+            details: { code: "TRANSITION_FORBIDDEN", entity: entity.tableName, id: params.id, roles: decision.roles },
+          },
+          { status: 403 }
+        )
       );
     }
 
-    const now = new Date().toISOString();
-    const values = {
-      [lifecycle.column]: move.to,
-      updated_by: user.id,
-      updated_at: now,
-      version: (current.version ?? 1) + 1,
-    };
-    const stamp = \`\${move.to}_at\`;
-    if (entity.attributes.some((attribute) => attribute.columnName === stamp)) values[stamp] = now;
+    /** A refusal after the save says the save stands, and at which version. */
+    function afterSave(response) {
+      return savedFirst
+        ? withPhase(response, "workflow", { saved: true, version: Number(current.version ?? 0) })
+        : response;
+    }
 
-    // Refusing rules hold on a move as on a save, judged on the record as it
-    // will be: "a resolved case needs its notes".
-    const merged = { ...current, ...values };
-    const outcome = await evaluateRules(await rulesFor(db, entity, "UPDATE"), merged, {
-      columns: entity.attributes.map((attribute) => attribute.columnName),
-    });
-    if (outcome.violations.length) {
+    // Transaction two. Everything the move does is one unit: a saga that fails
+    // throws, the transaction rolls back, and the record is as the save left it.
+    try {
+      return await db.transaction(async (db) => {
+        const now = new Date().toISOString();
+        const values = {
+          [lifecycle.column]: move.to,
+          updated_by: user.id,
+          updated_at: now,
+          version: (current.version ?? 1) + 1,
+        };
+        const stamp = \`\${move.to}_at\`;
+        if (entity.attributes.some((attribute) => attribute.columnName === stamp)) values[stamp] = now;
+
+        // Refusing rules hold on a move as on a save, judged on the record as it
+        // will be: "a resolved case needs its notes".
+        const merged = { ...current, ...values };
+        const outcome = await evaluateRules(await rulesFor(db, entity, "UPDATE"), merged, {
+          columns: entity.attributes.map((attribute) => attribute.columnName),
+        });
+        if (outcome.violations.length) {
+          return afterSave(
+            json(
+              { statusCode: 422, message: "A business rule refused this move", violations: outcome.violations },
+              { status: 422 }
+            )
+          );
+        }
+
+        const updated = await db.update(entity.tableName, values, {
+          id: params.id,
+          version: current.version ?? null,
+        });
+        if (!updated) {
+          const latest = await db.one(\`SELECT version FROM \${ident(entity.tableName)} WHERE id = $1\`, [params.id]);
+          return versionConflict(entity, params.id, expectedVersion, Number(latest?.version ?? 0));
+        }
+        await recordWorkflowRun(db, model, entity, current, updated, user);
+        const runs = await runTriggeredSagas(db, model, entity, updated, "UPDATE", outcome.notifications, user, 0, {
+          bound: [move.event ? \`TRANSITION:\${String(move.event).toUpperCase()}\` : null, \`ENTER:\${String(move.to).toUpperCase()}\`].filter(Boolean),
+          skipAutomatic: savedFirst,
+          throwOnError: true,
+        });
+        const stored = runs.length
+          ? (await db.one(\`SELECT * FROM \${ident(entity.tableName)} WHERE id = $1\`, [params.id])) ?? updated
+          : updated;
+        await recordAudit(db, {
+          user,
+          action: "UPDATE",
+          entityType: entity.tableName,
+          entityId: params.id,
+          before: current,
+          after: stored,
+        });
+        return json(
+          {
+            ...stored,
+            lifecycle: {
+              column: lifecycle.column,
+              from,
+              to: move.to,
+              phase: phaseOf(lifecycle, move.to),
+              event: move.event,
+            },
+            _workflows: runs,
+          },
+          { headers: etagHeader(stored) }
+        );
+      });
+    } catch (error) {
+      if (!(error instanceof SagaFailure)) throw error;
+      // The rollback took the failed run with it; put it back for Run History.
+      await recordFailedSaga(db, entity, current, error, user);
       return json(
-        { statusCode: 422, message: "A business rule refused this move", violations: outcome.violations },
+        {
+          statusCode: 422,
+          message: \`"\${move.label}" did not go through: \${error.message}. The record is still "\${from}".\`,
+          error: "Unprocessable Entity",
+          details: {
+            code: "WORKFLOW_FAILED",
+            entity: entity.tableName,
+            id: params.id,
+            from,
+            to: move.to,
+            workflow: error.workflow,
+            reason: error.reason,
+            ...(savedFirst ? { phase: "workflow", saved: true, version: Number(current.version ?? 0) } : {}),
+          },
+        },
         { status: 422 }
       );
     }
-
-    const updated = await db.update(entity.tableName, values, {
-      id: params.id,
-      version: current.version ?? null,
-    });
-    if (!updated) {
-      const latest = await db.one(\`SELECT version FROM \${ident(entity.tableName)} WHERE id = $1\`, [params.id]);
-      return versionConflict(entity, params.id, expectedVersion, Number(latest?.version ?? 0));
-    }
-    await recordWorkflowRun(db, model, entity, current, updated, user);
-    const runs = await runTriggeredSagas(db, model, entity, updated, "UPDATE", outcome.notifications, user);
-    const stored = runs.length
-      ? (await db.one(\`SELECT * FROM \${ident(entity.tableName)} WHERE id = $1\`, [params.id])) ?? updated
-      : updated;
-    await recordAudit(db, {
-      user,
-      action: "UPDATE",
-      entityType: entity.tableName,
-      entityId: params.id,
-      before: current,
-      after: stored,
-    });
-    return json(
-      {
-        ...stored,
-        lifecycle: {
-          column: lifecycle.column,
-          from,
-          to: move.to,
-          phase: phaseOf(lifecycle, move.to),
-          event: move.event,
-        },
-        _workflows: runs,
-      },
-      { headers: etagHeader(stored) }
-    );
   });
 
   return router;
 }
 
 /** Whether this person may update the table — the fallback for a move nobody restricted. */
+/** The same refusal, with \`details.phase\` (and any extra) added; status and body otherwise kept. */
+async function withPhase(response, phase, extra = {}) {
+  let body;
+  try {
+    body = await response.clone().json();
+  } catch {
+    return response;
+  }
+  return json({ ...body, details: { ...(body.details ?? {}), ...extra, phase } }, { status: response.status });
+}
+
 async function updateAllowed(db, user, tableName) {
   try {
     await checkOperationAccess(db, user, tableName, "update");
@@ -20495,6 +20588,8 @@ details.group > summary.group__name { cursor: pointer; }
 .side__actions { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
 .side__actions .side__meta { flex-basis: 100%; margin: 0; }
 .side__empty { margin: 0; font-size: 12.5px; color: var(--text-faint); }
+.side__notice { margin: 0 0 11px; padding: 8px 10px; border: 1px solid #f0c36d; border-radius: 6px; background: #fff7e0; color: #5c4200; font-size: 12.5px; }
+.side__notice p { margin: 4px 0 0; }
 .side__list { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font-size: 12.5px; }
 .side__list dt { color: var(--text-faint); }
 .side__list dd { margin: 0; font-family: var(--mono); font-size: 11.5px; }
@@ -24164,6 +24259,16 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     input.addEventListener("change", applyLogic);
   }
 
+  /* Which fields the person has changed since the record opened. A button press
+     saves these first (see the transition route) — so what was typed is kept
+     even when a workflow bound to the next status refuses the move. */
+  const touched = new Set();
+  for (const [column, input] of inputs) {
+    const mark = () => touched.add(column);
+    input.addEventListener("input", mark);
+    input.addEventListener("change", mark);
+  }
+
   /* \`%%section\`: the model's own headings, in its order, each a two-column
      grid in which a field alone on its row spans both columns. A model with
      no sections has one ungrouped "General" list, as it always did. */
@@ -24330,6 +24435,15 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     void renderNotes(notesSlot, entity, id);
     void renderAudit(auditSlot, entity, id);
   }
+
+  form.touchedValues = () => {
+    const values = {};
+    for (const column of touched) {
+      const input = inputs.get(column);
+      if (input) values[column] = input.type === "checkbox" ? input.checked : input.value;
+    }
+    return values;
+  };
 
   mount(
     root,
@@ -24587,6 +24701,24 @@ async function renderDetails(slot, entity, id, navigate) {
   if (sections.length) mount(slot, ...sections);
 }
 
+/* What the last press of a record's button came to, kept until the next press:
+   the panel is drawn again after every press, and a refusal has to survive that. */
+const pressNotices = new Map();
+
+function pressNotice(notice) {
+  return el(
+    "div.side__notice",
+    { role: "alert", "data-testid": "press-refused" },
+    el("strong", \`\${notice.label} did not go through\`),
+    el(
+      "p",
+      \`\${notice.saved ? "Your changes were saved. " : ""}\` +
+        \`\${notice.workflow ? \`Workflow "\${notice.workflow}" failed: \` : ""}\${notice.message}. \` +
+        "The status did not change. Fix it and press the button again."
+    )
+  );
+}
+
 async function sidePanels(entity, id, record, onSaved, form, reload) {
   const panels = [];
 
@@ -24602,17 +24734,31 @@ async function sidePanels(entity, id, record, onSaved, form, reload) {
       } catch {
         actions = [];
       }
+      const noticeKey = \`\${entity.routeName}:\${id}\`;
       const press = async (action, button) => {
         button.disabled = true;
+        pressNotices.delete(noticeKey);
+        /* A move saves what was typed first, then runs the sagas bound to the
+           status it reaches; Reopen is not a save and leaves the form alone. */
+        const typed = action.kind === "move" && form?.touchedValues ? form.touchedValues() : {};
+        const data = Object.keys(typed).length ? typed : undefined;
         try {
           await api.post(
             \`/bus/\${entity.routeName}/\${id}/transition\`,
-            { event: action.event || undefined, to: action.to },
+            { event: action.event || undefined, to: action.to, ...(data ? { data } : {}) },
             record.version == null ? {} : { "If-Match": \`"\${record.version}"\` }
           );
           toast(action.kind === "reopen" ? "Reopened — the record is a draft again." : \`\${action.label} — done.\`, "success");
         } catch (error) {
-          toast(error.message || "The move was refused.", "error");
+          /* The refusal stays on the record, beside the buttons: the person has
+             to act on it, and a toast is gone before they have read it. */
+          const details = error.details || {};
+          pressNotices.set(noticeKey, {
+            label: action.label,
+            saved: details.phase === "workflow" && !!data,
+            workflow: details.workflow || null,
+            message: details.workflow ? details.reason || error.message : error.message || "The move was refused.",
+          });
         }
         /* The list beside it, and this panel: the record has moved (or was
            read afresh after a refusal), so its buttons are drawn again. */
@@ -24649,6 +24795,7 @@ async function sidePanels(entity, id, record, onSaved, form, reload) {
               ? \`Final — \${title(workflow.current ?? "")}. Locked; reopen it to change it.\`
               : \`\${workflow.workflow} — currently \${title(workflow.current ?? "unset")}\`
           ),
+          pressNotices.has(noticeKey) ? pressNotice(pressNotices.get(noticeKey)) : null,
           moves.length || reopen
             ? el(
                 "div.side__actions",
@@ -28269,7 +28416,7 @@ function reportActions(panel, report, { user, entities, reload }) {
 }
 `
 });
-var RUNTIME_BYTES = 668852;
+var RUNTIME_BYTES = 678646;
 
 // packages/core/src/types/bus-entity.types.ts
 function attributeTypeToReferenceId(type) {

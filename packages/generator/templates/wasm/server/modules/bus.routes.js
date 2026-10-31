@@ -15,11 +15,11 @@
  */
 
 import { Router } from "../lib/router.js";
-import { badRequest, json, notFound, readJson } from "../lib/http.js";
+import { badRequest, errorResponse, json, notFound, readJson } from "../lib/http.js";
 import { ident } from "../lib/db.js";
 import { checkOperationAccess, requireUser } from "../lib/guards.js";
 import { STATE_FIELD_REFUSAL_CODE, stateFieldFor, stateMachineFor } from "../lib/workflows.js";
-import { runTriggeredSagas } from "../lib/sagas.js";
+import { recordFailedSaga, runTriggeredSagas, SagaFailure } from "../lib/sagas.js";
 import { runHooks } from "../lib/hooks.js";
 import { evaluateRules } from "../lib/rules.js";
 import { logicViolations } from "../lib/field-logic.js";
@@ -734,6 +734,15 @@ export function busRoutes(model) {
    * at as If-Match. The edge, the role and the record's rules are judged, then
    * the state is written with its `<state>_at`, and the sagas the move starts
    * run — the same contract as the NestJS stack's POST …/transition.
+   *
+   * With `data` — the form as it stands — the press is two transactions. The
+   * first saves the form, the record staying in the status it is in (the same
+   * handler a PATCH reaches, so the same rules and field logic judge it). The
+   * second is the move: the sagas bound to the status it reaches (`status:
+   * <state>`, stored `ENTER:<STATE>`) run in it, and the status is written only
+   * if every one succeeds. A saga that fails undoes the move alone: the typing
+   * stays saved, the status stays where it was, and the refusal says so
+   * (`details.phase: "workflow"`, the new `details.version`).
    */
   router.post("/:entity/:id/transition", async (request, { db, params, user }) => {
     const entity = entityOr404(model, params.entity);
@@ -742,13 +751,13 @@ export function busRoutes(model) {
     const lifecycle = lifecycleOf(model, entity.tableName);
     if (!lifecycle?.hasMachine) throw notFound(`${entity.name} has no status flow to move along`);
 
-    const current = await db.one(
+    let current = await db.one(
       `SELECT * FROM ${ident(entity.tableName)} WHERE id = $1 AND deleted_at IS NULL`,
       [params.id]
     );
     if (!current) throw notFound(`No ${entity.name} with id ${params.id}`);
 
-    const expectedVersion = parseIfMatch(request.headers.get("if-match"));
+    let expectedVersion = parseIfMatch(request.headers.get("if-match"));
     if (expectedVersion === undefined) {
       return json(
         {
@@ -759,24 +768,54 @@ export function busRoutes(model) {
         { status: 428 }
       );
     }
+
+    const body = await readJson(request);
+
+    // Transaction one: save the form in the status the record is in. It commits
+    // before the move starts, so a failing saga cannot take it back.
+    let savedFirst = false;
+    if (body?.data && typeof body.data === "object" && Object.keys(body.data).length > 0) {
+      let saved;
+      try {
+        saved = await write(
+          new Request(request.url, {
+            method: "PATCH",
+            headers: { "content-type": "application/json", "if-match": `"${expectedVersion}"` },
+            body: JSON.stringify(body.data),
+          }),
+          { db, params, user }
+        );
+      } catch (error) {
+        // A save the form's own PATCH would refuse (validation, a hook) is refused the same way.
+        return withPhase(errorResponse(error, "PATCH"), "save");
+      }
+      if (saved.status >= 400) return withPhase(saved, "save");
+      current = await db.one(
+        `SELECT * FROM ${ident(entity.tableName)} WHERE id = $1 AND deleted_at IS NULL`,
+        [params.id]
+      );
+      expectedVersion = Number(current.version ?? 0);
+      savedFirst = true;
+    }
     if (Number(current.version ?? 0) !== expectedVersion) {
       return versionConflict(entity, params.id, expectedVersion, Number(current.version ?? 0));
     }
 
-    const body = await readJson(request);
     const from = current[lifecycle.column] == null ? null : String(current[lifecycle.column]);
     const move = findMove(lifecycle, from, { event: body?.event, to: body?.to });
     if (!move) {
       const offered = movesFrom(lifecycle, from).map((item) => item.event || item.to);
-      return json(
-        {
-          statusCode: 409,
-          message:
-            `"${body?.event ?? body?.to ?? ""}" is not a move of this record from "${from ?? "nothing"}". ` +
-            (offered.length ? `Its moves are: ${offered.join(", ")}.` : "It has no moves from here."),
-          details: { code: "INVALID_TRANSITION", entity: entity.tableName, id: params.id, from, offered },
-        },
-        { status: 409 }
+      return afterSave(
+        json(
+          {
+            statusCode: 409,
+            message:
+              `"${body?.event ?? body?.to ?? ""}" is not a move of this record from "${from ?? "nothing"}". ` +
+              (offered.length ? `Its moves are: ${offered.join(", ")}.` : "It has no moves from here."),
+            details: { code: "INVALID_TRANSITION", entity: entity.tableName, id: params.id, from, offered },
+          },
+          { status: 409 }
+        )
       );
     }
 
@@ -784,83 +823,137 @@ export function busRoutes(model) {
       updateAllowed(db, user, entity.tableName)
     );
     if (!decision.allowed) {
-      return json(
-        {
-          statusCode: 403,
-          message:
-            move.kind === "reopen" && decision.roles.length === 0
-              ? "Only an administrator can reopen this record."
-              : `"${move.label}" can be pressed by: ${decision.roles.join(", ")}.`,
-          details: { code: "TRANSITION_FORBIDDEN", entity: entity.tableName, id: params.id, roles: decision.roles },
-        },
-        { status: 403 }
+      return afterSave(
+        json(
+          {
+            statusCode: 403,
+            message:
+              move.kind === "reopen" && decision.roles.length === 0
+                ? "Only an administrator can reopen this record."
+                : `"${move.label}" can be pressed by: ${decision.roles.join(", ")}.`,
+            details: { code: "TRANSITION_FORBIDDEN", entity: entity.tableName, id: params.id, roles: decision.roles },
+          },
+          { status: 403 }
+        )
       );
     }
 
-    const now = new Date().toISOString();
-    const values = {
-      [lifecycle.column]: move.to,
-      updated_by: user.id,
-      updated_at: now,
-      version: (current.version ?? 1) + 1,
-    };
-    const stamp = `${move.to}_at`;
-    if (entity.attributes.some((attribute) => attribute.columnName === stamp)) values[stamp] = now;
+    /** A refusal after the save says the save stands, and at which version. */
+    function afterSave(response) {
+      return savedFirst
+        ? withPhase(response, "workflow", { saved: true, version: Number(current.version ?? 0) })
+        : response;
+    }
 
-    // Refusing rules hold on a move as on a save, judged on the record as it
-    // will be: "a resolved case needs its notes".
-    const merged = { ...current, ...values };
-    const outcome = await evaluateRules(await rulesFor(db, entity, "UPDATE"), merged, {
-      columns: entity.attributes.map((attribute) => attribute.columnName),
-    });
-    if (outcome.violations.length) {
+    // Transaction two. Everything the move does is one unit: a saga that fails
+    // throws, the transaction rolls back, and the record is as the save left it.
+    try {
+      return await db.transaction(async (db) => {
+        const now = new Date().toISOString();
+        const values = {
+          [lifecycle.column]: move.to,
+          updated_by: user.id,
+          updated_at: now,
+          version: (current.version ?? 1) + 1,
+        };
+        const stamp = `${move.to}_at`;
+        if (entity.attributes.some((attribute) => attribute.columnName === stamp)) values[stamp] = now;
+
+        // Refusing rules hold on a move as on a save, judged on the record as it
+        // will be: "a resolved case needs its notes".
+        const merged = { ...current, ...values };
+        const outcome = await evaluateRules(await rulesFor(db, entity, "UPDATE"), merged, {
+          columns: entity.attributes.map((attribute) => attribute.columnName),
+        });
+        if (outcome.violations.length) {
+          return afterSave(
+            json(
+              { statusCode: 422, message: "A business rule refused this move", violations: outcome.violations },
+              { status: 422 }
+            )
+          );
+        }
+
+        const updated = await db.update(entity.tableName, values, {
+          id: params.id,
+          version: current.version ?? null,
+        });
+        if (!updated) {
+          const latest = await db.one(`SELECT version FROM ${ident(entity.tableName)} WHERE id = $1`, [params.id]);
+          return versionConflict(entity, params.id, expectedVersion, Number(latest?.version ?? 0));
+        }
+        await recordWorkflowRun(db, model, entity, current, updated, user);
+        const runs = await runTriggeredSagas(db, model, entity, updated, "UPDATE", outcome.notifications, user, 0, {
+          bound: [move.event ? `TRANSITION:${String(move.event).toUpperCase()}` : null, `ENTER:${String(move.to).toUpperCase()}`].filter(Boolean),
+          skipAutomatic: savedFirst,
+          throwOnError: true,
+        });
+        const stored = runs.length
+          ? (await db.one(`SELECT * FROM ${ident(entity.tableName)} WHERE id = $1`, [params.id])) ?? updated
+          : updated;
+        await recordAudit(db, {
+          user,
+          action: "UPDATE",
+          entityType: entity.tableName,
+          entityId: params.id,
+          before: current,
+          after: stored,
+        });
+        return json(
+          {
+            ...stored,
+            lifecycle: {
+              column: lifecycle.column,
+              from,
+              to: move.to,
+              phase: phaseOf(lifecycle, move.to),
+              event: move.event,
+            },
+            _workflows: runs,
+          },
+          { headers: etagHeader(stored) }
+        );
+      });
+    } catch (error) {
+      if (!(error instanceof SagaFailure)) throw error;
+      // The rollback took the failed run with it; put it back for Run History.
+      await recordFailedSaga(db, entity, current, error, user);
       return json(
-        { statusCode: 422, message: "A business rule refused this move", violations: outcome.violations },
+        {
+          statusCode: 422,
+          message: `"${move.label}" did not go through: ${error.message}. The record is still "${from}".`,
+          error: "Unprocessable Entity",
+          details: {
+            code: "WORKFLOW_FAILED",
+            entity: entity.tableName,
+            id: params.id,
+            from,
+            to: move.to,
+            workflow: error.workflow,
+            reason: error.reason,
+            ...(savedFirst ? { phase: "workflow", saved: true, version: Number(current.version ?? 0) } : {}),
+          },
+        },
         { status: 422 }
       );
     }
-
-    const updated = await db.update(entity.tableName, values, {
-      id: params.id,
-      version: current.version ?? null,
-    });
-    if (!updated) {
-      const latest = await db.one(`SELECT version FROM ${ident(entity.tableName)} WHERE id = $1`, [params.id]);
-      return versionConflict(entity, params.id, expectedVersion, Number(latest?.version ?? 0));
-    }
-    await recordWorkflowRun(db, model, entity, current, updated, user);
-    const runs = await runTriggeredSagas(db, model, entity, updated, "UPDATE", outcome.notifications, user);
-    const stored = runs.length
-      ? (await db.one(`SELECT * FROM ${ident(entity.tableName)} WHERE id = $1`, [params.id])) ?? updated
-      : updated;
-    await recordAudit(db, {
-      user,
-      action: "UPDATE",
-      entityType: entity.tableName,
-      entityId: params.id,
-      before: current,
-      after: stored,
-    });
-    return json(
-      {
-        ...stored,
-        lifecycle: {
-          column: lifecycle.column,
-          from,
-          to: move.to,
-          phase: phaseOf(lifecycle, move.to),
-          event: move.event,
-        },
-        _workflows: runs,
-      },
-      { headers: etagHeader(stored) }
-    );
   });
 
   return router;
 }
 
 /** Whether this person may update the table — the fallback for a move nobody restricted. */
+/** The same refusal, with `details.phase` (and any extra) added; status and body otherwise kept. */
+async function withPhase(response, phase, extra = {}) {
+  let body;
+  try {
+    body = await response.clone().json();
+  } catch {
+    return response;
+  }
+  return json({ ...body, details: { ...(body.details ?? {}), ...extra, phase } }, { status: response.status });
+}
+
 async function updateAllowed(db, user, tableName) {
   try {
     await checkOperationAccess(db, user, tableName, "update");

@@ -627,6 +627,8 @@ details.group > summary.group__name { cursor: pointer; }
 .side__actions { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
 .side__actions .side__meta { flex-basis: 100%; margin: 0; }
 .side__empty { margin: 0; font-size: 12.5px; color: var(--text-faint); }
+.side__notice { margin: 0 0 11px; padding: 8px 10px; border: 1px solid #f0c36d; border-radius: 6px; background: #fff7e0; color: #5c4200; font-size: 12.5px; }
+.side__notice p { margin: 4px 0 0; }
 .side__list { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font-size: 12.5px; }
 .side__list dt { color: var(--text-faint); }
 .side__list dd { margin: 0; font-family: var(--mono); font-size: 11.5px; }
