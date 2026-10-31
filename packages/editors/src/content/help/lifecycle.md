@@ -73,3 +73,23 @@ The line under the title (*"1 thing to fix before publishing"*) counts
 problems, and each problem is repeated on the card it belongs to. The most
 common is an unnamed handler. Every problem must be fixed before the process
 compiles into working code.
+
+## Started by a hook and a status
+
+A workflow can be started by a hook **and a status together**. Under
+**When the status becomes**, choose the state of the record's status flow the
+workflow is for; with none chosen it runs on every update, as before.
+
+A button press is then **two transactions**. The first saves the form, with the
+record still in its current status. The second runs the workflows bound to the
+status the button moves to, and moves the record only if every one succeeds. If a
+step fails, the second transaction is undone: what you typed stays saved, the
+status does not move, and the reason is shown on the record and in Run History.
+Press the button again once it is fixed.
+
+A record type with no status flow has two statuses, Draft and Final, so there is
+nothing to choose: the picker shows **Final** and is disabled. Its button saves
+the record; another transaction then runs the workflow and moves it to Final.
+
+Only before-update and after-update steps can be bound to a status, because a
+move is an update.

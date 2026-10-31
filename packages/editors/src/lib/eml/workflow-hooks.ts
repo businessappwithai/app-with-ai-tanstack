@@ -10,6 +10,7 @@
  */
 
 import { type AutomationHook, type HookEvent, newHook } from "../automation/model";
+import type { StateFlow } from "./workflow-flow";
 
 /**
  * The hooks a rule can be judged at. The generated application reads a rule's
@@ -195,4 +196,68 @@ export function rulesAvailableFor<R extends AttachableRule>(
   same: SameMoment = sameEvent
 ): R[] {
   return rules.filter((rule) => rule.entity === entity && !same(rule.event, event));
+}
+
+/* -------------------------------------------------------------------------- */
+/*  A hook and a status together                                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The hooks a status can be bound to. A move is an update of the record, so a
+ * create, delete or read has no status to enter.
+ */
+export const STATUS_HOOKS = ["beforeUpdate", "afterUpdate"] as const satisfies readonly HookEvent[];
+
+export function canBindStatus(event: string): boolean {
+  return (STATUS_HOOKS as readonly string[]).includes(event);
+}
+
+/** `To Be Reviewed`, `to-be-reviewed` and `to_be_reviewed` name one state. */
+export function stateToken(name: string): string {
+  return name.trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
+/**
+ * How a workflow is stored when it is bound to a state: the generated
+ * application's workflow runner selects by this exact (upper-cased) operation
+ * when a button moves a record into the state.
+ */
+export function statusOperation(status: string): string {
+  return `ENTER:${stateToken(status).toUpperCase()}`;
+}
+
+/** The state a stored `ENTER:<STATE>` operation names, in the machine's own spelling. */
+export function statusFromOperation(operation: string | undefined): string | undefined {
+  const match = operation?.match(/^ENTER:(.+)$/i);
+  return match?.[1] ? stateToken(match[1]) : undefined;
+}
+
+/**
+ * What an entity can be bound to. With a status machine, the states some arrow
+ * enters. Without one the entity has Draft and Final only: its update workflows
+ * already run in the second transaction on the way to Final, so there is
+ * nothing to choose.
+ */
+export type StatusChoices =
+  | { kind: "machine"; states: Array<{ value: string; label: string }> }
+  | { kind: "default" };
+
+export function statusChoicesFor(
+  entity: string,
+  workflows: ReadonlyArray<{ entity: string; kind: string; states: StateFlow }>
+): StatusChoices {
+  const machines = workflows.filter((w) => w.kind === "state" && w.entity === entity);
+  if (machines.length === 0) return { kind: "default" };
+  const seen = new Set<string>();
+  const states: Array<{ value: string; label: string }> = [];
+  for (const machine of machines) {
+    for (const transition of machine.states.transitions) {
+      const value = stateToken(transition.to);
+      if (!value || seen.has(value)) continue;
+      seen.add(value);
+      const named = machine.states.states.find((state) => state.id === transition.to);
+      states.push({ value, label: named?.name || transition.to });
+    }
+  }
+  return { kind: "machine", states };
 }

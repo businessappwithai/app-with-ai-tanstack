@@ -85,3 +85,15 @@ stateDiagram-v2
 `[*] -->` marks where records start and `--> [*]` marks an end state. Each
 `%%rbac` line gives a move to its roles; an arrow with no trigger is named
 `from->to` (`issued->paid`).
+
+## Buttons and what runs behind them
+
+A record's buttons are named after the status they move to: an arrow
+`draft --> to_be_reviewed : submit` gives a button called **To be reviewed**. The
+word after the colon is still the move's name for `%%rbac` and the history.
+
+Pressing a button saves the form first, then runs the workflows bound to the
+status it moves to in a second transaction (see *Started by a hook and a status*
+in the lifecycle and process help). The list **Runs when a state is entered**
+under the diagram shows which workflows those are; you choose them on the
+workflow, not here.

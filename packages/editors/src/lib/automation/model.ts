@@ -400,6 +400,14 @@ export interface Automation {
    */
   sagaTrigger?: SagaTrigger;
   sagaOperation?: SagaOperation;
+  /**
+   * The state of the entity's status machine this workflow is bound to, for a
+   * hook or saga workflow: it runs in the second transaction of the button
+   * press that moves the record into that state, not on an ordinary save.
+   * Unset means it runs on every matching write, as before. Named for what it
+   * binds to — `status` below is this automation's own publication state.
+   */
+  onStatus?: string;
   status: AutomationStatus;
   updatedAt?: string;
 }
@@ -650,6 +658,12 @@ export function validateAutomation(automation: Automation): Problem[] {
     }
     const seen = new Set<string>();
     for (const hook of automation.hooks) {
+      if (automation.onStatus && !/update/i.test(hook.event)) {
+        problems.push({
+          target: hook.id,
+          message: `${hook.event} cannot be bound to a status: a move is an update, so only before-update and after-update steps can.`,
+        });
+      }
       if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(hook.handler)) {
         problems.push({
           target: hook.id,
@@ -1080,8 +1094,9 @@ export function serializeAutomation(a: Automation, options: SerializeOptions = {
     const trigger = a.sagaTrigger === "rule" ? " trigger: rule" : "";
     const operation =
       a.sagaOperation && a.sagaOperation !== "CREATE" ? ` operation: ${a.sagaOperation}` : "";
+    const onStatus = a.onStatus ? ` status: ${a.onStatus}` : "";
     lines.push(
-      `%%workflow ${pascalName(a.name)} entity: ${a.trigger.entity} kind: saga${trigger}${operation}`
+      `%%workflow ${pascalName(a.name)} entity: ${a.trigger.entity} kind: saga${trigger}${operation}${onStatus}`
     );
   } else {
     lines.push(`%%workflow name: ${a.name}`);
@@ -1321,6 +1336,8 @@ export function parseAutomation(source: string, fallbackEntity = "Record"): Auto
             ? operation
             : "CREATE";
       }
+      const bound = rest.match(/\bstatus:\s*(\S+)/)?.[1];
+      if (bound) a.onStatus = bound;
       continue;
     }
 

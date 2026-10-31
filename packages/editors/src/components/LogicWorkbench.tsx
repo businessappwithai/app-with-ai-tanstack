@@ -17,7 +17,7 @@ import { emptyDecisionTable } from "../lib/eml/decision-table";
 import type { RuleDryRun } from "../lib/eml/dry-run-types";
 import type { RuleConstraints } from "../lib/eml/rule-constraints";
 import { sectionProblems } from "../lib/eml/section-problems";
-import { hookFor } from "../lib/eml/workflow-hooks";
+import { hookFor, statusChoicesFor } from "../lib/eml/workflow-hooks";
 import { newEditorKey } from "../lib/eml/workflow-model";
 import { AutomationBuilder, type RuleTableSummary } from "./automation/AutomationBuilder";
 import { type NewWorkflowDraft, NewWorkflowPanel } from "./eml/NewWorkflowPanel";
@@ -110,6 +110,21 @@ const workflowSlug = (w: EditableWorkflow) =>
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
+
+/** The workflows bound to each state of one status machine, by state. */
+function boundWorkflowsFor(
+  machine: EditableWorkflow,
+  workflows: readonly EditableWorkflow[]
+): Record<string, string[]> {
+  const bound: Record<string, string[]> = {};
+  if (machine.kind !== "state") return bound;
+  for (const workflow of workflows) {
+    const status = workflow.automation?.onStatus;
+    if (workflow.kind === "state" || !status || workflow.entity !== machine.entity) continue;
+    (bound[status] ??= []).push(workflow.title ?? workflow.name);
+  }
+  return bound;
+}
 
 export function LogicWorkbench({
   loading,
@@ -302,6 +317,7 @@ export function LogicWorkbench({
       ...emptyAutomation(draft.entity, "hook"),
       name: draft.name,
       hooks: [hookFor(draft.entity, draft.event)],
+      ...(draft.status ? { onStatus: draft.status } : {}),
     };
     const newWorkflow = {
       ...base,
@@ -591,6 +607,7 @@ export function LogicWorkbench({
               <NewWorkflowPanel
                 key="new-workflow"
                 entityNames={entityNames}
+                statusChoicesFor={(entity) => statusChoicesFor(entity, workflows)}
                 onCreate={createWorkflow}
                 onCancel={workflows.length ? () => setCreating(false) : undefined}
               />
@@ -634,6 +651,7 @@ export function LogicWorkbench({
                             })
                           }
                           entities={entityNames}
+                          statusChoices={statusChoicesFor(activeWorkflow.entity, workflows)}
                           entityFields={entityFieldMap}
                           ruleTables={ruleTables}
                           onOpenRuleTable={(name) => {
@@ -658,6 +676,7 @@ export function LogicWorkbench({
                     <WorkflowEditor
                       key={activeWorkflow.key}
                       workflow={activeWorkflow}
+                      boundWorkflows={boundWorkflowsFor(activeWorkflow, workflows)}
                       entityNames={entityNames}
                       ruleNames={ruleNames}
                       columnsFor={columnsFor}

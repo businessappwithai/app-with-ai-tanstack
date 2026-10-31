@@ -76,6 +76,15 @@ describe("the process page", () => {
   });
 });
 
+describe("a workflow bound to a status", () => {
+  it("is explained where a workflow is started", () => {
+    for (const file of ["lifecycle.md", "process.md"]) {
+      expect(missingFrom(page(file), ["When the status becomes", "two transactions"])).toEqual([]);
+    }
+    expect(missingFrom(page("status.md"), ["Runs when a state is entered"])).toEqual([]);
+  });
+});
+
 describe("every page", () => {
   it("is shipped and has a title", () => {
     for (const file of [
