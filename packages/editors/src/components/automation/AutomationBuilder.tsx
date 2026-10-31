@@ -42,6 +42,7 @@ import {
   validateAutomation,
   valuesAvailableAt,
 } from "../../lib/automation/model";
+import type { StatusChoices } from "../../lib/eml/workflow-hooks";
 import { cn } from "../../lib/utils";
 import { LadderCard, LadderRung, LoopFrame, Token } from "./LadderCard";
 import {
@@ -68,10 +69,17 @@ function TriggerInspector({
    */
   hookMode = false,
   saga,
+  status,
 }: {
   trigger: Trigger;
   entities: string[];
   hookMode?: boolean;
+  /** Bind the workflow to a move; drawn only for a start an update makes. */
+  status?: {
+    value: string | undefined;
+    choices: StatusChoices;
+    onChange: (next: string | undefined) => void;
+  };
   /** Present for a saga, whose start is a rule or an operation, not an event. */
   saga?: {
     sagaTrigger: SagaTrigger;
@@ -179,6 +187,8 @@ function TriggerInspector({
             ) : null}
           </>
         ) : null}
+
+        {status ? <StatusPicker {...status} entity={trigger.entity} inputClass={inputClass} /> : null}
 
         {hookMode || saga ? null : (
           <label className="mb-3.5 block">
@@ -331,6 +341,11 @@ export interface AutomationBuilderProps {
   automation: Automation;
   onChange: (next: Automation) => void;
   entities: string[];
+  /**
+   * What the record type can be bound to. Omitted means the host has no status
+   * flows to offer, and the "When the status becomes" picker is not drawn.
+   */
+  statusChoices?: StatusChoices;
   /** Field names per entity, used to offer real references rather than free text. */
   entityFields?: Record<string, string[]>;
   ruleTables?: RuleTableSummary[];
@@ -355,6 +370,7 @@ export function AutomationBuilder({
   automation,
   onChange,
   entities,
+  statusChoices,
   entityFields = {},
   ruleTables = [],
   runResults = {},
@@ -659,6 +675,18 @@ export function AutomationBuilder({
         <div className="mt-4 flex w-full max-w-[604px] flex-col items-center">
           {automation.kind === "hook" ? (
             <>
+              {statusChoices ? (
+                <div className="mb-3 w-full rounded-xl border border-border bg-card p-3">
+                  <StatusPicker
+                    value={automation.onStatus}
+                    choices={statusChoices}
+                    entity={automation.trigger.entity}
+                    onChange={(onStatus) => onChange({ ...automation, onStatus })}
+                    inputClass="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/10"
+                  />
+                </div>
+              ) : null}
+
               {/* Every rung is its own trigger, so each one is a "when" card.
                   The order is the order the backend runs them in. */}
               {automation.hooks.map((hook, index) => (
@@ -716,6 +744,7 @@ export function AutomationBuilder({
                           }
                         : undefined
                     }
+                    onStatus={automation.onStatus}
                   />
                 }
                 selected={selection?.kind === "trigger"}
@@ -781,6 +810,18 @@ export function AutomationBuilder({
                       sagaTrigger: automation.sagaTrigger ?? "rule",
                       sagaOperation: automation.sagaOperation ?? "CREATE",
                       onChange: (next) => onChange({ ...automation, ...next }),
+                    }
+                  : undefined
+              }
+              status={
+                statusChoices &&
+                automation.kind === "saga" &&
+                automation.sagaTrigger === "automatic" &&
+                automation.sagaOperation === "UPDATE"
+                  ? {
+                      value: automation.onStatus,
+                      choices: statusChoices,
+                      onChange: (onStatus) => onChange({ ...automation, onStatus }),
                     }
                   : undefined
               }
@@ -1019,8 +1060,11 @@ function EmptyInspector() {
 function TriggerTitle({
   trigger,
   saga,
+  onStatus,
 }: {
   trigger: Trigger;
+  /** The state whose entering move starts it, when bound to one. */
+  onStatus?: string;
   /** A saga starts from a rule or an operation, never from `trigger.event`. */
   saga?: { sagaTrigger: SagaTrigger; sagaOperation: SagaOperation };
 }) {
@@ -1040,6 +1084,12 @@ function TriggerTitle({
     ) : (
       <>
         {article} <Token>{trigger.entity}</Token> {SAGA_OPERATION_TITLES[saga.sagaOperation]}
+        {onStatus ? (
+          <>
+            {" "}
+            and its status becomes <Token>{onStatus.replace(/_/g, " ")}</Token>
+          </>
+        ) : null}
       </>
     );
   }
@@ -1048,6 +1098,57 @@ function TriggerTitle({
     <>
       {article} <Token>{trigger.entity}</Token> {TRIGGER_LABELS[trigger.event]}
     </>
+  );
+}
+
+/**
+ * "When the status becomes": bind a workflow to the move into a state. The
+ * button first saves the form in its current status; this workflow then runs in
+ * a second transaction, and the status moves only if it succeeds.
+ */
+function StatusPicker({
+  value,
+  choices,
+  entity,
+  onChange,
+  inputClass,
+}: {
+  value: string | undefined;
+  choices: StatusChoices;
+  entity: string;
+  onChange: (next: string | undefined) => void;
+  inputClass: string;
+}) {
+  return (
+    <label className="mb-3.5 block">
+      <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+        When the status becomes
+      </span>
+      {choices.kind === "machine" ? (
+        <select
+          aria-label="Status"
+          className={inputClass}
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value || undefined)}
+        >
+          <option value="">Any update (no status)</option>
+          {choices.states.map((state) => (
+            <option key={state.value} value={state.value}>
+              {state.label}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <select aria-label="Status" disabled className={`${inputClass} opacity-70`} value="final">
+          <option value="final">Final</option>
+        </select>
+      )}
+      <p className="mt-1.5 text-[11.5px] leading-snug text-muted-foreground">
+        {choices.kind === "machine"
+          ? "The button saves the form first, in its current status. This workflow then runs in another transaction and, if it succeeds, the status moves on. If a step fails the move is undone and the record stays where it was."
+          : `${entity || "This record"} has no status flow, so it has two statuses, Draft and Final. The button saves it; another transaction then runs this workflow and moves the status to Final.`}
+      </p>
+    </label>
   );
 }
 

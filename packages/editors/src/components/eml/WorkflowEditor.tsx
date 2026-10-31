@@ -122,6 +122,12 @@ export interface WorkflowEditorProps {
   ruleNames: string[];
   columnsFor: (entity: string) => string[];
   onChange: (patch: Partial<EditableWorkflow>) => void;
+  /**
+   * For a status machine: the workflows bound to each state, keyed by the
+   * state's name in the machine's own spelling. Shown read-only, because what
+   * runs on entering a state is chosen on the workflow, not here.
+   */
+  boundWorkflows?: Record<string, string[]>;
 }
 
 export function WorkflowEditor({
@@ -130,6 +136,7 @@ export function WorkflowEditor({
   ruleNames,
   columnsFor,
   onChange,
+  boundWorkflows,
 }: WorkflowEditorProps) {
   const [showSource, setShowSource] = useState(false);
   const [selectedHookId, setSelectedHookId] = useState<string | null>(
@@ -319,6 +326,27 @@ export function WorkflowEditor({
         </div>
       )}
 
+      {workflow.kind === "state" && boundWorkflows && Object.keys(boundWorkflows).length > 0 && (
+        <section
+          aria-label="Runs when a state is entered"
+          className="mt-3 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs"
+        >
+          <h4 className="mb-1 font-semibold">Runs when a state is entered</h4>
+          <ul className="space-y-0.5">
+            {Object.entries(boundWorkflows).map(([state, names]) => (
+              <li key={state}>
+                <span className="font-medium">{state.replace(/_/g, " ")}</span>
+                <span className="text-muted-foreground"> — {names.join(", ")}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1 text-muted-foreground">
+            The button saves the form, then these run in another transaction. The status moves only
+            if they all succeed.
+          </p>
+        </section>
+      )}
+
       {problems.length > 0 && (
         <ul className="mt-3 space-y-1 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           {problems.map((problem) => (
@@ -350,6 +378,10 @@ export function WorkflowEditor({
                     ? ` operation: ${workflow.saga.operation}`
                     : ""
                 }`
+              : ""
+          }${
+            workflow.kind !== "state" && workflow.automation?.onStatus
+              ? ` status: ${workflow.automation.onStatus}`
               : ""
           }\n${
             workflow.kind === "hook"

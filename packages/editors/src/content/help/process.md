@@ -144,3 +144,22 @@ but it does not do what it says until they are fixed.
 6. **Call a web service**: `POST` to your finance system with
    `{"invoice":"{{feeinvoice.id}}"}`.
 7. **Save**.
+
+## Started by a hook and a status
+
+A workflow can be started by a hook **and a status together**. Under
+**When the status becomes**, choose the state of the record's status flow the
+workflow is for; with none chosen it runs on every update, as before.
+
+A button press is then **two transactions**. The first saves the form, with the
+record still in its current status. The second runs the workflows bound to the
+status the button moves to, and moves the record only if every one succeeds. If a
+step fails, the second transaction is undone: what you typed stays saved, the
+status does not move, and the reason is shown on the record and in Run History.
+Press the button again once it is fixed.
+
+A record type with no status flow has two statuses, Draft and Final, so there is
+nothing to choose: the picker shows **Final** and is disabled. Its button saves
+the record; another transaction then runs the workflow and moves it to Final.
+
+A process bound to a status starts on **Updated** with its lifecycle trigger.

@@ -25,6 +25,8 @@ export interface StoredWorkflow {
   kind: string;
   trigger?: "automatic" | "rule";
   operation?: "CREATE" | "UPDATE" | "DELETE" | "ALL";
+  /** Hook and saga only: the state whose entering move runs this workflow. */
+  status?: string;
   title?: string;
   diagram: string;
 }
@@ -57,6 +59,9 @@ export function toEditableWorkflow(workflow: StoredWorkflow): EditableWorkflow {
             kind: kind as "hook" | "saga",
             name: workflow.title ?? workflow.name,
             trigger: { ...parsed.trigger, entity: workflow.entity },
+            // Carried beside the diagram for a hook (its directive is composed, not drawn)
+            // and inside it for a saga; either way one value reaches the editor.
+            onStatus: workflow.status ?? parsed.onStatus,
             // For a saga these ride on the %%workflow directive, so they reach us beside
             // the diagram rather than inside it. Absent means automatic: the composer only
             // ever writes the token for `rule`.
@@ -84,6 +89,9 @@ export function workflowForSave(workflow: EditableWorkflow): StoredWorkflow {
     entity: workflow.entity,
     kind: workflow.kind,
     title: workflow.title,
+    ...(workflow.kind !== "state" && workflow.automation?.onStatus
+      ? { status: workflow.automation.onStatus }
+      : {}),
     ...(workflow.kind === "saga"
       ? {
           trigger: workflow.automation?.sagaTrigger ?? workflow.saga.trigger,
