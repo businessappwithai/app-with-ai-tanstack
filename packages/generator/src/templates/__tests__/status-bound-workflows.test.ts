@@ -74,6 +74,50 @@ describe("a status-bound saga in a generated backend", () => {
   });
 });
 
+describe("a press is two transactions", () => {
+  it("saves the form first, as the form's own PATCH does, then moves the record", () => {
+    const controller = read("backend/src/modules/bus/bus.controller.ts");
+    expect(controller).toContain("private async saveBeforeMove(");
+    expect(controller).toContain("validateData(entity, data, 'patch')");
+    // The move is told the form was just saved, so the record's update workflows are not run twice.
+    expect(controller).toContain("afterSave");
+    expect(read("backend/src/modules/bus/transition.service.ts")).toContain(
+      "request.afterSave ? undefined : ('update' as const)"
+    );
+  });
+
+  it("says which half refused, and that the save stands", () => {
+    const controller = read("backend/src/modules/bus/bus.controller.ts");
+    expect(controller).toContain("this.inPhase('save'");
+    expect(controller).toContain("'workflow', { version, saved: true }");
+  });
+
+  it("puts the failed run and the reason back after the rollback took them", () => {
+    const transition = read("backend/src/modules/bus/transition.service.ts");
+    expect(transition).toContain("recordFailedRun(tableName, id, failure)");
+    expect(transition).toContain("doc_status_message");
+    expect(read("backend/src/modules/workflow/workflow.service.ts")).toContain("class WorkflowRunError");
+  });
+
+  it("leaves a record a draft when a workflow fails, and sends a refusing rule to Error", () => {
+    const promotion = read("backend/src/modules/bus/entity-promotion.service.ts");
+    expect(promotion).toContain("err instanceof WorkflowRunError");
+    expect(promotion).toContain("markDraft(");
+    expect(promotion).toContain("markError(");
+  });
+
+  it("is driven by a generated suite", () => {
+    const generator = readFileSync(
+      join(import.meta.dirname, "../../generators/tests/bun-e2e.generator.ts"),
+      "utf8"
+    );
+    expect(generator).toContain('"06c-status-bound-workflow.test.ts"');
+    expect(readFileSync(join(TEMPLATES, "tests/suites/06c-status-bound-workflow.test.ts.hbs"), "utf8")).toContain(
+      "ENTER:"
+    );
+  });
+});
+
 describe("the host stores a binding as the operation the runner selects", () => {
   const host = readFileSync(join(TEMPLATES, "frontend/src/lib/logic-host.ts"), "utf8");
 
@@ -84,6 +128,21 @@ describe("the host stores a binding as the operation the runner selects", () => 
 
   it("saves a status flow before the workflows bound to its states", () => {
     expect(host).toContain("flowsFirst");
+  });
+});
+
+describe("the record form shows what a press came to", () => {
+  const actions = readFileSync(join(TEMPLATES, "frontend/src/components/admin/record-actions.tsx"), "utf8");
+
+  it("sends the unsaved form with the press and keeps a refusal on the record", () => {
+    expect(actions).toContain("data: unsaved");
+    expect(actions).toContain('data-testid="press-refused"');
+    expect(actions).toContain("Your changes were saved. ");
+    expect(actions).toContain("The status did not change.");
+  });
+
+  it("links a refusal to Run History", () => {
+    expect(actions).toContain('to="/admin/workflows"');
   });
 });
 

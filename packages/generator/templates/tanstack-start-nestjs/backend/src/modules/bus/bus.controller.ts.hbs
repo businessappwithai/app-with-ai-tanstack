@@ -372,6 +372,14 @@ export class BusController {
   /**
    * Press a move: `{ "event": "close_won" }` or `{ "to": "closed_won" }`, with
    * the version the record was read at as If-Match (428 without it).
+   *
+   * With `data` — the form as it stands — the press is two transactions. The
+   * first saves the form, the record staying in its current status. The second
+   * is the move: it runs the workflows bound to the status it reaches and moves
+   * the record only if every one succeeds. A failure in the second undoes only
+   * the move: what was typed stays saved, the status stays where it was, and the
+   * refusal says so (`details.phase: "workflow"`, the new `details.version`). A
+   * refusal in the first saves nothing (`details.phase: "save"`).
    * POST /bus/:entity/:id/transition
    */
   @Post(':entity/:id/transition')
@@ -387,12 +395,19 @@ export class BusController {
   async transition(
     @Param('entity') entity: string,
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() body: { event?: string; to?: string; assignTo?: string | null; assignRole?: string | null },
+    @Body()
+    body: {
+      event?: string;
+      to?: string;
+      assignTo?: string | null;
+      assignRole?: string | null;
+      data?: Record<string, any>;
+    },
     @Headers('if-match') ifMatch?: string,
     @Req() req?: any,
     @Res({ passthrough: true }) reply?: any,
   ) {
-    const version = parseIfMatch(ifMatch);
+    let version = parseIfMatch(ifMatch);
     if (version === undefined) {
       // A move made against a version nobody read could undo what someone else
       // just did; the button always knows which version it was drawn for.
@@ -408,14 +423,65 @@ export class BusController {
     if (!body?.event && !body?.to) {
       throw new BadRequestException('Name the move: { "event": … } or { "to": … }.');
     }
-    const result = await this.transitions.move(
-      entity,
-      id,
-      { event: body.event, to: body.to, version, assignTo: body.assignTo, assignRole: body.assignRole },
-      { id: req?.user?.id ?? null, name: req?.user?.name ?? null, capabilities: req?.capabilities },
-    );
+    // Transaction one: save the form, in the status the record is in. It commits
+    // before the move starts, so a failing workflow cannot take it back.
+    let afterSave = false;
+    if (body.data && Object.keys(body.data).length > 0) {
+      const saved = await this.inPhase('save', () =>
+        this.saveBeforeMove(entity, id, body.data!, version!),
+      );
+      version = Number(saved.version);
+      afterSave = true;
+    }
+
+    // Transaction two: the move and the workflows bound to the status it reaches.
+    let result;
+    try {
+      result = await this.transitions.move(
+        entity,
+        id,
+        { event: body.event, to: body.to, version, assignTo: body.assignTo, assignRole: body.assignRole, afterSave },
+        { id: req?.user?.id ?? null, name: req?.user?.name ?? null, capabilities: req?.capabilities },
+      );
+    } catch (error) {
+      // The save stands. Say so, with the version it left, so the form can carry on.
+      if (afterSave) throw this.withPhase(error, 'workflow', { version, saved: true });
+      throw error;
+    }
     setEtag(reply, result.record);
     return { ...result.record, lifecycle: result.lifecycle, ranWorkflows: result.ranWorkflows };
+  }
+
+  /**
+   * The first transaction of a press: validate and save the form, as the form's own
+   * save does (a PATCH — the values it holds, not a full replacement).
+   */
+  private async saveBeforeMove(entity: string, id: string, data: Record<string, any>, version: number) {
+    await this.busService.validateData(entity, data, 'patch');
+    return this.busService.update(entity, id, data, version);
+  }
+
+  /** Run `work`; a refusal it throws says which half of the press it came from. */
+  private async inPhase<T>(phase: 'save' | 'workflow', work: () => Promise<T>): Promise<T> {
+    try {
+      return await work();
+    } catch (error) {
+      throw this.withPhase(error, phase);
+    }
+  }
+
+  /**
+   * The same refusal, with `details.phase` added. The status code and every field
+   * it already carried are kept; only an HTTP refusal is rewritten.
+   */
+  private withPhase(error: unknown, phase: 'save' | 'workflow', extra: Record<string, unknown> = {}) {
+    if (!(error instanceof HttpException)) return error;
+    const response = error.getResponse();
+    const body = typeof response === 'string' ? { message: response } : (response as Record<string, any>);
+    return new HttpException(
+      { ...body, details: { ...(body.details ?? {}), ...extra, phase } },
+      error.getStatus(),
+    );
   }
 
   @Post(':entity/:id/promote')

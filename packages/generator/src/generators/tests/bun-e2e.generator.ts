@@ -146,6 +146,7 @@ const SHARED_SUITES = [
   // The state machine, driven edge by edge — after the rule-triggered
   // workflows, because both write to the same status fields.
   "06b-workflow-transitions.test.ts",
+  "06c-status-bound-workflow.test.ts",
   "07-workflow-random.test.ts",
   "08-users-roles.test.ts",
   "09-workflow-multistep.test.ts",

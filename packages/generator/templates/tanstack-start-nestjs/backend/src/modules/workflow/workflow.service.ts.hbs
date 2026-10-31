@@ -29,6 +29,23 @@ export interface TriggerWorkflowDto {
   userId: string;
 }
 
+/**
+ * A workflow that failed while its caller owns the transaction. The caller rolls
+ * back, so the run row it wrote dies with the rollback; carrying the workflow and
+ * the reason lets the caller put the failure back afterwards (recordFailedRun),
+ * and show a person which workflow it was.
+ */
+export class WorkflowRunError extends Error {
+  constructor(
+    readonly workflow: string,
+    readonly reason: string,
+    readonly operation: string,
+  ) {
+    super(`Workflow "${workflow}" failed: ${reason}`);
+    this.name = 'WorkflowRunError';
+  }
+}
+
 export interface WorkflowRunOptions {
   /** Run every write on this connection. Pass a transaction to make the run atomic. */
   db?: Kysely<any>;
@@ -240,7 +257,7 @@ export class WorkflowService {
         if (options.throwOnError) {
           // The caller owns a transaction: let it roll back rather than recording a
           // half-applied run. The run row dies with the rollback too.
-          throw new Error(`Workflow "${def.name}" failed: ${err?.message ?? err}`);
+          throw new WorkflowRunError(def.name, err?.message ?? String(err), operation.toUpperCase());
         }
         if (runId) {
           await db
@@ -256,6 +273,36 @@ export class WorkflowService {
             .catch(() => {});
         }
       }
+    }
+  }
+
+  /**
+   * Put a failed run back after the transaction that held it rolled back: the
+   * rollback took the run row with it, so Run History would show nothing for a
+   * press that was refused. Written on its own connection, never throws.
+   */
+  async recordFailedRun(
+    entityName: string,
+    entityId: string,
+    failure: Pick<WorkflowRunError, 'workflow' | 'reason' | 'operation'>,
+  ): Promise<void> {
+    const normalized = entityName.toLowerCase().replace(/^bus_/, '');
+    try {
+      await this.db
+        .insertInto('sys_workflow_runs')
+        .values({
+          entity_name: entityName.startsWith('bus_') ? entityName : `bus_${normalized}`,
+          entity_id: entityId,
+          workflow_name: failure.workflow,
+          operation: failure.operation,
+          status: 'error',
+          error_details: failure.reason,
+          completed_at: new Date(),
+          created_by: 'system',
+        } as any)
+        .execute();
+    } catch (err: any) {
+      this.logger.warn(`Could not record the failed run of "${failure.workflow}": ${err?.message}`);
     }
   }
 

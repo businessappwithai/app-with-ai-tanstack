@@ -1042,7 +1042,13 @@ export function ADDetailShell({
                 endpoint={level.endpoint}
                 tableName={tableName}
                 record={currentRecord as Record<string, unknown> | null}
-                disabled={isEditing && hasChanges}
+                disabled={saveMutation.isPending}
+                formValues={isEditing && hasChanges ? formData : null}
+                onSaved={() => {
+                  // The press saved the form: it is the record now, at its new version.
+                  setHasChanges(false);
+                  setEditBase(null);
+                }}
                 onMoved={onMoved}
               />
               <WindowHelpButton

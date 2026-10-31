@@ -18574,6 +18574,7 @@ var SHARED_SUITES = [
   "04-bulk-seed.test.ts",
   "06-rules-workflow.test.ts",
   "06b-workflow-transitions.test.ts",
+  "06c-status-bound-workflow.test.ts",
   "07-workflow-random.test.ts",
   "08-users-roles.test.ts",
   "09-workflow-multistep.test.ts",
