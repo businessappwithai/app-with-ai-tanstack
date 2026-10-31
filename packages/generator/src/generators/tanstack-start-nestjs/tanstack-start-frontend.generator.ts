@@ -1180,6 +1180,15 @@ export class TanStackStartFrontendGenerator extends BaseGenerator {
       console.warn("Admin system configuration page template not found");
     }
 
+    // Access controls page (admin/access-controls.tsx). Lets administrators
+    // grant/revoke CRUD operations per role and entity from the dashboard.
+    try {
+      const accessControlsContent = await this.component("src/routes/admin/access-controls.tsx");
+      await fs.writeFile(path.join(adminDir, "access-controls.tsx"), accessControlsContent);
+    } catch (_e) {
+      console.warn("Admin access controls page template not found");
+    }
+
     // Recursively copy admin subdirectories (table/$tableId/, window/$windowId/, etc.)
     const adminSubdirs = [
       { src: "src/routes/admin/table", dest: "src/routes/admin/table" },

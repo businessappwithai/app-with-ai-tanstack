@@ -1999,4 +1999,108 @@ export class SysService {
       .execute();
     return { success: true };
   }
+
+  // ============================================================================
+  // Access Grants (sys_access_grant) — role × entity × operation matrix
+  // ============================================================================
+
+  async findAllAccessGrants(opts: { roleId?: string; tableName?: string } = {}) {
+    let query = (this.db.kysely as any)
+      .selectFrom('sys_access_grant as g')
+      .leftJoin('sys_role as r', 'r.role_key', 'g.role_key')
+      .select([
+        'g.sys_access_grant_id',
+        'g.kind',
+        'g.table_name',
+        'g.action',
+        'g.status_field',
+        'g.from_state',
+        'g.to_state',
+        'g.role_name',
+        'g.role_key',
+        'g.is_active',
+        'r.sys_role_id',
+        'r.name as role_display_name',
+        'r.is_master_role',
+      ])
+      .where('g.is_active', '=', true)
+      .orderBy('g.table_name', 'asc')
+      .orderBy('g.role_name', 'asc');
+
+    if (opts.roleId) {
+      query = query.where('r.sys_role_id', '=', opts.roleId);
+    }
+    if (opts.tableName) {
+      query = query.where('g.table_name', '=', opts.tableName);
+    }
+
+    const grants = await query.execute();
+    return { data: grants };
+  }
+
+  async getAccessGrantsSummary() {
+    const [roleCount, grantCount] = await Promise.all([
+      (this.db.kysely as any)
+        .selectFrom('sys_role')
+        .select((eb: any) => eb.fn.countAll().as('count'))
+        .where('is_active', '=', true)
+        .executeTakeFirst(),
+      (this.db.kysely as any)
+        .selectFrom('sys_access_grant')
+        .select((eb: any) => eb.fn.countAll().as('count'))
+        .where('is_active', '=', true)
+        .where('kind', '=', 'op')
+        .executeTakeFirst(),
+    ]);
+    return {
+      roles: Number(roleCount?.count ?? 0),
+      grants: Number(grantCount?.count ?? 0),
+    };
+  }
+
+  async createAccessGrant(data: {
+    tableName: string;
+    action: string;
+    roleName: string;
+    kind?: string;
+    statusField?: string;
+    fromState?: string;
+    toState?: string;
+  }) {
+    const { v4: uuidv4 } = await import('uuid');
+    const row = {
+      sys_access_grant_id: uuidv4(),
+      kind: (data.kind ?? 'op') as any,
+      table_name: data.tableName,
+      action: data.action,
+      role_name: data.roleName,
+      status_field: data.statusField ?? '',
+      from_state: data.fromState ?? '',
+      to_state: data.toState ?? '',
+      entity_type: 'D',
+      is_active: true,
+      created_by: 'admin',
+      updated_by: 'admin',
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
+    await (this.db.kysely as any)
+      .insertInto('sys_access_grant')
+      .values(row)
+      .onConflict((oc: any) => oc.doNothing())
+      .execute();
+    // Notify all instances to drop their capability caches
+    await this.db.kysely.executeQuery({ sql: "select pg_notify('access_changed', 'sys_access_grant')", parameters: [] } as any).catch(() => {});
+    return { success: true, sys_access_grant_id: row.sys_access_grant_id };
+  }
+
+  async deleteAccessGrant(id: string) {
+    await (this.db.kysely as any)
+      .deleteFrom('sys_access_grant')
+      .where('sys_access_grant_id', '=', id)
+      .execute();
+    await this.db.kysely.executeQuery({ sql: "select pg_notify('access_changed', 'sys_access_grant')", parameters: [] } as any).catch(() => {});
+    return { success: true };
+  }
 }
+

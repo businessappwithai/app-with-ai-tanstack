@@ -80,6 +80,23 @@ export class BusController {
   }
 
   /**
+   * Serve the application manual as a dynamically generated HTML page.
+   * The manual is built from live application dictionary data (sys_table,
+   * sys_column, sys_field, sys_workflow_transitions, sys_rule_definitions,
+   * sys_access_grant) so it always reflects the current state of the DB.
+   * GET /bus/manual
+   */
+  @Get('manual')
+  @ApiOperation({ summary: 'Application manual as HTML, built from live dictionary data' })
+  @ApiResponse({ status: 200, description: 'Self-contained HTML manual' })
+  async manual(@Res() res: any) {
+    const html = await this.busService.renderManualHtml();
+    res.header('Content-Type', 'text/html; charset=utf-8');
+    res.header('Cache-Control', 'no-store');
+    res.send(html);
+  }
+
+  /**
    * List all records for a business entity
    * GET /bus/:entity
    */

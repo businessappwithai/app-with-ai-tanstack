@@ -1392,6 +1392,550 @@ export class BusService {
   }
 
   /**
+   * Build the application manual as self-contained HTML from live dictionary data.
+   *
+   * Queries sys_table, sys_column, sys_field, sys_field_group, sys_window, sys_tab,
+   * sys_workflow_transitions, sys_rule_definitions and sys_access_grant so the
+   * manual always reflects what the database actually contains rather than the
+   * model snapshot written at generation time.
+   *
+   * The CSS and page structure are identical to the static `renderManual()` used
+   * at generation time — only the data source changes.
+   */
+  async renderManualHtml(): Promise<string> {
+    const esc = (v: unknown) =>
+      String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    const slugify = (v: string) =>
+      String(v).replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    const titleFmt = (v: string) =>
+      String(v).replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+
+    const NOISE = new Set(['id', 'created_by', 'updated_by', 'deleted_by', 'deleted_at', 'version']);
+
+    const REF_NAMES: Record<number, string> = {
+      10: 'Text', 11: 'Whole number', 12: 'Amount', 13: 'Identifier',
+      14: 'Long text', 15: 'Date', 16: 'Date and time', 17: 'List',
+      18: 'Table reference', 19: 'Lookup', 20: 'Yes / No', 24: 'Web address',
+      28: 'JSON', 30: 'Password', 31: 'Email address', 32: 'Telephone',
+    };
+
+    // Baked in at generation time so the manual header names the application.
+    const appName = '{{project.name}}';
+    const appVersion = '{{project.version}}';
+    const appDescription = '{{project.description}}';
+    const generatedAt = new Date().toISOString();
+
+    // ── Load data ──────────────────────────────────────────────────────────
+    const tables = (await this.kysely
+      .selectFrom('sys_table as t')
+      .leftJoin('sys_window as w', 'w.sys_window_id', 't.sys_window_id')
+      .select([
+        't.sys_table_id', 't.table_name', 't.name as entity_name',
+        't.description as entity_desc', 'w.name as window_name',
+      ])
+      .where('t.is_active', '=', true)
+      .where('t.table_name', 'like', 'bus_%')
+      .orderBy('t.name', 'asc')
+      .execute()) as any[];
+
+    if (tables.length === 0) {
+      return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(appName)} &mdash; Manual</title></head><body><p style="font-family:sans-serif;padding:2rem">No entities found in the application dictionary.</p></body></html>`;
+    }
+
+    const tableIds = tables.map((t: any) => t.sys_table_id as string);
+    const tableNames = tables.map((t: any) => t.table_name as string);
+
+    const allColumns = (await this.kysely
+      .selectFrom('sys_column')
+      .selectAll()
+      .where('sys_table_id', 'in', tableIds)
+      .where('is_active', '=', true)
+      .orderBy('seq_no', 'asc')
+      .execute()) as any[];
+
+    const allTabs = (await this.kysely
+      .selectFrom('sys_tab')
+      .select(['sys_tab_id', 'sys_table_id', 'name'])
+      .where('sys_table_id', 'in', tableIds)
+      .orderBy('seq_no', 'asc')
+      .execute()) as any[];
+
+    const tabIds = allTabs.map((t: any) => t.sys_tab_id as string);
+
+    const allFields = tabIds.length > 0 ? (await this.kysely
+      .selectFrom('sys_field as f')
+      .leftJoin('sys_field_group as g', 'g.sys_field_group_id', 'f.sys_field_group_id')
+      .select([
+        'f.sys_field_id', 'f.sys_tab_id', 'f.sys_column_id',
+        'f.name as field_name', 'f.seq_no', 'f.seq_no_grid',
+        'f.is_displayed', 'f.is_displayed_grid', 'f.is_read_only',
+        'f.is_active', 'f.help', 'f.column_span', 'f.is_same_line',
+        'f.sys_field_group_id',
+        'g.name as group_name', 'g.description as group_desc',
+      ])
+      .where('f.sys_tab_id', 'in', tabIds)
+      .orderBy('f.seq_no', 'asc')
+      .execute()) as any[] : [];
+
+    const allGroups = tabIds.length > 0 ? (await this.kysely
+      .selectFrom('sys_field_group')
+      .select(['sys_field_group_id', 'sys_tab_id', 'name', 'description', 'seq_no'])
+      .where('sys_tab_id', 'in', tabIds)
+      .orderBy('seq_no', 'asc')
+      .execute()) as any[] : [];
+
+    // Enum values for columns referencing sys_ref_list
+    const SCALAR_IDS = new Set([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 24, 28, 30, 31, 32]);
+    const enumRefIds = [...new Set(
+      allColumns.map((c: any) => c.sys_reference_id as number)
+        .filter((id: number) => id && !SCALAR_IDS.has(id)),
+    )];
+    const enumMap = new Map<number, string[]>();
+    if (enumRefIds.length > 0) {
+      const rows = (await this.kysely
+        .selectFrom('sys_ref_list')
+        .select(['sys_reference_id', 'value'])
+        .where('sys_reference_id', 'in', enumRefIds)
+        .where('is_active', '=', true)
+        .orderBy('value', 'asc')
+        .execute()) as any[];
+      for (const r of rows) {
+        const arr = enumMap.get(r.sys_reference_id) ?? [];
+        arr.push(r.value);
+        enumMap.set(r.sys_reference_id, arr);
+      }
+    }
+
+    // State machine transitions
+    const allTransitions = tableNames.length > 0 ? (await this.kysely
+      .selectFrom('sys_workflow_transitions')
+      .select(['table_name', 'status_field', 'from_state', 'to_state', 'transition_name'])
+      .where('table_name', 'in', tableNames)
+      .where('is_active', '=', true)
+      .execute()) as any[] : [];
+
+    // Rules (entity_name in sys_rule_definitions holds the table name, e.g. 'bus_invoice')
+    const allRules = tableNames.length > 0 ? (await this.kysely
+      .selectFrom('sys_rule_definitions')
+      .select(['entity_name', 'rule_name', 'title', 'operation'])
+      .where('entity_name', 'in', tableNames)
+      .where('is_active', '=', true)
+      .orderBy('rule_name', 'asc')
+      .execute()) as any[] : [];
+
+    // Access grants
+    const allGrants = tableNames.length > 0 ? (await this.kysely
+      .selectFrom('sys_access_grant')
+      .select(['kind', 'table_name', 'action', 'role_name'])
+      .where('table_name', 'in', tableNames)
+      .where('is_active', '=', true)
+      .execute()) as any[] : [];
+
+    // ── Build lookup maps ──────────────────────────────────────────────────
+    const colsByTable = new Map<string, any[]>();
+    for (const col of allColumns) {
+      const arr = colsByTable.get(col.sys_table_id) ?? [];
+      arr.push(col);
+      colsByTable.set(col.sys_table_id, arr);
+    }
+
+    const tabByTable = new Map<string, any>();
+    for (const tab of allTabs) {
+      if (!tabByTable.has(tab.sys_table_id)) tabByTable.set(tab.sys_table_id, tab);
+    }
+
+    const fieldsByTab = new Map<string, any[]>();
+    for (const f of allFields) {
+      const arr = fieldsByTab.get(f.sys_tab_id) ?? [];
+      arr.push(f);
+      fieldsByTab.set(f.sys_tab_id, arr);
+    }
+
+    const groupsByTab = new Map<string, any[]>();
+    for (const g of allGroups) {
+      const arr = groupsByTab.get(g.sys_tab_id) ?? [];
+      arr.push(g);
+      groupsByTab.set(g.sys_tab_id, arr);
+    }
+
+    const transByTable = new Map<string, any[]>();
+    for (const t of allTransitions) {
+      const arr = transByTable.get(t.table_name) ?? [];
+      arr.push(t);
+      transByTable.set(t.table_name, arr);
+    }
+
+    const rulesByTable = new Map<string, any[]>();
+    for (const r of allRules) {
+      const arr = rulesByTable.get(r.entity_name) ?? [];
+      arr.push(r);
+      rulesByTable.set(r.entity_name, arr);
+    }
+
+    // read restrictions: table_name -> roles[] (empty set = everyone can read)
+    const readRolesByTable = new Map<string, Set<string>>();
+    // write grants: table_name -> operation -> roles[]
+    const writeGrantsByTable = new Map<string, Map<string, string[]>>();
+    for (const g of allGrants) {
+      if (g.kind === 'op') {
+        if (g.action === 'read') {
+          const s = readRolesByTable.get(g.table_name) ?? new Set<string>();
+          s.add(g.role_name);
+          readRolesByTable.set(g.table_name, s);
+        } else {
+          let opMap = writeGrantsByTable.get(g.table_name);
+          if (!opMap) { opMap = new Map(); writeGrantsByTable.set(g.table_name, opMap); }
+          const arr = opMap.get(g.action) ?? [];
+          arr.push(g.role_name);
+          opMap.set(g.action, arr);
+        }
+      }
+    }
+
+    // ── Build HTML sections ────────────────────────────────────────────────
+    const buildEntitySection = (table: any): string => {
+      const cols = colsByTable.get(table.sys_table_id) ?? [];
+      const tab = tabByTable.get(table.sys_table_id);
+      const tabFields = tab ? (fieldsByTab.get(tab.sys_tab_id) ?? []) : [];
+      const tabGroups = tab ? (groupsByTab.get(tab.sys_tab_id) ?? []) : [];
+      const tableTrans = transByTable.get(table.table_name) ?? [];
+      const tableRules = rulesByTable.get(table.table_name) ?? [];
+      const readRoles = readRolesByTable.get(table.table_name);
+      const writeGrants = writeGrantsByTable.get(table.table_name);
+
+      // Field rows table
+      const fieldRows = cols.map((col: any) => {
+        const enumVals = enumMap.get(col.sys_reference_id) ?? [];
+        const control = enumVals.length ? 'Choice' : (REF_NAMES[col.sys_reference_id as number] ?? 'Text');
+        const constraints: string[] = [];
+        if (col.is_key) constraints.push('key');
+        else if (col.is_mandatory) constraints.push('required');
+        const helpHtml = col.description
+          ? esc(col.description)
+          : '<span class="unset">&mdash;</span>';
+        let detail = '';
+        if (enumVals.length) {
+          detail = `One of: ${enumVals.map((v: string) => `<code>${esc(v)}</code>`).join(', ')}`;
+        } else if ((col.sys_reference_id === 18 || col.sys_reference_id === 19) &&
+            String(col.column_name).endsWith('_id') && col.column_name !== 'id' &&
+            !String(col.column_name).endsWith('_by_id')) {
+          const target = titleFmt(String(col.column_name).slice(0, -3));
+          detail = `Points at <b>${esc(target)}</b>`;
+        }
+        return `        <tr>
+          <td><code>${esc(col.column_name)}</code></td>
+          <td>${esc(control)}</td>
+          <td>${constraints.length ? constraints.map((c: string) => `<span class="tag">${esc(c)}</span>`).join(' ') : '&mdash;'}</td>
+          <td>${helpHtml}${detail ? `<div class="detail">${detail}</div>` : ''}</td>
+        </tr>`;
+      }).join('\n');
+
+      // Screen layout ("Where it appears")
+      let screenSection = '';
+      if (tab && tabFields.length > 0) {
+        const hasSections = tabGroups.length > 0;
+        const displayed = [...tabFields]
+          .filter((f: any) => f.is_active !== false)
+          .sort((a: any, b: any) => (a.seq_no ?? 0) - (b.seq_no ?? 0));
+
+        const fieldTableRows = displayed.map((f: any) => {
+          const col = cols.find((c: any) => c.sys_column_id === f.sys_column_id);
+          const colName = col?.column_name ?? '';
+          const group = hasSections
+            ? tabGroups.find((g: any) => g.sys_field_group_id === f.sys_field_group_id)
+            : null;
+          const place = group
+            ? (f.column_span === 2 ? 'full width' : f.is_same_line ? 'beside the field before it' : 'starts a row')
+            : '';
+          const inGrid = f.is_displayed_grid !== false && !NOISE.has(colName);
+          return `          <tr>
+            <td><code>${esc(colName)}</code></td>
+            <td>${esc(f.field_name || colName)}</td>${hasSections ? `
+            <td>${esc(group?.name ?? '—')}</td>
+            <td>${esc(place || '—')}</td>` : ''}
+            <td>${f.is_displayed !== false ? 'Yes' : 'No'}</td>
+            <td>${inGrid ? 'Yes' : 'No'}</td>
+            <td>${f.seq_no ?? 0}</td>
+            <td>${f.is_read_only ? 'Yes' : 'No'}</td>
+          </tr>`;
+        }).join('\n');
+
+        const sortedGroups = [...tabGroups].sort((a: any, b: any) => (a.seq_no ?? 0) - (b.seq_no ?? 0));
+        const sectionsList = hasSections
+          ? `\n      <p>The form is laid out in ${sortedGroups.length} section${sortedGroups.length === 1 ? '' : 's'}, each a grid of two columns:</p>
+      <ul class="plain">
+          ${sortedGroups.map((g: any) => `<li><b>${esc(g.name)}</b>${g.description ? ` &mdash; ${esc(g.description)}` : ''}</li>`).join('\n          ')}
+      </ul>`
+          : '';
+
+        screenSection = `      <h4>Where it appears</h4>
+      <p>The application opens this record in the <b>${esc(table.window_name || table.entity_name)}</b> window, on the <b>${esc(tab.name)}</b> tab. These are its ${displayed.length} field${displayed.length === 1 ? '' : 's'} &mdash; what the screen draws, in the order it draws them. An administrator can change any of this in Application Dictionary &rarr; Fields without regenerating the application.</p>${sectionsList}
+      <table>
+        <thead><tr><th>Column</th><th>Label</th>${hasSections ? '<th>Section</th><th>Place</th>' : ''}<th>On the form</th><th>In the list</th><th>Order</th><th>Read only</th></tr></thead>
+        <tbody>
+${fieldTableRows}
+        </tbody>
+      </table>`;
+      }
+
+      // Lifecycle (state machine transitions)
+      let lifecycleSection = '';
+      if (tableTrans.length > 0) {
+        const byField = new Map<string, any[]>();
+        for (const t of tableTrans) {
+          const arr = byField.get(t.status_field) ?? [];
+          arr.push(t);
+          byField.set(t.status_field, arr);
+        }
+        lifecycleSection = [...byField.entries()].map(([field, transitions]) => {
+          const rows = transitions.map((t: any) =>
+            `          <tr><td><code>${esc(t.from_state)}</code></td><td><code>${esc(t.to_state)}</code></td><td>${t.transition_name ? `<code>${esc(t.transition_name)}</code>` : '&mdash;'}</td></tr>`
+          ).join('\n');
+          return `      <h4>Lifecycle &mdash; ${esc(titleFmt(field))}</h4>
+      <p>These are the moves a record may make along its <code>${esc(field)}</code> field, and no others:</p>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Event</th></tr></thead>
+        <tbody>
+${rows}
+        </tbody>
+      </table>`;
+        }).join('\n');
+      }
+
+      // Rules
+      let rulesSection = '';
+      if (tableRules.length > 0) {
+        const rows = tableRules.map((r: any) =>
+          `          <tr><td><code>${esc(r.rule_name)}</code></td><td>${esc(r.title || r.rule_name)}</td><td>${esc(r.operation)}</td></tr>`
+        ).join('\n');
+        rulesSection = `      <h4>What happens when it is written</h4>
+      <table>
+        <thead><tr><th>Rule</th><th>Title</th><th>Runs on</th></tr></thead>
+        <tbody>
+${rows}
+        </tbody>
+      </table>`;
+      }
+
+      // Access
+      let accessSection = '';
+      if (readRoles !== undefined || (writeGrants && writeGrants.size > 0)) {
+        const readPart = readRoles && readRoles.size > 0
+          ? `      <p>Visible to ${[...readRoles].map((r: string) => `<b>${esc(titleFmt(r))}</b>`).join(', ')}, and to the Administrator. Nobody else sees it at all &mdash; it is absent from their menu rather than refused when opened.</p>`
+          : '      <p>Visible to every signed-in user; the model places no restriction on reading it.</p>';
+        let writePart = '';
+        if (writeGrants && writeGrants.size > 0) {
+          const writeRows = [...writeGrants.entries()].map(([op, roles]) =>
+            `          <tr><td>${esc(titleFmt(op))}</td><td>${roles.map((r: string) => esc(titleFmt(r))).join(', ')}</td></tr>`
+          ).join('\n');
+          writePart = `      <table>
+        <thead><tr><th>Action</th><th>Permitted to</th></tr></thead>
+        <tbody>
+${writeRows}
+        </tbody>
+      </table>`;
+        }
+        accessSection = `      <h4>Who may use it</h4>
+${readPart}
+${writePart}`;
+      }
+
+      const noHelp = cols.every((c: any) => !c.description);
+
+      return `    <section id="entity-${slugify(table.entity_name)}" class="entity">
+      <h3>${esc(table.entity_name)}</h3>
+      <p class="lede">${table.entity_desc ? esc(table.entity_desc) : '<span class="missing">The model gives this entity no description. Add one with <code>%%entity help: …</code>.</span>'}</p>
+      <p class="meta">Stored as <code>${esc(table.table_name)}</code>.</p>
+
+      <h4>Its fields</h4>
+${noHelp ? `      <p class="missing">No field here carries help text. Add it with <code>%%field ${esc(table.entity_name)}.&lt;field&gt; help: …</code> and it appears here and in the application itself.</p>\n` : ''}      <table>
+        <thead><tr><th>Field</th><th>Shown as</th><th></th><th>What it is for</th></tr></thead>
+        <tbody>
+${fieldRows}
+        </tbody>
+      </table>
+${[screenSection, lifecycleSection, rulesSection, accessSection].filter(Boolean).join('\n')}
+      <p class="back"><a href="#top">Back to contents</a></p>
+    </section>`;
+    };
+
+    const entitySections = tables.map(buildEntitySection).join('\n\n');
+
+    const hasRules = allRules.length > 0;
+    const allRulesSection = hasRules
+      ? `  <section id="rules">
+    <h2>The decisions it makes</h2>
+    <p>Each of these is a decision table the application evaluates when a record is written. A rule that refuses a write refuses it for everyone, including an administrator &mdash; it is a statement about the business, not about permissions.</p>
+    <table>
+      <thead><tr><th>Rule</th><th>Applies to</th><th>Runs on</th></tr></thead>
+      <tbody>
+${allRules.map((r: any) => {
+  const t = tables.find((tbl: any) => tbl.table_name === r.entity_name);
+  const entityLabel = t?.entity_name ?? r.entity_name;
+  return `        <tr><td><code>${esc(r.rule_name)}</code></td><td><a href="#entity-${slugify(entityLabel)}">${esc(entityLabel)}</a></td><td>${esc(r.operation)}</td></tr>`;
+}).join('\n')}
+      </tbody>
+    </table>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>`
+      : '';
+
+    // Inline CSS — identical to the static manual's stylesheet so both look the same.
+    const css = `
+:root {
+  --bg: #ffffff; --surface: #f7f7f6; --border: #e3e3e0; --text: #17171a;
+  --soft: #5f6066; --faint: #8a8b91; --accent: #0d6e6e; --accent-soft: #e6f2f2;
+  --warn: #b45309;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17171a; --surface: #1f1f23; --border: #33333a; --text: #ececee;
+    --soft: #a9aab0; --faint: #7e7f86; --accent: #4bb3b3; --accent-soft: #14312f;
+    --warn: #e0a355;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.65 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 60rem; margin: 0 auto; padding: 40px 24px 96px; }
+header.title { border-bottom: 2px solid var(--accent); padding-bottom: 18px; margin-bottom: 8px; }
+header.title h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
+header.title p { margin: 0; color: var(--soft); }
+header.title .stamp { margin-top: 10px; font-size: 12.5px; color: var(--faint); }
+h2 { font-size: 21px; margin: 44px 0 10px; letter-spacing: -0.01em; }
+h3 { font-size: 18px; margin: 34px 0 6px; }
+h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.07em;
+     color: var(--soft); margin: 24px 0 8px; }
+p { margin: 0 0 12px; }
+a { color: var(--accent); }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.5px 4px;
+}
+.toc { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+       padding: 18px 22px; margin: 26px 0 8px; }
+.toc h2 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase;
+          letter-spacing: 0.07em; color: var(--soft); }
+.toc ol { margin: 0; padding-left: 20px; }
+.toc ul { margin: 4px 0 8px; padding-left: 18px; list-style: none; }
+.toc ul li { font-size: 14px; }
+.toc li { margin: 3px 0; }
+section { scroll-margin-top: 16px; }
+.entity { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 34px; }
+.entity .lede { color: var(--text); }
+.meta { font-size: 13px; color: var(--faint); }
+table { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 14.5px; display: block; overflow-x: auto; }
+thead th { text-align: left; background: var(--surface); color: var(--soft);
+           font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+           padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+.tag { display: inline-block; font-size: 11.5px; color: var(--soft);
+       background: var(--surface); border: 1px solid var(--border);
+       border-radius: 4px; padding: 1px 6px; margin-right: 3px; }
+.missing { color: var(--warn); font-style: italic; }
+.unset { color: var(--faint); }
+.detail { margin-top: 5px; font-size: 13px; color: var(--soft); }
+.app-overview { margin: 18px 0; padding: 16px 20px; background: var(--surface); border-left: 4px solid var(--accent); border-radius: 4px; font-size: 15px; line-height: 1.7; }
+ul.plain { margin: 4px 0 12px; padding-left: 20px; }
+.back { margin-top: 18px; font-size: 13px; }
+footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border);
+         color: var(--faint); font-size: 13px; }
+@media print {
+  .toc, .back { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}`;
+
+    const toc = `
+      <nav class="toc" aria-label="Contents">
+        <h2>Contents</h2>
+        <ol>
+          <li><a href="#overview">What this application is</a></li>
+          <li><a href="#entities">The records it keeps</a>
+            <ul>
+${tables.map((t: any) => `              <li><a href="#entity-${slugify(t.entity_name)}">${esc(t.entity_name)}</a></li>`).join('\n')}
+            </ul>
+          </li>
+          <li><a href="#concurrent-edits">When two people change the same record</a></li>
+${hasRules ? '          <li><a href="#rules">The decisions it makes</a></li>\n' : ''}          <li><a href="#how-it-was-built">How this application was built</a></li>
+        </ol>
+      </nav>`;
+
+    return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(appName)} &mdash; Manual</title>
+<style>${css}
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+
+  <header class="title">
+    <h1>${esc(appName)}</h1>
+    <p>${esc(appDescription)}</p>
+    <div class="stamp">Manual for version ${esc(appVersion)} &middot; generated <time datetime="${esc(generatedAt)}">${esc(generatedAt)}</time> &middot; <em>built from live dictionary data</em></div>
+  </header>
+${toc}
+
+  <section id="overview">
+    <h2>What this application is</h2>
+${appDescription && appDescription !== 'A generated full-stack application' ? `    <div class="app-overview"><p>${esc(appDescription)}</p></div>\n` : ''}    <p>${esc(appName)} keeps ${tables.length} kind${tables.length === 1 ? '' : 's'} of record. Every screen in it &mdash; every list, every form, every field label and every dropdown &mdash; is drawn from a description of those records held in the application itself, so the application can be changed by changing that description rather than by editing code.</p>
+    <p>This manual is generated dynamically from that live description. It cannot describe a record type the application does not have, and it cannot miss one it does.</p>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
+
+  <section id="entities">
+    <h2>The records it keeps</h2>
+    <p>One section per record type. For each: what it is, every field it has and what that field is for, the states it moves through, and who may use it.</p>
+
+${entitySections}
+  </section>
+
+  <section id="concurrent-edits">
+    <h2>When two people change the same record</h2>
+    <p>Every record carries a version number, and every save raises it by one. When you open a record to edit it, the form remembers the version you opened. Saving sends that version back, and the save goes through only if nobody has saved the record since.</p>
+    <p>If somebody has, your save is not applied &mdash; neither of you loses a change without seeing it. The form opens a dialog listing the fields the other person changed, with their value and yours side by side, and marks the fields you both changed. It offers three choices:</p>
+    <table>
+      <thead><tr><th>Choice</th><th>What happens</th></tr></thead>
+      <tbody>
+        <tr><td>Reload their version</td><td>Your unsaved edits are discarded and the form shows the record as it now stands.</td></tr>
+        <tr><td>Overwrite with mine</td><td>Your values are saved over theirs.</td></tr>
+        <tr><td>Keep editing</td><td>Nothing is saved yet; the form stays open with your edits so you can change them first.</td></tr>
+      </tbody>
+    </table>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
+
+${allRulesSection}
+
+  <section id="how-it-was-built">
+    <h2>How this application was built</h2>
+    <p>It was generated from a single model file &mdash; a Mermaid document describing the records, the rules and the processes above. The generator read that file and wrote the database schema, the API, the screens and this manual from it.</p>
+    <p>This manual is served dynamically: every time you open it, it is built fresh from the application dictionary tables in the database. Fields added or renamed by an administrator appear here on the next request.</p>
+    <p class="back"><a href="#top">Back to contents</a></p>
+  </section>
+
+  <footer>
+    ${esc(appName)} ${esc(appVersion)} &middot; ${tables.length} record type${tables.length === 1 ? '' : 's'} &middot; ${allRules.length} rule${allRules.length === 1 ? '' : 's'}
+  </footer>
+</div>
+</body>
+</html>
+`;
+  }
+
+  /**
    * Auto-creates sys_window, sys_tab, and sys_field records from existing
    * sys_column records for a given entity. This allows a newly registered
    * table/column (added via the admin Tables UI) to immediately appear in the

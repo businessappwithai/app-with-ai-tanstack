@@ -11,6 +11,7 @@ import {
   AlertCircle,
   Database,
   LayoutGrid,
+  ShieldCheck,
   X,
 } from 'lucide-react';
 import { Icon } from '@/components/ui/icon';
@@ -282,11 +283,11 @@ function DashboardPage() {
 
         {/* The manual, above everything else.
 
-            Generation writes public/manual.html beside this application: every
+            The manual is served dynamically by GET /bus/manual — every
             entity, every field, the processes it runs and the decisions it
-            makes, out of the same model these screens are drawn from. It is a
-            plain anchor rather than a route because it is a static document the
-            router knows nothing about — and it opens in a new tab, since a
+            makes — built fresh from the live application dictionary on every request. It is a
+            plain anchor rather than a route because the backend owns the response; it
+            opens in a new tab, since a
             reader wants it beside the screen it describes. */}
         <ManualBanner />
 
@@ -398,6 +399,9 @@ function DashboardPage() {
           </section>
         )}
 
+        {/* Access controls summary — administrator only */}
+        {isAdministrator && <AccessControlsBanner />}
+
         {/* Admin / Dictionary */}
         {filteredAdmin.length > 0 && (
           <section>
@@ -488,13 +492,43 @@ function ManualBanner() {
           <button>, and it has no `asChild`, so a real link is the only way to
           get a new tab out of it. */}
       <a
-        href="/manual.html"
+        href="/api/bus/manual"
         target="_blank"
         rel="noopener noreferrer"
         className={buttonVariants({ variant: 'outline', size: 'sm' })}
       >
         Open the manual
       </a>
+    </section>
+  );
+}
+
+function AccessControlsBanner() {
+  const { data } = useQuery<{ roles: number; grants: number }>({
+    queryKey: ['dashboard', 'access-grants-summary'],
+    queryFn: () => apiClient.get('/sys/access-grants/summary'),
+    staleTime: 30 * 1000,
+  });
+
+  return (
+    <section className="flex flex-wrap items-center gap-5 rounded-lg border border-border border-l-4 border-l-primary bg-card p-5">
+      <div className="flex items-center gap-3 flex-shrink-0">
+        <ShieldCheck className="w-5 h-5 text-primary" />
+      </div>
+      <div className="flex-1 min-w-[20rem]">
+        <h2 className="text-sm font-semibold mb-1">Access Controls</h2>
+        <p className="text-sm text-muted-foreground">
+          {data
+            ? `${data.roles} role${data.roles !== 1 ? 's' : ''}, ${data.grants} operation grant${data.grants !== 1 ? 's' : ''} across all entities.`
+            : 'Who may read, create, update and delete each entity — by role.'}
+        </p>
+      </div>
+      <Link
+        to="/admin/access-controls"
+        className={buttonVariants({ variant: 'outline', size: 'sm' })}
+      >
+        Edit access controls
+      </Link>
     </section>
   );
 }

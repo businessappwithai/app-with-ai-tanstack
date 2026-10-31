@@ -1027,6 +1027,18 @@ export async function seed(db: Kysely<any>): Promise<void> {
         'file remains the bootstrap mechanism. The application description at the top is a detailed ' +
         'summary of what this application does — it appears in the manual and the dashboard header.',
     },
+    {
+      name: 'Access Controls',
+      route: '/admin/access-controls',
+      icon: 'shield-check',
+      help:
+        'Which operations each role may perform on each entity. A tick in a cell means the role ' +
+        'may carry out that operation — read, create, update or delete — on that entity.\n\n' +
+        'The Administrator role is not shown here: it always has full access. Grants are additive ' +
+        'across a user\'s roles, so a user with two roles holds the union of what both allow.\n\n' +
+        'Changes take effect immediately: the backend drops its cached capability map on every ' +
+        'change and rebuilds it from these rows on the next request.',
+    },
   ];
 
   for (const wd of adminWindowDefs) {
