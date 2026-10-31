@@ -280,7 +280,7 @@ describe("projectStore", () => {
     it("goes back to the previous step", () => {
       useProjectStore.setState({ currentStep: "generate" });
       useProjectStore.getState().goToPreviousStep();
-      expect(useProjectStore.getState().currentStep).toBe("logic");
+      expect(useProjectStore.getState().currentStep).toBe("design");
     });
 
     it("does not go before the first step", () => {
@@ -301,13 +301,12 @@ describe("projectStore", () => {
       }
     });
 
-    // Rules and processes are authored on one screen, so the wizard has one
-    // step for them. They were two, and moving between a rule and the process
-    // that reads its decision meant leaving the page and coming back.
-    it("visits the logic step the wizard displays", () => {
-      expect(STEP_ORDER).toContain("logic");
-      expect(STEP_ORDER).not.toContain("rules");
-      expect(STEP_ORDER).not.toContain("workflows");
+    // Rules and processes are authored on the Enhance step, beside the service
+    // they belong to, so the wizard has no step of its own for them. A store that
+    // still listed one would send "next" to a page nothing links to.
+    it("authors rules and processes on the enhance step", () => {
+      expect(STEP_ORDER).toEqual(["init", "design", "generate", "enhance", "deploy"]);
+      expect(STEP_ORDER).not.toContain("logic");
     });
   });
 
