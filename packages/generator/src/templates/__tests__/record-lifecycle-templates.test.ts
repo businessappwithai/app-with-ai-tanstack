@@ -66,7 +66,7 @@ describe("the record lifecycle in a generated backend", () => {
     expect(lifecycle).toContain("column: 'stage'");
     expect(lifecycle).toContain("afterDraft: 'prospecting'");
     expect(lifecycle).toContain("terminal: ['closed_won', 'closed_lost']");
-    expect(lifecycle).toContain("{ from: 'negotiation', to: 'closed_won', event: 'close_won', label: 'Close won' }");
+    expect(lifecycle).toContain("{ from: 'negotiation', to: 'closed_won', event: 'close_won', label: 'Closed won' }");
     // An entity with no machine moves Draft → Final on doc_status.
     expect(lifecycle).toMatch(/bus_product: \{ column: 'doc_status', hasMachine: false/);
     expect(lifecycle).toContain("export function movesFrom(");
@@ -169,7 +169,7 @@ describe("a status flow an administrator redraws", () => {
     expect(lifecycle.isLifecycleOverridden("bus_opportunity")).toBe(true);
     const moves = lifecycle.movesFrom(lifecycle.lifecycleOf("bus_opportunity"), model.afterDraft);
     expect(moves.map((move: any) => move.event)).toContain("put_on_hold");
-    expect(moves.find((move: any) => move.event === "put_on_hold").label).toBe("Put on hold");
+    expect(moves.find((move: any) => move.event === "put_on_hold").label).toBe("On hold");
     expect(lifecycle.findMove(lifecycle.lifecycleOf("bus_opportunity"), "on_hold", { event: "resume" })?.to).toBe(
       model.afterDraft,
     );

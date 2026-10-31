@@ -36,7 +36,12 @@ import type { DryRunResult, RuleDryRun } from "@/editors/lib/eml/dry-run-types";
 import { describeOutcome } from "@/editors/lib/eml/rule-outcome";
 import type { RuleConstraints } from "@/editors/lib/eml/rule-constraints";
 import { parseStateFlow } from "@/editors/lib/eml/workflow-flow";
-import { eventForOperation, operationForEvent } from "@/editors/lib/eml/workflow-hooks";
+import {
+  eventForOperation,
+  operationForEvent,
+  statusFromOperation,
+  statusOperation,
+} from "@/editors/lib/eml/workflow-hooks";
 import { type StoredWorkflow, toEditableWorkflow } from "@/editors/lib/eml/workflow-model";
 import { apiClient } from "@/lib/api-client";
 import { MODEL_WORKFLOWS } from "@/lib/model-logic";
@@ -164,7 +169,12 @@ export function logicConstraints(
 }
 
 /** The write a stored hook workflow runs on, recomputed on every save. */
-function operationOf(automation: Automation): Operation {
+function operationOf(automation: Automation): string {
+  // Bound to a status: stored as ENTER:<STATE>, which the workflow runner selects when a
+  // button moves a record into that state, and never on a plain save.
+  if (automation.onStatus && automation.kind !== "automation") {
+    return statusOperation(automation.onStatus);
+  }
   if (automation.kind === "saga") return automation.sagaOperation ?? "CREATE";
   const events =
     automation.kind === "hook"
@@ -212,6 +222,9 @@ function toStoredWorkflow(row: WorkflowRow): StoredWorkflow {
       : parseAutomation(diagram, entity).kind === "saga"
         ? "saga"
         : "hook";
+  // A binding is stored in the operation; the editor holds it as a status beside the
+  // write it belongs to (an update, because a move is one).
+  const status = kind === "state" ? undefined : statusFromOperation(row.operation);
   return {
     // As the model stores one: an identifier, with the name people read beside it as the title.
     name: pascalWorkflowName(row.name),
@@ -219,10 +232,11 @@ function toStoredWorkflow(row: WorkflowRow): StoredWorkflow {
     kind,
     title: row.name,
     diagram,
+    ...(status ? { status } : {}),
     ...(kind === "saga"
       ? {
           trigger: row.trigger_type === "rule" ? ("rule" as const) : ("automatic" as const),
-          operation: (row.operation as Operation | undefined) ?? "CREATE",
+          operation: status ? ("UPDATE" as const) : ((row.operation as Operation | undefined) ?? "CREATE"),
         }
       : {}),
   };
@@ -442,7 +456,12 @@ export function createLogicHost() {
       workflowIds.delete(key);
       workflowSnapshots.delete(key);
     }
-    for (const workflow of workflows) {
+    // A status flow goes first: a workflow bound to one of its states is refused until the
+    // flow it names exists.
+    const flowsFirst = [...workflows].sort(
+      (a, b) => Number(b.kind === "state") - Number(a.kind === "state")
+    );
+    for (const workflow of flowsFirst) {
       const body = workflowBody(workflow);
       const snapshot = JSON.stringify(body);
       const id = workflowIds.get(workflow.key);

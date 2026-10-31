@@ -6710,7 +6710,7 @@ var appwithai_language_default = {
       mappingHint: "States are the values of the bound entity's lifecycle column, between Draft and Error; transitions are the moves its action buttons make.",
       enforcement: "The edges are enforced, not merely documented. A record moves only along an edge the diagram draws — by an action button (POST /api/bus/<entity>/<id>/transition) or by a workflow's UpdateEntity step — and a move with no edge from the record's state is refused with 409 `INVALID_TRANSITION`. This holds for every caller, the master role included: an edge the diagram never drew is not a permission an administrator lacks, it is a move that does not exist.",
       lifecycle: "Every record has a lifecycle (language/state-field.ts is the one statement of it). It is saved in Draft. With no state machine it goes to Final when its workflows succeed, or to Error with their message when they fail; its column is `doc_status` (draft | final | error). With a machine its column is the state field, holding Draft, the machine's states and Error: a save from Draft or Error runs the workflows and, if they succeed, moves the record to the machine's initial state (staying in Draft when the machine starts there — a state named draft under any spelling is the lifecycle's Draft). Every state the diagram ends (x --> [*]) is Final. A Final record is locked: an update or delete is refused with 409 `RECORD_FINAL`, and only the `reopen` move, by the administrator or a role `%%rbac role:x on Entity.reopen` names, takes it back to Draft. An Error record stays editable; saving it starts over from Draft. A workflow that fails on a button press, or on saving a record in an intermediate state, rolls the change back with 422 and its message, and the record keeps its status. `final` and `error` are reserved state names (EML509).",
-      moves: "An action button for each edge out of the record's state, labelled with the edge's event (`close won` reads Close won) or, for an edge with no label, `Move to <state>`; a choice of several opens a menu. A move is limited to roles with `%%rbac role:<role> on <Entity>.<event>` (or `.from->to` for an edge with no label); a move no line names is open to anyone who may update the entity (EML511, info). A move may name an assignee who holds the next status's role. Each move stamps the `<state>_at` column when the entity has one and is logged in sys_record_transitions.",
+      moves: "An action button for each edge out of the record's state, labelled with the status it moves to (an edge into `closed_won` reads Closed won, whatever the edge is called); the edge's event stays the move's name for `%%rbac`, the API and the history. Pressing it saves the form in its current status, then runs the workflows bound to that status (`status: <state>` on a workflow) in a second transaction and moves the record only if they all succeed; a choice of several buttons opens a menu. A move is limited to roles with `%%rbac role:<role> on <Entity>.<event>` (or `.from->to` for an edge with no label); a move no line names is open to anyone who may update the entity (EML511, info). A move may name an assignee who holds the next status's role. Each move stamps the `<state>_at` column when the entity has one and is logged in sys_record_transitions.",
       stateField: "The state field is the column the machine drives: `status`, else `state`, else `stage`, whichever the bound entity declares first in that order (language/state-field.ts is the one statement of it, read by the checker, the generator and both runtimes). An entity with none drives the managed `workflow_status` column and draws EML500.",
       systemManaged: 'Nobody types a status into a form. The lifecycle column is written by the save pipeline, an action button, or a workflow moving along a drawn edge. The generated API strips a value that equals the stored one (so a whole-record save still works) and refuses one that differs with 403 and `details.code: "STATE_FIELD_SYSTEM_MANAGED"`, for every caller, the master role included — the button is the way to move it. Move rules and sagas written before buttons existed are EML512, and the fixer removes them.',
       display: "Where an entity has a state field it is shown, and it is shown in two places only. On the record's form it is a read-only badge in the top header, beside the record's title - never an input, on create or on edit. In the list grid it is always a column, whatever else the grid shows; it is not grid noise and an administrator's grid-visibility toggle cannot hide it. It is therefore never placed in a %%section row (EML178), and its absence from every row is not a gap (EML170/EML172 do not count it).",
@@ -13588,12 +13588,10 @@ function lifecycleValuesFor(machine) {
 function normalizeEvent(event) {
   return event.trim().toLowerCase().replace(/[\s-]+/g, "_");
 }
-function moveLabel(event, to) {
+function moveLabel(_event, to) {
   const words = (text) => text.replace(/[_-]+/g, " ").trim();
   const sentence = (text) => text.charAt(0).toUpperCase() + text.slice(1);
-  if (event && event.trim())
-    return sentence(words(event));
-  return `Move to ${sentence(words(to))}`;
+  return sentence(words(to));
 }
 
 // packages/generator/src/rbac/index.ts
@@ -14335,11 +14333,21 @@ function compileSagas(sections, knownEntities = [], onWarn = () => {}) {
       name: section.name,
       entity: section.entity,
       trigger: section.trigger === "rule" ? "rule" : "automatic",
-      operation: section.operation ?? "CREATE",
+      operation: sagaOperation(section, onWarn),
       steps: orderSteps(section.diagram ?? "", declared)
     });
   }
   return compiled;
+}
+function sagaOperation(section, onWarn) {
+  if (section.status) {
+    if (section.trigger === "rule") {
+      onWarn(`Workflow "${section.name}": status is ignored on a rule-triggered saga.`);
+    } else {
+      return `ENTER:${section.status.trim().toUpperCase().replace(/[\s-]+/g, "_")}`;
+    }
+  }
+  return section.operation ?? "CREATE";
 }
 function escapeXmlAttr(value) {
   return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -14415,7 +14423,7 @@ ${edges.join(`
 }
 function describeSaga(saga) {
   const chain = saga.steps.map((step) => `${step.type}`).join(" → ");
-  const gate = saga.trigger === "rule" ? "runs when a rule triggers it" : `runs on every ${saga.operation}`;
+  const gate = saga.trigger === "rule" ? "runs when a rule triggers it" : saga.operation.startsWith("ENTER:") ? `runs when a button moves the record to ${saga.operation.slice(6).toLowerCase().replace(/_/g, " ")}` : `runs on every ${saga.operation}`;
   return `${saga.name}: ${saga.steps.length} steps · ${gate} · ${chain}`;
 }
 
@@ -15676,12 +15684,11 @@ export function normalizeLifecycleEvent(event: string): string {
   return event.trim().toLowerCase().replace(/[\\s-]+/g, '_');
 }
 
-/** What a button says: the event as words, or "Move to <state>" for an unlabelled edge. */
-export function lifecycleMoveLabel(event: string | undefined, to: string): string {
+/** What a button says: the status it moves to. The event stays the move's name, not its label. */
+export function lifecycleMoveLabel(_event: string | undefined, to: string): string {
   const words = (text: string) => text.replace(/[_-]+/g, ' ').trim();
   const sentence = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
-  if (event && event.trim()) return sentence(words(event));
-  return \`Move to \${sentence(words(to))}\`;
+  return sentence(words(to));
 }
 
 const DIAGRAM_EDGE = /^(\\[\\*\\]|[A-Za-z_]\\w*)\\s*-->\\s*(\\[\\*\\]|[A-Za-z_]\\w*)\\s*(?::\\s*(.+))?$/;
@@ -16962,6 +16969,11 @@ export async function executeCustomValidateHooks(
       {
         slug: "editable_lifecycles",
         template: "src/migrations/023_editable_lifecycles.ts.hbs",
+        required: true
+      },
+      {
+        slug: "widen_workflow_operation",
+        template: "src/migrations/024_widen_workflow_operation.ts.hbs",
         required: true
       }
     ];
@@ -20681,6 +20693,7 @@ function buildModelLogic(sources) {
     kind: workflow.kind,
     ...workflow.trigger ? { trigger: workflow.trigger } : {},
     ...workflow.operation ? { operation: workflow.operation } : {},
+    ...workflow.status ? { status: workflow.status } : {},
     ...workflow.title ? { title: workflow.title } : {},
     diagram: workflow.diagram
   }));
@@ -20699,6 +20712,8 @@ export interface ModelWorkflow {
   kind: "hook" | "state" | "saga";
   trigger?: "automatic" | "rule";
   operation?: "CREATE" | "UPDATE" | "DELETE" | "ALL";
+  /** The state whose entering move starts it. */
+  status?: string;
   title?: string;
   diagram: string;
 }

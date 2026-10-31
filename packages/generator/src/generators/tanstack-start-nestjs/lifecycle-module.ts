@@ -139,12 +139,11 @@ export function normalizeLifecycleEvent(event: string): string {
   return event.trim().toLowerCase().replace(/[\\s-]+/g, '_');
 }
 
-/** What a button says: the event as words, or "Move to <state>" for an unlabelled edge. */
-export function lifecycleMoveLabel(event: string | undefined, to: string): string {
+/** What a button says: the status it moves to. The event stays the move's name, not its label. */
+export function lifecycleMoveLabel(_event: string | undefined, to: string): string {
   const words = (text: string) => text.replace(/[_-]+/g, ' ').trim();
   const sentence = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
-  if (event && event.trim()) return sentence(words(event));
-  return \`Move to \${sentence(words(to))}\`;
+  return sentence(words(to));
 }
 
 const DIAGRAM_EDGE = /^(\\[\\*\\]|[A-Za-z_]\\w*)\\s*-->\\s*(\\[\\*\\]|[A-Za-z_]\\w*)\\s*(?::\\s*(.+))?$/;
