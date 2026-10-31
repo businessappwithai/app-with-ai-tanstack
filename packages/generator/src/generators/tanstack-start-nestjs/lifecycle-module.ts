@@ -141,9 +141,10 @@ export function normalizeLifecycleEvent(event: string): string {
 
 /** What a button says: the status it moves to. The event stays the move's name, not its label. */
 export function lifecycleMoveLabel(_event: string | undefined, to: string): string {
-  const words = (text: string) => text.replace(/[_-]+/g, ' ').trim();
-  const sentence = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
-  return sentence(words(to));
+  const words = to.replace(/[_-]+/g, ' ').replace(/\\s+/g, ' ').trim();
+  // An id written in capitals (\`QUALIFICATION\`) reads as a word, not a shout.
+  const text = words === words.toUpperCase() ? words.toLowerCase() : words;
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 const DIAGRAM_EDGE = /^(\\[\\*\\]|[A-Za-z_]\\w*)\\s*-->\\s*(\\[\\*\\]|[A-Za-z_]\\w*)\\s*(?::\\s*(.+))?$/;

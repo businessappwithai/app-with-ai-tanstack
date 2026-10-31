@@ -541,6 +541,47 @@ Every record has one lifecycle, stated once in `language/state-field.ts` and wri
 
 Held by `templates/__tests__/record-lifecycle-templates.test.ts` (every piece reaches a generated app), suites `06b`, `15` and `20`, `tests/e2e/wasm`, and `compile-rbac.spec.ts`.
 
+### A workflow is started by a hook and a status
+
+A workflow can carry a status beside its hook: "after update on Contract, **when the status
+becomes To be reviewed**". In EML it is `status: <state>` on a `trigger: automatic operation:
+UPDATE` workflow; the editors offer it as **When the status becomes** beside an update hook
+(`statusChoicesFor` in `lib/eml/workflow-hooks.ts` lists the states some arrow enters, named by
+`statusLabel`). It is stored as the operation **`ENTER:<STATE>`**, which the runtime selects when a
+button moves a record into that state. Migration `024_widen_workflow_operation` widened the column,
+which was `varchar(20)`, too short for most of those. The checker holds the binding with `EML243`
+(the state must be drawn), `EML244` (only an update may start it) and `EML245` (some arrow must lead
+into it). An entity with no status machine takes no `status:`, because its update workflows already
+run on the way to Final.
+
+**A button press is two transactions, on both stacks.** The press carries the form's unsaved values
+as `data`. Transaction 1 saves them, and the record stays in its current status. Transaction 2 is the
+move plus every workflow bound to `ENTER:<state>` and `TRANSITION:<event>`. If one of them fails,
+**only transaction 2 rolls back**:
+
+- the answer is 422 `WORKFLOW_FAILED`, with `details.workflow`, `details.phase` (`save` or
+  `workflow`) and the reason;
+- the typed values stay saved and `version` is up by one, for the save;
+- the status has not moved;
+- the failed run is written to `sys_workflow_runs` *after* the rollback, so it lives in Run History;
+- the reason is in `doc_status_message`, and the record form shows it beside the buttons rather than
+  in a toast.
+
+A save that a workflow fails leaves the record a draft, not in Error. A plain form save never selects
+a bound workflow.
+
+**Buttons are named after the status they enter.** `moveLabel` (`language/state-field.ts`) and its
+generated copy `lifecycleMoveLabel` both turn `closed_won` into "Closed won" and `QUALIFICATION`
+into "Qualification". The editors' `statusLabel` gives the same words, so the picker and the button
+agree. The arrow's label stays the event, the name `%%rbac` and the log use.
+
+The NestJS side lives in `transition.service.ts.hbs`, `workflow.service.ts.hbs` and
+`record-actions.tsx`. The browser side is `bus.routes.js` (`db.transaction`), `lib/sagas.js` and
+`entity-form.js`. Held by generated suite `06c-status-bound-workflow`,
+`templates/__tests__/status-bound-workflows.test.ts`, `compile-sagas.spec.ts`,
+`lib/automation/__tests__/status-binding.test.ts` and `lib/eml/__tests__/status-choices.test.ts`.
+Screenshots of both stacks are in `docs/screenshots/workflow-status/`.
+
 ### The generated application runs on Bun — except the frontend build
 
 The NestJS + TanStack templates start every tool on Bun 1.4 with `bun --bun` (a package's

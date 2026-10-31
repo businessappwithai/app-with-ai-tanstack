@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { emptyStateFlow } from "../../../components/eml/StateFlowCanvas";
 import { sectionProblems } from "../section-problems";
 import { emitStateFlow, parseStateFlow } from "../workflow-flow";
-import { canBindStatus, statusChoicesFor } from "../workflow-hooks";
+import { canBindStatus, statusChoicesFor, statusLabel } from "../workflow-hooks";
 
 const MACHINE = [
   "stateDiagram-v2",
@@ -21,6 +21,17 @@ describe("what a record type can be bound to", () => {
     if (choices.kind === "machine") {
       expect(choices.states.map((s) => s.value)).toEqual(["to_be_reviewed", "approved"]);
     }
+  });
+
+  it("names each state as its button does, never by its raw id", () => {
+    const choices = statusChoicesFor("Contract", [machine("Contract")]);
+    expect(choices.kind === "machine" && choices.states.map((s) => s.label)).toEqual([
+      "To be reviewed",
+      "Approved",
+    ]);
+    expect(statusLabel("QUALIFICATION")).toBe("Qualification");
+    expect(statusLabel("CLOSED_WON")).toBe("Closed won");
+    expect(statusLabel("on-hold")).toBe("On hold");
   });
 
   it("falls back to Draft and Final for a record type with no flow", () => {
