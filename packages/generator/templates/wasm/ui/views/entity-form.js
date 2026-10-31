@@ -198,6 +198,16 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     input.addEventListener("change", applyLogic);
   }
 
+  /* Which fields the person has changed since the record opened. A button press
+     saves these first (see the transition route) — so what was typed is kept
+     even when a workflow bound to the next status refuses the move. */
+  const touched = new Set();
+  for (const [column, input] of inputs) {
+    const mark = () => touched.add(column);
+    input.addEventListener("input", mark);
+    input.addEventListener("change", mark);
+  }
+
   /* `%%section`: the model's own headings, in its order, each a two-column
      grid in which a field alone on its row spans both columns. A model with
      no sections has one ungrouped "General" list, as it always did. */
@@ -364,6 +374,15 @@ export async function recordPanel(root, { entity, id, onClose, onSaved, navigate
     void renderNotes(notesSlot, entity, id);
     void renderAudit(auditSlot, entity, id);
   }
+
+  form.touchedValues = () => {
+    const values = {};
+    for (const column of touched) {
+      const input = inputs.get(column);
+      if (input) values[column] = input.type === "checkbox" ? input.checked : input.value;
+    }
+    return values;
+  };
 
   mount(
     root,
@@ -621,6 +640,24 @@ async function renderDetails(slot, entity, id, navigate) {
   if (sections.length) mount(slot, ...sections);
 }
 
+/* What the last press of a record's button came to, kept until the next press:
+   the panel is drawn again after every press, and a refusal has to survive that. */
+const pressNotices = new Map();
+
+function pressNotice(notice) {
+  return el(
+    "div.side__notice",
+    { role: "alert", "data-testid": "press-refused" },
+    el("strong", `${notice.label} did not go through`),
+    el(
+      "p",
+      `${notice.saved ? "Your changes were saved. " : ""}` +
+        `${notice.workflow ? `Workflow "${notice.workflow}" failed: ` : ""}${notice.message}. ` +
+        "The status did not change. Fix it and press the button again."
+    )
+  );
+}
+
 async function sidePanels(entity, id, record, onSaved, form, reload) {
   const panels = [];
 
@@ -636,17 +673,31 @@ async function sidePanels(entity, id, record, onSaved, form, reload) {
       } catch {
         actions = [];
       }
+      const noticeKey = `${entity.routeName}:${id}`;
       const press = async (action, button) => {
         button.disabled = true;
+        pressNotices.delete(noticeKey);
+        /* A move saves what was typed first, then runs the sagas bound to the
+           status it reaches; Reopen is not a save and leaves the form alone. */
+        const typed = action.kind === "move" && form?.touchedValues ? form.touchedValues() : {};
+        const data = Object.keys(typed).length ? typed : undefined;
         try {
           await api.post(
             `/bus/${entity.routeName}/${id}/transition`,
-            { event: action.event || undefined, to: action.to },
+            { event: action.event || undefined, to: action.to, ...(data ? { data } : {}) },
             record.version == null ? {} : { "If-Match": `"${record.version}"` }
           );
           toast(action.kind === "reopen" ? "Reopened — the record is a draft again." : `${action.label} — done.`, "success");
         } catch (error) {
-          toast(error.message || "The move was refused.", "error");
+          /* The refusal stays on the record, beside the buttons: the person has
+             to act on it, and a toast is gone before they have read it. */
+          const details = error.details || {};
+          pressNotices.set(noticeKey, {
+            label: action.label,
+            saved: details.phase === "workflow" && !!data,
+            workflow: details.workflow || null,
+            message: details.workflow ? details.reason || error.message : error.message || "The move was refused.",
+          });
         }
         /* The list beside it, and this panel: the record has moved (or was
            read afresh after a refusal), so its buttons are drawn again. */
@@ -683,6 +734,7 @@ async function sidePanels(entity, id, record, onSaved, form, reload) {
               ? `Final — ${title(workflow.current ?? "")}. Locked; reopen it to change it.`
               : `${workflow.workflow} — currently ${title(workflow.current ?? "unset")}`
           ),
+          pressNotices.has(noticeKey) ? pressNotice(pressNotices.get(noticeKey)) : null,
           moves.length || reopen
             ? el(
                 "div.side__actions",

@@ -184,8 +184,45 @@ async function deleteEntity(db, model, triggering, record, step, context) {
   return { step: step.nodeId, entity: target.name, deleted: rows.length };
 }
 
+/**
+ * A saga that failed while its caller owns the transaction. The caller rolls
+ * back — the run row dies with it — so it carries the workflow and the reason to
+ * put the failure back afterwards (`recordFailedSaga`) and to tell the person.
+ */
+export class SagaFailure extends Error {
+  constructor(workflow, reason, steps, operation) {
+    super(`Workflow "${workflow}" failed: ${reason}`);
+    this.name = "SagaFailure";
+    this.workflow = workflow;
+    this.reason = reason;
+    this.steps = steps;
+    this.operation = operation;
+  }
+}
+
+/**
+ * Put a failed run back after the transaction that held it rolled back, on the
+ * caller's own connection. Never throws: Run History is a record of the failure,
+ * not part of it.
+ */
+export async function recordFailedSaga(db, entity, record, failure, user) {
+  try {
+    await db.insert("sys_workflow_runs", {
+      workflow_name: failure.workflow,
+      entity_name: entity.name,
+      record_id: record.id,
+      trigger: "saga",
+      status: "failed",
+      detail: JSON.stringify({ operation: failure.operation ?? null, steps: failure.steps ?? [], error: failure.reason }),
+      created_by: user?.id ?? null,
+    });
+  } catch {
+    /* the move is already refused; a missing history row must not hide that */
+  }
+}
+
 /** Run one saga against the record that started it. */
-export async function runSaga(db, model, entity, record, saga, user) {
+export async function runSaga(db, model, entity, record, saga, user, options = {}) {
   const context = { ...record };
   const results = [];
   let status = "completed";
@@ -203,6 +240,11 @@ export async function runSaga(db, model, entity, record, saga, user) {
     } catch (error) {
       results.push({ step: step.nodeId, error: error.message });
       status = "failed";
+      // The caller owns a transaction: let it roll back rather than record a
+      // half-applied run that the rollback would take with it anyway.
+      if (options.throwOnError) {
+        throw new SagaFailure(saga.name, error.message, results, options.operation);
+      }
       break;
     }
   }
@@ -230,35 +272,75 @@ export async function runSaga(db, model, entity, record, saga, user) {
  * the moved rows are re-read and their UPDATE rules run again; only the sagas
  * those rules start are run, as `followStateWrites` does in the NestJS rules
  * service, to a depth of MAX_STATE_WRITE_DEPTH.
+ *
+ * `options` is for a button press, which is a write the person's request does
+ * not make but a move does:
+ *
+ *   bound          the operations a move runs workflows under, in order —
+ *                  `TRANSITION:<EVENT>` and `ENTER:<STATE>`. A saga declared
+ *                  `status: <state>` is stored as `ENTER:<STATE>`, so a plain
+ *                  save (UPDATE) never selects it.
+ *   skipAutomatic  the form was saved a moment ago by the same press, and the
+ *                  record's update sagas ran with that save.
+ *   throwOnError   the caller owns a transaction: a failing saga throws
+ *                  (SagaFailure) so it rolls back, instead of being recorded.
  */
 export async function runTriggeredSagas(
-  db, model, entity, record, operation, notifications, user, depth = 0
+  db, model, entity, record, operation, notifications, user, depth = 0, options = {}
 ) {
-  const names = new Set();
-  for (const item of notifications || []) {
-    const action = String(item.action || "").toLowerCase();
-    const name = item.workflowName || item.workflow;
-    if (action.startsWith("trigger") && name) names.add(String(name));
-  }
-  if (depth === 0) {
+  const names = new Map();
+  const add = (name, boundTo) => {
+    if (!names.has(name)) names.set(name, boundTo);
+  };
+  const automatic = () => {
+    if (depth !== 0 || options.skipAutomatic) return;
     for (const saga of model.sagas || []) {
       if (saga.entity !== entity.name || saga.trigger !== "automatic") continue;
-      if (saga.operation === "ALL" || saga.operation === operation) names.add(saga.name);
+      if (saga.operation === "ALL" || saga.operation === operation) add(saga.name);
     }
+  };
+  const bound = () => {
+    if (depth !== 0) return;
+    for (const wanted of options.bound || []) {
+      for (const saga of model.sagas || []) {
+        if (saga.entity !== entity.name || saga.trigger !== "automatic") continue;
+        if (String(saga.operation).toUpperCase() === wanted) add(saga.name, wanted);
+      }
+    }
+  };
+  const notified = () => {
+    for (const item of notifications || []) {
+      const action = String(item.action || "").toLowerCase();
+      const name = item.workflowName || item.workflow;
+      if (action.startsWith("trigger") && name) add(String(name));
+    }
+  };
+  // A move runs the record's update sagas, then those bound to it, then the ones
+  // its rules start — the order the NestJS stack keeps. A write keeps its own.
+  if (options.bound) {
+    automatic();
+    bound();
+    notified();
+  } else {
+    notified();
+    automatic();
   }
 
   const runs = [];
-  for (const name of names) {
+  for (const [name, boundTo] of names) {
     const saga = await sagaNamed(db, model, name);
     if (!saga) continue;
-    const run = await runSaga(db, model, entity, record, saga, user);
+    const run = await runSaga(db, model, entity, record, saga, user, {
+      throwOnError: options.throwOnError,
+      operation: boundTo ?? operation,
+    });
     runs.push(run);
-    runs.push(...(await followStateWrites(db, model, run, user, depth)));
+    runs.push(...(await followStateWrites(db, model, run, user, depth, options)));
   }
   return runs;
 }
 
-async function followStateWrites(db, model, run, user, depth) {
+async function followStateWrites(db, model, run, user, depth, options = {}) {
   if (depth >= MAX_STATE_WRITE_DEPTH) return [];
   const runs = [];
   for (const result of run.steps) {
@@ -284,7 +366,8 @@ async function followStateWrites(db, model, run, user, depth) {
       });
       runs.push(
         ...(await runTriggeredSagas(
-          db, model, target, row, "UPDATE", outcome.notifications, user, depth + 1
+          db, model, target, row, "UPDATE", outcome.notifications, user, depth + 1,
+          { throwOnError: options.throwOnError }
         ))
       );
     }
