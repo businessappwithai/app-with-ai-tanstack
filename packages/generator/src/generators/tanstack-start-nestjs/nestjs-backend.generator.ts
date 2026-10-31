@@ -1770,6 +1770,13 @@ export async function executeCustomValidateHooks(
         template: "src/migrations/023_editable_lifecycles.ts.hbs",
         required: true,
       },
+      // A workflow bound to a status is stored as ENTER:<STATE>, which the
+      // original varchar(20) of the operation column cannot hold.
+      {
+        slug: "widen_workflow_operation",
+        template: "src/migrations/024_widen_workflow_operation.ts.hbs",
+        required: true,
+      },
     ];
 
     // Drop previously generated scaffold migrations under *any* prefix. This

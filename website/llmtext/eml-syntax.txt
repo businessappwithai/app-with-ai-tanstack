@@ -844,8 +844,8 @@ it was, with the reason. `GET /api/bus/<entity>?awaiting=me` lists the records
 waiting for the caller.
 
 The word after the colon is the **transition event**. It names the move in the
-diagram, the viewers, the generated manual and the button ("Close won"); an edge
-with no label is the button "Move to <state>".
+diagram, the viewers, the generated manual and `%%rbac`. The button is named
+after the status it moves to ("Closed won"), labelled or not.
 
 ### 5.3 `kind: saga` — a multi-step process
 

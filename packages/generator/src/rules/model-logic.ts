@@ -16,7 +16,7 @@ import { type EmlWorkflowSection, extractWorkflowSections } from "../eml";
 
 export type ModelWorkflow = Pick<
   EmlWorkflowSection,
-  "name" | "entity" | "kind" | "trigger" | "operation" | "title" | "diagram"
+  "name" | "entity" | "kind" | "trigger" | "operation" | "status" | "title" | "diagram"
 >;
 
 /** Every `%%workflow` section of the document(s) the application was generated from. */
@@ -29,6 +29,7 @@ export function buildModelLogic(sources: string | string[]): ModelWorkflow[] {
     kind: workflow.kind,
     ...(workflow.trigger ? { trigger: workflow.trigger } : {}),
     ...(workflow.operation ? { operation: workflow.operation } : {}),
+    ...(workflow.status ? { status: workflow.status } : {}),
     ...(workflow.title ? { title: workflow.title } : {}),
     diagram: workflow.diagram,
   }));
@@ -49,6 +50,8 @@ export interface ModelWorkflow {
   kind: "hook" | "state" | "saga";
   trigger?: "automatic" | "rule";
   operation?: "CREATE" | "UPDATE" | "DELETE" | "ALL";
+  /** The state whose entering move starts it. */
+  status?: string;
   title?: string;
   diagram: string;
 }

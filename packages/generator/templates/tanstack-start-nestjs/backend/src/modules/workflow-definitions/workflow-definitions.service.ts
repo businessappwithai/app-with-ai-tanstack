@@ -6,6 +6,7 @@ import {
   lifecycleFromDiagram,
   lifecycleOf,
   modelLifecycleOf,
+  normalizeLifecycleEvent,
   type Lifecycle,
 } from "../../common/lifecycle";
 import { compileAutomationBpmn, tableForEntity } from "./automation-compiler";
@@ -29,7 +30,12 @@ export function lifecycleTableFor(entity: string): string {
 export type WorkflowDefinitionDto = {
   name: string;
   entityName: string;
-  operation: "CREATE" | "UPDATE" | "DELETE" | "ALL";
+  /**
+   * Which write runs it. `ENTER:<STATE>` binds it to the move into a state of the
+   * record type's status flow (and `TRANSITION:<EVENT>` to one drawn move): it
+   * runs in the second transaction of the button press, never on a plain save.
+   */
+  operation: "CREATE" | "UPDATE" | "DELETE" | "ALL" | `ENTER:${string}` | `TRANSITION:${string}`;
   /** BPMN diagrams carry XML; automations carry mermaid. Exactly one is required. */
   bpmnXml?: string;
   /** Mermaid with `%%` directives, as the automation builder writes it. */
@@ -54,6 +60,40 @@ export type WorkflowDefinitionDto = {
    */
   triggerType?: "automatic" | "rule";
 };
+
+const OPERATION = /^(CREATE|UPDATE|DELETE|ALL|ENTER:[A-Z0-9_]+|TRANSITION:[A-Z0-9_]+)$/;
+
+/**
+ * An operation is one of the four writes, or a binding to a move. A binding has
+ * to name something the record type's status flow draws: stored against a state
+ * that is not there, it would be accepted, listed in Rules and workflows, and
+ * never run.
+ */
+export function assertOperation(entityName: string, operation: string): void {
+  if (!OPERATION.test(operation)) {
+    throw new BadRequestException(
+      `"${operation}" is not an operation. Use CREATE, UPDATE, DELETE, ALL, ENTER:<STATE> or TRANSITION:<EVENT>.`,
+    );
+  }
+  const [kind, wanted] = operation.split(":");
+  if (!wanted) return;
+  const lifecycle = lifecycleOf(lifecycleTableFor(entityName));
+  if (!lifecycle?.hasMachine) {
+    throw new BadRequestException(
+      `${entityName} has no status flow, so ${operation} can never run. Draw one, or use UPDATE.`,
+    );
+  }
+  const drawn =
+    kind === "ENTER"
+      ? lifecycle.edges.some((edge) => normalizeLifecycleEvent(edge.to).toUpperCase() === wanted)
+      : lifecycle.edges.some((edge) => edge.event.toUpperCase() === wanted);
+  if (!drawn) {
+    const names = lifecycle.edges.map((edge) => (kind === "ENTER" ? edge.to : edge.event));
+    throw new BadRequestException(
+      `${entityName}'s status flow does not draw "${wanted.toLowerCase()}". It draws: ${[...new Set(names)].join(", ")}.`,
+    );
+  }
+}
 
 /**
  * Content fields a model-owned definition will not accept through the API.
@@ -168,6 +208,8 @@ export class WorkflowDefinitionsService {
       if (!dto.bpmnXml.includes("<bpmn:")) throw new BadRequestException("Invalid BPMN XML");
     }
 
+    assertOperation(dto.entityName, dto.operation ?? "ALL");
+
     const [result] = await this.db
       .insertInto("sys_workflow_definitions")
       .values({
@@ -217,7 +259,10 @@ export class WorkflowDefinitionsService {
     const updates: Record<string, unknown> = { updated_at: new Date() };
     if (dto.name !== undefined) updates.name = dto.name;
     if (dto.entityName !== undefined) updates.entity_name = dto.entityName;
-    if (dto.operation !== undefined) updates.operation = dto.operation;
+    if (dto.operation !== undefined) {
+      assertOperation(dto.entityName ?? (existing as any).entity_name, dto.operation);
+      updates.operation = dto.operation;
+    }
     if (dto.bpmnXml !== undefined) updates.bpmn_xml = dto.bpmnXml;
     // The automation builder's whole document. Leaving it out of the update
     // meant every save — the draft and Publish alike — kept the steps the
